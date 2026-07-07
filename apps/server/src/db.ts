@@ -8,7 +8,7 @@ import { dirname } from "node:path";
  * Two-plane principle (§0/§5/§7 invariant 7): the knowledge plane and the place
  * plane are SEPARATE streams.
  *   knowledge — problem_objects, ledger_events (append-only, hash-chained), refs
- *   place     — stations, placements, memberships, capability_grants, footprints
+ *   place     — stations, placements, memberships, capability_grants
  * plus a sessions table for auth.
  *
  * The `problem_objects.md_source` column is the authoritative knowledge-plane
@@ -79,15 +79,6 @@ CREATE TABLE IF NOT EXISTS capability_grants (
   granted_by TEXT,
   event_hash TEXT,
   PRIMARY KEY (op_id, agent_id, capability)
-);
-
-CREATE TABLE IF NOT EXISTS footprints (
-  id       INTEGER PRIMARY KEY AUTOINCREMENT,
-  op_id    TEXT NOT NULL,
-  actor_id TEXT NOT NULL,
-  gx       INTEGER,
-  gy       INTEGER,
-  ts       TEXT
 );
 
 CREATE TABLE IF NOT EXISTS sessions (

@@ -14,8 +14,5 @@
     "typescript": "^5.7.2",
     "vitest": "^3.0.0",
     "@types/node": "^22.10.0"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": ["better-sqlite3", "esbuild"]
   }
 }
