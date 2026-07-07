@@ -190,8 +190,8 @@ export function createYjsHandler(store: Store): YjsHandler {
       if (room.conns.size === 0) {
         try {
           foldCanvas(room);
-        } catch {
-          /* fold is best-effort */
+        } catch (e) {
+          console.error("[yjs] canvas fold failed", room.name, e);
         }
         room.awareness.destroy();
         room.doc.destroy();

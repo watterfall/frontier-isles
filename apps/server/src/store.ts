@@ -33,6 +33,7 @@ import {
 } from "@frontier-isles/core";
 import type { DB } from "./db.js";
 import { refHash, type RefKind } from "./refs.js";
+import { randomBytes } from "node:crypto";
 
 export const ORG = "frontier-isles";
 export const opIdFor = (slug: string) => `op://${ORG}/prob/${slug}`;
@@ -795,5 +796,5 @@ export function slugOf(opId: string): string {
 }
 
 function randomToken(): string {
-  return refHash({ t: Date.now(), r: Math.random() }).slice(7, 39);
+  return randomBytes(32).toString("hex");
 }

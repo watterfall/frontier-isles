@@ -175,14 +175,14 @@ export function createApp(store: Store): Hono {
   // --- auth -----------------------------------------------------------------
 
   app.post("/api/auth/dev-login", async (c) => {
-    if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET && process.env.NODE_ENV === "production") {
+    if (process.env.NODE_ENV === "production") {
       return c.json({ error: "dev-login disabled" }, 403);
     }
     const body = await c.req.json().catch(() => null);
     const handle = body?.handle;
     if (!handle || typeof handle !== "string") return c.json({ error: "handle required" }, 400);
     const { token, actor } = store.createSession(handle);
-    setCookie(c, SESSION_COOKIE, token, { httpOnly: true, sameSite: "Lax", path: "/" });
+    setCookie(c, SESSION_COOKIE, token, { httpOnly: true, sameSite: "Lax", path: "/", secure: WEB_ORIGIN.startsWith("https") });
     return c.json({ actor });
   });
 
@@ -242,7 +242,7 @@ export function createApp(store: Store): Hono {
       const user = (await userRes.json()) as { login?: string };
       if (!user.login) return c.json({ error: "no login" }, 401);
       const { token } = store.createSession(user.login);
-      setCookie(c, SESSION_COOKIE, token, { httpOnly: true, sameSite: "Lax", path: "/" });
+      setCookie(c, SESSION_COOKIE, token, { httpOnly: true, sameSite: "Lax", path: "/", secure: WEB_ORIGIN.startsWith("https") });
       return c.redirect(WEB_ORIGIN);
     } catch {
       return c.json({ error: "oauth error" }, 500);
