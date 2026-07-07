@@ -40,7 +40,7 @@ export function QftPanel({ open, onClose, qs, voted, focusIdx, advOn, onCloseAdv
       >
         <ScrollRod />
         <div style={{ position: 'relative', flex: 1, background: '#FAF5E8', backgroundImage: 'repeating-linear-gradient(0deg,rgba(43,38,32,0.016) 0 1px,transparent 1px 3px)', borderLeft: '1.5px solid #3A342B', borderRight: '1.5px solid #3A342B', overflowY: 'auto', padding: '22px 26px' }}>
-          <div style={{ position: 'absolute', right: 2, top: 56, fontFamily: "'Noto Serif SC',serif", fontSize: 150, fontWeight: 900, color: 'rgba(181,103,58,0.05)', pointerEvents: 'none', lineHeight: 1 }}>問</div>
+          <div style={{ position: 'absolute', right: 2, top: 56, fontFamily: "'Noto Serif SC',serif", fontSize: 150, fontWeight: 900, color: 'rgba(181,103,58,0.05)', pointerEvents: 'none', lineHeight: 1 }}>问</div>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>

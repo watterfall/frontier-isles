@@ -20,6 +20,7 @@ export const zh = {
     legendBridge: '桥 · 跨学科',
     legendLineage: '血缘 · fork',
     legendOutlier: '离群 · 反常发光',
+    lineage: 'fork · 血缘',
     footer: '平远 · 界画式海图 · 语义缩放 L0 → 点岛入 L1',
     filters: { 全部: '全部', 数理: '数理', 物质: '物质', 生命: '生命', 交叉: '交叉' },
     card: {
@@ -42,6 +43,8 @@ export const zh = {
     back: '返回海图',
     loading: '岛影升起中…',
     notReachable: '此岛暂时无法抵达（服务未响应）',
+    dissolved: '雾岛 · 已消散',
+    devFooter: 'frontier-isles / web · 1440×900 · {{n}} 岛 · {{slug}}',
     qfocusPrefix: 'QFocus · ',
     academy: '书院',
     residents: '9 位居民',

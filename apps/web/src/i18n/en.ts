@@ -21,6 +21,7 @@ export const en: Resources = {
     legendBridge: 'Bridge · cross-domain',
     legendLineage: 'Lineage · fork',
     legendOutlier: 'Outlier · anomaly glow',
+    lineage: 'fork · lineage',
     footer: 'Level distance · jiehua sea chart · semantic zoom L0 → tap an isle for L1',
     filters: { 全部: 'All', 数理: 'Math', 物质: 'Matter', 生命: 'Life', 交叉: 'Cross' },
     card: {
@@ -43,6 +44,8 @@ export const en: Resources = {
     back: 'Back to chart',
     loading: 'The island is rising…',
     notReachable: 'This island is unreachable for now (server not responding)',
+    dissolved: 'Mist island · dissolved',
+    devFooter: 'frontier-isles / web · 1440×900 · {{n}} islands · {{slug}}',
     qfocusPrefix: 'QFocus · ',
     academy: 'Academy',
     residents: '9 residents',

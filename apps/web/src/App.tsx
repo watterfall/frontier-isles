@@ -65,7 +65,7 @@ export default function App() {
   const [selSlug, setSelSlug] = useState<string | null>(null);
   const [panel, setPanel] = useState(false);
   // ── D2 sail: a ferry boat animates across the chart before the wipe ──────
-  const [sailing, setSailing] = useState<{ fromX: number; fromY: number; toX: number; toY: number; slug: string; t: number } | null>(null);
+  const [sailing, setSailing] = useState<{ fromX: number; fromY: number; toX: number; toY: number; cx: number; cy: number; slug: string; t: number } | null>(null);
   const [sailingPos, setSailingPos] = useState<{ x: number; y: number } | null>(null);
   const lastIslandPos = useRef<{ x: number; y: number }>({ x: 760, y: 470 });
   const [stFilter, setStFilter] = useState('全部');
@@ -144,10 +144,22 @@ export default function App() {
   // ── handlers ─────────────────────────────────────────────────────────
   const onIsland = useCallback(
     (d: IslandDatum) => {
-      if (sailing || wipe.phase !== 'idle') return; // ignore while a journey/wipe is in progress
+      if (sailing || wipe.phase !== 'idle') return;
       const from = lastIslandPos.current;
       lastIslandPos.current = { x: d.x, y: d.y };
-      setSailing({ fromX: from.x, fromY: from.y, toX: d.x, toY: d.y, slug: d.slug ?? SAMPLE_SLUG, t: Date.now() });
+      const mx = (from.x + d.x) / 2;
+      const my = (from.y + d.y) / 2;
+      setSailing({ fromX: from.x, fromY: from.y, toX: d.x, toY: d.y, cx: mx, cy: my - 30, slug: d.slug ?? SAMPLE_SLUG, t: Date.now() });
+    },
+    [sailing, wipe.phase],
+  );
+
+  // Clicking a bridge sails along its arc to the far island (§4 ferryman route).
+  const onBridge = useCallback(
+    (b: { fromPos: { x: number; y: number }; toPos: { x: number; y: number }; arc: { cx: number; cy: number }; toSlug: string; toX: number; toY: number }) => {
+      if (sailing || wipe.phase !== 'idle') return;
+      lastIslandPos.current = { x: b.toX, y: b.toY };
+      setSailing({ fromX: b.fromPos.x, fromY: b.fromPos.y, toX: b.toPos.x, toY: b.toPos.y, cx: b.arc.cx, cy: b.arc.cy, slug: b.toSlug, t: Date.now() });
     },
     [sailing, wipe.phase],
   );
@@ -176,23 +188,27 @@ export default function App() {
     [actor, showToast, t],
   );
 
-  // When a sail is set, animate the boat from→to, then trigger the wipe.
+  // Sail along a quadratic Bezier arc, then trigger the wipe.
   useEffect(() => {
     if (!sailing) return;
-    setSailingPos({ x: sailing.fromX, y: sailing.fromY });
-    // Double rAF so the browser paints the `from` position before transitioning.
-    const raf = requestAnimationFrame(() =>
-      requestAnimationFrame(() => setSailingPos({ x: sailing.toX, y: sailing.toY })),
-    );
-    const id = window.setTimeout(() => {
-      setSelSlug(sailing.slug);
-      startWipe('island');
-      setSailing(null);
-    }, 950);
-    return () => {
-      cancelAnimationFrame(raf);
-      clearTimeout(id);
+    let raf = 0;
+    const start = performance.now();
+    const dur = 950;
+    const { fromX, fromY, toX, toY, cx, cy, slug } = sailing;
+    const tick = (now: number) => {
+      const t = Math.min((now - start) / dur, 1);
+      const mt = 1 - t;
+      setSailingPos({ x: mt * mt * fromX + 2 * mt * t * cx + t * t * toX, y: mt * mt * fromY + 2 * mt * t * cy + t * t * toY });
+      if (t < 1) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        setSelSlug(slug);
+        startWipe('island');
+        setSailing(null);
+      }
     };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
   }, [sailing, startWipe]);
 
   const goChart = useCallback(() => {
@@ -348,13 +364,14 @@ export default function App() {
               onIsland={onIsland}
               onBuild={() => dispatchCeremony({ type: 'start' })}
               onCollide={() => setCollideOn(true)}
+              onBridge={onBridge}
             />
           )}
 
           {/* D2 渡船 — a ferry sails across the chart before the wipe to L1 */}
           {sailing && sailingPos && (
             <svg viewBox="0 0 1440 900" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 50 }}>
-              <g style={{ transform: `translate(${sailingPos.x}px, ${sailingPos.y}px)`, transition: 'transform 0.95s cubic-bezier(0.4,0,0.2,1)' }}>
+              <g style={{ transform: `translate(${sailingPos.x}px, ${sailingPos.y}px)` }}>
                 <path d="M -40 8 Q -20 4 0 8 Q 20 12 40 8" stroke="#BFCEDB" strokeWidth="1.5" fill="none" opacity="0.6" strokeDasharray="3 4" />
                 <Boat x={0} y={0} variant="sail" bobSeconds={1.2} />
               </g>
@@ -376,7 +393,7 @@ export default function App() {
       </div>
 
       <div style={{ marginTop: 10, fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 11, color: '#8C8270' }}>
-        frontier-isles / web · 1440×900 · {DATA.length} 岛 · {SAMPLE_SLUG}
+        {t('island.devFooter', { n: DATA.length, slug: SAMPLE_SLUG })}
       </div>
     </div>
   );

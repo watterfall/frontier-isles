@@ -24,6 +24,7 @@ export interface ChartScreenProps {
   onIsland: (d: IslandDatum) => void;
   onBuild: () => void;
   onCollide: () => void;
+  onBridge: (b: { fromPos: { x: number; y: number }; toPos: { x: number; y: number }; arc: { cx: number; cy: number }; toSlug: string; toX: number; toY: number }) => void;
 }
 
 const DOMAIN_KEYS = ['全部', '数理', '物质', '生命', '交叉'] as const;
@@ -87,7 +88,7 @@ function Buildings({ d }: { d: IslandDatum }) {
   );
 }
 
-export function ChartScreen({ islands, filter, onFilter, hover, onHover, onIsland, onBuild, onCollide }: ChartScreenProps) {
+export function ChartScreen({ islands, filter, onFilter, hover, onHover, onIsland, onBuild, onCollide, onBridge }: ChartScreenProps) {
   const { t } = useTranslation();
 
   const hd = islands.find((d) => d.id === hover);
@@ -123,24 +124,27 @@ export function ChartScreen({ islands, filter, onFilter, hover, onHover, onIslan
         <Boat x={478} y={692} variant="sail" bobSeconds={6} />
         <Boat x={1150} y={556} variant="sail" bobSeconds={7} bobDelaySeconds={1} />
 
-        {/* 同方程桥 — real isomorphism bridges with formula glyphs (§4/§6) */}
+        {/* 同方程桥 — navigable ferry routes; click to sail along the arc (§4) */}
         {BRIDGES.map((b, i) => {
           const d = `M ${b.fromPos.x} ${b.fromPos.y} Q ${b.arc.cx} ${b.arc.cy} ${b.toPos.x} ${b.toPos.y}`;
-          const midX = (b.fromPos.x + b.toPos.x) / 2;
+          const toIsland = islands.find((is) => is.slug === b.to);
           const tickX = b.arc.cx;
           const tickY = b.arc.cy;
           return (
-            <ChartBridge
-              key={i}
-              d={d}
-              ticks={`M ${tickX - 16} ${tickY} v 7 M ${tickX} ${tickY} v 7 M ${tickX + 16} ${tickY} v 7`}
-              label={`桥 · ${b.formula}`}
-              labelX={b.labelPos.x}
-              labelY={b.labelPos.y}
-            />
+            <g key={i} style={{ cursor: 'pointer' }} onClick={() => onBridge({ fromPos: b.fromPos, toPos: b.toPos, arc: b.arc, toSlug: b.to, toX: toIsland?.x ?? b.toPos.x, toY: toIsland?.y ?? b.toPos.y })}>
+              <path d={d} fill="none" stroke="#5B45C9" strokeWidth="2.5" opacity="0.25" />
+              <path d={d} fill="none" stroke="#8E99BE" strokeWidth="1.5" strokeDasharray="4 5" opacity="0.7" />
+              <path d={`M ${tickX - 16} ${tickY} v 7 M ${tickX} ${tickY} v 7 M ${tickX + 16} ${tickY} v 7`} stroke="#5B45C9" strokeWidth="1" opacity="0.5" fill="none" />
+              <g transform={`translate(${b.arc.cx}, ${b.arc.cy - 18})`}>
+                <rect x="-44" y="-10" width="88" height="18" rx="9" fill="rgba(250,245,232,0.92)" stroke="#5B45C9" strokeWidth="0.75" />
+                <text x="0" y="3.5" textAnchor="middle" fontSize="9" fill="#5B45C9" style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace" }}>
+                  {b.formula}
+                </text>
+              </g>
+            </g>
           );
         })}
-        <LineageLine d="M 802 522 Q 866 556 924 602" labelX={872} labelY={556} label="fork · 血缘" />
+        <LineageLine d="M 802 522 Q 866 556 924 602" labelX={872} labelY={556} label={t('chart.lineage')} />
 
         {/* 20（+新生）座岛 */}
         {islands.map((d) => {
@@ -212,11 +216,10 @@ export function ChartScreen({ islands, filter, onFilter, hover, onHover, onIslan
                 rendering for this string, and robust on systems whose CJK fonts
                 lack vertical metrics. */}
             <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', fontFamily: "'Noto Serif SC',serif", fontWeight: 900, fontSize: 21, color: '#2B2620', lineHeight: 1.16 }}>
-              {['問', '題', '群', '島'].map((ch) => (
+              {['问', '题', '群', '岛'].map((ch) => (
                 <span key={ch}>{ch}</span>
               ))}
             </span>
-            <span style={{ width: 24, height: 24, background: '#B5673A', borderRadius: 2, color: '#F6F2E6', fontSize: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Noto Serif SC',serif" }}>格致</span>
           </div>
           <div style={{ paddingTop: 4 }}>
             <div style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 10.5, color: '#6B6154', letterSpacing: '0.22em' }}>{t('chart.latin')}</div>

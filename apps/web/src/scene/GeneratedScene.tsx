@@ -1,4 +1,5 @@
 import type { JSX } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   SceneDefs,
   GrainOverlay,
@@ -16,7 +17,6 @@ import {
   HangingLantern,
   GhostArtifact,
   ResidentFigure,
-  IslandMound,
   StationLibrary,
   StationWhiteboardHall,
   StationQuestionWall,
@@ -29,13 +29,6 @@ import {
 } from '@frontier-isles/assets';
 import type { StationKind } from '@frontier-isles/core';
 import type { GeneratedScene, GenScenery } from './generator';
-
-const DOMAIN_FILL: Record<string, string> = {
-  数理: '#C9D8E6',
-  物质: '#E8CFAE',
-  生命: '#C6DECC',
-  交叉: '#ECDFB4',
-};
 
 const STATION_COMPONENTS: Record<StationKind, (p: { x?: number; y?: number; onClick: () => void; selected: boolean }) => JSX.Element> = {
   library: (p) => <StationLibrary {...p} />,
@@ -76,7 +69,7 @@ export interface GeneratedSceneProps {
   scene: GeneratedScene;
   night: boolean;
   /** Night timeline position 1..86 (gates ghosts). */
-  t: number;
+  nightT: number;
   onStation: (key: StationKind) => void;
 }
 
@@ -86,9 +79,9 @@ export interface GeneratedSceneProps {
  * island base, stations, scenery, residents, and night layer are all data-
  * driven — no hardcoded layout (architecture §1).
  */
-export function GeneratedSceneView({ scene, night, t, onStation }: GeneratedSceneProps) {
-  const { stations, scenery, residents, ghosts, domain, dormant, status, outlier, tide } = scene;
-  const moundFill = dormant || status === 'dissolved' ? '#D8D3C2' : DOMAIN_FILL[domain] ?? '#ECDFB4';
+export function GeneratedSceneView({ scene, night, nightT, onStation }: GeneratedSceneProps) {
+  const { t } = useTranslation();
+  const { stations, scenery, residents, ghosts, lanterns, domain, dormant, status, outlier, tide } = scene;
   // Tide N = A − D. Moon-on-water intensity: more night-science activity (|N|)
   // = brighter reflection. Subtle, no dashboards (§4). Positive N (divergence
   // dominates) lifts the streak; negative sinks it.
@@ -113,9 +106,6 @@ export function GeneratedSceneView({ scene, night, t, onStation }: GeneratedScen
       {/* 域植被 */}
       {scenery.map((p, i) => renderScenery(p, i))}
 
-      {/* 岛基 */}
-      <IslandMound variant={0} fill={moundFill} />
-
       {/* 创世石 */}
       <CreationStone />
 
@@ -124,10 +114,10 @@ export function GeneratedSceneView({ scene, night, t, onStation }: GeneratedScen
         <circle cx="760" cy="474" r="200" fill="url(#outGlow)" style={{ animation: 'pulseGlow 3.2s ease-in-out infinite' }} opacity={0.5} />
       )}
 
-      {/* 站（按 stage 可见性门控） */}
+      {/* 站（按 stage 可见性门控；用资产内嵌默认位置，与样本一致） */}
       {stations.filter((s) => s.visible).map((s) => {
         const Comp = STATION_COMPONENTS[s.kind];
-        return <Comp key={s.kind} x={s.x} y={s.y} onClick={() => onStation(s.kind)} selected={false} />;
+        return <Comp key={s.kind} onClick={() => onStation(s.kind)} selected={false} />;
       })}
 
       {/* 终局叠加 · dissolved → 雾岛 (never deleted; the ledger lives) */}
@@ -138,7 +128,7 @@ export function GeneratedSceneView({ scene, night, t, onStation }: GeneratedScen
           <ellipse cx="840" cy="450" rx="200" ry="100" fill="#EDE8DA" opacity="0.5" style={{ animation: 'waveDrift 9s ease-in-out infinite reverse' }} />
           <ellipse cx="760" cy="540" rx="280" ry="80" fill="#E0DBCA" opacity="0.45" />
           <text x="760" y="300" textAnchor="middle" fontSize="13" fill="#9C927E" style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 600, letterSpacing: '0.15em' }}>
-            雾岛 · 已消散
+            {t('island.dissolved')}
           </text>
         </g>
       )}
@@ -176,9 +166,9 @@ export function GeneratedSceneView({ scene, night, t, onStation }: GeneratedScen
       {/* 夜晚层 */}
       {night && (
         <g>
-          <HangingLantern x={1032} y={342} size="large" swaySeconds={3.4} />
-          <HangingLantern x={616} y={318} size="large" swaySeconds={4.1} />
-          <HangingLantern x={846} y={556} size="small" swaySeconds={3.8} />
+          {lanterns.map((l, i) => (
+            <HangingLantern key={i} x={l.x} y={l.y} size={l.size} swaySeconds={l.sway} />
+          ))}
           <Fireflies />
           {/* 潮汐月影 — moon-on-water streak, intensity/position from N=A−D (§4).
               More night-science activity = brighter reflection; divergence (N>0)
@@ -198,7 +188,7 @@ export function GeneratedSceneView({ scene, night, t, onStation }: GeneratedScen
           )}
           {/* 魂影，按时间轴阈值渐显（账本驱动） */}
           {ghosts.map((g) => (
-            <GhostArtifact key={g.type} type={g.type} opacity={t >= g.threshold ? 0.85 : 0} />
+            <GhostArtifact key={g.type} type={g.type} opacity={nightT >= g.threshold ? 0.85 : 0} />
           ))}
         </g>
       )}

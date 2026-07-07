@@ -48,8 +48,6 @@ function mulberry32(seed: number): () => number {
 
 export interface GenStation {
   kind: StationKind;
-  x: number;
-  y: number;
   visible: boolean;
 }
 
@@ -79,6 +77,7 @@ export interface GeneratedScene {
   scenery: GenScenery[];
   residents: GenResident[];
   ghosts: GenGhost[];
+  lanterns: Array<{ x: number; y: number; size: 'large' | 'small'; sway: number }>;
   domain: Domain;
   stage: number;
   dormant: boolean;
@@ -90,19 +89,13 @@ export interface GeneratedScene {
 
 // ── station footprint (the prototype's laid-out positions, reused) ─────────
 
-/** The 9 stations at the prototype's baked positions. The station asset
- *  components default to these x/y when none is passed; we surface them here
- *  so the generator can gate visibility per stage. */
-const STATION_FOOTPRINT: Array<{ kind: StationKind; x: number; y: number }> = [
-  { kind: 'library', x: 760, y: 296 },
-  { kind: 'canvas', x: 600, y: 468 },
-  { kind: 'questions', x: 976, y: 392 },
-  { kind: 'data', x: 959, y: 550 },
-  { kind: 'workshop', x: 470, y: 600 },
-  { kind: 'gallery', x: 760, y: 700 },
-  { kind: 'tearoom', x: 880, y: 650 },
-  { kind: 'driftwood', x: 790, y: 606 },
-  { kind: 'dock', x: 836, y: 792 },
+/** The 9 station kinds. The station ASSET components carry their own baked
+ *  default x/y (the prototype's carefully laid-out positions within the
+ *  ground diamond). We do NOT pass x/y — we let stations render at their
+ *  baked defaults (exactly like the sample Scene.tsx), only gating visibility
+ *  per stage. This guarantees stations never float outside the island. */
+const STATION_KINDS_LIST: StationKind[] = [
+  'library', 'canvas', 'questions', 'data', 'workshop', 'gallery', 'tearoom', 'driftwood', 'dock',
 ];
 
 /** Which stations appear at each growth stage (§4: empty → hut → academy → school).
@@ -110,13 +103,13 @@ const STATION_FOOTPRINT: Array<{ kind: StationKind; x: number; y: number }> = [
 function stationsForStage(stage: number): Set<StationKind> {
   if (stage <= 0) return new Set<StationKind>(['questions', 'dock']);
   if (stage === 1) return new Set<StationKind>(['questions', 'workshop', 'driftwood', 'dock']);
-  if (stage === 2) return new Set<StationKind>(['library', 'canvas', 'questions', 'data', 'workshop', 'gallery', 'tearoom', 'driftwood', 'dock']);
   return new Set<StationKind>(['library', 'canvas', 'questions', 'data', 'workshop', 'gallery', 'tearoom', 'driftwood', 'dock']);
 }
 
-// ── domain biomes ──────────────────────────────────────────────────────────
+// ── domain biomes + per-slug personalization ──────────────────────────────
 
-/** Tree positions (8 slots, sampled per-domain). */
+/** 8 tree slots (the prototype's positions). Per-island we pick a random
+ *  subset (3–8) with ±12px positional jitter so same-domain islands differ. */
 const TREE_SLOTS = [
   { x: 340, y: 436, scale: 1.3 },
   { x: 392, y: 398, scale: 1 },
@@ -128,6 +121,11 @@ const TREE_SLOTS = [
   { x: 982, y: 606, scale: 1 },
 ];
 
+/** jitter a coordinate by ±px deterministically. */
+function jitter(rng: () => number, v: number, px: number): number {
+  return v + Math.round((rng() - 0.5) * 2 * px);
+}
+
 function sceneryForDomain(domain: Domain, rng: () => number): GenScenery[] {
   const base: GenScenery[] = [
     { kind: 'reef', variant: 0 },
@@ -137,19 +135,28 @@ function sceneryForDomain(domain: Domain, rng: () => number): GenScenery[] {
     { kind: 'desirePath' },
     { kind: 'creationStone' },
   ];
+  // Per-slug tree count: 3–8, randomly selected slots with jitter.
+  const treeCount = 3 + Math.floor(rng() * 6);
+  const shuffled = [...TREE_SLOTS].sort(() => rng() - 0.5).slice(0, treeCount);
+  const trees: GenScenery[] = shuffled.map((t) => ({
+    kind: 'tree' as const,
+    x: jitter(rng, t.x, 12),
+    y: jitter(rng, t.y, 10),
+    scale: t.scale * (0.85 + rng() * 0.3),
+  }));
   switch (domain) {
     case '数理':
-      // Stone/cold — fewer trees, bare rock feel.
-      return [...base, { kind: 'tree', ...TREE_SLOTS[2]!, scale: 1.1 }, { kind: 'tree', ...TREE_SLOTS[3]!, scale: 0.85 }];
+      // Stone/cold — fewer trees (pick half), bare rock feel.
+      return [...base, ...trees.slice(0, Math.ceil(trees.length / 2))];
     case '物质':
       // Bamboo + sparse trees, warm metallic.
-      return [...base, { kind: 'bamboo' }, { kind: 'tree', ...TREE_SLOTS[4]!, scale: 1 }, { kind: 'tree', ...TREE_SLOTS[6]!, scale: 0.9 }];
+      return [...base, { kind: 'bamboo' }, ...trees.slice(0, Math.max(2, Math.ceil(trees.length / 2)))];
     case '生命':
-      // Verdant — trees + lotus pond.
-      return [...base, { kind: 'lotus' }, ...TREE_SLOTS.map((t) => ({ kind: 'tree' as const, ...t }))];
+      // Verdant — all trees + lotus pond.
+      return [...base, { kind: 'lotus' }, ...trees];
     case '交叉':
-      // Mixed — lotus + bamboo + half the trees.
-      return [...base, { kind: 'lotus' }, { kind: 'bamboo' }, ...TREE_SLOTS.filter((_, i) => i % 2 === 0).map((t) => ({ kind: 'tree' as const, ...t }))];
+      // Mixed — lotus + bamboo + ~2/3 of the trees.
+      return [...base, { kind: 'lotus' }, { kind: 'bamboo' }, ...trees.slice(0, Math.ceil(trees.length * 2 / 3))];
   }
 }
 
@@ -166,15 +173,34 @@ const RESIDENT_SLOTS = [
 
 function residentsForMembers(members: number, hasAi: boolean, rng: () => number): GenResident[] {
   const count = Math.min(members, RESIDENT_SLOTS.length);
-  const out: GenResident[] = [];
-  for (let i = 0; i < count; i++) {
-    out.push({ ...RESIDENT_SLOTS[i]!, kind: 'human' });
-  }
+  // Shuffle slots so different islands place residents at different stations.
+  const shuffled = [...RESIDENT_SLOTS].sort(() => rng() - 0.5).slice(0, count);
+  const out: GenResident[] = shuffled.map((s) => ({
+    x: jitter(rng, s.x, 14),
+    y: jitter(rng, s.y, 10),
+    kind: 'human' as const,
+  }));
   if (hasAi) {
-    // Place a literature scout near the library.
-    out.push({ x: 820, y: 398, kind: 'ai', aiRole: 'scout' });
+    out.push({ x: jitter(rng, 820, 20), y: jitter(rng, 398, 14), kind: 'ai', aiRole: 'scout' });
   }
   return out;
+}
+
+/** Per-slug lantern positions (2–4, jittered) for the night layer. */
+export function lanternsForSlug(rng: () => number): Array<{ x: number; y: number; size: 'large' | 'small'; sway: number }> {
+  const count = 2 + Math.floor(rng() * 3); // 2–4
+  const slots = [
+    { x: 1032, y: 342, size: 'large' as const, sway: 3.4 },
+    { x: 616, y: 318, size: 'large' as const, sway: 4.1 },
+    { x: 846, y: 556, size: 'small' as const, sway: 3.8 },
+    { x: 770, y: 636, size: 'small' as const, sway: 4.5 },
+  ];
+  return slots.sort(() => rng() - 0.5).slice(0, count).map((l) => ({
+    x: jitter(rng, l.x, 16),
+    y: jitter(rng, l.y, 12),
+    size: l.size,
+    sway: l.sway + (rng() - 0.5),
+  }));
 }
 
 // ── the generator ──────────────────────────────────────────────────────────
@@ -198,9 +224,9 @@ export interface GenerateInput {
 export function generate(input: GenerateInput): GeneratedScene {
   const rng = mulberry32(slugHash(input.slug));
   const visible = stationsForStage(input.stage);
-  const stations: GenStation[] = STATION_FOOTPRINT.map((s) => ({
-    ...s,
-    visible: visible.has(s.kind),
+  const stations: GenStation[] = STATION_KINDS_LIST.map((kind) => ({
+    kind,
+    visible: visible.has(kind),
   }));
   const scenery = sceneryForDomain(input.domain, rng);
   const residents =
@@ -223,6 +249,7 @@ export function generate(input: GenerateInput): GeneratedScene {
     scenery,
     residents,
     ghosts,
+    lanterns: lanternsForSlug(rng),
     domain: input.domain,
     stage: input.stage,
     dormant: input.dormant,

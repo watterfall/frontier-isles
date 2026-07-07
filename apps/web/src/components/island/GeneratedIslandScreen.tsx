@@ -111,7 +111,7 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
       data-screen-label="L1 生成岛"
       style={{ position: 'absolute', inset: 0, background: 'var(--pp,#F2EAD8)', transition: 'background .8s ease', ...sceneVarsToStyle(sceneVars) }}
     >
-      <GeneratedSceneView scene={scene} night={night} t={50} onStation={onStation} />
+      <GeneratedSceneView scene={scene} night={night} nightT={50} onStation={onStation} />
 
       {/* L1 顶部信息 */}
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '18px 24px', pointerEvents: 'none' }}>

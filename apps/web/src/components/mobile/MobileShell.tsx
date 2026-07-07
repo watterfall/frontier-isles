@@ -21,7 +21,7 @@ export function MobileShell() {
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 18px 10px' }}>
           <div style={{ display: 'flex', gap: 9, alignItems: 'center' }}>
-            <div style={{ width: 30, height: 30, background: '#B5673A', borderRadius: 2.5, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#F6F2E6', fontFamily: "'Noto Serif SC',serif", fontWeight: 900, fontSize: 15 }}>問</div>
+            <div style={{ width: 30, height: 30, background: '#B5673A', borderRadius: 2.5, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#F6F2E6', fontFamily: "'Noto Serif SC',serif", fontWeight: 900, fontSize: 15 }}>问</div>
             <span style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 900, fontSize: 18, color: '#2B2620' }}>问题群岛</span>
           </div>
           <span style={{ fontSize: 10.5, padding: '3px 10px', borderRadius: 999, border: '1.2px solid #B5673A', color: '#B5673A' }}>{t('mobile.readonly')}</span>
@@ -54,17 +54,17 @@ export function MobileShell() {
           <div style={{ border: '1.2px solid #E3A93C', background: '#FBF6E9', borderRadius: 8, padding: '11px 13px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, fontFamily: "'JetBrains Mono',ui-monospace,monospace", color: '#A08428' }}><span>交叉 · 书院 · 样板岛</span><span>#18</span></div>
             <div style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 700, fontSize: 14, color: '#2B2620', margin: '4px 0 7px' }}>AI 能否提出一个人类没想到的好问题？</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: '#6B6154' }}><span>居民 9</span><span style={{ flex: 1, height: 4, borderRadius: 2, background: 'rgba(43,38,32,0.1)', overflow: 'hidden' }}><span style={{ display: 'block', height: '100%', width: '76%', background: '#A08428' }} /></span><span>76</span><span style={{ color: '#A89C88' }}>{t('mobile.browseOnly')}</span></div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: '#6B6154' }}><span>{t('chart.card.members', { n: 9 })}</span><span style={{ flex: 1, height: 4, borderRadius: 2, background: 'rgba(43,38,32,0.1)', overflow: 'hidden' }}><span style={{ display: 'block', height: '100%', width: '76%', background: '#A08428' }} /></span><span>76</span><span style={{ color: '#A89C88' }}>{t('mobile.browseOnly')}</span></div>
           </div>
           <div style={{ border: '1.2px solid #3A342B', background: '#FBF6E9', borderRadius: 8, padding: '11px 13px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, fontFamily: "'JetBrains Mono',ui-monospace,monospace", color: '#B5673A' }}><span>物质 · 学派</span><span>#06</span></div>
             <div style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 700, fontSize: 14, color: '#2B2620', margin: '4px 0 7px' }}>室温超导的机制边界究竟在哪里？</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: '#6B6154' }}><span>居民 14</span><span style={{ flex: 1, height: 4, borderRadius: 2, background: 'rgba(43,38,32,0.1)', overflow: 'hidden' }}><span style={{ display: 'block', height: '100%', width: '88%', background: '#B5673A' }} /></span><span>88</span><span>{t('mobile.forkTwice')}</span></div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: '#6B6154' }}><span>{t('chart.card.members', { n: 14 })}</span><span style={{ flex: 1, height: 4, borderRadius: 2, background: 'rgba(43,38,32,0.1)', overflow: 'hidden' }}><span style={{ display: 'block', height: '100%', width: '88%', background: '#B5673A' }} /></span><span>88</span><span>{t('mobile.forkTwice')}</span></div>
           </div>
           <div style={{ border: '1.2px solid #3A342B', background: '#FBF6E9', borderRadius: 8, padding: '11px 13px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, fontFamily: "'JetBrains Mono',ui-monospace,monospace", color: '#8A6A1E' }}><span>交叉 · 离群 ✦</span><span>#20</span></div>
             <div style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 700, fontSize: 14, color: '#2B2620', margin: '4px 0 7px' }}>做梦是大脑的垃圾回收进程吗？</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: '#6B6154' }}><span>居民 3</span><span style={{ flex: 1, height: 4, borderRadius: 2, background: 'rgba(43,38,32,0.1)', overflow: 'hidden' }}><span style={{ display: 'block', height: '100%', width: '57%', background: '#8A6A1E' }} /></span><span>57</span><span style={{ color: '#8A6A1E' }}>{t('mobile.highVar')}</span></div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: '#6B6154' }}><span>{t('chart.card.members', { n: 3 })}</span><span style={{ flex: 1, height: 4, borderRadius: 2, background: 'rgba(43,38,32,0.1)', overflow: 'hidden' }}><span style={{ display: 'block', height: '100%', width: '57%', background: '#8A6A1E' }} /></span><span>57</span><span style={{ color: '#8A6A1E' }}>{t('mobile.highVar')}</span></div>
           </div>
           <div style={{ fontSize: 10.5, color: '#A89C88', textAlign: 'center' }}>{t('mobile.note')}</div>
         </div>

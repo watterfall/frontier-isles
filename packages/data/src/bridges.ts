@@ -1,13 +1,13 @@
 /**
- * Real cross-domain bridges — isomorphisms from the xfrontier atlas
- * (audit/isomorphisms.json: 36 Feynman "same-equation" bridges). Each bridge
- * links two curated islands whose clusters share a mathematical skeleton; the
- * formula is a real glyph to render on the bridge plaque (§4: bridges are
- * proposed by members or the ferryman; §6: provenance visible).
+ * Navigable ferry-route bridges between visually-adjacent islands. Each bridge
+ * is a real cross-domain isomorphism (xfrontier audit/isomorphisms.json): two
+ * islands whose clusters share a mathematical skeleton, connected by a short
+ * arc on the chart. Clicking a bridge sails the ferry along the arc to the
+ * far island (§4: the ferryman's routes follow the routing economy).
  *
- * These replace the prototype's 3 fictional chart bridges with data-driven
- * bridges carrying real formulas — "the same equation has the same solution"
- * (Feynman), made visible as the ferry-route geometry between islands.
+ * The formula is the bridge's inscription — "why this route exists" (the same
+ * equation has the same solution, per Feynman). Bridges are short arcs between
+ * adjacent islands so the chart stays clean and the routes feel navigable.
  */
 
 export interface BridgeEntry {
@@ -17,14 +17,12 @@ export interface BridgeEntry {
   /** Chart coordinates of the two endpoints. */
   fromPos: { x: number; y: number };
   toPos: { x: number; y: number };
-  /** The shared mathematical skeleton (real formula). */
+  /** Quadratic-Bezier control point (the arc's bulge). */
+  arc: { cx: number; cy: number };
+  /** The shared mathematical skeleton (real formula, rendered as inscription). */
   formula: string;
   /** Bilingual label for the skeleton. */
   skeleton: { zh: string; en: string };
-  /** Quadratic-control point for the arc (midpoint offset for curvature). */
-  arc: { cx: number; cy: number };
-  /** Label position. */
-  labelPos: { x: number; y: number };
 }
 
 export const BRIDGES: BridgeEntry[] = [
@@ -33,29 +31,26 @@ export const BRIDGES: BridgeEntry[] = [
     to: 'tabletop-quantum-gravity',
     fromPos: { x: 290, y: 385 },
     toPos: { x: 395, y: 435 },
+    arc: { cx: 360, cy: 390 },
     formula: '∇²φ = 0',
     skeleton: { zh: '拉普拉斯方程', en: "Laplace's equation" },
-    arc: { cx: 360, cy: 390 },
-    labelPos: { x: 360, y: 360 },
+  },
+  {
+    from: 'dark-matter-paleo',
+    to: 'bio-compute-thermo',
+    fromPos: { x: 330, y: 245 },
+    toPos: { x: 290, y: 385 },
+    arc: { cx: 370, cy: 300 },
+    formula: '∂u/∂t = D∇²u',
+    skeleton: { zh: '扩散–热方程', en: 'Diffusion–heat equation' },
   },
   {
     from: 'active-inference',
     to: 'ai-theory-discovery',
     fromPos: { x: 556, y: 428 },
     toPos: { x: 502, y: 584 },
+    arc: { cx: 590, cy: 510 },
     formula: 'F = ⟨E⟩ − T·S',
     skeleton: { zh: '自由能最小化', en: 'Free-energy minimization' },
-    arc: { cx: 580, cy: 510 },
-    labelPos: { x: 580, y: 510 },
-  },
-  {
-    from: 'minimal-genome',
-    to: 'ai-theory-discovery',
-    fromPos: { x: 835, y: 338 },
-    toPos: { x: 502, y: 584 },
-    formula: 'ẋ_i = x_i(f_i − ⟨f⟩)',
-    skeleton: { zh: '复制者动力学', en: 'Replicator dynamics' },
-    arc: { cx: 700, cy: 420 },
-    labelPos: { x: 700, y: 420 },
   },
 ];
