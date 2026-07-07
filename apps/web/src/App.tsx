@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { StationKind } from '@frontier-isles/core';
+import { Boat } from '@frontier-isles/assets';
 import { ChartScreen } from './components/chart/ChartScreen';
 import { IslandScreen } from './components/island/IslandScreen';
 import { GeneratedIslandScreen } from './components/island/GeneratedIslandScreen';
 import { CeremonyOverlay } from './components/ceremony/CeremonyOverlay';
+import { CollisionOverlay } from './components/ceremony/CollisionOverlay';
 import { ScrollWipe } from './components/shell/ScrollWipe';
 import { Toast } from './components/shell/Toast';
 import { LangToggle } from './components/shell/LangToggle';
@@ -62,12 +64,18 @@ export default function App() {
   const [sel, setSel] = useState<StationKind | null>(null);
   const [selSlug, setSelSlug] = useState<string | null>(null);
   const [panel, setPanel] = useState(false);
+  // ── D2 sail: a ferry boat animates across the chart before the wipe ──────
+  const [sailing, setSailing] = useState<{ fromX: number; fromY: number; toX: number; toY: number; slug: string; t: number } | null>(null);
+  const [sailingPos, setSailingPos] = useState<{ x: number; y: number } | null>(null);
+  const lastIslandPos = useRef<{ x: number; y: number }>({ x: 760, y: 470 });
   const [stFilter, setStFilter] = useState('全部');
   const [driftOn, setDriftOn] = useState(false);
   const [driftDest, setDriftDest] = useState<string | null>(null);
   const [transTo, setTransTo] = useState<string | null>(null);
   const [briefSt, setBriefSt] = useState<Record<number, BriefState>>({ 0: 'pending', 1: 'pending', 2: 'pending' });
   const [advOn, setAdvOn] = useState(true);
+  // ── collision founding (Track B) ─────────────────────────────────────
+  const [collideOn, setCollideOn] = useState(false);
 
   // Question-Wall QFT state (mutable copy of the fallback questions).
   const [qs, setQs] = useState<QuestionDatum[]>(() => QUESTIONS.map((q) => ({ ...q })));
@@ -136,11 +144,56 @@ export default function App() {
   // ── handlers ─────────────────────────────────────────────────────────
   const onIsland = useCallback(
     (d: IslandDatum) => {
-      setSelSlug(d.slug ?? null);
-      startWipe('island');
+      if (sailing || wipe.phase !== 'idle') return; // ignore while a journey/wipe is in progress
+      const from = lastIslandPos.current;
+      lastIslandPos.current = { x: d.x, y: d.y };
+      setSailing({ fromX: from.x, fromY: from.y, toX: d.x, toY: d.y, slug: d.slug ?? SAMPLE_SLUG, t: Date.now() });
     },
-    [startWipe],
+    [sailing, wipe.phase],
   );
+
+  // Collision founding: found a new island on a real isomorphism bridge.
+  const onCollide = useCallback(
+    (bridge: { formula: string; skeleton: { zh: string; en: string }; from: string; to: string }) => {
+      const slug = `collide-${Date.now()}`;
+      const name = `${bridge.formula} 之岛`;
+      const qfocus = `${bridge.formula} · ${bridge.skeleton.zh} · ${bridge.from} ↔ ${bridge.to}`;
+      void api.found({
+        slug,
+        title: name,
+        name,
+        qfocus,
+        domain: '交叉',
+        questions: [{ text: qfocus, open: true }],
+        votes: { 0: 1 },
+        ceremonyLog: ['collision'],
+        actor,
+      });
+      setFounded({ name, q: qfocus, slug });
+      setCollideOn(false);
+      showToast(t('collision.founded', { name }));
+    },
+    [actor, showToast, t],
+  );
+
+  // When a sail is set, animate the boat from→to, then trigger the wipe.
+  useEffect(() => {
+    if (!sailing) return;
+    setSailingPos({ x: sailing.fromX, y: sailing.fromY });
+    // Double rAF so the browser paints the `from` position before transitioning.
+    const raf = requestAnimationFrame(() =>
+      requestAnimationFrame(() => setSailingPos({ x: sailing.toX, y: sailing.toY })),
+    );
+    const id = window.setTimeout(() => {
+      setSelSlug(sailing.slug);
+      startWipe('island');
+      setSailing(null);
+    }, 950);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(id);
+    };
+  }, [sailing, startWipe]);
 
   const goChart = useCallback(() => {
     setPanel(false);
@@ -294,11 +347,26 @@ export default function App() {
               onHover={setHover}
               onIsland={onIsland}
               onBuild={() => dispatchCeremony({ type: 'start' })}
+              onCollide={() => setCollideOn(true)}
             />
+          )}
+
+          {/* D2 渡船 — a ferry sails across the chart before the wipe to L1 */}
+          {sailing && sailingPos && (
+            <svg viewBox="0 0 1440 900" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 50 }}>
+              <g style={{ transform: `translate(${sailingPos.x}px, ${sailingPos.y}px)`, transition: 'transform 0.95s cubic-bezier(0.4,0,0.2,1)' }}>
+                <path d="M -40 8 Q -20 4 0 8 Q 20 12 40 8" stroke="#BFCEDB" strokeWidth="1.5" fill="none" opacity="0.6" strokeDasharray="3 4" />
+                <Boat x={0} y={0} variant="sail" bobSeconds={1.2} />
+              </g>
+            </svg>
           )}
 
           {ceremony.rit !== null && (
             <CeremonyOverlay state={ceremony} dispatch={dispatchCeremony} onAbort={abortCeremony} onFinish={() => dispatchCeremony({ type: 'finish' })} />
+          )}
+
+          {collideOn && (
+            <CollisionOverlay onCollide={onCollide} onClose={() => setCollideOn(false)} />
           )}
 
           {wipe.wipeOn && <ScrollWipe wipeTf={wipe.wipeTf} wipeTrans={wipe.wipeTrans} />}

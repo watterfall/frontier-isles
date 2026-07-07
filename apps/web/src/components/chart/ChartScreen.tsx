@@ -13,6 +13,7 @@ import {
   MOUND_PATHS,
 } from '@frontier-isles/assets';
 import { DOMAIN_META, STAGE_LABELS, type IslandDatum } from '../../api/fallback';
+import { BRIDGES } from '@frontier-isles/data';
 
 export interface ChartScreenProps {
   islands: IslandDatum[];
@@ -22,6 +23,7 @@ export interface ChartScreenProps {
   onHover: (id: number | null) => void;
   onIsland: (d: IslandDatum) => void;
   onBuild: () => void;
+  onCollide: () => void;
 }
 
 const DOMAIN_KEYS = ['全部', '数理', '物质', '生命', '交叉'] as const;
@@ -85,7 +87,7 @@ function Buildings({ d }: { d: IslandDatum }) {
   );
 }
 
-export function ChartScreen({ islands, filter, onFilter, hover, onHover, onIsland, onBuild }: ChartScreenProps) {
+export function ChartScreen({ islands, filter, onFilter, hover, onHover, onIsland, onBuild, onCollide }: ChartScreenProps) {
   const { t } = useTranslation();
 
   const hd = islands.find((d) => d.id === hover);
@@ -121,10 +123,23 @@ export function ChartScreen({ islands, filter, onFilter, hover, onHover, onIslan
         <Boat x={478} y={692} variant="sail" bobSeconds={6} />
         <Boat x={1150} y={556} variant="sail" bobSeconds={7} bobDelaySeconds={1} />
 
-        {/* 桥（3 座）+ 血缘 */}
-        <ChartBridge d="M 836 338 Q 962 250 1082 262" ticks="M 946 279 v 7 M 962 276 v 7 M 978 276 v 7" label="桥 · 量子相干" labelX={962} labelY={300} />
-        <ChartBridge d="M 298 388 Q 560 400 802 522" ticks="M 540 395 v 7 M 556 396 v 7 M 572 398 v 7" label="桥 · 提问的熵" labelX={556} labelY={424} />
-        <ChartBridge d="M 1002 362 Q 830 440 642 562" ticks="M 812 444 v 7 M 828 442 v 7 M 844 440 v 7" label="桥 · 标度律" labelX={828} labelY={470} />
+        {/* 同方程桥 — real isomorphism bridges with formula glyphs (§4/§6) */}
+        {BRIDGES.map((b, i) => {
+          const d = `M ${b.fromPos.x} ${b.fromPos.y} Q ${b.arc.cx} ${b.arc.cy} ${b.toPos.x} ${b.toPos.y}`;
+          const midX = (b.fromPos.x + b.toPos.x) / 2;
+          const tickX = b.arc.cx;
+          const tickY = b.arc.cy;
+          return (
+            <ChartBridge
+              key={i}
+              d={d}
+              ticks={`M ${tickX - 16} ${tickY} v 7 M ${tickX} ${tickY} v 7 M ${tickX + 16} ${tickY} v 7`}
+              label={`桥 · ${b.formula}`}
+              labelX={b.labelPos.x}
+              labelY={b.labelPos.y}
+            />
+          );
+        })}
         <LineageLine d="M 802 522 Q 866 556 924 602" labelX={872} labelY={556} label="fork · 血缘" />
 
         {/* 20（+新生）座岛 */}
@@ -231,6 +246,10 @@ export function ChartScreen({ islands, filter, onFilter, hover, onHover, onIslan
               <span style={{ width: 24, height: 24, borderRadius: '50%', background: '#E3A93C', color: '#3A2E14', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Noto Serif SC',serif", fontSize: 13 }}>{t('chart.buildSeal')}</span>
               <span style={{ fontSize: 12.5, color: '#F2EAD8' }}>{t('chart.build')}</span>
               <span style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 9.5, color: 'rgba(242,234,216,0.65)' }}>{t('chart.buildHint')}</span>
+            </div>
+            <div onClick={onCollide} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(250,245,232,0.95)', borderRadius: 999, padding: '5px 13px 5px 10px', userSelect: 'none', border: '1.5px solid #5B45C9', color: '#5B45C9' }}>
+              <span style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 13 }}>↯</span>
+              <span style={{ fontSize: 12.5 }}>{t('collision.button')}</span>
             </div>
           </div>
           <div style={{ display: 'flex', gap: 16, alignItems: 'center', fontSize: 11, color: '#6B6154', background: 'rgba(250,245,232,0.85)', borderRadius: 6, padding: '5px 12px' }}>

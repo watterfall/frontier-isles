@@ -130,18 +130,35 @@ export function GeneratedSceneView({ scene, night, t, onStation }: GeneratedScen
         return <Comp key={s.kind} x={s.x} y={s.y} onClick={() => onStation(s.kind)} selected={false} />;
       })}
 
-      {/* 终局叠加 */}
+      {/* 终局叠加 · dissolved → 雾岛 (never deleted; the ledger lives) */}
       {status === 'dissolved' && (
-        <g opacity={0.7}>
-          <ellipse cx="760" cy="474" rx="320" ry="160" fill="#EDE8DA" opacity="0.6" />
-          <ellipse cx="760" cy="474" rx="240" ry="120" fill="#EDE8DA" opacity="0.5" />
+        <g>
+          <ellipse cx="760" cy="474" rx="360" ry="180" fill="#EDE8DA" opacity="0.55" style={{ animation: 'waveDrift 12s ease-in-out infinite' }} />
+          <ellipse cx="680" cy="500" rx="220" ry="110" fill="#E8E3D2" opacity="0.6" />
+          <ellipse cx="840" cy="450" rx="200" ry="100" fill="#EDE8DA" opacity="0.5" style={{ animation: 'waveDrift 9s ease-in-out infinite reverse' }} />
+          <ellipse cx="760" cy="540" rx="280" ry="80" fill="#E0DBCA" opacity="0.45" />
+          <text x="760" y="300" textAnchor="middle" fontSize="13" fill="#9C927E" style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 600, letterSpacing: '0.15em' }}>
+            雾岛 · 已消散
+          </text>
         </g>
       )}
+      {/* 终局叠加 · resolved → 灯塔 (a settled answer lights the way) */}
       {status === 'resolved' && (
-        <g transform="translate(760,680)">
-          <line x1="0" y1="0" x2="0" y2="-60" stroke="#4A4238" strokeWidth="2" />
-          <path d="M 0 -60 L 16 -50 L 0 -40 Z" fill="#E3A93C" stroke="#4A4238" strokeWidth="0.75" />
-          <circle cx="0" cy="-55" r="8" fill="#E3A93C" opacity="0.4" style={{ animation: 'pulseGlow 3s ease-in-out infinite' }} />
+        <g transform="translate(760,700)">
+          {/* 塔身 */}
+          <path d="M -16 0 L -10 -90 L 10 -90 L 16 0 Z" fill="#F8F1DE" stroke="#4A4238" strokeWidth="1.5" />
+          <rect x="-12" y="-90" width="24" height="20" fill="#2B2620" stroke="#4A4238" strokeWidth="1" />
+          {/* 灯室辉光 */}
+          <circle cx="0" cy="-85" r="14" fill="#E3A93C" opacity="0.5" style={{ animation: 'pulseGlow 2.6s ease-in-out infinite' }} />
+          <circle cx="0" cy="-85" r="6" fill="#F5B94B" />
+          {/* 旋转光束 */}
+          <g style={{ animation: 'breathe 8s linear infinite', transformOrigin: '0 -85px' }}>
+            <path d="M 0 -85 L 140 -120 L 140 -50 Z" fill="#F5B94B" opacity="0.12" />
+            <path d="M 0 -85 L -140 -120 L -140 -50 Z" fill="#F5B94B" opacity="0.12" />
+          </g>
+          {/* 顶旗 */}
+          <line x1="0" y1="-90" x2="0" y2="-110" stroke="#4A4238" strokeWidth="1.5" />
+          <path d="M 0 -110 L 18 -104 L 0 -98 Z" fill="#E3A93C" stroke="#4A4238" strokeWidth="0.75" />
         </g>
       )}
       {dormant && status !== 'dissolved' && (

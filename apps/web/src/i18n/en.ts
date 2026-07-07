@@ -132,6 +132,14 @@ export const en: Resources = {
     footer: 'Every action is an append-only event · the process is kept forever in the night layer',
   },
 
+  collision: {
+    title: 'Found by Collision',
+    hint: 'Two islands sharing a mathematical skeleton can found a new island on their bridge — the formula becomes the founding glyph. No bridge, no founding (type wall).',
+    footnote: 'Same-equation bridges · data from xfrontier isomorphisms',
+    button: 'Collide',
+    founded: '「{name}」rises on the bridge',
+  },
+
   ceremony: {
     abort: '✕ Abort ceremony · recorded events are kept',
     steps: { 素材: 'Material', 发问: 'Ask', 记形: 'Shape', 聚焦: 'Focus', 上墙: 'Raise' },

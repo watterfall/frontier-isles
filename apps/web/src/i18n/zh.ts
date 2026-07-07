@@ -131,6 +131,14 @@ export const zh = {
     footer: '一切操作为 append-only 事件 · 过程永久保留于夜晚层',
   },
 
+  collision: {
+    title: '碰撞建岛',
+    hint: '两座岛若共享同一个数学骨架，便可在其桥上立一座新岛——公式即建岛 glyph。无桥之处不可妄建（类型墙）。',
+    footnote: '同方程桥 · 数据来自 xfrontier isomorphisms',
+    button: '碰撞',
+    founded: '「{name}」于桥上升起',
+  },
+
   ceremony: {
     abort: '✕ 中止仪式 · 已记事件仍保留',
     steps: { 素材: '素材', 发问: '发问', 记形: '记形', 聚焦: '聚焦', 上墙: '上墙' },
