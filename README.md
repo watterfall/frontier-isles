@@ -1,25 +1,35 @@
-# CODING AGENTS: READ THIS FIRST
+# Frontier Isles 问题群岛
 
-This is a **handoff bundle** from Claude Design (claude.ai/design).
+An isometric, AI-native open-science collaboration platform. Anyone can **found an island** — a virtual lab anchored on one frontier challenge question. Research output grows as visible architecture; the whole process is open by default.
 
-A user mocked up designs in HTML/CSS/JS using an AI design tool, then exported this bundle so a coding agent can implement the designs for real.
+- **Architecture (source of truth):** [`docs/architecture.md`](docs/architecture.md) (v3.0)
+- **Visual authority:** [`design/handoff/`](design/handoff/) — Claude Design prototypes (`问题群岛-原型 v3.dc.html` is the latest). Day/night swaps palette only, never shape.
+- **Session decisions:** [`docs/DECISIONS.md`](docs/DECISIONS.md)
 
-## What you should do — IMPORTANT
+## Workspace
 
-**Read the chat transcripts first.** There are 1 chat transcript(s) in `chats/`. The transcripts show the full back-and-forth between the user and the design assistant — they tell you **what the user actually wants** and **where they landed** after iterating. Don't skip them. The final HTML files are the output, but the chat is where the intent lives.
+```
+apps/web           Vite + React (+ PixiJS 8)    L0 sea chart / L1 island / L2 panels
+apps/server        Hono + y-websocket + SQLite + MCP server
+packages/opp       OPP protocol: problem-object & ledger schemas (zod) + validators
+packages/core      domain types · capability tables · projections
+packages/renderer  isometric engine (2:1, 128×64 tiles)
+packages/assets    parameterized SVG components + design tokens extracted from the prototype
+```
 
-**Read `project/问题群岛-原型 v3.dc.html` in full.** The user had this file open when they triggered the handoff, so it's almost certainly the primary design they want built. Read it top to bottom — don't skim. Then **follow its imports**: open every file it pulls in (shared components, CSS, scripts) so you understand how the pieces fit together before you start implementing.
+## Quickstart
 
-**If anything is ambiguous, ask the user to confirm before you start implementing.** It's much cheaper to clarify scope up front than to build the wrong thing.
+```bash
+pnpm install
+pnpm dev          # server on :8787, web on :5173
+pnpm test         # all workspace tests
+pnpm typecheck
+```
 
-## About the design files
+Node ≥ 22, pnpm ≥ 10.
 
-The design medium is **HTML/CSS/JS** — these are prototypes, not production code. Your job is to **recreate them pixel-perfectly** in whatever technology makes sense for the target codebase (React, Vue, native, whatever fits). Match the visual output; don't copy the prototype's internal structure unless it happens to fit.
+## Three theses
 
-**Don't render these files in a browser or take screenshots unless the user asks you to.** Everything you need — dimensions, colors, layout rules — is spelled out in the source. Read the HTML and CSS directly; a screenshot won't tell you anything they don't.
-
-## Bundle contents
-
-- `README.md` — this file
-- `chats/` — conversation transcripts (read these!)
-- `project/` — the `问题群岛交互原型` project files (HTML prototypes, assets, components)
+1. **Research state is architecture** — buildings grow only from real ledger events.
+2. **Day / Ferry / Night is knowledge production** — the day/night toggle is the signature interaction.
+3. **The archipelago is the atlas** — an island is the spatial rendering of an `op://` problem object.
