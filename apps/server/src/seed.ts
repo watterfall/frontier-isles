@@ -7,6 +7,7 @@ import {
   ProblemObjectSchema,
   hashEvent,
   type Actor,
+  type LedgerEvent,
   type ProblemObject,
   type ProblemObjectInput,
   type Status,
@@ -29,7 +30,11 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 // packages/opp/test/fixtures/machine-curiosity.md relative to apps/server/src.
 const FIXTURE = resolve(__dirname, "../../../packages/opp/test/fixtures/machine-curiosity.md");
 
-const day = (n: number) => new Date(Date.UTC(2025, 0, 1) + n * 86_400_000).toISOString();
+// The seeded story spans "86 nights" ending today, so night N maps to
+// now − (86 − N) days. Growth dormancy (30-day window) then reads truthfully:
+// recently-active islands are awake, and only islands whose last event is
+// pinned to the story's early nights project as dormant.
+const day = (n: number) => new Date(Date.now() - (86 - n) * 86_400_000).toISOString();
 
 // Prototype DATA array (id, name, qfocus, domain, chart x/y/scale, stage, members, activity).
 interface Chart {
@@ -274,29 +279,37 @@ function seedMinimalIsland(store: Store, c: Chart): void {
 
   const founder: Actor = { id: `github:founder-${c.slug}`, kind: "human" };
   store.addMembership(opId, { actorId: founder.id, kind: "human", role: "master", aiKind: null });
-  const ref = store.putRef("ceremony", { name: c.n, qfocus: c.q });
-  store.appendRaw(opId, {
-    ts: day(0),
-    op: opId as ProblemObject["id"],
-    actor: founder,
-    credit: ["conceptualization"],
-    phase: "A",
-    action: "found_island",
-    ref,
-  });
-  // A little activity so growth ≈ prototype stage.
-  if (c.st >= 1) {
-    const qref = store.putRef("question", { text: c.q, open: true, votes: 1 });
+  // Dormant islands (prototype `dor`) live entirely in the story's early
+  // nights so the 30-day window projects them as moss-and-mist; active
+  // islands get recent events. Growth stages are built from *real* ledger
+  // events per §4 (empty → hut: first artifact; academy: ≥3 stations;
+  // school: publication) — never set directly.
+  const base = c.dor ? 0 : 80;
+  const at = (offset: number) => day(Math.min(base + offset, 86));
+  const ev = (offset: number, action: LedgerEvent["action"], phase: "A" | "B" | "D", ref: string) =>
     store.appendRaw(opId, {
-      ts: day(1),
+      ts: at(offset),
       op: opId as ProblemObject["id"],
       actor: founder,
       credit: ["conceptualization"],
-      phase: "A",
-      action: "propose_subquestion",
-      ref: qref,
+      phase,
+      action,
+      ref,
     });
+  ev(0, "found_island", "A", store.putRef("ceremony", { name: c.n, qfocus: c.q }));
+  if (c.st >= 1) {
+    const qref = store.putRef("question", { text: c.q, open: true, votes: 1 });
+    ev(1, "propose_subquestion", "A", qref);
     store.addPlacement(opId, "questions", qref, { action: "propose_subquestion", open: true });
+  }
+  if (c.st >= 2) {
+    // Academy: activity across ≥3 distinct stations (questions + workshop + driftwood).
+    ev(2, "submit_claim", "B", store.putRef("claim", { text: `${c.n} · 首个可检验论断` }));
+    ev(3, "night_digest", "A", store.putRef("driftwood", { atom: "thought", text: `${c.n} · 夜间散木` }));
+  }
+  if (c.st >= 3) {
+    // School: a gallery publication.
+    ev(4, "publish", "D", store.putRef("note", { title: `${c.n} · 开放实验记录本 v1` }));
   }
 }
 

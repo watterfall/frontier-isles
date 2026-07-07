@@ -1,0 +1,33 @@
+/* App-level globals. The --fi-* tokens, @keyframes and the reduced-motion
+   kill switch all live in @frontier-isles/assets/tokens.css (imported first
+   in main.tsx). */
+
+body {
+  margin: 0;
+  background: #e4dac2;
+  font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', system-ui, sans-serif;
+  color: #2b2620;
+}
+
+a {
+  color: #2e5e8c;
+}
+a:hover {
+  color: #b5673a;
+}
+
+/* Day/night is palette-only: every scene shape animates its fill/stroke over
+   700ms when the NIGHT_SCENE_VARS override flips (prototype helmet style). */
+svg * {
+  transition: fill 0.7s ease, stroke 0.7s ease;
+}
+
+input[type='range'] {
+  accent-color: #e3a93c;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  svg * {
+    transition: none !important;
+  }
+}
