@@ -199,3 +199,44 @@ describe("export", () => {
     expect(parsed.object.title).toBe("机器的好奇心");
   });
 });
+
+describe("auth", () => {
+  it("oauth routes 501 when unconfigured", async () => {
+    delete process.env.GITHUB_CLIENT_ID;
+    delete process.env.GITHUB_CLIENT_SECRET;
+    expect((await app.request("/api/auth/github")).status).toBe(501);
+    expect((await app.request("/api/auth/github/callback?code=x&state=y")).status).toBe(501);
+  });
+
+  it("oauth redirect carries a state nonce bound to a cookie", async () => {
+    process.env.GITHUB_CLIENT_ID = "test-client";
+    const res = await app.request("/api/auth/github");
+    expect(res.status).toBe(302);
+    const loc = res.headers.get("location") ?? "";
+    const state = /[?&]state=([0-9a-f]+)/.exec(loc)?.[1];
+    expect(state).toBeTruthy();
+    expect(res.headers.get("set-cookie")).toContain(`fi_oauth_state=${state}`);
+    delete process.env.GITHUB_CLIENT_ID;
+  });
+
+  it("callback rejects a state mismatch", async () => {
+    process.env.GITHUB_CLIENT_ID = "test-client";
+    process.env.GITHUB_CLIENT_SECRET = "test-secret";
+    const res = await app.request("/api/auth/github/callback?code=abc&state=forged", {
+      headers: { cookie: "fi_oauth_state=legit" },
+    });
+    expect(res.status).toBe(400);
+    delete process.env.GITHUB_CLIENT_ID;
+    delete process.env.GITHUB_CLIENT_SECRET;
+  });
+
+  it("logout clears the session", async () => {
+    const login = await post("/api/auth/dev-login", { handle: "logout-case" });
+    const cookie = (login.headers.get("set-cookie") ?? "").split(";")[0] ?? "";
+    const me1 = await jsonOf(await app.request("/api/me", { headers: { cookie } }));
+    expect(me1.actor.id).toBe("github:logout-case");
+    await app.request("/api/auth/logout", { method: "POST", headers: { cookie } });
+    const me2 = await jsonOf(await app.request("/api/me", { headers: { cookie } }));
+    expect(me2.actor).toBeNull();
+  });
+});

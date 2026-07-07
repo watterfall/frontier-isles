@@ -7,6 +7,7 @@ import { CeremonyOverlay } from './components/ceremony/CeremonyOverlay';
 import { ScrollWipe } from './components/shell/ScrollWipe';
 import { Toast } from './components/shell/Toast';
 import { LangToggle } from './components/shell/LangToggle';
+import { SessionBadge } from './components/shell/SessionBadge';
 import { MobileShell } from './components/mobile/MobileShell';
 import { useAppData } from './api/useAppData';
 import { api } from './api/client';
@@ -224,7 +225,8 @@ export default function App() {
   // ── desktop shell (1440×900, scaled to viewport) ─────────────────────
   return (
     <div style={{ minHeight: '100vh', background: '#E4DAC2', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 0' }}>
-      <div style={{ position: 'fixed', top: 16, right: 20, zIndex: 200 }}>
+      <div style={{ position: 'fixed', top: 16, right: 20, zIndex: 200, display: 'flex', gap: 10, alignItems: 'center' }}>
+        <SessionBadge />
         <LangToggle />
       </div>
 

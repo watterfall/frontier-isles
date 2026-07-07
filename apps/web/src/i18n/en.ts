@@ -8,6 +8,7 @@ import type { Resources } from './zh';
 
 export const en: Resources = {
   lang: { toggle: '中', name: 'English' },
+  session: { login: 'Sign in with GitHub', logout: 'Sign out' },
 
   chart: {
     latin: 'FRONTIER ISLES',

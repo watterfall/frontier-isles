@@ -1,6 +1,7 @@
+import { randomBytes, timingSafeEqual } from "node:crypto";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { getCookie, setCookie } from "hono/cookie";
+import { getCookie, setCookie, deleteCookie } from "hono/cookie";
 import { ZodError } from "zod";
 import type { Actor, FlowType, Phase } from "@frontier-isles/opp";
 import type { GatewayAction, StationKind } from "@frontier-isles/core";
@@ -30,7 +31,15 @@ const GATEWAY_ACTIONS = new Set<string>([
 ]);
 
 const SESSION_COOKIE = "fi_session";
+const OAUTH_STATE_COOKIE = "fi_oauth_state";
 const WEB_ORIGIN = process.env.WEB_ORIGIN ?? "http://localhost:5173";
+
+/** Constant-time string compare (OAuth state check). */
+function safeEqual(a: string, b: string): boolean {
+  const ba = Buffer.from(a);
+  const bb = Buffer.from(b);
+  return ba.length === bb.length && timingSafeEqual(ba, bb);
+}
 
 export function createApp(store: Store): Hono {
   const app = new Hono();
@@ -182,12 +191,30 @@ export function createApp(store: Store): Hono {
     return c.json({ actor: actor ?? null });
   });
 
+  app.post("/api/auth/logout", (c) => {
+    store.deleteSession(getCookie(c, SESSION_COOKIE));
+    deleteCookie(c, SESSION_COOKIE, { path: "/" });
+    return c.json({ ok: true });
+  });
+
   // GitHub OAuth — only wired when env is present (DECISIONS item 6).
+  // Standard authorization-code flow with a per-request `state` nonce held in
+  // an httpOnly cookie (CSRF binding between /github and /callback).
   app.get("/api/auth/github", (c) => {
     const clientId = process.env.GITHUB_CLIENT_ID;
     if (!clientId) return c.json({ error: "github oauth not configured" }, 501);
+    const state = randomBytes(24).toString("hex");
+    setCookie(c, OAUTH_STATE_COOKIE, state, {
+      httpOnly: true,
+      sameSite: "Lax",
+      path: "/api/auth",
+      maxAge: 600,
+      secure: WEB_ORIGIN.startsWith("https"),
+    });
     const redirect = `${WEB_ORIGIN}/api/auth/github/callback`;
-    const url = `https://github.com/login/oauth/authorize?client_id=${clientId}&scope=read:user&redirect_uri=${encodeURIComponent(redirect)}`;
+    const url =
+      `https://github.com/login/oauth/authorize?client_id=${clientId}` +
+      `&scope=read:user&state=${state}&redirect_uri=${encodeURIComponent(redirect)}`;
     return c.redirect(url);
   });
 
@@ -197,6 +224,10 @@ export function createApp(store: Store): Hono {
     if (!clientId || !clientSecret) return c.json({ error: "github oauth not configured" }, 501);
     const code = c.req.query("code");
     if (!code) return c.json({ error: "missing code" }, 400);
+    const state = c.req.query("state") ?? "";
+    const expected = getCookie(c, OAUTH_STATE_COOKIE) ?? "";
+    deleteCookie(c, OAUTH_STATE_COOKIE, { path: "/api/auth" });
+    if (!expected || !safeEqual(state, expected)) return c.json({ error: "state mismatch" }, 400);
     try {
       const tokenRes = await fetch("https://github.com/login/oauth/access_token", {
         method: "POST",

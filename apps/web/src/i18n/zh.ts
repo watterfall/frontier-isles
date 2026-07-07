@@ -7,6 +7,7 @@
  */
 export const zh = {
   lang: { toggle: 'EN', name: '中文' },
+  session: { login: '以 GitHub 登录', logout: '登出' },
 
   chart: {
     latin: 'FRONTIER ISLES',

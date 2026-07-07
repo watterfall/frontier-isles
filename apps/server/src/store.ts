@@ -778,6 +778,11 @@ export class Store {
       .get(token) as { actor_id: string; actor_kind: string } | undefined;
     return row ? { id: row.actor_id, kind: row.actor_kind as Actor["kind"] } : undefined;
   }
+
+  deleteSession(token: string | undefined): void {
+    if (!token) return;
+    this.db.prepare("DELETE FROM sessions WHERE token = ?").run(token);
+  }
 }
 
 // ---------------------------------------------------------------------------

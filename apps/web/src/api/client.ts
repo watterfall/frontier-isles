@@ -96,6 +96,8 @@ export const api = {
     return res?.actor ? { handle: res.actor.id, kind: res.actor.kind } : null;
   },
 
+  logout: () => req<{ ok: boolean }>('/api/auth/logout', { method: 'POST' }),
+
   island: (slug: string) => req<unknown>(`/api/islands/${slug}`),
 
   morningReport: (slug: string) =>
