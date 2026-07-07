@@ -142,6 +142,7 @@ export function ChartScreen({ islands, filter, onFilter, hover, onHover, onIslan
               onClick={() => onIsland(d)}
               style={{ cursor: 'pointer', transition: 'opacity .4s' }}
             >
+              <ellipse cx="0" cy="2" rx="70" ry="38" fill="none" pointerEvents="all" />
               {d.out && (
                 <g>
                   <circle cx="0" cy="0" r="72" fill="url(#outGlow)" style={{ animation: 'pulseGlow 3.2s ease-in-out infinite', animationPlayState: 'var(--play,running)' as never }} />
