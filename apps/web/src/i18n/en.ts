@@ -42,6 +42,7 @@ export const en: Resources = {
   island: {
     back: 'Back to chart',
     loading: 'The island is rising…',
+    notReachable: 'This island is unreachable for now (server not responding)',
     qfocusPrefix: 'QFocus · ',
     academy: 'Academy',
     residents: '9 residents',

@@ -51,9 +51,9 @@ export default function App() {
   const [filter, setFilter] = useState('全部');
 
   // ── founded island (from a completed ceremony) ───────────────────────
-  const [founded, setFounded] = useState<{ name: string; q: string } | null>(null);
+  const [founded, setFounded] = useState<{ name: string; q: string; slug: string } | null>(null);
   const chartIslands: IslandDatum[] = founded
-    ? [...islands, { id: 21, n: founded.name, q: founded.q, d: '交叉', x: 1108, y: 742, s: 0.8, st: 0, m: 1, a: 5, born: true }]
+    ? [...islands, { id: 21, n: founded.name, q: founded.q, d: '交叉', x: 1108, y: 742, s: 0.8, st: 0, m: 1, a: 5, born: true, slug: founded.slug }]
     : islands;
 
   // ── L1 island ────────────────────────────────────────────────────────
@@ -104,9 +104,12 @@ export default function App() {
     const name = ceremony.ritName ?? t('ceremony.unnamed');
     const q = ritFocusText(ceremony);
     const n = ceremony.ritLog.length;
-    // best-effort POST /api/islands (founding)
+    const slug = `isle-${Date.now()}`;
+    // best-effort POST /api/islands (founding). The slug is locally generated;
+    // the server uses the same slug (foundIsland → opIdFor(input.slug)), so we
+    // can setFounded immediately without awaiting the response.
     void api.found({
-      slug: `isle-${Date.now()}`,
+      slug,
       title: name,
       name,
       qfocus: q,
@@ -117,7 +120,7 @@ export default function App() {
       actor,
     });
     finishTimer.current = window.setTimeout(() => {
-      setFounded({ name, q });
+      setFounded({ name, q, slug });
       dispatchCeremony({ type: 'abort' }); // closes overlay (rit → null)
       showToast(t('toast.ritDone', { name, n }));
     }, 2600);

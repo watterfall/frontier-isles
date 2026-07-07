@@ -45,11 +45,17 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
   const { t } = useTranslation();
   const [detail, setDetail] = useState<IslandDetail | null>(null);
   const [scene, setScene] = useState<GeneratedScene | null>(null);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
+    setFailed(false);
     api.island(slug).then((d) => {
-      if (cancelled || !d) return;
+      if (cancelled) return;
+      if (!d) {
+        setFailed(true);
+        return;
+      }
       const det = d as IslandDetail;
       setDetail(det);
       const stage = STAGE_INDEX[det.growth.stage] ?? 1;
@@ -73,6 +79,15 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
       cancelled = true;
     };
   }, [slug]);
+
+  if (failed) {
+    return (
+      <div style={{ position: 'absolute', inset: 0, background: '#F2EAD8', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, color: '#6B6154' }}>
+        <span style={{ fontFamily: "'Noto Serif SC',serif", fontSize: 16 }}>{t('island.notReachable')}</span>
+        <button onClick={onBack} style={{ cursor: 'pointer', background: '#2B2620', color: '#F2EAD8', border: 'none', borderRadius: 6, padding: '8px 16px', fontSize: 13 }}>{t('island.back')}</button>
+      </div>
+    );
+  }
 
   if (!detail || !scene) {
     return (
