@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { StationKind } from '@frontier-isles/core';
-import { NIGHT_SCENE_VARS, sceneVarsToStyle } from '@frontier-isles/assets';
+import { NIGHT_SCENE_VARS, DOMAIN_SCENE_VARS, sceneVarsToStyle } from '@frontier-isles/assets';
 import { DayNightLever } from './DayNightLever';
 import { api } from '../../api/client';
 import { generate, type GeneratedScene } from '../../scene/generator';
@@ -87,11 +87,14 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
   const brief = detail.atlas?.brief.zh ?? '';
   const citation = detail.atlas?.citation;
   const cluster = detail.atlas?.cluster.zh;
+  const domain = detail.domain as '数理' | '物质' | '生命' | '交叉';
+  // Cascade: day defaults ← domain tint ← night override (§1: palette only, never shape).
+  const sceneVars = { ...DOMAIN_SCENE_VARS[domain], ...(night ? NIGHT_SCENE_VARS : {}) };
 
   return (
     <div
       data-screen-label="L1 生成岛"
-      style={{ position: 'absolute', inset: 0, background: 'var(--pp,#F2EAD8)', transition: 'background .8s ease', ...sceneVarsToStyle(night ? NIGHT_SCENE_VARS : {}) }}
+      style={{ position: 'absolute', inset: 0, background: 'var(--pp,#F2EAD8)', transition: 'background .8s ease', ...sceneVarsToStyle(sceneVars) }}
     >
       <GeneratedSceneView scene={scene} night={night} t={50} onStation={onStation} />
 

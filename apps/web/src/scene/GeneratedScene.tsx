@@ -87,8 +87,13 @@ export interface GeneratedSceneProps {
  * driven — no hardcoded layout (architecture §1).
  */
 export function GeneratedSceneView({ scene, night, t, onStation }: GeneratedSceneProps) {
-  const { stations, scenery, residents, ghosts, domain, dormant, status } = scene;
+  const { stations, scenery, residents, ghosts, domain, dormant, status, outlier, tide } = scene;
   const moundFill = dormant || status === 'dissolved' ? '#D8D3C2' : DOMAIN_FILL[domain] ?? '#ECDFB4';
+  // Tide N = A − D. Moon-on-water intensity: more night-science activity (|N|)
+  // = brighter reflection. Subtle, no dashboards (§4). Positive N (divergence
+  // dominates) lifts the streak; negative sinks it.
+  const tideOpacity = Math.min(Math.abs(tide) / 8, 0.45);
+  const tideY = 510 - Math.max(-30, Math.min(30, tide * 4));
 
   return (
     <svg viewBox="0 0 1440 900" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
@@ -113,6 +118,11 @@ export function GeneratedSceneView({ scene, night, t, onStation }: GeneratedScen
 
       {/* 创世石 */}
       <CreationStone />
+
+      {/* 离群辉光 — high-variance islands carry a subtle pulsing aura (§4 outlier). */}
+      {outlier && (
+        <circle cx="760" cy="474" r="200" fill="url(#outGlow)" style={{ animation: 'pulseGlow 3.2s ease-in-out infinite' }} opacity={0.5} />
+      )}
 
       {/* 站（按 stage 可见性门控） */}
       {stations.filter((s) => s.visible).map((s) => {
@@ -153,6 +163,12 @@ export function GeneratedSceneView({ scene, night, t, onStation }: GeneratedScen
           <HangingLantern x={616} y={318} size="large" swaySeconds={4.1} />
           <HangingLantern x={846} y={556} size="small" swaySeconds={3.8} />
           <Fireflies />
+          {/* 潮汐月影 — moon-on-water streak, intensity/position from N=A−D (§4).
+              More night-science activity = brighter reflection; divergence (N>0)
+              lifts the streak toward the shore. Subtle, no dashboards. */}
+          {tideOpacity > 0.05 && (
+            <ellipse cx="760" cy={tideY} rx="180" ry="14" fill="#F5B94B" opacity={tideOpacity * 0.6} style={{ filter: 'blur(6px)' }} />
+          )}
           {/* AI 值夜窗光（文献阁，若可见） */}
           {stations.find((s) => s.kind === 'library' && s.visible) && (
             <g transform="translate(760,296)">

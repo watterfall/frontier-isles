@@ -62,6 +62,48 @@ export const DOMAIN_COLORS: Record<Domain, { fill: string; ink: string }> = {
 };
 
 /**
+ * Per-domain ambient tints. Applied on the scene root BEFORE night overrides
+ * (cascade: day defaults ← domain tint ← night override). Subtle hue shifts to
+ * the water/sand/ground/vegetation base so each domain has a distinct mood
+ * without changing shape (§1). Day/night swaps palette only, never shape.
+ *
+ *   数理 — cool blue-grey, crisp instrument-light
+ *   物质 — warm amber, earthen metallic
+ *   生命 — verdant teal-green, lush
+ *   交叉 — golden balanced, cross-disciplinary warmth
+ */
+export const DOMAIN_SCENE_VARS: Record<Domain, Record<string, string>> = {
+  数理: {
+    '--water': '#BCCEDC',
+    '--sand': '#DDD4BE',
+    '--ground': '#E0DBC8',
+    '--treeG': '#5A7068',
+    '--lotus': '#C8D4C0',
+  },
+  物质: {
+    '--water': '#C8D8CC',
+    '--sand': '#ECD9A8',
+    '--ground': '#E8D6A8',
+    '--treeG': '#6A7A48',
+    '--lotus': '#D8D0A0',
+  },
+  生命: {
+    '--water': '#B8D4C4',
+    '--sand': '#D8D8AC',
+    '--ground': '#D2E0B8',
+    '--treeG': '#4A8D5A',
+    '--lotus': '#C8D8A8',
+  },
+  交叉: {
+    '--water': '#CCC8D8',
+    '--sand': '#ECDAB8',
+    '--ground': '#DDD0AC',
+    '--treeG': '#5E7A5E',
+    '--lotus': '#D8D0A8',
+  },
+};
+
+/**
  * AI resident ink — a deliberate component-level constant, NOT a --fi-*
  * token (see 3c footnote: "AI 居民笔触为虚线 + 淡靛墨 #5A6C9E（组件层常量，未入 token）").
  * If this is ever promoted to --fi-ai-ink, that is a breaking change.
