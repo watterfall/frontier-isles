@@ -13,6 +13,7 @@ import {
   type Status,
 } from "@frontier-isles/opp";
 import type { StationKind } from "@frontier-isles/core";
+import { FRONTIERS, type FrontierEntry } from "@frontier-isles/data";
 import { Store, opIdFor, type ProblemMeta } from "./store.js";
 import { openDb } from "./db.js";
 
@@ -53,30 +54,39 @@ interface Chart {
   out?: boolean;
 }
 
-const DATA: Chart[] = [
-  { id: 1, slug: "prime-gaps", n: "素数间隔", q: "素数间隔中是否藏着未被察觉的秩序？", d: "数理", x: 205, y: 305, s: 0.9, st: 2, m: 6, a: 62 },
-  { id: 2, slug: "np-machine", n: "NP 之器", q: "NP 难题存在物理系统的原生解法吗？", d: "数理", x: 330, y: 248, s: 0.78, st: 1, m: 3, a: 34 },
-  { id: 3, slug: "randomness-measure", n: "随机性度量", q: "随机性可以被严格地度量与比较吗？", d: "数理", x: 298, y: 388, s: 0.95, st: 2, m: 8, a: 71 },
-  { id: 4, slug: "origami-math", n: "折纸数学", q: "折纸公理能否生成全部可展结构？", d: "数理", x: 438, y: 318, s: 0.85, st: 1, m: 4, a: 45 },
-  { id: 5, slug: "infinity-hierarchy", n: "无限层级", q: "无限之间的层级有自然的尽头吗？", d: "数理", x: 172, y: 432, s: 0.68, st: 0, m: 1, a: 8 },
-  { id: 6, slug: "room-superconductor", n: "高温超导", q: "室温超导的机制边界究竟在哪里？", d: "物质", x: 1082, y: 262, s: 1.12, st: 3, m: 14, a: 88 },
-  { id: 7, slug: "glass-question", n: "玻璃之问", q: "玻璃到底是不是一种固体？", d: "物质", x: 1216, y: 326, s: 0.85, st: 1, m: 5, a: 4, dor: true },
-  { id: 8, slug: "taming-turbulence", n: "驯服湍流", q: "湍流能否被预测、甚至被驯服？", d: "物质", x: 1002, y: 362, s: 0.95, st: 2, m: 9, a: 66 },
-  { id: 9, slug: "battery-ceiling", n: "电池天花板", q: "化学电池能量密度的物理天花板在哪？", d: "物质", x: 1152, y: 436, s: 0.8, st: 1, m: 6, a: 52 },
-  { id: 10, slug: "inverse-catalysis", n: "逆向催化", q: "能否从目标反应逆向设计催化剂？", d: "物质", x: 1292, y: 244, s: 0.72, st: 1, m: 4, a: 39 },
-  { id: 11, slug: "folding-fewshot", n: "折叠小样本", q: "蛋白质折叠能否用小样本数据预测？", d: "生命", x: 622, y: 300, s: 1.05, st: 3, m: 16, a: 82 },
-  { id: 12, slug: "sleep-enigma", n: "睡眠之谜", q: "睡眠为什么不可被任何过程替代？", d: "生命", x: 742, y: 250, s: 0.8, st: 1, m: 5, a: 41 },
-  { id: 13, slug: "aging-program", n: "衰老程序论", q: "衰老是既定程序还是累积损耗？", d: "生命", x: 688, y: 398, s: 0.9, st: 2, m: 7, a: 58 },
-  { id: 14, slug: "microbiome-decision", n: "菌群与决策", q: "肠道菌群在多大程度上影响决策？", d: "生命", x: 556, y: 428, s: 0.8, st: 1, m: 4, a: 36 },
-  { id: 15, slug: "memory-substrate", n: "记忆的载体", q: "记忆的物理载体究竟是什么？", d: "生命", x: 836, y: 338, s: 0.9, st: 2, m: 8, a: 64 },
-  { id: 16, slug: "collective-behavior", n: "集体行为", q: "集体行为存在最小充分模型吗？", d: "交叉", x: 642, y: 562, s: 0.9, st: 2, m: 7, a: 60 },
-  { id: 17, slug: "language-evolution", n: "语言演化", q: "语言演化的速率存在上限吗？", d: "交叉", x: 502, y: 584, s: 0.7, st: 0, m: 2, a: 12 },
-  { id: 18, slug: "machine-curiosity", n: "AI 之问", q: "AI 能否提出一个人类没想到的好问题？", d: "交叉", x: 802, y: 522, s: 1.0, st: 2, m: 9, a: 76 },
-  { id: 19, slug: "ai-review", n: "AI 评审", q: "AI 能否公平地评审一篇论文？", d: "交叉", x: 924, y: 602, s: 0.75, st: 1, m: 4, a: 44 },
-  { id: 20, slug: "dream-gc", n: "梦的回收", q: "做梦是大脑的垃圾回收进程吗？", d: "交叉", x: 1232, y: 648, s: 0.85, st: 1, m: 3, a: 57, out: true },
-];
+/** Map the curated xfrontier frontiers into the seed's chart shape. */
+const DATA: Chart[] = FRONTIERS.map((f: FrontierEntry) => ({
+  id: f.id,
+  slug: f.slug,
+  n: f.title.zh,
+  q: f.qfocus.zh,
+  d: f.domain,
+  x: f.chart.x,
+  y: f.chart.y,
+  s: f.chart.scale,
+  st: f.stage,
+  m: f.members,
+  a: f.activity,
+  dor: f.dormant,
+  out: f.outlier,
+}));
 
-const SAMPLE = DATA.find((d) => d.slug === "machine-curiosity")!;
+/** Atlas metadata per slug (scores/cluster/citation → place-plane meta json). */
+const ATLAS: Record<string, FrontierEntry> = Object.fromEntries(
+  FRONTIERS.map((f) => [f.slug, f]),
+);
+
+/** The bespoke sample island (machine-curiosity) keeps its own chart meta — it
+ *  is not in the curated FRONTIERS set (it carries a full bespoke L1 scene). */
+const SAMPLE_META = {
+  d: "交叉",
+  n: "AI 之问",
+  x: 802,
+  y: 522,
+  s: 1.0,
+  a: 76,
+  m: 9,
+};
 
 // Question wall of the sample island (prototype qs + AUTHQ authors).
 const QUESTIONS: Array<{ text: string; open: boolean; rewrittenFrom?: string; actor: Actor; credit: string[] }> = [
@@ -128,9 +138,9 @@ function seedSampleIsland(store: Store): void {
   const { object } = parseProblemObject(md);
   const opId = object.id;
   const meta: ProblemMeta = {
-    domain: SAMPLE.d,
-    name: SAMPLE.n,
-    chart: { x: SAMPLE.x, y: SAMPLE.y, scale: SAMPLE.s, activity: SAMPLE.a, members: SAMPLE.m },
+    domain: SAMPLE_META.d,
+    name: SAMPLE_META.n,
+    chart: { x: SAMPLE_META.x, y: SAMPLE_META.y, scale: SAMPLE_META.s, activity: SAMPLE_META.a, members: SAMPLE_META.m },
   };
   store.insertProblem(object, md, meta);
   store.createStations(opId);
@@ -140,7 +150,7 @@ function seedSampleIsland(store: Store): void {
 
   // Genesis ceremony — the head of the ledger.
   const ceremonyRef = store.putRef("ceremony", {
-    name: SAMPLE.n,
+    name: SAMPLE_META.n,
     qfocus: object.qfocus,
     ceremonyLog: [
       "卷轴展开 · 仪式待燃",
@@ -257,13 +267,17 @@ function seedSampleIsland(store: Store): void {
 
 function seedMinimalIsland(store: Store, c: Chart): void {
   const opId = opIdFor(c.slug);
+  const atlas = ATLAS[c.slug];
+  const scores = atlas?.scores ?? [3, 3, 3, 3, 3, 3, 3, 3, 3];
   const raw: ProblemObjectInput = {
     schema: "opp/0.2",
     id: opId,
     title: c.n,
     status: statusOf(c),
     qfocus: c.q,
-    frontier: { substrate: c.a / 100 },
+    // OPP frontier stays lean: heat = paradigm (s[0]/5), substrate = substrate-reality (s[6]/5).
+    // The full 9-dim scores live in place-plane meta.atlas (two-plane principle).
+    frontier: { heat: (scores[0] ?? 3) / 5, substrate: (scores[6] ?? 3) / 5, mode: "variance-select" },
   };
   const object = ProblemObjectSchema.parse(raw);
   const body = { raw: `## Open sub-questions\n\n- ${c.q}\n` };
@@ -273,6 +287,16 @@ function seedMinimalIsland(store: Store, c: Chart): void {
     domain: c.d,
     name: c.n,
     chart: { x: c.x, y: c.y, scale: c.s, activity: c.a, members: c.m },
+    atlas: atlas
+      ? {
+          atlasN: atlas.atlasN,
+          scores: atlas.scores,
+          cluster: atlas.cluster,
+          citation: atlas.citation,
+          brief: atlas.brief,
+          outlier: atlas.outlier,
+        }
+      : undefined,
   };
   store.insertProblem(object, md, meta);
   store.createStations(opId);
@@ -324,7 +348,7 @@ export function seed(store: Store): number {
     }
   });
   tx();
-  return DATA.length;
+  return DATA.length + 1;
 }
 
 // CLI: `pnpm --filter @frontier-isles/server seed`

@@ -13,6 +13,7 @@
   "dependencies": {
     "@frontier-isles/assets": "workspace:*",
     "@frontier-isles/core": "workspace:*",
+    "@frontier-isles/data": "workspace:*",
     "@frontier-isles/opp": "workspace:*",
     "@frontier-isles/renderer": "workspace:*",
     "i18next": "^24.0.0",

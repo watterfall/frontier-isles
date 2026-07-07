@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@frontier-isles/core": "workspace:*",
+    "@frontier-isles/data": "workspace:*",
     "@frontier-isles/opp": "workspace:*",
     "@hono/node-server": "^1.13.0",
     "@modelcontextprotocol/sdk": "^1.0.0",

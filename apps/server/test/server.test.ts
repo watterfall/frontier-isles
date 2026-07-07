@@ -28,10 +28,10 @@ const jsonOf = async (res: { json(): Promise<unknown> }): Promise<any> => res.js
 const MASTER = { id: "github:shen-kuo", kind: "human" as const };
 
 describe("seed + chart", () => {
-  it("seeds the 20 chart islands", async () => {
+  it("seeds the chart islands", async () => {
     const res = await app.request("/api/islands");
     const { islands } = await jsonOf(res);
-    expect(islands).toHaveLength(20);
+    expect(islands).toHaveLength(27);
     const sample = islands.find((i: any) => i.slug === "machine-curiosity");
     expect(sample.name).toBe("AI 之问");
     expect(sample.members).toBe(9);

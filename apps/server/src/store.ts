@@ -148,6 +148,16 @@ export interface ProblemMeta {
   /** L0 chart display name (may differ from the object title, e.g. sample island). */
   name?: string;
   chart: { x: number; y: number; scale: number; activity: number; members?: number };
+  /** Curated frontier metadata from the xfrontier atlas (place-plane; the OPP
+   *  `frontier` field stays lean — heat/substrate derived from these scores). */
+  atlas?: {
+    atlasN: number;
+    scores: number[];
+    cluster: { code: string; zh: string; en: string };
+    citation: { url: string; title: string; venue: string; year: number };
+    brief: { zh: string; en: string };
+    outlier?: boolean;
+  };
 }
 
 export interface StationRow {

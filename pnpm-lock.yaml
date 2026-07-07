@@ -23,6 +23,9 @@ importers:
       '@frontier-isles/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@frontier-isles/data':
+        specifier: workspace:*
+        version: link:../../packages/data
       '@frontier-isles/opp':
         specifier: workspace:*
         version: link:../../packages/opp
@@ -75,6 +78,9 @@ importers:
       '@frontier-isles/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@frontier-isles/data':
+        specifier: workspace:*
+        version: link:../../packages/data
       '@frontier-isles/opp':
         specifier: workspace:*
         version: link:../../packages/opp
@@ -155,6 +161,12 @@ importers:
       vitest:
         specifier: ^3.0.0
         version: 3.2.7(@types/node@22.20.0)(tsx@4.23.0)(yaml@2.9.0)
+
+  packages/data:
+    devDependencies:
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
 
   packages/opp:
     dependencies:
