@@ -659,6 +659,7 @@ export class Store {
       md: row.md,
       domain: row.meta.domain,
       chart: row.meta.chart,
+      atlas: row.meta.atlas,
       stations: this.getStations(row.opId),
       memberships: this.getMemberships(row.opId),
       growth: projectGrowth(events, { status: parsed.object.status, now: new Date() }),

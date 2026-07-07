@@ -41,6 +41,7 @@ export const en: Resources = {
 
   island: {
     back: 'Back to chart',
+    loading: 'The island is rising…',
     qfocusPrefix: 'QFocus · ',
     academy: 'Academy',
     residents: '9 residents',

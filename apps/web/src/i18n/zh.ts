@@ -40,6 +40,7 @@ export const zh = {
 
   island: {
     back: '返回海图',
+    loading: '岛影升起中…',
     qfocusPrefix: 'QFocus · ',
     academy: '书院',
     residents: '9 位居民',

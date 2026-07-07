@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import type { StationKind } from '@frontier-isles/core';
 import { ChartScreen } from './components/chart/ChartScreen';
 import { IslandScreen } from './components/island/IslandScreen';
+import { GeneratedIslandScreen } from './components/island/GeneratedIslandScreen';
 import { CeremonyOverlay } from './components/ceremony/CeremonyOverlay';
 import { ScrollWipe } from './components/shell/ScrollWipe';
 import { Toast } from './components/shell/Toast';
@@ -59,6 +60,7 @@ export default function App() {
   const [night, setNight] = useState(false);
   const [tval, setTval] = useState(86);
   const [sel, setSel] = useState<StationKind | null>(null);
+  const [selSlug, setSelSlug] = useState<string | null>(null);
   const [panel, setPanel] = useState(false);
   const [stFilter, setStFilter] = useState('全部');
   const [driftOn, setDriftOn] = useState(false);
@@ -72,7 +74,7 @@ export default function App() {
   const [voted, setVoted] = useState<Record<number, boolean>>({});
   const [focusIdx, setFocusIdx] = useState<number | null>(null);
 
-  const peers = usePresence(`island:${SAMPLE_SLUG}`, wipe.view === 'island');
+  const peers = usePresence(`island:${selSlug ?? SAMPLE_SLUG}`, wipe.view === 'island' && (selSlug === SAMPLE_SLUG || !selSlug));
 
   // ── toast ────────────────────────────────────────────────────────────
   const [toast, setToast] = useState('');
@@ -131,14 +133,15 @@ export default function App() {
   // ── handlers ─────────────────────────────────────────────────────────
   const onIsland = useCallback(
     (d: IslandDatum) => {
-      if (d.sample) startWipe('island');
-      else showToast(t('toast.sampleOnly'));
+      setSelSlug(d.slug ?? null);
+      startWipe('island');
     },
-    [startWipe, showToast, t],
+    [startWipe],
   );
 
   const goChart = useCallback(() => {
     setPanel(false);
+    setSelSlug(null);
     startWipe('chart');
   }, [startWipe]);
 
@@ -232,7 +235,16 @@ export default function App() {
 
       <div className="fi-stage" style={{ width: 1440, height: 900, border: '1.5px solid #3A342B', padding: 5, background: '#F2EAD8', boxShadow: '0 18px 50px rgba(58,48,36,.18)', transform: `scale(${scale})`, transformOrigin: 'top center' }}>
         <div style={{ position: 'relative', width: '100%', height: '100%', border: '0.75px solid rgba(58,52,43,.5)', overflow: 'hidden', background: '#F2EAD8' }}>
-          {wipe.view === 'island' && (
+          {wipe.view === 'island' && selSlug && selSlug !== SAMPLE_SLUG && (
+            <GeneratedIslandScreen
+              slug={selSlug}
+              night={night}
+              onToggleNight={() => setNight((v) => !v)}
+              onBack={goChart}
+              onStation={onStation}
+            />
+          )}
+          {wipe.view === 'island' && (selSlug === SAMPLE_SLUG || !selSlug) && (
             <IslandScreen
               night={night}
               onToggleNight={() => setNight((v) => !v)}
