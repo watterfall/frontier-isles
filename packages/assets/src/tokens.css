@@ -1,0 +1,128 @@
+/*
+ * Frontier Isles design tokens.
+ * Extracted VERBATIM from design/handoff/问题群岛-原型 v3.dc.html
+ *   - artboard 3c "设计 Token 清单" (color / type / spacing / radii / stroke / motion)
+ *   - helmet <style> block (@keyframes + prefers-reduced-motion kill switch)
+ *
+ * Day/night swaps palette only, never shape (docs/architecture.md §1).
+ * Day values live here as the default :root palette; night overrides are
+ * applied as an inline CSS-variable string on the scene root — see
+ * src/palettes.ts NIGHT_SCENE_VARS (copied from the prototype's `nightVars`).
+ */
+
+:root {
+  /* 色 · 矿物色系 — day */
+  --fi-paper: #F2EAD8;           /* 纸底 · 页面基面 */
+  --fi-night-paper: #161F36;     /* 靛蓝纸 · 夜晚基面 */
+  --fi-paper-raised: #FAF5E8;    /* 卡面 / 面板 */
+  --fi-night-raised: #212C4E;    /* 夜 · 卡面 / 建筑墙 */
+  --fi-ink: #2B2620;             /* 主墨 · 文字/勾线 */
+  --fi-night-ink: #C9D0E4;       /* 夜 · 主墨反白 */
+  --fi-ink-2: #6B6154;           /* 次墨 · 注文 */
+  --fi-night-ink-2: #8B94B2;     /* 夜 · 次墨 */
+  --fi-azurite: #2E5E8C;         /* 石青 · 主行动/链接/数理 */
+  --fi-azurite-deep: #1E4266;    /* 石青深 · 屋瓦/按压态 */
+  --fi-malachite: #3E9B7E;       /* 石绿 · 生长/成功/生命 */
+  --fi-ochre: #B5673A;           /* 赭石 · 次行动/桥/印章/物质 */
+  --fi-gamboge: #E3A93C;         /* 藤黄 · 点睛/聚焦/离群发光 */
+  --fi-lantern: #F5B94B;         /* 灯笼暖光 · 夜晚点亮 */
+  --fi-water: #C8D8E4;           /* 水 · 海面/池 */
+  --fi-ghost: #C9D7F2;           /* 魂影 · 40% 透明 + 虚线 */
+  --fi-sand: #E7DBBB;            /* 沙洲 · 岸线/台阶 */
+  --fi-stone: #DCCFAB;           /* 石阶 · 铺地/器座 */
+
+  /* 字 */
+  --fi-font-display: 'Noto Serif SC', 'Songti SC', serif;
+  --fi-font-body: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', system-ui, sans-serif;
+  --fi-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* 间距 · 8pt 网格 */
+  --fi-space-1: 4px;
+  --fi-space-2: 8px;
+  --fi-space-3: 12px;
+  --fi-space-4: 16px;
+  --fi-space-5: 24px;
+  --fi-space-6: 32px;
+  --fi-space-7: 48px;
+
+  /* 圆角 */
+  --fi-radius-seal: 2px;
+  --fi-radius-card: 6px;
+  --fi-radius-panel: 10px;
+  --fi-radius-pill: 999px;
+
+  /* 墨线 · 描边粗细 */
+  --fi-stroke-fine: 0.75px;   /* 细勾 · 分隔/窗棂 */
+  --fi-stroke-main: 1.5px;    /* 主勾 · 轮廓/边框 */
+  --fi-stroke-heavy: 2.5px;   /* 重勾 · 桥/强调 */
+
+  /* 动效 */
+  --fi-motion-micro: 240ms;
+  --fi-motion-scroll-wipe: 480ms;
+  --fi-motion-scroll-wipe-max: 550ms;
+  --fi-motion-day-night-flip: 700ms;
+  --fi-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* motion toggle — set --play:paused on an ancestor to freeze all
+     prototype animations (breathe / pulseGlow / twinkle / sway / …) */
+  --play: running;
+}
+
+/* 领域映射 · domain colors (island base fill, day/night same shape) */
+:root {
+  --fi-domain-math-fill: #C9D8E6;   /* 数理 */
+  --fi-domain-math-ink: #2E5E8C;
+  --fi-domain-matter-fill: #E8CFAE; /* 物质 */
+  --fi-domain-matter-ink: #B5673A;
+  --fi-domain-life-fill: #C6DECC;   /* 生命 */
+  --fi-domain-life-ink: #2B7A5F;
+  --fi-domain-cross-fill: #ECDFB4;  /* 交叉 */
+  --fi-domain-cross-ink: #A08428;
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: .78; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-3px); }
+}
+@keyframes pulseGlow {
+  0%, 100% { opacity: .30; }
+  50% { opacity: .75; }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: .9; }
+  50% { opacity: .25; }
+}
+@keyframes sway {
+  0%, 100% { transform: rotate(-3.5deg); }
+  50% { transform: rotate(3.5deg); }
+}
+@keyframes ghostFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes fflyA {
+  0%, 100% { transform: translate(0,0); opacity: .9; }
+  30% { transform: translate(10px,-8px); opacity: .4; }
+  65% { transform: translate(-6px,-14px); opacity: .9; }
+}
+@keyframes fflyB {
+  0%, 100% { transform: translate(0,0); opacity: .5; }
+  40% { transform: translate(-11px,-6px); opacity: .95; }
+  70% { transform: translate(7px,-12px); opacity: .45; }
+}
+@keyframes waveDrift {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(7px); }
+}
+@keyframes bob {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-3px) rotate(1.5deg); }
+}
+@keyframes smoke {
+  0%, 100% { transform: translateY(0); opacity: .5; }
+  50% { transform: translateY(-4px); opacity: .25; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
