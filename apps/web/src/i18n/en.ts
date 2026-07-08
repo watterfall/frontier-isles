@@ -22,7 +22,8 @@ export const en: Resources = {
     legendLineage: 'Lineage · fork',
     legendOutlier: 'Outlier · anomaly glow',
     lineage: 'fork · lineage',
-    footer: 'Chart · tap an isle to enter',
+    footer: 'Chart · tap an isle to enter · tap its name to focus currents',
+    seaRelations: 'Relational sea · currents twin',
     filters: { 全部: 'All', 数理: 'Math', 物质: 'Matter', 生命: 'Life', 交叉: 'Cross' },
     card: {
       activity: 'Activity',

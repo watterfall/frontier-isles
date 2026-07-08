@@ -13,7 +13,7 @@ import {
   type Status,
 } from "@frontier-isles/opp";
 import type { StationKind } from "@frontier-isles/core";
-import { FRONTIERS, type FrontierEntry } from "@frontier-isles/data";
+import { FRONTIERS, SEA_SEED_RELATIONS, type FrontierEntry, type SeaVerb } from "@frontier-isles/data";
 import { Store, opIdFor, type ProblemMeta } from "./store.js";
 import { openDb } from "./db.js";
 
@@ -337,6 +337,46 @@ function seedMinimalIsland(store: Store, c: Chart): void {
   }
 }
 
+/**
+ * Materialize the shared cross-island relation spec (@frontier-isles/data) as REAL
+ * ledger events. The base seed emits only island-local refs, so the sea is empty by
+ * omission; here a reactor island appends a validate/refute/fork/merge_back/bridge_*
+ * event carrying an ANCHOR island's actual artifact ref (read back from its ledger),
+ * so projectCurrents derives genuine cross-island currents & whirlpools. No new verb.
+ */
+function seedCrossIslandRelations(store: Store): void {
+  const artifactRef = (slug: string, artifact: "claim" | "publish"): string | undefined => {
+    const action = artifact === "claim" ? "submit_claim" : "publish";
+    return store.getEvents(opIdFor(slug)).find((e) => e.action === action)?.ref;
+  };
+  const phaseOf: Record<SeaVerb, "A" | "B" | "D"> = {
+    validate: "D",
+    refute: "D",
+    fork: "A",
+    merge_back: "D",
+    bridge_propose: "B",
+    bridge_accept: "B",
+  };
+  const ferryman: Actor = { id: "github:ferryman", kind: "agent" };
+
+  for (const rel of SEA_SEED_RELATIONS) {
+    const ref = artifactRef(rel.anchor, rel.artifact);
+    if (!ref) continue; // anchor artifact absent (island stage too low) — skip honestly
+    const reactorOp = opIdFor(rel.reactor);
+    const isBridge = rel.verb.startsWith("bridge_");
+    const actor: Actor = isBridge ? ferryman : { id: `github:founder-${rel.reactor}`, kind: "human" };
+    store.appendRaw(reactorOp, {
+      ts: day(83),
+      op: reactorOp as ProblemObject["id"],
+      actor,
+      credit: rel.verb === "fork" || rel.verb === "merge_back" ? ["conceptualization"] : ["validation"],
+      phase: phaseOf[rel.verb],
+      action: rel.verb,
+      ref,
+    });
+  }
+}
+
 /** Idempotent: seeds only when the DB has no islands. Returns the count seeded. */
 export function seed(store: Store): number {
   if (store.hasIslands()) return 0;
@@ -346,6 +386,8 @@ export function seed(store: Store): number {
       if (c.slug === "machine-curiosity") continue;
       seedMinimalIsland(store, c);
     }
+    // After every island exists, wire real cross-island relations (the sea plane).
+    seedCrossIslandRelations(store);
   });
   tx();
   return DATA.length + 1;

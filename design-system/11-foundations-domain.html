@@ -1,0 +1,40 @@
+<!-- @dsCard group="Foundations" -->
+<!doctype html><meta charset="utf-8"><title>Domain palette · Foundations</title>
+<style>
+:root{--fi-paper:#F2EAD8;--fi-ink:#2B2620;--fi-ink-2:#6B6154;--fi-font-display:'Noto Serif SC','Songti SC',serif;--fi-font-body:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',system-ui,sans-serif;--fi-font-mono:'JetBrains Mono',ui-monospace,monospace;--fi-radius-card:6px;
+/* 领域映射 · domain colors — 2nd :root block of tokens.css (verbatim) */
+--fi-domain-math-fill:#C9D8E6;--fi-domain-math-ink:#2E5E8C;--fi-domain-matter-fill:#E8CFAE;--fi-domain-matter-ink:#B5673A;--fi-domain-life-fill:#C6DECC;--fi-domain-life-ink:#2B7A5F;--fi-domain-cross-fill:#ECDFB4;--fi-domain-cross-ink:#A08428;}
+*{box-sizing:border-box}html,body{margin:0}
+body{font-family:var(--fi-font-body);background:var(--fi-paper);color:var(--fi-ink);padding:24px}
+h1{font-family:var(--fi-font-display);font-size:16px;margin:0 0 2px}
+.note{font-size:12px;color:var(--fi-ink-2);margin:0 0 16px;line-height:1.5}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.dom{border:1px solid rgba(0,0,0,.1);border-radius:var(--fi-radius-card);overflow:hidden;background:#fff}
+.fill{height:56px;display:flex;align-items:flex-end;padding:6px 8px}
+.pill{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--fi-ink)}
+.meta{padding:8px 10px;font-size:11px;font-family:var(--fi-font-mono)}
+.meta .zh{font-family:var(--fi-font-display);font-size:13px;color:var(--fi-ink)}
+.hex{color:var(--fi-ink-2)}
+.island{margin-top:26px}
+.island h2{font-family:var(--fi-font-display);font-size:13px;margin:0 0 8px}
+</style>
+<body>
+<h1>Domain palette · 领域映射 (island base fill + ink)</h1>
+<p class="note">tokens.css 第 2 个 <code>:root</code> 块 —— 每个领域一对 <b>fill</b>(岛基色) + <b>ink</b>(勾线/标签)。day/night 同形不同色。v2「气候带」把这 4 个锚点插值成连续流形(见 09-v2-climate)。</p>
+<div class="grid">
+  <div class="dom"><div class="fill" style="background:var(--fi-domain-math-fill)"><span class="pill" style="background:var(--fi-domain-math-ink)"></span></div><div class="meta"><div class="zh">数理 math</div><div class="hex">fill #C9D8E6</div><div class="hex">ink&nbsp; #2E5E8C</div></div></div>
+  <div class="dom"><div class="fill" style="background:var(--fi-domain-matter-fill)"><span class="pill" style="background:var(--fi-domain-matter-ink)"></span></div><div class="meta"><div class="zh">物质 matter</div><div class="hex">fill #E8CFAE</div><div class="hex">ink&nbsp; #B5673A</div></div></div>
+  <div class="dom"><div class="fill" style="background:var(--fi-domain-life-fill)"><span class="pill" style="background:var(--fi-domain-life-ink)"></span></div><div class="meta"><div class="zh">生命 life</div><div class="hex">fill #C6DECC</div><div class="hex">ink&nbsp; #2B7A5F</div></div></div>
+  <div class="dom"><div class="fill" style="background:var(--fi-domain-cross-fill)"><span class="pill" style="background:var(--fi-domain-cross-ink)"></span></div><div class="meta"><div class="zh">交叉 cross</div><div class="hex">fill #ECDFB4</div><div class="hex">ink&nbsp; #A08428</div></div></div>
+</div>
+<div class="island">
+  <h2>在岛基上的应用 · applied to island base</h2>
+  <svg viewBox="0 0 520 120" width="100%" style="max-width:520px">
+    <defs><path id="dm" d="M -58 10 C -50 -8 -26 -20 2 -21 C 30 -20 50 -9 58 8 C 46 16 30 20 0 20 C -30 20 -48 16 -58 10 Z"/></defs>
+    <g transform="translate(70,70) scale(.62)"><use href="#dm" fill="var(--fi-domain-math-fill)" stroke="var(--fi-domain-math-ink)" stroke-width="1.6"/></g>
+    <g transform="translate(200,70) scale(.62)"><use href="#dm" fill="var(--fi-domain-matter-fill)" stroke="var(--fi-domain-matter-ink)" stroke-width="1.6"/></g>
+    <g transform="translate(330,70) scale(.62)"><use href="#dm" fill="var(--fi-domain-life-fill)" stroke="var(--fi-domain-life-ink)" stroke-width="1.6"/></g>
+    <g transform="translate(460,70) scale(.62)"><use href="#dm" fill="var(--fi-domain-cross-fill)" stroke="var(--fi-domain-cross-ink)" stroke-width="1.6"/></g>
+  </svg>
+</div>
+</body>

@@ -1,0 +1,47 @@
+<!-- @dsCard group="Foundations" -->
+<!doctype html><meta charset="utf-8"><title>Day / Night pairs · Foundations</title>
+<style>
+:root{
+--fi-paper:#F2EAD8;--fi-paper-raised:#FAF5E8;--fi-ink:#2B2620;--fi-ink-2:#6B6154;
+--fi-night-paper:#161F36;--fi-night-raised:#212C4E;--fi-night-ink:#C9D0E4;--fi-night-ink-2:#8B94B2;
+--fi-lantern:#F5B94B;
+--fi-font-display:'Noto Serif SC','Songti SC',serif;--fi-font-body:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',system-ui,sans-serif;--fi-font-mono:'JetBrains Mono',ui-monospace,monospace;--fi-radius-panel:10px;}
+*{box-sizing:border-box}html,body{margin:0}
+body{font-family:var(--fi-font-body);background:var(--fi-paper);color:var(--fi-ink);padding:24px}
+h1{font-family:var(--fi-font-display);font-size:16px;margin:0 0 2px}
+.note{font-size:12px;color:var(--fi-ink-2);margin:0 0 18px;line-height:1.5}
+table{border-collapse:collapse;font-size:12px;font-family:var(--fi-font-mono);width:100%;max-width:620px}
+th{text-align:left;color:var(--fi-ink-2);font-weight:600;padding:6px 10px;font-family:var(--fi-font-body)}
+td{padding:6px 10px;border-top:1px solid rgba(0,0,0,.08)}
+.sw{display:inline-block;width:16px;height:16px;border-radius:3px;border:1px solid rgba(0,0,0,.15);vertical-align:middle;margin-right:7px}
+.role{font-family:var(--fi-font-body);color:var(--fi-ink)}
+.pair{display:flex;gap:14px;margin-top:22px}
+.stage{flex:1;border-radius:var(--fi-radius-panel);padding:14px;text-align:center}
+.day{background:var(--fi-paper)}
+.night{background:var(--fi-night-paper)}
+.stage .cap{font-family:var(--fi-font-mono);font-size:11px;margin-top:8px}
+.day .cap{color:var(--fi-ink-2)}
+.night .cap{color:var(--fi-night-ink-2)}
+</style>
+<body>
+<h1>Day / Night pairs · 昼夜配对</h1>
+<p class="note"><b>签名规则:day/night 只换调色板,绝不换形状。</b> 组件用 <code>var(--x, dayFallback)</code> 上色;夜晚只对 scene root 施 <code>NIGHT_SCENE_VARS</code>(palettes.ts)。同一几何,两套色。下表是 token 级配对。</p>
+<table>
+  <tr><th>role 角色</th><th>day 昼</th><th>night 夜</th></tr>
+  <tr><td class="role">基面 base</td><td><span class="sw" style="background:#F2EAD8"></span>--fi-paper #F2EAD8</td><td><span class="sw" style="background:#161F36"></span>--fi-night-paper #161F36</td></tr>
+  <tr><td class="role">卡面/墙 raised</td><td><span class="sw" style="background:#FAF5E8"></span>--fi-paper-raised #FAF5E8</td><td><span class="sw" style="background:#212C4E"></span>--fi-night-raised #212C4E</td></tr>
+  <tr><td class="role">主墨 ink</td><td><span class="sw" style="background:#2B2620"></span>--fi-ink #2B2620</td><td><span class="sw" style="background:#C9D0E4"></span>--fi-night-ink #C9D0E4</td></tr>
+  <tr><td class="role">次墨 ink-2</td><td><span class="sw" style="background:#6B6154"></span>--fi-ink-2 #6B6154</td><td><span class="sw" style="background:#8B94B2"></span>--fi-night-ink-2 #8B94B2</td></tr>
+  <tr><td class="role">点亮 lantern</td><td colspan="2"><span class="sw" style="background:#F5B94B"></span>--fi-lantern #F5B94B · 夜晚点睛暖光(昼夜同值)</td></tr>
+</table>
+<div class="pair">
+  <div class="stage day">
+    <svg viewBox="-70 -30 140 66" width="150"><path d="M -58 10 C -50 -8 -26 -20 2 -21 C 30 -20 50 -9 58 8 C 46 16 30 20 0 20 C -30 20 -48 16 -58 10 Z" fill="#FAF5E8" stroke="#2B2620" stroke-width="1.5"/><rect x="-14" y="-14" width="28" height="20" rx="2" fill="#F2EAD8" stroke="#2B2620" stroke-width="1.2"/></svg>
+    <div class="cap">昼 · paper + ink</div>
+  </div>
+  <div class="stage night">
+    <svg viewBox="-70 -30 140 66" width="150"><path d="M -58 10 C -50 -8 -26 -20 2 -21 C 30 -20 50 -9 58 8 C 46 16 30 20 0 20 C -30 20 -48 16 -58 10 Z" fill="#212C4E" stroke="#C9D0E4" stroke-width="1.5"/><rect x="-14" y="-14" width="28" height="20" rx="2" fill="#161F36" stroke="#C9D0E4" stroke-width="1.2"/><circle cx="9" cy="-4" r="2.4" fill="#F5B94B"/></svg>
+    <div class="cap">夜 · 同形,换色 + 灯亮</div>
+  </div>
+</div>
+</body>

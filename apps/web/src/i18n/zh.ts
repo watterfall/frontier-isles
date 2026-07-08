@@ -21,7 +21,8 @@ export const zh = {
     legendLineage: '血缘 · fork',
     legendOutlier: '离群 · 反常发光',
     lineage: 'fork · 血缘',
-    footer: '海图 · 点击岛屿进入详情',
+    footer: '海图 · 点岛进入 · 点岛名聚焦洋流',
+    seaRelations: '关系海 · 洋流孪生',
     filters: { 全部: '全部', 数理: '数理', 物质: '物质', 生命: '生命', 交叉: '交叉' },
     card: {
       activity: '活跃度',

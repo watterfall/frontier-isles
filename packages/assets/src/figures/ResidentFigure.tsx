@@ -51,7 +51,7 @@ export function ResidentFigure({
           <circle cx="0" cy="-9" r="2.6" fill="none" stroke="#5A6C9E" strokeWidth="1.3" />
           <path d={bodyPath} stroke="#5A6C9E" strokeWidth="1.4" strokeDasharray="2.5 1.8" strokeLinecap="round" fill="none" />
           <rect x="-5" y="11" width="10" height="10" rx="1.5" fill="#5A6C9E" />
-          <text x="0" y="18.8" textAnchor="middle" fontSize="7.5" fill="#F2EAD8" style={{ fontFamily: "'Noto Serif SC',serif" }}>
+          <text x="0" y="18.8" textAnchor="middle" fontSize="7.5" fill="var(--fi-paper, #F2EAD8)" style={{ fontFamily: "'Noto Serif SC',serif" }}>
             {glyph}
           </text>
         </g>

@@ -69,3 +69,7 @@ export type {
   Contribution,
   Insight,
 } from "./projections";
+
+// Sea-plane projections (depth-plan-v2 §3 — currents & whirlpools)
+export { projectCurrents, projectWhirlpools } from "./currents";
+export type { Current, CurrentKind, CurrentSign, CurrentMaturity, Whirlpool } from "./currents";

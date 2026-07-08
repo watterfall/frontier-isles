@@ -61,6 +61,10 @@ export function createApp(store: Store): Hono {
 
   app.get("/api/islands", (c) => c.json({ islands: store.listIslands() }));
 
+  // Sea plane (depth-plan-v2 §3) — a read-only projection over the whole ledger.
+  // No new verb; reads are projections (§7-7). Best-effort on the client.
+  app.get("/api/currents", (c) => c.json(store.seaData()));
+
   app.post("/api/islands", async (c) => {
     const body = await c.req.json().catch(() => null);
     if (!body || typeof body !== "object") return c.json({ error: "invalid body" }, 400);

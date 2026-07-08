@@ -34,7 +34,7 @@ export function Fireflies({ count = 5 }: FirefliesProps) {
   }
 
   return (
-    <g fill="#F5B94B">
+    <g fill="var(--fi-lantern, #F5B94B)">
       {flies.map((f, i) => (
         <circle
           key={i}

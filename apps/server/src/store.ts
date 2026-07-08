@@ -30,7 +30,12 @@ import {
   transplantInsight,
   projectContributions,
   projectNightReplay,
+  projectCurrents,
+  projectWhirlpools,
+  type Current,
+  type Whirlpool,
 } from "@frontier-isles/core";
+import { domainToVec } from "@frontier-isles/data";
 import type { DB } from "./db.js";
 import { refHash, type RefKind } from "./refs.js";
 import { randomBytes } from "node:crypto";
@@ -255,6 +260,42 @@ export class Store {
       md: r.md_source,
       meta: JSON.parse(r.json) as ProblemMeta,
     }));
+  }
+
+  /**
+   * The sea plane (depth-plan-v2 §3) as a pure projection over the WHOLE ledger:
+   * cross-island currents + whirlpools, plus each island's place-plane coordinate
+   * (manifold `vec` from domain, abstractness `substrate` from the atlas score, or
+   * null when unknown → no sea depth). No new verb, no relation store — invariant 15.
+   */
+  seaData(): {
+    currents: Current[];
+    whirlpools: Whirlpool[];
+    islands: Array<{
+      op: string;
+      name: string;
+      domain: string;
+      vec: [number, number];
+      substrate: number | null;
+      chart: { x: number; y: number };
+    }>;
+  } {
+    const rows = this.listProblemRows();
+    const events: LedgerEvent[] = [];
+    for (const r of rows) events.push(...this.getEvents(r.opId));
+    const islands = rows.map((r) => {
+      const s = r.meta.atlas?.scores;
+      const substrate = s && typeof s[6] === "number" ? s[6] / 5 : null;
+      return {
+        op: r.opId,
+        name: r.meta.name ?? r.slug,
+        domain: r.meta.domain,
+        vec: domainToVec(r.meta.domain),
+        substrate,
+        chart: { x: r.meta.chart.x, y: r.meta.chart.y },
+      };
+    });
+    return { currents: projectCurrents(events), whirlpools: projectWhirlpools(events), islands };
   }
 
   /** Insert a problem object (knowledge plane). Idempotent on op_id. */

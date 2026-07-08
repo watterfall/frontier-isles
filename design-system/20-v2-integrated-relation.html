@@ -1,0 +1,367 @@
+<!-- @dsCard group="Patterns · v2 NEW" -->
+<!doctype html><meta charset="utf-8"><title>洋流优先 · Relation-first sea · current-focus 解糊团</title>
+<style>
+:root{
+  /* --- verbatim --fi-* tokens (tokens.css) --- */
+  --fi-paper:#F2EAD8; --fi-paper-raised:#FAF5E8;
+  --fi-ink:#2B2620; --fi-ink-2:#6B6154;
+  --fi-azurite:#2E5E8C; --fi-azurite-deep:#1E4266;
+  --fi-malachite:#3E9B7E; --fi-ochre:#B5673A;
+  --fi-gamboge:#E3A93C; --fi-lantern:#F5B94B;
+  --fi-water:#C8D8E4; --fi-ghost:#C9D7F2;
+  --fi-sand:#E7DBBB; --fi-stone:#DCCFAB;
+  --fi-font-display:'Noto Serif SC','Songti SC',serif;
+  --fi-font-body:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',system-ui,sans-serif;
+  --fi-font-mono:'JetBrains Mono',ui-monospace,monospace;
+  --fi-space-2:8px; --fi-space-3:12px; --fi-space-4:16px; --fi-space-5:24px; --fi-space-6:32px;
+  --fi-radius-card:6px; --fi-radius-panel:10px; --fi-radius-pill:999px;
+  --fi-stroke-fine:0.75px; --fi-stroke-main:1.5px; --fi-stroke-heavy:2.5px;
+  --fi-ease:cubic-bezier(0.22,1,0.36,1);
+  --fi-domain-math-fill:#C9D8E6; --fi-domain-matter-fill:#E8CFAE;
+  --fi-domain-life-fill:#C6DECC; --fi-domain-cross-fill:#ECDFB4;
+}
+*{box-sizing:border-box} html,body{margin:0}
+body{
+  font-family:var(--fi-font-body); background:var(--fi-paper); color:var(--fi-ink);
+  padding:clamp(20px,4vw,40px); line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1000px;margin:0 auto}
+
+/* ---- header ---- */
+.tag{
+  display:inline-block; font-family:var(--fi-font-mono); font-size:10px; letter-spacing:.06em;
+  color:var(--fi-ochre); border:1px solid var(--fi-ochre); border-radius:var(--fi-radius-pill);
+  padding:2px 10px; margin-bottom:14px;
+}
+h1{
+  font-family:var(--fi-font-display); font-weight:700;
+  font-size:clamp(22px,3.4vw,30px); line-height:1.15; margin:0 0 6px;
+  letter-spacing:-.01em;
+}
+h1 .en{color:var(--fi-ink-2); font-weight:400; font-size:.62em; letter-spacing:.02em}
+.lede{
+  font-size:14px; color:var(--fi-ink-2); max-width:62ch; margin:0 0 4px;
+}
+.lede b{color:var(--fi-ink); font-weight:600}
+.lede code{font-family:var(--fi-font-mono); font-size:12px; color:var(--fi-azurite-deep)}
+.thesis{
+  margin:18px 0 26px; padding-left:14px; border-left:2px solid var(--fi-ochre);
+  font-size:12.5px; color:var(--fi-ink-2); max-width:64ch;
+}
+.thesis b{color:var(--fi-ink)}
+
+/* ---- two-state stage ---- */
+.stage{display:grid; grid-template-columns:1fr auto 1fr; gap:14px; align-items:stretch}
+@media(max-width:760px){.stage{grid-template-columns:1fr; }}
+.panel{position:relative; min-width:0}
+.panel .frame{
+  border-radius:var(--fi-radius-panel); overflow:hidden;
+  box-shadow:0 1px 0 rgba(43,38,32,.08), 0 10px 24px -18px rgba(30,66,102,.5);
+  outline:1px solid rgba(43,38,32,.10);
+}
+.panel svg{display:block; width:100%; height:auto}
+.plabel{
+  display:flex; align-items:baseline; gap:8px; margin:0 0 8px; font-size:12px;
+}
+.plabel .zh{font-family:var(--fi-font-display); font-weight:700; color:var(--fi-ink); font-size:13px}
+.plabel .en{font-family:var(--fi-font-mono); font-size:10px; color:var(--fi-ink-2); letter-spacing:.03em}
+.hint{margin-top:9px; font-size:11px; color:var(--fi-ink-2); font-family:var(--fi-font-mono)}
+.hint b{color:var(--fi-ochre)}
+/* mid arrow annotation */
+.midcol{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:0 2px}
+@media(max-width:760px){.midcol{flex-direction:row; padding:6px 0}}
+.midcol .arw{font-family:var(--fi-font-display); font-size:22px; color:var(--fi-ochre); line-height:1}
+.midcol .cap{writing-mode:vertical-rl; font-family:var(--fi-font-mono); font-size:10px; color:var(--fi-ink-2); letter-spacing:.08em}
+@media(max-width:760px){.midcol .cap{writing-mode:horizontal-tb}}
+
+/* ---- currents: luminous lit-water (glow + core) ---- */
+.rel .core{fill:none; stroke-linecap:round}
+.rel .glow{fill:none; stroke-linecap:round; stroke-linejoin:round}
+.cur .core{
+  stroke-width:calc(var(--w,4)*1px);
+  stroke-dasharray:9 10; opacity:.82;
+  animation:drift 2.2s linear infinite var(--play,running);
+}
+.cur .glow{
+  stroke-width:calc((var(--w,4) + 8)*1px);
+  opacity:.13;
+}
+@keyframes drift{to{stroke-dashoffset:-38}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.whirl{transform-box:fill-box; transform-origin:center; animation:spin 5.5s linear infinite var(--play,running)}
+.isl{cursor:pointer}
+.isl .body{transition:transform .35s var(--fi-ease)}
+.isl .cast{opacity:0; transition:opacity .35s}
+.isl:hover .body{transform:translateY(-6px)}
+.isl:hover .cast{opacity:1}
+
+/* ==== current-focus (pure CSS :has) — hover any island, its currents flare, rest recede to 40% ==== */
+.is-live:has(.i-A:hover) .rel:not(.c-A),
+.is-live:has(.i-B:hover) .rel:not(.c-B),
+.is-live:has(.i-C:hover) .rel:not(.c-C),
+.is-live:has(.i-D:hover) .rel:not(.c-D),
+.is-live:has(.i-E:hover) .rel:not(.c-E),
+.is-live:has(.i-F:hover) .rel:not(.c-F){opacity:.4}
+.is-live:has(.i-A:hover) .rel:not(.c-A) .glow,
+.is-live:has(.i-B:hover) .rel:not(.c-B) .glow,
+.is-live:has(.i-C:hover) .rel:not(.c-C) .glow,
+.is-live:has(.i-D:hover) .rel:not(.c-D) .glow,
+.is-live:has(.i-E:hover) .rel:not(.c-E) .glow,
+.is-live:has(.i-F:hover) .rel:not(.c-F) .glow{opacity:0}
+.is-live:has(.i-A:hover) .rel:not(.c-A) .core,
+.is-live:has(.i-B:hover) .rel:not(.c-B) .core,
+.is-live:has(.i-C:hover) .rel:not(.c-C) .core,
+.is-live:has(.i-D:hover) .rel:not(.c-D) .core,
+.is-live:has(.i-E:hover) .rel:not(.c-E) .core,
+.is-live:has(.i-F:hover) .rel:not(.c-F) .core{animation:none; stroke-dasharray:none; opacity:.42}
+/* the focused island's currents flare */
+.is-live:has(.i-A:hover) .cur.c-A .glow,
+.is-live:has(.i-B:hover) .cur.c-B .glow,
+.is-live:has(.i-C:hover) .cur.c-C .glow,
+.is-live:has(.i-D:hover) .cur.c-D .glow,
+.is-live:has(.i-E:hover) .cur.c-E .glow,
+.is-live:has(.i-F:hover) .cur.c-F .glow{opacity:.34}
+.is-live:has(.i-A:hover) .cur.c-A .core,
+.is-live:has(.i-B:hover) .cur.c-B .core,
+.is-live:has(.i-C:hover) .cur.c-C .core,
+.is-live:has(.i-D:hover) .cur.c-D .core,
+.is-live:has(.i-E:hover) .cur.c-E .core,
+.is-live:has(.i-F:hover) .cur.c-F .core{opacity:1}
+
+/* ==== canonical static focus-on-C frame (right panel) ==== */
+.is-focus-c .rel:not(.c-C){opacity:.4}
+.is-focus-c .rel:not(.c-C) .glow{opacity:0}
+.is-focus-c .rel:not(.c-C) .core{animation:none; stroke-dasharray:none; opacity:.42}
+.is-focus-c .cur.c-C .glow{opacity:.34}
+.is-focus-c .cur.c-C .core{opacity:1}
+.is-focus-c .i-C .body{transform:translateY(-6px)}
+.is-focus-c .i-C .cast{opacity:1}
+
+/* ---- legend ---- */
+.legend{
+  margin-top:26px; display:grid; grid-template-columns:1.15fr 1fr; gap:14px;
+}
+@media(max-width:700px){.legend{grid-template-columns:1fr}}
+.key{
+  background:var(--fi-paper-raised); border-radius:var(--fi-radius-card);
+  padding:16px 18px; outline:1px solid rgba(43,38,32,.08);
+}
+.key h2{
+  font-family:var(--fi-font-display); font-size:13px; margin:0 0 3px;
+  display:flex; align-items:baseline; gap:7px;
+}
+.key h2 .en{font-family:var(--fi-font-mono); font-size:10px; color:var(--fi-ink-2); font-weight:400; letter-spacing:.03em}
+.key p.note{font-size:11px; color:var(--fi-ink-2); margin:0 0 12px}
+.row{display:flex; align-items:center; gap:11px; margin:10px 0; font-size:12px; color:var(--fi-ink-2)}
+.row b{color:var(--fi-ink); font-weight:600}
+.row .en{font-family:var(--fi-font-mono); font-size:10px; color:var(--fi-ink-2)}
+.row svg{flex:0 0 auto}
+.foot{
+  margin-top:22px; font-size:11px; color:var(--fi-ink-2); font-family:var(--fi-font-mono);
+  border-top:1px solid rgba(43,38,32,.12); padding-top:12px; line-height:1.7;
+}
+.foot b{color:var(--fi-ink)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+<body>
+<div class="wrap">
+
+  <span class="tag">NEW · v2 海即数据 · 关系优先 relation-first · 需回流后进 design-system</span>
+  <h1>洋流即关系，气候是底噪 <span class="en">the currents are the hero; climate is a quiet wash</span></h1>
+  <p class="lede">整片海承载关系网：<b>色</b>=类型（石青验证 / 赭石架桥 / 石绿世系）· <b>宽</b>=权重 · <b>箭</b>=方向。皆为 ledger 事件的 <code>reduce</code> 投影 —— 无「画一条线」工具（不变量 15）。</p>
+  <p class="thesis"><b>要解的那道题：密度下不糊成一团。</b> 洋流优先意味着关系网必须能读。答案是 <b>洋流聚焦 current-focus</b>：悬停一座岛 → 它进出的洋流亮成「被点燃的水」，其余全部退到 40% 并静止。左图<b>可交互</b>（悬停任意岛试试），右图是 <code>focus C</code> 的定格。气候（连续水色）与水深（暗度）只做安静的底噪，绝不与关系争。</p>
+
+  <!-- ============ SHARED DEFS ============ -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <!-- real MOUND_PATHS (IslandMound.tsx, verbatim) -->
+    <path id="m0" d="M -58 10 C -50 -8 -26 -20 2 -21 C 30 -20 50 -9 58 8 C 46 16 30 20 0 20 C -30 20 -48 16 -58 10 Z"/>
+    <path id="m1" d="M -62 8 C -44 -14 -18 -8 -6 -17 C 8 -26 34 -18 48 -6 C 56 1 60 6 62 10 C 40 18 -40 18 -62 8 Z"/>
+    <path id="m2" d="M -50 10 C -46 -10 -20 -24 6 -18 C 20 -15 30 -22 44 -12 C 54 -5 52 5 54 10 C 30 17 -30 17 -50 10 Z"/>
+    <path id="m3" d="M -60 9 C -54 -6 -40 -16 -24 -14 C -14 -13 -10 -6 -2 -8 C 4 -20 24 -24 40 -14 C 52 -7 56 2 58 9 C 36 17 -36 17 -60 9 Z"/>
+    <path id="m4" d="M -64 8 C -52 -4 -30 -10 -4 -11 C 24 -12 48 -6 62 6 C 64 8 62 10 60 11 C 30 17 -40 16 -64 8 Z"/>
+    <!-- island furniture (verbatim from IslandMound) -->
+    <path id="ring1" d="M -70 24 q 34 9 70 9 q 36 0 70 -9"/>
+    <path id="ring2" d="M -58 34 q 28 7 58 7 q 30 0 58 -7"/>
+    <path id="ridge" d="M -22 -8 Q 0 -15 20 -8"/>
+    <!-- directional arrowheads, one per relation type -->
+    <marker id="ar-az" markerUnits="userSpaceOnUse" markerWidth="15" markerHeight="15" viewBox="0 0 12 12" refX="9" refY="6" orient="auto"><path d="M1,1.5 L10.5,6 L1,10.5 Z" fill="var(--fi-azurite)"/></marker>
+    <marker id="ar-oc" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" viewBox="0 0 12 12" refX="9" refY="6" orient="auto"><path d="M1,1.5 L10.5,6 L1,10.5 Z" fill="var(--fi-ochre)"/></marker>
+    <marker id="ar-ma" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" viewBox="0 0 12 12" refX="9" refY="6" orient="auto"><path d="M1,1.5 L10.5,6 L1,10.5 Z" fill="var(--fi-malachite)"/></marker>
+    <!-- climate blooms (quiet, continuous — 4 domain anchors melt into --fi-water) -->
+    <radialGradient id="climMath" cx="12%" cy="20%" r="58%"><stop offset="0" stop-color="var(--fi-domain-math-fill)" stop-opacity=".62"/><stop offset="1" stop-color="var(--fi-domain-math-fill)" stop-opacity="0"/></radialGradient>
+    <radialGradient id="climLife" cx="84%" cy="14%" r="56%"><stop offset="0" stop-color="var(--fi-domain-life-fill)" stop-opacity=".6"/><stop offset="1" stop-color="var(--fi-domain-life-fill)" stop-opacity="0"/></radialGradient>
+    <radialGradient id="climMatter" cx="20%" cy="94%" r="58%"><stop offset="0" stop-color="var(--fi-domain-matter-fill)" stop-opacity=".6"/><stop offset="1" stop-color="var(--fi-domain-matter-fill)" stop-opacity="0"/></radialGradient>
+    <radialGradient id="climCross" cx="66%" cy="98%" r="60%"><stop offset="0" stop-color="var(--fi-domain-cross-fill)" stop-opacity=".62"/><stop offset="1" stop-color="var(--fi-domain-cross-fill)" stop-opacity="0"/></radialGradient>
+    <!-- sea depth (abstract island floats over dark water) -->
+    <radialGradient id="depth" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="var(--fi-azurite-deep)" stop-opacity=".30"/><stop offset="1" stop-color="var(--fi-azurite-deep)" stop-opacity="0"/></radialGradient>
+    <!-- confluence 河口 delta bloom -->
+    <radialGradient id="delta" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="var(--fi-gamboge)" stop-opacity=".62"/><stop offset="1" stop-color="var(--fi-gamboge)" stop-opacity="0"/></radialGradient>
+    <!-- whirlpool 漩涡 disc -->
+    <radialGradient id="vortex" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="var(--fi-azurite-deep)" stop-opacity=".34"/><stop offset="1" stop-color="var(--fi-azurite-deep)" stop-opacity="0"/></radialGradient>
+  </defs></svg>
+
+  <!-- ============ STAGE ============ -->
+  <div class="stage">
+
+    <!-- ---- LEFT: interactive default ---- -->
+    <div class="panel">
+      <div class="plabel"><span class="zh">默认 · 关系网全景</span><span class="en">DEFAULT — hover any island</span></div>
+      <div class="frame">
+        <svg class="is-live" viewBox="0 0 500 400" role="img" aria-label="archipelago with typed currents; hover an island to focus its relations">
+          <!-- climate wash (quiet) -->
+          <rect width="500" height="400" fill="var(--fi-water)"/>
+          <rect width="500" height="400" fill="url(#climMath)"/>
+          <rect width="500" height="400" fill="url(#climLife)"/>
+          <rect width="500" height="400" fill="url(#climMatter)"/>
+          <rect width="500" height="400" fill="url(#climCross)"/>
+          <!-- sea depth under formal island A -->
+          <ellipse cx="110" cy="128" rx="96" ry="66" fill="url(#depth)"/>
+
+          <!-- ===== relation layer (currents drawn under islands) ===== -->
+          <!-- isthmus A–D : solid ratified land bridge (heavy) -->
+          <g class="rel c-A c-D">
+            <path d="M94,150 C 84,205 84,240 96,296 L126,296 C 138,240 138,205 128,150 Z" fill="var(--fi-sand)" stroke="var(--fi-ink)" stroke-width="2.5" stroke-linejoin="round"/>
+            <path d="M111,168 C 106,215 106,235 111,282" stroke="var(--fi-ink-2)" stroke-width="0.75" fill="none" opacity=".5"/>
+          </g>
+          <!-- strait E–F : proposed contested channel (dashed water) -->
+          <g class="rel c-E c-F">
+            <path d="M356,300 C 396,252 414,214 424,180" stroke="var(--fi-ghost)" stroke-width="2" fill="none" stroke-dasharray="3 6" opacity=".9"/>
+            <path d="M376,308 C 414,262 430,224 440,190" stroke="var(--fi-ghost)" stroke-width="2" fill="none" stroke-dasharray="3 6" opacity=".7"/>
+          </g>
+
+          <!-- currents -->
+          <g class="cur rel c-A c-C" style="--w:7"><path class="glow" d="M118,130 C 160,168 185,172 216,197" stroke="var(--fi-azurite)"/><path class="core" d="M118,130 C 160,168 185,172 216,197" stroke="var(--fi-azurite)" marker-end="url(#ar-az)"/></g>
+          <g class="cur rel c-B c-C" style="--w:4"><path class="glow" d="M292,118 C 276,150 264,166 251,190" stroke="var(--fi-ochre)"/><path class="core" d="M292,118 C 276,150 264,166 251,190" stroke="var(--fi-ochre)" marker-end="url(#ar-oc)"/></g>
+          <g class="cur rel c-C c-D" style="--w:3.5"><path class="glow" d="M226,224 C 190,255 152,272 130,290" stroke="var(--fi-azurite)"/><path class="core" d="M226,224 C 190,255 152,272 130,290" stroke="var(--fi-azurite)" marker-end="url(#ar-az)"/></g>
+          <g class="cur rel c-C c-E" style="--w:5"><path class="glow" d="M266,222 C 300,256 322,286 340,302" stroke="var(--fi-malachite)"/><path class="core" d="M266,222 C 300,256 322,286 340,302" stroke="var(--fi-malachite)" marker-end="url(#ar-ma)"/></g>
+          <g class="cur rel c-B c-F" style="--w:3"><path class="glow" d="M318,104 C 360,118 396,134 418,155" stroke="var(--fi-malachite)"/><path class="core" d="M318,104 C 360,118 396,134 418,155" stroke="var(--fi-malachite)" marker-end="url(#ar-ma)"/></g>
+          <g class="cur rel c-A c-F" style="--w:3"><path class="glow" d="M128,110 C 214,56 342,60 421,150" stroke="var(--fi-ochre)"/><path class="core" d="M128,110 C 214,56 342,60 421,150" stroke="var(--fi-ochre)" marker-end="url(#ar-oc)"/></g>
+
+          <!-- confluence 河口 at F : ochre + malachite meet -->
+          <g class="rel c-A c-B c-F">
+            <circle cx="432" cy="164" r="34" fill="url(#delta)"/>
+            <path d="M432,164 C 446,172 456,184 462,198 M432,164 C 452,168 466,174 476,182 M432,164 C 448,178 456,192 458,206" stroke="var(--fi-gamboge)" stroke-width="1.4" fill="none" opacity=".85" stroke-linecap="round"/>
+          </g>
+          <!-- whirlpool 漩涡 over contested southern cluster (D–E) -->
+          <g class="rel c-D c-E">
+            <circle cx="232" cy="352" r="30" fill="url(#vortex)"/>
+            <g class="whirl">
+              <path d="M232,330 A22,22 0 1 1 210,352" stroke="var(--fi-azurite-deep)" stroke-width="1.6" fill="none" opacity=".7" stroke-linecap="round"/>
+              <path d="M232,338 A14,14 0 1 1 218,352" stroke="var(--fi-azurite-deep)" stroke-width="1.4" fill="none" opacity=".55" stroke-linecap="round"/>
+              <path d="M232,345 A7,7 0 1 1 225,352" stroke="var(--fi-azurite-deep)" stroke-width="1.2" fill="none" opacity=".45" stroke-linecap="round"/>
+            </g>
+          </g>
+
+          <!-- ===== islands ===== -->
+          <g class="isl i-A" transform="translate(110,120) scale(.70)"><ellipse class="cast" cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,.15)"/><use href="#ring1" fill="none" stroke="#BFCEDB" stroke-width="1.2" opacity=".8"/><use href="#ring2" fill="none" stroke="#BFCEDB" stroke-width="1" opacity=".5"/><g class="body"><use href="#m0" fill="var(--fi-domain-math-fill)" stroke="#4A4238" stroke-width="1.5"/><use href="#ridge" fill="none" stroke="#4A4238" stroke-width=".75" opacity=".3"/></g></g>
+          <g class="isl i-B" transform="translate(300,100) scale(.74)"><ellipse class="cast" cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,.15)"/><use href="#ring1" fill="none" stroke="#BFCEDB" stroke-width="1.2" opacity=".8"/><use href="#ring2" fill="none" stroke="#BFCEDB" stroke-width="1" opacity=".5"/><g class="body"><use href="#m1" fill="var(--fi-domain-life-fill)" stroke="#4A4238" stroke-width="1.5"/><use href="#ridge" fill="none" stroke="#4A4238" stroke-width=".75" opacity=".3"/></g></g>
+          <g class="isl i-C" transform="translate(245,210) scale(.86)"><ellipse class="cast" cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,.15)"/><use href="#ring1" fill="none" stroke="#BFCEDB" stroke-width="1.2" opacity=".8"/><use href="#ring2" fill="none" stroke="#BFCEDB" stroke-width="1" opacity=".5"/><g class="body"><use href="#m2" fill="var(--fi-domain-matter-fill)" stroke="#4A4238" stroke-width="1.5"/><use href="#ridge" fill="none" stroke="#4A4238" stroke-width=".75" opacity=".3"/></g></g>
+          <g class="isl i-D" transform="translate(110,305) scale(.66)"><ellipse class="cast" cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,.15)"/><use href="#ring1" fill="none" stroke="#BFCEDB" stroke-width="1.2" opacity=".8"/><use href="#ring2" fill="none" stroke="#BFCEDB" stroke-width="1" opacity=".5"/><g class="body"><use href="#m3" fill="var(--fi-domain-cross-fill)" stroke="#4A4238" stroke-width="1.5"/><use href="#ridge" fill="none" stroke="#4A4238" stroke-width=".75" opacity=".3"/></g></g>
+          <g class="isl i-E" transform="translate(350,315) scale(.70)"><ellipse class="cast" cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,.15)"/><use href="#ring1" fill="none" stroke="#BFCEDB" stroke-width="1.2" opacity=".8"/><use href="#ring2" fill="none" stroke="#BFCEDB" stroke-width="1" opacity=".5"/><g class="body"><use href="#m4" fill="var(--fi-domain-matter-fill)" stroke="#4A4238" stroke-width="1.5"/><use href="#ridge" fill="none" stroke="#4A4238" stroke-width=".75" opacity=".3"/></g></g>
+          <g class="isl i-F" transform="translate(430,165) scale(.62)"><ellipse class="cast" cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,.15)"/><use href="#ring1" fill="none" stroke="#BFCEDB" stroke-width="1.2" opacity=".8"/><use href="#ring2" fill="none" stroke="#BFCEDB" stroke-width="1" opacity=".5"/><g class="body"><use href="#m0" fill="var(--fi-domain-math-fill)" stroke="#4A4238" stroke-width="1.5"/><use href="#ridge" fill="none" stroke="#4A4238" stroke-width=".75" opacity=".3"/></g></g>
+        </svg>
+      </div>
+      <p class="hint">悬停任意岛 → 它的洋流被点燃，其余退到 <b>40%</b>。糊团在源头消失。</p>
+    </div>
+
+    <!-- ---- mid annotation ---- -->
+    <div class="midcol">
+      <span class="cap">current-focus</span>
+      <span class="arw">→</span>
+    </div>
+
+    <!-- ---- RIGHT: static focus-on-C ---- -->
+    <div class="panel">
+      <div class="plabel"><span class="zh">聚焦 · 岛 C 的关系邻域</span><span class="en">FOCUS C — the rest recede</span></div>
+      <div class="frame">
+        <svg class="is-focus-c" viewBox="0 0 500 400" role="img" aria-label="the same archipelago focused on island C: only C's four currents stay lit">
+          <rect width="500" height="400" fill="var(--fi-water)"/>
+          <rect width="500" height="400" fill="url(#climMath)"/>
+          <rect width="500" height="400" fill="url(#climLife)"/>
+          <rect width="500" height="400" fill="url(#climMatter)"/>
+          <rect width="500" height="400" fill="url(#climCross)"/>
+          <ellipse cx="110" cy="128" rx="96" ry="66" fill="url(#depth)"/>
+
+          <g class="rel c-A c-D">
+            <path d="M94,150 C 84,205 84,240 96,296 L126,296 C 138,240 138,205 128,150 Z" fill="var(--fi-sand)" stroke="var(--fi-ink)" stroke-width="2.5" stroke-linejoin="round"/>
+            <path d="M111,168 C 106,215 106,235 111,282" stroke="var(--fi-ink-2)" stroke-width="0.75" fill="none" opacity=".5"/>
+          </g>
+          <g class="rel c-E c-F">
+            <path d="M356,300 C 396,252 414,214 424,180" stroke="var(--fi-ghost)" stroke-width="2" fill="none" stroke-dasharray="3 6" opacity=".9"/>
+            <path d="M376,308 C 414,262 430,224 440,190" stroke="var(--fi-ghost)" stroke-width="2" fill="none" stroke-dasharray="3 6" opacity=".7"/>
+          </g>
+
+          <g class="cur rel c-A c-C" style="--w:7"><path class="glow" d="M118,130 C 160,168 185,172 216,197" stroke="var(--fi-azurite)"/><path class="core" d="M118,130 C 160,168 185,172 216,197" stroke="var(--fi-azurite)" marker-end="url(#ar-az)"/></g>
+          <g class="cur rel c-B c-C" style="--w:4"><path class="glow" d="M292,118 C 276,150 264,166 251,190" stroke="var(--fi-ochre)"/><path class="core" d="M292,118 C 276,150 264,166 251,190" stroke="var(--fi-ochre)" marker-end="url(#ar-oc)"/></g>
+          <g class="cur rel c-C c-D" style="--w:3.5"><path class="glow" d="M226,224 C 190,255 152,272 130,290" stroke="var(--fi-azurite)"/><path class="core" d="M226,224 C 190,255 152,272 130,290" stroke="var(--fi-azurite)" marker-end="url(#ar-az)"/></g>
+          <g class="cur rel c-C c-E" style="--w:5"><path class="glow" d="M266,222 C 300,256 322,286 340,302" stroke="var(--fi-malachite)"/><path class="core" d="M266,222 C 300,256 322,286 340,302" stroke="var(--fi-malachite)" marker-end="url(#ar-ma)"/></g>
+          <g class="cur rel c-B c-F" style="--w:3"><path class="glow" d="M318,104 C 360,118 396,134 418,155" stroke="var(--fi-malachite)"/><path class="core" d="M318,104 C 360,118 396,134 418,155" stroke="var(--fi-malachite)" marker-end="url(#ar-ma)"/></g>
+          <g class="cur rel c-A c-F" style="--w:3"><path class="glow" d="M128,110 C 214,56 342,60 421,150" stroke="var(--fi-ochre)"/><path class="core" d="M128,110 C 214,56 342,60 421,150" stroke="var(--fi-ochre)" marker-end="url(#ar-oc)"/></g>
+
+          <g class="rel c-A c-B c-F">
+            <circle cx="432" cy="164" r="34" fill="url(#delta)"/>
+            <path d="M432,164 C 446,172 456,184 462,198 M432,164 C 452,168 466,174 476,182 M432,164 C 448,178 456,192 458,206" stroke="var(--fi-gamboge)" stroke-width="1.4" fill="none" opacity=".85" stroke-linecap="round"/>
+          </g>
+          <g class="rel c-D c-E">
+            <circle cx="232" cy="352" r="30" fill="url(#vortex)"/>
+            <g class="whirl">
+              <path d="M232,330 A22,22 0 1 1 210,352" stroke="var(--fi-azurite-deep)" stroke-width="1.6" fill="none" opacity=".7" stroke-linecap="round"/>
+              <path d="M232,338 A14,14 0 1 1 218,352" stroke="var(--fi-azurite-deep)" stroke-width="1.4" fill="none" opacity=".55" stroke-linecap="round"/>
+              <path d="M232,345 A7,7 0 1 1 225,352" stroke="var(--fi-azurite-deep)" stroke-width="1.2" fill="none" opacity=".45" stroke-linecap="round"/>
+            </g>
+          </g>
+
+          <g class="isl i-A" transform="translate(110,120) scale(.70)"><ellipse class="cast" cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,.15)"/><use href="#ring1" fill="none" stroke="#BFCEDB" stroke-width="1.2" opacity=".8"/><use href="#ring2" fill="none" stroke="#BFCEDB" stroke-width="1" opacity=".5"/><g class="body"><use href="#m0" fill="var(--fi-domain-math-fill)" stroke="#4A4238" stroke-width="1.5"/><use href="#ridge" fill="none" stroke="#4A4238" stroke-width=".75" opacity=".3"/></g></g>
+          <g class="isl i-B" transform="translate(300,100) scale(.74)"><ellipse class="cast" cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,.15)"/><use href="#ring1" fill="none" stroke="#BFCEDB" stroke-width="1.2" opacity=".8"/><use href="#ring2" fill="none" stroke="#BFCEDB" stroke-width="1" opacity=".5"/><g class="body"><use href="#m1" fill="var(--fi-domain-life-fill)" stroke="#4A4238" stroke-width="1.5"/><use href="#ridge" fill="none" stroke="#4A4238" stroke-width=".75" opacity=".3"/></g></g>
+          <g class="isl i-C" transform="translate(245,210) scale(.86)"><ellipse class="cast" cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,.15)"/><use href="#ring1" fill="none" stroke="#BFCEDB" stroke-width="1.2" opacity=".8"/><use href="#ring2" fill="none" stroke="#BFCEDB" stroke-width="1" opacity=".5"/><g class="body"><use href="#m2" fill="var(--fi-domain-matter-fill)" stroke="#4A4238" stroke-width="1.5"/><use href="#ridge" fill="none" stroke="#4A4238" stroke-width=".75" opacity=".3"/></g></g>
+          <g class="isl i-D" transform="translate(110,305) scale(.66)"><ellipse class="cast" cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,.15)"/><use href="#ring1" fill="none" stroke="#BFCEDB" stroke-width="1.2" opacity=".8"/><use href="#ring2" fill="none" stroke="#BFCEDB" stroke-width="1" opacity=".5"/><g class="body"><use href="#m3" fill="var(--fi-domain-cross-fill)" stroke="#4A4238" stroke-width="1.5"/><use href="#ridge" fill="none" stroke="#4A4238" stroke-width=".75" opacity=".3"/></g></g>
+          <g class="isl i-E" transform="translate(350,315) scale(.70)"><ellipse class="cast" cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,.15)"/><use href="#ring1" fill="none" stroke="#BFCEDB" stroke-width="1.2" opacity=".8"/><use href="#ring2" fill="none" stroke="#BFCEDB" stroke-width="1" opacity=".5"/><g class="body"><use href="#m4" fill="var(--fi-domain-matter-fill)" stroke="#4A4238" stroke-width="1.5"/><use href="#ridge" fill="none" stroke="#4A4238" stroke-width=".75" opacity=".3"/></g></g>
+          <g class="isl i-F" transform="translate(430,165) scale(.62)"><ellipse class="cast" cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,.15)"/><use href="#ring1" fill="none" stroke="#BFCEDB" stroke-width="1.2" opacity=".8"/><use href="#ring2" fill="none" stroke="#BFCEDB" stroke-width="1" opacity=".5"/><g class="body"><use href="#m0" fill="var(--fi-domain-math-fill)" stroke="#4A4238" stroke-width="1.5"/><use href="#ridge" fill="none" stroke="#4A4238" stroke-width=".75" opacity=".3"/></g></g>
+        </svg>
+      </div>
+      <p class="hint">C 有 4 根洋流（2 进 2 出）；离群关系静止成鬼线，仍可辨读。</p>
+    </div>
+  </div>
+
+  <!-- ============ LEGEND ============ -->
+  <div class="legend">
+    <div class="key">
+      <h2>流例 · 洋流 <span class="en">flow legend — the current, decoded</span></h2>
+      <p class="note">诚实编码不可选：读者永远能解一根洋流。色=类型 · 宽=权重 · 箭=方向。</p>
+      <div class="row">
+        <svg width="88" height="18" viewBox="0 0 88 18"><path d="M4,9 H70" stroke="var(--fi-azurite)" stroke-width="7" stroke-linecap="round"/><path d="M70,9 l-9,-5 v10 z" fill="var(--fi-azurite)"/></svg>
+        <span><b>石青 azurite</b> <span class="en">validate / cite</span> — 证据链 · 高权重＝粗</span>
+      </div>
+      <div class="row">
+        <svg width="88" height="18" viewBox="0 0 88 18"><path d="M4,9 H72" stroke="var(--fi-ochre)" stroke-width="4" stroke-linecap="round"/><path d="M72,9 l-8,-4.5 v9 z" fill="var(--fi-ochre)"/></svg>
+        <span><b>赭石 ochre</b> <span class="en">bridge / analogy</span> — 架桥类比（摆渡人之流）</span>
+      </div>
+      <div class="row">
+        <svg width="88" height="18" viewBox="0 0 88 18"><path d="M4,9 H74" stroke="var(--fi-malachite)" stroke-width="2.5" stroke-linecap="round"/><path d="M74,9 l-7,-4 v8 z" fill="var(--fi-malachite)"/></svg>
+        <span><b>石绿 malachite</b> <span class="en">fork / merge_back</span> — 世系生成</span>
+      </div>
+    </div>
+
+    <div class="key">
+      <h2>离散符号 <span class="en">discrete glyphs — maturity, dispute, synthesis</span></h2>
+      <p class="note">水/陆＝关系成熟度；漩涡＝未决争议；河口＝跨域综合的涌现。</p>
+      <div class="row">
+        <svg width="54" height="34" viewBox="0 0 54 34"><path d="M14,4 C6,14 6,20 14,30 L26,30 C34,20 34,14 26,4 Z" fill="var(--fi-sand)" stroke="var(--fi-ink)" stroke-width="2.5" stroke-linejoin="round"/><g transform="translate(20,0)"><path d="M20,17 C12,26 12,8 20,17" fill="none"/><path d="M14,6 C34,10 34,24 14,28" stroke="var(--fi-ghost)" stroke-width="2" fill="none" stroke-dasharray="3 5"/></g></svg>
+        <span><b>地峡</b> 实心陆桥＝已批 <span class="en">isthmus · accepted</span> · <b>海峡</b> 虚线水道＝提案 <span class="en">strait · proposed</span></span>
+      </div>
+      <div class="row">
+        <svg width="54" height="34" viewBox="0 0 54 34"><circle cx="27" cy="17" r="15" fill="url(#vortex)"/><g class="whirl" style="transform-origin:27px 17px"><path d="M27,4 A13,13 0 1 1 14,17" stroke="var(--fi-azurite-deep)" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".7"/><path d="M27,10 A7,7 0 1 1 20,17" stroke="var(--fi-azurite-deep)" stroke-width="1.4" fill="none" stroke-linecap="round" opacity=".5"/></g></svg>
+        <span><b>漩涡 whirlpool</b> — 未决争议（refute 未配 validate），强度＝争议量，化解则归于止水</span>
+      </div>
+      <div class="row">
+        <svg width="54" height="34" viewBox="0 0 54 34"><circle cx="30" cy="17" r="14" fill="url(#delta)"/><path d="M6,7 C18,12 24,14 30,17" stroke="var(--fi-ochre)" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M6,28 C18,24 24,20 30,17" stroke="var(--fi-malachite)" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M30,17 c8,3 12,6 16,10 M30,17 c9,0 14,2 18,4" stroke="var(--fi-gamboge)" stroke-width="1.3" fill="none" stroke-linecap="round" opacity=".85"/></svg>
+        <span><b>河口 confluence</b> — 异型洋流交汇＝跨域综合站点，只画在数据显示汇流处（非静态「交叉」桶）</span>
+      </div>
+    </div>
+  </div>
+
+  <p class="foot"><b>不变量</b> · 每根洋流、每个符号都是 ledger 事件的 <b>reduce 投影</b>（可完全再生）— 没有「画一条线」工具，没有算法推荐流。气候＝领域向量（静止水色）· 水深＝抽象度（水下暗度）· 高度＝扎根度（水上＋影锚）· 洋流＝关系（运动）：<b>四轴绝不同屏混淆</b>。新形态仅用现有 <code style="color:var(--fi-azurite-deep)">--fi-*</code> token。</p>
+
+</div>
+</body>

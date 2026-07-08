@@ -1,0 +1,196 @@
+<!-- @dsCard group="Components" -->
+<!doctype html><meta charset="utf-8"><title>Stations · Components</title>
+<style>
+/*
+ * Frontier Isles design tokens.
+ * Extracted VERBATIM from design/handoff/问题群岛-原型 v3.dc.html
+ *   - artboard 3c "设计 Token 清单" (color / type / spacing / radii / stroke / motion)
+ *   - helmet <style> block (@keyframes + prefers-reduced-motion kill switch)
+ *
+ * Day/night swaps palette only, never shape (docs/architecture.md §1).
+ * Day values live here as the default :root palette; night overrides are
+ * applied as an inline CSS-variable string on the scene root — see
+ * src/palettes.ts NIGHT_SCENE_VARS (copied from the prototype's `nightVars`).
+ */
+
+:root {
+  /* 色 · 矿物色系 — day */
+  --fi-paper: #F2EAD8;           /* 纸底 · 页面基面 */
+  --fi-night-paper: #161F36;     /* 靛蓝纸 · 夜晚基面 */
+  --fi-paper-raised: #FAF5E8;    /* 卡面 / 面板 */
+  --fi-night-raised: #212C4E;    /* 夜 · 卡面 / 建筑墙 */
+  --fi-ink: #2B2620;             /* 主墨 · 文字/勾线 */
+  --fi-night-ink: #C9D0E4;       /* 夜 · 主墨反白 */
+  --fi-ink-2: #6B6154;           /* 次墨 · 注文 */
+  --fi-night-ink-2: #8B94B2;     /* 夜 · 次墨 */
+  --fi-azurite: #2E5E8C;         /* 石青 · 主行动/链接/数理 */
+  --fi-azurite-deep: #1E4266;    /* 石青深 · 屋瓦/按压态 */
+  --fi-malachite: #3E9B7E;       /* 石绿 · 生长/成功/生命 */
+  --fi-ochre: #B5673A;           /* 赭石 · 次行动/桥/印章/物质 */
+  --fi-gamboge: #E3A93C;         /* 藤黄 · 点睛/聚焦/离群发光 */
+  --fi-lantern: #F5B94B;         /* 灯笼暖光 · 夜晚点亮 */
+  --fi-water: #C8D8E4;           /* 水 · 海面/池 */
+  --fi-ghost: #C9D7F2;           /* 魂影 · 40% 透明 + 虚线 */
+  --fi-sand: #E7DBBB;            /* 沙洲 · 岸线/台阶 */
+  --fi-stone: #DCCFAB;           /* 石阶 · 铺地/器座 */
+
+  /* 字 */
+  --fi-font-display: 'Noto Serif SC', 'Songti SC', serif;
+  --fi-font-body: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', system-ui, sans-serif;
+  --fi-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* 间距 · 8pt 网格 */
+  --fi-space-1: 4px;
+  --fi-space-2: 8px;
+  --fi-space-3: 12px;
+  --fi-space-4: 16px;
+  --fi-space-5: 24px;
+  --fi-space-6: 32px;
+  --fi-space-7: 48px;
+
+  /* 圆角 */
+  --fi-radius-seal: 2px;
+  --fi-radius-card: 6px;
+  --fi-radius-panel: 10px;
+  --fi-radius-pill: 999px;
+
+  /* 墨线 · 描边粗细 */
+  --fi-stroke-fine: 0.75px;   /* 细勾 · 分隔/窗棂 */
+  --fi-stroke-main: 1.5px;    /* 主勾 · 轮廓/边框 */
+  --fi-stroke-heavy: 2.5px;   /* 重勾 · 桥/强调 */
+
+  /* 动效 */
+  --fi-motion-micro: 240ms;
+  --fi-motion-scroll-wipe: 480ms;
+  --fi-motion-scroll-wipe-max: 550ms;
+  --fi-motion-day-night-flip: 700ms;
+  --fi-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* motion toggle — set --play:paused on an ancestor to freeze all
+     prototype animations (breathe / pulseGlow / twinkle / sway / …) */
+  --play: running;
+}
+
+/* 领域映射 · domain colors (island base fill, day/night same shape) */
+:root {
+  --fi-domain-math-fill: #C9D8E6;   /* 数理 */
+  --fi-domain-math-ink: #2E5E8C;
+  --fi-domain-matter-fill: #E8CFAE; /* 物质 */
+  --fi-domain-matter-ink: #B5673A;
+  --fi-domain-life-fill: #C6DECC;   /* 生命 */
+  --fi-domain-life-ink: #2B7A5F;
+  --fi-domain-cross-fill: #ECDFB4;  /* 交叉 */
+  --fi-domain-cross-ink: #A08428;
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: .78; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-3px); }
+}
+@keyframes pulseGlow {
+  0%, 100% { opacity: .30; }
+  50% { opacity: .75; }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: .9; }
+  50% { opacity: .25; }
+}
+@keyframes sway {
+  0%, 100% { transform: rotate(-3.5deg); }
+  50% { transform: rotate(3.5deg); }
+}
+@keyframes ghostFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes fflyA {
+  0%, 100% { transform: translate(0,0); opacity: .9; }
+  30% { transform: translate(10px,-8px); opacity: .4; }
+  65% { transform: translate(-6px,-14px); opacity: .9; }
+}
+@keyframes fflyB {
+  0%, 100% { transform: translate(0,0); opacity: .5; }
+  40% { transform: translate(-11px,-6px); opacity: .95; }
+  70% { transform: translate(7px,-12px); opacity: .45; }
+}
+@keyframes waveDrift {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(7px); }
+}
+@keyframes bob {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-3px) rotate(1.5deg); }
+}
+@keyframes smoke {
+  0%, 100% { transform: translateY(0); opacity: .5; }
+  50% { transform: translateY(-4px); opacity: .25; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+
+*{box-sizing:border-box}html,body{margin:0}
+body{font-family:var(--fi-font-body);background:var(--fi-paper);color:var(--fi-ink);padding:24px}
+h1{font-family:var(--fi-font-display);font-size:17px;margin:0 0 3px}
+.note{font-size:12px;color:var(--fi-ink-2);margin:0 0 20px;line-height:1.55;max-width:860px}
+.note code,.note b{color:var(--fi-ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px}
+.cell{margin:0;background:var(--fi-paper-raised);border:1px solid rgba(0,0,0,.08);border-radius:var(--fi-radius-panel);padding:14px 12px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
+.cell.wide{grid-column:1/-1}
+.cell svg{width:100%;height:auto;max-height:220px;overflow:visible}
+.cell.wide svg{max-height:340px}
+.cap{font-family:var(--fi-font-mono);font-size:10.5px;margin-top:12px;text-align:center;color:var(--fi-ink-2);line-height:1.5}
+.cap b{display:block;font-family:var(--fi-font-display);font-size:13px;color:var(--fi-ink);margin-bottom:1px}
+.cap .sub{display:block;color:var(--fi-ink-2);opacity:.8;margin-top:2px}
+.pair{display:flex;gap:18px;flex-wrap:wrap}
+.panel{flex:1;min-width:300px;border-radius:var(--fi-radius-panel);overflow:hidden;border:1px solid rgba(0,0,0,.1)}
+.panel svg{display:block;width:100%;height:auto}
+.panel .plabel{font-family:var(--fi-font-mono);font-size:12px;padding:10px 12px}
+.panel.day .plabel{background:var(--fi-paper-raised);color:var(--fi-ink-2)}
+.panel.night .plabel{background:var(--fi-night-raised);color:var(--fi-night-ink-2)}
+
+</style>
+<body>
+<h1>建筑 · Stations (九座)</h1>
+<p class="note">问题岛 L1 的九座建筑,逐一从 <code>@frontier-isles/assets/stations</code> 服务端渲染。每座在自身局部原点(<code>x=0,y=0</code>)绘制;渡口 <code>FerryDock</code> 为 stub,复用绝对坐标的栈桥+小舟,故按其真实 L1 坐标取景。昼夜只换调色板,此处为昼(默认 <code>var(--x,dayFallback)</code>)。</p>
+<div class="grid">
+<figure class="cell">
+  <svg viewBox="-120 -122 240 232" role="img" xmlns="http://www.w3.org/2000/svg" aria-label="文献阁 StationLibrary"><g transform="translate(0,0)"><ellipse cx="0" cy="52" rx="112" ry="44" fill="var(--shadow,rgba(58,48,36,0.16))"></ellipse><polygon points="-96,-16 0,32 0,96 -96,48" fill="var(--wall,#F8F1DE)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><polygon points="96,-16 0,32 0,96 96,48" fill="var(--wallSh,#E7DABE)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><polygon points="-96,10 0,58 0,64 -96,16" fill="rgba(58,48,36,0.12)"></polygon><polygon points="96,10 0,58 0,64 96,16" fill="rgba(58,48,36,0.16)"></polygon><g transform="skewY(26.565)"><rect x="-84" y="-22" width="14" height="13" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><rect x="-62" y="-22" width="14" height="13" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><rect x="-40" y="-22" width="14" height="13" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><path d="M -80 -22 v 13 M -76 -22 v 13 M -58 -22 v 13 M -54 -22 v 13 M -36 -22 v 13 M -32 -22 v 13" stroke="var(--wall,#F8F1DE)" stroke-width="1"></path><rect x="-84" y="8" width="14" height="13" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><rect x="-62" y="8" width="14" height="13" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect></g><g transform="skewY(-26.565)"><rect x="36" y="6" width="20" height="26" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><line x1="46" y1="6" x2="46" y2="32" stroke="var(--wall,#F8F1DE)" stroke-width="0.75"></line><rect x="12" y="-22" width="14" height="13" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><rect x="68" y="-22" width="14" height="13" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><rect x="74" y="0" width="9" height="20" rx="1" fill="var(--gold,#E3A93C)" stroke="var(--ink,#3A342B)" stroke-width="0.6"></rect></g><polygon points="0,-53 106,0 0,53 -106,0" transform="translate(0,-22)" fill="var(--capB,#2E5E8C)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><path d="M -106 -22 L 0 -75 L 106 -22" fill="none" stroke="var(--ink,#3A342B)" stroke-width="0.75" opacity="0.5"></path><circle cx="0" cy="-79" r="3.5" fill="var(--gold,#E3A93C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></circle><circle cx="-103" cy="-20" r="2.2" fill="var(--capD,#4A4238)" stroke="var(--ink,#3A342B)" stroke-width="0.6"></circle><circle cx="103" cy="-20" r="2.2" fill="var(--capD,#4A4238)" stroke="var(--ink,#3A342B)" stroke-width="0.6"></circle><path d="M -30 86 a 30 11 0 0 1 60 0" fill="none" stroke="var(--ink,#3A342B)" stroke-width="0.75" opacity="0.3"></path><path d="M -20 90 a 20 8 0 0 1 40 0" fill="none" stroke="var(--ink,#3A342B)" stroke-width="0.75" opacity="0.22"></path><g transform="translate(0,-104)"><rect x="-32" y="-11" width="64" height="21" rx="3" fill="var(--card,rgba(250,245,232,0.92))" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><circle cx="-22" cy="-0.5" r="2.5" fill="#2E5E8C"></circle><text x="4" y="4" text-anchor="middle" font-size="12" fill="var(--inkT,#2B2620)" style="font-family:&#x27;Noto Serif SC&#x27;,serif;font-weight:600">文献阁</text></g></g></svg>
+  <figcaption class="cap"><b>文献阁</b>StationLibrary</figcaption>
+</figure>
+<figure class="cell">
+  <svg viewBox="-120 -95 272 218" role="img" xmlns="http://www.w3.org/2000/svg" aria-label="白板厅 StationWhiteboardHall"><g transform="translate(0,0)"><ellipse cx="12" cy="66" rx="120" ry="46" fill="var(--shadow,rgba(58,48,36,0.16))"></ellipse><polygon points="-96,8 24,68 24,108 -96,48" fill="var(--wall,#F8F1DE)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><polygon points="120,20 24,68 24,108 120,60" fill="var(--wallSh,#E7DABE)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><g transform="skewY(26.565)"><rect x="-86" y="66" width="82" height="26" rx="1.5" fill="#FDFAF1" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><path d="M -80 74 q 8 -6 16 2 q 8 8 14 -2" stroke="var(--capB,#2E5E8C)" stroke-width="1.2" fill="none"></path><path d="M -44 84 l 30 0 M -44 88 l 22 0" stroke="var(--ink,#3A342B)" stroke-width="1" opacity="0.55"></path><circle cx="-24" cy="74" r="4" fill="none" stroke="var(--ochre,#B5673A)" stroke-width="1.2"></circle></g><polygon points="0,-59 118,0 0,59 -118,0" transform="translate(12,8)" fill="var(--capG,#3E9B7E)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><circle cx="-103" cy="10" r="2.2" fill="var(--capD,#4A4238)" stroke="var(--ink,#3A342B)" stroke-width="0.6"></circle><circle cx="127" cy="10" r="2.2" fill="var(--capD,#4A4238)" stroke="var(--ink,#3A342B)" stroke-width="0.6"></circle><g transform="translate(12,-72)"><rect x="-32" y="-11" width="64" height="21" rx="3" fill="var(--card,rgba(250,245,232,0.92))" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><circle cx="-22" cy="-0.5" r="2.5" fill="#3E9B7E"></circle><text x="4" y="4" text-anchor="middle" font-size="12" fill="var(--inkT,#2B2620)" style="font-family:&#x27;Noto Serif SC&#x27;,serif;font-weight:600">白板厅</text></g></g></svg>
+  <figcaption class="cap"><b>白板厅</b>StationWhiteboardHall</figcaption>
+</figure>
+<figure class="cell">
+  <svg viewBox="-66 -92 202 178" role="img" xmlns="http://www.w3.org/2000/svg" aria-label="问题墙 StationQuestionWall"><g transform="translate(0,0)"><ellipse cx="36" cy="42" rx="88" ry="34" fill="var(--shadow,rgba(58,48,36,0.16))"></ellipse><polygon points="-24,-32 72,16 72,60 -24,12" fill="var(--wall,#F8F1DE)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><polygon points="96,4 72,16 72,60 96,48" fill="var(--wallSh,#E7DABE)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><g transform="skewY(26.565)"><rect x="-14" y="-8" width="10" height="12" fill="#FBF6E9" stroke="var(--ink,#3A342B)" stroke-width="0.75" transform="rotate(-4 -9 -2)"></rect><rect x="4" y="-13" width="10" height="12" fill="#FBF6E9" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><rect x="22" y="-15" width="13" height="15" fill="#FBF6E9" stroke="var(--gold,#E3A93C)" stroke-width="1.5"></rect><rect x="42" y="-9" width="10" height="12" fill="#FBF6E9" stroke="var(--ink,#3A342B)" stroke-width="0.75" transform="rotate(5 47 -3)"></rect><rect x="56" y="2" width="10" height="12" fill="#FBF6E9" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><circle cx="28.5" cy="-17" r="1.8" fill="var(--ochre,#B5673A)"></circle></g><polygon points="0,-34 68,0 0,34 -68,0" transform="translate(36,-18)" fill="var(--capD,#4A4238)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><circle cx="-30" cy="-18" r="2.2" fill="var(--ochre,#B5673A)" stroke="var(--ink,#3A342B)" stroke-width="0.6"></circle><circle cx="102" cy="-18" r="2.2" fill="var(--ochre,#B5673A)" stroke="var(--ink,#3A342B)" stroke-width="0.6"></circle><g transform="translate(36,-64)" style="animation:breathe 4.5s ease-in-out infinite;animation-play-state:var(--play,running)"><rect x="-56" y="-12" width="112" height="23" rx="3" fill="var(--card,rgba(250,245,232,0.92))" stroke="var(--gold,#E3A93C)" stroke-width="1.5"></rect><text x="0" y="4" text-anchor="middle" font-size="12" fill="var(--inkT,#2B2620)" style="font-family:&#x27;Noto Serif SC&#x27;,serif;font-weight:600">问题墙 · QFT ↗</text></g></g></svg>
+  <figcaption class="cap"><b>问题墙</b>StationQuestionWall</figcaption>
+</figure>
+<figure class="cell">
+  <svg viewBox="-72 -56 190 152" role="img" xmlns="http://www.w3.org/2000/svg" aria-label="数据台 StationDataBench"><g transform="translate(0,0)"><polygon points="-58,15 38,63 38,77 -58,29" fill="var(--wall,#F8F1DE)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><polygon points="96,34 38,63 38,77 96,48" fill="var(--wallSh,#E7DABE)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><polygon points="0,-14 96,34 38,63 -58,15" fill="var(--ground,#EBDFC4)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><g transform="translate(10,18)"><rect x="-5" y="-24" width="10" height="24" fill="var(--capB,#2E5E8C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><rect x="-3.5" y="-21" width="7" height="4" fill="var(--gold,#E3A93C)"></rect></g><g transform="translate(34,32)"><rect x="-5" y="-19" width="10" height="19" fill="var(--capG,#3E9B7E)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect></g><g transform="translate(56,40)"><line x1="0" y1="0" x2="0" y2="-32" stroke="var(--ink,#3A342B)" stroke-width="1.5"></line><path d="M 0 -32 L 14 -27 L 0 -22 Z" fill="var(--gold,#E3A93C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></path></g><g transform="translate(20,-30)"><rect x="-32" y="-11" width="64" height="21" rx="3" fill="var(--card,rgba(250,245,232,0.92))" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><circle cx="-22" cy="-0.5" r="2.5" fill="#2E5E8C"></circle><text x="4" y="4" text-anchor="middle" font-size="12" fill="var(--inkT,#2B2620)" style="font-family:&#x27;Noto Serif SC&#x27;,serif;font-weight:600">数据台</text></g></g></svg>
+  <figcaption class="cap"><b>数据台</b>StationDataBench</figcaption>
+</figure>
+<figure class="cell">
+  <svg viewBox="-126 -86 252 196" role="img" xmlns="http://www.w3.org/2000/svg" aria-label="实验坊 StationWorkshop"><g transform="translate(0,0)"><ellipse cx="0" cy="56" rx="108" ry="42" fill="var(--shadow,rgba(58,48,36,0.16))"></ellipse><polygon points="-96,10 0,58 0,96 -96,48" fill="var(--wall,#F8F1DE)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><polygon points="96,10 0,58 0,96 96,48" fill="var(--wallSh,#E7DABE)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><g transform="skewY(26.565)"><rect x="-62" y="42" width="18" height="26" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><rect x="-34" y="40" width="14" height="12" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect></g><polygon points="0,-53 106,0 0,53 -106,0" transform="translate(0,4)" fill="var(--capO,#B5673A)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><circle cx="-103" cy="4" r="2.2" fill="var(--capD,#4A4238)" stroke="var(--ink,#3A342B)" stroke-width="0.6"></circle><circle cx="103" cy="4" r="2.2" fill="var(--capD,#4A4238)" stroke="var(--ink,#3A342B)" stroke-width="0.6"></circle><g transform="translate(-44,-22)"><rect x="-6" y="-16" width="12" height="18" fill="var(--wallSh,#E7DABE)" stroke="var(--ink,#3A342B)" stroke-width="1"></rect><path d="M 0 -20 c 6 -8 -6 -14 2 -24" stroke="var(--ink2,#6B6154)" stroke-width="1.5" fill="none" opacity="0.5" style="animation:smoke 4s ease-in-out infinite;animation-play-state:var(--play,running)"></path></g><g transform="translate(0,-64)"><rect x="-32" y="-11" width="64" height="21" rx="3" fill="var(--card,rgba(250,245,232,0.92))" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><circle cx="-22" cy="-0.5" r="2.5" fill="#B5673A"></circle><text x="4" y="4" text-anchor="middle" font-size="12" fill="var(--inkT,#2B2620)" style="font-family:&#x27;Noto Serif SC&#x27;,serif;font-weight:600">实验坊</text></g></g></svg>
+  <figcaption class="cap"><b>实验坊</b>StationWorkshop</figcaption>
+</figure>
+<figure class="cell">
+  <svg viewBox="-122 -124 268 248" role="img" xmlns="http://www.w3.org/2000/svg" aria-label="展厅 StationGallery"><g transform="translate(0,0)"><ellipse cx="12" cy="72" rx="120" ry="46" fill="var(--shadow,rgba(58,48,36,0.16))"></ellipse><polygon points="-96,2 24,62 24,108 -96,48" fill="var(--wall,#F8F1DE)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><polygon points="120,14 24,62 24,108 120,60" fill="var(--wallSh,#E7DABE)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><g transform="skewY(26.565)"><rect x="-82" y="58" width="24" height="18" fill="#FDFAF1" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><path d="M -76 68 q 6 -8 12 0" stroke="var(--capG,#3E9B7E)" stroke-width="1.2" fill="none"></path><rect x="-50" y="58" width="24" height="18" fill="#FDFAF1" stroke="var(--gold,#E3A93C)" stroke-width="1.2"></rect><circle cx="-38" cy="66" r="4.5" fill="none" stroke="var(--ochre,#B5673A)" stroke-width="1.2"></circle><rect x="-18" y="60" width="12" height="14" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><rect x="-22" y="74" width="20" height="4" fill="var(--sand,#E7DBBB)" stroke="var(--ink,#3A342B)" stroke-width="0.5"></rect><rect x="-26" y="78" width="28" height="4" fill="var(--sand,#E7DBBB)" stroke="var(--ink,#3A342B)" stroke-width="0.5"></rect></g><g transform="skewY(-26.565)"><rect x="86" y="46" width="15" height="34" fill="var(--gold,#E3A93C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><text x="93" y="68" text-anchor="middle" font-size="11" fill="#3A2E14" style="font-family:&#x27;Noto Serif SC&#x27;,serif;font-weight:700">展</text></g><polygon points="0,-59 118,0 0,59 -118,0" transform="translate(12,-4)" fill="var(--capD,#4A4238)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><circle cx="-103" cy="-2" r="2.2" fill="var(--ochre,#B5673A)" stroke="var(--ink,#3A342B)" stroke-width="0.6"></circle><circle cx="127" cy="-2" r="2.2" fill="var(--ochre,#B5673A)" stroke="var(--ink,#3A342B)" stroke-width="0.6"></circle><g transform="translate(-46,74)"><rect x="-30" y="-9" width="60" height="15" rx="2" fill="var(--card,rgba(250,245,232,0.92))" stroke="var(--gold,#E3A93C)" stroke-width="0.75"></rect><text x="0" y="2.5" text-anchor="middle" font-size="9" fill="var(--gold2,#8A6A1E)" style="font-family:&#x27;PingFang SC&#x27;,sans-serif">曾为散木 · 已移栽</text></g><g transform="translate(12,-100)"><rect x="-48" y="-10" width="96" height="18" rx="9" fill="var(--capB,#2E5E8C)"></rect><text x="0" y="3" text-anchor="middle" font-size="10" fill="#F2EAD8" style="font-family:&#x27;JetBrains Mono&#x27;,ui-monospace,monospace">对外视图 · D(t)</text></g><g transform="translate(12,-72)"><rect x="-26" y="-11" width="52" height="21" rx="3" fill="var(--card,rgba(250,245,232,0.92))" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><circle cx="-16" cy="-0.5" r="2.5" fill="#4A4238"></circle><text x="4" y="4" text-anchor="middle" font-size="12" fill="var(--inkT,#2B2620)" style="font-family:&#x27;Noto Serif SC&#x27;,serif;font-weight:600">展厅</text></g></g></svg>
+  <figcaption class="cap"><b>展厅</b>StationGallery</figcaption>
+</figure>
+<figure class="cell">
+  <svg viewBox="-80 -64 160 132" role="img" xmlns="http://www.w3.org/2000/svg" aria-label="茶寮 StationTearoom"><g transform="translate(0,0)"><ellipse cx="0" cy="34" rx="66" ry="26" fill="var(--shadow,rgba(58,48,36,0.16))"></ellipse><polygon points="-58,5 0,34 0,58 -58,29" fill="var(--wall,#F8F1DE)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><polygon points="58,5 0,34 0,58 58,29" fill="var(--wallSh,#E7DABE)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><polygon points="0,-33 66,0 0,33 -66,0" transform="translate(0,-1)" fill="var(--capG,#3E9B7E)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><circle cx="-64" cy="-1" r="2" fill="var(--capD,#4A4238)" stroke="var(--ink,#3A342B)" stroke-width="0.6"></circle><circle cx="64" cy="-1" r="2" fill="var(--capD,#4A4238)" stroke="var(--ink,#3A342B)" stroke-width="0.6"></circle><path d="M 20 6 c 4 -6 -4 -10 2 -18" stroke="var(--ink2,#6B6154)" stroke-width="1.2" fill="none" opacity="0.5" style="animation:smoke 3.6s ease-in-out infinite;animation-play-state:var(--play,running)"></path><g transform="translate(0,-46)"><rect x="-26" y="-11" width="52" height="21" rx="3" fill="var(--card,rgba(250,245,232,0.92))" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><circle cx="-16" cy="-0.5" r="2.5" fill="#3E9B7E"></circle><text x="4" y="4" text-anchor="middle" font-size="12" fill="var(--inkT,#2B2620)" style="font-family:&#x27;Noto Serif SC&#x27;,serif;font-weight:600">茶寮</text></g></g></svg>
+  <figcaption class="cap"><b>茶寮</b>StationTearoom</figcaption>
+</figure>
+<figure class="cell">
+  <svg viewBox="-122 -24 244 162" role="img" xmlns="http://www.w3.org/2000/svg" aria-label="散木园 DriftwoodGarden"><g transform="translate(0,0)"><polygon points="0,0 108,54 0,108 -108,54" fill="var(--garden,#DFE6CC)" stroke="var(--ink,#3A342B)" stroke-width="1" stroke-dasharray="5 4"></polygon><g stroke="var(--trunk,#7A5B3E)" stroke-width="1.5"><line x1="22" y1="3" x2="22" y2="13"></line><line x1="44" y1="14" x2="44" y2="24"></line><line x1="66" y1="25" x2="66" y2="35"></line><line x1="88" y1="36" x2="88" y2="46"></line><line x1="-22" y1="3" x2="-22" y2="13"></line><line x1="-44" y1="14" x2="-44" y2="24"></line><line x1="-66" y1="25" x2="-66" y2="35"></line><line x1="-88" y1="36" x2="-88" y2="46"></line></g><g transform="translate(-30,58)"><path d="M 0 0 C -4 -12 6 -14 2 -26 C 0 -32 8 -34 10 -40" stroke="var(--trunk,#7A5B3E)" stroke-width="2.5" fill="none"></path><circle cx="10" cy="-42" r="7" fill="var(--treeG,#4E7D62)" opacity="0.85"></circle><circle cx="0" cy="-30" r="5" fill="var(--treeG,#4E7D62)" opacity="0.6"></circle></g><path d="M 36 74 l 10 -5 5 5 -3 7 -10 2 Z" fill="var(--wallSh,#E7DABE)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></path><rect x="-8" y="78" width="22" height="8" rx="4" fill="#FBF6E9" stroke="var(--ink,#3A342B)" stroke-width="0.75" transform="rotate(-8 3 82)"></rect><rect x="20" y="46" width="16" height="12" fill="none" stroke="var(--ink,#3A342B)" stroke-width="0.75" stroke-dasharray="2 2" transform="rotate(6 28 52)"></rect><g transform="translate(0,118)"><rect x="-56" y="-11" width="112" height="21" rx="3" fill="var(--card,rgba(250,245,232,0.92))" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><circle cx="-46" cy="-0.5" r="2.5" fill="#6B6154"></circle><text x="4" y="4" text-anchor="middle" font-size="12" fill="var(--inkT,#2B2620)" style="font-family:&#x27;Noto Serif SC&#x27;,serif;font-weight:600">散木园 <tspan font-size="10" fill="var(--ink2,#6B6154)">· 无考核野地</tspan></text></g><path d="M -26 40 Q -70 14 -90 -10" fill="none" stroke="var(--gold,#E3A93C)" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.85"></path><g transform="translate(-50,62)"><rect x="-26" y="-10" width="52" height="18" rx="3" fill="var(--card,rgba(250,245,232,0.92))" stroke="var(--gold,#E3A93C)" stroke-width="1"></rect><text x="0" y="3" text-anchor="middle" font-size="10" fill="var(--gold2,#B5673A)" style="font-family:&#x27;PingFang SC&#x27;,sans-serif">移栽 ↗</text></g></g></svg>
+  <figcaption class="cap"><b>散木园</b>DriftwoodGarden</figcaption>
+</figure>
+<figure class="cell">
+  <svg viewBox="744 690 118 122" role="img" xmlns="http://www.w3.org/2000/svg" aria-label="渡口 FerryDock"><g transform="translate(0,0)"><g transform="translate(0,0)"><line x1="754" y1="744" x2="788" y2="780" stroke="var(--trunk,#7A5B3E)" stroke-width="3"></line><line x1="768" y1="738" x2="802" y2="774" stroke="var(--trunk,#7A5B3E)" stroke-width="3"></line><path d="M 758 750 L 772 744 M 766 758 L 780 752 M 774 766 L 788 760 M 782 774 L 796 768" stroke="var(--trunk,#7A5B3E)" stroke-width="2"></path></g><g transform="translate(836,792)" style="animation:bob 5s ease-in-out infinite;animation-play-state:var(--play,running)"><path d="M -15 0 Q 0 7 15 0 L 11 -3 L -11 -3 Z" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="1"></path></g><g transform="translate(790,706)"><rect x="-32" y="-11" width="64" height="21" rx="3" fill="var(--card,rgba(250,245,232,0.92))" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><circle cx="-22" cy="-0.5" r="2.5" fill="#6B6154"></circle><text x="4" y="4" text-anchor="middle" font-size="12" fill="var(--inkT,#2B2620)" style="font-family:&#x27;Noto Serif SC&#x27;,serif;font-weight:600">渡口</text></g></g></svg>
+  <figcaption class="cap"><b>渡口</b>FerryDock<span class="sub">stub · absolute L1 coords (jetty+boat)</span></figcaption>
+</figure>
+</div>
+</body>

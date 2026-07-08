@@ -1,0 +1,58 @@
+<!-- @dsCard group="Patterns · v2 NEW" -->
+<!doctype html><meta charset="utf-8"><title>河口 Confluence + 流例 Legend · NEW v2</title>
+<style>
+:root{--fi-paper:#F2EAD8;--fi-paper-raised:#FAF5E8;--fi-ink:#2B2620;--fi-ink-2:#6B6154;--fi-azurite:#2E5E8C;--fi-malachite:#3E9B7E;--fi-ochre:#B5673A;--fi-gamboge:#E3A93C;--fi-water:#C8D8E4;--fi-sand:#E7DBBB;--fi-font-display:'Noto Serif SC','Songti SC',serif;--fi-font-body:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',system-ui,sans-serif;--fi-font-mono:'JetBrains Mono',ui-monospace,monospace;--fi-radius-panel:10px;--fi-radius-card:6px;--fi-domain-math-fill:#C9D8E6;--fi-domain-life-fill:#C6DECC;--fi-domain-cross-fill:#ECDFB4;}
+*{box-sizing:border-box}html,body{margin:0}
+body{font-family:var(--fi-font-body);background:var(--fi-paper);color:var(--fi-ink);padding:24px}
+h1{font-family:var(--fi-font-display);font-size:18px;margin:0 0 2px}
+.sub{font-size:12px;color:var(--fi-ink-2);margin:0 0 14px;line-height:1.5}
+.tag{display:inline-block;font-family:var(--fi-font-mono);font-size:10px;letter-spacing:.04em;color:var(--fi-ochre);border:1px solid var(--fi-ochre);border-radius:999px;padding:1px 8px;margin-bottom:8px}
+.wrap{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.stage{flex:1 1 360px;min-width:300px}
+.key{flex:1 1 220px;background:var(--fi-paper-raised);border-radius:var(--fi-radius-card);padding:14px 16px;font-size:12px}
+.key h2{font-family:var(--fi-font-display);font-size:13px;margin:0 0 10px}
+.row{display:flex;align-items:center;gap:10px;margin:9px 0;color:var(--fi-ink-2)}
+.row b{color:var(--fi-ink);font-weight:600}
+.cap{font-size:11px;color:var(--fi-ink-2);font-family:var(--fi-font-mono);margin-top:6px}
+@keyframes drift{to{stroke-dashoffset:-30}}
+.flow{stroke-dasharray:7 7;animation:drift 1.9s linear infinite;fill:none;stroke-linecap:round}
+@media (prefers-reduced-motion:reduce){.flow{animation:none}}
+</style>
+<body>
+<span class="tag">NEW · v2 海即数据 · 需回流后进 design-system</span>
+<h1>河口 Confluence + 流例 Flow legend — 海平面的可读性套件</h1>
+<p class="sub">对称 v1 的天空可读性套件。<b>河口</b>：不同类型的洋流交汇处 = 跨域综合的<b>涌现事件</b>（非静态「交叉」标签，只画在数据显示汇流处）。<b>流例</b>：常驻角标，色=类型 · 宽=权重 · 箭=方向 —— 诚实编码不可选，读者永远能解码一根洋流。</p>
+<div class="wrap">
+  <div class="stage">
+    <svg viewBox="0 0 400 260" width="100%" style="background:var(--fi-water);border-radius:var(--fi-radius-panel)">
+      <defs>
+        <path id="me" d="M -58 10 C -50 -8 -26 -20 2 -21 C 30 -20 50 -9 58 8 C 46 16 30 20 0 20 C -30 20 -48 16 -58 10 Z"/>
+        <radialGradient id="delta"><stop offset="0" stop-color="var(--fi-gamboge)" stop-opacity=".6"/><stop offset="1" stop-color="var(--fi-gamboge)" stop-opacity="0"/></radialGradient>
+        <marker id="e-arM" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--fi-malachite)"/></marker>
+        <marker id="e-arA" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--fi-azurite)"/></marker>
+      </defs>
+      <!-- two currents of different type meeting at a confluence -->
+      <circle cx="220" cy="140" r="46" fill="url(#delta)"/>
+      <path class="flow" d="M70,80 C 130,110 170,120 210,136" stroke="var(--fi-malachite)" stroke-width="5" opacity=".8" marker-end="url(#e-arM)"/>
+      <path class="flow" d="M70,210 C 140,180 175,158 210,144" stroke="var(--fi-azurite)" stroke-width="6" opacity=".85" marker-end="url(#e-arA)"/>
+      <!-- confluence glyph: a small delta/estuary fan -->
+      <path d="M212,132 l26,-6 M212,140 l30,0 M212,148 l26,6" stroke="var(--fi-sand)" stroke-width="3" fill="none" opacity=".9" stroke-linecap="round"/>
+      <g transform="translate(66,80) scale(.34)"><use href="#me" fill="var(--fi-domain-life-fill)" stroke="var(--fi-ink)" stroke-width="1.6"/></g>
+      <g transform="translate(66,210) scale(.34)"><use href="#me" fill="var(--fi-domain-math-fill)" stroke="var(--fi-ink)" stroke-width="1.6"/></g>
+      <g transform="translate(276,150) scale(.4)"><use href="#me" fill="var(--fi-domain-cross-fill)" stroke="var(--fi-ink)" stroke-width="1.6"/></g>
+      <text x="230" y="196" font-size="10" font-family="var(--fi-font-mono)" fill="var(--fi-ink-2)">河口 · 综合涌现处</text>
+    </svg>
+    <p class="cap">石绿(fork) × 石青(证据) 汇流 → 交叉领域综合站点</p>
+  </div>
+  <div class="key">
+    <h2>流例 Flow legend（常驻）</h2>
+    <div class="row"><svg width="34" height="10"><line x1="2" y1="5" x2="32" y2="5" stroke="var(--fi-azurite)" stroke-width="6"/></svg><span><b>色</b> = 关系类型</span></div>
+    <div class="row"><svg width="34" height="16"><line x1="2" y1="4" x2="32" y2="4" stroke="var(--fi-ink)" stroke-width="6"/><line x1="2" y1="12" x2="32" y2="12" stroke="var(--fi-ink)" stroke-width="2"/></svg><span><b>宽</b> = 权重</span></div>
+    <div class="row"><svg width="34" height="10"><line x1="2" y1="5" x2="26" y2="5" stroke="var(--fi-ink)" stroke-width="3"/><path d="M26,1 L32,5 L26,9 Z" fill="var(--fi-ink)"/></svg><span><b>箭</b> = 方向 / 影响向</span></div>
+    <hr style="border:none;border-top:1px solid rgba(0,0,0,.08);margin:12px 0">
+    <div class="row"><span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:var(--fi-azurite)"></span><span>石青 证据/引用</span></div>
+    <div class="row"><span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:var(--fi-ochre)"></span><span>赭石 桥/类比</span></div>
+    <div class="row"><span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:var(--fi-malachite)"></span><span>石绿 生成/世系</span></div>
+  </div>
+</div>
+</body>

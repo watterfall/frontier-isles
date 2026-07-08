@@ -64,7 +64,7 @@ export function GhostArtifact({ type, x, y, caption, opacity = 1 }: GhostArtifac
         )}
       </g>
       {text && (
-        <text x="0" y={d.textY} textAnchor="middle" fontSize="9.5" fill="#8B94B2" style={{ fontFamily: "'PingFang SC',sans-serif" }}>
+        <text x="0" y={d.textY} textAnchor="middle" fontSize="9.5" fill="var(--fi-night-ink-2, #8B94B2)" style={{ fontFamily: "'PingFang SC',sans-serif" }}>
           {text}
         </text>
       )}

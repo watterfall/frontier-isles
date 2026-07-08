@@ -12,3 +12,4 @@
 export * from './iso';
 export * from './scene';
 export * from './chunks';
+export * from './sea';

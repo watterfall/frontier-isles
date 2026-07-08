@@ -1,0 +1,52 @@
+<!-- @dsCard group="Patterns · v2 NEW" -->
+<!doctype html><meta charset="utf-8"><title>漩涡 Whirlpool · NEW v2 海即数据</title>
+<style>
+:root{--fi-paper:#F2EAD8;--fi-ink:#2B2620;--fi-ink-2:#6B6154;--fi-azurite:#2E5E8C;--fi-malachite:#3E9B7E;--fi-ochre:#B5673A;--fi-gamboge:#E3A93C;--fi-water:#C8D8E4;--fi-font-display:'Noto Serif SC','Songti SC',serif;--fi-font-body:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',system-ui,sans-serif;--fi-font-mono:'JetBrains Mono',ui-monospace,monospace;--fi-radius-panel:10px;--fi-domain-math-fill:#C9D8E6;--fi-domain-matter-fill:#E8CFAE;--fi-domain-cross-fill:#ECDFB4;}
+*{box-sizing:border-box}html,body{margin:0}
+body{font-family:var(--fi-font-body);background:var(--fi-paper);color:var(--fi-ink);padding:24px}
+h1{font-family:var(--fi-font-display);font-size:18px;margin:0 0 2px}
+.sub{font-size:12px;color:var(--fi-ink-2);margin:0 0 14px;line-height:1.5}
+.tag{display:inline-block;font-family:var(--fi-font-mono);font-size:10px;letter-spacing:.04em;color:var(--fi-ochre);border:1px solid var(--fi-ochre);border-radius:999px;padding:1px 8px;margin-bottom:8px}
+.grid{display:flex;gap:16px;flex-wrap:wrap}
+.cell{flex:1 1 300px}
+.cap{font-size:11px;color:var(--fi-ink-2);font-family:var(--fi-font-mono);margin-top:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.vortex{transform-origin:center;transform-box:fill-box;animation:spin 6s linear infinite}
+@media (prefers-reduced-motion:reduce){.vortex{animation:none}}
+</style>
+<body>
+<span class="tag">NEW · v2 海即数据 · 需回流后进 design-system</span>
+<h1>漩涡 Whirlpool — 争议之涡 contention cluster</h1>
+<p class="sub">v1 的天气镜把「风暴」画在<b>一座</b>岛上；但争议是岛<b>之间</b>的。漩涡把风暴抬到它该在的<b>关系尺度</b>：相邻岛间存在未消解的 <code>refute</code>（无对应 <code>validate</code>）→ 涡；强度 = 争议量。争议消解 → 涡平（雨→虹，承 v1 仪式）。</p>
+<div class="grid">
+  <div class="cell">
+    <svg viewBox="0 0 320 240" width="100%" style="background:var(--fi-water);border-radius:var(--fi-radius-panel)">
+      <defs><path id="m1" d="M -58 10 C -50 -8 -26 -20 2 -21 C 30 -20 50 -9 58 8 C 46 16 30 20 0 20 C -30 20 -48 16 -58 10 Z"/></defs>
+      <!-- vortex -->
+      <g class="vortex" transform="translate(160,120)">
+        <circle r="70" fill="none" stroke="var(--fi-ochre)" stroke-width="2.5" opacity=".28" stroke-dasharray="10 14"/>
+        <path d="M0,-52 A52,52 0 0 1 46,26" fill="none" stroke="var(--fi-ochre)" stroke-width="4" opacity=".6" stroke-linecap="round"/>
+        <path d="M0,-34 A34,34 0 0 1 30,17" fill="none" stroke="var(--fi-gamboge)" stroke-width="4" opacity=".8" stroke-linecap="round"/>
+        <path d="M0,-16 A16,16 0 0 1 14,8" fill="none" stroke="var(--fi-gamboge)" stroke-width="4" stroke-linecap="round"/>
+      </g>
+      <!-- 3 contending islands -->
+      <g transform="translate(160,84) scale(.42)"><use href="#m1" fill="var(--fi-domain-math-fill)" stroke="var(--fi-ink)" stroke-width="1.5"/></g>
+      <g transform="translate(112,150) scale(.42)"><use href="#m1" fill="var(--fi-domain-matter-fill)" stroke="var(--fi-ink)" stroke-width="1.5"/></g>
+      <g transform="translate(208,150) scale(.42)"><use href="#m1" fill="var(--fi-domain-cross-fill)" stroke="var(--fi-ink)" stroke-width="1.5"/></g>
+    </svg>
+    <p class="cap">active — 3 岛互 refute 未解 · 涡强 = 争议量</p>
+  </div>
+  <div class="cell">
+    <svg viewBox="0 0 320 240" width="100%" style="background:var(--fi-water);border-radius:var(--fi-radius-panel)">
+      <defs><use href="#m1"/></defs>
+      <!-- calm: gentle rainbow arc after resolution -->
+      <path d="M70,150 A90,90 0 0 1 250,150" fill="none" stroke="var(--fi-azurite)" stroke-width="3" opacity=".35"/>
+      <path d="M78,150 A82,82 0 0 1 242,150" fill="none" stroke="var(--fi-malachite)" stroke-width="3" opacity=".4"/>
+      <path d="M86,150 A74,74 0 0 1 234,150" fill="none" stroke="var(--fi-gamboge)" stroke-width="3" opacity=".45"/>
+      <g transform="translate(160,120) scale(.42)"><use href="#m1" fill="var(--fi-domain-math-fill)" stroke="var(--fi-ink)" stroke-width="1.5"/></g>
+      <path d="M64,168 q20,6 40,0" stroke="#BFCEDB" stroke-width="1.2" fill="none" opacity=".7" transform="translate(96,0)"/>
+    </svg>
+    <p class="cap">resolved — refute 被 validate 消解 · 涡平为虹</p>
+  </div>
+</div>
+</body>

@@ -1,0 +1,59 @@
+<!-- @dsCard group="Patterns" -->
+<!doctype html><meta charset="utf-8"><title>Texture & effects · shipped in SceneDefs</title>
+<style>
+:root{--fi-paper:#F2EAD8;--fi-paper-raised:#FAF5E8;--fi-ink:#2B2620;--fi-ink-2:#6B6154;--fi-gamboge:#E3A93C;--fi-lantern:#F5B94B;--fi-water:#C8D8E4;--fi-font-display:'Noto Serif SC','Songti SC',serif;--fi-font-body:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',system-ui,sans-serif;--fi-font-mono:'JetBrains Mono',ui-monospace,monospace;--fi-radius-panel:10px;}
+*{box-sizing:border-box}html,body{margin:0}
+body{font-family:var(--fi-font-body);background:var(--fi-paper);color:var(--fi-ink);padding:24px}
+h1{font-family:var(--fi-font-display);font-size:16px;margin:0 0 2px}
+.tag{display:inline-block;font-family:var(--fi-font-mono);font-size:10px;letter-spacing:.04em;color:#3E9B7E;border:1px solid #3E9B7E;border-radius:999px;padding:1px 8px;margin-bottom:8px}
+.note{font-size:12px;color:var(--fi-ink-2);margin:0 0 16px;line-height:1.5}
+.note code{font-family:var(--fi-font-mono);font-size:11px}
+.grid{display:flex;gap:14px;flex-wrap:wrap}
+.cell{flex:1 1 150px;text-align:center}
+.cap{font-size:11px;font-family:var(--fi-font-mono);color:var(--fi-ink-2);margin-top:6px}
+.cap b{color:var(--fi-ink)}
+.src{margin-top:18px;padding:11px 14px;border:1px solid rgba(0,0,0,.1);border-radius:8px;font-size:11.5px;color:var(--fi-ink-2);line-height:1.6;font-family:var(--fi-font-mono)}
+.src b{color:var(--fi-ink);font-family:var(--fi-font-body)}
+</style>
+<body>
+<span class="tag">SHIPPED · packages/assets/src/SceneDefs.tsx</span>
+<h1>Texture & effects · 纹理与效果</h1>
+<p class="note">场景的纹理/发光效果原语 —— <b>已在代码里</b>,是 <code>SceneDefs()</code> 的共享 <code>&lt;defs&gt;</code> + <code>GrainOverlay</code> 组件(从原型 v3 的 L0/L1 artboard 逐字提取)。下面用真实定义值重建。<br><i>(修正:上一版本这张卡误标为"缺原语的 system gap"——盘点代码后发现原语已存在,gap 实为"未文档化",现补上。诚实优先。)</i></p>
+<div class="grid">
+  <div class="cell">
+    <svg width="100%" viewBox="0 0 150 100" style="max-width:150px">
+      <defs><filter id="fg"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 0.24  0 0 0 0 0.21  0 0 0 0 0.16  0 0 0 0.05 0"/></filter></defs>
+      <rect width="150" height="100" fill="var(--fi-paper-raised)"/>
+      <rect width="150" height="100" filter="url(#fg)" opacity="0.8"/>
+    </svg>
+    <p class="cap"><b>#fi-grain</b> + GrainOverlay<br>纸张颗粒 · 昼夜共用</p>
+  </div>
+  <div class="cell">
+    <svg width="100%" viewBox="0 0 150 100" style="max-width:150px">
+      <defs><radialGradient id="lg"><stop offset="0%" stop-color="var(--fi-lantern)" stop-opacity="0.55"/><stop offset="100%" stop-color="var(--fi-lantern)" stop-opacity="0"/></radialGradient></defs>
+      <rect width="150" height="100" fill="#1A2338"/>
+      <circle cx="75" cy="50" r="45" fill="url(#lg)"/>
+    </svg>
+    <p class="cap"><b>#lgrad</b> · 灯笼/聚焦辉光<br>lantern glow</p>
+  </div>
+  <div class="cell">
+    <svg width="100%" viewBox="0 0 150 100" style="max-width:150px">
+      <defs><radialGradient id="og"><stop offset="0%" stop-color="var(--fi-gamboge)" stop-opacity="0.6"/><stop offset="55%" stop-color="var(--fi-gamboge)" stop-opacity="0.22"/><stop offset="100%" stop-color="var(--fi-gamboge)" stop-opacity="0"/></radialGradient></defs>
+      <rect width="150" height="100" fill="var(--fi-water)"/>
+      <circle cx="75" cy="50" r="42" fill="url(#og)"/>
+    </svg>
+    <p class="cap"><b>#outGlow</b> · 离群/异常发光<br>outlier glow</p>
+  </div>
+  <div class="cell">
+    <svg width="100%" viewBox="0 0 150 100" style="max-width:150px">
+      <defs><radialGradient id="vg" cx="50%" cy="46%" r="72%"><stop offset="62%" stop-color="#605034" stop-opacity="0"/><stop offset="100%" stop-color="#605034" stop-opacity="0.13"/></radialGradient></defs>
+      <rect width="150" height="100" fill="var(--fi-water)"/>
+      <rect width="150" height="100" fill="url(#vg)"/>
+    </svg>
+    <p class="cap"><b>#vig</b> · 图表暗角<br>chart vignette</p>
+  </div>
+</div>
+<div class="src">
+  <b>用法:</b> 每个 <code>&lt;svg viewBox="0 0 1440 900"&gt;</code> 场景根挂一次 <code>&lt;SceneDefs/&gt;</code>,几何用 <code>url(#fi-grain)</code>/<code>url(#lgrad)</code>/<code>url(#outGlow)</code>/<code>url(#vig)</code> 引用。<code>#grain0</code>+<code>#grain1</code> 在原型里字节相同,已合并为单一 <code>#fi-grain</code>。<b>#605034</b>(暗角)是场景级常量,非 token。
+</div>
+</body>

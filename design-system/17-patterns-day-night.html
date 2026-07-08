@@ -1,0 +1,162 @@
+<!-- @dsCard group="Patterns" -->
+<!doctype html><meta charset="utf-8"><title>Day / Night · Patterns</title>
+<style>
+/*
+ * Frontier Isles design tokens.
+ * Extracted VERBATIM from design/handoff/问题群岛-原型 v3.dc.html
+ *   - artboard 3c "设计 Token 清单" (color / type / spacing / radii / stroke / motion)
+ *   - helmet <style> block (@keyframes + prefers-reduced-motion kill switch)
+ *
+ * Day/night swaps palette only, never shape (docs/architecture.md §1).
+ * Day values live here as the default :root palette; night overrides are
+ * applied as an inline CSS-variable string on the scene root — see
+ * src/palettes.ts NIGHT_SCENE_VARS (copied from the prototype's `nightVars`).
+ */
+
+:root {
+  /* 色 · 矿物色系 — day */
+  --fi-paper: #F2EAD8;           /* 纸底 · 页面基面 */
+  --fi-night-paper: #161F36;     /* 靛蓝纸 · 夜晚基面 */
+  --fi-paper-raised: #FAF5E8;    /* 卡面 / 面板 */
+  --fi-night-raised: #212C4E;    /* 夜 · 卡面 / 建筑墙 */
+  --fi-ink: #2B2620;             /* 主墨 · 文字/勾线 */
+  --fi-night-ink: #C9D0E4;       /* 夜 · 主墨反白 */
+  --fi-ink-2: #6B6154;           /* 次墨 · 注文 */
+  --fi-night-ink-2: #8B94B2;     /* 夜 · 次墨 */
+  --fi-azurite: #2E5E8C;         /* 石青 · 主行动/链接/数理 */
+  --fi-azurite-deep: #1E4266;    /* 石青深 · 屋瓦/按压态 */
+  --fi-malachite: #3E9B7E;       /* 石绿 · 生长/成功/生命 */
+  --fi-ochre: #B5673A;           /* 赭石 · 次行动/桥/印章/物质 */
+  --fi-gamboge: #E3A93C;         /* 藤黄 · 点睛/聚焦/离群发光 */
+  --fi-lantern: #F5B94B;         /* 灯笼暖光 · 夜晚点亮 */
+  --fi-water: #C8D8E4;           /* 水 · 海面/池 */
+  --fi-ghost: #C9D7F2;           /* 魂影 · 40% 透明 + 虚线 */
+  --fi-sand: #E7DBBB;            /* 沙洲 · 岸线/台阶 */
+  --fi-stone: #DCCFAB;           /* 石阶 · 铺地/器座 */
+
+  /* 字 */
+  --fi-font-display: 'Noto Serif SC', 'Songti SC', serif;
+  --fi-font-body: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', system-ui, sans-serif;
+  --fi-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* 间距 · 8pt 网格 */
+  --fi-space-1: 4px;
+  --fi-space-2: 8px;
+  --fi-space-3: 12px;
+  --fi-space-4: 16px;
+  --fi-space-5: 24px;
+  --fi-space-6: 32px;
+  --fi-space-7: 48px;
+
+  /* 圆角 */
+  --fi-radius-seal: 2px;
+  --fi-radius-card: 6px;
+  --fi-radius-panel: 10px;
+  --fi-radius-pill: 999px;
+
+  /* 墨线 · 描边粗细 */
+  --fi-stroke-fine: 0.75px;   /* 细勾 · 分隔/窗棂 */
+  --fi-stroke-main: 1.5px;    /* 主勾 · 轮廓/边框 */
+  --fi-stroke-heavy: 2.5px;   /* 重勾 · 桥/强调 */
+
+  /* 动效 */
+  --fi-motion-micro: 240ms;
+  --fi-motion-scroll-wipe: 480ms;
+  --fi-motion-scroll-wipe-max: 550ms;
+  --fi-motion-day-night-flip: 700ms;
+  --fi-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* motion toggle — set --play:paused on an ancestor to freeze all
+     prototype animations (breathe / pulseGlow / twinkle / sway / …) */
+  --play: running;
+}
+
+/* 领域映射 · domain colors (island base fill, day/night same shape) */
+:root {
+  --fi-domain-math-fill: #C9D8E6;   /* 数理 */
+  --fi-domain-math-ink: #2E5E8C;
+  --fi-domain-matter-fill: #E8CFAE; /* 物质 */
+  --fi-domain-matter-ink: #B5673A;
+  --fi-domain-life-fill: #C6DECC;   /* 生命 */
+  --fi-domain-life-ink: #2B7A5F;
+  --fi-domain-cross-fill: #ECDFB4;  /* 交叉 */
+  --fi-domain-cross-ink: #A08428;
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: .78; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-3px); }
+}
+@keyframes pulseGlow {
+  0%, 100% { opacity: .30; }
+  50% { opacity: .75; }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: .9; }
+  50% { opacity: .25; }
+}
+@keyframes sway {
+  0%, 100% { transform: rotate(-3.5deg); }
+  50% { transform: rotate(3.5deg); }
+}
+@keyframes ghostFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes fflyA {
+  0%, 100% { transform: translate(0,0); opacity: .9; }
+  30% { transform: translate(10px,-8px); opacity: .4; }
+  65% { transform: translate(-6px,-14px); opacity: .9; }
+}
+@keyframes fflyB {
+  0%, 100% { transform: translate(0,0); opacity: .5; }
+  40% { transform: translate(-11px,-6px); opacity: .95; }
+  70% { transform: translate(7px,-12px); opacity: .45; }
+}
+@keyframes waveDrift {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(7px); }
+}
+@keyframes bob {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-3px) rotate(1.5deg); }
+}
+@keyframes smoke {
+  0%, 100% { transform: translateY(0); opacity: .5; }
+  50% { transform: translateY(-4px); opacity: .25; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+
+*{box-sizing:border-box}html,body{margin:0}
+body{font-family:var(--fi-font-body);background:var(--fi-paper);color:var(--fi-ink);padding:24px}
+h1{font-family:var(--fi-font-display);font-size:17px;margin:0 0 3px}
+.note{font-size:12px;color:var(--fi-ink-2);margin:0 0 20px;line-height:1.55;max-width:860px}
+.note code,.note b{color:var(--fi-ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px}
+.cell{margin:0;background:var(--fi-paper-raised);border:1px solid rgba(0,0,0,.08);border-radius:var(--fi-radius-panel);padding:14px 12px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
+.cell.wide{grid-column:1/-1}
+.cell svg{width:100%;height:auto;max-height:220px;overflow:visible}
+.cell.wide svg{max-height:340px}
+.cap{font-family:var(--fi-font-mono);font-size:10.5px;margin-top:12px;text-align:center;color:var(--fi-ink-2);line-height:1.5}
+.cap b{display:block;font-family:var(--fi-font-display);font-size:13px;color:var(--fi-ink);margin-bottom:1px}
+.cap .sub{display:block;color:var(--fi-ink-2);opacity:.8;margin-top:2px}
+.pair{display:flex;gap:18px;flex-wrap:wrap}
+.panel{flex:1;min-width:300px;border-radius:var(--fi-radius-panel);overflow:hidden;border:1px solid rgba(0,0,0,.1)}
+.panel svg{display:block;width:100%;height:auto}
+.panel .plabel{font-family:var(--fi-font-mono);font-size:12px;padding:10px 12px}
+.panel.day .plabel{background:var(--fi-paper-raised);color:var(--fi-ink-2)}
+.panel.night .plabel{background:var(--fi-night-raised);color:var(--fi-night-ink-2)}
+
+</style>
+<body>
+<h1>昼/夜 Day/Night — palette-only swap, identical geometry</h1>
+<p class="note">签名交互:<b>day/night 只换调色板,绝不换形状。</b> 左右两幅是<b>同一段场景 SVG 字符串</b>(地面 + 文献阁 + 茶寮 + 数株孤松 + 荷池 + 石灯笼),逐字复用于两侧;昼侧 scene-root <code>&lt;g&gt;</code> 无覆盖,夜侧对同一 <code>&lt;g&gt;</code> 施 <code>NIGHT_SCENE_VARS</code>(palettes.ts)内联样式。天空按设计本就不同:昼为 <code>DaySky</code>(日+飞鸟),夜为 <code>NightSky</code>+纸灯+<code>Fireflies</code>。几何完全一致,只有颜色改变。</p>
+<div class="pair">
+  <div class="panel day"><div class="plabel">昼 · Day — <code>var(--x, dayFallback)</code>,无覆盖</div><svg viewBox="180 40 1220 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="day scene"><rect x="180" y="40" width="1220" height="720" fill="var(--fi-paper,#F2EAD8)"/><defs><pattern id="isogrid" width="96" height="48" patternUnits="userSpaceOnUse"><path d="M 0 0 L 96 48 M 0 48 L 96 0" stroke="var(--gline,rgba(43,38,32,0.08))" stroke-width="0.75" fill="none"></path></pattern><radialGradient id="lgrad"><stop offset="0%" stop-color="#F5B94B" stop-opacity="0.55"></stop><stop offset="100%" stop-color="#F5B94B" stop-opacity="0"></stop></radialGradient><clipPath id="groundClip"><polygon points="760,210 1288,474 760,738 232,474"></polygon></clipPath><radialGradient id="outGlow"><stop offset="0%" stop-color="#E3A93C" stop-opacity="0.6"></stop><stop offset="55%" stop-color="#E3A93C" stop-opacity="0.22"></stop><stop offset="100%" stop-color="#E3A93C" stop-opacity="0"></stop></radialGradient><radialGradient id="vig" cx="50%" cy="46%" r="72%"><stop offset="62%" stop-color="#605034" stop-opacity="0"></stop><stop offset="100%" stop-color="#605034" stop-opacity="0.13"></stop></radialGradient><filter id="fi-grain"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="n"></feTurbulence><feColorMatrix in="n" type="matrix" values="0 0 0 0 0.24  0 0 0 0 0.21  0 0 0 0 0.16  0 0 0 0.05 0"></feColorMatrix></filter></defs><g><g transform="translate(348,96)"><circle r="20" fill="rgba(227,169,60,0.16)" stroke="#C99436" stroke-width="1.2"></circle><circle r="7" fill="#E3A93C" opacity="0.75"></circle></g><path d="M 880 150 q 5 -6 10 0 q 5 -6 10 0 M 934 128 q 5 -6 10 0 q 5 -6 10 0 M 968 156 q 4 -5 8 0 q 4 -5 8 0" stroke="#6B6154" stroke-width="1.2" fill="none" opacity="0.6"></path></g><g><polygon points="760,210 1288,474 760,738 232,474" fill="var(--ground,#EBDFC4)" stroke="var(--ink,#3A342B)" stroke-width="1.5" opacity="0.92"></polygon><g clip-path="url(#groundClip)"><rect x="232" y="210" width="1056" height="528" fill="url(#isogrid)"></rect></g><g transform="translate(0,0)" fill="var(--stone,#DCCFAB)" stroke="var(--ink,#3A342B)" stroke-width="0.5" opacity="0.9"><polygon points="887,453 897,458 887,463 877,458"></polygon><polygon points="821,461 831,466 821,471 811,466"></polygon><polygon points="710,446 720,451 710,456 700,451"></polygon><polygon points="686,435 696,440 686,445 676,440"></polygon></g><g transform="translate(760,430)"><polygon points="0,0 64,32 0,64 -64,32" fill="var(--water,#C8D8E4)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></polygon><g style="animation:waveDrift 6s ease-in-out infinite;animation-play-state:var(--play,running)"><path d="M -30 28 q 7 -5 14 0 q 7 5 14 0" stroke="var(--ink,#3A342B)" stroke-width="0.75" fill="none" opacity="0.4"></path><path d="M -14 42 q 7 -5 14 0 q 7 5 14 0" stroke="var(--ink,#3A342B)" stroke-width="0.75" fill="none" opacity="0.3"></path></g><ellipse cx="-20" cy="40" rx="6" ry="3" fill="var(--lotus,#A9C8B4)" stroke="var(--ink,#3A342B)" stroke-width="0.5"></ellipse><ellipse cx="8" cy="50" rx="5" ry="2.5" fill="var(--lotus,#A9C8B4)" stroke="var(--ink,#3A342B)" stroke-width="0.5"></ellipse><ellipse cx="24" cy="34" rx="6" ry="3" fill="var(--lotus,#A9C8B4)" stroke="var(--ink,#3A342B)" stroke-width="0.5"></ellipse></g><g transform="translate(620,372) scale(1.5)"><line x1="0" y1="0" x2="0" y2="-13" stroke="var(--trunk,#7A5B3E)" stroke-width="2.5"></line><path d="M -10 -7 L 0 -22 L 10 -7 Z" fill="var(--treeG,#4E7D62)"></path><path d="M -7 -15 L 0 -27 L 7 -15 Z" fill="var(--treeG,#4E7D62)"></path></g><g transform="translate(560,512) scale(1.3)"><line x1="0" y1="0" x2="0" y2="-13" stroke="var(--trunk,#7A5B3E)" stroke-width="2.5"></line><path d="M -10 -7 L 0 -22 L 10 -7 Z" fill="var(--treeG,#4E7D62)"></path><path d="M -7 -15 L 0 -27 L 7 -15 Z" fill="var(--treeG,#4E7D62)"></path></g><g transform="translate(760,296)"><ellipse cx="0" cy="52" rx="112" ry="44" fill="var(--shadow,rgba(58,48,36,0.16))"></ellipse><polygon points="-96,-16 0,32 0,96 -96,48" fill="var(--wall,#F8F1DE)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><polygon points="96,-16 0,32 0,96 96,48" fill="var(--wallSh,#E7DABE)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><polygon points="-96,10 0,58 0,64 -96,16" fill="rgba(58,48,36,0.12)"></polygon><polygon points="96,10 0,58 0,64 96,16" fill="rgba(58,48,36,0.16)"></polygon><g transform="skewY(26.565)"><rect x="-84" y="-22" width="14" height="13" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><rect x="-62" y="-22" width="14" height="13" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><rect x="-40" y="-22" width="14" height="13" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><path d="M -80 -22 v 13 M -76 -22 v 13 M -58 -22 v 13 M -54 -22 v 13 M -36 -22 v 13 M -32 -22 v 13" stroke="var(--wall,#F8F1DE)" stroke-width="1"></path><rect x="-84" y="8" width="14" height="13" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><rect x="-62" y="8" width="14" height="13" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect></g><g transform="skewY(-26.565)"><rect x="36" y="6" width="20" height="26" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><line x1="46" y1="6" x2="46" y2="32" stroke="var(--wall,#F8F1DE)" stroke-width="0.75"></line><rect x="12" y="-22" width="14" height="13" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><rect x="68" y="-22" width="14" height="13" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><rect x="74" y="0" width="9" height="20" rx="1" fill="var(--gold,#E3A93C)" stroke="var(--ink,#3A342B)" stroke-width="0.6"></rect></g><polygon points="0,-53 106,0 0,53 -106,0" transform="translate(0,-22)" fill="var(--capB,#2E5E8C)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><path d="M -106 -22 L 0 -75 L 106 -22" fill="none" stroke="var(--ink,#3A342B)" stroke-width="0.75" opacity="0.5"></path><circle cx="0" cy="-79" r="3.5" fill="var(--gold,#E3A93C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></circle><circle cx="-103" cy="-20" r="2.2" fill="var(--capD,#4A4238)" stroke="var(--ink,#3A342B)" stroke-width="0.6"></circle><circle cx="103" cy="-20" r="2.2" fill="var(--capD,#4A4238)" stroke="var(--ink,#3A342B)" stroke-width="0.6"></circle><path d="M -30 86 a 30 11 0 0 1 60 0" fill="none" stroke="var(--ink,#3A342B)" stroke-width="0.75" opacity="0.3"></path><path d="M -20 90 a 20 8 0 0 1 40 0" fill="none" stroke="var(--ink,#3A342B)" stroke-width="0.75" opacity="0.22"></path><g transform="translate(0,-104)"><rect x="-32" y="-11" width="64" height="21" rx="3" fill="var(--card,rgba(250,245,232,0.92))" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><circle cx="-22" cy="-0.5" r="2.5" fill="#2E5E8C"></circle><text x="4" y="4" text-anchor="middle" font-size="12" fill="var(--inkT,#2B2620)" style="font-family:&#x27;Noto Serif SC&#x27;,serif;font-weight:600">文献阁</text></g></g><g transform="translate(704,494)"><rect x="-2.5" y="-10" width="5" height="10" fill="var(--wallSh,#D9CCA9)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><rect x="-5" y="-16" width="10" height="6" fill="var(--wall,#F8F1DE)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><path d="M -7 -16 L 0 -21 L 7 -16 Z" fill="var(--capD,#4A4238)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></path><circle cx="0" cy="-13" r="7" fill="url(#lgrad)"></circle></g><g transform="translate(1040,470) scale(1.6)"><line x1="0" y1="0" x2="0" y2="-13" stroke="var(--trunk,#7A5B3E)" stroke-width="2.5"></line><path d="M -10 -7 L 0 -22 L 10 -7 Z" fill="var(--treeG,#4E7D62)"></path><path d="M -7 -15 L 0 -27 L 7 -15 Z" fill="var(--treeG,#4E7D62)"></path></g><g transform="translate(880,590)"><ellipse cx="0" cy="34" rx="66" ry="26" fill="var(--shadow,rgba(58,48,36,0.16))"></ellipse><polygon points="-58,5 0,34 0,58 -58,29" fill="var(--wall,#F8F1DE)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><polygon points="58,5 0,34 0,58 58,29" fill="var(--wallSh,#E7DABE)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><polygon points="0,-33 66,0 0,33 -66,0" transform="translate(0,-1)" fill="var(--capG,#3E9B7E)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><circle cx="-64" cy="-1" r="2" fill="var(--capD,#4A4238)" stroke="var(--ink,#3A342B)" stroke-width="0.6"></circle><circle cx="64" cy="-1" r="2" fill="var(--capD,#4A4238)" stroke="var(--ink,#3A342B)" stroke-width="0.6"></circle><path d="M 20 6 c 4 -6 -4 -10 2 -18" stroke="var(--ink2,#6B6154)" stroke-width="1.2" fill="none" opacity="0.5" style="animation:smoke 3.6s ease-in-out infinite;animation-play-state:var(--play,running)"></path><g transform="translate(0,-46)"><rect x="-26" y="-11" width="52" height="21" rx="3" fill="var(--card,rgba(250,245,232,0.92))" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><circle cx="-16" cy="-0.5" r="2.5" fill="#3E9B7E"></circle><text x="4" y="4" text-anchor="middle" font-size="12" fill="var(--inkT,#2B2620)" style="font-family:&#x27;Noto Serif SC&#x27;,serif;font-weight:600">茶寮</text></g></g><g transform="translate(1000,566) scale(1.3)"><line x1="0" y1="0" x2="0" y2="-13" stroke="var(--trunk,#7A5B3E)" stroke-width="2.5"></line><path d="M -10 -7 L 0 -22 L 10 -7 Z" fill="var(--treeG,#4E7D62)"></path><path d="M -7 -15 L 0 -27 L 7 -15 Z" fill="var(--treeG,#4E7D62)"></path></g></g></svg></div>
+  <div class="panel night"><div class="plabel">夜 · Night — 同一 &lt;g&gt; 施 NIGHT_SCENE_VARS</div><svg viewBox="180 40 1220 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="night scene"><rect x="180" y="40" width="1220" height="720" fill="var(--fi-night-paper,#161F36)"/><defs><pattern id="isogrid" width="96" height="48" patternUnits="userSpaceOnUse"><path d="M 0 0 L 96 48 M 0 48 L 96 0" stroke="var(--gline,rgba(43,38,32,0.08))" stroke-width="0.75" fill="none"></path></pattern><radialGradient id="lgrad"><stop offset="0%" stop-color="#F5B94B" stop-opacity="0.55"></stop><stop offset="100%" stop-color="#F5B94B" stop-opacity="0"></stop></radialGradient><clipPath id="groundClip"><polygon points="760,210 1288,474 760,738 232,474"></polygon></clipPath><radialGradient id="outGlow"><stop offset="0%" stop-color="#E3A93C" stop-opacity="0.6"></stop><stop offset="55%" stop-color="#E3A93C" stop-opacity="0.22"></stop><stop offset="100%" stop-color="#E3A93C" stop-opacity="0"></stop></radialGradient><radialGradient id="vig" cx="50%" cy="46%" r="72%"><stop offset="62%" stop-color="#605034" stop-opacity="0"></stop><stop offset="100%" stop-color="#605034" stop-opacity="0.13"></stop></radialGradient><filter id="fi-grain"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="n"></feTurbulence><feColorMatrix in="n" type="matrix" values="0 0 0 0 0.24  0 0 0 0 0.21  0 0 0 0 0.16  0 0 0 0.05 0"></feColorMatrix></filter></defs><g><path d="M 1330 96 a 34 34 0 1 0 6 46 a 27 27 0 0 1 -6 -46 Z" fill="#E8D9A8" opacity="0.85"></path><circle cx="180" cy="90" r="1.6" fill="#E8D9A8" style="animation:twinkle 4s ease-in-out infinite;animation-play-state:var(--play,running)"></circle><circle cx="320" cy="140" r="1.2" fill="#E8D9A8"></circle><circle cx="520" cy="70" r="1.4" fill="#E8D9A8" style="animation:twinkle 5s ease-in-out infinite 1.2s;animation-play-state:var(--play,running)"></circle><circle cx="900" cy="100" r="1.2" fill="#E8D9A8"></circle><circle cx="1100" cy="60" r="1.6" fill="#E8D9A8" style="animation:twinkle 4.6s ease-in-out infinite 2s;animation-play-state:var(--play,running)"></circle><circle cx="700" cy="130" r="1" fill="#E8D9A8"></circle><circle cx="420" cy="110" r="1.1" fill="#E8D9A8" style="animation:twinkle 5.4s ease-in-out infinite .6s;animation-play-state:var(--play,running)"></circle></g><g transform="translate(760,172)"><circle cx="0" cy="22" r="24" fill="url(#lgrad)"></circle><g style="animation:sway 3.4s ease-in-out infinite;transform-origin:50% 0%;transform-box:fill-box;animation-play-state:var(--play,running)"><line x1="0" y1="0" x2="0" y2="10" stroke="#8E99BE" stroke-width="1"></line><ellipse cx="0" cy="20" rx="8" ry="10" fill="#F5B94B" stroke="#B5673A" stroke-width="1"></ellipse><path d="M -4 11.5 c 0 6 0 12 0 17 M 4 11.5 c 0 6 0 12 0 17" stroke="#B5673A" stroke-width="0.75" fill="none"></path><line x1="0" y1="30" x2="0" y2="36" stroke="#B5673A" stroke-width="1"></line></g></g><g transform="translate(880,470)"><circle cx="0" cy="22" r="24" fill="url(#lgrad)"></circle><g style="animation:sway 3.4s ease-in-out infinite;transform-origin:50% 0%;transform-box:fill-box;animation-play-state:var(--play,running)"><line x1="0" y1="0" x2="0" y2="10" stroke="#8E99BE" stroke-width="1"></line><ellipse cx="0" cy="20" rx="8" ry="10" fill="#F5B94B" stroke="#B5673A" stroke-width="1"></ellipse><path d="M -4 11.5 c 0 6 0 12 0 17 M 4 11.5 c 0 6 0 12 0 17" stroke="#B5673A" stroke-width="0.75" fill="none"></path><line x1="0" y1="30" x2="0" y2="36" stroke="#B5673A" stroke-width="1"></line></g></g><g fill="#F5B94B"><circle cx="944" cy="358" r="2" style="animation:fflyA 5s ease-in-out infinite;animation-play-state:var(--play,running)"></circle><circle cx="984" cy="330" r="1.6" style="animation:fflyB 6s ease-in-out infinite;animation-play-state:var(--play,running)"></circle><circle cx="1024" cy="380" r="2" style="animation:fflyA 7s ease-in-out infinite 0.8s;animation-play-state:var(--play,running)"></circle><circle cx="914" cy="390" r="1.4" style="animation:fflyB 5.5s ease-in-out infinite 1.4s;animation-play-state:var(--play,running)"></circle><circle cx="999" cy="406" r="1.6" style="animation:fflyA 6.5s ease-in-out infinite 2s;animation-play-state:var(--play,running)"></circle></g><g style="--pp:#161F36;--pp2:#212C4E;--ground:#212C4E;--garden:#26374A;--sand:#2A3550;--stone:#26314E;--lotus:#2E4A44;--gline:rgba(170,185,225,0.08);--ink:#8E99BE;--inkT:#C9D0E4;--ink2:#8B94B2;--wall:#2B3658;--wallSh:#232E4E;--capB:#2A3E68;--capD:#1C2440;--capG:#2C4657;--capO:#54413C;--water:#26375C;--path:rgba(245,185,75,0.30);--treeG:#2F4A50;--trunk:#3A4258;--card:rgba(33,44,78,0.92);--shadow:rgba(0,0,0,0.4);--doorW:#141B30;--gold:#F5B94B;--gold2:#F5B94B;--ochre:#C08054"><polygon points="760,210 1288,474 760,738 232,474" fill="var(--ground,#EBDFC4)" stroke="var(--ink,#3A342B)" stroke-width="1.5" opacity="0.92"></polygon><g clip-path="url(#groundClip)"><rect x="232" y="210" width="1056" height="528" fill="url(#isogrid)"></rect></g><g transform="translate(0,0)" fill="var(--stone,#DCCFAB)" stroke="var(--ink,#3A342B)" stroke-width="0.5" opacity="0.9"><polygon points="887,453 897,458 887,463 877,458"></polygon><polygon points="821,461 831,466 821,471 811,466"></polygon><polygon points="710,446 720,451 710,456 700,451"></polygon><polygon points="686,435 696,440 686,445 676,440"></polygon></g><g transform="translate(760,430)"><polygon points="0,0 64,32 0,64 -64,32" fill="var(--water,#C8D8E4)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></polygon><g style="animation:waveDrift 6s ease-in-out infinite;animation-play-state:var(--play,running)"><path d="M -30 28 q 7 -5 14 0 q 7 5 14 0" stroke="var(--ink,#3A342B)" stroke-width="0.75" fill="none" opacity="0.4"></path><path d="M -14 42 q 7 -5 14 0 q 7 5 14 0" stroke="var(--ink,#3A342B)" stroke-width="0.75" fill="none" opacity="0.3"></path></g><ellipse cx="-20" cy="40" rx="6" ry="3" fill="var(--lotus,#A9C8B4)" stroke="var(--ink,#3A342B)" stroke-width="0.5"></ellipse><ellipse cx="8" cy="50" rx="5" ry="2.5" fill="var(--lotus,#A9C8B4)" stroke="var(--ink,#3A342B)" stroke-width="0.5"></ellipse><ellipse cx="24" cy="34" rx="6" ry="3" fill="var(--lotus,#A9C8B4)" stroke="var(--ink,#3A342B)" stroke-width="0.5"></ellipse></g><g transform="translate(620,372) scale(1.5)"><line x1="0" y1="0" x2="0" y2="-13" stroke="var(--trunk,#7A5B3E)" stroke-width="2.5"></line><path d="M -10 -7 L 0 -22 L 10 -7 Z" fill="var(--treeG,#4E7D62)"></path><path d="M -7 -15 L 0 -27 L 7 -15 Z" fill="var(--treeG,#4E7D62)"></path></g><g transform="translate(560,512) scale(1.3)"><line x1="0" y1="0" x2="0" y2="-13" stroke="var(--trunk,#7A5B3E)" stroke-width="2.5"></line><path d="M -10 -7 L 0 -22 L 10 -7 Z" fill="var(--treeG,#4E7D62)"></path><path d="M -7 -15 L 0 -27 L 7 -15 Z" fill="var(--treeG,#4E7D62)"></path></g><g transform="translate(760,296)"><ellipse cx="0" cy="52" rx="112" ry="44" fill="var(--shadow,rgba(58,48,36,0.16))"></ellipse><polygon points="-96,-16 0,32 0,96 -96,48" fill="var(--wall,#F8F1DE)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><polygon points="96,-16 0,32 0,96 96,48" fill="var(--wallSh,#E7DABE)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><polygon points="-96,10 0,58 0,64 -96,16" fill="rgba(58,48,36,0.12)"></polygon><polygon points="96,10 0,58 0,64 96,16" fill="rgba(58,48,36,0.16)"></polygon><g transform="skewY(26.565)"><rect x="-84" y="-22" width="14" height="13" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><rect x="-62" y="-22" width="14" height="13" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><rect x="-40" y="-22" width="14" height="13" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><path d="M -80 -22 v 13 M -76 -22 v 13 M -58 -22 v 13 M -54 -22 v 13 M -36 -22 v 13 M -32 -22 v 13" stroke="var(--wall,#F8F1DE)" stroke-width="1"></path><rect x="-84" y="8" width="14" height="13" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><rect x="-62" y="8" width="14" height="13" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect></g><g transform="skewY(-26.565)"><rect x="36" y="6" width="20" height="26" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><line x1="46" y1="6" x2="46" y2="32" stroke="var(--wall,#F8F1DE)" stroke-width="0.75"></line><rect x="12" y="-22" width="14" height="13" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><rect x="68" y="-22" width="14" height="13" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><rect x="74" y="0" width="9" height="20" rx="1" fill="var(--gold,#E3A93C)" stroke="var(--ink,#3A342B)" stroke-width="0.6"></rect></g><polygon points="0,-53 106,0 0,53 -106,0" transform="translate(0,-22)" fill="var(--capB,#2E5E8C)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><path d="M -106 -22 L 0 -75 L 106 -22" fill="none" stroke="var(--ink,#3A342B)" stroke-width="0.75" opacity="0.5"></path><circle cx="0" cy="-79" r="3.5" fill="var(--gold,#E3A93C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></circle><circle cx="-103" cy="-20" r="2.2" fill="var(--capD,#4A4238)" stroke="var(--ink,#3A342B)" stroke-width="0.6"></circle><circle cx="103" cy="-20" r="2.2" fill="var(--capD,#4A4238)" stroke="var(--ink,#3A342B)" stroke-width="0.6"></circle><path d="M -30 86 a 30 11 0 0 1 60 0" fill="none" stroke="var(--ink,#3A342B)" stroke-width="0.75" opacity="0.3"></path><path d="M -20 90 a 20 8 0 0 1 40 0" fill="none" stroke="var(--ink,#3A342B)" stroke-width="0.75" opacity="0.22"></path><g transform="translate(0,-104)"><rect x="-32" y="-11" width="64" height="21" rx="3" fill="var(--card,rgba(250,245,232,0.92))" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><circle cx="-22" cy="-0.5" r="2.5" fill="#2E5E8C"></circle><text x="4" y="4" text-anchor="middle" font-size="12" fill="var(--inkT,#2B2620)" style="font-family:&#x27;Noto Serif SC&#x27;,serif;font-weight:600">文献阁</text></g></g><g transform="translate(704,494)"><rect x="-2.5" y="-10" width="5" height="10" fill="var(--wallSh,#D9CCA9)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><rect x="-5" y="-16" width="10" height="6" fill="var(--wall,#F8F1DE)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><path d="M -7 -16 L 0 -21 L 7 -16 Z" fill="var(--capD,#4A4238)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></path><circle cx="0" cy="-13" r="7" fill="url(#lgrad)"></circle></g><g transform="translate(1040,470) scale(1.6)"><line x1="0" y1="0" x2="0" y2="-13" stroke="var(--trunk,#7A5B3E)" stroke-width="2.5"></line><path d="M -10 -7 L 0 -22 L 10 -7 Z" fill="var(--treeG,#4E7D62)"></path><path d="M -7 -15 L 0 -27 L 7 -15 Z" fill="var(--treeG,#4E7D62)"></path></g><g transform="translate(880,590)"><ellipse cx="0" cy="34" rx="66" ry="26" fill="var(--shadow,rgba(58,48,36,0.16))"></ellipse><polygon points="-58,5 0,34 0,58 -58,29" fill="var(--wall,#F8F1DE)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><polygon points="58,5 0,34 0,58 58,29" fill="var(--wallSh,#E7DABE)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><polygon points="0,-33 66,0 0,33 -66,0" transform="translate(0,-1)" fill="var(--capG,#3E9B7E)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><circle cx="-64" cy="-1" r="2" fill="var(--capD,#4A4238)" stroke="var(--ink,#3A342B)" stroke-width="0.6"></circle><circle cx="64" cy="-1" r="2" fill="var(--capD,#4A4238)" stroke="var(--ink,#3A342B)" stroke-width="0.6"></circle><path d="M 20 6 c 4 -6 -4 -10 2 -18" stroke="var(--ink2,#6B6154)" stroke-width="1.2" fill="none" opacity="0.5" style="animation:smoke 3.6s ease-in-out infinite;animation-play-state:var(--play,running)"></path><g transform="translate(0,-46)"><rect x="-26" y="-11" width="52" height="21" rx="3" fill="var(--card,rgba(250,245,232,0.92))" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><circle cx="-16" cy="-0.5" r="2.5" fill="#3E9B7E"></circle><text x="4" y="4" text-anchor="middle" font-size="12" fill="var(--inkT,#2B2620)" style="font-family:&#x27;Noto Serif SC&#x27;,serif;font-weight:600">茶寮</text></g></g><g transform="translate(1000,566) scale(1.3)"><line x1="0" y1="0" x2="0" y2="-13" stroke="var(--trunk,#7A5B3E)" stroke-width="2.5"></line><path d="M -10 -7 L 0 -22 L 10 -7 Z" fill="var(--treeG,#4E7D62)"></path><path d="M -7 -15 L 0 -27 L 7 -15 Z" fill="var(--treeG,#4E7D62)"></path></g></g></svg></div>
+</div>
+</body>

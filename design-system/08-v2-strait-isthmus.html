@@ -1,0 +1,46 @@
+<!-- @dsCard group="Patterns · v2 NEW" -->
+<!doctype html><meta charset="utf-8"><title>海峡·地峡 Strait & Isthmus · NEW v2</title>
+<style>
+:root{--fi-paper:#F2EAD8;--fi-ink:#2B2620;--fi-ink-2:#6B6154;--fi-azurite:#2E5E8C;--fi-azurite-deep:#1E4266;--fi-ochre:#B5673A;--fi-water:#C8D8E4;--fi-sand:#E7DBBB;--fi-stone:#DCCFAB;--fi-font-display:'Noto Serif SC','Songti SC',serif;--fi-font-body:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',system-ui,sans-serif;--fi-font-mono:'JetBrains Mono',ui-monospace,monospace;--fi-stroke-heavy:2.5px;--fi-radius-panel:10px;--fi-domain-math-fill:#C9D8E6;--fi-domain-matter-fill:#E8CFAE;--fi-domain-life-fill:#C6DECC;}
+*{box-sizing:border-box}html,body{margin:0}
+body{font-family:var(--fi-font-body);background:var(--fi-paper);color:var(--fi-ink);padding:24px}
+h1{font-family:var(--fi-font-display);font-size:18px;margin:0 0 2px}
+.sub{font-size:12px;color:var(--fi-ink-2);margin:0 0 14px;line-height:1.5}
+.tag{display:inline-block;font-family:var(--fi-font-mono);font-size:10px;letter-spacing:.04em;color:var(--fi-ochre);border:1px solid var(--fi-ochre);border-radius:999px;padding:1px 8px;margin-bottom:8px}
+.grid{display:flex;gap:16px;flex-wrap:wrap}
+.cell{flex:1 1 300px}
+.cap{font-size:11px;color:var(--fi-ink-2);font-family:var(--fi-font-mono);margin-top:6px}
+.cap b{color:var(--fi-ink)}
+@keyframes ripple{to{stroke-dashoffset:-24}}
+.contest{stroke-dasharray:5 6;animation:ripple 2.2s linear infinite}
+@media (prefers-reduced-motion:reduce){.contest{animation:none}}
+</style>
+<body>
+<span class="tag">NEW · v2 海即数据 · 需回流后进 design-system</span>
+<h1>海峡 Strait ↔ 地峡 Isthmus — 关系成熟度 relation maturity</h1>
+<p class="sub">一根「浮着的提案」和一座「落成的桥」不该长得一样。<b>水/陆之别</b>编码成熟度：海峡=窄水道、虚线漂动=<code>bridge_propose</code> 待批（争议中）；地峡=实心陆桥、重勾 <code>--fi-stroke-heavy</code>=<code>bridge_accept</code> 双山长批准（已落成）。一眼可读。</p>
+<div class="grid">
+  <div class="cell">
+    <svg viewBox="0 0 320 220" width="100%" style="background:var(--fi-water);border-radius:var(--fi-radius-panel)">
+      <defs><path id="ms" d="M -58 10 C -50 -8 -26 -20 2 -21 C 30 -20 50 -9 58 8 C 46 16 30 20 0 20 C -30 20 -48 16 -58 10 Z"/></defs>
+      <!-- narrow contested water channel between two islands (dashed drift) -->
+      <path class="contest" d="M118,110 C 150,96 170,124 202,110" fill="none" stroke="var(--fi-azurite)" stroke-width="3" opacity=".8"/>
+      <path class="contest" d="M118,122 C 150,136 170,108 202,122" fill="none" stroke="var(--fi-azurite)" stroke-width="2" opacity=".5"/>
+      <g transform="translate(80,116) scale(.52)"><use href="#ms" fill="var(--fi-domain-math-fill)" stroke="var(--fi-ink)" stroke-width="1.5"/></g>
+      <g transform="translate(240,116) scale(.52)"><use href="#ms" fill="var(--fi-domain-matter-fill)" stroke="var(--fi-ink)" stroke-width="1.5"/></g>
+    </svg>
+    <p class="cap"><b>海峡 Strait</b> — bridge_propose 待批 · 虚线漂动 · 争议中</p>
+  </div>
+  <div class="cell">
+    <svg viewBox="0 0 320 220" width="100%" style="background:var(--fi-water);border-radius:var(--fi-radius-panel)">
+      <defs><use href="#ms"/></defs>
+      <!-- solid land isthmus: a sand/stone body bridging the two -->
+      <path d="M110,120 C 150,104 170,104 210,120 C 170,132 150,132 110,120 Z" fill="var(--fi-sand)" stroke="var(--fi-ink)" stroke-width="2.5"/>
+      <path d="M120,120 q40,-8 80,0" stroke="var(--fi-stone)" stroke-width="3" fill="none" opacity=".9"/>
+      <g transform="translate(80,116) scale(.52)"><use href="#ms" fill="var(--fi-domain-math-fill)" stroke="var(--fi-ink)" stroke-width="1.5"/></g>
+      <g transform="translate(240,116) scale(.52)"><use href="#ms" fill="var(--fi-domain-life-fill)" stroke="var(--fi-ink)" stroke-width="1.5"/></g>
+    </svg>
+    <p class="cap"><b>地峡 Isthmus</b> — bridge_accept 双山长批 · 重勾实心 · 已落成</p>
+  </div>
+</div>
+</body>
