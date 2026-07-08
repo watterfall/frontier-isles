@@ -10,6 +10,14 @@ export interface WaveGroupProps {
  * `sc-for list="{{ waves }}"` template (design/handoff/问题群岛-原型
  * v3.dc.html lines ~621-626). Compose several at different positions to
  * build the open sea — see DEFAULT_WAVE_POSITIONS for the prototype's own 12.
+ *
+ * INVARIANT WAIVER (depth-plan-v2 inv. 14/§7 "no visual without a data source"):
+ * WaveGroup is DECORATIVE, not a data transcription — its ripples encode nothing
+ * from the ledger and are deliberately quarantined here as frozen prototype
+ * ambience. The sea plane's *data* layer is the pair <ClimateField> (domain
+ * vectors) + <Current>/<FlowLegend> (ledger currents); those, not these ripples,
+ * carry the horizontal field. Do not bind fake data to WaveGroup to satisfy the
+ * invariant — leave it decorative and explicit.
  */
 export function WaveGroup({ x = 0, y = 0, seconds = 7, delay = 0 }: WaveGroupProps) {
   return (

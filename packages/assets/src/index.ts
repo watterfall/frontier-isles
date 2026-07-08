@@ -46,3 +46,10 @@ export * from './chart/Compass';
 export * from './chart/WaveGroup';
 export * from './chart/MountainRange';
 export * from './chart/SettlementText';
+
+// Sea plane — v2 海即数据 (depth-plan-v2 §3/§4: currents · climate · depth · legend · list twin)
+export * from './sea/ClimateField';
+export * from './sea/SeaDepth';
+export * from './sea/Current';
+export * from './sea/FlowLegend';
+export * from './sea/RelationsList';
