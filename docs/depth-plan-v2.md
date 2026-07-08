@@ -1,5 +1,7 @@
 # Frontier Isles · Depth & Richness Plan v2 — 海即数据 The Sea Is Data
 
+> **Status (2026-07-09) — implemented, but currently hidden on the homepage pending a relations-representation rework (see `ROADMAP.md` §3).** The v2 sea-plane ships in code — `SeaLayer.tsx`, `core/currents.ts`, `renderer/sea.ts`, `assets/sea/*` — with its tests, and all of it is **retained** (deferred, not dropped). The horizontal 「海即数据」 thesis stands; but its *always-on* chart rendering read as too cluttered/occluding and is not drawn on L0 for now — the rework must return it in an on-demand / LOD-gated form.
+
 Companion to `architecture.md` (v3.0) **and** `depth-plan-v1.md`. **Additive only.** Everything already frozen — the v2 prototype composition, `--fi-*` tokens, all invariants 1–13, and v1's entire **vertical** world (sky/sea/seabed, shadow anchor, landing ceremony, terrain fingerprint) — stays frozen. Merge into `architecture.md` after ratification.
 
 **The one-sentence thesis.** v1 made the **vertical** axis first-class: altitude = epistemic groundedness. v2 makes the **horizontal sea itself** first-class: the water between islands stops being empty backdrop and becomes a living **relational-domain field**. v1 was a leap up; v2 is the mirror leap outward. Same discipline both times — *every visual is a data transcription* (invariant 10) — now applied to the plane v1 left blank.

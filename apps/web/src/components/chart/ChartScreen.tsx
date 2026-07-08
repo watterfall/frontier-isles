@@ -1,40 +1,65 @@
-import { useState } from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   SceneDefs,
   GrainOverlay,
-  MountainRange,
-  SettlementText,
   WaveGroup,
   DEFAULT_WAVE_POSITIONS,
-  ChartBridge,
-  LineageLine,
   Compass,
-  Boat,
   MOUND_PATHS,
-  RelationsList,
 } from '@frontier-isles/assets';
 import { DOMAIN_META, STAGE_LABELS, type IslandDatum } from '../../api/fallback';
-import { BRIDGES } from '@frontier-isles/data';
-import { SeaLayer } from './SeaLayer';
-import { useSeaData } from '../../api/useSeaData';
+import { spaceIslands } from '../../chart/despace';
 
-/** op:// id for a chart slug (join key between chart islands and the sea plane). */
-const opOf = (slug?: string): string | null => (slug ? `op://frontier-isles/prob/${slug}` : null);
+/**
+ * ChartScreen (L0) — the hand-drawn sea chart of frontier islands.
+ *
+ * The v2 「海即数据」 sea-plane (currents / whirlpools / straits / climate field /
+ * flow legend), the hardcoded inter-island relations (bridges / lineage), the
+ * domain-category UI and several numeric readouts are intentionally NOT rendered
+ * here — they read as cluttered/occluding and the relation model needs a better
+ * representation first. The code + tests for the sea plane are retained
+ * (SeaLayer / core.currents / renderer.sea / assets/sea); this screen just does
+ * not mount them. See ROADMAP §3.10 (relations rework) and §3.11 (canvas scaling).
+ */
 
 export interface ChartScreenProps {
   islands: IslandDatum[];
-  filter: string;
-  onFilter: (f: string) => void;
+  /** Kept for API compatibility; the domain filter UI is currently hidden. */
+  filter?: string;
+  onFilter?: (f: string) => void;
   hover: number | null;
   onHover: (id: number | null) => void;
   onIsland: (d: IslandDatum) => void;
   onBuild: () => void;
   onCollide: () => void;
-  onBridge: (b: { fromPos: { x: number; y: number }; toPos: { x: number; y: number }; arc: { cx: number; cy: number }; toSlug: string; toX: number; toY: number }) => void;
+  /** Kept for API compatibility; bridge arcs are currently hidden. */
+  onBridge?: (b: { fromPos: { x: number; y: number }; toPos: { x: number; y: number }; arc: { cx: number; cy: number }; toSlug: string; toX: number; toY: number }) => void;
 }
 
-const DOMAIN_KEYS = ['全部', '数理', '物质', '生命', '交叉'] as const;
+/** CJK glyphs render roughly full-em; Latin roughly 0.56em. Used to size name pills without measuring. */
+// CJK radicals+ideographs, CJK symbols/punct, fullwidth forms, kana.
+const CJK_RE = /[⺀-鿿　-〿＀-￯぀-ヿ]/;
+const charW = (ch: string, fontPx: number): number => (CJK_RE.test(ch) ? fontPx : fontPx * 0.56);
+const estWidth = (s: string, fontPx: number): number => {
+  let w = 0;
+  for (const ch of s) w += charW(ch, fontPx);
+  return w;
+};
+/** Trim a caption to a max pixel width (both languages) so long en titles never overflow the mound. */
+function truncateToWidth(s: string, maxW: number, fontPx: number): string {
+  if (estWidth(s, fontPx) <= maxW) return s;
+  const ell = charW('…', fontPx);
+  let out = '';
+  let w = 0;
+  for (const ch of s) {
+    const cw = charW(ch, fontPx);
+    if (w + cw + ell > maxW) break;
+    out += ch;
+    w += cw;
+  }
+  return out + '…';
+}
 
 function Buildings({ d }: { d: IslandDatum }) {
   const { t } = useTranslation();
@@ -96,28 +121,22 @@ function Buildings({ d }: { d: IslandDatum }) {
   );
 }
 
-export function ChartScreen({ islands, filter, onFilter, hover, onHover, onIsland, onBuild, onCollide, onBridge }: ChartScreenProps) {
+export function ChartScreen({ islands, hover, onHover, onIsland, onBuild, onCollide }: ChartScreenProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
 
-  // ── sea plane + focus (SALIENCE not PRESENCE) — ONE lifted state ──────────
-  const sea = useSeaData();
-  const [focusedIslandId, setFocusedIslandId] = useState<string | null>(null);
-  const toggleFocus = (op: string | null) => {
-    if (!op) return;
-    setFocusedIslandId((cur) => (cur === op ? null : op));
-  };
-  const clearFocus = () => setFocusedIslandId(null);
+  // Deterministic de-overlap of the hand-authored coordinates — no two islands
+  // stack, and any future-added island is spaced automatically (ROADMAP §3.11).
+  const placed = useMemo(() => spaceIslands(islands, { minDist: 150 }), [islands]);
 
-  const hd = islands.find((d) => d.id === hover);
+  const hd = placed.find((d) => d.id === hover);
   const card = hd
     ? {
         id: String(hd.id).padStart(2, '0'),
         left: Math.min(Math.max(hd.x - 132, 16), 1160),
         top: hd.y + 60 > 720 ? hd.y - 260 : hd.y + 62,
-        domLabel: hd.out ? `${t(`chart.filters.${hd.d}`)} · ${t('chart.card.outlier')}` : t(`chart.filters.${hd.d}`),
         domCol: hd.out ? '#8A6A1E' : DOMAIN_META[hd.d].col,
-        stage: `${t(`chart.stages.${STAGE_LABELS[hd.st]}`)}${hd.dor ? ` · ${t('chart.card.dormant')}` : ''}`,
+        stage: `${t(`chart.stages.${STAGE_LABELS[hd.st]}`)}${hd.dor ? ` · ${t('chart.card.dormant')}` : ''}${hd.out ? ` · ${t('chart.card.outlier')}` : ''}`,
         q: hd.q[lang],
         brief: hd.brief?.[lang],
         cluster: hd.cluster?.[lang],
@@ -133,135 +152,72 @@ export function ChartScreen({ islands, filter, onFilter, hover, onHover, onIslan
     <div data-screen-label="L0 海图" style={{ position: 'absolute', inset: 0, background: '#F2EAD8' }}>
       <svg viewBox="0 0 1440 900" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
         <SceneDefs />
-        {/* clicking open water clears the sea focus */}
-        <rect x="0" y="0" width="1440" height="900" fill="#F2EAD8" onClick={clearFocus} />
+        <rect x="0" y="0" width="1440" height="900" fill="#F2EAD8" />
 
-        {/* v2 sea plane — real projected currents/whirlpools BENEATH the islands */}
-        <SeaLayer
-          currents={sea.currents}
-          whirlpools={sea.whirlpools}
-          islands={sea.islands}
-          focusedIslandId={focusedIslandId}
-        />
-
-        <MountainRange />
-        <SettlementText />
         {DEFAULT_WAVE_POSITIONS.map(([x, y], i) => (
           <WaveGroup key={i} x={x} y={y} />
         ))}
 
-        {/* 航线 · 渔舟 */}
-        <path d="M 110 792 Q 420 722 776 566" fill="none" stroke="#BFCEDB" strokeWidth="1.5" strokeDasharray="2 8" opacity="0.8" />
-        <Boat x={478} y={692} variant="sail" bobSeconds={6} />
-        <Boat x={1150} y={556} variant="sail" bobSeconds={7} bobDelaySeconds={1} />
-
-        {/* 同方程桥 — navigable ferry routes; click to sail along the arc (§4) */}
-        {BRIDGES.map((b, i) => {
-          const d = `M ${b.fromPos.x} ${b.fromPos.y} Q ${b.arc.cx} ${b.arc.cy} ${b.toPos.x} ${b.toPos.y}`;
-          const toIsland = islands.find((is) => is.slug === b.to);
-          const tickX = b.arc.cx;
-          const tickY = b.arc.cy;
+        {/* islands — no overlaps (de-spaced), gentle idle bob, level captions */}
+        {placed.map((d) => {
+          const fill = d.dor ? '#D8D3C2' : d.out ? '#DFD3E6' : DOMAIN_META[d.d].fill;
+          const isHover = hover === d.id;
+          const cap = truncateToWidth(d.n[lang], 150, 12.5);
+          const capW = estWidth(cap, 12.5);
           return (
-            <g key={i} style={{ cursor: 'pointer' }} onClick={() => onBridge({ fromPos: b.fromPos, toPos: b.toPos, arc: b.arc, toSlug: b.to, toX: toIsland?.x ?? b.toPos.x, toY: toIsland?.y ?? b.toPos.y })}>
-              <path d={d} fill="none" stroke="#5B45C9" strokeWidth="2.5" opacity="0.25" />
-              <path d={d} fill="none" stroke="#8E99BE" strokeWidth="1.5" strokeDasharray="4 5" opacity="0.7" />
-              <path d={`M ${tickX - 16} ${tickY} v 7 M ${tickX} ${tickY} v 7 M ${tickX + 16} ${tickY} v 7`} stroke="#5B45C9" strokeWidth="1" opacity="0.5" fill="none" />
-              <g transform={`translate(${b.arc.cx}, ${b.arc.cy - 18})`}>
-                <rect x="-44" y="-10" width="88" height="18" rx="9" fill="rgba(250,245,232,0.92)" stroke="#5B45C9" strokeWidth="0.75" />
-                <text x="0" y="3.5" textAnchor="middle" fontSize="9" fill="#5B45C9" style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace" }}>
-                  {b.formula}
+            <g
+              key={d.id}
+              transform={`translate(${d.x},${d.y}) scale(${d.s})`}
+              onMouseEnter={() => onHover(d.id)}
+              onMouseLeave={() => onHover(null)}
+              onClick={() => onIsland(d)}
+              style={{ cursor: 'pointer' }}
+            >
+              {/* the isle floats on the water — the caption below stays level */}
+              <g style={{ animation: `bob ${7 + (d.id % 5) * 0.6}s ease-in-out infinite`, animationDelay: `${(d.id % 7) * 0.5}s`, animationPlayState: 'var(--play,running)' as never }}>
+                <ellipse cx="0" cy="2" rx="70" ry="38" fill="none" pointerEvents="all" />
+                {d.out && (
+                  <g>
+                    <circle cx="0" cy="0" r="72" fill="url(#outGlow)" style={{ animation: 'pulseGlow 3.2s ease-in-out infinite', animationPlayState: 'var(--play,running)' as never }} />
+                    <text x="0" y="-52" textAnchor="middle" fontSize="10" fill="#8A6A1E" style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", letterSpacing: '0.12em' }}>
+                      {t('chart.outlierTag')}
+                    </text>
+                  </g>
+                )}
+                <path d="M -70 24 q 34 9 70 9 q 36 0 70 -9" stroke="#BFCEDB" strokeWidth="1.2" fill="none" opacity="0.8" />
+                <path d="M -58 34 q 28 7 58 7 q 30 0 58 -7" stroke="#BFCEDB" strokeWidth="1" fill="none" opacity="0.5" />
+                <ellipse cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,0.15)" opacity={isHover ? 1 : 0} style={{ transition: 'opacity .35s' }} />
+                <g style={{ transform: isHover ? 'translateY(-5px)' : 'translateY(0px)', transition: 'transform .35s cubic-bezier(0.22,1,0.36,1)' }}>
+                  <path d={MOUND_PATHS[d.id % 5]} fill={fill} stroke="#4A4238" strokeWidth="1.5" />
+                  <path d="M -22 -8 Q 0 -15 20 -8" stroke="#4A4238" strokeWidth="0.75" fill="none" opacity="0.3" />
+                  <Buildings d={d} />
+                </g>
+                {d.born && (
+                  <g transform="translate(0,-46)" style={{ animation: 'breathe 4s ease-in-out infinite', animationPlayState: 'var(--play,running)' as never }}>
+                    <rect x="-52" y="-11" width="104" height="21" rx="10" fill="rgba(250,245,232,0.96)" stroke="#3E9B7E" strokeWidth="1.2" />
+                    <text x="0" y="4" textAnchor="middle" fontSize="10" fill="#2B7A5F" style={{ fontFamily: "'PingFang SC',sans-serif" }}>
+                      {t('chart.bornBadge')}
+                    </text>
+                  </g>
+                )}
+                {isHover && <ellipse cx="0" cy="8" rx="76" ry="30" fill="none" stroke="#2E5E8C" strokeWidth="1.5" strokeDasharray="5 5" />}
+              </g>
+              {/* name caption — level, on a faint pill so long en titles stay legible */}
+              <g>
+                <rect x={-capW / 2 - 7} y={39} width={capW + 14} height={16} rx={4} fill="rgba(250,245,232,0.82)" />
+                <text x="0" y="50" textAnchor="middle" fontSize="12.5" fill="#5B5344" letterSpacing="0.5" style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 600 }}>
+                  {cap}
                 </text>
               </g>
             </g>
           );
         })}
-        <LineageLine d="M 802 522 Q 866 556 924 602" labelX={872} labelY={556} label={t('chart.lineage')} />
 
-        {/* 20（+新生）座岛 */}
-        {islands.map((d) => {
-          const fill = d.dor ? '#D8D3C2' : d.out ? '#DFD3E6' : DOMAIN_META[d.d].fill;
-          const op = filter === '全部' || d.d === filter ? 1 : 0.16;
-          const isHover = hover === d.id;
-          const islandOp = opOf(d.slug);
-          const focused = islandOp !== null && islandOp === focusedIslandId;
-          // focus context (design-system/22): the focused mound lifts + gamboge-glows;
-          // non-focused mounds recede to 0.82 + saturate(.15), their labels to 0.42.
-          const dim = focusedIslandId !== null && !focused;
-          const gOpacity = dim ? Math.min(op, 0.82) : op;
-          const gFilter = focused
-            ? 'drop-shadow(0 0 5px var(--fi-gamboge, #E3A93C)) drop-shadow(0 0 10px var(--fi-gamboge, #E3A93C))'
-            : dim
-              ? 'saturate(.15)'
-              : undefined;
-          return (
-            <g
-              key={d.id}
-              transform={`translate(${d.x},${d.y}) scale(${d.s})`}
-              opacity={gOpacity}
-              onMouseEnter={() => onHover(d.id)}
-              onMouseLeave={() => onHover(null)}
-              onClick={() => onIsland(d)}
-              style={{ cursor: 'pointer', transition: 'opacity .4s, filter .4s', filter: gFilter }}
-            >
-              <ellipse cx="0" cy="2" rx="70" ry="38" fill="none" pointerEvents="all" />
-              {d.out && (
-                <g>
-                  <circle cx="0" cy="0" r="72" fill="url(#outGlow)" style={{ animation: 'pulseGlow 3.2s ease-in-out infinite', animationPlayState: 'var(--play,running)' as never }} />
-                  <text x="0" y="-52" textAnchor="middle" fontSize="10" fill="#8A6A1E" style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", letterSpacing: '0.12em' }}>
-                    {t('chart.outlierTag')}
-                  </text>
-                </g>
-              )}
-              <path d="M -70 24 q 34 9 70 9 q 36 0 70 -9" stroke="#BFCEDB" strokeWidth="1.2" fill="none" opacity="0.8" />
-              <path d="M -58 34 q 28 7 58 7 q 30 0 58 -7" stroke="#BFCEDB" strokeWidth="1" fill="none" opacity="0.5" />
-              <ellipse cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,0.15)" opacity={isHover ? 1 : 0} style={{ transition: 'opacity .35s' }} />
-              <g style={{ transform: focused ? 'translateY(-6px)' : isHover ? 'translateY(-5px)' : 'translateY(0px)', transition: 'transform .35s cubic-bezier(0.22,1,0.36,1)' }}>
-                <path d={MOUND_PATHS[d.id % 5]} fill={fill} stroke="#4A4238" strokeWidth="1.5" />
-                <path d="M -22 -8 Q 0 -15 20 -8" stroke="#4A4238" strokeWidth="0.75" fill="none" opacity="0.3" />
-                <Buildings d={d} />
-              </g>
-              {d.sample && (
-                <g transform="translate(0,-58)" style={{ animation: 'breathe 4s ease-in-out infinite', animationPlayState: 'var(--play,running)' as never }}>
-                  <rect x="-52" y="-13" width="104" height="24" rx="4" fill="rgba(250,245,232,0.96)" stroke="#E3A93C" strokeWidth="1.5" />
-                  <text x="0" y="4" textAnchor="middle" fontSize="11.5" fill="#8A6A1E" style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 600 }}>
-                    {t('chart.sampleBadge')}
-                  </text>
-                  <line x1="0" y1="11" x2="0" y2="24" stroke="#E3A93C" strokeWidth="1.2" strokeDasharray="2 3" />
-                </g>
-              )}
-              {d.born && (
-                <g transform="translate(0,-46)" style={{ animation: 'breathe 4s ease-in-out infinite', animationPlayState: 'var(--play,running)' as never }}>
-                  <rect x="-44" y="-11" width="88" height="21" rx="10" fill="rgba(250,245,232,0.96)" stroke="#3E9B7E" strokeWidth="1.2" />
-                  <text x="0" y="4" textAnchor="middle" fontSize="10" fill="#2B7A5F" style={{ fontFamily: "'PingFang SC',sans-serif" }}>
-                    {t('chart.bornBadge')}
-                  </text>
-                </g>
-              )}
-              {isHover && <ellipse cx="0" cy="8" rx="76" ry="30" fill="none" stroke="#2E5E8C" strokeWidth="1.5" strokeDasharray="5 5" />}
-              {focused && <ellipse cx="0" cy="8" rx="80" ry="32" fill="none" stroke="var(--fi-gamboge, #E3A93C)" strokeWidth="2" />}
-              {/* clicking the name FOCUSES the island's relations (salience);
-                  the mound body still enters (presence). stopPropagation keeps them apart. */}
-              <text
-                x="0"
-                y="48"
-                textAnchor="middle"
-                fontSize="12.5"
-                fill={focused ? '#8A6A1E' : '#5B5344'}
-                opacity={dim ? 0.42 : 1}
-                letterSpacing="1"
-                style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 600, cursor: 'pointer' }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleFocus(islandOp);
-                }}
-              >
-                {d.n[lang]}
-              </text>
-            </g>
-          );
-        })}
-
-        <Compass />
+        {/* compass — enlarged as the map's focal ornament, with a twinkling beacon */}
+        <g transform="translate(1356,808) scale(1.32)">
+          <Compass x={0} y={0} />
+          <circle cx="0" cy="0" r="2.6" fill="#E3A93C" style={{ animation: 'twinkle 2.6s ease-in-out infinite', animationPlayState: 'var(--play,running)' as never }} />
+        </g>
         <rect x="0" y="0" width="1440" height="900" fill="url(#vig)" style={{ pointerEvents: 'none' }} />
         <GrainOverlay />
       </svg>
@@ -270,9 +226,8 @@ export function ChartScreen({ islands, filter, onFilter, hover, onHover, onIslan
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '20px 26px', pointerEvents: 'none' }}>
         <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
           <div style={{ background: 'rgba(250,245,232,0.95)', border: '1.5px solid #3A342B', borderRadius: 4, padding: '12px 9px 10px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 9, boxShadow: '3px 3px 0 rgba(58,48,36,0.12)' }}>
-            {/* Stacked per-glyph rather than writing-mode:vertical-rl — identical
-                rendering for this string, and robust on systems whose CJK fonts
-                lack vertical metrics. */}
+            {/* Stacked per-glyph — identical to writing-mode:vertical-rl here, but
+                robust on systems whose CJK fonts lack vertical metrics. */}
             <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', fontFamily: "'Noto Serif SC',serif", fontWeight: 900, fontSize: 21, color: '#2B2620', lineHeight: 1.16 }}>
               {['问', '题', '群', '岛'].map((ch) => (
                 <span key={ch}>{ch}</span>
@@ -281,28 +236,15 @@ export function ChartScreen({ islands, filter, onFilter, hover, onHover, onIslan
           </div>
           <div style={{ paddingTop: 4 }}>
             <div style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 10.5, color: '#6B6154', letterSpacing: '0.22em' }}>{t('chart.latin')}</div>
-            <div style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 10.5, color: '#8C8270', letterSpacing: '0.12em', marginTop: 4 }}>{t('chart.meta', { n: islands.length })}</div>
-            <div style={{ fontSize: 11.5, color: '#6B6154', marginTop: 10, maxWidth: 200, lineHeight: 1.7 }} dangerouslySetInnerHTML={{ __html: t('chart.tagline') }} />
+            <div style={{ fontSize: 11.5, color: '#6B6154', marginTop: 8, maxWidth: 200, lineHeight: 1.7 }} dangerouslySetInnerHTML={{ __html: t('chart.tagline') }} />
           </div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 10, pointerEvents: 'auto' }}>
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(250,245,232,0.95)', border: '1.5px solid #3A342B', borderRadius: 999, padding: '7px 16px', fontSize: 12.5, color: '#A89C88', width: 240 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(250,245,232,0.95)', border: '1.5px solid #3A342B', borderRadius: 999, padding: '7px 16px', fontSize: 12.5, color: '#A89C88', whiteSpace: 'nowrap' }}>
               {t('chart.searchPlaceholder')}
-              <span style={{ marginLeft: 'auto', fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 10, border: '1px solid #A89C88', borderRadius: 3, padding: '0 5px' }}>/</span>
+              <span style={{ marginLeft: 14, fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 10, border: '1px solid #A89C88', borderRadius: 3, padding: '0 5px' }}>/</span>
             </div>
-            {DOMAIN_KEYS.map((f) => {
-              const on = filter === f;
-              return (
-                <span
-                  key={f}
-                  onClick={() => onFilter(f)}
-                  style={{ cursor: 'pointer', fontSize: 12, padding: '5px 13px', borderRadius: 999, border: `1.2px solid ${on ? '#2B2620' : '#A89C88'}`, background: on ? '#2B2620' : 'rgba(250,245,232,0.95)', color: on ? '#F2EAD8' : '#6B6154', userSelect: 'none', transition: 'all .25s' }}
-                >
-                  {t(`chart.filters.${f}`)}
-                </span>
-              );
-            })}
             <div onClick={onBuild} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, background: '#2B2620', borderRadius: 999, padding: '5px 14px 5px 6px', userSelect: 'none', border: '1.5px solid #2B2620' }}>
               <span style={{ width: 24, height: 24, borderRadius: '50%', background: '#E3A93C', color: '#3A2E14', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Noto Serif SC',serif", fontSize: 13 }}>{t('chart.buildSeal')}</span>
               <span style={{ fontSize: 12.5, color: '#F2EAD8' }}>{t('chart.build')}</span>
@@ -315,35 +257,11 @@ export function ChartScreen({ islands, filter, onFilter, hover, onHover, onIslan
           </div>
           <div style={{ display: 'flex', gap: 16, alignItems: 'center', fontSize: 11, color: '#6B6154', background: 'rgba(250,245,232,0.85)', borderRadius: 6, padding: '5px 12px' }}>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-              <svg width="26" height="10" viewBox="0 0 26 10"><path d="M 1 8 Q 13 -2 25 8" stroke="#B5673A" strokeWidth="2" fill="none" /></svg>
-              {t('chart.legendBridge')}
-            </span>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-              <svg width="26" height="10" viewBox="0 0 26 10"><path d="M 1 5 L 25 5" stroke="#6B6154" strokeWidth="1.2" strokeDasharray="2 4" fill="none" /></svg>
-              {t('chart.legendLineage')}
-            </span>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
               <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="#E3A93C" opacity="0.4" /><circle cx="7" cy="7" r="2.5" fill="#E3A93C" /></svg>
               {t('chart.legendOutlier')}
             </span>
           </div>
         </div>
-      </div>
-      <div style={{ position: 'absolute', left: 24, bottom: 16, fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 10.5, color: '#8C8270' }}>{t('chart.footer')}</div>
-
-      {/* 关系海 · the sea plane's list twin (invariant 5) — same focus state as the chart */}
-      <div style={{ position: 'absolute', right: 20, top: 150, bottom: 64, width: 296, overflowY: 'auto', background: 'rgba(250,245,232,0.94)', border: '1.5px solid #3A342B', borderRadius: 8, boxShadow: '4px 4px 0 rgba(58,48,36,0.12)', padding: '12px 14px', pointerEvents: 'auto' }}>
-        <div style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 700, fontSize: 13, marginBottom: 8, color: '#2B2620', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span>{t('chart.seaRelations')}</span>
-          <span style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 9, color: sea.source === 'server' ? '#2B7A5F' : '#A89C88' }}>{sea.source}</span>
-        </div>
-        <RelationsList
-          currents={sea.currents}
-          whirlpools={sea.whirlpools}
-          islands={sea.islands}
-          focusedIslandId={focusedIslandId ?? undefined}
-          onFocusIsland={toggleFocus}
-        />
       </div>
 
       {/* 岛卡 */}
@@ -352,7 +270,7 @@ export function ChartScreen({ islands, filter, onFilter, hover, onHover, onIslan
           <div style={{ position: 'absolute', inset: 3, border: '0.75px solid rgba(58,52,43,0.35)', borderRadius: 4, pointerEvents: 'none' }} />
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: 10.5, letterSpacing: '0.12em', fontFamily: "'JetBrains Mono',ui-monospace,monospace", color: card.domCol }}>
-              {card.domLabel} · {card.stage}
+              {card.stage}
               {card.cluster && <span style={{ marginLeft: 6, opacity: 0.7 }}>{card.cluster}</span>}
             </span>
             <span style={{ fontSize: 10, color: '#A89C88', fontFamily: "'JetBrains Mono',ui-monospace,monospace" }}>#{card.id}</span>
