@@ -15,7 +15,7 @@ import { MobileShell } from './components/mobile/MobileShell';
 import { useAppData } from './api/useAppData';
 import { api } from './api/client';
 import { usePresence } from './presence/usePresence';
-import { DATA, QUESTIONS, SAMPLE_SLUG, STN, type IslandDatum, type QuestionDatum } from './api/fallback';
+import { QUESTIONS, SAMPLE_SLUG, STN, type IslandDatum, type QuestionDatum } from './api/fallback';
 import { localizeStationZh } from './i18n/stations';
 import { wipeReducer, initialWipe, MID_MS, END_MS, type WipeView } from './state/wipeMachine';
 import {
@@ -390,10 +390,6 @@ export default function App() {
 
           <Toast text={toast} on={toastOn} />
         </div>
-      </div>
-
-      <div style={{ marginTop: 10, fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 11, color: '#8C8270' }}>
-        {t('island.devFooter', { n: DATA.length, slug: SAMPLE_SLUG })}
       </div>
     </div>
   );
