@@ -1,0 +1,46 @@
+<!-- @dsCard group="Patterns · v2 NEW" -->
+<!doctype html><meta charset="utf-8"><title>洋流 Current · NEW v2 海即数据</title>
+<style>
+:root{--fi-paper:#F2EAD8;--fi-paper-raised:#FAF5E8;--fi-ink:#2B2620;--fi-ink-2:#6B6154;--fi-azurite:#2E5E8C;--fi-azurite-deep:#1E4266;--fi-malachite:#3E9B7E;--fi-ochre:#B5673A;--fi-gamboge:#E3A93C;--fi-lantern:#F5B94B;--fi-water:#C8D8E4;--fi-ghost:#C9D7F2;--fi-sand:#E7DBBB;--fi-stone:#DCCFAB;--fi-font-display:'Noto Serif SC','Songti SC',serif;--fi-font-body:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',system-ui,sans-serif;--fi-font-mono:'JetBrains Mono',ui-monospace,monospace;--fi-stroke-main:1.5px;--fi-radius-panel:10px;--fi-domain-math-fill:#C9D8E6;--fi-domain-matter-fill:#E8CFAE;--fi-domain-life-fill:#C6DECC;--fi-domain-cross-fill:#ECDFB4;}
+*{box-sizing:border-box}html,body{margin:0}
+body{font-family:var(--fi-font-body);background:var(--fi-paper);color:var(--fi-ink);padding:24px}
+h1{font-family:var(--fi-font-display);font-size:18px;margin:0 0 2px}
+.sub{font-size:12px;color:var(--fi-ink-2);margin:0 0 14px;line-height:1.5}
+.tag{display:inline-block;font-family:var(--fi-font-mono);font-size:10px;letter-spacing:.04em;color:var(--fi-ochre);border:1px solid var(--fi-ochre);border-radius:999px;padding:1px 8px;margin-bottom:8px}
+.legend{display:flex;gap:20px;flex-wrap:wrap;font-size:11px;color:var(--fi-ink-2);margin-top:14px;font-family:var(--fi-font-mono)}
+.legend b{color:var(--fi-ink)}
+.sw{display:inline-block;height:4px;border-radius:2px;vertical-align:middle;margin-right:6px}
+@keyframes drift{to{stroke-dashoffset:-32}}
+.flow{stroke-dasharray:7 7;animation:drift 1.9s linear infinite;fill:none;stroke-linecap:round}
+@media (prefers-reduced-motion:reduce){.flow{animation:none}}
+</style>
+<body>
+<span class="tag">NEW · v2 海即数据 · 需回流后进 design-system</span>
+<h1>洋流 Current — 关系即水流 relation as flow</h1>
+<p class="sub">v1 让海底缆/桥/世系是几根临时线；v2 让整片海承载关系。<b>方向</b>=影响向 · <b>宽</b>=权重（事件计数/移栽流）· <b>色</b>=关系类型。皆为 ledger 事件的 <code>reduce</code> 投影，无「画一条线」工具（不变量 15）。仅用现有 <code>--fi-*</code> token。</p>
+<svg viewBox="0 0 680 320" width="100%" style="max-width:680px;background:var(--fi-water);border-radius:var(--fi-radius-panel)">
+  <defs>
+    <path id="mnd" d="M -58 10 C -50 -8 -26 -20 2 -21 C 30 -20 50 -9 58 8 C 46 16 30 20 0 20 C -30 20 -48 16 -58 10 Z"/>
+    <marker id="arA" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--fi-azurite)"/></marker>
+    <marker id="arO" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--fi-ochre)"/></marker>
+    <marker id="arM" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--fi-malachite)"/></marker>
+  </defs>
+  <!-- flowlines (under islands) -->
+  <path class="flow" d="M150,120 C 280,96 400,150 500,124" stroke="var(--fi-azurite)" stroke-width="8" opacity=".85" marker-end="url(#arA)"/>
+  <path class="flow" d="M500,150 C 430,210 300,220 220,196" stroke="var(--fi-ochre)" stroke-width="4.5" opacity=".8" marker-end="url(#arO)"/>
+  <path class="flow" d="M150,150 C 210,240 360,250 470,230" stroke="var(--fi-malachite)" stroke-width="2.5" opacity=".75" marker-end="url(#arM)"/>
+  <!-- islands (real IslandMound silhouette) -->
+  <g transform="translate(140,132) scale(.72)"><use href="#mnd" fill="var(--fi-domain-math-fill)" stroke="var(--fi-ink)" stroke-width="1.5"/></g>
+  <g transform="translate(510,138) scale(.78)"><use href="#mnd" fill="var(--fi-domain-life-fill)" stroke="var(--fi-ink)" stroke-width="1.5"/></g>
+  <g transform="translate(230,214) scale(.62)"><use href="#mnd" fill="var(--fi-domain-matter-fill)" stroke="var(--fi-ink)" stroke-width="1.5"/></g>
+  <!-- captions -->
+  <text x="140" y="176" text-anchor="middle" font-size="11" font-family="var(--fi-font-mono)" fill="var(--fi-ink-2)">op://…/riemann</text>
+  <text x="510" y="184" text-anchor="middle" font-size="11" font-family="var(--fi-font-mono)" fill="var(--fi-ink-2)">op://…/folding</text>
+</svg>
+<div class="legend">
+  <span><span class="sw" style="width:26px;background:var(--fi-azurite)"></span><b>石青</b> 证据 / 引用 / validate</span>
+  <span><span class="sw" style="width:26px;background:var(--fi-ochre)"></span><b>赭石</b> 桥 / 类比（摆渡人）</span>
+  <span><span class="sw" style="width:26px;background:var(--fi-malachite)"></span><b>石绿</b> 生成 / 世系 / fork</span>
+  <span><span class="sw" style="width:12px;background:var(--fi-ink)"></span> 宽 = 权重</span>
+</div>
+</body>

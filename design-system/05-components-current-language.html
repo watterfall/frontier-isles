@@ -1,0 +1,279 @@
+<!-- @dsCard group="Components" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Frontier Isles · Current Visual Language</title>
+<style>
+/* ── inlined verbatim from packages/assets/src/tokens.css ── */
+/*
+ * Frontier Isles design tokens.
+ * Extracted VERBATIM from design/handoff/问题群岛-原型 v3.dc.html
+ *   - artboard 3c "设计 Token 清单" (color / type / spacing / radii / stroke / motion)
+ *   - helmet <style> block (@keyframes + prefers-reduced-motion kill switch)
+ *
+ * Day/night swaps palette only, never shape (docs/architecture.md §1).
+ * Day values live here as the default :root palette; night overrides are
+ * applied as an inline CSS-variable string on the scene root — see
+ * src/palettes.ts NIGHT_SCENE_VARS (copied from the prototype's `nightVars`).
+ */
+
+:root {
+  /* 色 · 矿物色系 — day */
+  --fi-paper: #F2EAD8;           /* 纸底 · 页面基面 */
+  --fi-night-paper: #161F36;     /* 靛蓝纸 · 夜晚基面 */
+  --fi-paper-raised: #FAF5E8;    /* 卡面 / 面板 */
+  --fi-night-raised: #212C4E;    /* 夜 · 卡面 / 建筑墙 */
+  --fi-ink: #2B2620;             /* 主墨 · 文字/勾线 */
+  --fi-night-ink: #C9D0E4;       /* 夜 · 主墨反白 */
+  --fi-ink-2: #6B6154;           /* 次墨 · 注文 */
+  --fi-night-ink-2: #8B94B2;     /* 夜 · 次墨 */
+  --fi-azurite: #2E5E8C;         /* 石青 · 主行动/链接/数理 */
+  --fi-azurite-deep: #1E4266;    /* 石青深 · 屋瓦/按压态 */
+  --fi-malachite: #3E9B7E;       /* 石绿 · 生长/成功/生命 */
+  --fi-ochre: #B5673A;           /* 赭石 · 次行动/桥/印章/物质 */
+  --fi-gamboge: #E3A93C;         /* 藤黄 · 点睛/聚焦/离群发光 */
+  --fi-lantern: #F5B94B;         /* 灯笼暖光 · 夜晚点亮 */
+  --fi-water: #C8D8E4;           /* 水 · 海面/池 */
+  --fi-ghost: #C9D7F2;           /* 魂影 · 40% 透明 + 虚线 */
+  --fi-sand: #E7DBBB;            /* 沙洲 · 岸线/台阶 */
+  --fi-stone: #DCCFAB;           /* 石阶 · 铺地/器座 */
+
+  /* 字 */
+  --fi-font-display: 'Noto Serif SC', 'Songti SC', serif;
+  --fi-font-body: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', system-ui, sans-serif;
+  --fi-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* 间距 · 8pt 网格 */
+  --fi-space-1: 4px;
+  --fi-space-2: 8px;
+  --fi-space-3: 12px;
+  --fi-space-4: 16px;
+  --fi-space-5: 24px;
+  --fi-space-6: 32px;
+  --fi-space-7: 48px;
+
+  /* 圆角 */
+  --fi-radius-seal: 2px;
+  --fi-radius-card: 6px;
+  --fi-radius-panel: 10px;
+  --fi-radius-pill: 999px;
+
+  /* 墨线 · 描边粗细 */
+  --fi-stroke-fine: 0.75px;   /* 细勾 · 分隔/窗棂 */
+  --fi-stroke-main: 1.5px;    /* 主勾 · 轮廓/边框 */
+  --fi-stroke-heavy: 2.5px;   /* 重勾 · 桥/强调 */
+
+  /* 动效 */
+  --fi-motion-micro: 240ms;
+  --fi-motion-scroll-wipe: 480ms;
+  --fi-motion-scroll-wipe-max: 550ms;
+  --fi-motion-day-night-flip: 700ms;
+  --fi-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* motion toggle — set --play:paused on an ancestor to freeze all
+     prototype animations (breathe / pulseGlow / twinkle / sway / …) */
+  --play: running;
+}
+
+/* 领域映射 · domain colors (island base fill, day/night same shape) */
+:root {
+  --fi-domain-math-fill: #C9D8E6;   /* 数理 */
+  --fi-domain-math-ink: #2E5E8C;
+  --fi-domain-matter-fill: #E8CFAE; /* 物质 */
+  --fi-domain-matter-ink: #B5673A;
+  --fi-domain-life-fill: #C6DECC;   /* 生命 */
+  --fi-domain-life-ink: #2B7A5F;
+  --fi-domain-cross-fill: #ECDFB4;  /* 交叉 */
+  --fi-domain-cross-ink: #A08428;
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: .78; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-3px); }
+}
+@keyframes pulseGlow {
+  0%, 100% { opacity: .30; }
+  50% { opacity: .75; }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: .9; }
+  50% { opacity: .25; }
+}
+@keyframes sway {
+  0%, 100% { transform: rotate(-3.5deg); }
+  50% { transform: rotate(3.5deg); }
+}
+@keyframes ghostFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes fflyA {
+  0%, 100% { transform: translate(0,0); opacity: .9; }
+  30% { transform: translate(10px,-8px); opacity: .4; }
+  65% { transform: translate(-6px,-14px); opacity: .9; }
+}
+@keyframes fflyB {
+  0%, 100% { transform: translate(0,0); opacity: .5; }
+  40% { transform: translate(-11px,-6px); opacity: .95; }
+  70% { transform: translate(7px,-12px); opacity: .45; }
+}
+@keyframes waveDrift {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(7px); }
+}
+@keyframes bob {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-3px) rotate(1.5deg); }
+}
+@keyframes smoke {
+  0%, 100% { transform: translateY(0); opacity: .5; }
+  50% { transform: translateY(-4px); opacity: .25; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+</style>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: var(--fi-space-7) var(--fi-space-6) var(--fi-space-7);
+  background: var(--fi-paper);
+  color: var(--fi-ink);
+  font-family: var(--fi-font-body);
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1120px; margin: 0 auto; }
+.page-head { margin-bottom: var(--fi-space-7); }
+.page-head h1 {
+  font-family: var(--fi-font-display);
+  font-weight: 700;
+  font-size: 30px;
+  letter-spacing: 0.01em;
+  margin: 0 0 var(--fi-space-2);
+  color: var(--fi-ink);
+}
+.page-head p { margin: 0; color: var(--fi-ink-2); font-size: 14px; max-width: 62ch; line-height: 1.6; }
+.page-head .meta { margin-top: var(--fi-space-3); font-family: var(--fi-font-mono); font-size: 11.5px; color: var(--fi-ink-2); opacity: 0.85; }
+
+.group { margin-top: var(--fi-space-7); }
+.group-head { border-bottom: var(--fi-stroke-main) solid rgba(43,38,32,0.14); padding-bottom: var(--fi-space-2); margin-bottom: var(--fi-space-5); }
+.group-head h2 { font-family: var(--fi-font-display); font-weight: 600; font-size: 18px; margin: 0 0 2px; color: var(--fi-azurite-deep); }
+.group-head p { margin: 0; font-size: 13px; color: var(--fi-ink-2); line-height: 1.55; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--fi-space-4); }
+
+.spec {
+  margin: 0;
+  background: var(--fi-paper-raised);
+  border: var(--fi-stroke-fine) solid rgba(43,38,32,0.16);
+  border-radius: var(--fi-radius-card);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.spec-stage { padding: var(--fi-space-3); display: flex; align-items: center; justify-content: center; }
+.spec-dark .spec-stage { background: var(--fi-night-paper); }
+.spec figcaption {
+  border-top: var(--fi-stroke-fine) solid rgba(43,38,32,0.10);
+  padding: var(--fi-space-2) var(--fi-space-3);
+  display: flex; flex-direction: column; gap: 1px;
+}
+.spec .cname { font-family: var(--fi-font-mono); font-size: 12px; color: var(--fi-ink); }
+.spec .cnote { font-size: 11.5px; color: var(--fi-ink-2); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="page-head">
+      <h1>问题群岛 · Current Visual Language</h1>
+      <p>Live specimens rendered by server-side-rendering the real <code>@frontier-isles/assets</code> SVG React components — not redrawn. Every shape paints through <code>var(--fi-*, fallback)</code> design tokens (inlined above); day mode uses fallbacks, the night panel applies <code>NIGHT_SCENE_VARS</code>.</p>
+      <p class="meta">SSR · react-dom/server · tokens.css inlined · viewBox-framed per component</p>
+    </header>
+    <section class="group">
+      <header class="group-head"><h2>L0 · Chart islands</h2><p>IslandMound — five hand-drawn silhouettes, fill is data-driven per domain (not a token).</p></header>
+      <div class="grid">
+      <figure class="spec">
+        <div class="spec-stage"><svg viewBox="-85 -40 170 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="width:100%;height:150px;display:block"><g transform="translate(0,0) scale(1)"><path d="M -70 24 q 34 9 70 9 q 36 0 70 -9" stroke="#BFCEDB" stroke-width="1.2" fill="none" opacity="0.8"></path><path d="M -58 34 q 28 7 58 7 q 30 0 58 -7" stroke="#BFCEDB" stroke-width="1" fill="none" opacity="0.5"></path><ellipse cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,0.15)" opacity="0" style="transition:opacity .35s"></ellipse><g style="transform:translateY(0px);transition:transform .35s cubic-bezier(0.22,1,0.36,1)"><path d="M -58 10 C -50 -8 -26 -20 2 -21 C 30 -20 50 -9 58 8 C 46 16 30 20 0 20 C -30 20 -48 16 -58 10 Z" fill="#C9D8E6" stroke="#4A4238" stroke-width="1.5"></path><path d="M -22 -8 Q 0 -15 20 -8" stroke="#4A4238" stroke-width="0.75" fill="none" opacity="0.3"></path></g></g></svg></div>
+        <figcaption><span class="cname">IslandMound</span><span class="cnote">variant 0 · 数理 fill</span></figcaption>
+      </figure>
+      <figure class="spec">
+        <div class="spec-stage"><svg viewBox="-85 -40 170 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="width:100%;height:150px;display:block"><g transform="translate(0,0) scale(1)"><path d="M -70 24 q 34 9 70 9 q 36 0 70 -9" stroke="#BFCEDB" stroke-width="1.2" fill="none" opacity="0.8"></path><path d="M -58 34 q 28 7 58 7 q 30 0 58 -7" stroke="#BFCEDB" stroke-width="1" fill="none" opacity="0.5"></path><ellipse cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,0.15)" opacity="0" style="transition:opacity .35s"></ellipse><g style="transform:translateY(0px);transition:transform .35s cubic-bezier(0.22,1,0.36,1)"><path d="M -62 8 C -44 -14 -18 -8 -6 -17 C 8 -26 34 -18 48 -6 C 56 1 60 6 62 10 C 40 18 -40 18 -62 8 Z" fill="#E8CFAE" stroke="#4A4238" stroke-width="1.5"></path><path d="M -22 -8 Q 0 -15 20 -8" stroke="#4A4238" stroke-width="0.75" fill="none" opacity="0.3"></path></g></g></svg></div>
+        <figcaption><span class="cname">IslandMound</span><span class="cnote">variant 1 · 物质 fill</span></figcaption>
+      </figure>
+      <figure class="spec">
+        <div class="spec-stage"><svg viewBox="-85 -40 170 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="width:100%;height:150px;display:block"><g transform="translate(0,0) scale(1)"><path d="M -70 24 q 34 9 70 9 q 36 0 70 -9" stroke="#BFCEDB" stroke-width="1.2" fill="none" opacity="0.8"></path><path d="M -58 34 q 28 7 58 7 q 30 0 58 -7" stroke="#BFCEDB" stroke-width="1" fill="none" opacity="0.5"></path><ellipse cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,0.15)" opacity="0" style="transition:opacity .35s"></ellipse><g style="transform:translateY(0px);transition:transform .35s cubic-bezier(0.22,1,0.36,1)"><path d="M -50 10 C -46 -10 -20 -24 6 -18 C 20 -15 30 -22 44 -12 C 54 -5 52 5 54 10 C 30 17 -30 17 -50 10 Z" fill="#C6DECC" stroke="#4A4238" stroke-width="1.5"></path><path d="M -22 -8 Q 0 -15 20 -8" stroke="#4A4238" stroke-width="0.75" fill="none" opacity="0.3"></path></g></g></svg></div>
+        <figcaption><span class="cname">IslandMound</span><span class="cnote">variant 2 · 生命 fill</span></figcaption>
+      </figure>
+      <figure class="spec">
+        <div class="spec-stage"><svg viewBox="-85 -40 170 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="width:100%;height:150px;display:block"><g transform="translate(0,0) scale(1)"><path d="M -70 24 q 34 9 70 9 q 36 0 70 -9" stroke="#BFCEDB" stroke-width="1.2" fill="none" opacity="0.8"></path><path d="M -58 34 q 28 7 58 7 q 30 0 58 -7" stroke="#BFCEDB" stroke-width="1" fill="none" opacity="0.5"></path><ellipse cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,0.15)" opacity="0" style="transition:opacity .35s"></ellipse><g style="transform:translateY(0px);transition:transform .35s cubic-bezier(0.22,1,0.36,1)"><path d="M -60 9 C -54 -6 -40 -16 -24 -14 C -14 -13 -10 -6 -2 -8 C 4 -20 24 -24 40 -14 C 52 -7 56 2 58 9 C 36 17 -36 17 -60 9 Z" fill="#ECDFB4" stroke="#4A4238" stroke-width="1.5"></path><path d="M -22 -8 Q 0 -15 20 -8" stroke="#4A4238" stroke-width="0.75" fill="none" opacity="0.3"></path></g></g></svg></div>
+        <figcaption><span class="cname">IslandMound</span><span class="cnote">variant 3 · 交叉 fill</span></figcaption>
+      </figure>
+      <figure class="spec">
+        <div class="spec-stage"><svg viewBox="-85 -46 170 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="width:100%;height:150px;display:block"><g transform="translate(0,0) scale(1)"><path d="M -70 24 q 34 9 70 9 q 36 0 70 -9" stroke="#BFCEDB" stroke-width="1.2" fill="none" opacity="0.8"></path><path d="M -58 34 q 28 7 58 7 q 30 0 58 -7" stroke="#BFCEDB" stroke-width="1" fill="none" opacity="0.5"></path><ellipse cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,0.15)" opacity="1" style="transition:opacity .35s"></ellipse><g style="transform:translateY(-5px);transition:transform .35s cubic-bezier(0.22,1,0.36,1)"><path d="M -64 8 C -52 -4 -30 -10 -4 -11 C 24 -12 48 -6 62 6 C 64 8 62 10 60 11 C 30 17 -40 16 -64 8 Z" fill="#ECDFB4" stroke="#4A4238" stroke-width="1.5"></path><path d="M -22 -8 Q 0 -15 20 -8" stroke="#4A4238" stroke-width="0.75" fill="none" opacity="0.3"></path></g></g></svg></div>
+        <figcaption><span class="cname">IslandMound</span><span class="cnote">variant 4 · lifted (hover)</span></figcaption>
+      </figure>
+      </div>
+    </section>
+    <section class="group">
+      <header class="group-head"><h2>L1 · Stations</h2><p>Buildings extracted verbatim from the prototype; each hangs a NameCard plaque.</p></header>
+      <div class="grid">
+      <figure class="spec">
+        <div class="spec-stage"><svg viewBox="-125 -100 250 210" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="width:100%;height:210px;display:block"><defs><pattern id="isogrid" width="96" height="48" patternUnits="userSpaceOnUse"><path d="M 0 0 L 96 48 M 0 48 L 96 0" stroke="var(--gline,rgba(43,38,32,0.08))" stroke-width="0.75" fill="none"></path></pattern><radialGradient id="lgrad"><stop offset="0%" stop-color="#F5B94B" stop-opacity="0.55"></stop><stop offset="100%" stop-color="#F5B94B" stop-opacity="0"></stop></radialGradient><clipPath id="groundClip"><polygon points="760,210 1288,474 760,738 232,474"></polygon></clipPath><radialGradient id="outGlow"><stop offset="0%" stop-color="#E3A93C" stop-opacity="0.6"></stop><stop offset="55%" stop-color="#E3A93C" stop-opacity="0.22"></stop><stop offset="100%" stop-color="#E3A93C" stop-opacity="0"></stop></radialGradient><radialGradient id="vig" cx="50%" cy="46%" r="72%"><stop offset="62%" stop-color="#605034" stop-opacity="0"></stop><stop offset="100%" stop-color="#605034" stop-opacity="0.13"></stop></radialGradient><filter id="fi-grain"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="n"></feTurbulence><feColorMatrix in="n" type="matrix" values="0 0 0 0 0.24  0 0 0 0 0.21  0 0 0 0 0.16  0 0 0 0.05 0"></feColorMatrix></filter></defs><g transform="translate(0,0)"><ellipse cx="0" cy="52" rx="112" ry="44" fill="var(--shadow,rgba(58,48,36,0.16))"></ellipse><polygon points="-96,-16 0,32 0,96 -96,48" fill="var(--wall,#F8F1DE)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><polygon points="96,-16 0,32 0,96 96,48" fill="var(--wallSh,#E7DABE)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><polygon points="-96,10 0,58 0,64 -96,16" fill="rgba(58,48,36,0.12)"></polygon><polygon points="96,10 0,58 0,64 96,16" fill="rgba(58,48,36,0.16)"></polygon><g transform="skewY(26.565)"><rect x="-84" y="-22" width="14" height="13" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><rect x="-62" y="-22" width="14" height="13" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><rect x="-40" y="-22" width="14" height="13" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><path d="M -80 -22 v 13 M -76 -22 v 13 M -58 -22 v 13 M -54 -22 v 13 M -36 -22 v 13 M -32 -22 v 13" stroke="var(--wall,#F8F1DE)" stroke-width="1"></path><rect x="-84" y="8" width="14" height="13" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><rect x="-62" y="8" width="14" height="13" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect></g><g transform="skewY(-26.565)"><rect x="36" y="6" width="20" height="26" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><line x1="46" y1="6" x2="46" y2="32" stroke="var(--wall,#F8F1DE)" stroke-width="0.75"></line><rect x="12" y="-22" width="14" height="13" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><rect x="68" y="-22" width="14" height="13" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><rect x="74" y="0" width="9" height="20" rx="1" fill="var(--gold,#E3A93C)" stroke="var(--ink,#3A342B)" stroke-width="0.6"></rect></g><polygon points="0,-53 106,0 0,53 -106,0" transform="translate(0,-22)" fill="var(--capB,#2E5E8C)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><path d="M -106 -22 L 0 -75 L 106 -22" fill="none" stroke="var(--ink,#3A342B)" stroke-width="0.75" opacity="0.5"></path><circle cx="0" cy="-79" r="3.5" fill="var(--gold,#E3A93C)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></circle><circle cx="-103" cy="-20" r="2.2" fill="var(--capD,#4A4238)" stroke="var(--ink,#3A342B)" stroke-width="0.6"></circle><circle cx="103" cy="-20" r="2.2" fill="var(--capD,#4A4238)" stroke="var(--ink,#3A342B)" stroke-width="0.6"></circle><path d="M -30 86 a 30 11 0 0 1 60 0" fill="none" stroke="var(--ink,#3A342B)" stroke-width="0.75" opacity="0.3"></path><path d="M -20 90 a 20 8 0 0 1 40 0" fill="none" stroke="var(--ink,#3A342B)" stroke-width="0.75" opacity="0.22"></path><g transform="translate(0,-104)"><rect x="-32" y="-11" width="64" height="21" rx="3" fill="var(--card,rgba(250,245,232,0.92))" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><circle cx="-22" cy="-0.5" r="2.5" fill="#2E5E8C"></circle><text x="4" y="4" text-anchor="middle" font-size="12" fill="var(--inkT,#2B2620)" style="font-family:&#x27;Noto Serif SC&#x27;,serif;font-weight:600">文献阁</text></g></g></svg></div>
+        <figcaption><span class="cname">StationLibrary</span><span class="cnote">文献阁 · Library</span></figcaption>
+      </figure>
+      <figure class="spec">
+        <div class="spec-stage"><svg viewBox="-92 -44 240 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="width:100%;height:210px;display:block"><defs><pattern id="isogrid" width="96" height="48" patternUnits="userSpaceOnUse"><path d="M 0 0 L 96 48 M 0 48 L 96 0" stroke="var(--gline,rgba(43,38,32,0.08))" stroke-width="0.75" fill="none"></path></pattern><radialGradient id="lgrad"><stop offset="0%" stop-color="#F5B94B" stop-opacity="0.55"></stop><stop offset="100%" stop-color="#F5B94B" stop-opacity="0"></stop></radialGradient><clipPath id="groundClip"><polygon points="760,210 1288,474 760,738 232,474"></polygon></clipPath><radialGradient id="outGlow"><stop offset="0%" stop-color="#E3A93C" stop-opacity="0.6"></stop><stop offset="55%" stop-color="#E3A93C" stop-opacity="0.22"></stop><stop offset="100%" stop-color="#E3A93C" stop-opacity="0"></stop></radialGradient><radialGradient id="vig" cx="50%" cy="46%" r="72%"><stop offset="62%" stop-color="#605034" stop-opacity="0"></stop><stop offset="100%" stop-color="#605034" stop-opacity="0.13"></stop></radialGradient><filter id="fi-grain"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="n"></feTurbulence><feColorMatrix in="n" type="matrix" values="0 0 0 0 0.24  0 0 0 0 0.21  0 0 0 0 0.16  0 0 0 0.05 0"></feColorMatrix></filter></defs><g transform="translate(0,0)"><ellipse cx="36" cy="42" rx="88" ry="34" fill="var(--shadow,rgba(58,48,36,0.16))"></ellipse><polygon points="-24,-32 72,16 72,60 -24,12" fill="var(--wall,#F8F1DE)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><polygon points="96,4 72,16 72,60 96,48" fill="var(--wallSh,#E7DABE)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><g transform="skewY(26.565)"><rect x="-14" y="-8" width="10" height="12" fill="#FBF6E9" stroke="var(--ink,#3A342B)" stroke-width="0.75" transform="rotate(-4 -9 -2)"></rect><rect x="4" y="-13" width="10" height="12" fill="#FBF6E9" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><rect x="22" y="-15" width="13" height="15" fill="#FBF6E9" stroke="var(--gold,#E3A93C)" stroke-width="1.5"></rect><rect x="42" y="-9" width="10" height="12" fill="#FBF6E9" stroke="var(--ink,#3A342B)" stroke-width="0.75" transform="rotate(5 47 -3)"></rect><rect x="56" y="2" width="10" height="12" fill="#FBF6E9" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><circle cx="28.5" cy="-17" r="1.8" fill="var(--ochre,#B5673A)"></circle></g><polygon points="0,-34 68,0 0,34 -68,0" transform="translate(36,-18)" fill="var(--capD,#4A4238)" stroke="var(--ink,#3A342B)" stroke-width="1.5"></polygon><circle cx="-30" cy="-18" r="2.2" fill="var(--ochre,#B5673A)" stroke="var(--ink,#3A342B)" stroke-width="0.6"></circle><circle cx="102" cy="-18" r="2.2" fill="var(--ochre,#B5673A)" stroke="var(--ink,#3A342B)" stroke-width="0.6"></circle><g transform="translate(36,-64)" style="animation:breathe 4.5s ease-in-out infinite;animation-play-state:var(--play,running)"><rect x="-56" y="-12" width="112" height="23" rx="3" fill="var(--card,rgba(250,245,232,0.92))" stroke="var(--gold,#E3A93C)" stroke-width="1.5"></rect><text x="0" y="4" text-anchor="middle" font-size="12" fill="var(--inkT,#2B2620)" style="font-family:&#x27;Noto Serif SC&#x27;,serif;font-weight:600">问题墙</text><circle cx="-46" cy="-0.5" r="2.5" fill="#E3A93C"></circle></g></g></svg></div>
+        <figcaption><span class="cname">StationQuestionWall</span><span class="cnote">问题墙 · Question Wall (genesis)</span></figcaption>
+      </figure>
+      <figure class="spec">
+        <div class="spec-stage"><svg viewBox="700 660 200 170" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="width:100%;height:210px;display:block"><defs><pattern id="isogrid" width="96" height="48" patternUnits="userSpaceOnUse"><path d="M 0 0 L 96 48 M 0 48 L 96 0" stroke="var(--gline,rgba(43,38,32,0.08))" stroke-width="0.75" fill="none"></path></pattern><radialGradient id="lgrad"><stop offset="0%" stop-color="#F5B94B" stop-opacity="0.55"></stop><stop offset="100%" stop-color="#F5B94B" stop-opacity="0"></stop></radialGradient><clipPath id="groundClip"><polygon points="760,210 1288,474 760,738 232,474"></polygon></clipPath><radialGradient id="outGlow"><stop offset="0%" stop-color="#E3A93C" stop-opacity="0.6"></stop><stop offset="55%" stop-color="#E3A93C" stop-opacity="0.22"></stop><stop offset="100%" stop-color="#E3A93C" stop-opacity="0"></stop></radialGradient><radialGradient id="vig" cx="50%" cy="46%" r="72%"><stop offset="62%" stop-color="#605034" stop-opacity="0"></stop><stop offset="100%" stop-color="#605034" stop-opacity="0.13"></stop></radialGradient><filter id="fi-grain"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="n"></feTurbulence><feColorMatrix in="n" type="matrix" values="0 0 0 0 0.24  0 0 0 0 0.21  0 0 0 0 0.16  0 0 0 0.05 0"></feColorMatrix></filter></defs><g transform="translate(0,0)"><g transform="translate(0,0)"><line x1="754" y1="744" x2="788" y2="780" stroke="var(--trunk,#7A5B3E)" stroke-width="3"></line><line x1="768" y1="738" x2="802" y2="774" stroke="var(--trunk,#7A5B3E)" stroke-width="3"></line><path d="M 758 750 L 772 744 M 766 758 L 780 752 M 774 766 L 788 760 M 782 774 L 796 768" stroke="var(--trunk,#7A5B3E)" stroke-width="2"></path></g><g transform="translate(836,792)" style="animation:bob 5s ease-in-out infinite;animation-play-state:var(--play,running)"><path d="M -15 0 Q 0 7 15 0 L 11 -3 L -11 -3 Z" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="1"></path></g><g transform="translate(790,706)"><rect x="-32" y="-11" width="64" height="21" rx="3" fill="var(--card,rgba(250,245,232,0.92))" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><circle cx="-22" cy="-0.5" r="2.5" fill="#6B6154"></circle><text x="4" y="4" text-anchor="middle" font-size="12" fill="var(--inkT,#2B2620)" style="font-family:&#x27;Noto Serif SC&#x27;,serif;font-weight:600">渡口</text></g></g></svg></div>
+        <figcaption><span class="cname">FerryDock</span><span class="cnote">渡口 · Ferry Dock (jetty + boat stub)</span></figcaption>
+      </figure>
+      <figure class="spec">
+        <div class="spec-stage"><svg viewBox="-70 -22 140 44" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="width:100%;height:90px;display:block"><g transform="translate(0,0)"><rect x="-32.5" y="-11" width="65" height="21" rx="3" fill="var(--card,rgba(250,245,232,0.92))" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><circle cx="-22.5" cy="-0.5" r="2.5" fill="#2E5E8C"></circle><text x="4" y="4" text-anchor="middle" font-size="12" fill="var(--inkT,#2B2620)" style="font-family:&#x27;Noto Serif SC&#x27;,serif;font-weight:600">文献阁</text></g></svg></div>
+        <figcaption><span class="cname">NameCard</span><span class="cnote">the plaque every station hangs</span></figcaption>
+      </figure>
+      </div>
+    </section>
+    <section class="group">
+      <header class="group-head"><h2>Residents</h2><p>One permission model — humans in solid ink, AI residents dashed in #5A6C9E with a seal glyph.</p></header>
+      <div class="grid">
+      <figure class="spec">
+        <div class="spec-stage"><svg viewBox="-40 -20 80 64" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="width:100%;height:130px;display:block"><g transform="translate(0,0)"><g><circle cx="0" cy="-9" r="2.6" fill="var(--ink,#3A342B)"></circle><path d="M 0 -6 L 0 2 M 0 2 L -3 8 M 0 2 L 3 8 M -4 -3 L 4 -2" stroke="var(--ink,#3A342B)" stroke-width="1.4" stroke-linecap="round" fill="none"></path></g><text x="0" y="20" text-anchor="middle" font-size="8.5" fill="var(--ink2,#6B6154)" style="font-family:&#x27;PingFang SC&#x27;,sans-serif">林徽</text></g></svg></div>
+        <figcaption><span class="cname">ResidentFigure</span><span class="cnote">kind=human · 林徽</span></figcaption>
+      </figure>
+      <figure class="spec">
+        <div class="spec-stage"><svg viewBox="-40 -20 80 64" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="width:100%;height:130px;display:block"><g transform="translate(0,0)"><g transform="scale(-1,1)"><circle cx="0" cy="-9" r="2.6" fill="var(--ink,#3A342B)"></circle><path d="M 0 -6 L 0 2 M 0 2 L -3 8 M 0 2 L 3 8 M -4 -3 L 4 -2" stroke="var(--ink,#3A342B)" stroke-width="1.4" stroke-linecap="round" fill="none"></path><rect x="4" y="-7" width="5" height="7" rx="1" fill="#FBF6E9" stroke="var(--ink,#3A342B)" stroke-width="0.6"></rect></g><text x="0" y="20" text-anchor="middle" font-size="8.5" fill="var(--ink2,#6B6154)" style="font-family:&#x27;PingFang SC&#x27;,sans-serif">苏樱</text></g></svg></div>
+        <figcaption><span class="cname">ResidentFigure</span><span class="cnote">human · carryingCanvas</span></figcaption>
+      </figure>
+      <figure class="spec">
+        <div class="spec-stage"><svg viewBox="-40 -20 80 64" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="width:100%;height:130px;display:block"><g transform="translate(0,0)"><g><circle cx="0" cy="-9" r="2.6" fill="none" stroke="#5A6C9E" stroke-width="1.3"></circle><path d="M 0 -6 L 0 2 M 0 2 L -3 8 M 0 2 L 3 8 M -4 -3 L 4 -2" stroke="#5A6C9E" stroke-width="1.4" stroke-dasharray="2.5 1.8" stroke-linecap="round" fill="none"></path><rect x="-5" y="11" width="10" height="10" rx="1.5" fill="#5A6C9E"></rect><text x="0" y="18.8" text-anchor="middle" font-size="7.5" fill="#F2EAD8" style="font-family:&#x27;Noto Serif SC&#x27;,serif">斥</text></g><text x="0" y="31" text-anchor="middle" font-size="8.5" fill="var(--ink2,#6B6154)" style="font-family:&#x27;PingFang SC&#x27;,sans-serif">文献斥候</text></g></svg></div>
+        <figcaption><span class="cname">ResidentFigure</span><span class="cnote">kind=ai · scout 斥候</span></figcaption>
+      </figure>
+      <figure class="spec">
+        <div class="spec-stage"><svg viewBox="-40 -20 80 64" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="width:100%;height:130px;display:block"><g transform="translate(0,0)"><g><circle cx="0" cy="-9" r="2.6" fill="none" stroke="#5A6C9E" stroke-width="1.3"></circle><path d="M 0 -6 L 0 2 M 0 2 L -3 8 M 0 2 L 3 8 M -4 -3 L 4 -2" stroke="#5A6C9E" stroke-width="1.4" stroke-dasharray="2.5 1.8" stroke-linecap="round" fill="none"></path><rect x="-5" y="11" width="10" height="10" rx="1.5" fill="#5A6C9E"></rect><text x="0" y="18.8" text-anchor="middle" font-size="7.5" fill="#F2EAD8" style="font-family:&#x27;Noto Serif SC&#x27;,serif">渡</text></g><text x="0" y="31" text-anchor="middle" font-size="8.5" fill="var(--ink2,#6B6154)" style="font-family:&#x27;PingFang SC&#x27;,sans-serif">摆渡人</text></g></svg></div>
+        <figcaption><span class="cname">ResidentFigure</span><span class="cnote">kind=ai · ferryman 渡</span></figcaption>
+      </figure>
+      </div>
+    </section>
+    <section class="group">
+      <header class="group-head"><h2>Day / Night</h2><p>Day/night swaps palette only, never shape (architecture.md §1).</p></header>
+      <div class="grid">
+      <figure class="spec">
+        <div class="spec-stage"><svg viewBox="310 40 700 140" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="width:100%;height:150px;display:block"><g><g transform="translate(348,96)"><circle r="20" fill="rgba(227,169,60,0.16)" stroke="#C99436" stroke-width="1.2"></circle><circle r="7" fill="#E3A93C" opacity="0.75"></circle></g><path d="M 880 150 q 5 -6 10 0 q 5 -6 10 0 M 934 128 q 5 -6 10 0 q 5 -6 10 0 M 968 156 q 4 -5 8 0 q 4 -5 8 0" stroke="#6B6154" stroke-width="1.2" fill="none" opacity="0.6"></path></g></svg></div>
+        <figcaption><span class="cname">DaySky</span><span class="cnote">昼阳 · 飞鸟 (sun + birds)</span></figcaption>
+      </figure>
+      <figure class="spec spec-dark">
+        <div class="spec-stage"><svg viewBox="820 40 620 430" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="width:100%;height:260px;display:block;--pp:#161F36;--pp2:#212C4E;--ground:#212C4E;--garden:#26374A;--sand:#2A3550;--stone:#26314E;--lotus:#2E4A44;--gline:rgba(170,185,225,0.08);--ink:#8E99BE;--inkT:#C9D0E4;--ink2:#8B94B2;--wall:#2B3658;--wallSh:#232E4E;--capB:#2A3E68;--capD:#1C2440;--capG:#2C4657;--capO:#54413C;--water:#26375C;--path:rgba(245,185,75,0.30);--treeG:#2F4A50;--trunk:#3A4258;--card:rgba(33,44,78,0.92);--shadow:rgba(0,0,0,0.4);--doorW:#141B30;--gold:#F5B94B;--gold2:#F5B94B;--ochre:#C08054"><rect x="820" y="40" width="620" height="430" fill="var(--fi-night-paper,#161F36)"></rect><g><path d="M 1330 96 a 34 34 0 1 0 6 46 a 27 27 0 0 1 -6 -46 Z" fill="#E8D9A8" opacity="0.85"></path><circle cx="180" cy="90" r="1.6" fill="#E8D9A8" style="animation:twinkle 4s ease-in-out infinite;animation-play-state:var(--play,running)"></circle><circle cx="320" cy="140" r="1.2" fill="#E8D9A8"></circle><circle cx="520" cy="70" r="1.4" fill="#E8D9A8" style="animation:twinkle 5s ease-in-out infinite 1.2s;animation-play-state:var(--play,running)"></circle><circle cx="900" cy="100" r="1.2" fill="#E8D9A8"></circle><circle cx="1100" cy="60" r="1.6" fill="#E8D9A8" style="animation:twinkle 4.6s ease-in-out infinite 2s;animation-play-state:var(--play,running)"></circle><circle cx="700" cy="130" r="1" fill="#E8D9A8"></circle><circle cx="420" cy="110" r="1.1" fill="#E8D9A8" style="animation:twinkle 5.4s ease-in-out infinite .6s;animation-play-state:var(--play,running)"></circle></g><g fill="#F5B94B"><circle cx="944" cy="358" r="2" style="animation:fflyA 5s ease-in-out infinite;animation-play-state:var(--play,running)"></circle><circle cx="984" cy="330" r="1.6" style="animation:fflyB 6s ease-in-out infinite;animation-play-state:var(--play,running)"></circle><circle cx="1024" cy="380" r="2" style="animation:fflyA 7s ease-in-out infinite 0.8s;animation-play-state:var(--play,running)"></circle><circle cx="914" cy="390" r="1.4" style="animation:fflyB 5.5s ease-in-out infinite 1.4s;animation-play-state:var(--play,running)"></circle><circle cx="999" cy="406" r="1.6" style="animation:fflyA 6.5s ease-in-out infinite 2s;animation-play-state:var(--play,running)"></circle><circle cx="958" cy="348" r="2" style="animation:fflyA 5s ease-in-out infinite;animation-play-state:var(--play,running)"></circle></g><g transform="translate(1030,436)" opacity="1" style="transition:opacity .8s ease"><g style="animation:ghostFloat 5s ease-in-out infinite;animation-play-state:var(--play,running)"><rect x="-11" y="-36" width="22" height="28" rx="2" fill="rgba(201,215,242,0.4)" stroke="#9FB2D8" stroke-width="1" stroke-dasharray="3 3"></rect><line x1="-6" y1="-27" x2="6" y2="-27" stroke="#9FB2D8" stroke-width="1"></line><line x1="-6" y1="-21" x2="6" y2="-21" stroke="#9FB2D8" stroke-width="1"></line><line x1="-8" y1="-33" x2="8" y2="-13" stroke="#9FB2D8" stroke-width="1.2"></line></g><text x="0" y="14" text-anchor="middle" font-size="9.5" fill="#8B94B2" style="font-family:&#x27;PingFang SC&#x27;,sans-serif">废弃的问题卡 · 第12夜</text></g></svg></div>
+        <figcaption><span class="cname">NightSky + Fireflies + GhostArtifact</span><span class="cnote">夜 · moon, twinkle, 萤火虫, 魂影</span></figcaption>
+      </figure>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

@@ -21,8 +21,8 @@ export function SceneDefs() {
 
       {/* L1 · lantern / focus glow */}
       <radialGradient id="lgrad">
-        <stop offset="0%" stopColor="#F5B94B" stopOpacity="0.55" />
-        <stop offset="100%" stopColor="#F5B94B" stopOpacity="0" />
+        <stop offset="0%" stopColor="var(--fi-lantern, #F5B94B)" stopOpacity="0.55" />
+        <stop offset="100%" stopColor="var(--fi-lantern, #F5B94B)" stopOpacity="0" />
       </radialGradient>
 
       {/* L1 · clips the isogrid rect to the diamond ground plane */}
@@ -32,9 +32,9 @@ export function SceneDefs() {
 
       {/* L0 · outlier / anomaly glow */}
       <radialGradient id="outGlow">
-        <stop offset="0%" stopColor="#E3A93C" stopOpacity="0.6" />
-        <stop offset="55%" stopColor="#E3A93C" stopOpacity="0.22" />
-        <stop offset="100%" stopColor="#E3A93C" stopOpacity="0" />
+        <stop offset="0%" stopColor="var(--fi-gamboge, #E3A93C)" stopOpacity="0.6" />
+        <stop offset="55%" stopColor="var(--fi-gamboge, #E3A93C)" stopOpacity="0.22" />
+        <stop offset="100%" stopColor="var(--fi-gamboge, #E3A93C)" stopOpacity="0" />
       </radialGradient>
 
       {/* L0 · chart vignette */}

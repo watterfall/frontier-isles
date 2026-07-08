@@ -13,9 +13,9 @@ export interface LineageLineProps {
 export function LineageLine({ d, labelX, labelY, label = 'fork · 血缘' }: LineageLineProps) {
   return (
     <g>
-      <path d={d} fill="none" stroke="#6B6154" strokeWidth="1.2" strokeDasharray="2 5" />
+      <path d={d} fill="none" stroke="var(--fi-ink-2, #6B6154)" strokeWidth="1.2" strokeDasharray="2 5" />
       {labelX !== undefined && labelY !== undefined && (
-        <text x={labelX} y={labelY} fontSize="9.5" fill="#6B6154" style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace" }}>
+        <text x={labelX} y={labelY} fontSize="9.5" fill="var(--fi-ink-2, #6B6154)" style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace" }}>
           {label}
         </text>
       )}

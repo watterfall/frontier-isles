@@ -1,0 +1,212 @@
+<!-- @dsCard group="Components" -->
+<!doctype html><meta charset="utf-8"><title>Scenery · Components</title>
+<style>
+/*
+ * Frontier Isles design tokens.
+ * Extracted VERBATIM from design/handoff/问题群岛-原型 v3.dc.html
+ *   - artboard 3c "设计 Token 清单" (color / type / spacing / radii / stroke / motion)
+ *   - helmet <style> block (@keyframes + prefers-reduced-motion kill switch)
+ *
+ * Day/night swaps palette only, never shape (docs/architecture.md §1).
+ * Day values live here as the default :root palette; night overrides are
+ * applied as an inline CSS-variable string on the scene root — see
+ * src/palettes.ts NIGHT_SCENE_VARS (copied from the prototype's `nightVars`).
+ */
+
+:root {
+  /* 色 · 矿物色系 — day */
+  --fi-paper: #F2EAD8;           /* 纸底 · 页面基面 */
+  --fi-night-paper: #161F36;     /* 靛蓝纸 · 夜晚基面 */
+  --fi-paper-raised: #FAF5E8;    /* 卡面 / 面板 */
+  --fi-night-raised: #212C4E;    /* 夜 · 卡面 / 建筑墙 */
+  --fi-ink: #2B2620;             /* 主墨 · 文字/勾线 */
+  --fi-night-ink: #C9D0E4;       /* 夜 · 主墨反白 */
+  --fi-ink-2: #6B6154;           /* 次墨 · 注文 */
+  --fi-night-ink-2: #8B94B2;     /* 夜 · 次墨 */
+  --fi-azurite: #2E5E8C;         /* 石青 · 主行动/链接/数理 */
+  --fi-azurite-deep: #1E4266;    /* 石青深 · 屋瓦/按压态 */
+  --fi-malachite: #3E9B7E;       /* 石绿 · 生长/成功/生命 */
+  --fi-ochre: #B5673A;           /* 赭石 · 次行动/桥/印章/物质 */
+  --fi-gamboge: #E3A93C;         /* 藤黄 · 点睛/聚焦/离群发光 */
+  --fi-lantern: #F5B94B;         /* 灯笼暖光 · 夜晚点亮 */
+  --fi-water: #C8D8E4;           /* 水 · 海面/池 */
+  --fi-ghost: #C9D7F2;           /* 魂影 · 40% 透明 + 虚线 */
+  --fi-sand: #E7DBBB;            /* 沙洲 · 岸线/台阶 */
+  --fi-stone: #DCCFAB;           /* 石阶 · 铺地/器座 */
+
+  /* 字 */
+  --fi-font-display: 'Noto Serif SC', 'Songti SC', serif;
+  --fi-font-body: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', system-ui, sans-serif;
+  --fi-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* 间距 · 8pt 网格 */
+  --fi-space-1: 4px;
+  --fi-space-2: 8px;
+  --fi-space-3: 12px;
+  --fi-space-4: 16px;
+  --fi-space-5: 24px;
+  --fi-space-6: 32px;
+  --fi-space-7: 48px;
+
+  /* 圆角 */
+  --fi-radius-seal: 2px;
+  --fi-radius-card: 6px;
+  --fi-radius-panel: 10px;
+  --fi-radius-pill: 999px;
+
+  /* 墨线 · 描边粗细 */
+  --fi-stroke-fine: 0.75px;   /* 细勾 · 分隔/窗棂 */
+  --fi-stroke-main: 1.5px;    /* 主勾 · 轮廓/边框 */
+  --fi-stroke-heavy: 2.5px;   /* 重勾 · 桥/强调 */
+
+  /* 动效 */
+  --fi-motion-micro: 240ms;
+  --fi-motion-scroll-wipe: 480ms;
+  --fi-motion-scroll-wipe-max: 550ms;
+  --fi-motion-day-night-flip: 700ms;
+  --fi-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* motion toggle — set --play:paused on an ancestor to freeze all
+     prototype animations (breathe / pulseGlow / twinkle / sway / …) */
+  --play: running;
+}
+
+/* 领域映射 · domain colors (island base fill, day/night same shape) */
+:root {
+  --fi-domain-math-fill: #C9D8E6;   /* 数理 */
+  --fi-domain-math-ink: #2E5E8C;
+  --fi-domain-matter-fill: #E8CFAE; /* 物质 */
+  --fi-domain-matter-ink: #B5673A;
+  --fi-domain-life-fill: #C6DECC;   /* 生命 */
+  --fi-domain-life-ink: #2B7A5F;
+  --fi-domain-cross-fill: #ECDFB4;  /* 交叉 */
+  --fi-domain-cross-ink: #A08428;
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: .78; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-3px); }
+}
+@keyframes pulseGlow {
+  0%, 100% { opacity: .30; }
+  50% { opacity: .75; }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: .9; }
+  50% { opacity: .25; }
+}
+@keyframes sway {
+  0%, 100% { transform: rotate(-3.5deg); }
+  50% { transform: rotate(3.5deg); }
+}
+@keyframes ghostFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes fflyA {
+  0%, 100% { transform: translate(0,0); opacity: .9; }
+  30% { transform: translate(10px,-8px); opacity: .4; }
+  65% { transform: translate(-6px,-14px); opacity: .9; }
+}
+@keyframes fflyB {
+  0%, 100% { transform: translate(0,0); opacity: .5; }
+  40% { transform: translate(-11px,-6px); opacity: .95; }
+  70% { transform: translate(7px,-12px); opacity: .45; }
+}
+@keyframes waveDrift {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(7px); }
+}
+@keyframes bob {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-3px) rotate(1.5deg); }
+}
+@keyframes smoke {
+  0%, 100% { transform: translateY(0); opacity: .5; }
+  50% { transform: translateY(-4px); opacity: .25; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+
+*{box-sizing:border-box}html,body{margin:0}
+body{font-family:var(--fi-font-body);background:var(--fi-paper);color:var(--fi-ink);padding:24px}
+h1{font-family:var(--fi-font-display);font-size:17px;margin:0 0 3px}
+.note{font-size:12px;color:var(--fi-ink-2);margin:0 0 20px;line-height:1.55;max-width:860px}
+.note code,.note b{color:var(--fi-ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px}
+.cell{margin:0;background:var(--fi-paper-raised);border:1px solid rgba(0,0,0,.08);border-radius:var(--fi-radius-panel);padding:14px 12px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
+.cell.wide{grid-column:1/-1}
+.cell svg{width:100%;height:auto;max-height:220px;overflow:visible}
+.cell.wide svg{max-height:340px}
+.cap{font-family:var(--fi-font-mono);font-size:10.5px;margin-top:12px;text-align:center;color:var(--fi-ink-2);line-height:1.5}
+.cap b{display:block;font-family:var(--fi-font-display);font-size:13px;color:var(--fi-ink);margin-bottom:1px}
+.cap .sub{display:block;color:var(--fi-ink-2);opacity:.8;margin-top:2px}
+.pair{display:flex;gap:18px;flex-wrap:wrap}
+.panel{flex:1;min-width:300px;border-radius:var(--fi-radius-panel);overflow:hidden;border:1px solid rgba(0,0,0,.1)}
+.panel svg{display:block;width:100%;height:auto}
+.panel .plabel{font-family:var(--fi-font-mono);font-size:12px;padding:10px 12px}
+.panel.day .plabel{background:var(--fi-paper-raised);color:var(--fi-ink-2)}
+.panel.night .plabel{background:var(--fi-night-raised);color:var(--fi-night-ink-2)}
+
+</style>
+<body>
+<h1>点景 · Scenery</h1>
+<p class="note">岛上点景构件:树、竹、灯、池、石阶、礁、栈桥、小舟、创世石、小径。局部原点构件按几何范围取景;绝对坐标构件(踏石/礁石/栈桥/小径)按其真实 L1 坐标取景并标注。石灯笼/纸灯的辉光需要 <code>#lgrad</code>,已在同 <code>&lt;svg&gt;</code> 内挂载 <code>&lt;SceneDefs/&gt;</code>。</p>
+<div class="grid">
+<figure class="cell">
+  <svg viewBox="-14 -30 28 38" role="img" xmlns="http://www.w3.org/2000/svg" aria-label="孤松 IsoTree"><g transform="translate(0,0) scale(1)"><line x1="0" y1="0" x2="0" y2="-13" stroke="var(--trunk,#7A5B3E)" stroke-width="2.5"></line><path d="M -10 -7 L 0 -22 L 10 -7 Z" fill="var(--treeG,#4E7D62)"></path><path d="M -7 -15 L 0 -27 L 7 -15 Z" fill="var(--treeG,#4E7D62)"></path></g></svg>
+  <figcaption class="cap"><b>孤松</b>IsoTree</figcaption>
+</figure>
+<figure class="cell">
+  <svg viewBox="-14 -40 40 48" role="img" xmlns="http://www.w3.org/2000/svg" aria-label="翠竹 Bamboo"><g transform="translate(0,0)" stroke="var(--treeG,#4E7D62)" fill="none" stroke-linecap="round"><path d="M 0 0 C 1 -12 -1 -24 2 -36" stroke-width="1.8"></path><path d="M 8 2 C 9 -10 7 -22 11 -34" stroke-width="1.5"></path><path d="M -7 1 C -6 -9 -8 -18 -5 -28" stroke-width="1.3"></path><path d="M 2 -30 l 8 -4 M 2 -22 l -8 -3 M 10 -26 l 8 -3 M -5 -20 l -7 -2" stroke-width="1.2"></path></g></svg>
+  <figcaption class="cap"><b>翠竹</b>Bamboo</figcaption>
+</figure>
+<figure class="cell">
+  <svg viewBox="-14 -26 28 34" role="img" xmlns="http://www.w3.org/2000/svg" aria-label="石灯笼 StoneLantern"><defs><pattern id="isogrid" width="96" height="48" patternUnits="userSpaceOnUse"><path d="M 0 0 L 96 48 M 0 48 L 96 0" stroke="var(--gline,rgba(43,38,32,0.08))" stroke-width="0.75" fill="none"></path></pattern><radialGradient id="lgrad"><stop offset="0%" stop-color="#F5B94B" stop-opacity="0.55"></stop><stop offset="100%" stop-color="#F5B94B" stop-opacity="0"></stop></radialGradient><clipPath id="groundClip"><polygon points="760,210 1288,474 760,738 232,474"></polygon></clipPath><radialGradient id="outGlow"><stop offset="0%" stop-color="#E3A93C" stop-opacity="0.6"></stop><stop offset="55%" stop-color="#E3A93C" stop-opacity="0.22"></stop><stop offset="100%" stop-color="#E3A93C" stop-opacity="0"></stop></radialGradient><radialGradient id="vig" cx="50%" cy="46%" r="72%"><stop offset="62%" stop-color="#605034" stop-opacity="0"></stop><stop offset="100%" stop-color="#605034" stop-opacity="0.13"></stop></radialGradient><filter id="fi-grain"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="n"></feTurbulence><feColorMatrix in="n" type="matrix" values="0 0 0 0 0.24  0 0 0 0 0.21  0 0 0 0 0.16  0 0 0 0.05 0"></feColorMatrix></filter></defs><g transform="translate(0,0)"><rect x="-2.5" y="-10" width="5" height="10" fill="var(--wallSh,#D9CCA9)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><rect x="-5" y="-16" width="10" height="6" fill="var(--wall,#F8F1DE)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></rect><path d="M -7 -16 L 0 -21 L 7 -16 Z" fill="var(--capD,#4A4238)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></path><circle cx="0" cy="-13" r="7" fill="url(#lgrad)"></circle></g></svg>
+  <figcaption class="cap"><b>石灯笼</b>StoneLantern<span class="sub">lit · needs #lgrad</span></figcaption>
+</figure>
+<figure class="cell">
+  <svg viewBox="-28 -8 56 60" role="img" xmlns="http://www.w3.org/2000/svg" aria-label="纸灯 HangingLantern"><defs><pattern id="isogrid" width="96" height="48" patternUnits="userSpaceOnUse"><path d="M 0 0 L 96 48 M 0 48 L 96 0" stroke="var(--gline,rgba(43,38,32,0.08))" stroke-width="0.75" fill="none"></path></pattern><radialGradient id="lgrad"><stop offset="0%" stop-color="#F5B94B" stop-opacity="0.55"></stop><stop offset="100%" stop-color="#F5B94B" stop-opacity="0"></stop></radialGradient><clipPath id="groundClip"><polygon points="760,210 1288,474 760,738 232,474"></polygon></clipPath><radialGradient id="outGlow"><stop offset="0%" stop-color="#E3A93C" stop-opacity="0.6"></stop><stop offset="55%" stop-color="#E3A93C" stop-opacity="0.22"></stop><stop offset="100%" stop-color="#E3A93C" stop-opacity="0"></stop></radialGradient><radialGradient id="vig" cx="50%" cy="46%" r="72%"><stop offset="62%" stop-color="#605034" stop-opacity="0"></stop><stop offset="100%" stop-color="#605034" stop-opacity="0.13"></stop></radialGradient><filter id="fi-grain"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="n"></feTurbulence><feColorMatrix in="n" type="matrix" values="0 0 0 0 0.24  0 0 0 0 0.21  0 0 0 0 0.16  0 0 0 0.05 0"></feColorMatrix></filter></defs><g transform="translate(0,0)"><circle cx="0" cy="22" r="24" fill="url(#lgrad)"></circle><g style="animation:sway 3.4s ease-in-out infinite;transform-origin:50% 0%;transform-box:fill-box;animation-play-state:var(--play,running)"><line x1="0" y1="0" x2="0" y2="10" stroke="#8E99BE" stroke-width="1"></line><ellipse cx="0" cy="20" rx="8" ry="10" fill="#F5B94B" stroke="#B5673A" stroke-width="1"></ellipse><path d="M -4 11.5 c 0 6 0 12 0 17 M 4 11.5 c 0 6 0 12 0 17" stroke="#B5673A" stroke-width="0.75" fill="none"></path><line x1="0" y1="30" x2="0" y2="36" stroke="#B5673A" stroke-width="1"></line></g></g></svg>
+  <figcaption class="cap"><b>纸灯</b>HangingLantern<span class="sub">size=large · needs #lgrad</span></figcaption>
+</figure>
+<figure class="cell">
+  <svg viewBox="-70 -8 140 80" role="img" xmlns="http://www.w3.org/2000/svg" aria-label="荷池 LotusPond"><g transform="translate(0,0)"><polygon points="0,0 64,32 0,64 -64,32" fill="var(--water,#C8D8E4)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></polygon><g style="animation:waveDrift 6s ease-in-out infinite;animation-play-state:var(--play,running)"><path d="M -30 28 q 7 -5 14 0 q 7 5 14 0" stroke="var(--ink,#3A342B)" stroke-width="0.75" fill="none" opacity="0.4"></path><path d="M -14 42 q 7 -5 14 0 q 7 5 14 0" stroke="var(--ink,#3A342B)" stroke-width="0.75" fill="none" opacity="0.3"></path></g><ellipse cx="-20" cy="40" rx="6" ry="3" fill="var(--lotus,#A9C8B4)" stroke="var(--ink,#3A342B)" stroke-width="0.5"></ellipse><ellipse cx="8" cy="50" rx="5" ry="2.5" fill="var(--lotus,#A9C8B4)" stroke="var(--ink,#3A342B)" stroke-width="0.5"></ellipse><ellipse cx="24" cy="34" rx="6" ry="3" fill="var(--lotus,#A9C8B4)" stroke="var(--ink,#3A342B)" stroke-width="0.5"></ellipse></g></svg>
+  <figcaption class="cap"><b>荷池</b>LotusPond</figcaption>
+</figure>
+<figure class="cell wide">
+  <svg viewBox="672 430 230 48" role="img" xmlns="http://www.w3.org/2000/svg" aria-label="踏石 SteppingStones"><g transform="translate(0,0)" fill="var(--stone,#DCCFAB)" stroke="var(--ink,#3A342B)" stroke-width="0.5" opacity="0.9"><polygon points="887,453 897,458 887,463 877,458"></polygon><polygon points="821,461 831,466 821,471 811,466"></polygon><polygon points="710,446 720,451 710,456 700,451"></polygon><polygon points="686,435 696,440 686,445 676,440"></polygon></g></svg>
+  <figcaption class="cap"><b>踏石</b>SteppingStones<span class="sub">absolute L1 coords</span></figcaption>
+</figure>
+<figure class="cell">
+  <svg viewBox="580 705 40 24" role="img" xmlns="http://www.w3.org/2000/svg" aria-label="礁石·0 Reef variant 0"><g transform="translate(0,0)"><path d="M 594 716 l 12 -7 8 4 3 8 -12 5 -11 -4 Z" fill="var(--wallSh,#D9CCA9)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></path></g></svg>
+  <figcaption class="cap"><b>礁石·0</b>Reef variant 0<span class="sub">absolute L1 coords</span></figcaption>
+</figure>
+<figure class="cell">
+  <svg viewBox="1005 684 42 24" role="img" xmlns="http://www.w3.org/2000/svg" aria-label="礁石·1 Reef variant 1"><g transform="translate(0,0)"><path d="M 1022 694 l 10 -6 9 5 -2 8 -13 3 Z" fill="var(--wallSh,#D9CCA9)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></path></g></svg>
+  <figcaption class="cap"><b>礁石·1</b>Reef variant 1<span class="sub">absolute L1 coords</span></figcaption>
+</figure>
+<figure class="cell">
+  <svg viewBox="748 732 62 56" role="img" xmlns="http://www.w3.org/2000/svg" aria-label="栈桥 Jetty"><g transform="translate(0,0)"><line x1="754" y1="744" x2="788" y2="780" stroke="var(--trunk,#7A5B3E)" stroke-width="3"></line><line x1="768" y1="738" x2="802" y2="774" stroke="var(--trunk,#7A5B3E)" stroke-width="3"></line><path d="M 758 750 L 772 744 M 766 758 L 780 752 M 774 766 L 788 760 M 782 774 L 796 768" stroke="var(--trunk,#7A5B3E)" stroke-width="2"></path></g></svg>
+  <figcaption class="cap"><b>栈桥</b>Jetty<span class="sub">absolute L1 coords</span></figcaption>
+</figure>
+<figure class="cell">
+  <svg viewBox="-20 -8 40 20" role="img" xmlns="http://www.w3.org/2000/svg" aria-label="小舟·泊 Boat variant=jetty"><g transform="translate(0,0)" style="animation:bob 5s ease-in-out infinite;animation-play-state:var(--play,running)"><path d="M -15 0 Q 0 7 15 0 L 11 -3 L -11 -3 Z" fill="var(--doorW,#5B4F3C)" stroke="var(--ink,#3A342B)" stroke-width="1"></path></g></svg>
+  <figcaption class="cap"><b>小舟·泊</b>Boat variant=jetty</figcaption>
+</figure>
+<figure class="cell">
+  <svg viewBox="-20 -22 40 32" role="img" xmlns="http://www.w3.org/2000/svg" aria-label="小舟·帆 Boat variant=sail"><g transform="translate(0,0)" style="animation:bob 5s ease-in-out infinite;animation-play-state:var(--play,running)"><path d="M -16 0 Q 0 8 16 0 L 12 -3 L -12 -3 Z" fill="#5B4F3C" stroke="#3A342B" stroke-width="1"></path><line x1="0" y1="-3" x2="0" y2="-18" stroke="#3A342B" stroke-width="1.2"></line><path d="M 0 -18 L 11 -6 L 0 -6 Z" fill="#F8F1DE" stroke="#3A342B" stroke-width="0.75"></path></g></svg>
+  <figcaption class="cap"><b>小舟·帆</b>Boat variant=sail</figcaption>
+</figure>
+<figure class="cell">
+  <svg viewBox="-14 -10 28 18" role="img" xmlns="http://www.w3.org/2000/svg" aria-label="创世石 CreationStone"><title>创世石 · 建岛仪式的事件年轮</title><g transform="translate(0,0)"><ellipse cx="0" cy="0" rx="11" ry="6" fill="var(--wallSh,#D9CCA9)" stroke="var(--ink,#3A342B)" stroke-width="0.75"></ellipse><ellipse cx="0" cy="-1" rx="7" ry="3.5" fill="none" stroke="var(--ink,#3A342B)" stroke-width="0.5" opacity="0.6"></ellipse><ellipse cx="0" cy="-1" rx="3.5" ry="1.8" fill="none" stroke="var(--ink,#3A342B)" stroke-width="0.5" opacity="0.45"></ellipse></g></svg>
+  <figcaption class="cap"><b>创世石</b>CreationStone</figcaption>
+</figure>
+<figure class="cell wide">
+  <svg viewBox="470 340 560 325" role="img" xmlns="http://www.w3.org/2000/svg" aria-label="小径 DesirePath"><g transform="translate(0,0)"><g fill="none" stroke="var(--path,rgba(181,103,58,0.5))" stroke-linecap="round"><path d="M 960 440 Q 770 498 664 428" stroke-width="4" stroke-dasharray="1 8"></path><path d="M 566 458 Q 520 478 484 486" stroke-width="2.5" stroke-dasharray="1 8"></path><path d="M 980 420 Q 900 378 830 352" stroke-width="2.5" stroke-dasharray="1 8"></path><path d="M 700 616 Q 740 638 760 652" stroke-width="2.5" stroke-dasharray="1 8"></path><path d="M 892 596 Q 926 578 946 556" stroke-width="2" stroke-dasharray="1 8"></path><path d="M 1014 452 Q 1000 480 976 508" stroke-width="2" stroke-dasharray="1 8"></path></g><text x="812" y="492" font-size="9" fill="var(--ink2,#6B6154)" opacity="0.75" style="font-family:&#x27;PingFang SC&#x27;,sans-serif">履痕 · 日积成径</text></g></svg>
+  <figcaption class="cap"><b>小径</b>DesirePath<span class="sub">absolute L1 coords · 履痕日积成径</span></figcaption>
+</figure>
+</div>
+</body>

@@ -1,0 +1,34 @@
+{
+  "project": "frontier-isles",
+  "tokenSource": { "file": "packages/assets/src/tokens.css", "selector": ":root" },
+  "pages": {},
+  "cards": [],
+  "out": "design-system",
+  "exporterCmd": "node ~/.claude/skills/design-eng-loop/scripts/ds-export-generic.mjs",
+  "designSync": { "projectId": "a3f16e64-aff5-4ab0-8115-37350edb87bf", "localDir": ".", "glob": "design-system/**/*.html" },
+  "gateCmd": "pnpm -r typecheck && pnpm -r test",
+  "prescreen": "i18n key-parity test green · CJK 0 leakage in en · every new visual traces to a ledger event or domain vector (invariant 14) · leavability round-trip test green",
+  "axisA": ["accessibility", "performance", "theming", "responsive", "anti-patterns", "interaction"],
+  "axisB": [
+    "H1 数据诚实 data-honesty — every visual is a data transcription (inv. 10/14)",
+    "H2 界画一致 jiehua consistency — matches the frozen visual lineage, palette-only day/night",
+    "H3 三轴不混淆 axis disambiguation — altitude / day-night / currents / climate never share a channel",
+    "H4 密度·节奏 density & rhythm — legible at 30 and at 700 islands",
+    "H5 双语对等 bilingual parity — zh-CN/en equals, load-bearing terms follow the glossary"
+  ],
+  "personaRoles": [
+    "H1 first-time visitor (never seen the chart)",
+    "H2 domain researcher founding an island",
+    "H3 master 山长 gardening layout",
+    "H4 human supervisor of an AI resident",
+    "H5 cartography / data-viz critic (honest-encoding hawk)"
+  ],
+  "scale": { "axisA": "0-4 per dim", "axisB_persona": "0-5 per dim" },
+  "tEng": 3,
+  "tTaste": 4.0,
+  "epsilon": 0.3,
+  "K": 2,
+  "per_round_cap": 2,
+  "round_max": 4,
+  "notes": "Generic exporter emits Foundations from tokens.css only (cards:[] — components are SVG-React, not HTML markup, so component/pattern specimens are produced by SSR render + hand-authored NEW-dimension cards instead; graduate to a bespoke SSR exporter when v2 proves long-lived). Truth source has a second :root block (--fi-domain-* colors) the generic regex skips; those surface in the climate specimen card."
+}

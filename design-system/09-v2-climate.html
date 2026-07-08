@@ -1,0 +1,47 @@
+<!-- @dsCard group="Patterns · v2 NEW" -->
+<!doctype html><meta charset="utf-8"><title>气候带 Climate · NEW v2 海即数据</title>
+<style>
+:root{--fi-paper:#F2EAD8;--fi-ink:#2B2620;--fi-ink-2:#6B6154;--fi-azurite:#2E5E8C;--fi-ochre:#B5673A;--fi-water:#C8D8E4;--fi-font-display:'Noto Serif SC','Songti SC',serif;--fi-font-body:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',system-ui,sans-serif;--fi-font-mono:'JetBrains Mono',ui-monospace,monospace;--fi-radius-panel:10px;--fi-domain-math-fill:#C9D8E6;--fi-domain-matter-fill:#E8CFAE;--fi-domain-life-fill:#C6DECC;--fi-domain-cross-fill:#ECDFB4;--fi-domain-math-ink:#2E5E8C;--fi-domain-matter-ink:#B5673A;--fi-domain-life-ink:#2B7A5F;--fi-domain-cross-ink:#A08428;}
+*{box-sizing:border-box}html,body{margin:0}
+body{font-family:var(--fi-font-body);background:var(--fi-paper);color:var(--fi-ink);padding:24px}
+h1{font-family:var(--fi-font-display);font-size:18px;margin:0 0 2px}
+.sub{font-size:12px;color:var(--fi-ink-2);margin:0 0 14px;line-height:1.5}
+.tag{display:inline-block;font-family:var(--fi-font-mono);font-size:10px;letter-spacing:.04em;color:var(--fi-ochre);border:1px solid var(--fi-ochre);border-radius:999px;padding:1px 8px;margin-bottom:8px}
+.axis{display:flex;justify-content:space-between;font-family:var(--fi-font-mono);font-size:11px;color:var(--fi-ink-2);margin-top:8px}
+</style>
+<body>
+<span class="tag">NEW · v2 海即数据 · 需回流后进 design-system</span>
+<h1>气候带 Climate — 领域即连续场 domain as continuous field</h1>
+<p class="sub">4 个固定领域桶 → 一张连续的 2D 领域流形。任一学科都有<b>坐标</b>，相邻=学科亲缘。海的<b>色相</b>=流形位置（插值现有 <code>--fi-domain-*</code>），海的<b>水深/暗度</b>=抽象度（substrate 分）。4 领域是<b>命名区域</b>，不是桶（不变量 16）；交叉=河口涌现，非第五个桶。</p>
+<svg viewBox="0 0 680 300" width="100%" style="max-width:680px;border-radius:var(--fi-radius-panel);display:block">
+  <defs>
+    <linearGradient id="clim" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="var(--fi-domain-math-fill)"/>
+      <stop offset="0.36" stop-color="var(--fi-domain-matter-fill)"/>
+      <stop offset="0.68" stop-color="var(--fi-domain-life-fill)"/>
+      <stop offset="1" stop-color="var(--fi-domain-cross-fill)"/>
+    </linearGradient>
+    <linearGradient id="depth" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#000" stop-opacity="0"/>
+      <stop offset="1" stop-color="var(--fi-azurite)" stop-opacity="0.30"/>
+    </linearGradient>
+    <path id="mc" d="M -58 10 C -50 -8 -26 -20 2 -21 C 30 -20 50 -9 58 8 C 46 16 30 20 0 20 C -30 20 -48 16 -58 10 Z"/>
+  </defs>
+  <rect x="0" y="0" width="680" height="300" fill="url(#clim)"/>
+  <rect x="0" y="0" width="680" height="300" fill="url(#depth)"/>
+  <!-- domain-region labels (named regions of one manifold, not buckets) -->
+  <text x="60" y="30" font-size="12" font-family="var(--fi-font-display)" fill="var(--fi-domain-math-ink)">数理 · 冷 · 深</text>
+  <text x="250" y="30" font-size="12" font-family="var(--fi-font-display)" fill="var(--fi-domain-matter-ink)">物质</text>
+  <text x="440" y="30" font-size="12" font-family="var(--fi-font-display)" fill="var(--fi-domain-life-ink)">生命 · 暖</text>
+  <text x="590" y="30" font-size="12" font-family="var(--fi-font-display)" fill="var(--fi-domain-cross-ink)">交叉</text>
+  <!-- islands placed at CONTINUOUS coordinates, ambient hue = position -->
+  <g transform="translate(90,150) scale(.5)"><use href="#mc" fill="var(--fi-domain-math-fill)" stroke="var(--fi-ink)" stroke-width="1.6"/></g>
+  <g transform="translate(210,210) scale(.5)"><use href="#mc" fill="#D6D3C0" stroke="var(--fi-ink)" stroke-width="1.6"/></g>
+  <g transform="translate(300,140) scale(.5)"><use href="#mc" fill="var(--fi-domain-matter-fill)" stroke="var(--fi-ink)" stroke-width="1.6"/></g>
+  <g transform="translate(430,200) scale(.5)"><use href="#mc" fill="#D2DCC0" stroke="var(--fi-ink)" stroke-width="1.6"/></g>
+  <g transform="translate(520,150) scale(.5)"><use href="#mc" fill="var(--fi-domain-life-fill)" stroke="var(--fi-ink)" stroke-width="1.6"/></g>
+  <g transform="translate(620,210) scale(.5)"><use href="#mc" fill="var(--fi-domain-cross-fill)" stroke="var(--fi-ink)" stroke-width="1.6"/></g>
+  <text x="210" y="252" text-anchor="middle" font-size="10" font-family="var(--fi-font-mono)" fill="var(--fi-ink-2)">位于数理↔物质之间 → 插值色</text>
+</svg>
+<div class="axis"><span>← 冷 · 形式 / 理论（深水·高抽象）</span><span>暖 · 经验 / 应用（浅滩·低抽象）→</span></div>
+</body>

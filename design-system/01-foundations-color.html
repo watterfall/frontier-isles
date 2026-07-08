@@ -1,0 +1,62 @@
+<!-- @dsCard group="Foundations" -->
+<!doctype html><meta charset="utf-8"><title>Color tokens</title>
+<style>*{box-sizing:border-box}html,body{margin:0}body{font-family:system-ui,-apple-system,"PingFang SC",sans-serif;padding:24px;}
+:root {
+  /* 色 · 矿物色系 — day */
+  --fi-paper: #F2EAD8;           /* 纸底 · 页面基面 */
+  --fi-night-paper: #161F36;     /* 靛蓝纸 · 夜晚基面 */
+  --fi-paper-raised: #FAF5E8;    /* 卡面 / 面板 */
+  --fi-night-raised: #212C4E;    /* 夜 · 卡面 / 建筑墙 */
+  --fi-ink: #2B2620;             /* 主墨 · 文字/勾线 */
+  --fi-night-ink: #C9D0E4;       /* 夜 · 主墨反白 */
+  --fi-ink-2: #6B6154;           /* 次墨 · 注文 */
+  --fi-night-ink-2: #8B94B2;     /* 夜 · 次墨 */
+  --fi-azurite: #2E5E8C;         /* 石青 · 主行动/链接/数理 */
+  --fi-azurite-deep: #1E4266;    /* 石青深 · 屋瓦/按压态 */
+  --fi-malachite: #3E9B7E;       /* 石绿 · 生长/成功/生命 */
+  --fi-ochre: #B5673A;           /* 赭石 · 次行动/桥/印章/物质 */
+  --fi-gamboge: #E3A93C;         /* 藤黄 · 点睛/聚焦/离群发光 */
+  --fi-lantern: #F5B94B;         /* 灯笼暖光 · 夜晚点亮 */
+  --fi-water: #C8D8E4;           /* 水 · 海面/池 */
+  --fi-ghost: #C9D7F2;           /* 魂影 · 40% 透明 + 虚线 */
+  --fi-sand: #E7DBBB;            /* 沙洲 · 岸线/台阶 */
+  --fi-stone: #DCCFAB;           /* 石阶 · 铺地/器座 */
+
+  /* 字 */
+  --fi-font-display: 'Noto Serif SC', 'Songti SC', serif;
+  --fi-font-body: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', system-ui, sans-serif;
+  --fi-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* 间距 · 8pt 网格 */
+  --fi-space-1: 4px;
+  --fi-space-2: 8px;
+  --fi-space-3: 12px;
+  --fi-space-4: 16px;
+  --fi-space-5: 24px;
+  --fi-space-6: 32px;
+  --fi-space-7: 48px;
+
+  /* 圆角 */
+  --fi-radius-seal: 2px;
+  --fi-radius-card: 6px;
+  --fi-radius-panel: 10px;
+  --fi-radius-pill: 999px;
+
+  /* 墨线 · 描边粗细 */
+  --fi-stroke-fine: 0.75px;   /* 细勾 · 分隔/窗棂 */
+  --fi-stroke-main: 1.5px;    /* 主勾 · 轮廓/边框 */
+  --fi-stroke-heavy: 2.5px;   /* 重勾 · 桥/强调 */
+
+  /* 动效 */
+  --fi-motion-micro: 240ms;
+  --fi-motion-scroll-wipe: 480ms;
+  --fi-motion-scroll-wipe-max: 550ms;
+  --fi-motion-day-night-flip: 700ms;
+  --fi-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* motion toggle — set --play:paused on an ancestor to freeze all
+     prototype animations (breathe / pulseGlow / twinkle / sway / …) */
+  --play: running;
+}
+</style>
+<body><h1 style="font-size:16px">Color · 18 tokens</h1><div style="display:flex;align-items:center;gap:10px;margin:6px 0"><span style="width:48px;height:28px;border-radius:6px;border:1px solid rgba(0,0,0,.15);background:var(--fi-paper)"></span><code style="font-size:12px">--fi-paper</code><span style="font-size:12px;color:#777">#F2EAD8</span></div><div style="display:flex;align-items:center;gap:10px;margin:6px 0"><span style="width:48px;height:28px;border-radius:6px;border:1px solid rgba(0,0,0,.15);background:var(--fi-night-paper)"></span><code style="font-size:12px">--fi-night-paper</code><span style="font-size:12px;color:#777">#161F36</span></div><div style="display:flex;align-items:center;gap:10px;margin:6px 0"><span style="width:48px;height:28px;border-radius:6px;border:1px solid rgba(0,0,0,.15);background:var(--fi-paper-raised)"></span><code style="font-size:12px">--fi-paper-raised</code><span style="font-size:12px;color:#777">#FAF5E8</span></div><div style="display:flex;align-items:center;gap:10px;margin:6px 0"><span style="width:48px;height:28px;border-radius:6px;border:1px solid rgba(0,0,0,.15);background:var(--fi-night-raised)"></span><code style="font-size:12px">--fi-night-raised</code><span style="font-size:12px;color:#777">#212C4E</span></div><div style="display:flex;align-items:center;gap:10px;margin:6px 0"><span style="width:48px;height:28px;border-radius:6px;border:1px solid rgba(0,0,0,.15);background:var(--fi-ink)"></span><code style="font-size:12px">--fi-ink</code><span style="font-size:12px;color:#777">#2B2620</span></div><div style="display:flex;align-items:center;gap:10px;margin:6px 0"><span style="width:48px;height:28px;border-radius:6px;border:1px solid rgba(0,0,0,.15);background:var(--fi-night-ink)"></span><code style="font-size:12px">--fi-night-ink</code><span style="font-size:12px;color:#777">#C9D0E4</span></div><div style="display:flex;align-items:center;gap:10px;margin:6px 0"><span style="width:48px;height:28px;border-radius:6px;border:1px solid rgba(0,0,0,.15);background:var(--fi-ink-2)"></span><code style="font-size:12px">--fi-ink-2</code><span style="font-size:12px;color:#777">#6B6154</span></div><div style="display:flex;align-items:center;gap:10px;margin:6px 0"><span style="width:48px;height:28px;border-radius:6px;border:1px solid rgba(0,0,0,.15);background:var(--fi-night-ink-2)"></span><code style="font-size:12px">--fi-night-ink-2</code><span style="font-size:12px;color:#777">#8B94B2</span></div><div style="display:flex;align-items:center;gap:10px;margin:6px 0"><span style="width:48px;height:28px;border-radius:6px;border:1px solid rgba(0,0,0,.15);background:var(--fi-azurite)"></span><code style="font-size:12px">--fi-azurite</code><span style="font-size:12px;color:#777">#2E5E8C</span></div><div style="display:flex;align-items:center;gap:10px;margin:6px 0"><span style="width:48px;height:28px;border-radius:6px;border:1px solid rgba(0,0,0,.15);background:var(--fi-azurite-deep)"></span><code style="font-size:12px">--fi-azurite-deep</code><span style="font-size:12px;color:#777">#1E4266</span></div><div style="display:flex;align-items:center;gap:10px;margin:6px 0"><span style="width:48px;height:28px;border-radius:6px;border:1px solid rgba(0,0,0,.15);background:var(--fi-malachite)"></span><code style="font-size:12px">--fi-malachite</code><span style="font-size:12px;color:#777">#3E9B7E</span></div><div style="display:flex;align-items:center;gap:10px;margin:6px 0"><span style="width:48px;height:28px;border-radius:6px;border:1px solid rgba(0,0,0,.15);background:var(--fi-ochre)"></span><code style="font-size:12px">--fi-ochre</code><span style="font-size:12px;color:#777">#B5673A</span></div><div style="display:flex;align-items:center;gap:10px;margin:6px 0"><span style="width:48px;height:28px;border-radius:6px;border:1px solid rgba(0,0,0,.15);background:var(--fi-gamboge)"></span><code style="font-size:12px">--fi-gamboge</code><span style="font-size:12px;color:#777">#E3A93C</span></div><div style="display:flex;align-items:center;gap:10px;margin:6px 0"><span style="width:48px;height:28px;border-radius:6px;border:1px solid rgba(0,0,0,.15);background:var(--fi-lantern)"></span><code style="font-size:12px">--fi-lantern</code><span style="font-size:12px;color:#777">#F5B94B</span></div><div style="display:flex;align-items:center;gap:10px;margin:6px 0"><span style="width:48px;height:28px;border-radius:6px;border:1px solid rgba(0,0,0,.15);background:var(--fi-water)"></span><code style="font-size:12px">--fi-water</code><span style="font-size:12px;color:#777">#C8D8E4</span></div><div style="display:flex;align-items:center;gap:10px;margin:6px 0"><span style="width:48px;height:28px;border-radius:6px;border:1px solid rgba(0,0,0,.15);background:var(--fi-ghost)"></span><code style="font-size:12px">--fi-ghost</code><span style="font-size:12px;color:#777">#C9D7F2</span></div><div style="display:flex;align-items:center;gap:10px;margin:6px 0"><span style="width:48px;height:28px;border-radius:6px;border:1px solid rgba(0,0,0,.15);background:var(--fi-sand)"></span><code style="font-size:12px">--fi-sand</code><span style="font-size:12px;color:#777">#E7DBBB</span></div><div style="display:flex;align-items:center;gap:10px;margin:6px 0"><span style="width:48px;height:28px;border-radius:6px;border:1px solid rgba(0,0,0,.15);background:var(--fi-stone)"></span><code style="font-size:12px">--fi-stone</code><span style="font-size:12px;color:#777">#DCCFAB</span></div></body>

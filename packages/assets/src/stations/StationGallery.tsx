@@ -53,7 +53,7 @@ export function StationGallery({
       {showDayBadge && (
         <g transform="translate(12,-100)">
           <rect x="-48" y="-10" width="96" height="18" rx="9" fill="var(--capB,#2E5E8C)" />
-          <text x="0" y="3" textAnchor="middle" fontSize="10" fill="#F2EAD8" style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace" }}>
+          <text x="0" y="3" textAnchor="middle" fontSize="10" fill="var(--fi-paper, #F2EAD8)" style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace" }}>
             对外视图 · D(t)
           </text>
         </g>

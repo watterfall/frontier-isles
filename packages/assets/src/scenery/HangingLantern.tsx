@@ -32,11 +32,11 @@ export function HangingLantern({ x = 0, y = 0, size = 'large', swaySeconds = 3.4
         }}
       >
         <line x1="0" y1="0" x2="0" y2="10" stroke="#8E99BE" strokeWidth="1" />
-        <ellipse cx="0" cy={bodyCy} rx={bodyRx} ry={bodyRy} fill="#F5B94B" stroke="#B5673A" strokeWidth="1" />
+        <ellipse cx="0" cy={bodyCy} rx={bodyRx} ry={bodyRy} fill="var(--fi-lantern, #F5B94B)" stroke="var(--fi-ochre, #B5673A)" strokeWidth="1" />
         {large && (
-          <path d="M -4 11.5 c 0 6 0 12 0 17 M 4 11.5 c 0 6 0 12 0 17" stroke="#B5673A" strokeWidth="0.75" fill="none" />
+          <path d="M -4 11.5 c 0 6 0 12 0 17 M 4 11.5 c 0 6 0 12 0 17" stroke="var(--fi-ochre, #B5673A)" strokeWidth="0.75" fill="none" />
         )}
-        <line x1="0" y1={tieY1} x2="0" y2={tieY2} stroke="#B5673A" strokeWidth="1" />
+        <line x1="0" y1={tieY1} x2="0" y2={tieY2} stroke="var(--fi-ochre, #B5673A)" strokeWidth="1" />
       </g>
     </g>
   );
