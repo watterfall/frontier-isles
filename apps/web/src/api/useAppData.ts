@@ -20,7 +20,7 @@ const STAGE_INDEX: Record<string, number> = { empty: 0, hut: 1, academy: 2, scho
 function reconcile(list: ApiIsland[]): IslandDatum[] {
   const byTitle = new Map(list.map((i) => [i.title, i]));
   return DATA.map((d) => {
-    const s = byTitle.get(d.n);
+    const s = byTitle.get(d.n.zh);
     if (!s) return d;
     const stage = typeof s.growth?.stage === 'string' ? STAGE_INDEX[s.growth.stage] : s.growth?.stage;
     return {

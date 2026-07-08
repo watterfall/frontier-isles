@@ -9,7 +9,7 @@ import { DriftwoodModal } from './DriftwoodModal';
 import { NightTimeline } from './NightTimeline';
 import { QftPanel } from './QftPanel';
 import { api } from '../../api/client';
-import { SAMPLE_SLUG, type QuestionDatum } from '../../api/fallback';
+import { SAMPLE_SLUG, SAMPLE_TITLE, SAMPLE_QFOCUS, type QuestionDatum } from '../../api/fallback';
 
 export interface IslandScreenProps {
   night: boolean;
@@ -45,7 +45,8 @@ export interface IslandScreenProps {
 }
 
 export function IslandScreen(props: IslandScreenProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
   const { night, peers } = props;
 
   return (
@@ -53,18 +54,18 @@ export function IslandScreen(props: IslandScreenProps) {
       data-screen-label="L1 样板岛"
       style={{ position: 'absolute', inset: 0, background: 'var(--pp,#F2EAD8)', transition: 'background .8s ease', ...sceneVarsToStyle(night ? NIGHT_SCENE_VARS : {}) }}
     >
-      <Scene night={night} t={props.t} selKey={props.sel} transTo={props.transTo} onStation={props.onStation} />
+      <Scene night={night} nightT={props.t} selKey={props.sel} transTo={props.transTo} onStation={props.onStation} />
 
       {/* L1 顶部信息 */}
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '18px 24px', pointerEvents: 'none' }}>
         <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
           <div onClick={props.onBack} style={{ pointerEvents: 'auto', cursor: 'pointer', background: 'var(--card,rgba(250,245,232,0.92))', border: '1.5px solid var(--ink,#3A342B)', borderRadius: 6, padding: '9px 14px', fontSize: 13, color: 'var(--inkT,#2B2620)', display: 'flex', alignItems: 'center', gap: 8, transition: 'background .7s,color .7s' }}>
-            ◀ {t('island.back')} <span style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 10, opacity: 0.6 }}>L0</span>
+            ◀ {t('island.back')}
           </div>
           <div style={{ background: 'var(--card,rgba(250,245,232,0.92))', border: '1.5px solid var(--ink,#3A342B)', borderRadius: 6, padding: '10px 18px', transition: 'background .7s' }}>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
-              <span style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 900, fontSize: 20, color: 'var(--inkT,#2B2620)', transition: 'color .7s' }}>AI 之问</span>
-              <span style={{ fontSize: 12, color: 'var(--ink2,#6B6154)' }}>{t('island.qfocusPrefix')}AI 能否提出一个人类没想到的好问题？</span>
+              <span style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 900, fontSize: 20, color: 'var(--inkT,#2B2620)', transition: 'color .7s' }}>{SAMPLE_TITLE[lang]}</span>
+              <span style={{ fontSize: 12, color: 'var(--ink2,#6B6154)' }}>{t('island.qfocusPrefix')}{SAMPLE_QFOCUS[lang]}</span>
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 7, alignItems: 'center' }}>
               <span style={{ fontSize: 11, padding: '2px 9px', borderRadius: 999, background: 'var(--capG,#3E9B7E)', color: '#F6F2E6' }}>{t('island.academy')}</span>

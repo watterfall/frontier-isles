@@ -22,12 +22,15 @@ export type DomainKey = keyof typeof DOMAIN_META;
 /** Growth-stage labels, index by `st` (prototype `STAGE`). */
 export const STAGE_LABELS = ['空岛', '草棚', '书院', '学派'] as const;
 
+/** Bilingual text (zh + en parallels). */
+export type Bilingual = { zh: string; en: string };
+
 export interface IslandDatum {
   id: number;
-  /** Island name (user content). */
-  n: string;
-  /** QFocus question (user content). */
-  q: string;
+  /** Island name (bilingual user content). */
+  n: Bilingual;
+  /** QFocus question (bilingual user content). */
+  q: Bilingual;
   /** Domain key. */
   d: DomainKey;
   x: number;
@@ -45,6 +48,12 @@ export interface IslandDatum {
   born?: boolean;
   /** Server slug, where known. */
   slug?: string;
+  /** One-line summary (bilingual). */
+  brief?: Bilingual;
+  /** Cluster provenance from xfrontier atlas. */
+  cluster?: { code: string; zh: string; en: string };
+  /** Citation provenance (real DOI/URL). */
+  citation?: { url: string; title: string; venue: string; year: number };
 }
 
 /** The chart islands — derived from the curated xfrontier frontiers
@@ -57,8 +66,8 @@ import { FRONTIERS } from '@frontier-isles/data';
 export const DATA: IslandDatum[] = [
   ...FRONTIERS.map((f) => ({
     id: f.id,
-    n: f.title.zh,
-    q: f.qfocus.zh,
+    n: f.title,
+    q: f.qfocus,
     d: f.domain as DomainKey,
     x: f.chart.x,
     y: f.chart.y,
@@ -69,9 +78,18 @@ export const DATA: IslandDatum[] = [
     dor: f.dormant,
     out: f.outlier,
     slug: f.slug,
+    brief: f.brief,
+    cluster: f.cluster,
+    citation: f.citation,
   })),
   // The bespoke sample island (full L1 scene + rich ledger) — not in FRONTIERS.
-  { id: 27, n: 'AI 之问', q: 'AI 能否提出一个人类没想到的好问题？', d: '交叉', x: 802, y: 522, s: 1.0, st: 2, m: 9, a: 76, sample: true, slug: 'machine-curiosity' },
+  {
+    id: 27,
+    n: { zh: 'AI 之问', en: 'The Question of AI' },
+    q: { zh: 'AI 能否提出一个人类没想到的好问题？', en: 'Can AI ask a good question no human has thought of?' },
+    d: '交叉', x: 802, y: 522, s: 1.0, st: 2, m: 9, a: 76, sample: true, slug: 'machine-curiosity',
+    brief: { zh: '机器能否拥有并表达好奇心——对什么感到惊讶、为什么？', en: 'Can a machine hold and express curiosity — what surprises it, and why?' },
+  },
 ];
 
 
@@ -172,5 +190,5 @@ export const STN: StationRow[] = [
 
 /** Sample island identity (server slug + title, GET /api/islands/machine-curiosity). */
 export const SAMPLE_SLUG = 'machine-curiosity';
-export const SAMPLE_TITLE = 'AI 之问';
-export const SAMPLE_QFOCUS = 'AI 能否提出一个人类没想到的好问题？';
+export const SAMPLE_TITLE: Bilingual = { zh: 'AI 之问', en: 'The Question of AI' };
+export const SAMPLE_QFOCUS: Bilingual = { zh: 'AI 能否提出一个人类没想到的好问题？', en: 'Can AI ask a good question no human has thought of?' };

@@ -1,4 +1,5 @@
 import type { JSX } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { StationKind } from '@frontier-isles/core';
 import {
   SceneDefs,
@@ -43,7 +44,7 @@ import {
 export interface SceneProps {
   night: boolean;
   /** Night timeline position 1..86 (gates the ghost artifacts). */
-  t: number;
+  nightT: number;
   selKey: StationKind | null;
   transTo: string | null;
   onStation: (key: StationKind) => void;
@@ -87,7 +88,7 @@ function renderScenery(p: (typeof SCENERY)[number], i: number): JSX.Element {
   }
 }
 
-function Resident({ r, i }: { r: ResidentPlacement; i: number }): JSX.Element {
+function Resident({ r, i, lang }: { r: ResidentPlacement; i: number; lang: 'zh' | 'en' }): JSX.Element {
   return (
     <ResidentFigure
       key={i}
@@ -96,7 +97,7 @@ function Resident({ r, i }: { r: ResidentPlacement; i: number }): JSX.Element {
       kind={r.kind}
       aiRole={r.aiRole}
       flip={r.flip}
-      caption={r.caption}
+      caption={r.caption?.[lang]}
       carryingCanvas={r.carryingCanvas}
       nightWatch={r.nightWatch}
     />
@@ -108,7 +109,9 @@ function Resident({ r, i }: { r: ResidentPlacement; i: number }): JSX.Element {
  * is palette-only: the caller applies NIGHT_SCENE_VARS on the wrapping div,
  * so every `var(--x,…)` shape repaints without changing shape.
  */
-export function Scene({ night, t, selKey, transTo, onStation }: SceneProps) {
+export function Scene({ night, nightT, selKey, transTo, onStation }: SceneProps) {
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
   const sel = selKey ? STN.find((s) => s.k === selKey) : undefined;
   const transPos = transTo ? TRANS_TAG_POS[transTo] : undefined;
 
@@ -153,23 +156,23 @@ export function Scene({ night, t, selKey, transTo, onStation }: SceneProps) {
         <g transform={`translate(${transPos.x},${transPos.y})`}>
           <rect x="-56" y="-10" width="112" height="19" rx="3" fill="var(--card,rgba(250,245,232,0.92))" stroke="var(--gold,#E3A93C)" strokeWidth="1" />
           <text x="0" y="4" textAnchor="middle" fontSize="9.5" fill="var(--gold2,#8A6A1E)" style={{ fontFamily: "'PingFang SC',sans-serif" }}>
-            陶土原型机 · 曾为散木
+            {t('scene.transplantTag')}
           </text>
         </g>
       )}
 
       {/* 居民 */}
-      {!night && DAY_RESIDENTS.map((r, i) => <Resident key={`d${i}`} r={r} i={i} />)}
+      {!night && DAY_RESIDENTS.map((r, i) => <Resident key={`d${i}`} r={r} i={i} lang={lang} />)}
       {!night && (
         <g transform="translate(956,600)" style={{ animation: 'breathe 4s ease-in-out infinite', animationPlayState: 'var(--play,running)' as never }}>
           <rect x="-48" y="-11" width="96" height="21" rx="10" fill="var(--card,rgba(250,245,232,0.94))" stroke="var(--gold,#E3A93C)" strokeWidth="1" />
           <text x="0" y="4" textAnchor="middle" fontSize="9.5" fill="var(--gold2,#8A6A1E)" style={{ fontFamily: "'PingFang SC',sans-serif" }}>
-            偶遇 · 顾拾 × 苏樱
+            {t('scene.encounter')}
           </text>
         </g>
       )}
-      {night && <Resident r={NIGHT_RESIDENT} i={99} />}
-      {CONSTANT_RESIDENTS.map((r, i) => <Resident key={`c${i}`} r={r} i={i} />)}
+      {night && <Resident r={NIGHT_RESIDENT} i={99} lang={lang} />}
+      {CONSTANT_RESIDENTS.map((r, i) => <Resident key={`c${i}`} r={r} i={i} lang={lang} />)}
 
       {/* 夜晚层：灯笼 / 值夜光 / 争论标签 / 萤火虫 / 魂影 */}
       {night && (
@@ -181,7 +184,7 @@ export function Scene({ night, t, selKey, transTo, onStation }: SceneProps) {
           <g transform="translate(980,332)">
             <rect x="-58" y="-10" width="116" height="18" rx="9" fill="rgba(33,44,78,0.9)" stroke="rgba(245,185,75,0.5)" strokeWidth="0.75" />
             <text x="0" y="3" textAnchor="middle" fontSize="10" fill="#F5B94B" style={{ fontFamily: "'PingFang SC',sans-serif" }}>
-              一场未决的争论 · 12 条
+              {t('scene.nightArgument')}
             </text>
           </g>
           {/* AI 值夜窗光（文献阁） */}
@@ -196,19 +199,19 @@ export function Scene({ night, t, selKey, transTo, onStation }: SceneProps) {
             <rect x="-84" y="-11" width="168" height="21" rx="10" fill="rgba(33,44,78,0.92)" stroke="rgba(245,185,75,0.5)" strokeWidth="0.75" />
             <circle cx="-70" cy="-0.5" r="3" fill="#F5B94B" style={{ animation: 'pulseGlow 2.6s ease-in-out infinite', animationPlayState: 'var(--play,running)' as never }} />
             <text x="6" y="3.5" textAnchor="middle" fontSize="10" fill="#F5B94B" style={{ fontFamily: "'PingFang SC',sans-serif" }}>
-              AI 值夜 · 文献斥候整理 12 篇新文
+              {t('scene.aiNightWatch')}
             </text>
           </g>
           <g transform="translate(560,268)">
             <rect x="-74" y="-11" width="148" height="21" rx="10" fill="rgba(33,44,78,0.92)" stroke="rgba(245,185,75,0.5)" strokeWidth="0.75" />
             <circle cx="-60" cy="-0.5" r="3" fill="#F5B94B" style={{ animation: 'pulseGlow 3.2s ease-in-out infinite .8s', animationPlayState: 'var(--play,running)' as never }} />
             <text x="6" y="3.5" textAnchor="middle" fontSize="10" fill="#F5B94B" style={{ fontFamily: "'PingFang SC',sans-serif" }}>
-              综合者缀写 · 白板厅草案
+              {t('scene.synthesizerDraft')}
             </text>
           </g>
           {/* 魂影三件，按时间轴阈值渐显 */}
           {GHOSTS.map((g) => (
-            <GhostArtifact key={g.type} type={g.type} opacity={t >= g.threshold ? 0.85 : 0} />
+            <GhostArtifact key={g.type} type={g.type} opacity={nightT >= g.threshold ? 0.85 : 0} />
           ))}
         </g>
       )}

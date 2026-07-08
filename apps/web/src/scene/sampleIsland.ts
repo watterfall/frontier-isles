@@ -67,34 +67,34 @@ export const STATION_ORDER: StationKind[] = [
 ];
 
 /** Day-time human residents at their stations (prototype lines ~313-318),
- *  with a mix of solo figures and an encounter. Captions are user content. */
+ *  with a mix of solo figures and an encounter. Captions are bilingual. */
 export interface ResidentPlacement {
   x: number;
   y: number;
   kind: 'human' | 'ai';
   aiRole?: 'scout' | 'advocate' | 'synthesizer' | 'ferryman';
   flip?: boolean;
-  caption?: string;
+  caption?: { zh: string; en: string };
   carryingCanvas?: boolean;
   nightWatch?: boolean;
 }
 
 export const DAY_RESIDENTS: ResidentPlacement[] = [
-  { x: 930, y: 442, kind: 'human', caption: '沈括 · 在问题墙' },
-  { x: 614, y: 452, kind: 'human', flip: true, carryingCanvas: true, caption: '林徽 · 携画布向白板厅' },
+  { x: 930, y: 442, kind: 'human', caption: { zh: '沈括 · 在问题墙', en: 'Shen Kuo · at the Question Wall' } },
+  { x: 614, y: 452, kind: 'human', flip: true, carryingCanvas: true, caption: { zh: '林徽 · 携画布向白板厅', en: 'Lin Hui · carrying canvas to Whiteboard Hall' } },
   { x: 858, y: 608, kind: 'human' },
   { x: 880, y: 614, kind: 'human', flip: true },
-  { x: 786, y: 742, kind: 'ai', aiRole: 'ferryman', caption: '摆渡人 · AI · 往邻岛递问' },
+  { x: 786, y: 742, kind: 'ai', aiRole: 'ferryman', caption: { zh: '摆渡人 · AI · 往邻岛递问', en: 'Ferryman · AI · relaying questions to the next isle' } },
 ];
 
 /** Always-present figures (day or night): 阿若 wandering + literature scout. */
 export const CONSTANT_RESIDENTS: ResidentPlacement[] = [
-  { x: 838, y: 646, kind: 'human', caption: '阿若 · 散木园游荡' },
-  { x: 820, y: 398, kind: 'ai', aiRole: 'scout', caption: '文献斥候 · AI' },
+  { x: 838, y: 646, kind: 'human', caption: { zh: '阿若 · 散木园游荡', en: 'A-Ruo · wandering the Driftwood Garden' } },
+  { x: 820, y: 398, kind: 'ai', aiRole: 'scout', caption: { zh: '文献斥候 · AI', en: 'Literature scout · AI' } },
 ];
 
 /** Night watch figure (沈括 · 守夜). */
-export const NIGHT_RESIDENT: ResidentPlacement = { x: 960, y: 470, kind: 'human', nightWatch: true, caption: '沈括 · 守夜' };
+export const NIGHT_RESIDENT: ResidentPlacement = { x: 960, y: 470, kind: 'human', nightWatch: true, caption: { zh: '沈括 · 守夜', en: 'Shen Kuo · night watch' } };
 
 /** Ghost artifacts, gated by the night timeline threshold (prototype g1/g2/g3op). */
 export const GHOSTS: Array<{ type: 'card' | 'prototype' | 'canvas'; threshold: number }> = [

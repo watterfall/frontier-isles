@@ -42,7 +42,8 @@ export interface GeneratedIslandScreenProps {
  * sample island keeps its bespoke {@link Scene}; this is the data-driven path.
  */
 export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onStation }: GeneratedIslandScreenProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
   const [detail, setDetail] = useState<IslandDetail | null>(null);
   const [scene, setScene] = useState<GeneratedScene | null>(null);
   const [failed, setFailed] = useState(false);
@@ -99,9 +100,9 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
 
   const title = detail.object.title;
   const qfocus = detail.object.qfocus;
-  const brief = detail.atlas?.brief.zh ?? '';
+  const brief = detail.atlas?.brief[lang] ?? '';
   const citation = detail.atlas?.citation;
-  const cluster = detail.atlas?.cluster.zh;
+  const cluster = detail.atlas?.cluster[lang];
   const domain = detail.domain as '数理' | '物质' | '生命' | '交叉';
   // Cascade: day defaults ← domain tint ← night override (§1: palette only, never shape).
   const sceneVars = { ...DOMAIN_SCENE_VARS[domain], ...(night ? NIGHT_SCENE_VARS : {}) };
@@ -117,7 +118,7 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '18px 24px', pointerEvents: 'none' }}>
         <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
           <div onClick={onBack} style={{ pointerEvents: 'auto', cursor: 'pointer', background: 'var(--card,rgba(250,245,232,0.92))', border: '1.5px solid var(--ink,#3A342B)', borderRadius: 6, padding: '9px 14px', fontSize: 13, color: 'var(--inkT,#2B2620)', display: 'flex', alignItems: 'center', gap: 8, transition: 'background .7s,color .7s' }}>
-            ◀ {t('island.back')} <span style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 10, opacity: 0.6 }}>L0</span>
+            ◀ {t('island.back')}
           </div>
           <div style={{ background: 'var(--card,rgba(250,245,232,0.92))', border: '1.5px solid var(--ink,#3A342B)', borderRadius: 6, padding: '10px 18px', maxWidth: 520, transition: 'background .7s' }}>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>

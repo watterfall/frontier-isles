@@ -11,7 +11,7 @@ export const zh = {
 
   chart: {
     latin: 'FRONTIER ISLES',
-    meta: '海图 L0 · 20 岛 · 3 桥 · 1 离群',
+    meta: '海图 · {{n}} 岛 · 3 桥 · 1 离群',
     tagline: '岛按领域聚落，跨学科为桥；<br>反常发光处，或有新学问。',
     searchPlaceholder: '⌕ 搜索问题、领域、居民',
     build: '建一座新岛',
@@ -21,20 +21,21 @@ export const zh = {
     legendLineage: '血缘 · fork',
     legendOutlier: '离群 · 反常发光',
     lineage: 'fork · 血缘',
-    footer: '平远 · 界画式海图 · 语义缩放 L0 → 点岛入 L1',
+    footer: '海图 · 点击岛屿进入详情',
     filters: { 全部: '全部', 数理: '数理', 物质: '物质', 生命: '生命', 交叉: '交叉' },
     card: {
       activity: '活跃度',
       members: '居民 {{n}} 人',
       hintEnter: '点击进入 →',
       hintOutlier: '九维高方差 · 反常发光',
-      hintSample: '仅样板岛可进入',
       dormant: '休眠',
       outlier: '离群',
+      brief: '简介',
+      source: '来源',
     },
     stages: { 空岛: '空岛', 草棚: '草棚', 书院: '书院', 学派: '学派' },
     bornBadge: '新生 · 创世昨夜',
-    sampleBadge: '样板岛 · 点击进入',
+    sampleBadge: '样板岛',
     outlierTag: '离群 · 高方差',
     dormantNote: '休眠 · 苔藓与雾',
   },
@@ -52,14 +53,14 @@ export const zh = {
     presence: '在场 5',
     presenceBreak: '· 人 3 · AI 2',
     presencePeers: '· 在场 {{n}}（含远端 {{peers}}）',
-    presenceNote: '在场是氛围，不记时长 · 履痕日积成径',
-    modeDay: '白天 · 正式记录 D(t) · 展厅策展层',
-    modeNight: '夜晚 · 实际探索 A(t) − D(t) · 全量事件层',
+    presenceNote: '在场不计时 · 日积成径',
+    modeDay: '白天 · 正式记录层',
+    modeNight: '夜晚 · 探索回放层',
     leverTitle: '昼夜拨杆 · 签名交互',
-    footer: 'L1 · 等距 2:1 · 128×64 瓦片 · 数字界画',
+    footer: '岛内 · 点击站点查看详情',
     twin: {
       title: '列表孪生体',
-      motto: '空间=氛围 列表=效率',
+      motto: '空间看氛围 · 列表看效率',
       chips: { 全部: '全部', '有 AI': '有 AI', 仅人类: '仅人类' },
       authorLabel: '作者构成',
       footer: '1–8 直达 · G 检索',
@@ -103,7 +104,7 @@ export const zh = {
   },
 
   panel: {
-    kicker: 'L2 · 器物面板',
+    kicker: '问题墙工作区',
     title: '问题墙 · QFT 工作区',
     stampDiverge: '发',
     stampDivergeLabel: '发散 · 7 问',
@@ -131,13 +132,13 @@ export const zh = {
     vote: '投一票',
     voted: '已投',
     doFocus: '聚焦 — 以最高票问题立为新 QFocus 候选',
-    footer: '一切操作为 append-only 事件 · 过程永久保留于夜晚层',
+    footer: '一切操作不可删除 · 过程永久保留',
   },
 
   collision: {
     title: '碰撞建岛',
-    hint: '两座岛若共享同一个数学骨架，便可在其桥上立一座新岛——公式即建岛 glyph。无桥之处不可妄建（类型墙）。',
-    footnote: '同方程桥 · 数据来自 xfrontier isomorphisms',
+    hint: '共享同一数学骨架的两座岛之间可建新岛——公式即建岛印记。无桥处不可建。',
+    footnote: '同方程桥 · 数据来自 xfrontier',
     button: '碰撞',
     founded: '「{name}」于桥上升起',
   },
@@ -212,11 +213,18 @@ export const zh = {
     },
   },
 
-  wipe: { label: '卷轴转场 · L0 ⇄ L1', seal: '卷' },
+  wipe: { label: '返回海图', seal: '卷' },
+
+  scene: {
+    transplantTag: '陶土原型机 · 曾为散木',
+    encounter: '偶遇 · 顾拾 × 苏樱',
+    nightArgument: '一场未决的争论 · 12 条',
+    aiNightWatch: 'AI 值夜 · 文献斥候整理 12 篇新文',
+    synthesizerDraft: '综合者缀写 · 白板厅草案',
+  },
 
   toast: {
-    stationSoon: '「{{name}}」的 L2 面板于 P1 落地 · 本原型聚焦问题墙',
-    sampleOnly: '原型中仅样板岛「AI 之问」可进入 · 其余为静态数据',
+    stationSoon: '「{{name}}」的面板将于 P1 落地 · 本原型聚焦问题墙',
     transplant: '陶土原型机已移栽至{{dest}} · 「曾为散木」印随行 · 事件已记',
     ritAbort: '仪式中止 · 已记 {{n}} 条事件保留于夜晚层',
     ritDone: '新岛「{{name}}」已入海图 · 创世 {{n}} 条事件永存夜晚层',
@@ -230,9 +238,9 @@ export const zh = {
     browseOnly: '仅浏览 ↗',
     forkTwice: 'fork ×2',
     highVar: '高方差',
-    note: 'L2 器物面板在移动端完整可用 · 空间层只读',
+    note: '工作面板可用 · 海图只读',
     tabs: { chart: '海图', bridge: '桥', notif: '通知', mine: '我的岛' },
-    caption: 'mobile / L0 read-only · 390×844',
+    caption: '移动端 · 只读',
   },
 };
 

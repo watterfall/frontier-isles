@@ -30,6 +30,7 @@ export interface ChartScreenProps {
 const DOMAIN_KEYS = ['全部', '数理', '物质', '生命', '交叉'] as const;
 
 function Buildings({ d }: { d: IslandDatum }) {
+  const { t } = useTranslation();
   const h1 = d.st >= 1 && !d.dor;
   const h2 = d.st >= 2;
   const h3 = d.st === 3;
@@ -80,7 +81,7 @@ function Buildings({ d }: { d: IslandDatum }) {
           <ellipse cx="14" cy="10" rx="8" ry="3.5" fill="#8F9B7E" opacity="0.45" />
           <ellipse cx="0" cy="-14" rx="42" ry="12" fill="#EDE8DA" opacity="0.85" />
           <text x="0" y="-11" textAnchor="middle" fontSize="9" fill="#8C8270" style={{ fontFamily: "'PingFang SC',sans-serif" }}>
-            休眠 · 苔藓与雾
+            {t('chart.dormantNote')}
           </text>
         </g>
       )}
@@ -89,22 +90,26 @@ function Buildings({ d }: { d: IslandDatum }) {
 }
 
 export function ChartScreen({ islands, filter, onFilter, hover, onHover, onIsland, onBuild, onCollide, onBridge }: ChartScreenProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
 
   const hd = islands.find((d) => d.id === hover);
   const card = hd
     ? {
         id: String(hd.id).padStart(2, '0'),
         left: Math.min(Math.max(hd.x - 132, 16), 1160),
-        top: hd.y + 60 > 720 ? hd.y - 210 : hd.y + 62,
+        top: hd.y + 60 > 720 ? hd.y - 260 : hd.y + 62,
         domLabel: hd.out ? `${t(`chart.filters.${hd.d}`)} · ${t('chart.card.outlier')}` : t(`chart.filters.${hd.d}`),
         domCol: hd.out ? '#8A6A1E' : DOMAIN_META[hd.d].col,
         stage: `${t(`chart.stages.${STAGE_LABELS[hd.st]}`)}${hd.dor ? ` · ${t('chart.card.dormant')}` : ''}`,
-        q: hd.q,
+        q: hd.q[lang],
+        brief: hd.brief?.[lang],
+        cluster: hd.cluster?.[lang],
+        citation: hd.citation,
         act: hd.a,
         m: hd.m,
-        hint: hd.sample ? t('chart.card.hintEnter') : hd.out ? t('chart.card.hintOutlier') : t('chart.card.hintSample'),
-        hintCol: hd.sample ? '#B5673A' : '#A89C88',
+        hint: hd.out ? t('chart.card.hintOutlier') : t('chart.card.hintEnter'),
+        hintCol: '#B5673A',
       }
     : null;
 
@@ -166,7 +171,7 @@ export function ChartScreen({ islands, filter, onFilter, hover, onHover, onIslan
                 <g>
                   <circle cx="0" cy="0" r="72" fill="url(#outGlow)" style={{ animation: 'pulseGlow 3.2s ease-in-out infinite', animationPlayState: 'var(--play,running)' as never }} />
                   <text x="0" y="-52" textAnchor="middle" fontSize="10" fill="#8A6A1E" style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", letterSpacing: '0.12em' }}>
-                    离群 · 高方差
+                    {t('chart.outlierTag')}
                   </text>
                 </g>
               )}
@@ -197,7 +202,7 @@ export function ChartScreen({ islands, filter, onFilter, hover, onHover, onIslan
               )}
               {isHover && <ellipse cx="0" cy="8" rx="76" ry="30" fill="none" stroke="#2E5E8C" strokeWidth="1.5" strokeDasharray="5 5" />}
               <text x="0" y="48" textAnchor="middle" fontSize="12.5" fill="#5B5344" letterSpacing="1" style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 600 }}>
-                {d.n}
+                {d.n[lang]}
               </text>
             </g>
           );
@@ -223,7 +228,7 @@ export function ChartScreen({ islands, filter, onFilter, hover, onHover, onIslan
           </div>
           <div style={{ paddingTop: 4 }}>
             <div style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 10.5, color: '#6B6154', letterSpacing: '0.22em' }}>{t('chart.latin')}</div>
-            <div style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 10.5, color: '#8C8270', letterSpacing: '0.12em', marginTop: 4 }}>{t('chart.meta')}</div>
+            <div style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 10.5, color: '#8C8270', letterSpacing: '0.12em', marginTop: 4 }}>{t('chart.meta', { n: islands.length })}</div>
             <div style={{ fontSize: 11.5, color: '#6B6154', marginTop: 10, maxWidth: 200, lineHeight: 1.7 }} dangerouslySetInnerHTML={{ __html: t('chart.tagline') }} />
           </div>
         </div>
@@ -278,10 +283,14 @@ export function ChartScreen({ islands, filter, onFilter, hover, onHover, onIslan
         <div style={{ position: 'absolute', left: card.left, top: card.top, width: 264, background: '#FBF6E9', border: '1.5px solid #3A342B', borderRadius: 6, boxShadow: '5px 5px 0 rgba(58,48,36,0.15)', padding: '14px 16px', pointerEvents: 'none' }}>
           <div style={{ position: 'absolute', inset: 3, border: '0.75px solid rgba(58,52,43,0.35)', borderRadius: 4, pointerEvents: 'none' }} />
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 10.5, letterSpacing: '0.12em', fontFamily: "'JetBrains Mono',ui-monospace,monospace", color: card.domCol }}>{card.domLabel} · {card.stage}</span>
+            <span style={{ fontSize: 10.5, letterSpacing: '0.12em', fontFamily: "'JetBrains Mono',ui-monospace,monospace", color: card.domCol }}>
+              {card.domLabel} · {card.stage}
+              {card.cluster && <span style={{ marginLeft: 6, opacity: 0.7 }}>{card.cluster}</span>}
+            </span>
             <span style={{ fontSize: 10, color: '#A89C88', fontFamily: "'JetBrains Mono',ui-monospace,monospace" }}>#{card.id}</span>
           </div>
-          <div style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 700, fontSize: 15.5, color: '#2B2620', lineHeight: 1.5, margin: '6px 0 10px' }}>{card.q}</div>
+          <div style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 700, fontSize: 15.5, color: '#2B2620', lineHeight: 1.5, margin: '6px 0 8px' }}>{card.q}</div>
+          {card.brief && <div style={{ fontSize: 11, color: '#6B6154', lineHeight: 1.6, marginBottom: 8, opacity: 0.85 }}>{card.brief}</div>}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11.5, color: '#6B6154' }}>
             <span style={{ whiteSpace: 'nowrap' }}>{t('chart.card.activity')}</span>
             <span style={{ flex: 1, height: 6, borderRadius: 3, background: 'rgba(43,38,32,0.1)', overflow: 'hidden', display: 'block' }}>
@@ -289,10 +298,16 @@ export function ChartScreen({ islands, filter, onFilter, hover, onHover, onIslan
             </span>
             <span style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace" }}>{card.act}</span>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 7, fontSize: 11.5, color: '#6B6154' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 7, fontSize: 11.5, color: '#6B6154', alignItems: 'center' }}>
             <span>{t('chart.card.members', { n: card.m })}</span>
             <span style={{ color: card.hintCol }}>{card.hint}</span>
           </div>
+          {card.citation && (
+            <div style={{ marginTop: 8, paddingTop: 7, borderTop: '0.75px solid rgba(58,52,43,0.2)' }}>
+              <span style={{ fontSize: 9.5, color: '#A89C88', fontFamily: "'JetBrains Mono',ui-monospace,monospace" }}>{t('chart.card.source')} </span>
+              <span style={{ fontSize: 10, color: '#8A6A1E' }}>{card.citation.venue} ({card.citation.year})</span>
+            </div>
+          )}
         </div>
       )}
     </div>

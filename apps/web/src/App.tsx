@@ -55,7 +55,7 @@ export default function App() {
   // ── founded island (from a completed ceremony) ───────────────────────
   const [founded, setFounded] = useState<{ name: string; q: string; slug: string } | null>(null);
   const chartIslands: IslandDatum[] = founded
-    ? [...islands, { id: 21, n: founded.name, q: founded.q, d: '交叉', x: 1108, y: 742, s: 0.8, st: 0, m: 1, a: 5, born: true, slug: founded.slug }]
+    ? [...islands, { id: 21, n: { zh: founded.name, en: founded.name }, q: { zh: founded.q, en: founded.q }, d: '交叉', x: 1108, y: 742, s: 0.8, st: 0, m: 1, a: 5, born: true, slug: founded.slug }]
     : islands;
 
   // ── L1 island ────────────────────────────────────────────────────────

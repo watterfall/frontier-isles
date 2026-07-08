@@ -13,20 +13,20 @@ describe('fallback data matches the curated atlas', () => {
   it('marks exactly one sample island (「AI 之问」, slug machine-curiosity)', () => {
     const sample = DATA.filter((d) => d.sample);
     expect(sample).toHaveLength(1);
-    expect(sample[0]!.n).toBe('AI 之问');
+    expect(sample[0]!.n.zh).toBe('AI 之问');
     expect(sample[0]!.slug).toBe('machine-curiosity');
-    expect(sample[0]!.q).toBe('AI 能否提出一个人类没想到的好问题？');
+    expect(sample[0]!.q.zh).toBe('AI 能否提出一个人类没想到的好问题？');
   });
 
   it('marks two dormant and one outlier island', () => {
     expect(DATA.filter((d) => d.dor)).toHaveLength(2);
     expect(DATA.filter((d) => d.out)).toHaveLength(1);
-    expect(DATA.find((d) => d.out)!.n).toBe('暗仪器化');
+    expect(DATA.find((d) => d.out)!.n.zh).toBe('暗仪器化');
   });
 
   it('spot-checks a curated frontier (living wires #7, highest activity)', () => {
     const hi = DATA.find((d) => d.id === 7)!;
-    expect(hi.n).toBe('活体导线');
+    expect(hi.n.zh).toBe('活体导线');
     expect(hi.st).toBe(3);
     expect(hi.m).toBe(14);
     expect(hi.a).toBe(88);
@@ -36,7 +36,7 @@ describe('fallback data matches the curated atlas', () => {
 
   it('every curated frontier carries a slug (enterable)', () => {
     for (const d of DATA) {
-      expect(d.slug, `island #${d.id} (${d.n}) missing slug`).toBeTruthy();
+      expect(d.slug, `island #${d.id} (${d.n.zh}) missing slug`).toBeTruthy();
     }
   });
 
