@@ -198,6 +198,9 @@ export function projectWhirlpools(events: readonly LedgerEvent[]): Whirlpool[] {
     if (refuters.length === 0) continue;
     const anchorOp = pickAnchor(group);
     for (const e of refuters) {
+      // A sea whirlpool is a dispute BETWEEN islands (§3). A refute of an
+      // island's OWN claim is internal weather, not a sea vortex — skip it.
+      if (e.op === anchorOp) continue;
       const ref = e.ref!; // groupByRef only keeps events with a ref
       const key = `${anchorOp} ${e.op}`;
       let acc = disputes.get(key);

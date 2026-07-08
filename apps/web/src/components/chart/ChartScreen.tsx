@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   SceneDefs,
@@ -11,9 +12,15 @@ import {
   Compass,
   Boat,
   MOUND_PATHS,
+  RelationsList,
 } from '@frontier-isles/assets';
 import { DOMAIN_META, STAGE_LABELS, type IslandDatum } from '../../api/fallback';
 import { BRIDGES } from '@frontier-isles/data';
+import { SeaLayer } from './SeaLayer';
+import { useSeaData } from '../../api/useSeaData';
+
+/** op:// id for a chart slug (join key between chart islands and the sea plane). */
+const opOf = (slug?: string): string | null => (slug ? `op://frontier-isles/prob/${slug}` : null);
 
 export interface ChartScreenProps {
   islands: IslandDatum[];
@@ -93,6 +100,15 @@ export function ChartScreen({ islands, filter, onFilter, hover, onHover, onIslan
   const { t, i18n } = useTranslation();
   const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
 
+  // ── sea plane + focus (SALIENCE not PRESENCE) — ONE lifted state ──────────
+  const sea = useSeaData();
+  const [focusedIslandId, setFocusedIslandId] = useState<string | null>(null);
+  const toggleFocus = (op: string | null) => {
+    if (!op) return;
+    setFocusedIslandId((cur) => (cur === op ? null : op));
+  };
+  const clearFocus = () => setFocusedIslandId(null);
+
   const hd = islands.find((d) => d.id === hover);
   const card = hd
     ? {
@@ -117,7 +133,17 @@ export function ChartScreen({ islands, filter, onFilter, hover, onHover, onIslan
     <div data-screen-label="L0 海图" style={{ position: 'absolute', inset: 0, background: '#F2EAD8' }}>
       <svg viewBox="0 0 1440 900" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
         <SceneDefs />
-        <rect x="0" y="0" width="1440" height="900" fill="#F2EAD8" />
+        {/* clicking open water clears the sea focus */}
+        <rect x="0" y="0" width="1440" height="900" fill="#F2EAD8" onClick={clearFocus} />
+
+        {/* v2 sea plane — real projected currents/whirlpools BENEATH the islands */}
+        <SeaLayer
+          currents={sea.currents}
+          whirlpools={sea.whirlpools}
+          islands={sea.islands}
+          focusedIslandId={focusedIslandId}
+        />
+
         <MountainRange />
         <SettlementText />
         {DEFAULT_WAVE_POSITIONS.map(([x, y], i) => (
@@ -156,15 +182,26 @@ export function ChartScreen({ islands, filter, onFilter, hover, onHover, onIslan
           const fill = d.dor ? '#D8D3C2' : d.out ? '#DFD3E6' : DOMAIN_META[d.d].fill;
           const op = filter === '全部' || d.d === filter ? 1 : 0.16;
           const isHover = hover === d.id;
+          const islandOp = opOf(d.slug);
+          const focused = islandOp !== null && islandOp === focusedIslandId;
+          // focus context (design-system/22): the focused mound lifts + gamboge-glows;
+          // non-focused mounds recede to 0.82 + saturate(.15), their labels to 0.42.
+          const dim = focusedIslandId !== null && !focused;
+          const gOpacity = dim ? Math.min(op, 0.82) : op;
+          const gFilter = focused
+            ? 'drop-shadow(0 0 5px var(--fi-gamboge, #E3A93C)) drop-shadow(0 0 10px var(--fi-gamboge, #E3A93C))'
+            : dim
+              ? 'saturate(.15)'
+              : undefined;
           return (
             <g
               key={d.id}
               transform={`translate(${d.x},${d.y}) scale(${d.s})`}
-              opacity={op}
+              opacity={gOpacity}
               onMouseEnter={() => onHover(d.id)}
               onMouseLeave={() => onHover(null)}
               onClick={() => onIsland(d)}
-              style={{ cursor: 'pointer', transition: 'opacity .4s' }}
+              style={{ cursor: 'pointer', transition: 'opacity .4s, filter .4s', filter: gFilter }}
             >
               <ellipse cx="0" cy="2" rx="70" ry="38" fill="none" pointerEvents="all" />
               {d.out && (
@@ -178,7 +215,7 @@ export function ChartScreen({ islands, filter, onFilter, hover, onHover, onIslan
               <path d="M -70 24 q 34 9 70 9 q 36 0 70 -9" stroke="#BFCEDB" strokeWidth="1.2" fill="none" opacity="0.8" />
               <path d="M -58 34 q 28 7 58 7 q 30 0 58 -7" stroke="#BFCEDB" strokeWidth="1" fill="none" opacity="0.5" />
               <ellipse cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,0.15)" opacity={isHover ? 1 : 0} style={{ transition: 'opacity .35s' }} />
-              <g style={{ transform: isHover ? 'translateY(-5px)' : 'translateY(0px)', transition: 'transform .35s cubic-bezier(0.22,1,0.36,1)' }}>
+              <g style={{ transform: focused ? 'translateY(-6px)' : isHover ? 'translateY(-5px)' : 'translateY(0px)', transition: 'transform .35s cubic-bezier(0.22,1,0.36,1)' }}>
                 <path d={MOUND_PATHS[d.id % 5]} fill={fill} stroke="#4A4238" strokeWidth="1.5" />
                 <path d="M -22 -8 Q 0 -15 20 -8" stroke="#4A4238" strokeWidth="0.75" fill="none" opacity="0.3" />
                 <Buildings d={d} />
@@ -201,7 +238,23 @@ export function ChartScreen({ islands, filter, onFilter, hover, onHover, onIslan
                 </g>
               )}
               {isHover && <ellipse cx="0" cy="8" rx="76" ry="30" fill="none" stroke="#2E5E8C" strokeWidth="1.5" strokeDasharray="5 5" />}
-              <text x="0" y="48" textAnchor="middle" fontSize="12.5" fill="#5B5344" letterSpacing="1" style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 600 }}>
+              {focused && <ellipse cx="0" cy="8" rx="80" ry="32" fill="none" stroke="var(--fi-gamboge, #E3A93C)" strokeWidth="2" />}
+              {/* clicking the name FOCUSES the island's relations (salience);
+                  the mound body still enters (presence). stopPropagation keeps them apart. */}
+              <text
+                x="0"
+                y="48"
+                textAnchor="middle"
+                fontSize="12.5"
+                fill={focused ? '#8A6A1E' : '#5B5344'}
+                opacity={dim ? 0.42 : 1}
+                letterSpacing="1"
+                style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 600, cursor: 'pointer' }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleFocus(islandOp);
+                }}
+              >
                 {d.n[lang]}
               </text>
             </g>
@@ -277,6 +330,21 @@ export function ChartScreen({ islands, filter, onFilter, hover, onHover, onIslan
         </div>
       </div>
       <div style={{ position: 'absolute', left: 24, bottom: 16, fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 10.5, color: '#8C8270' }}>{t('chart.footer')}</div>
+
+      {/* 关系海 · the sea plane's list twin (invariant 5) — same focus state as the chart */}
+      <div style={{ position: 'absolute', right: 20, top: 150, bottom: 64, width: 296, overflowY: 'auto', background: 'rgba(250,245,232,0.94)', border: '1.5px solid #3A342B', borderRadius: 8, boxShadow: '4px 4px 0 rgba(58,48,36,0.12)', padding: '12px 14px', pointerEvents: 'auto' }}>
+        <div style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 700, fontSize: 13, marginBottom: 8, color: '#2B2620', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>{t('chart.seaRelations')}</span>
+          <span style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 9, color: sea.source === 'server' ? '#2B7A5F' : '#A89C88' }}>{sea.source}</span>
+        </div>
+        <RelationsList
+          currents={sea.currents}
+          whirlpools={sea.whirlpools}
+          islands={sea.islands}
+          focusedIslandId={focusedIslandId ?? undefined}
+          onFocusIsland={toggleFocus}
+        />
+      </div>
 
       {/* 岛卡 */}
       {card && (

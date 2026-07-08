@@ -26,6 +26,35 @@ export interface ApiMe {
   kind: 'human' | 'agent' | 'pair';
 }
 
+/** Sea-plane payload (GET /api/currents) — a projection over the whole ledger. */
+export interface ApiCurrent {
+  from: string;
+  to: string;
+  kind: 'evidence' | 'bridge' | 'lineage';
+  sign: 'affirm' | 'contest' | 'neutral';
+  weight: number;
+  directed: boolean;
+  maturity?: 'proposed' | 'ratified';
+}
+export interface ApiWhirlpool {
+  between: [string, string];
+  refs: string[];
+  weight: number;
+}
+export interface ApiSeaIsland {
+  op: string;
+  name: string;
+  domain: string;
+  vec: [number, number];
+  substrate: number | null;
+  chart: { x: number; y: number };
+}
+export interface ApiSeaData {
+  currents: ApiCurrent[];
+  whirlpools: ApiWhirlpool[];
+  islands: ApiSeaIsland[];
+}
+
 /** Server-side actor shape (§5 ledger event actor). */
 export interface ApiActor {
   id: string;
@@ -81,6 +110,9 @@ export const api = {
     const res = await req<{ islands: ApiIsland[] }>('/api/islands');
     return res?.islands ?? null;
   },
+
+  /** Sea plane: currents + whirlpools + island coordinates. Best-effort. */
+  currents: () => req<ApiSeaData>('/api/currents'),
 
   /** Server shape: `{actor: {id, kind} | null}`; expose the app's handle view. */
   me: async (): Promise<ApiMe | null> => {

@@ -1,0 +1,247 @@
+<!-- @dsCard group="Patterns · v2 NEW" -->
+<!doctype html><meta charset="utf-8"><title>洋流聚焦 · 争议永不隐身 · focus = salience, never presence</title>
+<style>
+:root{
+  --fi-paper:#F2EAD8;--fi-paper-raised:#FAF5E8;--fi-ink:#2B2620;--fi-ink-2:#6B6154;
+  --fi-azurite:#2E5E8C;--fi-azurite-deep:#1E4266;--fi-ochre:#B5673A;--fi-malachite:#3E9B7E;
+  --fi-gamboge:#E3A93C;--fi-water:#C8D8E4;
+  --fi-domain-math-fill:#C9D8E6;--fi-domain-matter-fill:#E8CFAE;--fi-domain-life-fill:#C6DECC;--fi-domain-cross-fill:#ECDFB4;
+  --fi-font-display:'Noto Serif SC','Songti SC',serif;
+  --fi-font-body:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',system-ui,sans-serif;
+  --fi-font-mono:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box}html,body{margin:0}
+body{font-family:var(--fi-font-body);background:var(--fi-paper);color:var(--fi-ink);padding:clamp(20px,3vw,36px);line-height:1.5}
+.wrap{max-width:1200px;margin:0 auto}
+.tag{display:inline-block;font-family:var(--fi-font-mono);font-size:10px;letter-spacing:.05em;color:var(--fi-ochre);border:1px solid var(--fi-ochre);border-radius:999px;padding:2px 10px;margin-bottom:12px}
+h1{font-family:var(--fi-font-display);font-weight:700;font-size:clamp(21px,3vw,28px);line-height:1.15;margin:0 0 6px;letter-spacing:-.01em}
+h1 .en{color:var(--fi-ink-2);font-weight:400;font-size:.6em}
+.lede{font-size:13.5px;color:var(--fi-ink-2);max-width:70ch;margin:0 0 4px}
+.lede b{color:var(--fi-ink)}
+.lede code{font-family:var(--fi-font-mono);font-size:12px;color:var(--fi-azurite-deep)}
+.rule{margin:16px 0 24px;padding:11px 15px;border-left:3px solid var(--fi-gamboge);background:var(--fi-paper-raised);border-radius:0 6px 6px 0;font-size:12.5px;color:var(--fi-ink-2);max-width:74ch}
+.rule b{color:var(--fi-ink)}
+
+/* ---- variant panels ---- */
+.panels{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;align-items:start}
+.panel{min-width:0}
+.phead{display:flex;align-items:baseline;gap:8px;margin:0 0 7px;flex-wrap:wrap}
+.phead .n{font-family:var(--fi-font-display);font-weight:700;font-size:13px;color:var(--fi-ink)}
+.phead .s{font-family:var(--fi-font-mono);font-size:10px;color:var(--fi-ink-2)}
+.phead .pill{margin-left:auto;font-family:var(--fi-font-mono);font-size:9.5px;color:var(--fi-ochre);border:1px solid var(--fi-ochre);border-radius:999px;padding:1px 7px;white-space:nowrap}
+.frame{border-radius:10px;overflow:hidden;outline:1px solid rgba(43,38,32,.1);box-shadow:0 10px 22px -18px rgba(30,66,102,.55)}
+.frame svg{display:block;width:100%;height:auto}
+.pnote{margin-top:8px;font-size:11px;color:var(--fi-ink-2);font-family:var(--fi-font-mono);line-height:1.5}
+.pnote b{color:var(--fi-ink)}
+
+/* ================= FOCUS TREATMENT (shared) ================= */
+/* focused island: lifts + wears the 藤黄 focus glow (the designated 聚焦 token) */
+.scene .isl.dim{opacity:.82}
+.scene .isl.dim .cast{opacity:.3}
+.scene .isl.dim .lift{transform:translateY(0)}
+.scene .isl.foc .cast{opacity:1}
+.scene .isl.foc .lift{transform:translateY(-6px);filter:drop-shadow(0 0 5px var(--fi-gamboge)) drop-shadow(0 0 10px var(--fi-gamboge))}
+.scene .lbl.dim{opacity:.42}
+.scene .lbl.foc{fill:var(--fi-ink);font-weight:600}
+/* focused currents: full opacity + a luminous halo in their OWN hue */
+.scene .cur.foc{opacity:1;filter:drop-shadow(0 0 2px var(--glow)) drop-shadow(0 0 4.5px var(--glow))}
+.scene .whirl.foc{opacity:.85}
+/* the load-bearing rule — dispute keeps a HIGHER floor than affirm, always */
+/* A · opacity-floor only ------------------------------------- */
+.vA .cur.ctx{opacity:.20}
+.vA .cur.ctx-disp{opacity:.58}
+.vA .whirl.ctx-disp{opacity:.62}
+/* B · floor + desaturate context, dispute keeps its hue -------- */
+.vB .cur.ctx{opacity:.32;filter:saturate(.15)}
+.vB .isl.dim{filter:saturate(.4)}
+.vB .cur.ctx-disp{opacity:.62}
+.vB .whirl.ctx-disp{opacity:.64}
+/* C · floor + blur context, markers stay crisp ---------------- */
+.vC .cur.ctx{opacity:.36;filter:blur(1.15px)}
+.vC .isl.dim{filter:blur(.4px)}
+.vC .cur.ctx-disp{opacity:.62}
+.vC .whirl.ctx-disp{opacity:.64}
+
+/* ---- lower row: list twin + legend + floors ---- */
+.row2{display:grid;grid-template-columns:1.1fr 1fr;gap:16px;margin-top:26px}
+@media(max-width:720px){.row2{grid-template-columns:1fr}}
+.card{background:var(--fi-paper-raised);border-radius:10px;padding:14px 16px;outline:1px solid rgba(43,38,32,.08)}
+.card h2{font-family:var(--fi-font-display);font-size:13px;margin:0 0 3px;display:flex;align-items:baseline;gap:7px}
+.card h2 .en{font-family:var(--fi-font-mono);font-size:9.5px;color:var(--fi-ink-2);font-weight:400}
+.twinhead{font-family:var(--fi-font-mono);font-size:11px;color:var(--fi-ink-2);margin:2px 0 8px}
+.twinhead .foc{color:var(--fi-ochre)}
+.twinhead .all{color:var(--fi-azurite);border-bottom:1px dotted var(--fi-azurite);cursor:default}
+ul.rel{list-style:none;margin:0;padding:0}
+ul.rel li{display:flex;align-items:baseline;gap:6px;padding:4px 2px;font-family:var(--fi-font-mono);font-size:11.5px;color:var(--fi-ink-2);border-bottom:1px solid var(--fi-water)}
+ul.rel li .op{color:var(--fi-azurite);border-bottom:1px dotted var(--fi-azurite)}
+ul.rel li .op.self{color:var(--fi-ochre);border-color:var(--fi-ochre)}
+ul.rel li .m{margin-left:auto;color:var(--fi-ink-2);opacity:.8}
+ul.rel li.disp{color:var(--fi-ink)}
+ul.rel li .tee{color:var(--fi-azurite);font-weight:700}
+ul.rel li .wp{color:var(--fi-gamboge);font-weight:700}
+.callout{margin-top:10px;font-size:11px;color:var(--fi-ink-2);font-family:var(--fi-font-mono);line-height:1.6}
+.callout b{color:var(--fi-ink)}
+.floors{display:flex;flex-direction:column;gap:9px;margin-top:6px}
+.floorrow{display:flex;align-items:center;gap:10px;font-size:11.5px;color:var(--fi-ink-2)}
+.floorrow .bar{height:9px;border-radius:3px;flex:0 0 auto}
+.floorrow b{color:var(--fi-ink);font-weight:600}
+.floorrow .val{font-family:var(--fi-font-mono);font-size:10px;color:var(--fi-ink-2);margin-left:auto}
+.foot{margin-top:22px;font-size:11px;color:var(--fi-ink-2);font-family:var(--fi-font-mono);border-top:1px solid rgba(43,38,32,.12);padding-top:12px;line-height:1.7}
+.foot b{color:var(--fi-ink)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+<body>
+<div class="wrap">
+
+  <span class="tag">NEW · v2 海即数据 · focus = salience, never presence</span>
+  <h1>洋流聚焦 · 争议永不隐身 <span class="en">current-focus — a dimmed dispute is never absent</span></h1>
+  <p class="lede">聚焦 <b>riemann</b>：它的关系升起（满不透明 + 藤黄发光），其余退成背景。诚实编码不变 —— <code>色+虚=类型</code> · <code>头形=立场</code>（→支持 / ⊣争议）· <code>淡实=成熟度</code> · <code>宽=权重</code>。三个变体 = 三种降噪策略，同一个焦点。</p>
+
+  <p class="rule"><b>硬约束（这张卡的全部意义）：焦点改变显著性，绝不改变存在。</b> 非焦点的 <b>争议</b>（争议洋流 <b style="color:var(--fi-azurite)">⊣</b> 与漩涡 <b style="color:var(--fi-gamboge)">⊗</b>）保有<b>比普通支持流更高的不透明度下限</b> —— 争议永远不是那个褪到看不见的东西。看右下角 catalysis <b style="color:var(--fi-azurite)">⊣</b> emergence：它不是焦点，却在三个变体里始终清晰可读。</p>
+
+  <!-- ================= SHARED DEFS ================= -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <marker id="fi-arrow-affirm" markerWidth="7" markerHeight="7" refX="5.5" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="context-stroke"/></marker>
+    <marker id="fi-tee-contest" markerWidth="7" markerHeight="8" refX="5.5" refY="4" orient="auto"><path d="M5 0 L5 8" fill="none" stroke="context-stroke" stroke-width="1.6"/></marker>
+    <marker id="fi-arrow-open" markerWidth="8" markerHeight="8" refX="6" refY="3.2" orient="auto"><path d="M0.6 0.6 L6.4 3.2 L0.6 5.8" fill="none" stroke="context-stroke" stroke-width="1.2"/></marker>
+    <!-- real MOUND_PATHS -->
+    <path id="m0" d="M -58 10 C -50 -8 -26 -20 2 -21 C 30 -20 50 -9 58 8 C 46 16 30 20 0 20 C -30 20 -48 16 -58 10 Z"/>
+    <path id="m1" d="M -62 8 C -44 -14 -18 -8 -6 -17 C 8 -26 34 -18 48 -6 C 56 1 60 6 62 10 C 40 18 -40 18 -62 8 Z"/>
+    <path id="m2" d="M -50 10 C -46 -10 -20 -24 6 -18 C 20 -15 30 -22 44 -12 C 54 -5 52 5 54 10 C 30 17 -30 17 -50 10 Z"/>
+    <path id="m3" d="M -60 9 C -54 -6 -40 -16 -24 -14 C -14 -13 -10 -6 -2 -8 C 4 -20 24 -24 40 -14 C 52 -7 56 2 58 9 C 36 17 -36 17 -60 9 Z"/>
+    <path id="m4" d="M -64 8 C -52 -4 -30 -10 -4 -11 C 24 -12 48 -6 62 6 C 64 8 62 10 60 11 C 30 17 -40 16 -64 8 Z"/>
+    <path id="ring1" d="M -70 24 q 34 9 70 9 q 36 0 70 -9"/>
+    <path id="ring2" d="M -58 34 q 28 7 58 7 q 30 0 58 -7"/>
+    <path id="ridge" d="M -22 -8 Q 0 -15 20 -8"/>
+    <radialGradient id="ca0" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="615.17"><stop offset="0%" stop-color="var(--fi-domain-math-fill)" stop-opacity="0.55"/><stop offset="100%" stop-color="var(--fi-domain-math-fill)" stop-opacity="0"/></radialGradient>
+    <radialGradient id="ca1" gradientUnits="userSpaceOnUse" cx="720" cy="0" r="615.17"><stop offset="0%" stop-color="var(--fi-domain-matter-fill)" stop-opacity="0.55"/><stop offset="100%" stop-color="var(--fi-domain-matter-fill)" stop-opacity="0"/></radialGradient>
+    <radialGradient id="ca2" gradientUnits="userSpaceOnUse" cx="0" cy="460" r="615.17"><stop offset="0%" stop-color="var(--fi-domain-life-fill)" stop-opacity="0.55"/><stop offset="100%" stop-color="var(--fi-domain-life-fill)" stop-opacity="0"/></radialGradient>
+    <radialGradient id="ca3" gradientUnits="userSpaceOnUse" cx="720" cy="460" r="615.17"><stop offset="0%" stop-color="var(--fi-domain-cross-fill)" stop-opacity="0.55"/><stop offset="100%" stop-color="var(--fi-domain-cross-fill)" stop-opacity="0"/></radialGradient>
+    <radialGradient id="dw0" gradientUnits="userSpaceOnUse" cx="150" cy="162" r="60"><stop offset="0%" stop-color="var(--fi-ink)" stop-opacity="0.357"/><stop offset="100%" stop-color="var(--fi-ink)" stop-opacity="0"/></radialGradient>
+    <radialGradient id="dw1" gradientUnits="userSpaceOnUse" cx="190" cy="342" r="60"><stop offset="0%" stop-color="var(--fi-ink)" stop-opacity="0.147"/><stop offset="100%" stop-color="var(--fi-ink)" stop-opacity="0"/></radialGradient>
+    <radialGradient id="dw2" gradientUnits="userSpaceOnUse" cx="420" cy="142" r="60"><stop offset="0%" stop-color="var(--fi-ink)" stop-opacity="0.252"/><stop offset="100%" stop-color="var(--fi-ink)" stop-opacity="0"/></radialGradient>
+    <radialGradient id="dw3" gradientUnits="userSpaceOnUse" cx="330" cy="262" r="60"><stop offset="0%" stop-color="var(--fi-ink)" stop-opacity="0.21"/><stop offset="100%" stop-color="var(--fi-ink)" stop-opacity="0"/></radialGradient>
+  </defs></svg>
+
+  <div class="panels">
+
+    <!-- ============ VARIANT A ============ -->
+    <div class="panel">
+      <div class="phead"><span class="n">A · 下限</span><span class="s">opacity-floor only</span><span class="pill">聚焦 riemann · 6/12</span></div>
+      <div class="frame"><svg class="scene vA" viewBox="0 0 720 460" role="img" aria-label="focus riemann, variant A: context dimmed by opacity only; the SE catalysis-emergence dispute stays legible">
+        <rect x="0" y="0" width="720" height="460" fill="var(--fi-water)"/><rect x="0" y="0" width="720" height="460" fill="url(#ca0)"/><rect x="0" y="0" width="720" height="460" fill="url(#ca1)"/><rect x="0" y="0" width="720" height="460" fill="url(#ca2)"/><rect x="0" y="0" width="720" height="460" fill="url(#ca3)"/>
+        <ellipse cx="150" cy="162" rx="60" ry="25.2" fill="url(#dw0)"/><ellipse cx="190" cy="342" rx="60" ry="25.2" fill="url(#dw1)"/><ellipse cx="420" cy="142" rx="60" ry="25.2" fill="url(#dw2)"/><ellipse cx="330" cy="262" rx="60" ry="25.2" fill="url(#dw3)"/>
+        <!-- currents -->
+        <path class="cur ctx-disp" d="M 560 300 Q 500.38 323.56 470 380" fill="none" stroke="var(--fi-azurite)" stroke-width="2.3" stroke-linecap="round" stroke-dasharray="1 5" marker-end="url(#fi-tee-contest)"/>
+        <path class="cur ctx" d="M 420 130 Q 506.98 201.01 560 300" fill="none" stroke="var(--fi-ochre)" stroke-width="2.5" stroke-linecap="round"/>
+        <path class="cur ctx" d="M 330 250 Q 439.48 300.41 560 300" fill="none" stroke="var(--fi-azurite)" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="1 5" marker-end="url(#fi-arrow-affirm)"/>
+        <path class="cur ctx" d="M 330 250 Q 414.97 298.88 470 380" fill="none" stroke="var(--fi-azurite)" stroke-width="2.3" stroke-linecap="round" stroke-dasharray="1 5" marker-end="url(#fi-arrow-affirm)"/>
+        <path class="cur ctx" d="M 190 330 Q 326.13 376.66 470 380" fill="none" stroke="var(--fi-ochre)" stroke-width="1.61" stroke-linecap="round"/>
+        <path class="cur foc disp" style="--glow:var(--fi-azurite)" d="M 150 150 Q 283.37 118.06 420 130" fill="none" stroke="var(--fi-azurite)" stroke-width="2.3" stroke-linecap="round" stroke-dasharray="1 5" marker-end="url(#fi-tee-contest)"/>
+        <path class="cur foc" style="--glow:var(--fi-malachite)" d="M 150 150 Q 227.37 222.73 330 250" fill="none" stroke="var(--fi-malachite)" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="7 5" marker-end="url(#fi-arrow-open)"/>
+        <path class="cur foc" style="--glow:var(--fi-azurite)" d="M 150 150 Q 191.48 235.23 190 330" fill="none" stroke="var(--fi-azurite)" stroke-width="2.3" stroke-linecap="round" stroke-dasharray="1 5" marker-end="url(#fi-arrow-affirm)"/>
+        <path class="cur foc disp" style="--glow:var(--fi-azurite)" d="M 150 150 Q 148.52 244.77 190 330" fill="none" stroke="var(--fi-azurite)" stroke-width="2.3" stroke-linecap="round" stroke-dasharray="1 5" marker-end="url(#fi-tee-contest)"/>
+        <!-- whirlpools ⊗ -->
+        <g class="whirl ctx-disp" fill="none" stroke="var(--fi-gamboge)"><circle cx="515" cy="340" r="16" stroke-width="1.6" stroke-dasharray="3 4"/><circle cx="515" cy="340" r="9" stroke-width="1.2" stroke-dasharray="2 4"/></g>
+        <g class="whirl foc" fill="none" stroke="var(--fi-gamboge)"><circle cx="285" cy="140" r="16" stroke-width="1.6" stroke-dasharray="3 4"/><circle cx="285" cy="140" r="9" stroke-width="1.2" stroke-dasharray="2 4"/></g>
+        <g class="whirl foc" fill="none" stroke="var(--fi-gamboge)"><circle cx="170" cy="240" r="16" stroke-width="1.6" stroke-dasharray="3 4"/><circle cx="170" cy="240" r="9" stroke-width="1.2" stroke-dasharray="2 4"/></g>
+        <!-- islands -->
+        <g class="isl foc"><g transform="translate(150,150) scale(0.62)"><use href="#ring1" stroke="#BFCEDB" stroke-width="1.2" fill="none" opacity="0.8"/><use href="#ring2" stroke="#BFCEDB" stroke-width="1" fill="none" opacity="0.5"/><ellipse class="cast" cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,0.15)"/><g class="lift"><use href="#m0" fill="var(--fi-domain-math-fill)" stroke="#4A4238" stroke-width="1.5"/><use href="#ridge" stroke="#4A4238" stroke-width="0.75" fill="none" opacity="0.3"/></g></g><text class="lbl foc" x="150" y="184" text-anchor="middle" font-size="10" fill="var(--fi-ink-2)" style="font-family:'JetBrains Mono',ui-monospace,monospace">op://…/riemann</text></g>
+        <g class="isl dim"><g transform="translate(190,330) scale(0.62)"><use href="#ring1" stroke="#BFCEDB" stroke-width="1.2" fill="none" opacity="0.8"/><use href="#ring2" stroke="#BFCEDB" stroke-width="1" fill="none" opacity="0.5"/><ellipse class="cast" cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,0.15)"/><g class="lift"><use href="#m2" fill="var(--fi-domain-life-fill)" stroke="#4A4238" stroke-width="1.5"/><use href="#ridge" stroke="#4A4238" stroke-width="0.75" fill="none" opacity="0.3"/></g></g><text class="lbl dim" x="190" y="364" text-anchor="middle" font-size="10" fill="var(--fi-ink-2)" style="font-family:'JetBrains Mono',ui-monospace,monospace">op://…/folding</text></g>
+        <g class="isl dim"><g transform="translate(420,130) scale(0.62)"><use href="#ring1" stroke="#BFCEDB" stroke-width="1.2" fill="none" opacity="0.8"/><use href="#ring2" stroke="#BFCEDB" stroke-width="1" fill="none" opacity="0.5"/><ellipse class="cast" cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,0.15)"/><g class="lift"><use href="#m1" fill="var(--fi-domain-matter-fill)" stroke="#4A4238" stroke-width="1.5"/><use href="#ridge" stroke="#4A4238" stroke-width="0.75" fill="none" opacity="0.3"/></g></g><text class="lbl dim" x="420" y="164" text-anchor="middle" font-size="10" fill="var(--fi-ink-2)" style="font-family:'JetBrains Mono',ui-monospace,monospace">op://…/coherence</text></g>
+        <g class="isl dim"><g transform="translate(330,250) scale(0.62)"><use href="#ring1" stroke="#BFCEDB" stroke-width="1.2" fill="none" opacity="0.8"/><use href="#ring2" stroke="#BFCEDB" stroke-width="1" fill="none" opacity="0.5"/><ellipse class="cast" cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,0.15)"/><g class="lift"><use href="#m3" fill="var(--fi-domain-math-fill)" stroke="#4A4238" stroke-width="1.5"/><use href="#ridge" stroke="#4A4238" stroke-width="0.75" fill="none" opacity="0.3"/></g></g><text class="lbl dim" x="330" y="284" text-anchor="middle" font-size="10" fill="var(--fi-ink-2)" style="font-family:'JetBrains Mono',ui-monospace,monospace">op://…/entropy</text></g>
+        <g class="isl dim"><g transform="translate(560,300) scale(0.62)"><use href="#ring1" stroke="#BFCEDB" stroke-width="1.2" fill="none" opacity="0.8"/><use href="#ring2" stroke="#BFCEDB" stroke-width="1" fill="none" opacity="0.5"/><ellipse class="cast" cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,0.15)"/><g class="lift"><use href="#m4" fill="var(--fi-domain-cross-fill)" stroke="#4A4238" stroke-width="1.5"/><use href="#ridge" stroke="#4A4238" stroke-width="0.75" fill="none" opacity="0.3"/></g></g><text class="lbl dim" x="560" y="334" text-anchor="middle" font-size="10" fill="var(--fi-ink-2)" style="font-family:'JetBrains Mono',ui-monospace,monospace">op://…/catalysis</text></g>
+        <g class="isl dim"><g transform="translate(470,380) scale(0.62)"><use href="#ring1" stroke="#BFCEDB" stroke-width="1.2" fill="none" opacity="0.8"/><use href="#ring2" stroke="#BFCEDB" stroke-width="1" fill="none" opacity="0.5"/><ellipse class="cast" cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,0.15)"/><g class="lift"><use href="#m1" fill="var(--fi-domain-cross-fill)" stroke="#4A4238" stroke-width="1.5"/><use href="#ridge" stroke="#4A4238" stroke-width="0.75" fill="none" opacity="0.3"/></g></g><text class="lbl dim" x="470" y="414" text-anchor="middle" font-size="10" fill="var(--fi-ink-2)" style="font-family:'JetBrains Mono',ui-monospace,monospace">op://…/emergence</text></g>
+      </svg></div>
+      <p class="pnote"><b>只降不透明度。</b>争议下限 .58 / 漩涡 .62，支持流 .20 —— 争议约为支持流的 <b>3×</b> 亮。最省，但灰下去的支持流仍带原色。</p>
+    </div>
+
+    <!-- ============ VARIANT B ============ -->
+    <div class="panel">
+      <div class="phead"><span class="n">B · 下限+去色</span><span class="s">floor + desaturate</span><span class="pill">聚焦 riemann · 6/12</span></div>
+      <div class="frame"><svg class="scene vB" viewBox="0 0 720 460" role="img" aria-label="focus riemann, variant B: context desaturated to grey but the dispute keeps full azurite hue and a higher floor">
+        <rect x="0" y="0" width="720" height="460" fill="var(--fi-water)"/><rect x="0" y="0" width="720" height="460" fill="url(#ca0)"/><rect x="0" y="0" width="720" height="460" fill="url(#ca1)"/><rect x="0" y="0" width="720" height="460" fill="url(#ca2)"/><rect x="0" y="0" width="720" height="460" fill="url(#ca3)"/>
+        <ellipse cx="150" cy="162" rx="60" ry="25.2" fill="url(#dw0)"/><ellipse cx="190" cy="342" rx="60" ry="25.2" fill="url(#dw1)"/><ellipse cx="420" cy="142" rx="60" ry="25.2" fill="url(#dw2)"/><ellipse cx="330" cy="262" rx="60" ry="25.2" fill="url(#dw3)"/>
+        <path class="cur ctx-disp" d="M 560 300 Q 500.38 323.56 470 380" fill="none" stroke="var(--fi-azurite)" stroke-width="2.3" stroke-linecap="round" stroke-dasharray="1 5" marker-end="url(#fi-tee-contest)"/>
+        <path class="cur ctx" d="M 420 130 Q 506.98 201.01 560 300" fill="none" stroke="var(--fi-ochre)" stroke-width="2.5" stroke-linecap="round"/>
+        <path class="cur ctx" d="M 330 250 Q 439.48 300.41 560 300" fill="none" stroke="var(--fi-azurite)" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="1 5" marker-end="url(#fi-arrow-affirm)"/>
+        <path class="cur ctx" d="M 330 250 Q 414.97 298.88 470 380" fill="none" stroke="var(--fi-azurite)" stroke-width="2.3" stroke-linecap="round" stroke-dasharray="1 5" marker-end="url(#fi-arrow-affirm)"/>
+        <path class="cur ctx" d="M 190 330 Q 326.13 376.66 470 380" fill="none" stroke="var(--fi-ochre)" stroke-width="1.61" stroke-linecap="round"/>
+        <path class="cur foc disp" style="--glow:var(--fi-azurite)" d="M 150 150 Q 283.37 118.06 420 130" fill="none" stroke="var(--fi-azurite)" stroke-width="2.3" stroke-linecap="round" stroke-dasharray="1 5" marker-end="url(#fi-tee-contest)"/>
+        <path class="cur foc" style="--glow:var(--fi-malachite)" d="M 150 150 Q 227.37 222.73 330 250" fill="none" stroke="var(--fi-malachite)" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="7 5" marker-end="url(#fi-arrow-open)"/>
+        <path class="cur foc" style="--glow:var(--fi-azurite)" d="M 150 150 Q 191.48 235.23 190 330" fill="none" stroke="var(--fi-azurite)" stroke-width="2.3" stroke-linecap="round" stroke-dasharray="1 5" marker-end="url(#fi-arrow-affirm)"/>
+        <path class="cur foc disp" style="--glow:var(--fi-azurite)" d="M 150 150 Q 148.52 244.77 190 330" fill="none" stroke="var(--fi-azurite)" stroke-width="2.3" stroke-linecap="round" stroke-dasharray="1 5" marker-end="url(#fi-tee-contest)"/>
+        <g class="whirl ctx-disp" fill="none" stroke="var(--fi-gamboge)"><circle cx="515" cy="340" r="16" stroke-width="1.6" stroke-dasharray="3 4"/><circle cx="515" cy="340" r="9" stroke-width="1.2" stroke-dasharray="2 4"/></g>
+        <g class="whirl foc" fill="none" stroke="var(--fi-gamboge)"><circle cx="285" cy="140" r="16" stroke-width="1.6" stroke-dasharray="3 4"/><circle cx="285" cy="140" r="9" stroke-width="1.2" stroke-dasharray="2 4"/></g>
+        <g class="whirl foc" fill="none" stroke="var(--fi-gamboge)"><circle cx="170" cy="240" r="16" stroke-width="1.6" stroke-dasharray="3 4"/><circle cx="170" cy="240" r="9" stroke-width="1.2" stroke-dasharray="2 4"/></g>
+        <g class="isl foc"><g transform="translate(150,150) scale(0.62)"><use href="#ring1" stroke="#BFCEDB" stroke-width="1.2" fill="none" opacity="0.8"/><use href="#ring2" stroke="#BFCEDB" stroke-width="1" fill="none" opacity="0.5"/><ellipse class="cast" cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,0.15)"/><g class="lift"><use href="#m0" fill="var(--fi-domain-math-fill)" stroke="#4A4238" stroke-width="1.5"/><use href="#ridge" stroke="#4A4238" stroke-width="0.75" fill="none" opacity="0.3"/></g></g><text class="lbl foc" x="150" y="184" text-anchor="middle" font-size="10" fill="var(--fi-ink-2)" style="font-family:'JetBrains Mono',ui-monospace,monospace">op://…/riemann</text></g>
+        <g class="isl dim"><g transform="translate(190,330) scale(0.62)"><use href="#ring1" stroke="#BFCEDB" stroke-width="1.2" fill="none" opacity="0.8"/><use href="#ring2" stroke="#BFCEDB" stroke-width="1" fill="none" opacity="0.5"/><ellipse class="cast" cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,0.15)"/><g class="lift"><use href="#m2" fill="var(--fi-domain-life-fill)" stroke="#4A4238" stroke-width="1.5"/><use href="#ridge" stroke="#4A4238" stroke-width="0.75" fill="none" opacity="0.3"/></g></g><text class="lbl dim" x="190" y="364" text-anchor="middle" font-size="10" fill="var(--fi-ink-2)" style="font-family:'JetBrains Mono',ui-monospace,monospace">op://…/folding</text></g>
+        <g class="isl dim"><g transform="translate(420,130) scale(0.62)"><use href="#ring1" stroke="#BFCEDB" stroke-width="1.2" fill="none" opacity="0.8"/><use href="#ring2" stroke="#BFCEDB" stroke-width="1" fill="none" opacity="0.5"/><ellipse class="cast" cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,0.15)"/><g class="lift"><use href="#m1" fill="var(--fi-domain-matter-fill)" stroke="#4A4238" stroke-width="1.5"/><use href="#ridge" stroke="#4A4238" stroke-width="0.75" fill="none" opacity="0.3"/></g></g><text class="lbl dim" x="420" y="164" text-anchor="middle" font-size="10" fill="var(--fi-ink-2)" style="font-family:'JetBrains Mono',ui-monospace,monospace">op://…/coherence</text></g>
+        <g class="isl dim"><g transform="translate(330,250) scale(0.62)"><use href="#ring1" stroke="#BFCEDB" stroke-width="1.2" fill="none" opacity="0.8"/><use href="#ring2" stroke="#BFCEDB" stroke-width="1" fill="none" opacity="0.5"/><ellipse class="cast" cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,0.15)"/><g class="lift"><use href="#m3" fill="var(--fi-domain-math-fill)" stroke="#4A4238" stroke-width="1.5"/><use href="#ridge" stroke="#4A4238" stroke-width="0.75" fill="none" opacity="0.3"/></g></g><text class="lbl dim" x="330" y="284" text-anchor="middle" font-size="10" fill="var(--fi-ink-2)" style="font-family:'JetBrains Mono',ui-monospace,monospace">op://…/entropy</text></g>
+        <g class="isl dim"><g transform="translate(560,300) scale(0.62)"><use href="#ring1" stroke="#BFCEDB" stroke-width="1.2" fill="none" opacity="0.8"/><use href="#ring2" stroke="#BFCEDB" stroke-width="1" fill="none" opacity="0.5"/><ellipse class="cast" cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,0.15)"/><g class="lift"><use href="#m4" fill="var(--fi-domain-cross-fill)" stroke="#4A4238" stroke-width="1.5"/><use href="#ridge" stroke="#4A4238" stroke-width="0.75" fill="none" opacity="0.3"/></g></g><text class="lbl dim" x="560" y="334" text-anchor="middle" font-size="10" fill="var(--fi-ink-2)" style="font-family:'JetBrains Mono',ui-monospace,monospace">op://…/catalysis</text></g>
+        <g class="isl dim"><g transform="translate(470,380) scale(0.62)"><use href="#ring1" stroke="#BFCEDB" stroke-width="1.2" fill="none" opacity="0.8"/><use href="#ring2" stroke="#BFCEDB" stroke-width="1" fill="none" opacity="0.5"/><ellipse class="cast" cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,0.15)"/><g class="lift"><use href="#m1" fill="var(--fi-domain-cross-fill)" stroke="#4A4238" stroke-width="1.5"/><use href="#ridge" stroke="#4A4238" stroke-width="0.75" fill="none" opacity="0.3"/></g></g><text class="lbl dim" x="470" y="414" text-anchor="middle" font-size="10" fill="var(--fi-ink-2)" style="font-family:'JetBrains Mono',ui-monospace,monospace">op://…/emergence</text></g>
+      </svg></div>
+      <p class="pnote"><b>支持流去色成灰，争议保留石青。</b>争议同时靠<b>更高不透明度</b>与<b>唯一保留的色相</b>跳出灰底 —— 争议最醒目。⊣ / ⊗ 头形不变。</p>
+    </div>
+
+    <!-- ============ VARIANT C ============ -->
+    <div class="panel">
+      <div class="phead"><span class="n">C · 下限+虚焦</span><span class="s">floor + blur context</span><span class="pill">聚焦 riemann · 6/12</span></div>
+      <div class="frame"><svg class="scene vC" viewBox="0 0 720 460" role="img" aria-label="focus riemann, variant C: context blurred into a soft background while the dispute and its markers stay crisp at a higher floor">
+        <rect x="0" y="0" width="720" height="460" fill="var(--fi-water)"/><rect x="0" y="0" width="720" height="460" fill="url(#ca0)"/><rect x="0" y="0" width="720" height="460" fill="url(#ca1)"/><rect x="0" y="0" width="720" height="460" fill="url(#ca2)"/><rect x="0" y="0" width="720" height="460" fill="url(#ca3)"/>
+        <ellipse cx="150" cy="162" rx="60" ry="25.2" fill="url(#dw0)"/><ellipse cx="190" cy="342" rx="60" ry="25.2" fill="url(#dw1)"/><ellipse cx="420" cy="142" rx="60" ry="25.2" fill="url(#dw2)"/><ellipse cx="330" cy="262" rx="60" ry="25.2" fill="url(#dw3)"/>
+        <path class="cur ctx-disp" d="M 560 300 Q 500.38 323.56 470 380" fill="none" stroke="var(--fi-azurite)" stroke-width="2.3" stroke-linecap="round" stroke-dasharray="1 5" marker-end="url(#fi-tee-contest)"/>
+        <path class="cur ctx" d="M 420 130 Q 506.98 201.01 560 300" fill="none" stroke="var(--fi-ochre)" stroke-width="2.5" stroke-linecap="round"/>
+        <path class="cur ctx" d="M 330 250 Q 439.48 300.41 560 300" fill="none" stroke="var(--fi-azurite)" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="1 5" marker-end="url(#fi-arrow-affirm)"/>
+        <path class="cur ctx" d="M 330 250 Q 414.97 298.88 470 380" fill="none" stroke="var(--fi-azurite)" stroke-width="2.3" stroke-linecap="round" stroke-dasharray="1 5" marker-end="url(#fi-arrow-affirm)"/>
+        <path class="cur ctx" d="M 190 330 Q 326.13 376.66 470 380" fill="none" stroke="var(--fi-ochre)" stroke-width="1.61" stroke-linecap="round"/>
+        <path class="cur foc disp" style="--glow:var(--fi-azurite)" d="M 150 150 Q 283.37 118.06 420 130" fill="none" stroke="var(--fi-azurite)" stroke-width="2.3" stroke-linecap="round" stroke-dasharray="1 5" marker-end="url(#fi-tee-contest)"/>
+        <path class="cur foc" style="--glow:var(--fi-malachite)" d="M 150 150 Q 227.37 222.73 330 250" fill="none" stroke="var(--fi-malachite)" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="7 5" marker-end="url(#fi-arrow-open)"/>
+        <path class="cur foc" style="--glow:var(--fi-azurite)" d="M 150 150 Q 191.48 235.23 190 330" fill="none" stroke="var(--fi-azurite)" stroke-width="2.3" stroke-linecap="round" stroke-dasharray="1 5" marker-end="url(#fi-arrow-affirm)"/>
+        <path class="cur foc disp" style="--glow:var(--fi-azurite)" d="M 150 150 Q 148.52 244.77 190 330" fill="none" stroke="var(--fi-azurite)" stroke-width="2.3" stroke-linecap="round" stroke-dasharray="1 5" marker-end="url(#fi-tee-contest)"/>
+        <g class="whirl ctx-disp" fill="none" stroke="var(--fi-gamboge)"><circle cx="515" cy="340" r="16" stroke-width="1.6" stroke-dasharray="3 4"/><circle cx="515" cy="340" r="9" stroke-width="1.2" stroke-dasharray="2 4"/></g>
+        <g class="whirl foc" fill="none" stroke="var(--fi-gamboge)"><circle cx="285" cy="140" r="16" stroke-width="1.6" stroke-dasharray="3 4"/><circle cx="285" cy="140" r="9" stroke-width="1.2" stroke-dasharray="2 4"/></g>
+        <g class="whirl foc" fill="none" stroke="var(--fi-gamboge)"><circle cx="170" cy="240" r="16" stroke-width="1.6" stroke-dasharray="3 4"/><circle cx="170" cy="240" r="9" stroke-width="1.2" stroke-dasharray="2 4"/></g>
+        <g class="isl foc"><g transform="translate(150,150) scale(0.62)"><use href="#ring1" stroke="#BFCEDB" stroke-width="1.2" fill="none" opacity="0.8"/><use href="#ring2" stroke="#BFCEDB" stroke-width="1" fill="none" opacity="0.5"/><ellipse class="cast" cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,0.15)"/><g class="lift"><use href="#m0" fill="var(--fi-domain-math-fill)" stroke="#4A4238" stroke-width="1.5"/><use href="#ridge" stroke="#4A4238" stroke-width="0.75" fill="none" opacity="0.3"/></g></g><text class="lbl foc" x="150" y="184" text-anchor="middle" font-size="10" fill="var(--fi-ink-2)" style="font-family:'JetBrains Mono',ui-monospace,monospace">op://…/riemann</text></g>
+        <g class="isl dim"><g transform="translate(190,330) scale(0.62)"><use href="#ring1" stroke="#BFCEDB" stroke-width="1.2" fill="none" opacity="0.8"/><use href="#ring2" stroke="#BFCEDB" stroke-width="1" fill="none" opacity="0.5"/><ellipse class="cast" cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,0.15)"/><g class="lift"><use href="#m2" fill="var(--fi-domain-life-fill)" stroke="#4A4238" stroke-width="1.5"/><use href="#ridge" stroke="#4A4238" stroke-width="0.75" fill="none" opacity="0.3"/></g></g><text class="lbl dim" x="190" y="364" text-anchor="middle" font-size="10" fill="var(--fi-ink-2)" style="font-family:'JetBrains Mono',ui-monospace,monospace">op://…/folding</text></g>
+        <g class="isl dim"><g transform="translate(420,130) scale(0.62)"><use href="#ring1" stroke="#BFCEDB" stroke-width="1.2" fill="none" opacity="0.8"/><use href="#ring2" stroke="#BFCEDB" stroke-width="1" fill="none" opacity="0.5"/><ellipse class="cast" cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,0.15)"/><g class="lift"><use href="#m1" fill="var(--fi-domain-matter-fill)" stroke="#4A4238" stroke-width="1.5"/><use href="#ridge" stroke="#4A4238" stroke-width="0.75" fill="none" opacity="0.3"/></g></g><text class="lbl dim" x="420" y="164" text-anchor="middle" font-size="10" fill="var(--fi-ink-2)" style="font-family:'JetBrains Mono',ui-monospace,monospace">op://…/coherence</text></g>
+        <g class="isl dim"><g transform="translate(330,250) scale(0.62)"><use href="#ring1" stroke="#BFCEDB" stroke-width="1.2" fill="none" opacity="0.8"/><use href="#ring2" stroke="#BFCEDB" stroke-width="1" fill="none" opacity="0.5"/><ellipse class="cast" cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,0.15)"/><g class="lift"><use href="#m3" fill="var(--fi-domain-math-fill)" stroke="#4A4238" stroke-width="1.5"/><use href="#ridge" stroke="#4A4238" stroke-width="0.75" fill="none" opacity="0.3"/></g></g><text class="lbl dim" x="330" y="284" text-anchor="middle" font-size="10" fill="var(--fi-ink-2)" style="font-family:'JetBrains Mono',ui-monospace,monospace">op://…/entropy</text></g>
+        <g class="isl dim"><g transform="translate(560,300) scale(0.62)"><use href="#ring1" stroke="#BFCEDB" stroke-width="1.2" fill="none" opacity="0.8"/><use href="#ring2" stroke="#BFCEDB" stroke-width="1" fill="none" opacity="0.5"/><ellipse class="cast" cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,0.15)"/><g class="lift"><use href="#m4" fill="var(--fi-domain-cross-fill)" stroke="#4A4238" stroke-width="1.5"/><use href="#ridge" stroke="#4A4238" stroke-width="0.75" fill="none" opacity="0.3"/></g></g><text class="lbl dim" x="560" y="334" text-anchor="middle" font-size="10" fill="var(--fi-ink-2)" style="font-family:'JetBrains Mono',ui-monospace,monospace">op://…/catalysis</text></g>
+        <g class="isl dim"><g transform="translate(470,380) scale(0.62)"><use href="#ring1" stroke="#BFCEDB" stroke-width="1.2" fill="none" opacity="0.8"/><use href="#ring2" stroke="#BFCEDB" stroke-width="1" fill="none" opacity="0.5"/><ellipse class="cast" cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,0.15)"/><g class="lift"><use href="#m1" fill="var(--fi-domain-cross-fill)" stroke="#4A4238" stroke-width="1.5"/><use href="#ridge" stroke="#4A4238" stroke-width="0.75" fill="none" opacity="0.3"/></g></g><text class="lbl dim" x="470" y="414" text-anchor="middle" font-size="10" fill="var(--fi-ink-2)" style="font-family:'JetBrains Mono',ui-monospace,monospace">op://…/emergence</text></g>
+      </svg></div>
+      <p class="pnote"><b>支持流虚焦成软背景，争议与所有头形保持锐利。</b>景深感最强、焦点最"跳"，但 blur 成本最高（每帧滤镜）。争议 ⊣ / 漩涡 ⊗ 不参与模糊。</p>
+    </div>
+  </div>
+
+  <!-- ================= list twin + floors ================= -->
+  <div class="row2">
+    <div class="card">
+      <h2>关系列表 · 焦点读法 <span class="en">list twin — space is never the only path</span></h2>
+      <div class="twinhead">关系 relations · <span class="foc">聚焦 6</span> · <span class="all">全部 12 ›</span> · <span>（海关掉也读得全 · invariant 5）</span></div>
+      <ul class="rel">
+        <li><span class="op">coherence</span><span>—contests<span class="tee">⊣</span></span><span class="op self">riemann</span><span class="m">· evidence · w1</span></li>
+        <li class="disp"><span class="op">folding</span><span>—contests<span class="tee">⊣</span></span><span class="op self">riemann</span><span class="m">· evidence · w1</span></li>
+        <li><span class="op">folding</span><span>—affirms→</span><span class="op self">riemann</span><span class="m">· evidence · w1</span></li>
+        <li><span class="op">entropy</span><span>—forks→</span><span class="op self">riemann</span><span class="m">· lineage · w2</span></li>
+        <li><span class="wp">⊗</span><span class="op self">riemann</span><span>↔</span><span class="op">coherence</span><span class="m">· disputed · w2</span></li>
+        <li><span class="wp">⊗</span><span class="op self">riemann</span><span>↔</span><span class="op">folding</span><span class="m">· disputed · w1</span></li>
+      </ul>
+      <p class="callout"><b>“聚焦 6 · 全部 12”</b> 是常驻可达点：列表孪生永远是通往全集的路由。<b>catalysis ⊣ emergence</b> 的争议此刻不在焦点列表内，但在画面右下角<b>始终可读</b>，点它即可把焦点移过去。</p>
+    </div>
+
+    <div class="card">
+      <h2>显著性下限 · 不是存在开关 <span class="en">salience floors, not on/off</span></h2>
+      <div class="floors">
+        <div class="floorrow"><span class="bar" style="width:120px;background:var(--fi-azurite);box-shadow:0 0 5px var(--fi-azurite)"></span><b>焦点流</b> 满 + 藤黄发光<span class="val">1.00 + glow</span></div>
+        <div class="floorrow"><span class="bar" style="width:74px;background:var(--fi-gamboge)"></span><b>非焦点 漩涡 ⊗</b><span class="val">floor .62</span></div>
+        <div class="floorrow"><span class="bar" style="width:70px;background:var(--fi-azurite)"></span><b>非焦点 争议 ⊣</b><span class="val">floor .58</span></div>
+        <div class="floorrow"><span class="bar" style="width:24px;background:var(--fi-azurite);opacity:.5"></span><b>非焦点 支持流</b><span class="val">floor .20</span></div>
+      </div>
+      <p class="callout">争议下限（.58–.62）≈ 支持流（.20）的 <b>3×</b>。这道差保证：<b>被降噪的从来不是争议</b>。焦点岛另戴 <b style="color:var(--fi-gamboge)">--fi-gamboge</b> 光环（token 本义即"聚焦/离群发光"）。</p>
+    </div>
+  </div>
+
+  <p class="foot"><b>诚实编码全程不变</b>（焦点只改显著性）：色+虚=类型 KIND · 头形=立场 SIGN（→支持 / ⊣争议，形状非颜色，色盲安全）· 淡实=成熟度 MATURITY · 宽=权重。焦点是 <code style="color:var(--fi-azurite-deep)">focusedIslandId</code> 状态的投影，非"画一条线"。仅用现有 <code style="color:var(--fi-azurite-deep)">--fi-*</code> token。</p>
+
+</div>
+</body>

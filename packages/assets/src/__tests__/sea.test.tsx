@@ -191,12 +191,17 @@ describe('RelationsList (关系列表 — invariant-5 list twin + focus reading)
     expect(onRiemann.whirlpools).toHaveLength(1); // R↔C dispute
   });
 
-  it('a focused list renders only the focused rows', () => {
+  it('a focused list keeps the FULL set reachable (parity), focused rows marked', () => {
     const markup = renderToStaticMarkup(
       <RelationsList currents={CURRENTS} whirlpools={WHIRLPOOLS} islands={ISLANDS} focusedIslandId={F} />,
     );
-    expect(rowCount(markup)).toBe(3);
+    // SALIENCE not filtering: every relation still rendered (parity), never removed
+    expect(rowCount(markup)).toBe(CURRENTS.length + WHIRLPOOLS.length);
+    // exactly the focused island's relations are marked focused
+    expect((markup.match(/data-focused="1"/g) ?? []).length).toBe(3);
+    // and a visible route back to the full set
     expect(markup).toContain('聚焦');
+    expect(markup).toContain('全部 5');
   });
 
   it('helpers: islandLabel strips to the slug; relationPhrase carries the sign', () => {

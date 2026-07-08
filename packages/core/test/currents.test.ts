@@ -122,4 +122,13 @@ describe("projectWhirlpools — a dispute storms between two islands (invariant 
       [RIEMANN, FOLDING],
     ]);
   });
+
+  it("a same-island refute is internal weather, not a sea whirlpool", () => {
+    // an island refuting its OWN claim (anchor === refuter) must not storm the sea
+    const selfRefute: LedgerEvent[] = [
+      { ...SEA_EVENTS[0]!, op: RIEMANN, action: "submit_claim", ref: SEA_REFS.R2 },
+      { ...SEA_EVENTS[0]!, op: RIEMANN, action: "refute", ref: SEA_REFS.R2 },
+    ];
+    expect(projectWhirlpools(selfRefute)).toHaveLength(0);
+  });
 });

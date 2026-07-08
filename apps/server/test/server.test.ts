@@ -39,6 +39,45 @@ describe("seed + chart", () => {
   });
 });
 
+describe("GET /api/currents — the sea plane over the real seeded ledger", () => {
+  it("emerges non-empty with real cross-island currents & whirlpools", async () => {
+    const res = await app.request("/api/currents");
+    const sea = await jsonOf(res);
+    // FIRST-DATA HONESTY: the base seed has no cross-island refs, so this is only
+    // non-empty because seedCrossIslandRelations wired real relations in.
+    expect(sea.currents.length).toBeGreaterThan(0);
+    expect(sea.whirlpools.length).toBeGreaterThan(0);
+    expect(sea.islands.length).toBe(27);
+  });
+
+  it("every current & whirlpool is genuinely BETWEEN two distinct islands", async () => {
+    const sea = await jsonOf(await app.request("/api/currents"));
+    for (const c of sea.currents) expect(c.from).not.toBe(c.to);
+    for (const w of sea.whirlpools) expect(w.between[0]).not.toBe(w.between[1]);
+  });
+
+  it("preserves the epistemic sign and bridge maturity end-to-end (invariant 8)", async () => {
+    const sea = await jsonOf(await app.request("/api/currents"));
+    const signs = new Set(sea.currents.map((c: any) => c.sign));
+    expect(signs.has("affirm")).toBe(true);
+    expect(signs.has("contest")).toBe(true);
+    const bridges = sea.currents.filter((c: any) => c.kind === "bridge");
+    expect(bridges.some((b: any) => b.maturity === "ratified")).toBe(true);
+    expect(bridges.some((b: any) => b.maturity === "proposed")).toBe(true);
+  });
+
+  it("islands carry a manifold vec and a null-safe substrate (place plane)", async () => {
+    const sea = await jsonOf(await app.request("/api/currents"));
+    for (const i of sea.islands) {
+      expect(i.vec).toHaveLength(2);
+      expect(i.substrate === null || (typeof i.substrate === "number" && i.substrate >= 0)).toBe(true);
+    }
+    // the sample island has no atlas score → no sea depth (honest absence)
+    const sample = sea.islands.find((i: any) => i.op.endsWith("/machine-curiosity"));
+    expect(sample.substrate).toBeNull();
+  });
+});
+
 describe("founding ceremony", () => {
   it("writes a valid problem object + verifiable ledger + nine stations", async () => {
     const res = await post("/api/islands", {

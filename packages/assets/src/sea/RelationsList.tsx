@@ -103,27 +103,57 @@ function IslandName({ op, onFocusIsland }: { op: string; onFocusIsland?: (op: st
   );
 }
 
+/** True when a current/whirlpool touches the focused island. */
+function touches(ops: readonly string[], focus?: string | null): boolean {
+  return focus != null && ops.includes(focus);
+}
+
 export function RelationsList({ currents, whirlpools, islands, focusedIslandId, onFocusIsland }: RelationsListProps) {
-  const shown = filterRelations(currents, whirlpools, focusedIslandId);
-  const total = shown.currents.length + shown.whirlpools.length;
+  const total = currents.length + whirlpools.length;
+  const focus = focusedIslandId ?? null;
+  const focusedCount = focus ? filterRelations(currents, whirlpools, focus).currents.length + filterRelations(currents, whirlpools, focus).whirlpools.length : 0;
+
+  // SALIENCE not filtering: render EVERY relation (the full set stays reachable —
+  // parity), but order the focused island's relations first and dim the rest.
+  const cRows = currents
+    .map((c, i) => ({ c, i, foc: touches([c.from, c.to], focus) }))
+    .sort((a, b) => Number(b.foc) - Number(a.foc));
+  const wRows = whirlpools
+    .map((w, i) => ({ w, i, foc: touches(w.between, focus) }))
+    .sort((a, b) => Number(b.foc) - Number(a.foc));
+
+  const rowStyleFor = (foc: boolean): React.CSSProperties => ({
+    ...rowStyle,
+    opacity: focus && !foc ? 0.42 : 1,
+    borderLeft: foc ? '2px solid var(--fi-lantern, #F5B94B)' : '2px solid transparent',
+    paddingLeft: 6,
+  });
 
   return (
-    <div
-      data-fi="relations-list"
-      style={{ fontFamily: "'PingFang SC',sans-serif", color: 'var(--fi-ink, #2B2620)' }}
-    >
+    <div data-fi="relations-list" style={{ fontFamily: "'PingFang SC',sans-serif", color: 'var(--fi-ink, #2B2620)' }}>
       <div style={{ fontSize: '11px', color: 'var(--fi-ink-2, #6B6154)', marginBottom: '4px' }}>
-        关系 relations · {total}
-        {focusedIslandId ? ` · 聚焦 ${islandLabel(focusedIslandId)}` : ''}
-        {' '}
-        <span style={{ color: 'var(--fi-ink-2, #6B6154)' }}>（海关掉也读得全 · invariant 5）</span>
+        {focus ? (
+          <span>
+            聚焦 <b style={{ color: 'var(--fi-ink, #2B2620)' }}>{islandLabel(focus)}</b> · {focusedCount} ·{' '}
+            <button
+              type="button"
+              onClick={onFocusIsland ? () => onFocusIsland(focus) : undefined}
+              style={{ font: 'inherit', background: 'none', border: 'none', color: 'var(--fi-azurite, #2E5E8C)', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
+            >
+              全部 {total}
+            </button>
+          </span>
+        ) : (
+          <span>关系 relations · {total}</span>
+        )}{' '}
+        <span>（海关掉也读得全 · invariant 5）</span>
       </div>
       <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-        {shown.currents.map((c, i) => {
+        {cRows.map(({ c, i, foc }) => {
           const { verb, glyph } = relationPhrase(c.kind, c.sign);
           const maturity = c.kind === 'bridge' && c.maturity ? ` · ${c.maturity}` : '';
           return (
-            <li key={`c${i}`} data-relrow="current" data-touches={`${c.from} ${c.to}`} style={rowStyle}>
+            <li key={`c${i}`} data-relrow="current" data-focused={foc ? '1' : '0'} data-touches={`${c.from} ${c.to}`} style={rowStyleFor(foc)}>
               {c.directed ? (
                 <>
                   <IslandName op={c.to} onFocusIsland={onFocusIsland} />
@@ -141,8 +171,8 @@ export function RelationsList({ currents, whirlpools, islands, focusedIslandId, 
             </li>
           );
         })}
-        {shown.whirlpools.map((w, i) => (
-          <li key={`w${i}`} data-relrow="whirlpool" data-touches={`${w.between[0]} ${w.between[1]}`} style={rowStyle}>
+        {wRows.map(({ w, i, foc }) => (
+          <li key={`w${i}`} data-relrow="whirlpool" data-focused={foc ? '1' : '0'} data-touches={`${w.between[0]} ${w.between[1]}`} style={rowStyleFor(foc)}>
             <span title="whirlpool" style={{ color: 'var(--fi-gamboge, #E3A93C)' }}>⊗</span>
             <IslandName op={w.between[0]} onFocusIsland={onFocusIsland} />
             <span>↔</span>
