@@ -46,6 +46,15 @@ describe('salience floors — SALIENCE not PRESENCE (E2)', () => {
     expect(SALIENCE.focused).toBe(1);
   });
 
+  it('floors are LIVE-tweakable params (currentSalience honors overrides)', () => {
+    const floors = { support: 0.5, contest: 0.91, whirlpool: 0.99 };
+    expect(currentSalience(affirm, other, floors)).toBe(0.5);
+    expect(currentSalience(contest, other, floors)).toBe(0.91);
+    // the shipped default aligns with the product (focusDim ~0.14, contest ~0.55–0.58)
+    expect(SALIENCE.floorSupport).toBeCloseTo(0.14);
+    expect(SALIENCE.floorContest).toBeGreaterThanOrEqual(0.55);
+  });
+
   it('dimmed ≠ absent: an unfocused contest still renders its tee head and ⊗ is present', () => {
     // focus an island unrelated to any contest current
     const markup = layer(OP('formal-math'));
@@ -87,6 +96,16 @@ describe('bidirectional focus — chart click and list click set the same id (E4
       const slug = i.op.split('/').pop()!;
       expect(OP(slug)).toBe(i.op); // the join key is identical on both sides
     }
+  });
+});
+
+describe('rendering gotcha defense — every token ref carries a hex fallback', () => {
+  it('no bare var(--fi-*) can black-render through a <use>/attribute boundary', () => {
+    // the design product hit solid-black islands from `fill="var(--x)"` (no fallback)
+    // not resolving through <use>. Our sea layer only ever uses var(--x, #hex).
+    const markup = layer(OP('living-wires')); // focus on → exercises the glow filter too
+    const bare = markup.match(/var\(--[a-z0-9-]+\)/gi); // var(--x) with NO fallback
+    expect(bare).toBeNull();
   });
 });
 
