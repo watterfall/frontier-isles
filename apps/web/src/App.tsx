@@ -110,7 +110,7 @@ export default function App() {
   useEffect(() => {
     if (!ceremony.riseUp) return;
     const name = ceremony.ritName ?? t('ceremony.unnamed');
-    const q = ritFocusText(ceremony);
+    const q = ritFocusText(ceremony, lang);
     const n = ceremony.ritLog.length;
     const slug = `isle-${Date.now()}`;
     // best-effort POST /api/islands (founding). The slug is locally generated;
@@ -169,7 +169,7 @@ export default function App() {
     (bridge: { formula: string; skeleton: { zh: string; en: string }; from: string; to: string }) => {
       const slug = `collide-${Date.now()}`;
       const name = `${bridge.formula} 之岛`;
-      const qfocus = `${bridge.formula} · ${bridge.skeleton.zh} · ${bridge.from} ↔ ${bridge.to}`;
+      const qfocus = `${bridge.formula} · ${bridge.skeleton[lang]} · ${bridge.from} ↔ ${bridge.to}`;
       void api.found({
         slug,
         title: name,

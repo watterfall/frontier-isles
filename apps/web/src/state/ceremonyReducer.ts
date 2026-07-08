@@ -7,7 +7,7 @@
  * reducer stays pure and testable; `formatLog` resolves them via i18next.
  */
 
-import { RITQ, RIT_RW } from '../api/fallback';
+import { RITQ, RIT_RW, type Bilingual } from '../api/fallback';
 
 export interface QMeta {
   open?: boolean;
@@ -20,8 +20,8 @@ export interface CeremonyLog {
   k: string;
   /** Interpolated count, where the message needs one. */
   n?: number;
-  /** Appended verbatim question text (user content), for the "add" entry. */
-  q?: string;
+  /** Appended verbatim question text (bilingual user content), for the "add" entry. */
+  q?: Bilingual;
 }
 
 export interface CeremonyState {
@@ -72,8 +72,8 @@ export function initialCeremony(): CeremonyState {
 }
 
 /** Display text of a candidate: rewritten → RIT_RW, else its RITQ text. */
-export function rtext(state: CeremonyState, i: number): string {
-  return state.ritMeta[i]?.rw ? RIT_RW : (RITQ[i] ?? '');
+export function rtext(state: CeremonyState, i: number, lang: 'zh' | 'en'): string {
+  return state.ritMeta[i]?.rw ? RIT_RW[lang] : (RITQ[i]?.[lang] ?? '');
 }
 
 /** The current top-voted candidate index (prototype `ritTop`). */
@@ -86,8 +86,8 @@ export function ritTop(state: CeremonyState): number {
 }
 
 /** The focused QFocus text (prototype `ritFocusText`). */
-export function ritFocusText(state: CeremonyState): string {
-  return rtext(state, state.ritFocus !== null ? state.ritFocus : ritTop(state));
+export function ritFocusText(state: CeremonyState, lang: 'zh' | 'en'): string {
+  return rtext(state, state.ritFocus !== null ? state.ritFocus : ritTop(state), lang);
 }
 
 export function ceremonyReducer(state: CeremonyState, action: CeremonyAction): CeremonyState {

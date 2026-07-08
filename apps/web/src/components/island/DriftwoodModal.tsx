@@ -39,8 +39,8 @@ export function DriftwoodModal({ onClose, driftDest, transTo, onMove, onToWorksh
             return (
               <div key={i} style={{ border: '1px solid rgba(58,52,43,0.35)', background: '#FDFAF1', borderRadius: 6, padding: '10px 14px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ flex: 1, fontSize: 13, color: '#2B2620', fontFamily: "'Noto Serif SC',serif", fontWeight: 600 }}>{it.t}</span>
-                  <span style={{ fontSize: 9.5, padding: '1.5px 7px', borderRadius: 999, border: '1px solid rgba(139,148,178,0.55)', color: '#6B7594' }}>{it.a}</span>
+                  <span style={{ flex: 1, fontSize: 13, color: '#2B2620', fontFamily: "'Noto Serif SC',serif", fontWeight: 600 }}>{it.t[lang]}</span>
+                  <span style={{ fontSize: 9.5, padding: '1.5px 7px', borderRadius: 999, border: '1px solid rgba(139,148,178,0.55)', color: '#6B7594' }}>{it.a[lang]}</span>
                 </div>
                 {idle && (
                   <div style={{ marginTop: 8 }}>

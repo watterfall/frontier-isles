@@ -13,9 +13,9 @@ export interface ListTwinProps {
 const TWIN_CHIPS = ['全部', '有 AI', '仅人类'] as const;
 
 /** Does an authorship string match the current filter? (prototype `fmatch`) */
-function matches(auth: string, f: string): boolean {
+function matches(auth: { zh: string; en: string }, f: string, lang: 'zh' | 'en'): boolean {
   if (f === '全部') return true;
-  const hasAI = auth.indexOf('AI') >= 0;
+  const hasAI = auth[lang].indexOf('AI') >= 0;
   return f === '有 AI' ? hasAI : !hasAI;
 }
 
@@ -45,12 +45,12 @@ export function ListTwin({ sel, stFilter, onStFilter, onStation }: ListTwinProps
         <div
           key={s.k}
           onClick={() => onStation(s.k)}
-          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7.5px 14px', cursor: 'pointer', background: sel === s.k ? 'rgba(227,169,60,0.18)' : 'transparent', opacity: matches(s.auth, stFilter) ? 1 : 0.3, transition: 'background .3s,opacity .3s' }}
+          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7.5px 14px', cursor: 'pointer', background: sel === s.k ? 'rgba(227,169,60,0.18)' : 'transparent', opacity: matches(s.auth, stFilter, lang) ? 1 : 0.3, transition: 'background .3s,opacity .3s' }}
         >
           <span style={{ width: 20, height: 20, borderRadius: 3, background: s.sealBg, color: '#F6F2E6', fontSize: 11, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Noto Serif SC',serif" }}>{s.glyph}</span>
           <span style={{ flex: 1, fontSize: 13, color: 'var(--inkT,#2B2620)' }}>{localizeStationZh(s.name, lang)}</span>
-          <span style={{ fontSize: 8.5, padding: '1px 6px', borderRadius: 999, border: '1px solid rgba(139,148,178,0.55)', color: 'var(--ink2,#6B6154)', whiteSpace: 'nowrap' }}>{s.auth}</span>
-          <span style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 10.5, color: 'var(--ink2,#6B6154)' }}>{s.count}</span>
+          <span style={{ fontSize: 8.5, padding: '1px 6px', borderRadius: 999, border: '1px solid rgba(139,148,178,0.55)', color: 'var(--ink2,#6B6154)', whiteSpace: 'nowrap' }}>{s.auth[lang]}</span>
+          <span style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 10.5, color: 'var(--ink2,#6B6154)' }}>{s.count[lang]}</span>
         </div>
       ))}
       <div style={{ padding: '8px 14px', borderTop: '0.75px solid var(--ink2,#6B6154)', fontSize: 10, color: 'var(--ink2,#6B6154)', fontFamily: "'JetBrains Mono',ui-monospace,monospace" }}>{t('island.twin.footer')}</div>

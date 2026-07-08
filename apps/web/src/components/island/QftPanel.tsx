@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { AUTHQ, type QuestionDatum } from '../../api/fallback';
+import { AUTHQ, SAMPLE_QFOCUS, type QuestionDatum } from '../../api/fallback';
 
 export interface QftPanelProps {
   open: boolean;
@@ -24,9 +24,10 @@ function ScrollRod() {
 }
 
 export function QftPanel({ open, onClose, qs, voted, focusIdx, advOn, onCloseAdv, onToggle, onVote, onFocus }: QftPanelProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
   const focusedOn = focusIdx !== null;
-  const focusText = focusIdx !== null ? qs[focusIdx]?.text ?? '' : '';
+  const focusText = focusIdx !== null ? qs[focusIdx]?.text[lang] ?? '' : '';
 
   return (
     <>
@@ -67,7 +68,7 @@ export function QftPanel({ open, onClose, qs, voted, focusIdx, advOn, onCloseAdv
             <span style={{ ...sealBase, background: '#B5673A', color: '#F6F2E6' }}>{t('panel.pinSeal')}</span>
             <div>
               <div style={{ fontSize: 10.5, color: '#8A6A1E', fontFamily: "'JetBrains Mono',ui-monospace,monospace", letterSpacing: '0.1em' }}>{t('panel.pinKicker')}</div>
-              <div style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 700, fontSize: 16, color: '#2B2620', marginTop: 2 }}>AI 能否提出一个人类没想到的好问题？</div>
+              <div style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 700, fontSize: 16, color: '#2B2620', marginTop: 2 }}>{SAMPLE_QFOCUS[lang]}</div>
             </div>
           </div>
 
@@ -104,15 +105,15 @@ export function QftPanel({ open, onClose, qs, voted, focusIdx, advOn, onCloseAdv
                     <div style={{ flex: 1 }}>
                       {q.rw && (
                         <div style={{ fontSize: 12, color: '#A89C88', textDecoration: 'line-through', marginBottom: 2 }}>
-                          {q.orig} <span style={{ textDecoration: 'none', color: '#8A6A1E' }}>{t('panel.rewriteTag')}</span>
+                          {q.orig?.[lang]} <span style={{ textDecoration: 'none', color: '#8A6A1E' }}>{t('panel.rewriteTag')}</span>
                         </div>
                       )}
-                      <div style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 600, fontSize: 14.5, color: '#2B2620', lineHeight: 1.5 }}>{q.text}</div>
+                      <div style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 600, fontSize: 14.5, color: '#2B2620', lineHeight: 1.5 }}>{q.text[lang]}</div>
                       {focused && <div style={{ marginTop: 4, fontSize: 11, color: '#8A6A1E' }}>{t('panel.focusCandidate')}</div>}
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 9, paddingLeft: 32 }}>
-                    <span style={{ fontSize: 9.5, padding: '2px 7px', borderRadius: 999, border: '1px solid rgba(139,148,178,0.55)', color: '#6B7594', whiteSpace: 'nowrap' }}>{AUTHQ[idx]}</span>
+                    <span style={{ fontSize: 9.5, padding: '2px 7px', borderRadius: 999, border: '1px solid rgba(139,148,178,0.55)', color: '#6B7594', whiteSpace: 'nowrap' }}>{AUTHQ[idx]?.[lang]}</span>
                     <span onClick={() => onToggle(idx)} style={{ cursor: 'pointer', fontSize: 11, padding: '2.5px 10px', borderRadius: 999, border: `1.2px solid ${q.open ? '#3E9B7E' : '#B5673A'}`, background: q.open ? 'rgba(62,155,126,0.1)' : '#B5673A', color: q.open ? '#2B7A5F' : '#F6F2E6', userSelect: 'none' }}>{q.open ? t('panel.open') : t('panel.closed')}</span>
                     {q.rw && <span style={{ fontSize: 11, padding: '2.5px 10px', borderRadius: 999, background: 'rgba(227,169,60,0.18)', color: '#8A6A1E', border: '1.2px solid #E3A93C' }}>{t('panel.rewritten')}</span>}
                     <span style={{ flex: 1 }} />

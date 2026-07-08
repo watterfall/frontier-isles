@@ -59,13 +59,13 @@ describe('ceremony reducer', () => {
     const focused = ceremonyReducer(base, { type: 'focus' });
     expect(focused.rit).toBe(4);
     expect(focused.ritFocus).toBe(2);
-    expect(ritFocusText(focused)).toBe(RITQ[2]);
+    expect(ritFocusText(focused, 'zh')).toBe(RITQ[2]?.zh);
   });
 
   it('rewrite swaps a candidate to the testable RIT_RW text', () => {
     const s = run([{ type: 'start' }, { type: 'ignite' }, { type: 'add', i: 1 }, { type: 'rewrite', qi: 1 }]);
     expect(s.ritMeta[1]?.rw).toBe(true);
-    expect(ritFocusText({ ...s, ritFocus: 1 })).toBe(RIT_RW);
+    expect(ritFocusText({ ...s, ritFocus: 1 }, 'zh')).toBe(RIT_RW.zh);
   });
 
   it('abort closes the ceremony but preserves the log', () => {

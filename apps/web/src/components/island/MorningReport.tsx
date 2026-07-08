@@ -26,7 +26,7 @@ export function MorningReport({ briefSt, onAdopt, onReturn }: MorningReportProps
         const st = briefSt[i] ?? 'pending';
         return (
           <div key={i} style={{ padding: '9px 14px', borderBottom: '0.75px solid rgba(107,97,84,0.25)' }}>
-            <div style={{ fontSize: 12, color: 'var(--inkT,#2B2620)', lineHeight: 1.5 }}>{b.t}</div>
+            <div style={{ fontSize: 12, color: 'var(--inkT,#2B2620)', lineHeight: 1.5 }}>{b.t[lang]}</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
               <span style={{ fontSize: 9.5, color: 'var(--ink2,#6B6154)' }}>{t('island.morning.dest', { dest: localizeStationZh(b.d, lang) })}</span>
               <span style={{ flex: 1 }} />

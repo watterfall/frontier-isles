@@ -43,7 +43,7 @@ describe('fallback data matches the curated atlas', () => {
   it('question 2 is a rewrite with the prototype vote count', () => {
     const q2 = QUESTIONS[1]!;
     expect(q2.rw).toBe(true);
-    expect(q2.orig).toBe('现有基准能测出提问能力吗？');
+    expect(q2.orig?.zh).toBe('现有基准能测出提问能力吗？');
     expect(q2.votes).toBe(8);
   });
 

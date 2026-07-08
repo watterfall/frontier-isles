@@ -12,8 +12,8 @@ import {
 } from '../../state/ceremonyReducer';
 
 /** Resolve a structured genesis-scroll entry to display text. */
-export function formatLog(entry: CeremonyLog, t: TFunction): string {
-  if (entry.k === 'add') return t('ceremony.log.addPrefix') + (entry.q ?? '');
+export function formatLog(entry: CeremonyLog, t: TFunction, lang: 'zh' | 'en'): string {
+  if (entry.k === 'add') return t('ceremony.log.addPrefix') + (entry.q?.[lang] ?? '');
   if (entry.k === 'close') return t('ceremony.log.close', { n: entry.n ?? 0 });
   return t(`ceremony.log.${entry.k}`);
 }
@@ -38,12 +38,13 @@ export interface CeremonyOverlayProps {
 }
 
 export function CeremonyOverlay({ state, dispatch, onAbort, onFinish }: CeremonyOverlayProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
   const rit = state.rit;
   const riseY = state.riseUp ? '0px' : '210px';
   const timer = `${Math.floor(state.ritSec / 60)}:${String(state.ritSec % 60).padStart(2, '0')}`;
   const nextOp = state.ritAdded.length >= 3 ? 1 : 0.35;
-  const cand = RITQ.map((text, i) => ({ text, i })).filter((c) => !state.ritAdded.includes(c.i));
+  const cand = RITQ.map((text, i) => ({ text: text[lang], i })).filter((c) => !state.ritAdded.includes(c.i));
   const nameShow = state.ritName ?? t('ceremony.unnamed');
 
   return (
@@ -89,7 +90,7 @@ export function CeremonyOverlay({ state, dispatch, onAbort, onFinish }: Ceremony
       {state.riseUp && (
         <div style={{ position: 'absolute', right: 150, top: 390, width: 320, textAlign: 'center' }}>
           <div style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 10, letterSpacing: '0.2em', color: '#F5B94B' }}>{t('ceremony.rise.kicker')}</div>
-          <div style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 700, fontSize: 17, color: '#E8E4D4', lineHeight: 1.6, marginTop: 6 }}>{ritFocusText(state)}</div>
+          <div style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 700, fontSize: 17, color: '#E8E4D4', lineHeight: 1.6, marginTop: 6 }}>{ritFocusText(state, lang)}</div>
           <div style={{ fontSize: 11, color: '#8B94B2', marginTop: 8 }}>{t('ceremony.rise.from', { name: nameShow })}</div>
         </div>
       )}
@@ -144,7 +145,7 @@ export function CeremonyOverlay({ state, dispatch, onAbort, onFinish }: Ceremony
             <div style={{ marginTop: 10, fontSize: 12, color: '#8B94B2' }}>{t('ceremony.ch1.note')}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12 }}>
               {state.ritAdded.map((qi, n) => (
-                <div key={qi} style={{ border: '1px solid rgba(139,148,178,0.4)', background: 'rgba(22,31,54,0.6)', borderRadius: 6, padding: '10px 14px', fontSize: 13.5, color: '#E8E4D4', fontFamily: "'Noto Serif SC',serif" }}>{n + 1} · {rtext(state, qi)}</div>
+                <div key={qi} style={{ border: '1px solid rgba(139,148,178,0.4)', background: 'rgba(22,31,54,0.6)', borderRadius: 6, padding: '10px 14px', fontSize: 13.5, color: '#E8E4D4', fontFamily: "'Noto Serif SC',serif" }}>{n + 1} · {rtext(state, qi, lang)}</div>
               ))}
             </div>
             <div style={{ marginTop: 14, fontSize: 11, color: '#8B94B2' }}>{t('ceremony.ch1.candLabel')}</div>
@@ -170,8 +171,8 @@ export function CeremonyOverlay({ state, dispatch, onAbort, onFinish }: Ceremony
                 const canRw = qi === 1 && !rw;
                 return (
                   <div key={qi} style={{ border: '1px solid rgba(139,148,178,0.4)', background: 'rgba(22,31,54,0.6)', borderRadius: 6, padding: '10px 14px' }}>
-                    {rw && <div style={{ fontSize: 11.5, color: '#5F6C8E', textDecoration: 'line-through' }}>{RITQ[qi]}</div>}
-                    <div style={{ fontSize: 13.5, color: '#E8E4D4', fontFamily: "'Noto Serif SC',serif" }}>{rtext(state, qi)}</div>
+                    {rw && <div style={{ fontSize: 11.5, color: '#5F6C8E', textDecoration: 'line-through' }}>{RITQ[qi]?.[lang]}</div>}
+                    <div style={{ fontSize: 13.5, color: '#E8E4D4', fontFamily: "'Noto Serif SC',serif" }}>{rtext(state, qi, lang)}</div>
                     <div style={{ display: 'flex', gap: 10, marginTop: 8, alignItems: 'center' }}>
                       <span onClick={() => dispatch({ type: 'toggleOpen', qi })} style={{ cursor: 'pointer', fontSize: 11, padding: '2px 10px', borderRadius: 999, border: `1px solid ${open ? '#3E9B7E' : '#C08054'}`, color: open ? '#7FC4AC' : '#E3A98A', userSelect: 'none' }}>{open ? t('panel.open') : t('panel.closed')}</span>
                       {canRw && <span onClick={() => dispatch({ type: 'rewrite', qi })} style={{ cursor: 'pointer', fontSize: 11, color: '#F5B94B', textDecoration: 'underline', textUnderlineOffset: 3, userSelect: 'none' }}>{t('ceremony.ch2.rewrite')}</span>}
@@ -195,7 +196,7 @@ export function CeremonyOverlay({ state, dispatch, onAbort, onFinish }: Ceremony
                 const votes = state.ritVotes[qi] ?? 0;
                 return (
                   <div key={qi} style={{ border: '1px solid rgba(139,148,178,0.4)', background: 'rgba(22,31,54,0.6)', borderRadius: 6, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span style={{ flex: 1, fontSize: 13.5, color: '#E8E4D4', fontFamily: "'Noto Serif SC',serif" }}>{rtext(state, qi)}</span>
+                    <span style={{ flex: 1, fontSize: 13.5, color: '#E8E4D4', fontFamily: "'Noto Serif SC',serif" }}>{rtext(state, qi, lang)}</span>
                     <span style={{ fontSize: 9, letterSpacing: 2, color: '#F5B94B' }}>{'●'.repeat(Math.min(votes, 10))}</span>
                     <span style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 12, color: '#F5B94B', minWidth: 14, textAlign: 'right' }}>{votes}</span>
                     <span onClick={() => dispatch({ type: 'vote', qi })} style={{ cursor: 'pointer', fontSize: 11, padding: '3px 12px', borderRadius: 5, border: '1px solid #F5B94B', color: '#F5B94B', userSelect: 'none' }}>{t('ceremony.ch3.vote')}</span>
@@ -213,7 +214,7 @@ export function CeremonyOverlay({ state, dispatch, onAbort, onFinish }: Ceremony
             <div style={chTitle}>{t('ceremony.ch4.title')}</div>
             <div style={{ marginTop: 14, border: '1.5px solid #F5B94B', background: 'rgba(245,185,75,0.1)', borderRadius: 6, padding: '14px 16px' }}>
               <div style={{ fontSize: 10.5, color: '#F5B94B', fontFamily: "'JetBrains Mono',ui-monospace,monospace", letterSpacing: '0.1em' }}>{t('ceremony.ch4.pinKicker')}</div>
-              <div style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 700, fontSize: 17, color: '#E8E4D4', marginTop: 4 }}>{ritFocusText(state)}</div>
+              <div style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 700, fontSize: 17, color: '#E8E4D4', marginTop: 4 }}>{ritFocusText(state, lang)}</div>
             </div>
             <div style={{ marginTop: 14, fontSize: 12, color: '#8B94B2' }}>{t('ceremony.ch4.nameLabel')}</div>
             <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
@@ -234,7 +235,7 @@ export function CeremonyOverlay({ state, dispatch, onAbort, onFinish }: Ceremony
       <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, background: 'rgba(20,27,48,0.92)', borderTop: '1px solid rgba(245,185,75,0.35)', padding: '10px 26px', display: 'flex', alignItems: 'center', gap: 14 }}>
         <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#F5B94B', flex: 'none', animation: 'pulseGlow 2.4s ease-in-out infinite', animationPlayState: 'var(--play,running)' as never }} />
         <span style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 600, fontSize: 12.5, color: '#F5B94B', whiteSpace: 'nowrap' }}>{t('ceremony.ticker', { n: state.ritLog.length })}</span>
-        <span style={{ flex: 1, fontSize: 11.5, color: '#8B94B2', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{state.ritLog.length ? formatLog(state.ritLog[state.ritLog.length - 1]!, t) : ''}</span>
+        <span style={{ flex: 1, fontSize: 11.5, color: '#8B94B2', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{state.ritLog.length ? formatLog(state.ritLog[state.ritLog.length - 1]!, t, lang) : ''}</span>
         <span style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 10, color: '#8B94B2', whiteSpace: 'nowrap' }}>{t('ceremony.tickerTail')}</span>
       </div>
     </div>
