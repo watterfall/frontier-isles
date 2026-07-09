@@ -11,7 +11,32 @@
 import { useEffect, useRef, useState } from 'react';
 import { SceneStage } from '@frontier-isles/renderer/pixi';
 import { worldToScreen } from '@frontier-isles/renderer';
+import { projectClaimState, type ClaimState } from '@frontier-isles/core';
+import type { ActionType, LedgerEvent } from '@frontier-isles/opp';
 import { buildSceneGraph, type LayoutInput } from './layout';
+
+/**
+ * A mock ledger for the demo island, reduced through projectClaimState (M4.3) so
+ * the claim buildings' floors/roof/ghost come from events, not a synth: one
+ * consensus claim (5 reproductions → roofed), one partially reproduced, one
+ * refuted (night ghost), one bare preprint.
+ */
+const DEMO_CLAIMS: ClaimState[] = (() => {
+  const ev: LedgerEvent[] = [];
+  let sec = 0;
+  const push = (op: string, action: ActionType, ref: string): void => {
+    ev.push({ ts: `2026-01-01T00:00:${String(++sec).padStart(2, '0')}.000Z`, op, actor: { id: 'github:demo', kind: 'human' }, credit: [], phase: 'A', action, ref });
+  };
+  push('op://demo', 'submit_claim', 'sha256:c1');
+  for (const o of ['b', 'c', 'd', 'e', 'f']) push(`op://${o}`, 'validate', 'sha256:c1'); // 5 → roofed
+  push('op://demo', 'submit_claim', 'sha256:c2');
+  push('op://b', 'validate', 'sha256:c2');
+  push('op://c', 'validate', 'sha256:c2'); // 2 reproductions
+  push('op://demo', 'submit_claim', 'sha256:c3');
+  push('op://b', 'refute', 'sha256:c3'); // refuted → ghost
+  push('op://demo', 'submit_claim', 'sha256:c4'); // bare preprint
+  return projectClaimState(ev);
+})();
 
 const DEMO: LayoutInput = {
   slug: 'machine-curiosity',
@@ -76,7 +101,7 @@ export default function PixiSceneHost({ input = DEMO }: { input?: LayoutInput })
       }
       stage = s;
       stageRef.current = s;
-      const graph = buildSceneGraph(input, t);
+      const graph = buildSceneGraph(input, t, DEMO_CLAIMS);
       s.render(graph);
       applyCam();
       s.buildSea(SEA_COLORS[input.domain] ?? SEA_COLORS['数理']!); // animated water plane (M2)

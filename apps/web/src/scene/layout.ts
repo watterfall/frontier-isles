@@ -14,7 +14,7 @@
  * (synthesised from eventCount in M1; real projectClaimState in M4), ghosts ←
  * ledger abandon/refute events.
  */
-import type { StationKind } from '@frontier-isles/core';
+import type { ClaimState, StationKind } from '@frontier-isles/core';
 import type { Domain } from '@frontier-isles/data';
 import {
   isoDepthKey,
@@ -119,11 +119,19 @@ function variantSeed(id: string): number {
 /** The input a layout needs — a superset of the generator's input. */
 export type LayoutInput = GenerateInput;
 
+/** One claim building's data-driven form (from projectClaimState, or synthesised). */
+interface ClaimSpec {
+  floors: number;
+  roof: boolean;
+  ghost?: ClaimState['ghost'];
+}
+
 /**
  * Build the SceneGraph for one island at day↔night slider `t`. Deterministic:
- * same input → same graph (the generator's seeded RNG + fixed tile tables).
+ * same input → same graph. `claims` (from `projectClaimState`, M4.3) drives claim
+ * buildings — floors/roof/ghost from the ledger; omitted → a deterministic synth.
  */
-export function buildSceneGraph(input: LayoutInput, t = 0): SceneGraph {
+export function buildSceneGraph(input: LayoutInput, t = 0, claims?: ClaimState[]): SceneGraph {
   const scene = generate(input);
   const objects: SceneObject[] = [];
 
@@ -160,11 +168,19 @@ export function buildSceneGraph(input: LayoutInput, t = 0): SceneGraph {
   const seed = Math.floor(variantSeed(input.slug) * 997);
   const tileKey = (gx: number, gy: number): string => `${gx},${gy}`;
 
+  // Claim buildings: from the ledger (projectClaimState, M4.3) if given, else synth.
+  const claimSpecs: ClaimSpec[] =
+    claims && claims.length > 0
+      ? claims.slice(0, CLAIM_TILES.length).map((c) => ({ floors: c.floors, roof: c.roof, ghost: c.ghost }))
+      : Array.from({ length: Math.min(CLAIM_TILES.length, Math.floor((input.eventCount ?? 0) / 4)) }, (_, i) => {
+          const f = Math.floor(variantSeed(`claim:${input.slug}:${i}`) * 4);
+          return { floors: f, roof: f >= 3 };
+        });
+
   // Building/scenery tiles are forced to land so nothing floats on the noisy coast.
-  const claimCount = Math.min(CLAIM_TILES.length, Math.floor((input.eventCount ?? 0) / 4));
   const forced = new Set<string>();
   for (const s of scene.stations) if (s.visible) forced.add(tileKey(STATION_TILES[s.kind].gx, STATION_TILES[s.kind].gy));
-  for (let i = 0; i < claimCount; i++) forced.add(tileKey(CLAIM_TILES[i]!.gx, CLAIM_TILES[i]!.gy));
+  for (let i = 0; i < claimSpecs.length; i++) forced.add(tileKey(CLAIM_TILES[i]!.gx, CLAIM_TILES[i]!.gy));
   scene.scenery.forEach((_, i) => forced.add(tileKey(SCENERY_TILES[i % SCENERY_TILES.length]!.gx, SCENERY_TILES[i % SCENERY_TILES.length]!.gy)));
   scene.ghosts.forEach((_, i) => forced.add(tileKey(CLAIM_TILES[(i + 3) % CLAIM_TILES.length]!.gx, CLAIM_TILES[(i + 3) % CLAIM_TILES.length]!.gy)));
 
@@ -186,15 +202,15 @@ export function buildSceneGraph(input: LayoutInput, t = 0): SceneGraph {
     push(`station:${s.kind}`, `station:${s.kind}`, tile.gx, tile.gy, 'world', { height, elevation: elev(tile.gx, tile.gy) });
   }
 
-  // ── claim growth-bodies (world layer) — floors bound to reproductions ───────
-  for (let i = 0; i < claimCount; i++) {
+  // ── claim growth-bodies (world layer) — floors/roof/ghost from the ledger ────
+  claimSpecs.forEach((spec, i) => {
     const tile = CLAIM_TILES[i]!;
-    const s = variantSeed(`claim:${input.slug}:${i}`);
-    const floors = Math.floor(s * 4); // 0..3 reproductions (M1 synth; M4.3 = projectClaimState)
-    const growth: Growth = { foundation: true, floors, roof: floors >= 3 };
-    const height = 16 + floors * 12; // base + one storey per reproduction (P1)
-    push(`claim:${i}`, 'claim', tile.gx, tile.gy, 'world', { growth, height, elevation: elev(tile.gx, tile.gy) });
-  }
+    const growth: Growth = { foundation: true, floors: spec.floors, roof: spec.roof };
+    const height = 16 + spec.floors * 12; // base + one storey per reproduction (P1)
+    // A refuted/returned claim (ghost) shows only at night (P5 — never deleted).
+    const night = spec.ghost ? { dayVisibility: 0, nightVisibility: 1 } : {};
+    push(`claim:${i}`, 'claim', tile.gx, tile.gy, 'world', { growth, height, elevation: elev(tile.gx, tile.gy), ...night });
+  });
 
   // ── scenery (world layer) — kinds bound to domain ──────────────────────────
   scene.scenery.forEach((sc, i) => {

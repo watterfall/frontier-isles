@@ -68,6 +68,23 @@ describe('buildSceneGraph', () => {
     expect(front.depthKey).toBeGreaterThan(back.depthKey);
   });
 
+  it('drives claim buildings from projectClaimState when claims are given (M4.3)', () => {
+    const claims = [
+      { ref: 'sha256:a', island: 'op://x', foundation: true, floors: 5, roof: true, hasDoi: false, activity: 6 },
+      { ref: 'sha256:b', island: 'op://x', foundation: true, floors: 1, roof: false, hasDoi: false, activity: 2 },
+      { ref: 'sha256:c', island: 'op://x', foundation: true, floors: 0, roof: false, ghost: 'refuted' as const, hasDoi: false, activity: 2 },
+    ];
+    const g = buildSceneGraph(base, 0, claims);
+    const cs = g.objects.filter((o) => o.kind === 'claim');
+    expect(cs).toHaveLength(3);
+    // Height binds to floors: the 5-floor claim is taller than the 1-floor one.
+    const byId = (i: number) => cs.find((o) => o.id === `claim:${i}`)!;
+    expect(byId(0).height!).toBeGreaterThan(byId(1).height!);
+    expect(byId(0).growth).toMatchObject({ floors: 5, roof: true });
+    // The refuted claim is a night-only ghost (day 0 / night 1).
+    expect(byId(2)).toMatchObject({ dayVisibility: 0, nightVisibility: 1 });
+  });
+
   it('carries the day↔night slider t through unchanged', () => {
     expect(buildSceneGraph(base, 0).t).toBe(0);
     expect(buildSceneGraph(base, 0.5).t).toBe(0.5);

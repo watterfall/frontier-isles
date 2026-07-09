@@ -73,3 +73,7 @@ export type {
 // Sea-plane projections (depth-plan-v2 §3 — currents & whirlpools)
 export { projectCurrents, projectWhirlpools } from "./currents";
 export type { Current, CurrentKind, CurrentSign, CurrentMaturity, Whirlpool } from "./currents";
+
+// Per-claim building state (scene-upgrade M4.3 — foundation/floors/roof/ghost)
+export { projectClaimState, CONSENSUS_MIN } from "./claims";
+export type { ClaimState } from "./claims";
