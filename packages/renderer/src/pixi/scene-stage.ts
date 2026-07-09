@@ -25,6 +25,8 @@ export interface SceneStageOptions {
   antialias?: boolean;
   resolution?: number;
   preference?: 'webgl' | 'webgpu';
+  /** Auto-size the canvas to this element (or window) and follow its resizes. */
+  resizeTo?: HTMLElement | Window;
 }
 
 /** Resolves a scene object to a texture; return null to fall back to a flat diamond. */
@@ -119,6 +121,7 @@ export class SceneStage {
     const isCanvas = typeof HTMLCanvasElement !== 'undefined' && target instanceof HTMLCanvasElement;
     await app.init({
       canvas: isCanvas ? (target as HTMLCanvasElement) : undefined,
+      resizeTo: opts.resizeTo,
       width: opts.width ?? 1280,
       height: opts.height ?? 720,
       background: opts.background ?? 0x000000,
@@ -132,7 +135,12 @@ export class SceneStage {
       // ticker returns in M5 for micro-dynamics.
       autoStart: false,
     });
-    if (!isCanvas) target.appendChild(app.canvas);
+    if (!isCanvas) {
+      app.canvas.style.display = 'block';
+      app.canvas.style.width = '100%';
+      app.canvas.style.height = '100%';
+      target.appendChild(app.canvas);
+    }
     // Paint order: sky (back) → scene content (sea/world/fog) → ui (front).
     app.stage.addChild(this.skyBackdrop, this.sceneContent, this.uiLayer);
     this.app = app;

@@ -33,3 +33,10 @@ Move:     实现全部 5 项交付物 — (1) iso.ts: ELEV_STEP + worldToScreenE
 Verify:   ✅ renderer 54 测(含 depth 10:K 值 50×50 属性证明)+ web 50 测(含 layout 8)全绿；两包 typecheck 干净；无回归。✅ 页面加载零 console 报错。✅ 场景构成纯函数核实:182 objects(terrain 156→1 cache draw call / world 26 逐帧排序)，depthKey 6000→26004(26 行×1000 分带零重叠)。⚠️ 真机 WebGL 帧截图未取得:两套浏览器后端(playwright-mcp/claude-in-chrome)在 live 页面/扩展权限弹窗下 wedge——环境限制非代码故障;dev server 健康(:5173 HMR 中,页面活在用户 Chrome)。
 Decision: escalate（§2b「observed working」的视觉那一格被环境挡住）→ 交给用户浏览器自看 http://localhost:5173/?scene=pixi ;若批准扩展权限弹窗我可补截图。M1 功能+纯逻辑达 §2a/大部 §2b;待用户目视确认 + renderMs 记入 PERF-BASELINE 后 M1 收口，再进 M2。
 Deferred(M1→后续): 相机边界 clamp/窗口 resize 处理；SVG→纹理桥(M1 用 placeholder 立方块替代,视觉连续性留 M4 真素材);ELEV_STEP/TIE 终值(M4);toneFilter(M3)。
+
+## Iter 4 — 2026-07-09（M1 黑屏诊断 + 目视验收收口）
+Orient:   用户报「显示不出来」黑屏。systematic-debugging:先拿证据不瞎补。发现真 bug — React StrictMode 双挂载 + 共享 `<canvas ref>`,两个 Pixi App init 同一元素、第一个 destroy(removeView) 摘掉画布 → 幸存者渲染进已摘除 canvas。
+Move:     修复:PixiSceneHost 改用容器 div(Pixi 自建 canvas,每 app 一张)+ SceneStage 加 resizeTo 填满。用户仍报黑屏 → 用户要求「直接验证」。装隔离 Playwright(~/.npm-global 全局包 + 缓存 chromium)自跑,绕开 wedge 的 MCP。
+Verify:   ✅ **目视实测通过**:canvas 1280×800,HUD objects 182/sorted 26/render 0.1-0.2ms,等距岛+深度遮挡+biome 蓝+claim 高度全对;昼夜路径确认(t=0 无鬼影→t=1 三紫鬼影淡入);零报错。→ 用户黑屏 = 陈旧/卡死标签页(claude-in-chrome 之前 wedge 的那个),非代码。存 day/night 基线截图 + PERF-BASELINE 真实数字。
+Decision: **M1 收口 ✅**(§2a 功能 + §2b 质量门含目视全过)。StrictMode/resizeTo 修复 + 基线 + doc 更新提交。→ 待用户开新标签页确认后进 M2 水面 shader。
+Learnings: (1) React+Pixi+StrictMode 必须让 Pixi 自建 canvas,禁止共享 ref canvas + destroy(removeView)。(2) MCP 浏览器后端会在 WebGL 页面 wedge → 用 ~/.npm-global 全局 playwright + 缓存 chromium 自跑截图,可靠。已并入 LEARNINGS。

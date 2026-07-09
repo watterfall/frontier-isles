@@ -28,7 +28,7 @@ const DEMO: LayoutInput = {
 const clamp = (v: number, lo: number, hi: number): number => Math.max(lo, Math.min(hi, v));
 
 export default function PixiSceneHost({ input = DEMO }: { input?: LayoutInput }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const hostRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<SceneStage | null>(null);
   const cam = useRef({ ...worldToScreen(8, 8), zoom: 0.75 }); // island centre (tile 8,8)
   const drag = useRef<{ x: number; y: number } | null>(null);
@@ -45,14 +45,18 @@ export default function PixiSceneHost({ input = DEMO }: { input?: LayoutInput })
 
   // Boot once. StrictMode double-invokes effects, so guard init/destroy.
   useEffect(() => {
-    const el = canvasRef.current;
+    const el = hostRef.current;
     if (!el) return;
     let disposed = false;
     let stage: SceneStage | null = null;
     void (async () => {
       const s = new SceneStage();
       try {
-        await s.init(el, { width: el.clientWidth || 1280, height: el.clientHeight || 720, background: 0x0e1420, backgroundAlpha: 1 });
+        // Pass the host DIV (not a shared canvas): Pixi creates its own canvas so
+        // StrictMode's double-mount can't init two apps onto one element and then
+        // have the first destroy(removeView) tear the canvas out from under the
+        // survivor. resizeTo fills + follows the container.
+        await s.init(el, { resizeTo: el, background: 0x0e1420, backgroundAlpha: 1 });
       } catch (e) {
         if (!disposed) setErr(String(e));
         return;
@@ -110,15 +114,14 @@ export default function PixiSceneHost({ input = DEMO }: { input?: LayoutInput })
   };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: '#0e1420' }}>
-      <canvas
-        ref={canvasRef}
-        style={{ width: '100%', height: '100%', display: 'block', touchAction: 'none', cursor: drag.current ? 'grabbing' : 'grab' }}
-        onWheel={onWheel}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-      />
+    <div
+      ref={hostRef}
+      style={{ position: 'fixed', inset: 0, background: '#0e1420', touchAction: 'none', cursor: 'grab' }}
+      onWheel={onWheel}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+    >
       {err && (
         <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', color: '#e8e8f0', font: '14px system-ui', padding: 24, textAlign: 'center' }}>
           WebGL unavailable — the Pixi scene needs a GPU context.<br />

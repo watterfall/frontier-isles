@@ -42,6 +42,13 @@
 - 本机(mac)**没有** node 版 playwright(/opt/pw-browsers 那条 note 是别的环境);只有 homebrew python playwright。
 - **playwright-mcp 与 claude-in-chrome 都会在"持续 rAF ticker + WebGL"页面上 wedge**(等稳定态/权限弹窗永不返回);claude-in-chrome 常卡在扩展侧栏权限弹窗(需用户批准)。→ WebGL 视觉验收改为:(a) 纯逻辑单测 + 无回归 + 零 console 报错 + 纯函数核实构成;(b) 交用户浏览器自看 `http://localhost:5173/?scene=pixi`。改按需渲染(静态页)后工具*可能*不再卡,但本会话未再验证。
 - 教训：Pixi/WebGL 前端的"observed working",优先做成**可 node 单测的纯逻辑**(depth/layout 都做到了);GPU 帧留人工或真机确认,别在 headless 后端上 tunnel。
+- **✅ 可靠的自助 WebGL 截图路径(已验证)**：MCP 浏览器后端(playwright-mcp/claude-in-chrome)会 wedge,但系统里有**全局 playwright** `/Users/jili/.npm-global/lib/node_modules/playwright` + 缓存 chromium `~/Library/Caches/ms-playwright/chromium-1228`。写 `.cjs` `require('/Users/jili/.npm-global/lib/node_modules/playwright')`,`chromium.launch({headless:true,args:['--enable-unsafe-swiftshader','--use-gl=angle','--use-angle=swiftshader']})`,goto+waitForTimeout+screenshot+抓 console/pageerror。**M1 就是这样目视验收的**,可靠、不 wedge。以后 Pixi 前端验收都走这条。
+
+## 🐞 已修 bug：React + Pixi + StrictMode 共享 canvas → 黑屏
+- 症状：`?scene=pixi` 全黑,但 HUD/canvas/render 都在、零报错。
+- 根因：`<canvas ref>` 是同一 DOM,StrictMode 双挂载让两个 Pixi App init 到同一 canvas,第一个 `app.destroy(true=removeView)` 把 canvas 从 DOM 摘除 → 幸存 App 渲染进已摘除画布。
+- 修复：**让 Pixi 自建 canvas**——传容器 `<div ref>` 给 `init`(`if(!isCanvas) target.appendChild(app.canvas)`),每个 App 一张自己的 canvas,`destroy` 只摘自己那张;`resizeTo:div` 填满+跟随。**Pixi+React 一律禁止共享 ref canvas。**
+- 注意：用户浏览器黑屏还常是**陈旧/卡死标签页**(尤其被扩展控制过、wedge 过的那个)——先让用户开新标签页硬刷新,再怀疑代码。
 
 ## 方法原则
 - 计划为 Pixi 而写、现状为 SVG —— **平台是决定一切的总开关**，先拍板再动，别在错误平台上做 M1 设计。

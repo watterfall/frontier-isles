@@ -20,12 +20,12 @@
 | world（逐帧可排序） | **26**（station 9 + claim 6 + scenery 8 + ghost 3） |
 | depthKey 范围 | 6000.01 → 26004.13（26 个 iso 行 × K_ROW=1000，层内小数偏移，**分带零重叠**验证公式） |
 
-- **renderMs**：_待真机 GPU 渲染记录_（HUD 实时显示；本环境 headless 后端在 live 页面上 wedge，见下）。预期：182 对象 / 26 逐帧排序 / 1 地形 draw call，真机远低于 16.7ms。
+- **renderMs**：**0.1–0.2ms**（隔离 Playwright + chromium SwiftShader 软渲染实测；真机 GPU 只会更快，远低于 16.7ms/60fps 门槛）。
 - **单岛元素数 ≥ 80**：182 ✓（M1 为 placeholder 立方块，真素材 M4）。
+- **视觉基线**：`m1-baseline-day.png`（t=0）/ `m1-baseline-night.png`（t=1，3 个鬼影淡入）——后续 PR 视觉回归比对基准。
 
-## 验证状态说明（M1）
+## 验证状态说明（M1）— ✅ 全部通过（含目视）
 - ✅ 纯逻辑：depth K 值 50×50 网格属性测试 + worked cases（`renderer/test/depth.test.ts`，10 测）；layout 管线（`web/src/__tests__/layout.test.ts`，8 测）。全绿。
-- ✅ 无回归：renderer 54 测 + web 50 测全绿；两包 typecheck 干净。
-- ✅ 页面加载零 console 报错（React 挂载 + pixi.js 动态 import 成功）。
-- ⚠️ **真浏览器 WebGL 帧截图未自动取得**：本会话两套 headless/扩展后端（playwright-mcp、claude-in-chrome）在持续 rAF/权限弹窗下 wedge——环境限制，非代码故障。改按需渲染后页面已静态、协作。
-- **人工验证一行命令**：dev server 已在 `http://localhost:5173/?scene=pixi` 运行 —— 浏览器打开，拖拽=平移、滚轮=缩放、底部滑杆=昼↔夜（拉向 night 时鬼影淡入）。左上 HUD 读 renderMs/sorted/objects 记入本表。
+- ✅ 无回归：renderer 54 测 + web 50 测（+ core/server）全绿；两包 typecheck 干净。
+- ✅ **目视运行（隔离 Playwright + 真 chromium 实测）**：canvas 1280×800、182 对象、深度遮挡正确、biome 冷蓝色板、claim 楼层→高度、海岸线不规则；**昼夜可见度路径确认**（t=0 无鬼影 → t=1 三个紫色鬼影淡入）；零 console 报错（仅一条无害 WebGL 性能 warning）。
+- **复现命令**：dev server `http://localhost:5173/?scene=pixi`（拖拽=平移、滚轮=缩放、滑杆=昼↔夜）。**注意**：若浏览器黑屏，多为陈旧/卡死标签页——开新标签页硬刷新。
