@@ -48,8 +48,19 @@ export interface SceneStageOptions {
   resizeTo?: HTMLElement | Window;
 }
 
+/**
+ * A resolved sprite: the baked texture plus how it registers to its tile.
+ * `anchor` is the fraction of the texture that sits on the tile ground-point
+ * (the art's shadow centre), `scale` maps baked pixels → scene units.
+ */
+export interface ResolvedTexture {
+  texture: Texture;
+  anchor?: { x: number; y: number };
+  scale?: number;
+}
+
 /** Resolves a scene object to a texture; return null to fall back to a flat diamond. */
-export type TextureResolver = (o: SceneObject) => Texture | null | undefined;
+export type TextureResolver = (o: SceneObject) => Texture | ResolvedTexture | null | undefined;
 
 /** zIndex floor for the static terrain bed so it always draws under dynamic objects. */
 const TERRAIN_Z = -1e9;
@@ -216,15 +227,27 @@ export class SceneStage {
    * scaffolding; the 36-primitive kit replaces it in M4.
    */
   private makeNode(o: SceneObject, resolve?: TextureResolver): Container {
-    const tex = resolve?.(o);
-    if (tex) {
-      const s = new Sprite(tex);
+    const r = resolve?.(o);
+    if (r) {
+      const tex = r instanceof Texture ? r : r.texture;
+      const anchor = (r instanceof Texture ? undefined : r.anchor) ?? { x: 0.5, y: 0.85 };
+      const scl = (r instanceof Texture ? undefined : r.scale) ?? 1;
       const p = worldToScreenElevated(o.gx, o.gy, o.elevation);
-      s.x = p.x;
-      s.y = p.y;
-      s.label = o.id;
-      return s;
+      const c = new Container();
+      const spr = new Sprite(tex);
+      spr.anchor.set(anchor.x, anchor.y);
+      spr.scale.set(scl);
+      // Contact shadow (advisory): grounds the sprite so it doesn't read as
+      // pasted. A soft ellipse at the tile point, under the art's own foot.
+      const shW = Math.max(6, spr.width * 0.34);
+      const shadow = new Graphics().ellipse(0, 0, shW, shW * 0.42).fill({ color: 0x241c10, alpha: 0.22 });
+      c.addChild(shadow, spr);
+      c.x = p.x;
+      c.y = p.y;
+      c.label = o.id;
+      return c;
     }
+    if (o.kind === 'claim') return this.makeClaimMark(o);
     // diamondPoints is elevation-0 screen space; the elevation lift is applied
     // per case below (terrain columns vs objects standing on their tile).
     const pts = diamondPoints(o.gx, o.gy);
@@ -250,6 +273,38 @@ export class SceneStage {
     }
     g.label = o.id;
     return g;
+  }
+
+  /**
+   * A claim as a small illustrated BUILDING — INTERIM (option C stopgap): claims
+   * have no design-system mockup of their own yet, so they borrow the station
+   * grammar (cream wall + domain roof + ink outline + contact shadow) until the
+   * design loop delivers a claim-specific form. Height binds to independent
+   * reproductions (floors ← ledger); a consensus roof gets a ridge + flag; a
+   * refuted claim reads as a pale night ghost. Every dimension binds to data (P1).
+   */
+  private makeClaimMark(o: SceneObject): Container {
+    const pts = diamondPoints(o.gx, o.gy);
+    const cx = (pts[0]!.x + pts[2]!.x) / 2;
+    const cy = (pts[0]!.y + pts[2]!.y) / 2;
+    const lift = o.elevation * ELEV_STEP;
+    const floors = Math.max(0, o.growth?.floors ?? 0);
+    const roof = o.growth?.roof ?? false;
+    const ghost = o.dayVisibility === 0;
+    // A claim hut is smaller than a civic station: shrink the tile diamond.
+    const sp = pts.map((p) => ({ x: cx + (p.x - cx) * 0.6, y: cy + (p.y - cy) * 0.6 }));
+    const height = 13 + floors * 11; // base + one storey per reproduction (P1)
+    const wall = ghost ? 0x37436a : 0xf3ead2; // --wall cream (night → deep)
+    const roofCol = ghost ? 0x3a4468 : claimRoof(o.biome); // domain roof
+    const ink = ghost ? 0x8e99be : 0x3a342b;
+    const c = new Container();
+    const shW = Math.max(8, (sp[1]!.x - sp[3]!.x) * 0.5);
+    c.addChild(new Graphics().ellipse(cx, cy - lift, shW, shW * 0.42).fill({ color: 0x241c10, alpha: ghost ? 0.1 : 0.2 }));
+    const g = new Graphics();
+    drawIsoBuilding(g, sp, lift, height, wall, roofCol, ink, roof && !ghost);
+    c.addChild(g);
+    c.label = o.id;
+    return c;
   }
 
   /**
@@ -509,33 +564,92 @@ function drawIsoBox(
   g.poly([T.x, ty(T), R.x, ty(R), B.x, ty(B), L.x, ty(L)]).fill({ color: shade(color, 0.12) });
 }
 
-/** Biome base tint so the four domains read apart at a glance (M1; M4 adds material). */
-function biomeTint(biome: string): number {
-  switch (biome) {
-    case '数理':
-      return 0x9fb0c8; // cool stone/blue
-    case '物质':
-      return 0xc8a06b; // warm bronze
-    case '生命':
-      return 0x8fbf7a; // verdant
-    case '交叉':
-      return 0xb79fd0; // cross violet
-    default:
-      return 0xb0a080;
+/**
+ * A small illustrated building: cream walls (two shaded front faces) + a domain
+ * roof (top face) + ink outline. `crown` adds a consensus ridge + flag. The
+ * interim claim vocabulary (option C) reusing the station look until a claim
+ * design lands in the design system.
+ */
+function drawIsoBuilding(
+  g: Graphics,
+  pts: readonly { x: number; y: number }[],
+  lift: number,
+  height: number,
+  wall: number,
+  roof: number,
+  ink: number,
+  crown: boolean,
+): void {
+  const [T, R, B, L] = pts as [
+    { x: number; y: number },
+    { x: number; y: number },
+    { x: number; y: number },
+    { x: number; y: number },
+  ];
+  const gy = (p: { y: number }): number => p.y - lift;
+  const ty = (p: { y: number }): number => p.y - lift - height;
+  g.poly([L.x, gy(L), B.x, gy(B), B.x, ty(B), L.x, ty(L)]).fill({ color: shade(wall, -0.16) }).stroke({ color: ink, width: 1, alpha: 0.85 });
+  g.poly([B.x, gy(B), R.x, gy(R), R.x, ty(R), B.x, ty(B)]).fill({ color: shade(wall, -0.05) }).stroke({ color: ink, width: 1, alpha: 0.85 });
+  g.poly([T.x, ty(T), R.x, ty(R), B.x, ty(B), L.x, ty(L)]).fill({ color: roof }).stroke({ color: ink, width: 1, alpha: 0.85 });
+  if (crown) {
+    // Consensus: a lit roof ridge + a small flag at the back peak.
+    g.moveTo(T.x, ty(T)).lineTo(B.x, ty(B)).stroke({ color: shade(roof, 0.45), width: 1.5 });
+    g.moveTo(T.x, ty(T)).lineTo(T.x, ty(T) - 15).stroke({ color: ink, width: 1.2 });
+    g.poly([T.x, ty(T) - 15, T.x + 11, ty(T) - 12, T.x, ty(T) - 9]).fill({ color: 0xe0a93a });
   }
 }
 
-/** Ground tint per biome, lightened with elevation. */
+/** Domain roof colour for the interim claim building (DOMAIN_COLORS ink values). */
+function claimRoof(biome: string): number {
+  switch (biome) {
+    case '数理':
+      return 0x2e5e8c;
+    case '物质':
+      return 0xb5673a;
+    case '生命':
+      return 0x2b7a5f;
+    case '交叉':
+      return 0xa08428;
+    default:
+      return 0x8a7a4a;
+  }
+}
+
+/**
+ * Un-textured station tint — warm cream wall tones (design-system palette:
+ * `--wall #F8F1DE`; day is warm parchment, NOT the earlier cool/bronze). A
+ * subtle per-domain warmth; the domain really reads via the (textured) roof.
+ */
+function biomeTint(biome: string): number {
+  switch (biome) {
+    case '数理':
+      return 0xe6e0cf;
+    case '物质':
+      return 0xece0c2;
+    case '生命':
+      return 0xe2e6cc;
+    case '交叉':
+      return 0xe8e0c8;
+    default:
+      return 0xece2c8;
+  }
+}
+
+/**
+ * Ground tint per biome — VERBATIM the design-system `--ground` day values
+ * (DOMAIN_SCENE_VARS in packages/assets): warm parchment, not gray-green.
+ * Elevation lightens subtly so cliff tops read.
+ */
 function groundTint(biome: string, elevation: number): number {
   const base =
-    biome === '数理' ? 0x8f9a7e : biome === '物质' ? 0x94916b : biome === '生命' ? 0x6f9e5f : 0x7f8f77;
-  return elevation >= 1 ? shade(base, 0.1 * elevation) : base;
+    biome === '数理' ? 0xe0dbc8 : biome === '物质' ? 0xe8d6a8 : biome === '生命' ? 0xd2e0b8 : 0xddd0ac;
+  return elevation >= 1 ? shade(base, 0.06 * elevation) : base;
 }
 
 /** A fallback colour for untextured objects, tinted by kind + biome. */
 function placeholderColor(o: SceneObject): number {
   if (o.layer === 'terrain') return groundTint(o.biome, o.elevation);
-  if (o.layer === 'sea') return 0x3f6f8f;
+  if (o.layer === 'sea') return 0xbccedc; // pale domain water (--water 数理), not deep teal
   if (o.kind.startsWith('ghost:')) return 0x8a86b8;
   if (o.kind.startsWith('scenery:')) return shade(groundTint(o.biome, 0), 0.15);
   if (o.kind === 'claim') return 0xd8c98a;

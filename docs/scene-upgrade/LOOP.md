@@ -74,3 +74,17 @@ Move:     core 新 `claims.ts`:`projectClaimState(events)` 按 ref 分组→foun
 Verify:   ✅ core claims 10 测(去重/自证不算/≥5 封顶/鬼影/publish/非claim排除/确定性)。✅ web layout +1 测(claims 驱动高度+ghost)。全量:core 37/web 51/server 19/renderer 54 全绿;typecheck 干净。✅ 目视:c1(5复现)最高塔、c2(2)中、c4(0)矮、c3(refute)白天隐藏——楼高=复现数,看图读状态成立。存 m4_3-baseline-claims.png。
 Decision: **M4.3 收口 ✅**。提交。→ 进 M4.2 建筑积木化(36+ Pixi Graphics 参数化件 + 组合器 + 邻接白名单,最大子步)。
 Deferred(M4.3→后续): openReview 徽记无对应 verb(暂缺);真实 web 账本接入(demo 用 mock,线上接 ledger 时替换);activity→萤火密度(M8)。
+
+## Iter 10 — 2026-07-09（M4.2 前:战略再评估 + 纹理探针）
+Orient:   用户质疑"Pixi 迁移能否复刻并超越原 SVG 效果",拉 Fable 5(model:fable)当 advisor。核心发现:当前世界对象是占位方块,因 scene-stage.ts:52 `TextureResolver` 钩子从没喂过纹理;9 station+11 scenery 资产=0 渐变 0 滤镜,可无损光栅化。
+Move:     Fable 5 决策备忘:留 Pixi-core 但**翻掉 PLAN §5**——固定 station/scenery 走纹理精灵,只有 claim(绑数据)做参数化 Graphics。追加 10 条建议(海面 off-thesis 应重定向暖纸数据场 / 拆 M4 让 claim 回报先出 / #3 地形 z-pin 挡不住悬崖 / #5 鬼影被夜幕压暗 / #4 dormancy+boldness 白捡绑定 / 接触阴影+相机缓动快赢 / 金图测试)。用户选"先烘一件验证"。探针:renderer TextureResolver 支持 anchor/scale + 接触阴影;新 bakeTexture.ts(SVG string→canvas→Texture);PixiSceneHost 用 renderToStaticMarkup 烘真 StationWorkshop→喂 resolver。
+Verify:   ✅ 目视(Playwright headless): 手绘实验坊(棕顶/米墙/墨线/名牌)替掉蓝方块,站在方块堆中 before/after 一目了然;零 pageerror;render 0.1ms。✅ renderer+web typecheck 干净。存 probe-workshop-day.png。核实 Fable 断言:#5 鬼影压暗=真;#3 地形遮挡=真(代码已标 M4 待办);#6 滑杆重烘=虚惊(setDayNight 走 redraw 非 render);#8 灯错位=真前瞻。
+Decision: **纹理探针成立 ✅**——texture-lift 复刻手绘可行。等用户定"这个方案"范围(融合:Pixi-core+纹理 station+claim 收成数据标记 G)后继续。未提交(探针 demo 层,PixiSceneHost/scene-stage/bakeTexture 改动待纳入 M4.2)。
+Deferred(Iter10→M4.2): 尺寸+0.15;名牌移 UI 层(现烘进纹理);夜版纹理(NIGHT_SCENE_VARS)+昼夜交叉淡入;批量烘全部 station/scenery;claim→G 极简数据标记试验;金图测试落地;#5 鬼影上发光层;#3 悬崖遮挡 M4 处理。
+
+## Iter 11 — 2026-07-09（照 design-system 纠偏 + claim A+C）
+Orient:   G 金板被用户否("肯定不大行,按 Claude Design 设计图来")。**根因:我一直无视 design-system/*.html(22 张设计图=契约)自己即兴**——深青海+灰绿地+金板全是系统里不存在的外来审美。截图看真设计:`21-composed-plate`(暖宣纸+俯视+岛作丘+洋流=有符号关系流+气候色场)、`14-stations`(米墙+彩顶+墨线+软影 iso 建筑)、`18-texture`(#fi-grain 暖纸颗粒)。palettes.ts 实锤:日间 --ground=#E0DBC8 暖奶油、--water=#BCCEDC 淡域水,**非**深青。
+Move:     (1) 环境重皮:scene-stage groundTint/biomeTint/placeholderColor + PixiSceneHost SEA_COLORS/background 全按真 token 转暖宣纸。(2) claim 无设计源——用户选 A+C:C 停机版=makeClaimMark 从金板改成 station 建筑语汇(drawIsoBuilding:米墙+claimRoof 域色顶+墨线+接触阴影,楼高←floors,共识加旗),A=写 `.design-eng-loop/claim-brief.md` 推 Claude Design 出真设计。
+Verify:   ✅ 目视: 暖宣纸环境一眼是 design-system 语言(probe-parchment-day.png);claim 变小建筑、高楼+旗=共识、与 Workshop 同语言(probe-claimC-day.png)。renderer+web typecheck 干净,render 0.2ms。
+Decision: **环境纠偏 ✅ + claim C 桥 ✅ + A brief 交付**。未提交(探针层)。→ 等 A 设计图回流替换 makeClaimMark;继续:海压波光+接洋流/气候(Fable #1)、批量烘 station 纹理、名牌上 UI 层。
+Deferred(Iter11→后续): claim vs station 视觉混淆(A 设计解决);海还太"水"(压 shimmer+数据场);8 座 station 未烘纹理;夜版;claim-brief 走 design-eng-loop evolve 回流。

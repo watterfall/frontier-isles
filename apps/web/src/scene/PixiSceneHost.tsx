@@ -9,11 +9,14 @@
  * lands when the Pixi scene replaces the SVG one in M4).
  */
 import { useEffect, useRef, useState } from 'react';
-import { SceneStage } from '@frontier-isles/renderer/pixi';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { SceneStage, type TextureResolver } from '@frontier-isles/renderer/pixi';
 import { worldToScreen } from '@frontier-isles/renderer';
 import { projectClaimState, type ClaimState } from '@frontier-isles/core';
+import { StationWorkshop } from '@frontier-isles/assets';
 import type { ActionType, LedgerEvent } from '@frontier-isles/opp';
 import { buildSceneGraph, type LayoutInput } from './layout';
+import { bakeSvg } from './bakeTexture';
 
 /**
  * A mock ledger for the demo island, reduced through projectClaimState (M4.3) so
@@ -51,11 +54,13 @@ const DEMO: LayoutInput = {
 };
 
 /** Per-domain water colours (0..1 rgb): shallow / deep / foam. */
+// Pale domain water, VERBATIM the design-system `--water` day values
+// (DOMAIN_SCENE_VARS): a warm-paper data field, NOT photographic deep teal.
 const SEA_COLORS: Record<string, { seaColor: [number, number, number]; deepColor: [number, number, number]; foamColor: [number, number, number] }> = {
-  数理: { seaColor: [0.16, 0.34, 0.44], deepColor: [0.09, 0.21, 0.31], foamColor: [0.82, 0.9, 0.95] },
-  物质: { seaColor: [0.16, 0.33, 0.4], deepColor: [0.1, 0.22, 0.28], foamColor: [0.9, 0.88, 0.8] },
-  生命: { seaColor: [0.14, 0.36, 0.36], deepColor: [0.07, 0.22, 0.24], foamColor: [0.85, 0.94, 0.88] },
-  交叉: { seaColor: [0.2, 0.3, 0.45], deepColor: [0.12, 0.18, 0.33], foamColor: [0.88, 0.86, 0.95] },
+  数理: { seaColor: [0.737, 0.808, 0.863], deepColor: [0.651, 0.745, 0.816], foamColor: [0.941, 0.918, 0.847] },
+  物质: { seaColor: [0.784, 0.847, 0.8], deepColor: [0.698, 0.776, 0.722], foamColor: [0.941, 0.918, 0.847] },
+  生命: { seaColor: [0.722, 0.831, 0.769], deepColor: [0.627, 0.761, 0.69], foamColor: [0.933, 0.941, 0.863] },
+  交叉: { seaColor: [0.8, 0.784, 0.847], deepColor: [0.714, 0.698, 0.8], foamColor: [0.941, 0.918, 0.847] },
 };
 
 const clamp = (v: number, lo: number, hi: number): number => Math.max(lo, Math.min(hi, v));
@@ -90,7 +95,7 @@ export default function PixiSceneHost({ input = DEMO }: { input?: LayoutInput })
         // StrictMode's double-mount can't init two apps onto one element and then
         // have the first destroy(removeView) tear the canvas out from under the
         // survivor. resizeTo fills + follows the container.
-        await s.init(el, { resizeTo: el, background: 0x0e1420, backgroundAlpha: 1 });
+        await s.init(el, { resizeTo: el, background: 0xf2ecd9, backgroundAlpha: 1 }); // warm paper (design base)
       } catch (e) {
         if (!disposed) setErr(String(e));
         return;
@@ -102,7 +107,26 @@ export default function PixiSceneHost({ input = DEMO }: { input?: LayoutInput })
       stage = s;
       stageRef.current = s;
       const graph = buildSceneGraph(input, t, DEMO_CLAIMS);
-      s.render(graph);
+      // Probe (texture-lift strategy): rasterise the REAL Workshop SVG asset →
+      // Pixi texture and feed it through the resolver, replacing the placeholder
+      // box. This is the make-or-break test that the illustrated hand-art reads
+      // correctly inside the iso scene. anchor = the art's shadow centre (ground
+      // point); scale maps 220 SVG units → ~150 scene px (~one tile footprint).
+      let resolve: TextureResolver | undefined;
+      try {
+        const svg = renderToStaticMarkup(
+          <svg xmlns="http://www.w3.org/2000/svg" width={280} height={300} viewBox="0 0 280 300">
+            <StationWorkshop x={140} y={150} label={{ text: '实验坊', sealColor: '#B5673A' }} />
+          </svg>,
+        );
+        const tex = await bakeSvg(svg, { width: 280, height: 300, scale: 3 });
+        if (disposed) return;
+        const workshop = { texture: tex, anchor: { x: 0.5, y: 0.687 }, scale: 150 / (220 * 3) };
+        resolve = (o) => (o.kind === 'station:workshop' ? workshop : undefined);
+      } catch (err) {
+        console.warn('[probe] workshop bake failed', err);
+      }
+      s.render(graph, resolve);
       applyCam();
       s.buildSea(SEA_COLORS[input.domain] ?? SEA_COLORS['数理']!); // animated water plane (M2)
       setStat({ objects: graph.objects.length, sorted: s.sortedNodeCount(), renderMs: s.lastRenderMs });
@@ -156,7 +180,7 @@ export default function PixiSceneHost({ input = DEMO }: { input?: LayoutInput })
   return (
     <div
       ref={hostRef}
-      style={{ position: 'fixed', inset: 0, background: '#0e1420', touchAction: 'none', cursor: 'grab' }}
+      style={{ position: 'fixed', inset: 0, background: '#f2ecd9', touchAction: 'none', cursor: 'grab' }}
       onWheel={onWheel}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}

@@ -71,3 +71,10 @@
 ## 方法原则
 - 计划为 Pixi 而写、现状为 SVG —— **平台是决定一切的总开关**，先拍板再动，别在错误平台上做 M1 设计。
 - 只研究参考项目（arafays/messenger-copy、hexianWeb/CubeCity）逻辑，不复制资产。
+
+## ⚠️ 最大教训：design-system 是视觉契约，禁止即兴（2026-07-09 血泪）
+- **症状**：连续三版视觉被否——深青海 GLSL、G 金板数据标记、金塔。用户一句"按 Claude Design 设计图来"点破：我一直**没看 `design-system/*.html`(22 张)就自己发挥**，做出了系统里根本不存在的外来审美。
+- **真相**：真设计语言 = **暖宣纸底(#fi-grain)+ 墨线(--ink #3A342B)+ 米墙(--wall #F8F1DE)+ 彩色屋顶 + 软影 iso 建筑 + 海即数据(暖纸+洋流/气候/水深,非写实水)**。日间 --ground=#E0DBC8、--water=#BCCEDC(淡域水),`palettes.ts`/DOMAIN_SCENE_VARS 是真相。
+- **规避**：任何场景视觉动手前，**先截图 design-system 相关卡 + 查 palettes.ts/tokens.css 真 token**，逐字用，别调色。Fable #1"海面 off-thesis"正是此坑的独立印证。
+- **无设计源的东西不许即兴**：claim="会长楼层的建筑"是升级计划发明,design-system 无此图 → 走 design-eng-loop 补设计(`.design-eng-loop/claim-brief.md`),代码侧只做标注为 interim 的停机版(借 station 建筑语汇)。invariant 6/14：无源即砍。
+- **texture-lift 已验证可行**：真 SVG 组件 renderToStaticMarkup → canvas → Pixi Texture 喂 TextureResolver,零报错、0.1ms、手绘质感完整(probe-workshop-day.png)。固定 station/scenery 走此路,别重画成图元。

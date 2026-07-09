@@ -6,5 +6,5 @@
  */
 
 export { IsoStage, type IsoStageOptions } from './stage';
-export { SceneStage, type SceneStageOptions, type TextureResolver, type SeaColors } from './scene-stage';
+export { SceneStage, type SceneStageOptions, type TextureResolver, type ResolvedTexture, type SeaColors } from './scene-stage';
 export { createSeaMesh, type SeaMesh, type SeaMeshOptions } from './sea-mesh';

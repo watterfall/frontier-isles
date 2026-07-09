@@ -104,28 +104,29 @@ void main() {
   vec2 w = vWorld;
   float here = landAt(w);
 
-  // Wave shimmer: scrolling fbm + a sharp glint along the iso diagonal.
-  float body = fbm(w * 0.010 + vec2(uTime * 0.05, uTime * 0.03));
-  float glint = sin((w.x + w.y) * 0.06 + uTime * 1.6 + body * 6.2831);
-  glint = smoothstep(0.86, 1.0, glint);
-  vec3 col = mix(uSeaColor, uDeepColor, smoothstep(0.30, 0.72, body));
-  col += glint * 0.10;
+  // Calm pale-water surface (design-system: a warm-paper field, NOT photographic
+  // ocean). Gentle, low-contrast mottling + faint paper grain — no glint streaks.
+  float body = fbm(w * 0.006 + vec2(uTime * 0.015, uTime * 0.01));
+  vec3 col = mix(uSeaColor, uDeepColor, smoothstep(0.42, 0.66, body) * 0.5);
+  float grain = noise(w * 0.9);
+  col += (grain - 0.5) * 0.015;
 
-  // Shore foam: sea pixel adjacent to land, animated as a lapping band.
+  // Soft shore halo: a gentle, mostly-static warm band where sea meets land
+  // (foam = coastline geometry, §5 binding). Quiet, not a bright lapping ring.
   float near = 0.0;
   for (int i = 0; i < 8; i++) {
     float a = float(i) / 8.0 * 6.2831;
-    near = max(near, landAt(w + vec2(cos(a), sin(a)) * 16.0));
+    near = max(near, landAt(w + vec2(cos(a), sin(a)) * 14.0));
   }
   float coast = near * (1.0 - here);
-  float band = smoothstep(0.12, 0.55, coast);
-  float lap = 0.55 + 0.45 * sin(uTime * 2.0 + (w.x + w.y) * 0.05);
-  col = mix(col, uFoamColor, band * lap * 0.85);
+  float band = smoothstep(0.15, 0.6, coast);
+  float lap = 0.8 + 0.2 * sin(uTime * 0.8 + (w.x + w.y) * 0.04);
+  col = mix(col, uFoamColor, band * lap * 0.35);
 
   // Undertow: a dark, slow-swirling patch for disputed seas (toggle).
   if (uUndertow > 0.001) {
     float swirl = smoothstep(0.55, 0.92, fbm(w * 0.018 - vec2(uTime * 0.12, uTime * 0.08)));
-    col = mix(col, col * 0.5, swirl * uUndertow * (1.0 - here));
+    col = mix(col, col * 0.62, swirl * uUndertow * (1.0 - here));
   }
 
   finalColor = vec4(col, 1.0);
