@@ -60,10 +60,53 @@ const SCENERY_TILES = [
   { gx: 10, gy: 3 }, { gx: 6, gy: 14 }, { gx: 10, gy: 14 }, { gx: 2, gy: 7 },
 ];
 
-function inIsland(gx: number, gy: number): boolean {
-  const dx = gx + 0.5 - CENTER.gx;
-  const dy = gy + 0.5 - CENTER.gy;
-  return dx * dx + dy * dy <= ISLAND_R * ISLAND_R;
+// ── deterministic height field (M4.1) ──────────────────────────────────────
+
+function hash2(x: number, y: number): number {
+  const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
+  return s - Math.floor(s);
+}
+function vnoise(x: number, y: number): number {
+  const ix = Math.floor(x);
+  const iy = Math.floor(y);
+  const fx = x - ix;
+  const fy = y - iy;
+  const ux = fx * fx * (3 - 2 * fx);
+  const uy = fy * fy * (3 - 2 * fy);
+  const a = hash2(ix, iy);
+  const b = hash2(ix + 1, iy);
+  const c = hash2(ix, iy + 1);
+  const d = hash2(ix + 1, iy + 1);
+  return a * (1 - ux) * (1 - uy) + b * ux * (1 - uy) + c * (1 - ux) * uy + d * ux * uy;
+}
+function fbm(x: number, y: number): number {
+  let v = 0;
+  let amp = 0.5;
+  for (let i = 0; i < 4; i++) {
+    v += amp * vnoise(x, y);
+    x *= 2;
+    y *= 2;
+    amp *= 0.5;
+  }
+  return v;
+}
+
+/** Normalised distance from island centre (0 = centre, ~1 = rim). */
+function centreDist(gx: number, gy: number): number {
+  return Math.hypot(gx + 0.5 - CENTER.gx, gy + 0.5 - CENTER.gy) / ISLAND_R;
+}
+
+/** Land test with a noisy coastline — no rectangles/perfect circles (P6, §4). */
+function isLand(gx: number, gy: number, seed: number): boolean {
+  const d = Math.hypot(gx + 0.5 - CENTER.gx, gy + 0.5 - CENTER.gy);
+  return d < ISLAND_R * (0.8 + fbm((gx + seed) * 0.2, (gy + seed) * 0.2) * 0.32);
+}
+
+/** Terrain elevation 0/1/2 from a radial + noise height field (P6, M4.1). */
+function elevationAt(gx: number, gy: number, seed: number): 0 | 1 | 2 {
+  const radial = 1 - centreDist(gx, gy);
+  const h = radial * 0.7 + fbm((gx + seed) * 0.15, (gy + seed) * 0.15) * 0.55;
+  return h > 0.64 ? 2 : h > 0.36 ? 1 : 0;
 }
 
 /** Stable 0..1 variant seed from an id (djb2). */
@@ -114,38 +157,49 @@ export function buildSceneGraph(input: LayoutInput, t = 0): SceneGraph {
     });
   };
 
-  // ── ground bed (terrain layer, elevation 0 in M1) ──────────────────────────
+  const seed = Math.floor(variantSeed(input.slug) * 997);
+  const tileKey = (gx: number, gy: number): string => `${gx},${gy}`;
+
+  // Building/scenery tiles are forced to land so nothing floats on the noisy coast.
+  const claimCount = Math.min(CLAIM_TILES.length, Math.floor((input.eventCount ?? 0) / 4));
+  const forced = new Set<string>();
+  for (const s of scene.stations) if (s.visible) forced.add(tileKey(STATION_TILES[s.kind].gx, STATION_TILES[s.kind].gy));
+  for (let i = 0; i < claimCount; i++) forced.add(tileKey(CLAIM_TILES[i]!.gx, CLAIM_TILES[i]!.gy));
+  scene.scenery.forEach((_, i) => forced.add(tileKey(SCENERY_TILES[i % SCENERY_TILES.length]!.gx, SCENERY_TILES[i % SCENERY_TILES.length]!.gy)));
+  scene.ghosts.forEach((_, i) => forced.add(tileKey(CLAIM_TILES[(i + 3) % CLAIM_TILES.length]!.gx, CLAIM_TILES[(i + 3) % CLAIM_TILES.length]!.gy)));
+
+  const land = (gx: number, gy: number): boolean => isLand(gx, gy, seed) || forced.has(tileKey(gx, gy));
+  const elev = (gx: number, gy: number): 0 | 1 | 2 => elevationAt(gx, gy, seed);
+
+  // ── ground bed (terrain layer) — 3-level elevation from the height field ────
   for (let gy = 0; gy < GRID; gy++) {
     for (let gx = 0; gx < GRID; gx++) {
-      if (inIsland(gx, gy)) push(`ground:${gx},${gy}`, 'ground', gx, gy, 'terrain');
+      if (land(gx, gy)) push(`ground:${gx},${gy}`, 'ground', gx, gy, 'terrain', { elevation: elev(gx, gy) });
     }
   }
 
-  // ── stations (world layer) — visibility bound to stage ─────────────────────
+  // ── stations (world layer) — visibility bound to stage; sit on their tile ───
   for (const s of scene.stations) {
     if (!s.visible) continue;
     const tile = STATION_TILES[s.kind];
-    // Dock is a low pier; other stations are civic buildings.
-    const height = s.kind === 'dock' ? 10 : 30;
-    push(`station:${s.kind}`, `station:${s.kind}`, tile.gx, tile.gy, 'world', { height });
+    const height = s.kind === 'dock' ? 10 : 30; // dock is a low pier
+    push(`station:${s.kind}`, `station:${s.kind}`, tile.gx, tile.gy, 'world', { height, elevation: elev(tile.gx, tile.gy) });
   }
 
   // ── claim growth-bodies (world layer) — floors bound to reproductions ───────
-  const claimCount = Math.min(CLAIM_TILES.length, Math.floor((input.eventCount ?? 0) / 4));
   for (let i = 0; i < claimCount; i++) {
     const tile = CLAIM_TILES[i]!;
-    const seed = variantSeed(`claim:${input.slug}:${i}`);
-    const floors = Math.floor(seed * 4); // 0..3 reproductions (M1 synth; M4 = projectClaimState)
+    const s = variantSeed(`claim:${input.slug}:${i}`);
+    const floors = Math.floor(s * 4); // 0..3 reproductions (M1 synth; M4.3 = projectClaimState)
     const growth: Growth = { foundation: true, floors, roof: floors >= 3 };
-    // Height binds to floors (P1): base + one storey per independent reproduction.
-    const height = 16 + floors * 12;
-    push(`claim:${i}`, 'claim', tile.gx, tile.gy, 'world', { growth, height });
+    const height = 16 + floors * 12; // base + one storey per reproduction (P1)
+    push(`claim:${i}`, 'claim', tile.gx, tile.gy, 'world', { growth, height, elevation: elev(tile.gx, tile.gy) });
   }
 
   // ── scenery (world layer) — kinds bound to domain ──────────────────────────
   scene.scenery.forEach((sc, i) => {
     const tile = SCENERY_TILES[i % SCENERY_TILES.length]!;
-    push(`scenery:${i}:${sc.kind}`, `scenery:${sc.kind}`, tile.gx, tile.gy, 'world', { height: 12 });
+    push(`scenery:${i}:${sc.kind}`, `scenery:${sc.kind}`, tile.gx, tile.gy, 'world', { height: 12, elevation: elev(tile.gx, tile.gy) });
   });
 
   // ── ghosts (world layer) — NIGHT-ONLY, bound to abandon/refute events ───────
@@ -157,6 +211,7 @@ export function buildSceneGraph(input: LayoutInput, t = 0): SceneGraph {
       dayVisibility: 0,
       nightVisibility: 1,
       height: 22,
+      elevation: elev(tile.gx, tile.gy),
     });
   });
 

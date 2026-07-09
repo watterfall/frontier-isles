@@ -24,12 +24,13 @@ describe('buildSceneGraph', () => {
     expect(a).toEqual(b);
   });
 
-  it('emits a ground bed on the terrain layer, all inside the island disc', () => {
+  it('emits a ground bed on the terrain layer with a 3-level height field', () => {
     const g = buildSceneGraph(base);
     const terrain = g.objects.filter((o) => o.layer === 'terrain');
-    expect(terrain.length).toBeGreaterThan(60); // a filled disc, not a handful
+    expect(terrain.length).toBeGreaterThan(60); // a filled island, not a handful
     expect(terrain.every((o) => o.kind === 'ground')).toBe(true);
-    expect(terrain.every((o) => o.elevation === 0)).toBe(true); // M1: no elevation yet
+    expect(terrain.every((o) => o.elevation === 0 || o.elevation === 1 || o.elevation === 2)).toBe(true);
+    expect(terrain.some((o) => o.elevation > 0)).toBe(true); // M4.1: real elevation
   });
 
   it('places only the stage-visible stations', () => {

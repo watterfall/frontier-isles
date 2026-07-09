@@ -54,3 +54,16 @@ Move:     重构层级:cameraRoot 内 gradedContent(sea/world/fog) + toneOverlay
 Verify:   🐞 **系统调试**:filter 罩含自定义 Mesh(海面)的容器 → Pixi v8 batcher 崩(`DefaultBatcher.break: reading 'clear' of null`)。二分:移 blendMode(仍崩)→移 cache(仍崩)→移 filter(不崩)→确认 filter 是因。pivot 到遮罩层。✅ 目视实测(day/dusk/night 三帧):t 0→1 平滑压暗冷蓝、剪影+暖灯窗、鬼影淡入、t=0 等于 M2 明亮;零报错。✅ 150 测绿无回归 + typecheck。存 day/night 基线。
 Decision: **M3 收口 ✅**(§2a+§2b 含目视;色调用遮罩非 filter,偏离已记 PERF-BASELINE)。提交。→ 进 M4 地形高差+建筑积木化+biome(核心丰富度,最大一块;动工前需交高差/密度环带算法 + 36+ 原语清单 + projectClaimState 设计,§9.3)。
 Deferred(M3→后续): 真 color-grade filter(desat/高光保留,待 Pixi 修或换结构);下线 SVG 双份素材(随 Pixi 取代线上 L1,M4);灯光 additive glow(blendMode add 触 batcher 坑,暂用实心暖点)。
+
+## Iter 7 — 2026-07-09（M4 前置设计,§9.3 动工前交付）
+Orient:   M3 收口,进 M4(最大一块)。§9.3 明确:M4 动工前交设计,批准后批量生产。不跳步冲代码。
+Move:     产出 M4-DESIGN.md:6 子步(M4.1 地形高差/M4.2 建筑积木 36+件/M4.3 projectClaimState/M4.4 Landmark×4/M4.5 密度环带/M4.6 biome 参数包)。含:高度场+海岸噪声+悬崖/河流算法、密度环带、36 原语清单(基座6×楼层8×屋顶8×附件14 + Landmark4,带语义/biome/变异/邻接白名单)、projectClaimState reducer 设计(按 ref 分组→地基/楼层/屋顶/鬼影,绑 validate/refute,无新 verb)、资产 A→B(Pixi Graphics 参数化件)、SceneObject schema 增量。
+Verify:   设计文档写入;5 个决策点(子步序/共识阈值3/原语清单/Landmark形态/资产策略)向用户 escalate 批准。
+Decision: escalate(§9.3 批准 gate)→ 用户批准/改后进 M4.1。
+
+## Iter 8 — 2026-07-09（M4.1 地形高差）
+Orient:   用户批准:按推荐序开工 M4.1,共识阈值=5。M4-DESIGN §4/§7 已改 CONSENSUS_MIN=5。
+Move:     layout.ts:加确定性 value-noise fbm(TS)、海岸线噪声(isLand)、高度场 elevationAt→0/1/2、seed 自 slug、建筑 tile 强制为 land(不浮海)、各物件 elevation=场值。scene-stage makeNode:地形=从海平面起的高程柱(drawIsoBox lift0 height=elev*STEP,前裙=悬崖),建筑=台地上盒子(lift=elev*STEP);terrainRoot.sortableChildren=true(悬崖 back→front 遮挡)。
+Verify:   ✅ 目视(Playwright):3 级梯台+悬崖面清晰、海岸不规则、建筑坐台地、遮挡正确、零错误、render 0.1ms、objects 176。✅ 150 测绿(更新 layout 测试:地形不再全 elev0,改验有高差);typecheck 干净。存 m4_1-baseline-terrain.png。
+Decision: **M4.1 收口 ✅**。提交。→ 进 M4.3 projectClaimState(core 新 reducer,claim 建筑数据源;先有数据再做 M4.2 积木)。
+Deferred(M4.1→后续): 坡道 ramp tile(先只做悬崖);河流/瀑布几何(M4.1 未做,可 M4.x/M5);building 崖边微调。

@@ -135,8 +135,10 @@ export class SceneStage {
     // terrain↔object interleaving at cliffs; a sortable Container suffices here.
     this.worldLayer.sortableChildren = true;
 
-    // Static terrain bed pinned to the bottom of the sorted world.
+    // Static terrain bed pinned to the bottom of the sorted world. Its own tiles
+    // depth-sort by zIndex so elevation cliffs occlude back-to-front (M4.1).
     this.terrainRoot.zIndex = TERRAIN_Z;
+    this.terrainRoot.sortableChildren = true;
     this.worldLayer.addChild(this.terrainRoot);
 
     // Camera-space stack, bottom→top: scene content (sea/world/fog), then the tone
@@ -223,17 +225,28 @@ export class SceneStage {
       s.label = o.id;
       return s;
     }
-    // diamondPoints is elevation-0 screen space; subtract the elevation lift.
-    const lift = o.elevation * ELEV_STEP;
+    // diamondPoints is elevation-0 screen space; the elevation lift is applied
+    // per case below (terrain columns vs objects standing on their tile).
     const pts = diamondPoints(o.gx, o.gy);
     const color = placeholderColor(o);
     const g = new Graphics();
-    const h = o.height ?? 0;
-    if (h > 0) drawIsoBox(g, pts, lift, h, color);
-    else {
-      const flat: number[] = [];
-      for (const pt of pts) flat.push(pt.x, pt.y - lift);
-      g.poly(flat).fill({ color });
+    const flatAt = (lift: number): number[] => {
+      const out: number[] = [];
+      for (const pt of pts) out.push(pt.x, pt.y - lift);
+      return out;
+    };
+    if (o.layer === 'terrain') {
+      // A terrain tile is a column from the sea baseline up to its elevation, so
+      // its front skirts read as cliffs (M4.1). Elevation 0 → a flat beach diamond.
+      const colH = o.elevation * ELEV_STEP;
+      if (colH > 0) drawIsoBox(g, pts, 0, colH, color);
+      else g.poly(flatAt(0)).fill({ color });
+    } else {
+      // An object stands on terrain of height o.elevation; its box extrudes above.
+      const lift = o.elevation * ELEV_STEP;
+      const h = o.height ?? 0;
+      if (h > 0) drawIsoBox(g, pts, lift, h, color);
+      else g.poly(flatAt(lift)).fill({ color });
     }
     g.label = o.id;
     return g;
