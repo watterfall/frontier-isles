@@ -50,6 +50,13 @@
 - 修复：**让 Pixi 自建 canvas**——传容器 `<div ref>` 给 `init`(`if(!isCanvas) target.appendChild(app.canvas)`),每个 App 一张自己的 canvas,`destroy` 只摘自己那张;`resizeTo:div` 填满+跟随。**Pixi+React 一律禁止共享 ref canvas。**
 - 注意：用户浏览器黑屏还常是**陈旧/卡死标签页**(尤其被扩展控制过、wedge 过的那个)——先让用户开新标签页硬刷新,再怀疑代码。
 
+## M2 水面 shader 复用要点(给 M6 雾 shader / 后续 shader)
+- **v8 Mesh + 自定义 Shader.from** 可用标准 mesh 顶点(`gl_Position = (uProjectionMatrix*uWorldTransformMatrix*uTransformMatrix)*vec3(aPosition,1)`)——这三个 mat3 Pixi 会自动喂给 Mesh 的 shader,**实测生效**(Context7 那个 `aPosition/100-1` 示例是简化,别学)。把 `aPosition`(=世界屏幕坐标,因 mesh 在 cameraRoot 里)传 varying 给 fragment 做世界稳定采样。
+- **类型坑**:`Mesh` 默认泛型是 `TextureShader`(要 `texture` 属性),自定义 shader 用 `Mesh<MeshGeometry, Shader>`。
+- **uniform 组**:`Shader.from({gl:{vertex,fragment}, resources:{ grp:{ uX:{value,type:'f32'|'vec4<f32>'} }, uSampler: tex.source }})`;运行时改 `shader.resources.grp.uniforms.uX`。
+- **地形轮廓当 mask**:`RenderTexture.create` + `renderer.render({target, container: terrainRoot, transform: Matrix(world rect→texture), clear:true})`,fragment 采样 alpha=land。**M6 Trust Fog 同法**(按 claim 争议区域生成 mask)。
+- **动画**:init 用 `autoStart:false`(静态省电),需要动画时 `app.ticker.add(cb)+app.start()`;cb 里改 uniform,Pixi 自动重渲。destroy 记得 `ticker.remove`。
+
 ## 方法原则
 - 计划为 Pixi 而写、现状为 SVG —— **平台是决定一切的总开关**，先拍板再动，别在错误平台上做 M1 设计。
 - 只研究参考项目（arafays/messenger-copy、hexianWeb/CubeCity）逻辑，不复制资产。

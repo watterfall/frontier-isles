@@ -1,0 +1,167 @@
+/**
+ * Sea-plane water Mesh + GLSL (M2, scene-upgrade). A world-space full-plane Mesh
+ * that lives at the bottom of the world stack (SceneStage.seaLayer) so it pans and
+ * zooms with the camera and its wave pattern stays world-stable.
+ *
+ * Shader logic (rewritten from the reference project's approach, not copied):
+ *  - wave shimmer: layered fbm noise + a scrolling glint, animated by uTime.
+ *  - shore foam: a coastline mask texture (land = alpha 1) is ring-sampled; a
+ *    sea pixel adjacent to land gets an animated foam band (the §5 binding:
+ *    foam = coastline geometry, a reduction over terrain, no new verb).
+ *  - undertow: a toggleable dark turbulent patch for "disputed seas" (M2 makes it
+ *    a switchable uniform; M6/whirlpool data drives it later).
+ *
+ * Engine-agnostic seam: geometry is in world-screen coords (same space as
+ * iso.worldToScreen), so the layout/camera own placement; the shader owns paint.
+ */
+import { Mesh, MeshGeometry, Shader, type Texture } from 'pixi.js';
+
+/** A sea Mesh carrying a custom (non-texture) Shader. */
+export type SeaMeshObject = Mesh<MeshGeometry, Shader>;
+
+/** A world-screen rectangle. */
+export interface Rect {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+export interface SeaMeshOptions {
+  /** The quad's world-screen rect (island bounds + open-sea margin). */
+  rect: Rect;
+  /** World-screen rect the shore mask covers `[x, y, w, h]`. */
+  maskRect: [number, number, number, number];
+  /** Coastline mask (land = alpha 1, sea = 0). */
+  mask: Texture;
+  /** Shallow water colour (0..1 rgb). */
+  seaColor: [number, number, number];
+  /** Deep water colour (0..1 rgb). */
+  deepColor: [number, number, number];
+  /** Foam colour (0..1 rgb). */
+  foamColor: [number, number, number];
+}
+
+export interface SeaMesh {
+  mesh: SeaMeshObject;
+  shader: Shader;
+}
+
+const VERT = /* glsl */ `
+in vec2 aPosition;
+in vec2 aUV;
+out vec2 vUV;
+out vec2 vWorld;
+
+uniform mat3 uProjectionMatrix;
+uniform mat3 uWorldTransformMatrix;
+uniform mat3 uTransformMatrix;
+
+void main() {
+  mat3 mvp = uProjectionMatrix * uWorldTransformMatrix * uTransformMatrix;
+  gl_Position = vec4((mvp * vec3(aPosition, 1.0)).xy, 0.0, 1.0);
+  vUV = aUV;
+  vWorld = aPosition;
+}
+`;
+
+const FRAG = /* glsl */ `
+in vec2 vUV;
+in vec2 vWorld;
+out vec4 finalColor;
+
+uniform float uTime;
+uniform vec4 uMaskRect;      // x, y, w, h (world-screen)
+uniform float uUndertow;     // 0 = calm, 1 = disputed undertow
+uniform vec3 uSeaColor;
+uniform vec3 uDeepColor;
+uniform vec3 uFoamColor;
+uniform sampler2D uShoreMask;
+
+float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+
+float noise(vec2 p) {
+  vec2 i = floor(p), f = fract(p);
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x),
+             mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x), u.y);
+}
+
+float fbm(vec2 p) {
+  float v = 0.0, a = 0.5;
+  for (int i = 0; i < 4; i++) { v += a * noise(p); p *= 2.0; a *= 0.5; }
+  return v;
+}
+
+// Land coverage at a world point (0 = open sea, 1 = land), from the shore mask.
+float landAt(vec2 world) {
+  vec2 uv = (world - uMaskRect.xy) / uMaskRect.zw;
+  if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) return 0.0;
+  return texture(uShoreMask, uv).a;
+}
+
+void main() {
+  vec2 w = vWorld;
+  float here = landAt(w);
+
+  // Wave shimmer: scrolling fbm + a sharp glint along the iso diagonal.
+  float body = fbm(w * 0.010 + vec2(uTime * 0.05, uTime * 0.03));
+  float glint = sin((w.x + w.y) * 0.06 + uTime * 1.6 + body * 6.2831);
+  glint = smoothstep(0.86, 1.0, glint);
+  vec3 col = mix(uSeaColor, uDeepColor, smoothstep(0.30, 0.72, body));
+  col += glint * 0.10;
+
+  // Shore foam: sea pixel adjacent to land, animated as a lapping band.
+  float near = 0.0;
+  for (int i = 0; i < 8; i++) {
+    float a = float(i) / 8.0 * 6.2831;
+    near = max(near, landAt(w + vec2(cos(a), sin(a)) * 16.0));
+  }
+  float coast = near * (1.0 - here);
+  float band = smoothstep(0.12, 0.55, coast);
+  float lap = 0.55 + 0.45 * sin(uTime * 2.0 + (w.x + w.y) * 0.05);
+  col = mix(col, uFoamColor, band * lap * 0.85);
+
+  // Undertow: a dark, slow-swirling patch for disputed seas (toggle).
+  if (uUndertow > 0.001) {
+    float swirl = smoothstep(0.55, 0.92, fbm(w * 0.018 - vec2(uTime * 0.12, uTime * 0.08)));
+    col = mix(col, col * 0.5, swirl * uUndertow * (1.0 - here));
+  }
+
+  finalColor = vec4(col, 1.0);
+}
+`;
+
+/** Build the sea Mesh + its Shader for one island. */
+export function createSeaMesh(opts: SeaMeshOptions): SeaMesh {
+  const { rect, maskRect, mask, seaColor, deepColor, foamColor } = opts;
+  const x0 = rect.x;
+  const y0 = rect.y;
+  const x1 = rect.x + rect.w;
+  const y1 = rect.y + rect.h;
+
+  const geometry = new MeshGeometry({
+    positions: new Float32Array([x0, y0, x1, y0, x1, y1, x0, y1]),
+    uvs: new Float32Array([0, 0, 1, 0, 1, 1, 0, 1]),
+    indices: new Uint32Array([0, 1, 2, 0, 2, 3]),
+  });
+
+  const shader = Shader.from({
+    gl: { vertex: VERT, fragment: FRAG },
+    resources: {
+      waveUniforms: {
+        uTime: { value: 0, type: 'f32' },
+        uMaskRect: { value: new Float32Array(maskRect), type: 'vec4<f32>' },
+        uUndertow: { value: 0, type: 'f32' },
+        uSeaColor: { value: new Float32Array(seaColor), type: 'vec3<f32>' },
+        uDeepColor: { value: new Float32Array(deepColor), type: 'vec3<f32>' },
+        uFoamColor: { value: new Float32Array(foamColor), type: 'vec3<f32>' },
+      },
+      uShoreMask: mask.source,
+    },
+  });
+
+  const mesh = new Mesh({ geometry, shader });
+  mesh.label = 'sea';
+  return { mesh, shader };
+}

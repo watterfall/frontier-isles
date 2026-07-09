@@ -11,10 +11,29 @@
  * Camera pan/zoom, viewport culling and the async v8 boot mirror IsoStage.
  */
 
-import { Application, Container, Graphics, Sprite, Texture, isWebGLSupported } from 'pixi.js';
+import {
+  Application,
+  Container,
+  Graphics,
+  Matrix,
+  RenderTexture,
+  Sprite,
+  Texture,
+  isWebGLSupported,
+  type Shader,
+  type Ticker,
+} from 'pixi.js';
 import { ELEV_STEP, diamondPoints, worldToScreenElevated } from '../iso';
 import { visibilityAt, type SceneGraph, type SceneLayer, type SceneObject } from '../scene';
 import { ChunkIndex, cull, type Viewport } from '../chunks';
+import { createSeaMesh, type Rect } from './sea-mesh';
+
+/** Water colours (0..1 rgb) for {@link SceneStage.buildSea}. */
+export interface SeaColors {
+  seaColor: [number, number, number];
+  deepColor: [number, number, number];
+  foamColor: [number, number, number];
+}
 
 /** Options for {@link SceneStage.init}; mirrors {@link IsoStage}. */
 export interface SceneStageOptions {
@@ -87,6 +106,9 @@ export class SceneStage {
   private terrainCached = false;
   /** Milliseconds the last on-demand frame took to render — the §7 baseline metric. */
   lastRenderMs = 0;
+  private seaShader?: Shader;
+  private seaMask?: RenderTexture;
+  private seaAnimating = false;
 
   constructor(chunk = 8) {
     this.chunk = chunk;
@@ -235,6 +257,56 @@ export class SceneStage {
     this.redraw();
   }
 
+  /**
+   * Build the animated water plane (M2) in the sea layer. Renders the static
+   * terrain silhouette to a coastline mask (land = alpha 1) so the shader can
+   * paint a shore-foam band, then starts a ticker that advances the wave time —
+   * the only animated content, so the rest of the static scene rides along cheaply.
+   * Call after {@link render} (needs the terrain in place).
+   */
+  buildSea(colors: SeaColors, opts: { margin?: number } = {}): void {
+    if (!this.app) return;
+    const b = this.terrainRoot.getLocalBounds();
+    if (b.width <= 0 || b.height <= 0) return; // no terrain yet
+    const maskRect: [number, number, number, number] = [b.x, b.y, b.width, b.height];
+
+    // Coastline mask: rasterise the terrain footprint into a texture whose alpha
+    // is land coverage. A matrix maps the world-screen bounds into the texture.
+    const maskW = 256;
+    const maskH = Math.max(1, Math.round((256 * b.height) / b.width));
+    const mask = RenderTexture.create({ width: maskW, height: maskH, antialias: false });
+    const m = new Matrix().translate(-b.x, -b.y).scale(maskW / b.width, maskH / b.height);
+    this.app.renderer.render({ target: mask, container: this.terrainRoot, transform: m, clear: true });
+
+    const margin = opts.margin ?? 800;
+    const rect: Rect = { x: b.x - margin, y: b.y - margin, w: b.width + 2 * margin, h: b.height + 2 * margin };
+    const { mesh, shader } = createSeaMesh({ rect, maskRect, mask, ...colors });
+
+    this.seaMask?.destroy(true);
+    this.seaLayer.removeChildren().forEach((c) => c.destroy());
+    this.seaLayer.addChild(mesh);
+    this.seaShader = shader;
+    this.seaMask = mask;
+
+    if (!this.seaAnimating) {
+      this.app.ticker.add(this.tickSea);
+      this.app.start(); // resume the render loop (init used autoStart:false)
+      this.seaAnimating = true;
+    }
+  }
+
+  /** Toggle the disputed-sea undertow (M2 acceptance: switchable). */
+  setUndertow(on: boolean): void {
+    const u = this.seaShader?.resources.waveUniforms?.uniforms as { uUndertow: number } | undefined;
+    if (u) u.uUndertow = on ? 1 : 0;
+  }
+
+  /** Advance the wave clock each frame; app.start() auto-renders after. */
+  private tickSea = (ticker: Ticker): void => {
+    const u = this.seaShader?.resources.waveUniforms?.uniforms as { uTime: number } | undefined;
+    if (u) u.uTime += ticker.deltaTime * 0.02;
+  };
+
   /** Rasterise the static terrain bed to a single texture (fewest draw calls). */
   private recacheTerrain(): void {
     if (this.terrainCached) {
@@ -318,7 +390,12 @@ export class SceneStage {
 
   /** Tear down the renderer and free GPU resources. */
   destroy(): void {
+    if (this.app && this.seaAnimating) this.app.ticker.remove(this.tickSea);
+    this.seaAnimating = false;
     this.clearNodes();
+    this.seaMask?.destroy(true);
+    this.seaMask = undefined;
+    this.seaShader = undefined;
     if (this.app) {
       this.app.destroy(true, { children: true });
       this.app = undefined;

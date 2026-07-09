@@ -24,6 +24,13 @@
 - **单岛元素数 ≥ 80**：182 ✓（M1 为 placeholder 立方块，真素材 M4）。
 - **视觉基线**：`m1-baseline-day.png`（t=0）/ `m1-baseline-night.png`（t=1，3 个鬼影淡入）——后续 PR 视觉回归比对基准。
 
+## M2 — 水面 shader（同 DEMO 岛）
+- seaLayer = 世界空间全屏 Mesh + GLSL（放 cameraRoot，随相机 pan/zoom）；ticker 重启（`autoStart:false` → `buildSea` 里 `app.start()`），仅水面每帧动，地形缓存/对象静态。
+- 岸线 mask：地形轮廓渲进 RenderTexture(256×N，alpha=land)，fragment 环形采样(16px×8)判"近岸"→浪花带；坐标全在世界系,mesh 与 mask 用同一 world rect 对齐。
+- **验收 ✅（隔离 Playwright + chromium 实测）**：动态波光（斜向粼光 + fbm 噪声，帧间移动确认）；岸线白浪花带精准贴合不规则海岸；**undertow 开关**切换深色涡流暗涌（争议海域，M6/whirlpool 数据后接）。**零 shader 编译错误**。
+- 视觉基线：`m2-baseline-sea.png`（暗涌 off）/ `m2-baseline-undertow.png`（on）。
+- 帧率：ticker 连续渲染；SwiftShader 软渲染下未记 FPS（真机 GPU：1 水面 mesh + 1 缓存地形 draw call + 26 对象，远够 60fps）。真机 FPS 待用户记录。
+
 ## 验证状态说明（M1）— ✅ 全部通过（含目视）
 - ✅ 纯逻辑：depth K 值 50×50 网格属性测试 + worked cases（`renderer/test/depth.test.ts`，10 测）；layout 管线（`web/src/__tests__/layout.test.ts`，8 测）。全绿。
 - ✅ 无回归：renderer 54 测 + web 50 测（+ core/server）全绿；两包 typecheck 干净。
