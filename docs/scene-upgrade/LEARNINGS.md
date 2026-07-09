@@ -1,0 +1,48 @@
+# LEARNINGS — 等距场景升级 campaign
+
+跨 run 累积的、下一轮 Orient 必读的原则。每轮 done 时从该 run 的 LOOP footer 提炼进来。
+
+## 地基事实（已核实）
+- **L1 渲染是 SVG,不是 Pixi**。`apps/web` 全程 React SVG（固定 1440×900 viewBox，岛基硬编码像素多边形）。`packages/renderer/src/pixi/IsoStage` 是完整但**从未挂载**的 WebGL 引擎；web 只用了 `sea.ts` 的纯数学。任何"shader/Filter/ParticleContainer/RenderGroup/zIndex"计划元素在现状均不存在。
+- **账本 append-only、hash-chained、永不 GC**（唯一写路径 store.ts:341；prev 不匹配→409）。废弃/驳回的可持久原语 = `refute` + `return_to_driftwood`，**已被 projections.ts:174-177 投影为夜景鬼影**。协议共 16 个 verb（opp/src/ledger.ts:20），**无** abandon/deprecate/retract/withdraw，且**无需新增**。
+- **iso 数学零高差**（iso.ts:44，WorldPoint 只有 gx,gy）。高差=净新增，需同时改深度键（K>max_elevation）与屏幕 Y 偏移。多格建筑用现成 `anchorDepth`。
+- **建筑=岛级**（GrowthStage empty/hut/academy/school，projections.ts:58），**无 per-claim 实体/验证态/复现计数/共识**。计划的"建筑=claim 生长"需新 reducer `projectClaimState`（按 ref 分组），增量、无需新 verb。
+- **两套 scene model 不通**：`IslandScene`(网格,renderer,有测试,没人生成/使用) vs `GeneratedScene`(像素 prop 袋,web 在用,无坐标)。P2"Pixi 消费现有 SceneGraph"不成立。
+- **domain=数理/物质/生命/交叉**（非计划写的"AI"）。domain 已驱动色板/植被/海洋 climate（DOMAIN_SCENE_VARS / sceneryForDomain / domainToVec）——biome 参数包有半成品。
+
+## M0 拍板决定（已确认，全 campaign 承载）
+- **D1 全迁 Pixi**：L1 从 React SVG → WebGL(Pixi v8,挂载 IsoStage)。**反转 DECISIONS「L1=SVG」**（需补 DECISIONS 条目）。**全部 SVG 资产重制为 Pixi**——M1 用光栅化保连续,M4 切 Pixi Graphics 参数化件。App 需新增相机/pan-zoom 状态。
+- **D2 分层建筑**：station=6 固定 civic（其一可升 Landmark）+ claim=新 reducer `projectClaimState`(按 ref 分组:distinct 验证岛→楼层,refute→鬼影,共识阈值→屋顶) 驱动生长。增量、无新 verb。
+- **D3**：先修订计划(PLAN-v2.md)再交 M1。
+- **scene model 收敛到 IslandScene(网格)**；GeneratedScene 逻辑保留但降级为"岛内容清单生成器"喂 layout,不再直接吐屏幕坐标。
+- **biome 用仓库 4 domain**（数理/物质/生命/交叉,非计划写的"AI"）。
+
+## Pixi v8 关键 API（M1 设计已核实，Context7 /pixijs/pixijs）
+- **RenderLayer**：解耦渲染顺序与场景图父子。对象保留逻辑父级 transform，但按 `layer.attach(obj)` 的层渲染。可 `new RenderLayer({sortableChildren, sortFunction})`。→ worldLayer 唯一排序层的正解。
+- **isRenderGroup:true**（`new Container({isRenderGroup:true})`）：transform 上 GPU，适合稳定结构含动画子。**cacheAsTexture(opts)**：静态子树光栅化成 1 纹理，改子后 `updateCacheTexture()`，销毁前先 `cacheAsTexture(false)`。→ 地形床用 cacheAsTexture。
+- **Filter.from({gl:{fragment[,vertex]}, resources:{uniforms}})** 自定义片元；**ColorMatrixFilter**。容器 `.filters=[...]` + `.filterArea`。→ 全屏色调(uniform uT=t)。
+- **Mesh** = `new Mesh({geometry:MeshGeometry, shader:Shader.from({gl:{vertex,fragment}})})`。→ seaLayer 水面(M2)。
+- **ParticleContainer({dynamicProperties:{position,rotation,color,...}})**。→ M5/M8 粒子。
+- 现有 `IsoStage`(renderer/src/pixi/stage.ts)：Application v8 async init、单 world 容器 sortableChildren、worldToScreen 放置、anchorDepth zIndex、panTo/zoomTo(含缩放锚点)、ChunkIndex+cull 剔除、renderThumbnail(extract.base64,L0 用)、assertWebGL 兜底。**演进成 SceneStage 五层，不重写。**
+
+## M1 设计已定（M1-DESIGN.md）
+- 五层容器：skyBackdrop(屏幕空间) / sceneContent(挂 toneFilter) → cameraRoot(相机变换)[seaLayer Mesh / worldLayer RenderLayer 唯一排序 / fogLayer] / uiLayer(屏幕空间)。sky/ui 不随相机，sea/world/fog 在 cameraRoot 内。
+- **depthKey=rowSum*1000 + elevation*8 + layerBias(床0/对象4) + gx*0.01**；rowSum 多格用 anchorDepth。屏幕 y 抬升 `y-=elevation*ELEV_STEP(24)`，与深度键独立。不跨行证明：带宽 <21 << 行距 1000，48× 裕度。**楼层增长不吃深度预算(只改视觉高度不改基座锚点)。**
+- M1 边界：实现+单测公式，但渲染 elevation 恒 0；真高差几何在 M4。
+- 渲染契约 `render(sceneGraph, viewport)`，SceneObject 带 layer/depthKey/day-nightVisibility/lodLevel/biome/variant/growth；是 IslandScene 超集(旧测试保绿)。
+- 迁移连续性：M1 先 SVG→纹理桥(renderToStaticMarkup→data URI→Texture)，M4 换 Pixi Graphics 参数化件。
+
+## M1 已实现（Iter 3，绿灯待目视确认）
+- 交付：`iso.ts`(ELEV_STEP+worldToScreenElevated)、`scene.ts`(isoDepthKey+SceneGraph/SceneObject+visibilityAt+height)、`pixi/scene-stage.ts`(SceneStage 五层+drawIsoBox+biome 着色+**按需渲染 autoStart:false**)、`web/scene/layout.ts`(buildSceneGraph 纯函数)、`web/scene/PixiSceneHost.tsx`、`main.tsx`(?scene=pixi 动态 import)。
+- **SceneStage 与 IsoStage 并存**：新类不动 IsoStage(L0 缩略图仍用它)，零回归。
+- **按需渲染**：M1 场景静态,`autoStart:false`+手动 `redraw()`(render/setDayNight/cull 末尾),省 GPU 且工具友好。ticker 到 M5 微动态再开。renderMs 代替 FPS 作基线。
+- 场景构成(纯函数核实)：DEMO 岛 182 objects(terrain 156→1 cache draw call / world 26 逐帧排序)，depthKey 6000→26004 = 26 iso 行 × K_ROW，**分带零重叠实证**。
+
+## ⚠️ 环境限制：headless 浏览器验证会 wedge
+- 本机(mac)**没有** node 版 playwright(/opt/pw-browsers 那条 note 是别的环境);只有 homebrew python playwright。
+- **playwright-mcp 与 claude-in-chrome 都会在"持续 rAF ticker + WebGL"页面上 wedge**(等稳定态/权限弹窗永不返回);claude-in-chrome 常卡在扩展侧栏权限弹窗(需用户批准)。→ WebGL 视觉验收改为:(a) 纯逻辑单测 + 无回归 + 零 console 报错 + 纯函数核实构成;(b) 交用户浏览器自看 `http://localhost:5173/?scene=pixi`。改按需渲染(静态页)后工具*可能*不再卡,但本会话未再验证。
+- 教训：Pixi/WebGL 前端的"observed working",优先做成**可 node 单测的纯逻辑**(depth/layout 都做到了);GPU 帧留人工或真机确认,别在 headless 后端上 tunnel。
+
+## 方法原则
+- 计划为 Pixi 而写、现状为 SVG —— **平台是决定一切的总开关**，先拍板再动，别在错误平台上做 M1 设计。
+- 只研究参考项目（arafays/messenger-copy、hexianWeb/CubeCity）逻辑，不复制资产。

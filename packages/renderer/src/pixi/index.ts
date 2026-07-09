@@ -6,3 +6,4 @@
  */
 
 export { IsoStage, type IsoStageOptions } from './stage';
+export { SceneStage, type SceneStageOptions, type TextureResolver } from './scene-stage';

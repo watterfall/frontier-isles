@@ -19,6 +19,15 @@ export const HALF_W = 64;
 /** Half height — the `(gx+gy)` screen-y coefficient. */
 export const HALF_H = 32;
 
+/**
+ * Screen-space pixel lift per terrain elevation level (M1-DESIGN §3b). Kept
+ * below the tile height (`TILE_H = 64`) so a raised tile reads as a terrace
+ * without breaking the silhouette of the row in front of it. Design-tunable;
+ * the depth key (see scene!isoDepthKey) is independent of this value, so
+ * changing it never affects occlusion order.
+ */
+export const ELEV_STEP = 24;
+
 /** A point in grid/world space. Fractional coordinates are allowed. */
 export interface WorldPoint {
   gx: number;
@@ -46,6 +55,19 @@ export function worldToScreen(gx: number, gy: number): ScreenPoint {
     x: (gx - gy) * HALF_W,
     y: (gx + gy) * HALF_H,
   };
+}
+
+/**
+ * World → screen with terrain elevation (M1-DESIGN §3b). Elevation lifts the
+ * point up the screen by `elevation · ELEV_STEP` (−y) but leaves its iso row
+ * `(gx+gy)` untouched. Because the depth key is row-dominated and computed
+ * separately (scene!isoDepthKey), this lift changes only where a sprite is
+ * *drawn*, never *when* — a raised tile sits higher without ever occluding the
+ * row in front of it. `elevation = 0` is exactly {@link worldToScreen}.
+ */
+export function worldToScreenElevated(gx: number, gy: number, elevation = 0): ScreenPoint {
+  const p = worldToScreen(gx, gy);
+  return { x: p.x, y: p.y - elevation * ELEV_STEP };
 }
 
 /**
