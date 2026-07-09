@@ -144,7 +144,7 @@ export default function PixiSceneHost({ input = DEMO }: { input?: LayoutInput })
         </div>
       )}
       <div style={{ position: 'absolute', top: 12, left: 12, color: '#cfd6e6', font: '12px ui-monospace, monospace', background: 'rgba(0,0,0,.45)', padding: '6px 9px', borderRadius: 6, lineHeight: 1.5 }}>
-        <div>M2 · sea shader + layered scene</div>
+        <div>M3 · day/night + sea + layered</div>
         <div>render {stat.renderMs.toFixed(1)}ms · sorted {stat.sorted} · objects {stat.objects}</div>
         <div>drag = pan · wheel = zoom</div>
         <button

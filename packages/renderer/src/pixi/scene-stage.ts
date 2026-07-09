@@ -69,22 +69,21 @@ function assertWebGL(): void {
  *
  * ```
  * app.stage
- * ├─ skyBackdrop   (screen-space; tone-filter host in M3)
- * ├─ sceneContent  (tone-filter host; wraps the world-space camera)
+ * ├─ skyBackdrop   (screen-space backdrop)
+ * ├─ sceneContent  (wraps the world-space camera)
  * │   └─ cameraRoot (pan/zoom transform)
- * │       ├─ seaLayer   (world-space; Mesh in M2)
- * │       ├─ worldLayer (★ the only sorted layer)
- * │       │   └─ terrainRoot (static, cacheAsTexture)
- * │       └─ fogLayer   (world-space; M6)
- * └─ uiLayer       (screen-space; unfiltered)
+ * │       ├─ gradedContent  (seaLayer + worldLayer[terrainRoot] + fogLayer)
+ * │       ├─ toneOverlay    (world-space day↔night veil; M3)
+ * │       └─ lightsLayer    (emissive window-lights above the veil; M3, M8)
+ * └─ uiLayer       (screen-space)
  * ```
  */
 export class SceneStage {
   app?: Application;
 
-  /** Screen-space sky backdrop + global tone-filter host (M3). */
+  /** Screen-space sky backdrop. */
   readonly skyBackdrop = new Container();
-  /** Tone-filter host wrapping the world-space camera (M3 applies the grade here). */
+  /** Wraps the world-space camera. */
   readonly sceneContent = new Container();
   /** Camera-transformed root; holds every world-space layer. */
   readonly cameraRoot = new Container();
@@ -96,7 +95,13 @@ export class SceneStage {
   readonly terrainRoot = new Container();
   /** World-space Trust Fog (M6). Never sorts. */
   readonly fogLayer = new Container();
-  /** Screen-space labels / highlights / panel anchors. Never sorts, never filtered. */
+  /** Scene content (sea+world+fog) the day/night tone overlay darkens from above. */
+  readonly gradedContent = new Container();
+  /** World-space day↔night tone overlay (M3): a deep-blue veil whose alpha ← t. */
+  readonly toneOverlay = new Graphics();
+  /** Camera-synced emissive layer ABOVE the tone overlay: night window-lights (M3), lanterns/fireflies (M8). */
+  readonly lightsLayer = new Container();
+  /** Screen-space labels / highlights / panel anchors. Never sorts. */
   readonly uiLayer = new Container();
 
   private readonly nodes = new Map<string, Container>();
@@ -120,6 +125,9 @@ export class SceneStage {
     this.worldLayer.label = 'world';
     this.terrainRoot.label = 'terrain';
     this.fogLayer.label = 'fog';
+    this.gradedContent.label = 'graded';
+    this.toneOverlay.label = 'tone';
+    this.lightsLayer.label = 'lights';
     this.uiLayer.label = 'ui';
 
     // worldLayer is the sole sorting layer; sea/fog/sky/ui explicitly never sort
@@ -131,8 +139,15 @@ export class SceneStage {
     this.terrainRoot.zIndex = TERRAIN_Z;
     this.worldLayer.addChild(this.terrainRoot);
 
-    // Assemble the world-space stack under the camera, under the filter host.
-    this.cameraRoot.addChild(this.seaLayer, this.worldLayer, this.fogLayer);
+    // Camera-space stack, bottom→top: scene content (sea/world/fog), then the tone
+    // overlay that darkens it toward night, then the emissive lights above the
+    // overlay so night windows stay lit over the darkened silhouettes. A world-space
+    // overlay instead of a filter — a Pixi v8 filter over the custom sea Mesh crashes
+    // the batcher; the overlay is robust and keeps terrain caching (M3 two-path design).
+    this.gradedContent.addChild(this.seaLayer, this.worldLayer, this.fogLayer);
+    this.toneOverlay.alpha = 0; // day: no veil
+    this.lightsLayer.alpha = 0; // day: no window lights
+    this.cameraRoot.addChild(this.gradedContent, this.toneOverlay, this.lightsLayer);
     this.sceneContent.addChild(this.cameraRoot);
   }
 
@@ -241,8 +256,50 @@ export class SceneStage {
       this.objects.set(o.id, o);
       this.index.add(o);
     }
+    this.buildLights(graph);
+    this.buildToneOverlay();
+    this.applyToneAndLights(graph.t);
     this.recacheTerrain();
     this.cullToViewport();
+  }
+
+  /** Draw the world-space tone veil covering the island + open sea (alpha ← t). */
+  private buildToneOverlay(): void {
+    const b = this.terrainRoot.getLocalBounds();
+    this.toneOverlay.clear();
+    if (b.width <= 0) return;
+    const margin = 2200;
+    this.toneOverlay
+      .rect(b.x - margin, b.y - margin, b.width + 2 * margin, b.height + 2 * margin)
+      .fill({ color: 0x0a1428 });
+  }
+
+  /**
+   * Warm window-light per building (M3 "silhouette + lit windows"). Emissive dots
+   * in the unfiltered {@link lightsLayer}, placed at each building's box top, that
+   * the tone filter can't darken. Faded in/out as a group by {@link applyToneAndLights}.
+   */
+  private buildLights(graph: SceneGraph): void {
+    this.lightsLayer.removeChildren().forEach((c) => c.destroy());
+    for (const o of graph.objects) {
+      const h = o.height ?? 0;
+      if (o.layer !== 'world' || h <= 8) continue;
+      if (o.kind.startsWith('ghost:') || o.kind.startsWith('scenery:')) continue;
+      const c = worldToScreenElevated(o.gx + 0.5, o.gy + 0.5, o.elevation);
+      const g = new Graphics().circle(c.x, c.y - h * 0.55, Math.max(5, h * 0.32)).fill({ color: 0xffe6b0 });
+      this.lightsLayer.addChild(g);
+    }
+  }
+
+  /** How lit the night windows are at slider `t` — off in daylight, on past dusk. */
+  private nightLights(t: number): number {
+    return Math.max(0, Math.min(1, (t - 0.35) / 0.6));
+  }
+
+  /** Apply the two non-alpha day/night paths: global tone veil + window lights. */
+  private applyToneAndLights(t: number): void {
+    this.toneOverlay.alpha = t * 0.66;
+    this.lightsLayer.alpha = this.nightLights(t);
   }
 
   /**
@@ -254,6 +311,7 @@ export class SceneStage {
       const o = this.objects.get(id);
       if (o) node.alpha = visibilityAt(o, t);
     }
+    this.applyToneAndLights(t);
     this.redraw();
   }
 
@@ -330,6 +388,7 @@ export class SceneStage {
       node.destroy({ children: true });
       this.index.remove(id);
     }
+    this.lightsLayer.removeChildren().forEach((c) => c.destroy());
     this.nodes.clear();
     this.objects.clear();
   }

@@ -57,6 +57,17 @@
 - **地形轮廓当 mask**:`RenderTexture.create` + `renderer.render({target, container: terrainRoot, transform: Matrix(world rect→texture), clear:true})`,fragment 采样 alpha=land。**M6 Trust Fog 同法**(按 claim 争议区域生成 mask)。
 - **动画**:init 用 `autoStart:false`(静态省电),需要动画时 `app.ticker.add(cb)+app.start()`;cb 里改 uniform,Pixi 自动重渲。destroy 记得 `ticker.remove`。
 
+## 🐞 Pixi v8 坑：Filter 罩含自定义 Mesh 的容器 → batcher 崩
+- 症状:`[pageerror] Cannot read properties of null (reading 'clear')  at DefaultBatcher.break → BatcherPipe.buildEnd → Application.render`,canvas 全黑(DOM overlay 仍在)。
+- 触发:`container.filters=[filter]`,而 container 子树里有**自定义 Shader 的 Mesh**(M2 海面)。二分确认:blendMode/cache 都不是因,移除 filter 即好。构造期还是 init 期应用都崩。
+- 规避(M3 用):**别用 filter 做全局色调**;改**世界空间遮罩层**(cameraRoot 内一个 Graphics 矩形,深蓝,alpha←t)压暗;灯光/发光层放遮罩之上保持亮。同样实现连续昼夜渐变,且保留地形 cacheAsTexture。M6 Trust Fog 若也要 filter,注意此坑(fog 可同样用遮罩/局部 mesh 而非 filter)。
+- 附带坑:`Graphics.blendMode='add'` 在 v8 也易触 batcher break;发光暂用实心暖色点,真 additive glow 待查(可能需 `import 'pixi.js/advanced-blend-modes'` 或独立 RenderTexture 合成)。
+
+## M3 昼夜:两通路 + 灯窗(已实现)
+- 通路①=世界空间色调遮罩(gradedContent 之上),通路②=对象 alpha(visibilityAt,鬼影淡入)。灯窗=独立 lightsLayer(遮罩之上,不被压暗),alpha=smoothstep(t-0.35)。
+- 层级:cameraRoot → [gradedContent(sea/world/fog), toneOverlay, lightsLayer]。tone-filter.ts 已删。
+- 下线 SVG `{night?…}` 双份素材 = 随 Pixi 取代线上 L1(M4),现下线破坏线上。
+
 ## 方法原则
 - 计划为 Pixi 而写、现状为 SVG —— **平台是决定一切的总开关**，先拍板再动，别在错误平台上做 M1 设计。
 - 只研究参考项目（arafays/messenger-copy、hexianWeb/CubeCity）逻辑，不复制资产。

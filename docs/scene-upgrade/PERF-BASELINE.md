@@ -31,6 +31,14 @@
 - 视觉基线：`m2-baseline-sea.png`（暗涌 off）/ `m2-baseline-undertow.png`（on）。
 - 帧率：ticker 连续渲染；SwiftShader 软渲染下未记 FPS（真机 GPU：1 水面 mesh + 1 缓存地形 draw call + 26 对象，远够 60fps）。真机 FPS 待用户记录。
 
+## M3 — 昼夜语义视图（同 DEMO 岛）
+- **两通路组合**（P3/P4）：① 全局色调 = 世界空间遮罩层（cameraRoot 内、gradedContent 之上、lightsLayer 之下），深蓝 veil `alpha = t·0.66`；② 对象级 `dayVisibility/nightVisibility` alpha 插值（M1 已有，鬼影 t=0→1 淡入）。
+- **剪影灯窗态**：`lightsLayer`（遮罩之上、不被压暗）每栋建筑一颗暖光窗，`alpha = smoothstep(t-0.35)` 过 dusk 后点亮。
+- **⚠️ 偏离计划的实现**：计划写"全局色调 **Filter**",但 **Pixi v8 的 Filter 罩住含自定义 Mesh(M2 海面)的容器会崩 batcher**（`DefaultBatcher.break: reading 'clear' of null`）。改用**世界空间色调遮罩层**（darken+cool toward deep blue），达成同样的连续昼夜渐变且保留地形 cacheAsTexture。真正的 color-grade filter(desat/高光保留)待 Pixi 修复或换 seaLayer 不入 filter 的结构。
+- **验收 ✅（隔离 Playwright + chromium 实测）**：t 0→1 平滑压暗冷蓝、建筑降为剪影 + 暖灯窗、鬼影淡入；t=0 完全等于 M2 明亮全彩(遮罩/灯全隐)；全程无素材替换；零报错。
+- 视觉基线：`m3-baseline-day.png`（t=0）/ `m3-baseline-night.png`（t=1）。
+- 现存 SVG 双份素材(Scene.tsx `{night?…}`)**未下线**：SVG 场景仍是线上 L1，Pixi 取代它时(M4 完成)一并下线,现下线会破坏线上。
+
 ## 验证状态说明（M1）— ✅ 全部通过（含目视）
 - ✅ 纯逻辑：depth K 值 50×50 网格属性测试 + worked cases（`renderer/test/depth.test.ts`，10 测）；layout 管线（`web/src/__tests__/layout.test.ts`，8 测）。全绿。
 - ✅ 无回归：renderer 54 测 + web 50 测（+ core/server）全绿；两包 typecheck 干净。

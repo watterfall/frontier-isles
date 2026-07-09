@@ -47,3 +47,10 @@ Move:     (1) sea-mesh.ts: 世界空间 quad Mesh + GLSL(标准 v8 mesh 顶点 m
 Verify:   ✅ **目视实测**(Playwright+chromium 3 帧+点按钮):波光斜向粼光帧间移动、白浪花带贴合不规则海岸、undertow ON 现深色涡流暗斑;零 shader 编译错误。✅ 全量 150 测绿(renderer 54/core 27/web 50/server 19)无回归;两包 typecheck 干净。存 sea/undertow 基线。
 Decision: **M2 收口 ✅**(§2a+§2b 含目视全过)。提交。→ 进 M3 昼夜语义视图(全屏色调 Filter + nightT→t 收敛 + 下线命令式条件/双份 sky)。
 Deferred(M2→后续): undertow 绑真实 whirlpool/refute 数据(M6);海洋 climate manifold 域色渐变(depth-plan-v2,可 M2.x/M4);水面反射建筑倒影(可选)。
+
+## Iter 6 — 2026-07-09（M3 昼夜语义视图）
+Orient:   M2 收口,进 M3。M1 昼夜滑杆只调 alpha。计划:全局色调 Filter + 对象显隐双通路 + 剪影灯窗 + 下线双份素材。
+Move:     重构层级:cameraRoot 内 gradedContent(sea/world/fog) + toneOverlay + lightsLayer。先做 tone-filter(GLSL desat/cool grade)罩 gradedContent —— **崩了**(见 Verify)。改用世界空间色调遮罩(深蓝 veil alpha=t·0.66)+ 建筑暖灯窗层(遮罩之上)。tone-filter.ts 删除。
+Verify:   🐞 **系统调试**:filter 罩含自定义 Mesh(海面)的容器 → Pixi v8 batcher 崩(`DefaultBatcher.break: reading 'clear' of null`)。二分:移 blendMode(仍崩)→移 cache(仍崩)→移 filter(不崩)→确认 filter 是因。pivot 到遮罩层。✅ 目视实测(day/dusk/night 三帧):t 0→1 平滑压暗冷蓝、剪影+暖灯窗、鬼影淡入、t=0 等于 M2 明亮;零报错。✅ 150 测绿无回归 + typecheck。存 day/night 基线。
+Decision: **M3 收口 ✅**(§2a+§2b 含目视;色调用遮罩非 filter,偏离已记 PERF-BASELINE)。提交。→ 进 M4 地形高差+建筑积木化+biome(核心丰富度,最大一块;动工前需交高差/密度环带算法 + 36+ 原语清单 + projectClaimState 设计,§9.3)。
+Deferred(M3→后续): 真 color-grade filter(desat/高光保留,待 Pixi 修或换结构);下线 SVG 双份素材(随 Pixi 取代线上 L1,M4);灯光 additive glow(blendMode add 触 batcher 坑,暂用实心暖点)。
