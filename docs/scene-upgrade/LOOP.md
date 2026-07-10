@@ -95,3 +95,10 @@ Move:     (1) 修海:sea-mesh FRAG 去掉写实 glint 斜白浪 → 极淡纸颗
 Verify:   ✅ 目视: 海平静(probe-sea-day.png);9 座全真手绘、投影贴地、脱离椭圆消失(probe-allstations-day.png);零 pageerror;render 0.3ms。renderer+web typecheck 干净。DesignSync 身份核对: 避开撞名的 "Frontier Atlas"(8048b1c7)。
 Decision: **修海 ✅ + 整岛手绘 ✅**。→ 提交固化。等 claim A 设计回流(evolve 替换 makeClaimMark)。
 Deferred(Iter12→后续): per-station 垂直配准(统一 anchor 使几座略高);名牌烘进纹理→移 UI 层;夜版纹理(NIGHT_SCENE_VARS)+昼夜纹理交叉淡入;claim vs station 混淆(等 A);海接洋流/气候数据场(Fable #1 深化)。
+
+## Iter 13 — 2026-07-10（A 回流:Claude Design claim 设计落地）
+Orient:   用户在 Claude Design(真产品)出 claim 设计并 handoff("Send to Claude Code" → import project a3f16e64 + implement)。DesignSync get_file 拉回 `claim-as-building.html`:3 变体(A 体量对比细塔/B 材质脚手架/C 基座语言),全带参数化渲染代码 + 真 --fi-* token。用户选 **A 细塔聚落**。
+Move:     移植设计的 `claimA`/`story`/`cap`/`seal` → Pixi Graphics 替换 makeClaimMark 停机版:drawStory(等距 3 面棱柱)、逐复现叠层+灯窗、floors≥5 drawCap(宽檐领域顶盖+藤黄光环,可远读)、pre-consensus 域色 hip lid、spectral 魂影(半透+低alpha)、drawSeal(印章/预印开口)。claimDomain 域色查表。a=24 细塔(明显小于 station)。删除 drawIsoBuilding/claimRoof。
+Verify:   ✅ 目视昼(probe-claimA-day.png):共识塔(5层)高耸+蓝檐顶+光环、c2(2层)矮塔、c4(预印)单间;**细塔 vs 宽 station 一眼分清=靶心达成**。✅ 夜(probe-claimA-night.png):整岛靛蓝、共识塔暖光绽放+灯窗。renderer typecheck 净;全量 178 测绿;render 0.2ms。
+Decision: **A 回流落地 ✅**——claim 有了真设计源,停机版退役。设计源存 Claude Design 项目 a3f16e64/claim-as-building.html。→ 提交。
+Deferred(Iter13→后续): hasDoi 未穿到 SceneObject(印章暂全预印开口);魂影缺漩涡+浮动动画(M5/海层);微动态(灯窗 twinkle/光环 breathe,M5);claim-as-building.html 正式进 design-system 卡(走 evolve 回合);per-station 配准;名牌上 UI 层。

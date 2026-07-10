@@ -275,32 +275,51 @@ export class SceneStage {
   }
 
   /**
-   * A claim as a small illustrated BUILDING — INTERIM (option C stopgap): claims
-   * have no design-system mockup of their own yet, so they borrow the station
-   * grammar (cream wall + domain roof + ink outline + contact shadow) until the
-   * design loop delivers a claim-specific form. Height binds to independent
-   * reproductions (floors ← ledger); a consensus roof gets a ridge + flag; a
-   * refuted claim reads as a pale night ghost. Every dimension binds to data (P1).
+   * A claim as a slim stacked TOWER — variant A「体量对比·细塔聚落」from the
+   * Claude Design handoff (claim-as-building, project a3f16e64). A claim is smaller
+   * and slimmer than a civic station; every independent reproduction stacks one iso
+   * storey (with a lit window so the count is legible); domain consensus (floors≥5)
+   * caps it with a broad domain canopy + a gamboge halo that reads at distance; a
+   * refuted claim is a pale spectral tower (night-only). Ported from the design's
+   * `claimA`/`story`/`cap`/`seal` with verbatim --fi-* tokens. Every dimension binds
+   * to data (P1); nothing is ornament.
    */
   private makeClaimMark(o: SceneObject): Container {
     const pts = diamondPoints(o.gx, o.gy);
     const cx = (pts[0]!.x + pts[2]!.x) / 2;
-    const cy = (pts[0]!.y + pts[2]!.y) / 2;
-    const lift = o.elevation * ELEV_STEP;
+    const groundY = (pts[0]!.y + pts[2]!.y) / 2 - o.elevation * ELEV_STEP;
     const floors = Math.max(0, o.growth?.floors ?? 0);
-    const roof = o.growth?.roof ?? false;
-    const ghost = o.dayVisibility === 0;
-    // A claim hut is smaller than a civic station: shrink the tile diamond.
-    const sp = pts.map((p) => ({ x: cx + (p.x - cx) * 0.6, y: cy + (p.y - cy) * 0.6 }));
-    const height = 13 + floors * 11; // base + one storey per reproduction (P1)
-    const wall = ghost ? 0x37436a : 0xf3ead2; // --wall cream (night → deep)
-    const roofCol = ghost ? 0x3a4468 : claimRoof(o.biome); // domain roof
-    const ink = ghost ? 0x8e99be : 0x3a342b;
-    const c = new Container();
-    const shW = Math.max(8, (sp[1]!.x - sp[3]!.x) * 0.5);
-    c.addChild(new Graphics().ellipse(cx, cy - lift, shW, shW * 0.42).fill({ color: 0x241c10, alpha: ghost ? 0.1 : 0.2 }));
+    const spectral = o.dayVisibility === 0; // refuted/returned ghost — night-only
+    const dom = claimDomain(o.biome);
+    const a = 24;
+    const H = 18;
+    const stories = floors + 1;
+    const gy = groundY + a / 2; // front-bottom vertex → footprint centres on the tile
+    const wall = spectral ? 0xc9d7f2 : 0xf8f1de;
+    const sh = spectral ? 0xc9d7f2 : 0xe7dabe;
+    const top = spectral ? 0xc9d7f2 : 0xfbf6e9;
+    const ink = spectral ? 0xc9d7f2 : 0x3a342b;
+    const fa = spectral ? 0.16 : 1;
+    const sw = spectral ? 1.3 : 1.5;
     const g = new Graphics();
-    drawIsoBuilding(g, sp, lift, height, wall, roofCol, ink, roof && !ghost);
+    if (!spectral) g.ellipse(cx, gy + a / 2 + 2, a * 1.3, a * 0.6).fill({ color: 0x3a3024, alpha: 0.16 });
+    for (let k = 0; k < stories; k++) {
+      const y = gy - k * H;
+      drawStory(g, cx, y, a, H, wall, sh, top, ink, sw, fa);
+      if (!spectral) g.rect(cx - a * 0.45, y - a * 0.22 - H * 0.62, 6, 7).fill({ color: 0xe3a93c, alpha: 0.85 });
+    }
+    const yTop = gy - stories * H;
+    if (floors >= 5) {
+      drawCap(g, cx, yTop, a, dom, spectral);
+    } else if (!spectral) {
+      // simple domain hip lid while pre-consensus
+      g.poly([cx, yTop - a * 0.5, cx + a, yTop, cx, yTop + a * 0.5, cx - a, yTop]).fill({ color: dom.fill }).stroke({ color: ink, width: 1.5 });
+    } else {
+      g.poly([cx, yTop - a * 0.5, cx + a, yTop, cx, yTop + a * 0.5, cx - a, yTop]).stroke({ color: ink, width: 1.3, alpha: 0.8 });
+    }
+    // seal: preprint open-mark for now (hasDoi not yet threaded onto SceneObject — deferred)
+    if (!spectral) drawSeal(g, cx - a * 0.5, gy - a * 0.25 - H * 0.5, false);
+    const c = new Container();
     c.addChild(g);
     c.label = o.id;
     return c;
@@ -564,53 +583,77 @@ function drawIsoBox(
 }
 
 /**
- * A small illustrated building: cream walls (two shaded front faces) + a domain
- * roof (top face) + ink outline. `crown` adds a consensus ridge + flag. The
- * interim claim vocabulary (option C) reusing the station look until a claim
- * design lands in the design system.
+ * One iso prism storey of a claim tower (variant A). `(cx, gy)` is the front-bottom
+ * vertex; `a` = footprint half-width, `H` = wall height. Left/right/top faces, ink
+ * outline. Ported verbatim from the Claude Design handoff's `story()`.
  */
-function drawIsoBuilding(
+function drawStory(
   g: Graphics,
-  pts: readonly { x: number; y: number }[],
-  lift: number,
-  height: number,
+  cx: number,
+  gy: number,
+  a: number,
+  H: number,
   wall: number,
-  roof: number,
+  sh: number,
+  top: number,
   ink: number,
-  crown: boolean,
+  sw: number,
+  alpha: number,
 ): void {
-  const [T, R, B, L] = pts as [
-    { x: number; y: number },
-    { x: number; y: number },
-    { x: number; y: number },
-    { x: number; y: number },
-  ];
-  const gy = (p: { y: number }): number => p.y - lift;
-  const ty = (p: { y: number }): number => p.y - lift - height;
-  g.poly([L.x, gy(L), B.x, gy(B), B.x, ty(B), L.x, ty(L)]).fill({ color: shade(wall, -0.16) }).stroke({ color: ink, width: 1, alpha: 0.85 });
-  g.poly([B.x, gy(B), R.x, gy(R), R.x, ty(R), B.x, ty(B)]).fill({ color: shade(wall, -0.05) }).stroke({ color: ink, width: 1, alpha: 0.85 });
-  g.poly([T.x, ty(T), R.x, ty(R), B.x, ty(B), L.x, ty(L)]).fill({ color: roof }).stroke({ color: ink, width: 1, alpha: 0.85 });
-  if (crown) {
-    // Consensus: a lit roof ridge + a small flag at the back peak.
-    g.moveTo(T.x, ty(T)).lineTo(B.x, ty(B)).stroke({ color: shade(roof, 0.45), width: 1.5 });
-    g.moveTo(T.x, ty(T)).lineTo(T.x, ty(T) - 15).stroke({ color: ink, width: 1.2 });
-    g.poly([T.x, ty(T) - 15, T.x + 11, ty(T) - 12, T.x, ty(T) - 9]).fill({ color: 0xe0a93a });
+  const hh = a / 2;
+  g.poly([cx - a, gy - hh - H, cx, gy - H, cx, gy, cx - a, gy - hh]).fill({ color: wall, alpha }).stroke({ color: ink, width: sw, alpha: 0.9 });
+  g.poly([cx + a, gy - hh - H, cx, gy - H, cx, gy, cx + a, gy - hh]).fill({ color: sh, alpha }).stroke({ color: ink, width: sw, alpha: 0.9 });
+  g.poly([cx, gy - a - H, cx + a, gy - hh - H, cx, gy - H, cx - a, gy - hh - H]).fill({ color: top, alpha }).stroke({ color: ink, width: sw, alpha: 0.9 });
+}
+
+/** Domain fill + ink for a claim tower — verbatim DOMAIN_COLORS (no new hues). */
+function claimDomain(biome: string): { fill: number; ink: number } {
+  switch (biome) {
+    case '数理':
+      return { fill: 0xc9d8e6, ink: 0x2e5e8c };
+    case '物质':
+      return { fill: 0xe8cfae, ink: 0xb5673a };
+    case '生命':
+      return { fill: 0xc6decc, ink: 0x2b7a5f };
+    case '交叉':
+      return { fill: 0xecdfb4, ink: 0xa08428 };
+    default:
+      return { fill: 0xc9d8e6, ink: 0x2e5e8c };
   }
 }
 
-/** Domain roof colour for the interim claim building (DOMAIN_COLORS ink values). */
-function claimRoof(biome: string): number {
-  switch (biome) {
-    case '数理':
-      return 0x2e5e8c;
-    case '物质':
-      return 0xb5673a;
-    case '生命':
-      return 0x2b7a5f;
-    case '交叉':
-      return 0xa08428;
-    default:
-      return 0x8a7a4a;
+/**
+ * Consensus cap (floors≥5): a broad domain canopy with a double eave, a domain-ink
+ * crest, and a radiant gamboge halo that reads at distance. Ported from the design's
+ * `cap()`. Spectral variant is a translucent dashed-feel canopy (ghost consensus).
+ */
+function drawCap(g: Graphics, cx: number, cyTop: number, a: number, dom: { fill: number; ink: number }, spectral: boolean): void {
+  const cA = a * 2.15;
+  const cH = cA * 0.42;
+  const st = spectral ? 0xc9d7f2 : 0x3a342b;
+  // under-eave shade band
+  g.poly([cx - cA, cyTop, cx, cyTop + cH * 0.55, cx + cA, cyTop, cx, cyTop + cH * 0.55 + 7]).fill({ color: 0x3a3024, alpha: 0.18 });
+  if (spectral) {
+    g.poly([cx, cyTop - cH - 6, cx + cA, cyTop, cx, cyTop + cH * 0.55, cx - cA, cyTop]).fill({ color: 0xc9d7f2, alpha: 0.16 }).stroke({ color: st, width: 1.4 });
+    return;
+  }
+  // main canopy
+  g.poly([cx, cyTop - cH - 6, cx + cA, cyTop, cx, cyTop + cH * 0.55, cx - cA, cyTop]).fill({ color: dom.fill }).stroke({ color: st, width: 2.4 });
+  // ridge + domain-ink crest
+  g.moveTo(cx - cA, cyTop).lineTo(cx + cA, cyTop).stroke({ color: st, width: 1, alpha: 0.5 });
+  g.poly([cx, cyTop - cH - 6, cx + cA * 0.5, cyTop - cH * 0.5 - 3, cx, cyTop - cH * 0.5, cx - cA * 0.5, cyTop - cH * 0.5 - 3]).fill({ color: dom.ink }).stroke({ color: 0x3a342b, width: 1.4 });
+  // radiant consensus halo (gamboge — signals 领域共识, far-readable)
+  g.circle(cx, cyTop - cH - 30, cA * 0.62).stroke({ color: 0xe3a93c, width: 2.2, alpha: 0.7 });
+  g.circle(cx, cyTop - cH - 30, 4.5).fill({ color: 0xe3a93c }).stroke({ color: 0x3a342b, width: 1 });
+}
+
+/** DOI seal (published) vs preprint open-mark. Ported from the design's `seal()`. */
+function drawSeal(g: Graphics, x: number, y: number, doi: boolean): void {
+  if (doi) {
+    g.circle(x, y, 8.5).fill({ color: 0xb5673a }).stroke({ color: 0x3a342b, width: 1 });
+    g.circle(x, y, 5).stroke({ color: 0xfbf6e9, width: 1, alpha: 0.7 });
+  } else {
+    g.circle(x, y, 8.5).stroke({ color: 0x6b6154, width: 1.3, alpha: 0.8 });
   }
 }
 
