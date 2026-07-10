@@ -8,40 +8,20 @@
  * bundle because main.tsx dynamic-imports this file only on `?atlas=pixi`.
  *
  * Data source: the curated frontier atlas (`DATA` in api/fallback — the same
- * source the server seed uses, so these ARE the 27 real islands, rendered
+ * source the server seed uses, so these ARE the real curated islands, rendered
  * identically with the server absent). `?n=300` appends N deterministically
  * hash-generated FAKE islands (slug `fake-*`) for the scale test — clearly not
- * real data. This host does NOT touch ChartScreen; the SVG L0 stays the default.
+ * real data.
+ *
+ * atlas-world-plan.md W1: the atlas engine this demo exercises is now ALSO the
+ * default L0 (`AtlasChartScreen`/`AtlasChartHost`, wired into `App.tsx`) — this
+ * full-window host stays as the isolated dev/scale-test surface (unchanged
+ * URL contract: `?atlas=pixi[&n=N]`). Both hosts share the same data wiring
+ * (`./atlasData` — extracted from here, no drift).
  */
 import { useEffect, useRef, useState } from 'react';
-import {
-  ATLAS_DOMAIN_FILL,
-  AtlasStage,
-  makeFakeIslands,
-  type AtlasCluster,
-  type AtlasDomain,
-  type AtlasIslandInput,
-  type AtlasMetrics,
-} from '@frontier-isles/renderer/pixi';
-import { projectArchipelagos } from '@frontier-isles/core';
-import { DATA, type IslandDatum } from '../api/fallback';
-
-/** Map a curated `IslandDatum` to the atlas' input shape (fields carried over
- * verbatim; `eventCount` uses the activity proxy — the fallback has no ledger). */
-function toAtlasInput(d: IslandDatum): AtlasIslandInput {
-  return {
-    slug: d.slug ?? `id-${d.id}`,
-    name: d.n.zh, // editorial content stays in authored zh (invariant 9)
-    domain: d.d,
-    stage: d.st,
-    status: d.res ? 'resolved' : d.dor ? 'dormant' : 'active',
-    dormant: !!d.dor,
-    outlier: !!d.out,
-    eventCount: d.a,
-    x: d.x,
-    y: d.y,
-  };
-}
+import { AtlasStage, makeFakeIslands, type AtlasMetrics } from '@frontier-isles/renderer/pixi';
+import { buildAtlasScene } from './atlasData';
 
 export default function AtlasPixiHost() {
   const hostRef = useRef<HTMLDivElement | null>(null);
@@ -65,35 +45,8 @@ export default function AtlasPixiHost() {
         stage.destroy();
         return;
       }
-      const real = DATA.map(toAtlasInput);
-      const islands = n > 0 ? [...real, ...makeFakeIslands(n)] : real;
-      // C3 real projection (core.projectArchipelagos) fills the far-tier cluster
-      // slot: spatial × domain-vector × current-strength single-linkage,
-      // statistical outliers never clustered. Cluster provenance (curated
-      // `cluster` field) feeds the derived bilingual names; the demo passes no
-      // currents (spatial+domain only — the live wire-up adds api.currents()).
-      const clusterOf = new Map(DATA.map((d) => [d.slug ?? `id-${d.id}`, d.cluster] as const));
-      const proj = projectArchipelagos(
-        islands.map((i) => ({ slug: i.slug, domain: i.domain, x: i.x, y: i.y, outlier: i.outlier, cluster: clusterOf.get(i.slug) })),
-      );
-      // Statistical outliers float above the bulk exactly like editorial ones.
-      const statOutliers = new Set(proj.outliers);
-      const withOutliers = islands.map((i) => (statOutliers.has(i.slug) ? { ...i, outlier: true } : i));
-      const dominantDomain = (mix: Record<string, number>): AtlasDomain => {
-        let best: AtlasDomain = '交叉';
-        let bestV = -1;
-        for (const d of Object.keys(ATLAS_DOMAIN_FILL) as AtlasDomain[]) if ((mix[d] ?? 0) > bestV) { bestV = mix[d] ?? 0; best = d; }
-        return best;
-      };
-      const clusters: AtlasCluster[] = proj.archipelagos.map((a) => ({
-        id: a.id,
-        name: a.name.zh, // editorial naming surfaces zh in the demo host
-        islandSlugs: a.islandSlugs,
-        center: a.center,
-        radius: a.radius,
-        tint: ATLAS_DOMAIN_FILL[dominantDomain(a.domainMix)],
-      }));
-      stage.setIslands(withOutliers, clusters);
+      const { islands, clusters } = buildAtlasScene(undefined, n > 0 ? makeFakeIslands(n) : []);
+      stage.setIslands(islands, clusters);
       stageRef.current = stage;
     });
 

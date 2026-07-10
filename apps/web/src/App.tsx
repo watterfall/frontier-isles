@@ -2,7 +2,7 @@ import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { StationKind } from '@frontier-isles/core';
 import { Boat } from '@frontier-isles/assets';
-import { ChartScreen } from './components/chart/ChartScreen';
+import { AtlasChartScreen } from './components/chart/AtlasChartScreen';
 import { IslandScreen } from './components/island/IslandScreen';
 import { GeneratedIslandScreen } from './components/island/GeneratedIslandScreen';
 import { CeremonyOverlay } from './components/ceremony/CeremonyOverlay';
@@ -339,7 +339,7 @@ export default function App() {
           )}
 
           {wipe.view === 'chart' && (
-            <ChartScreen
+            <AtlasChartScreen
               islands={chartIslands}
               filter={filter}
               onFilter={setFilter}

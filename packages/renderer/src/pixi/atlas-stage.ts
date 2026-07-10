@@ -40,6 +40,39 @@ import {
 
 const STAGE_LABELS = ['空岛', '草棚', '书院', '学派'] as const;
 
+/**
+ * Trace `atlasCoastline`'s flat point list as a SMOOTH closed curve (Catmull-
+ * Rom converted to cubic Beziers) instead of a straight-edged polygon —
+ * mirrors `assets/islandSilhouette.moundPath`'s technique exactly (same
+ * tension divisor) so the atlas' island shape reads as the SAME soft-mound
+ * family the SVG L0 draws, never the angular/faceted "domain grammar" that
+ * was tried once and rolled back (see `atlas-lod.ts`'s coastline doc comment
+ * / `islandSilhouette.ts`'s rollback note) — Pixi has no SVG path string, so
+ * this draws directly with `Graphics.bezierCurveTo`.
+ */
+function traceSmoothClosed(gfx: Graphics, pts: number[]): void {
+  const n = pts.length / 2;
+  if (n < 3) return;
+  const at = (i: number): [number, number] => {
+    const k = ((i % n) + n) % n;
+    return [pts[k * 2]!, pts[k * 2 + 1]!];
+  };
+  const [x0, y0] = at(0);
+  gfx.moveTo(x0, y0);
+  for (let i = 0; i < n; i++) {
+    const [px0, py0] = at(i - 1);
+    const [px1, py1] = at(i);
+    const [px2, py2] = at(i + 1);
+    const [px3, py3] = at(i + 2);
+    const c1x = px1 + (px2 - px0) / 6;
+    const c1y = py1 + (py2 - py0) / 6;
+    const c2x = px2 - (px3 - px1) / 6;
+    const c2y = py2 - (py3 - py1) / 6;
+    gfx.bezierCurveTo(c1x, c1y, c2x, c2y, px2, py2);
+  }
+  gfx.closePath();
+}
+
 /** Options for {@link AtlasStage.init}; mirrors {@link SceneStageOptions}. */
 export interface AtlasStageOptions {
   width?: number;
@@ -102,6 +135,11 @@ export class AtlasStage {
   lastRenderMs = 0;
   onMetrics?: (m: AtlasMetrics) => void;
   onPick?: (slug: string) => void;
+  /** Pointer entered/left an island sprite (`null` on leave). Mirrors the SVG
+   * L0's mouseenter/mouseleave — the host uses this to show the same hover
+   * island-card the flat chart shows, positioned from `scale`/`worldRoot`
+   * (both public) at call time so it always reflects the CURRENT camera. */
+  onHover?: (slug: string | null) => void;
 
   private islands: IslandNode[] = [];
   private clusters: AtlasCluster[] = [];
@@ -189,7 +227,8 @@ export class AtlasStage {
     const gfx = new Graphics();
     const pts = atlasCoastline(o.slug, o.domain, o.stage, 0, 0);
     const fill = o.dormant ? 0xd8d3c2 : ATLAS_DOMAIN_FILL[o.domain];
-    gfx.poly(pts).fill({ color: fill }).stroke({ color: ATLAS_DOMAIN_INK[o.domain], width: 2, alpha: 0.85 });
+    traceSmoothClosed(gfx, pts);
+    gfx.fill({ color: fill }).stroke({ color: ATLAS_DOMAIN_INK[o.domain], width: 2, alpha: 0.85 });
     // small contact shadow so the isle reads as floating (matches SVG L0)
     const r = ATLAS_STAGE_RADIUS[Math.max(0, Math.min(3, o.stage)) as 0 | 1 | 2 | 3];
     const shadow = new Graphics().ellipse(0, r * 0.5, r * 0.8, r * 0.28).fill({ color: 0x3a3024, alpha: 0.12 });
@@ -204,6 +243,8 @@ export class AtlasStage {
     sprite.eventMode = 'static';
     sprite.cursor = 'pointer';
     sprite.on('pointertap', () => { if (!this.moved) this.onPick?.(o.slug); });
+    sprite.on('pointerover', () => this.onHover?.(o.slug));
+    sprite.on('pointerout', () => this.onHover?.(null));
     this.islandLayer.addChild(sprite);
 
     let glow: Graphics | undefined;
