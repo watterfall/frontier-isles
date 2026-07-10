@@ -75,6 +75,7 @@ export const en: Resources = {
       adopted: '✓ Adopted · co-signed human+AI',
       returned: '↩ Returned to Driftwood',
       footer: 'Adopting co-signs · returning never deletes',
+      empty: 'No drafts from last night awaiting a decision',
     },
     drift: {
       kicker: 'Driftwood Garden · un-metricized wilds',
@@ -262,6 +263,7 @@ export const en: Resources = {
     transplant: 'The clay prototype was transplanted to {{dest}} · the “once driftwood” seal travels with it · event recorded',
     ritAbort: 'Ceremony aborted · {{n}} recorded events kept in the night layer',
     ritDone: 'New island “{{name}}” is on the chart · {{n}} genesis events kept forever in the night layer',
+    morningFailed: 'The decision failed to reach the ledger · please retry',
   },
 
   mobile: {

@@ -4,7 +4,7 @@ import { NIGHT_SCENE_VARS, sceneVarsToStyle } from '@frontier-isles/assets';
 import { Scene } from '../../scene/Scene';
 import { DayNightLever } from './DayNightLever';
 import { ListTwin } from './ListTwin';
-import { MorningReport, type BriefState } from './MorningReport';
+import { MorningReport } from './MorningReport';
 import { DriftwoodModal } from './DriftwoodModal';
 import { NightTimeline } from './NightTimeline';
 import { QftPanel } from './QftPanel';
@@ -30,9 +30,8 @@ export interface IslandScreenProps {
   onMove: () => void;
   onToWorkshop: () => void;
   onToCanvas: () => void;
-  briefSt: Record<number, BriefState>;
-  onAdopt: (i: number) => void;
-  onReturn: (i: number) => void;
+  actor: string;
+  onToast: (msg: string) => void;
   qs: QuestionDatum[];
   voted: Record<number, boolean>;
   focusIdx: number | null;
@@ -94,7 +93,7 @@ export function IslandScreen(props: IslandScreenProps) {
 
       <ListTwin sel={props.sel} stFilter={props.stFilter} onStFilter={props.onStFilter} onStation={props.onStation} />
 
-      {!night && <MorningReport briefSt={props.briefSt} onAdopt={props.onAdopt} onReturn={props.onReturn} />}
+      {!night && <MorningReport actor={props.actor} onToast={props.onToast} />}
 
       {props.driftOn && (
         <DriftwoodModal onClose={props.onCloseDrift} driftDest={props.driftDest} transTo={props.transTo} onMove={props.onMove} onToWorkshop={props.onToWorkshop} onToCanvas={props.onToCanvas} />

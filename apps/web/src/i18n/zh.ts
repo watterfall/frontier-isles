@@ -74,6 +74,7 @@ export const zh = {
       adopted: '✓ 已采纳 · 署名 人+AI',
       returned: '↩ 已退回散木园',
       footer: '采纳即联合署名 · 退回不删除',
+      empty: '昨夜无新的散木待批',
     },
     drift: {
       kicker: '散木园 · 无考核野地',
@@ -260,6 +261,7 @@ export const zh = {
     transplant: '陶土原型机已移栽至{{dest}} · 「曾为散木」印随行 · 事件已记',
     ritAbort: '仪式中止 · 已记 {{n}} 条事件保留于夜晚层',
     ritDone: '新岛「{{name}}」已入海图 · 创世 {{n}} 条事件永存夜晚层',
+    morningFailed: '裁决未能写入账本 · 请重试',
   },
 
   mobile: {

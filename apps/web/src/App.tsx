@@ -23,7 +23,6 @@ import {
   initialCeremony,
   ritFocusText,
 } from './state/ceremonyReducer';
-import type { BriefState } from './components/island/MorningReport';
 import { useIsMobile, useStageScale } from './useIsMobile';
 
 export default function App() {
@@ -72,7 +71,6 @@ export default function App() {
   const [driftOn, setDriftOn] = useState(false);
   const [driftDest, setDriftDest] = useState<string | null>(null);
   const [transTo, setTransTo] = useState<string | null>(null);
-  const [briefSt, setBriefSt] = useState<Record<number, BriefState>>({ 0: 'pending', 1: 'pending', 2: 'pending' });
   const [advOn, setAdvOn] = useState(true);
   // ── collision founding (Track B) ─────────────────────────────────────
   const [collideOn, setCollideOn] = useState(false);
@@ -267,21 +265,6 @@ export default function App() {
     setQs((prev) => prev.map((q, j) => (j === idx ? { ...q, open: !q.open } : q)));
   }, []);
 
-  const onAdopt = useCallback(
-    (i: number) => {
-      setBriefSt((prev) => ({ ...prev, [i]: 'ok' }));
-      void api.decideBrief(SAMPLE_SLUG, i, 'adopt', actor);
-    },
-    [actor],
-  );
-  const onReturn = useCallback(
-    (i: number) => {
-      setBriefSt((prev) => ({ ...prev, [i]: 'back' }));
-      void api.decideBrief(SAMPLE_SLUG, i, 'return', actor);
-    },
-    [actor],
-  );
-
   const transplant = useCallback(
     (dest: '实验坊' | '白板厅') => {
       setTransTo(dest);
@@ -339,9 +322,8 @@ export default function App() {
               onMove={() => setDriftDest('choosing')}
               onToWorkshop={() => transplant('实验坊')}
               onToCanvas={() => transplant('白板厅')}
-              briefSt={briefSt}
-              onAdopt={onAdopt}
-              onReturn={onReturn}
+              actor={actor}
+              onToast={showToast}
               qs={qs}
               voted={voted}
               focusIdx={focusIdx}

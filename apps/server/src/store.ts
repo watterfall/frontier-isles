@@ -32,8 +32,10 @@ import {
   projectNightReplay,
   projectCurrents,
   projectWhirlpools,
+  projectMorningReport,
   type Current,
   type Whirlpool,
+  type MorningReportEntry,
 } from "@frontier-isles/core";
 import { domainToVec } from "@frontier-isles/data";
 import type { DB } from "./db.js";
@@ -42,6 +44,9 @@ import { randomBytes } from "node:crypto";
 
 export const ORG = "frontier-isles";
 export const opIdFor = (slug: string) => `op://${ORG}/prob/${slug}`;
+
+/** Wide-open window start for `morningReport` — the dock is a standing inbox, not a 24h window. */
+const EPOCH = "1970-01-01T00:00:00.000Z";
 
 // ---------------------------------------------------------------------------
 // Action → phase / ledger-action / default-station maps
@@ -729,28 +734,35 @@ export class Store {
 
   // --- morning report (dock HITL) ------------------------------------------
 
+  /**
+   * Dock inbox for the morning-report HITL panel — reduces the ledger via
+   * `@frontier-isles/core`'s {@link projectMorningReport} (Phase B.1: drafted
+   * from the real ledger, not seeds). `since` is pinned to the epoch rather
+   * than the projection's own 24h default: the dock is a standing inbox, not
+   * a strict "last night only" view — the seed's 3 drafts date to night
+   * 70-72 while "now" anchors near night 86, and a human curator should
+   * still see an unresolved draft days later. Only `status: "pending"`
+   * entries are returned on the wire: once resolved a draft leaves the inbox
+   * (adopted → its destination station; returned → driftwood) — the HITL
+   * decision itself stays on the ledger forever, just no longer here.
+   */
   morningReport(opId: string) {
     const events = this.getEvents(opId);
-    const resolved = new Set(
-      events
-        .filter((e) => (e.action === "adopt" || e.action === "return_to_driftwood") && e.ref)
-        .map((e) => e.ref),
-    );
-    const drafts: Array<{
-      refHash: string;
-      kind: string;
-      content: unknown;
-      ts: string;
-      actor: Actor;
-    }> = [];
-    for (const e of events) {
-      if (e.action !== "night_digest" || !e.ref || resolved.has(e.ref)) continue;
-      const ref = this.getRef(e.ref);
-      if (!ref) continue;
-      if (ref.kind !== "morning_report" && ref.kind !== "dock_proposal") continue;
-      drafts.push({ refHash: e.ref, kind: ref.kind, content: ref.content, ts: e.ts, actor: e.actor });
-    }
-    return drafts;
+    const entries: MorningReportEntry[] = projectMorningReport(events, {
+      resolveRef: (ref) => this.getRef(ref),
+      since: EPOCH,
+    });
+    return entries
+      .filter((e) => e.status === "pending")
+      .map((e) => ({
+        refHash: e.eventRef,
+        title: e.title,
+        dest: e.dest,
+        actorId: e.actorId,
+        actorKind: e.actorKind,
+        credit: e.credit,
+        ts: e.ts,
+      }));
   }
 
   /** Adopt (joint human+AI credit) or return a dock draft — full HITL into ledger. */

@@ -62,6 +62,21 @@ export interface ApiActor {
   kind: 'human' | 'agent' | 'pair';
 }
 
+/**
+ * A pending morning-report draft (GET `/api/islands/:slug/morning-report`) —
+ * reduced server-side from the ledger via `projectMorningReport`, keyed by
+ * its own content-addressed `refHash` (never an array index).
+ */
+export interface MorningReportDraft {
+  refHash: string;
+  title: string;
+  dest?: string;
+  actorId: string;
+  actorKind: 'human' | 'agent' | 'pair';
+  credit: string[];
+  ts: string;
+}
+
 /** The web app passes actor ids around as strings; the wire wants an Actor. */
 const toActor = (id: string): ApiActor => ({ id, kind: 'human' });
 
@@ -164,25 +179,26 @@ export const api = {
     }
   },
 
+  /**
+   * Last night's AI-authored dock drafts, reduced from the real ledger
+   * (`@frontier-isles/core`'s `projectMorningReport`, server-side) — not the
+   * static `BRIEF` seed. Only unresolved (`pending`) drafts are on the wire;
+   * once adopted/returned a draft leaves the inbox for good (the decision
+   * itself lives on in the ledger).
+   */
   morningReport: (slug: string) =>
-    req<{ drafts: Array<{ refHash: string; kind: string; content: unknown }> }>(
-      `/api/islands/${slug}/morning-report`,
-    ),
+    req<{ drafts: MorningReportDraft[] }>(`/api/islands/${slug}/morning-report`),
 
   /**
-   * Adopt or return a morning-report brief by its position in the report.
-   * The wire wants the draft's content-address; the drafts are fetched to
-   * resolve index → refHash, so the HITL chain lands on the real ledger.
+   * Adopt or return a morning-report draft by its own content-addressed ref
+   * (from `api.morningReport`) — never by array position, so a stale index
+   * can never resolve the wrong draft after the list has changed shape.
    */
-  decideBrief: async (slug: string, briefIndex: number, decision: 'adopt' | 'return', actor: string) => {
-    const report = await api.morningReport(slug);
-    const refHash = report?.drafts?.[briefIndex]?.refHash;
-    if (!refHash) return null;
-    return req<unknown>(`/api/islands/${slug}/morning-report/${refHash}`, {
+  decideBrief: (slug: string, refHash: string, decision: 'adopt' | 'return', actor: string) =>
+    req<unknown>(`/api/islands/${slug}/morning-report/${encodeURIComponent(refHash)}`, {
       method: 'POST',
       body: JSON.stringify({ decision, actor: toActor(actor) }),
-    });
-  },
+    }),
 
   /** Append a ledger event (vote, transplant, focus, …). */
   postEvent: (slug: string, event: LedgerEventInput) =>

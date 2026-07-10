@@ -228,6 +228,33 @@ describe("morning report HITL", () => {
     const body = await jsonOf(res);
     expect(body.event.action).toBe("return_to_driftwood");
   });
+
+  it("drafts are drawn from the real ledger (core's projectMorningReport), not seed constants — each carries its own title/dest/actor/credit", async () => {
+    const list = await jsonOf(await app.request("/api/islands/machine-curiosity/morning-report"));
+    expect(list.drafts).toHaveLength(3);
+    for (const d of list.drafts) {
+      expect(typeof d.refHash).toBe("string");
+      expect(typeof d.title).toBe("string");
+      expect(d.title.length).toBeGreaterThan(0);
+      expect(typeof d.dest).toBe("string");
+      expect(d.actorKind).toBe("agent"); // seed's 3 morning-report drafts are all agent-authored
+      expect(Array.isArray(d.credit)).toBe(true);
+    }
+    // Distinct agents (curiosity-scout / synthesizer / devils-advocate) — not one flat static array.
+    const actors = new Set(list.drafts.map((d: { actorId: string }) => d.actorId));
+    expect(actors.size).toBe(3);
+  });
+
+  it("an adopted draft is gone from the inbox even after re-fetching (status resolved from the ledger, not local UI state)", async () => {
+    const before = await jsonOf(await app.request("/api/islands/machine-curiosity/morning-report"));
+    const refHash: string = before.drafts[0].refHash;
+    await post(`/api/islands/machine-curiosity/morning-report/${encodeURIComponent(refHash)}`, {
+      decision: "adopt",
+      actor: MASTER,
+    });
+    const after = await jsonOf(await app.request("/api/islands/machine-curiosity/morning-report"));
+    expect(after.drafts.some((d: { refHash: string }) => d.refHash === refHash)).toBe(false);
+  });
 });
 
 describe("export", () => {
