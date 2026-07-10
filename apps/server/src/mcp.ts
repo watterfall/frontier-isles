@@ -100,10 +100,12 @@ export function createMcpServer(store: Store, islandSlug: string, agentId: strin
 
   server.tool(
     "night_digest",
-    "Record a night-shift digest in the Driftwood Garden (night wilds; private by default).",
-    { text: z.string(), credit: z.array(z.string()).optional() },
-    async ({ text: t, credit }) =>
-      text(write("night_digest", { payload: { note: t }, refKind: "note", credit: credit ?? ["credit:ai/ideation"] })),
+    "Record a night-shift digest. Plain digests stay in the night wilds (private note); pass `dest` to file it as a morning-report draft for the dawn adopt/return chain instead.",
+    { text: z.string(), credit: z.array(z.string()).optional(), dest: z.string().optional() },
+    async ({ text: t, credit, dest }) =>
+      text(write("night_digest", dest
+        ? { payload: { title: t, dest }, refKind: "morning_report", credit: credit ?? ["credit:ai/ideation"] }
+        : { payload: { note: t }, refKind: "note", credit: credit ?? ["credit:ai/ideation"] })),
   );
 
   server.tool(

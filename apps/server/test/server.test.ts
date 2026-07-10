@@ -197,6 +197,23 @@ describe("capability gateway", () => {
   });
 });
 
+describe("ref resolution", () => {
+  it("resolves a ledger event's ref to its stored kind+content (read-only leavability path)", async () => {
+    const list = await jsonOf(await app.request("/api/islands/machine-curiosity/morning-report"));
+    const refHash: string = list.drafts[0].refHash;
+    const res = await app.request(`/api/refs/${encodeURIComponent(refHash)}`);
+    expect(res.status).toBe(200);
+    const body = await jsonOf(res);
+    expect(body.kind).toBe("morning_report");
+    expect(body.content.title).toBeTruthy();
+  });
+
+  it("404s on an unknown hash", async () => {
+    const res = await app.request("/api/refs/sha256:0000000000000000000000000000000000000000000000000000000000000000");
+    expect(res.status).toBe(404);
+  });
+});
+
 describe("morning report HITL", () => {
   it("lists dock drafts and adopts one with joint human+AI credit", async () => {
     const list = await jsonOf(await app.request("/api/islands/machine-curiosity/morning-report"));

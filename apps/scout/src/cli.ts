@@ -32,6 +32,7 @@ async function main(): Promise<void> {
     topK: Number(arg("top") ?? 3),
     mailto,
     dryRun: flag("dry-run"),
+    agent: arg("agent") ?? "github:curiosity-scout",
   };
 
   const deps: NightDeps = {
@@ -43,7 +44,7 @@ async function main(): Promise<void> {
     fetchWorks: (keywords, rows, fromPubDate, mt) =>
       fetchWorks({ keywords, rows, fromPubDate, mailto: mt }),
     makeWriter: () =>
-      createMcpWriter({ island: opts.island, dbFile: process.env.SCOUT_DB_FILE }),
+      createMcpWriter({ island: opts.island, agent: opts.agent, dbFile: process.env.SCOUT_DB_FILE }),
     now: new Date(),
     log: (m) => console.log(m),
   };

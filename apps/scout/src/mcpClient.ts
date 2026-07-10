@@ -20,8 +20,10 @@ import type { Atom } from "./pipeline.js";
 export interface ScoutWriter {
   readQfocus(): Promise<string>;
   createDriftwood(atom: Atom, text: string, credit: string[]): Promise<string>;
-  /** Night-shift collect step. Returns "" if the tool is unavailable. */
-  nightDigest(text: string, credit: string[]): Promise<string>;
+  /** Night-shift collect step. Returns "" if the tool is unavailable. A `dest`
+   * station files the digest as a morning-report draft (dawn adopt/return
+   * chain) instead of a private night-wilds note. */
+  nightDigest(text: string, credit: string[], dest?: string): Promise<string>;
   close(): Promise<void>;
 }
 
@@ -81,9 +83,9 @@ export async function createMcpWriter(opts: McpWriterOptions): Promise<ScoutWrit
         await client.callTool({ name: "create_driftwood", arguments: { atom, text, credit } }),
       );
     },
-    async nightDigest(text, credit) {
+    async nightDigest(text, credit, dest) {
       if (!hasNightDigest) return "";
-      return toText(await client.callTool({ name: "night_digest", arguments: { text, credit } }));
+      return toText(await client.callTool({ name: "night_digest", arguments: dest ? { text, credit, dest } : { text, credit } }));
     },
     async close() {
       await client.close();

@@ -150,6 +150,15 @@ export function createApp(store: Store): Hono {
     });
   });
 
+  // Read-only ref resolution (leavability: events carry `ref: sha256:…`, never
+  // inline content — this is the public path from a ledger event to what it
+  // points at, e.g. scout dedup or a ritual panel's click-through).
+  app.get("/api/refs/:hash", (c) => {
+    const ref = store.getRef(decodeURIComponent(c.req.param("hash")));
+    if (!ref) return c.json({ error: "not found" }, 404);
+    return c.json(ref);
+  });
+
   // --- morning report (dock HITL) ------------------------------------------
 
   app.get("/api/islands/:slug/morning-report", (c) => {

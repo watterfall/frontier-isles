@@ -24,10 +24,19 @@ Some night notes about curiosity, novelty and question generation.
 `;
 
 // The ledger already mentions DOI 10.1000/ddd → it must be skipped this shift.
+// Real ledger shape: events carry `ref: sha256:…`, never inline content — the
+// DOI only exists behind the read-only /api/refs endpoint.
 const LEDGER = [
   '{"action":"found_island","actor":{"id":"github:shen-kuo","kind":"human"}}',
-  '{"action":"night_digest","actor":{"id":"github:curiosity-scout","kind":"agent"},"note":"earlier find doi:10.1000/ddd"}',
+  '{"action":"night_digest","actor":{"id":"github:curiosity-scout","kind":"agent"},"ref":"sha256:aaa"}',
+  '{"action":"night_digest","actor":{"id":"github:other-agent","kind":"agent"},"ref":"sha256:bbb"}',
 ].join("\n");
+
+const REFS: Record<string, string> = {
+  "sha256:aaa": '{"kind":"driftwood","content":{"atom":"thought","text":"earlier find doi:10.1000/ddd"}}',
+  // another agent's ref must NOT be resolved (dedup scopes to the scout's own proposals)
+  "sha256:bbb": '{"kind":"driftwood","content":{"atom":"thought","text":"someone else doi:10.5555/zzz"}}',
+};
 
 function fakeWriter(): ScoutWriter & { calls: { name: string; args: unknown[] }[] } {
   const calls: { name: string; args: unknown[] }[] = [];
@@ -41,8 +50,8 @@ function fakeWriter(): ScoutWriter & { calls: { name: string; args: unknown[] }[
       calls.push({ name: "createDriftwood", args: [atom, text, credit] });
       return `✓ night_digest written to ledger. ref=sha256:fake phase=A`;
     },
-    async nightDigest(text, credit) {
-      calls.push({ name: "nightDigest", args: [text, credit] });
+    async nightDigest(text, credit, dest) {
+      calls.push({ name: "nightDigest", args: [text, credit, dest] });
       return `✓ night_digest written to ledger. ref=sha256:digest phase=A`;
     },
     async close() {
@@ -53,7 +62,15 @@ function fakeWriter(): ScoutWriter & { calls: { name: string; args: unknown[] }[
 
 function baseDeps(overrides: Partial<NightDeps> = {}): NightDeps {
   return {
-    fetchText: async (url) => (url.endsWith("/problem.md") ? PROBLEM_MD : LEDGER),
+    fetchText: async (url) => {
+      if (url.endsWith("/problem.md")) return PROBLEM_MD;
+      if (url.includes("/api/refs/")) {
+        const hash = decodeURIComponent(url.split("/api/refs/")[1]!);
+        if (!(hash in REFS)) throw new Error("404");
+        return REFS[hash]!;
+      }
+      return LEDGER;
+    },
     fetchWorks: async () => resp.message.items as CrossRefWork[],
     now: new Date("2026-07-10T00:00:00Z"),
     log: () => {},
@@ -94,7 +111,10 @@ describe("runNightShift", () => {
       expect(CREDIT).toEqual(["credit:ai/literature"]);
     }
     // collect step
-    expect(writer.calls.some((c) => c.name === "nightDigest")).toBe(true);
+    const digestCall = writer.calls.find((c) => c.name === "nightDigest");
+    expect(digestCall).toBeDefined();
+    // the shift digest is filed as a morning-report draft for the library
+    expect(digestCall!.args[2]).toBe("library");
     expect(writer.calls.at(-1)!.name).toBe("close");
   });
 

@@ -37,6 +37,8 @@ export interface NightOptions {
   topK: number;
   mailto?: string;
   dryRun: boolean;
+  /** Scout identity whose past proposals are resolved for DOI dedup. */
+  agent?: string;
 }
 
 export interface NightDeps {
@@ -76,9 +78,32 @@ export async function runNightShift(opts: NightOptions, deps: NightDeps): Promis
   deps.log(`题：「${object.title}」 QFocus=${qfocus.replace(/\s+/g, " ").trim()}`);
   deps.log(`关键词：${keywords.join(" / ") || "(none)"}`);
 
-  // c(部分). Dedup source — DOIs already in the ledger.
+  // c(部分). Dedup source — DOIs already proposed. Ledger events carry only
+  // `ref: sha256:…` (content is never inlined), so the raw jsonl text cannot
+  // contain a DOI: resolve this scout's own night_digest refs via the
+  // read-only /api/refs endpoint and scan the resolved content.
   const ledger = await deps.fetchText(`${base}/api/islands/${opts.island}/ledger.jsonl`).catch(() => "");
-  const seen = extractSeenDois(ledger);
+  const ownRefs = ledger
+    .trim()
+    .split("\n")
+    .filter(Boolean)
+    .map((l) => {
+      try {
+        return JSON.parse(l) as { action?: string; ref?: string; actor?: { id?: string } };
+      } catch {
+        return null;
+      }
+    })
+    .filter((e): e is { action: string; ref: string; actor: { id: string } } =>
+      e?.action === "night_digest" && typeof e?.ref === "string" && e?.actor?.id === (opts.agent ?? "github:curiosity-scout"),
+    )
+    .map((e) => e.ref);
+  const resolved = await Promise.all(
+    [...new Set(ownRefs)].map((r) =>
+      deps.fetchText(`${base}/api/refs/${encodeURIComponent(r)}`).catch(() => ""),
+    ),
+  );
+  const seen = extractSeenDois(resolved.join("\n"));
 
   // b. SEARCH CrossRef within the last-year window.
   const fromPubDate = oneYearAgo(deps.now);
@@ -117,8 +142,10 @@ export async function runNightShift(opts: NightOptions, deps: NightDeps): Promis
       result.written.push(r);
       deps.log(`⇢ create_driftwood: ${r}`);
     }
-    // e. COLLECT — one night_digest for the shift (through the gateway).
-    result.digest = await writer.nightDigest(summarizeShift(proposals, { island: opts.island, qfocus }), CREDIT);
+    // e. COLLECT — one night_digest for the shift, filed as a morning-report
+    // draft for the library (dest → refKind morning_report at the gateway;
+    // mirrors the seeded scout's「12 篇新文摘要」draft shape).
+    result.digest = await writer.nightDigest(summarizeShift(proposals, { island: opts.island, qfocus }), CREDIT, "library");
     if (result.digest) deps.log(`⇢ night_digest: ${result.digest}`);
     else deps.log("night_digest 工具不可用；收班摘要未单独入账（每条 create_driftwood 已是 night_digest 事件）");
   } finally {
