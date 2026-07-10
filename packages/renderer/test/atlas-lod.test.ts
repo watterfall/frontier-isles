@@ -14,12 +14,15 @@ import { describe, expect, it } from 'vitest';
 import {
   atlasHash,
   atlasCoastline,
+  computeWorldMinScale,
   deconflictLabels,
+  focusFog,
   islandPriority,
   makeFakeIslands,
   placeholderClusters,
   tierBlend,
   zoomTier,
+  ATLAS_ABS_MIN_SCALE,
   TIER_FAR_MAX,
   TIER_MID_MAX,
   type AtlasIslandInput,
@@ -215,6 +218,77 @@ describe('placeholderClusters — §6: ~700 read as ≤N named archipelagos', ()
     const c = placeholderClusters(isles).find((k) => k.id === 'domain:生命')!;
     expect(c.center.x).toBeCloseTo(50, 5);
     expect(c.center.y).toBeCloseTo(100, 5);
+  });
+});
+
+describe('computeWorldMinScale — camera zoom-out floor (W5: no collapse-to-a-dot)', () => {
+  it('a small tightly-packed bbox floors ABOVE the naive fixed 0.18 constant (the old bug)', () => {
+    // Real curated-data shape: ~1120×415 chart-px bbox on a ~1400×900 screen.
+    const bounds = { minX: 170, minY: 245, maxX: 1290, maxY: 660 };
+    const floor = computeWorldMinScale(1400, 900, bounds);
+    expect(floor).toBeGreaterThan(0.18);
+  });
+
+  it('never goes below the absolute safety floor for a degenerate (single-point) bbox', () => {
+    const floor = computeWorldMinScale(1400, 900, { minX: 500, minY: 500, maxX: 500, maxY: 500 });
+    expect(floor).toBeGreaterThanOrEqual(ATLAS_ABS_MIN_SCALE);
+  });
+
+  it('the discrete far tier stays REACHABLE for the real curated bbox (world state must not vanish)', () => {
+    // Real curated-data shape (see fallback.ts / packages/data/frontiers.ts).
+    // A margin tight enough to only fill the frame but never cross TIER_FAR_MAX
+    // would strand the camera in mid tier forever — the four-tier model would
+    // lose its "world" state for this exact dataset. Pin the floor below the
+    // threshold so continents-only far tier is always a real, reachable state.
+    const bounds = { minX: 170, minY: 245, maxX: 1290, maxY: 660 };
+    const floor = computeWorldMinScale(1400, 900, bounds);
+    expect(floor).toBeLessThan(TIER_FAR_MAX);
+  });
+
+  it('a much larger world (N=700 scale-test spread) floors at a smaller scale than a small one', () => {
+    const small = computeWorldMinScale(1400, 900, { minX: 0, minY: 0, maxX: 1000, maxY: 700 });
+    const big = computeWorldMinScale(1400, 900, { minX: 0, minY: 0, maxX: 5200, maxY: 3400 });
+    expect(big).toBeLessThan(small);
+  });
+
+  it('is monotonic in screen size (a bigger viewport floors at a bigger scale for the same world)', () => {
+    const bounds = { minX: 0, minY: 0, maxX: 1200, maxY: 800 };
+    const small = computeWorldMinScale(800, 600, bounds);
+    const big = computeWorldMinScale(1600, 1200, bounds);
+    expect(big).toBeGreaterThan(small);
+  });
+});
+
+describe('focusFog — camera-responsive focus (W5 goal 2: focus clears, periphery hazes)', () => {
+  it('a cell exactly at the focus point is fully cleared regardless of its data fog', () => {
+    expect(focusFog(1, 0, 0, 0, 0, 500)).toBe(0);
+  });
+
+  it('a cell far outside the focus radius keeps its full data value (never hazier than the data)', () => {
+    expect(focusFog(0.6, 2000, 0, 0, 0, 500)).toBeCloseTo(0.6, 5);
+  });
+
+  it('is monotonically increasing in distance from the focus point (smooth falloff, no hard edge)', () => {
+    const near = focusFog(1, 100, 0, 0, 0, 1000);
+    const mid = focusFog(1, 500, 0, 0, 0, 1000);
+    const far = focusFog(1, 900, 0, 0, 0, 1000);
+    expect(near).toBeLessThan(mid);
+    expect(mid).toBeLessThan(far);
+  });
+
+  it('an already-clear cell (fog=0) stays clear no matter where the camera looks', () => {
+    expect(focusFog(0, 5000, 5000, 0, 0, 500)).toBe(0);
+  });
+
+  it('never raises a cell above its own data value (focus only ever reduces)', () => {
+    for (let d = 0; d <= 2000; d += 100) {
+      expect(focusFog(0.5, d, 0, 0, 0, 500)).toBeLessThanOrEqual(0.5);
+    }
+  });
+
+  it('focusRadius<=0 is a no-op passthrough', () => {
+    expect(focusFog(0.42, 999, 999, 0, 0, 0)).toBe(0.42);
+    expect(focusFog(0.42, 999, 999, 0, 0, -5)).toBe(0.42);
   });
 });
 

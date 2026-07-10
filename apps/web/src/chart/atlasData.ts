@@ -74,6 +74,7 @@ export function toAtlasInput(d: IslandDatum): AtlasIslandInput {
     eventCount: d.a,
     x: d.x,
     y: d.y,
+    members: d.m, // T2 richness (atlas-world-plan.md §4 lane W5) — real member count
   };
 }
 

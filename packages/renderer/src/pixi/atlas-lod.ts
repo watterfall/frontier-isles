@@ -58,6 +58,11 @@ export interface AtlasIslandInput {
   eventCount: number;
   x: number;
   y: number;
+  /** Member count (T2 richness, atlas-world-plan.md §4 lane W5) — optional so
+   *  every existing call site (tests, the placeholder fake-island generator)
+   *  keeps assigning without change; a node with no member data simply shows
+   *  one fewer channel at near tier, never a fabricated number. */
+  members?: number;
 }
 
 /**
@@ -129,6 +134,81 @@ export interface AtlasFlow {
   tint: number;
   /** Aggregate relation weight → flowline width. */
   weight: number;
+}
+
+// ─── Camera framing (W5, atlas-world-plan.md §4) ─────────────────────────────
+//
+// Fixes "zooming out over-shoots so content collapses to a tiny central dot":
+// the old zoom-out floor was a fixed absolute constant unrelated to the
+// dataset's own footprint. A small curated set (~26 islands in a ~1120×415
+// chart-px bbox) fits the screen tightly at scale≈1 — but the camera could
+// still zoom out to that fixed floor, shrinking the whole already-well-framed
+// world into a speck at screen centre. Anchoring the floor to the DATA's own
+// bounds means the far/world tier always composes with content filling the
+// frame, for 26 curated islands or 700 synthetic ones alike.
+
+export interface AtlasBounds {
+  minX: number;
+  minY: number;
+  maxX: number;
+  maxY: number;
+}
+
+/** Chart-px margin added around the island bbox for the "whole world" frame.
+ *  Bigger than `core/climate.ts`'s `fogMargin` (340) on purpose: a margin
+ *  THAT tight floors the camera just above `TIER_FAR_MAX`, so a modest
+ *  curated set could zoom out fully composed yet never actually reach the
+ *  discrete far tier (continents alone, no islands) — the four-tier model
+ *  would lose its "world" state. This wider margin leaves room for the
+ *  camera to cross into far tier while the world still fills a comfortable
+ *  majority of the frame (verified for the curated dataset's real bbox in
+ *  atlas-lod.test.ts). Restated rather than imported — renderer must not
+ *  depend on core, the same rationale `atlasHash`/`DOMAIN_CORNER`-style
+ *  restatements already give. */
+export const ATLAS_WORLD_MARGIN = 520;
+
+/** Absolute safety floor — guards a degenerate bbox (a single island, or all
+ *  islands at one point) from producing a scale so large the camera could
+ *  never zoom out at all. */
+export const ATLAS_ABS_MIN_SCALE = 0.08;
+
+/**
+ * The camera's zoom-OUT floor: the scale at which the whole known world
+ * (every island's bbox + a comfortable margin) just fills the viewport —
+ * never smaller. Pure and screen/data-driven so it is stable per dataset
+ * (invariant 13) and unit-testable without a GPU.
+ */
+export function computeWorldMinScale(screenW: number, screenH: number, bounds: AtlasBounds, margin = ATLAS_WORLD_MARGIN): number {
+  const w = Math.max(1, bounds.maxX - bounds.minX + margin * 2);
+  const h = Math.max(1, bounds.maxY - bounds.minY + margin * 2);
+  return Math.max(ATLAS_ABS_MIN_SCALE, Math.min(screenW / w, screenH / h));
+}
+
+// ─── Fog-as-focus (W5, atlas-world-plan.md §4 goal 2) ────────────────────────
+
+const clamp01 = (v: number): number => (v < 0 ? 0 : v > 1 ? 1 : v);
+/** Hermite smoothstep — a soft 0→1 ramp (no hard fog wall), mirrors
+ *  `core/climate.ts`'s identical helper (restated, renderer must not import core). */
+const smoothstep01 = (t: number): number => {
+  const c = clamp01(t);
+  return c * c * (3 - 2 * c);
+};
+
+/**
+ * Dims a fog cell's DATA value toward 0 near the camera's current look-point
+ * (screen centre, in world space) and lets it approach its full data value
+ * away from it — a smooth radial falloff, never a hard edge. A camera/
+ * display effect layered on `projectClimate`'s data-driven ceiling, never
+ * invented data: this only ever REDUCES a cell's fog (an already-clear cell,
+ * `cellFog≈0`, is unaffected either way), so the periphery never reads hazier
+ * than the data itself says — fog stays a FOCUS aid that draws the eye
+ * inward, never a wall. `focusRadius<=0` is a no-op passthrough.
+ */
+export function focusFog(cellFog: number, cellX: number, cellY: number, focusX: number, focusY: number, focusRadius: number): number {
+  if (focusRadius <= 0) return cellFog;
+  const d = Math.hypot(cellX - focusX, cellY - focusY);
+  const eased = smoothstep01(d / focusRadius);
+  return cellFog * eased;
 }
 
 // ─── Zoom → semantic tier ────────────────────────────────────────────────────

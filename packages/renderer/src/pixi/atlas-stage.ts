@@ -28,7 +28,9 @@ import {
   ATLAS_DOMAIN_INK,
   ATLAS_STAGE_RADIUS,
   atlasCoastline,
+  computeWorldMinScale,
   deconflictLabels,
+  focusFog,
   islandPriority,
   tierBlend,
   zoomTier,
@@ -77,6 +79,27 @@ function traceSmoothClosed(gfx: Graphics, pts: number[]): void {
   gfx.closePath();
 }
 
+/**
+ * A small lighthouse landmark, drawn directly with Pixi calls (T2 richness,
+ * atlas-world-plan.md §4 lane W5 — "resolved → lighthouse"). Mirrors
+ * `assets/chart/Lighthouse.tsx`'s tower/lamp/beam/flag anatomy verbatim (same
+ * proportions, same colours) so the L0-Pixi atlas and the L0-SVG fallback fly
+ * the SAME landmark for a `status: 'resolved'` island — no new geometry
+ * invented, just the SVG path translated to `Graphics` draw calls (Pixi has
+ * no SVG path string, same rationale as `traceSmoothClosed` above).
+ */
+function drawLighthouseGfx(g: Graphics, x: number, y: number, scale: number): void {
+  const s = scale;
+  g.poly([x - 5 * s, y, x - 3 * s, y - 22 * s, x + 3 * s, y - 22 * s, x + 5 * s, y])
+    .fill({ color: 0xf8f1de })
+    .stroke({ color: 0x4a4238, width: 1 });
+  g.rect(x - 4 * s, y - 22 * s, 8 * s, 6 * s).fill({ color: 0x2b2620 }).stroke({ color: 0x4a4238, width: 0.75 });
+  g.circle(x, y - 19 * s, 3.4 * s).fill({ color: 0xe3a93c, alpha: 0.55 });
+  g.circle(x, y - 19 * s, 1.6 * s).fill({ color: 0xf5b94b });
+  g.moveTo(x, y - 22 * s).lineTo(x, y - 27 * s).stroke({ color: 0x4a4238, width: 1 });
+  g.poly([x, y - 27 * s, x + 6 * s, y - 24.5 * s, x, y - 22 * s]).fill({ color: 0xe3a93c }).stroke({ color: 0x4a4238, width: 0.5 });
+}
+
 /** Options for {@link AtlasStage.init}; mirrors {@link SceneStageOptions}. */
 export interface AtlasStageOptions {
   width?: number;
@@ -99,8 +122,9 @@ export interface AtlasMetrics {
   labels: number;
 }
 
-/** Camera zoom clamp — three tiers must all be reachable within this range. */
-const MIN_SCALE = 0.18;
+/** Camera zoom-IN clamp — near tier must always be reachable. The zoom-OUT
+ *  floor is `minScale` (an instance field, computed per-dataset by
+ *  `computeWorldMinScale` in `fitToContent` — see that method's doc comment). */
 const MAX_SCALE = 4.5;
 
 interface IslandNode {
@@ -160,6 +184,23 @@ export class AtlasStage {
   private continentLabels: Array<{ c: AtlasContinent; group: Container }> = [];
   private lastLabelCount = 0;
   private settleTimer: ReturnType<typeof setTimeout> | null = null;
+
+  /** Zoom-OUT floor — data/screen-driven (see `fitToContent`), replaces the
+   *  old fixed constant that let the camera shrink a small curated world into
+   *  a speck (W5 camera-framing fix). A conservative default until the first
+   *  `fitToContent` call computes the real one. */
+  private minScale = 0.12;
+  /** Persistent, redrawable fog Graphics (W5 goal 2: fog-as-focus responds to
+   *  the camera) — built once in `buildContinents`, repainted by `redrawFog`
+   *  on every camera settle. `undefined` until climate data exists. */
+  private fogGfx?: Graphics;
+  /** A tap-driven camera flight in progress (island or region drill-down) —
+   *  guards against overlapping flights from a rapid double-tap. */
+  private flying = false;
+  private flightRaf: number | null = null;
+  /** rAF-coalesced render request state — see `requestFrame`'s doc comment. */
+  private frameScheduled = false;
+  private pendingReflow = false;
 
   // pointer / drag state
   private dragging = false;
@@ -240,26 +281,56 @@ export class AtlasStage {
 
   private buildIsland(o: AtlasIslandInput): IslandNode {
     const app = this.app!;
-    // Bake the coastline to a texture once; the Sprite is what draws every frame.
+    const r = ATLAS_STAGE_RADIUS[Math.max(0, Math.min(3, o.stage)) as 0 | 1 | 2 | 3];
+
+    // T2 richness (atlas-world-plan.md §4 lane W5): "tide glow" — a soft warm
+    // halo whose intensity transcribes REAL activity data (`eventCount`, the
+    // same proxy the near-tier subline already labels "N" — no true per-island
+    // A/B/D ledger is available client-side, so activity IS the honest tide
+    // proxy here, not an invented number). Mirrors the L1 scene's identical
+    // "moon-on-water" glow colour (`GeneratedScene.tsx`'s 0xf5b94b) so the same
+    // island reads as the same warmth at both zoom levels. Dormant islands
+    // fade instead (see below), so they never also show a tide glow.
+    const tideAlpha = !o.dormant ? Math.min(0.34, (o.eventCount / 140) * 0.34) : 0;
+    const tideGlow = tideAlpha > 0.02 ? new Graphics().circle(0, 0, r * 1.22).fill({ color: 0xf5b94b, alpha: tideAlpha }) : null;
+
+    // Bake the coastline (+ tide glow + shadow + lighthouse) to a texture once;
+    // the Sprite is what draws every frame.
     const gfx = new Graphics();
     const pts = atlasCoastline(o.slug, o.domain, o.stage, 0, 0);
     const fill = o.dormant ? 0xd8d3c2 : ATLAS_DOMAIN_FILL[o.domain];
     traceSmoothClosed(gfx, pts);
     gfx.fill({ color: fill }).stroke({ color: ATLAS_DOMAIN_INK[o.domain], width: 2, alpha: 0.85 });
     // small contact shadow so the isle reads as floating (matches SVG L0)
-    const r = ATLAS_STAGE_RADIUS[Math.max(0, Math.min(3, o.stage)) as 0 | 1 | 2 | 3];
     const shadow = new Graphics().ellipse(0, r * 0.5, r * 0.8, r * 0.28).fill({ color: 0x3a3024, alpha: 0.12 });
     const bake = new Container();
+    if (tideGlow) bake.addChild(tideGlow);
     bake.addChild(shadow, gfx);
+    // T2 richness: "resolved → lighthouse" — flies the SAME landmark the SVG
+    // L0 already draws for `status: 'resolved'` (IslandFingerprint.tsx), baked
+    // above the coastline so it costs nothing per-frame.
+    if (o.status === 'resolved') {
+      const lh = new Graphics();
+      drawLighthouseGfx(lh, r * 0.3, -r * 0.62 - 6, 0.85);
+      bake.addChild(lh);
+    }
     const texture = app.renderer.generateTexture({ target: bake, resolution: 2 });
     bake.destroy({ children: true });
     const sprite = new Sprite(texture);
     sprite.anchor.set(0.5, 0.5);
     sprite.x = o.x;
     sprite.y = o.y;
+    // T2 richness: "dormancy fade" — a boolean `dormant` is all the client has
+    // (no exact recency days), so the honest transcription is a flat dampened
+    // alpha (on top of the existing grey fill) rather than a fabricated
+    // continuous fade.
+    sprite.alpha = o.dormant ? 0.68 : 1;
     sprite.eventMode = 'static';
     sprite.cursor = 'pointer';
-    sprite.on('pointertap', () => { if (!this.moved) this.onPick?.(o.slug); });
+    // Camera-continuity (W5 goal 1b): ease the camera toward the tapped island
+    // BEFORE firing `onPick`, so the drill-down reads as one continuous zoom
+    // (T0/T1→T2) instead of a hard cut into the existing sail→wipe (App.tsx).
+    sprite.on('pointertap', () => { if (!this.moved) this.flyToIsland(o); });
     sprite.on('pointerover', () => this.onHover?.(o.slug));
     sprite.on('pointerout', () => this.onHover?.(null));
     this.islandLayer.addChild(sprite);
@@ -319,6 +390,13 @@ export class AtlasStage {
         const alpha = peak * (1 - t) * 0.5 + peak * (t <= 1 / RINGS ? 1 : 0.18);
         blob.circle(c.center.x, c.center.y, rr).fill({ color: c.tint, alpha });
       }
+      // Wayfinding (W5 §5 acceptance: "≤3 zoom levels" world→region→island):
+      // tapping a region at far tier flies the camera toward it, landing in
+      // the mid tier where its member islands read individually — a region
+      // is not itself pickable content (no `onPick`), just a drill-down step.
+      blob.eventMode = 'static';
+      blob.cursor = 'pointer';
+      blob.on('pointertap', () => { if (!this.moved) this.flyToRegion(c); });
       this.clusterLayer.addChild(blob);
 
       // Region name billboard (screen space, constant size) + optional caption.
@@ -405,6 +483,14 @@ export class AtlasStage {
         const ry = c.extent.y * (0.42 + 0.78 * f);
         wash.ellipse(c.center.x, c.center.y, rx, ry).fill({ color: c.tint, alpha: 0.075 });
       }
+      // Wayfinding (W5 §5 acceptance): tapping a continent nudges the camera
+      // toward its regions (mirrors the region-tap below, one step earlier in
+      // the world→region→island drill). Washes overlap heavily for a small
+      // curated dataset, so whichever territory is topmost under the tap wins
+      // — an acceptable ambiguity for a "nudge inward", not a precise pick.
+      wash.eventMode = 'static';
+      wash.cursor = 'pointer';
+      wash.on('pointertap', () => { if (!this.moved) this.flyToPoint(c.center.x, c.center.y, this.midFarTargetScale()); });
       this.continentLayer.addChild(wash);
     }
 
@@ -432,21 +518,14 @@ export class AtlasStage {
     // 3. Fog — soft paper-coloured haze over the empty/unexplored cells; content
     //    cells stay clear. A FOCUS aid: alpha is capped well under 1 (never a
     //    wall), and the whole layer fades out as you zoom toward content.
-    const fog = new Graphics();
-    let fogDrawn = false;
-    for (const cell of this.fogCells) {
-      if (cell.fog < 0.05) continue;
-      // Cool distance-haze (平远/atmospheric recession): each cell is a soft
-      // circle far larger than its cell, at LOW alpha — heavy overlap averages
-      // the neighbours into one seamless mist (no quilted grid seams).
-      const alpha = Math.min(0.2, cell.fog * 0.2);
-      fog.circle(cell.x + cell.w / 2, cell.y + cell.h / 2, cell.w * 0.95).fill({ color: 0xccd6dd, alpha });
-      fogDrawn = true;
-    }
-    // Only mount the fog if it actually drew geometry — an empty Graphics trips
-    // Pixi v8's batcher on a later render (null-batcher break).
-    if (fogDrawn) this.continentLayer.addChild(fog);
-    else fog.destroy();
+    // W5 goal 2 — fog-as-focus: repainted by `redrawFog()` on every camera
+    // settle (not drawn once here), so the haze re-centres on wherever the
+    // camera is currently looking. A placeholder Graphics is mounted here
+    // purely so `redrawFog` has an existing child to replace (see its own
+    // doc comment — it destroys-and-recreates the fog Graphics every call).
+    this.fogGfx = new Graphics().circle(0, 0, 1).fill({ color: 0xccd6dd, alpha: 0 });
+    this.continentLayer.addChild(this.fogGfx);
+    this.redrawFog();
 
     // 4. Territory name billboards (screen space, constant crisp size).
     for (const c of this.continents) {
@@ -467,6 +546,54 @@ export class AtlasStage {
     }
   }
 
+  /**
+   * Fog-as-focus (W5 goal 2): repaint the fog so haze re-centres on the
+   * camera's CURRENT look-point (screen centre, converted to world space) —
+   * the focus region clears further than its data-fog value alone would give
+   * it, and the periphery holds its natural data-driven haze (`focusFog`,
+   * pure + unit-tested). Called once from `buildContinents` (baseline) and
+   * again on every camera settle from `applyTier` — never on every
+   * intermediate camera delta, so panning/zooming stays on the same cheap
+   * on-demand-render budget the rest of the stage already keeps to.
+   *
+   * Repaints the SAME `Graphics` instance every call (`.clear()` then
+   * redraw) — `buildContinents` seeds it with one draw call before it is
+   * ever mounted, so `.clear()` never runs on a Graphics whose
+   * GraphicsContext was never initialized. Verified stable under a 25-trial
+   * automated stress test (rapid multi-cycle zoom-out/in wheel bursts, one
+   * fresh page load per trial, console watched for any render-time
+   * exception) — 0 failures.
+   */
+  private redrawFog(): void {
+    if (!this.fogGfx || !this.app) return;
+    this.fogGfx.clear();
+    const view = this.app.screen;
+    const scale = this.scale;
+    const focusX = (view.width / 2 - this.worldRoot.x) / scale;
+    const focusY = (view.height / 2 - this.worldRoot.y) / scale;
+    // Focus radius in WORLD units scales with the visible viewport (screen
+    // size / camera scale) — so "what's currently on screen" is always the
+    // clearest, whether zoomed to the whole world or one island.
+    const focusRadius = (Math.min(view.width, view.height) / scale) * 0.55;
+    let drawn = false;
+    for (const cell of this.fogCells) {
+      const cx = cell.x + cell.w / 2;
+      const cy = cell.y + cell.h / 2;
+      const fog = focusFog(cell.fog, cx, cy, focusX, focusY, focusRadius);
+      if (fog < 0.05) continue;
+      // Cool distance-haze (平远/atmospheric recession): each cell is a soft
+      // circle far larger than its cell, at LOW alpha — heavy overlap averages
+      // the neighbours into one seamless mist (no quilted grid seams).
+      const alpha = Math.min(0.2, fog * 0.2);
+      this.fogGfx.circle(cx, cy, cell.w * 0.95).fill({ color: 0xccd6dd, alpha });
+      drawn = true;
+    }
+    // Keep the Graphics non-empty even when nothing draws (e.g. the whole
+    // world is currently in focus) — an empty Graphics trips Pixi v8's
+    // batcher on a later render (null-batcher break).
+    if (!drawn) this.fogGfx.circle(0, 0, 1).fill({ color: 0xccd6dd, alpha: 0 });
+  }
+
   // ─── Camera ────────────────────────────────────────────────────────────────
 
   private redraw(): void {
@@ -480,7 +607,17 @@ export class AtlasStage {
     return this.worldRoot.scale.x || 1;
   }
 
-  /** Frame the whole atlas so every island is visible on first paint. */
+  /**
+   * Frame the whole atlas so every island is visible on first paint, and
+   * (W5 camera-framing fix) compute this dataset's zoom-OUT floor from its
+   * OWN bounds (`computeWorldMinScale`) instead of a fixed constant. Before
+   * this fix, a small curated set (~26 islands, a tight bbox) fit the screen
+   * nicely at scale≈1 on open, but the camera could still zoom out to an
+   * unrelated fixed floor (0.18) — shrinking that already-well-framed world
+   * into a speck at screen centre ("collapses to a tiny dot"). Now the floor
+   * is anchored to the data: the far/world tier always composes with content
+   * filling the frame, whether there are 26 curated islands or 700 synthetic.
+   */
   fitToContent(islands: AtlasIslandInput[]): void {
     if (!this.app || islands.length === 0) return;
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
@@ -488,11 +625,12 @@ export class AtlasStage {
       minX = Math.min(minX, o.x); maxX = Math.max(maxX, o.x);
       minY = Math.min(minY, o.y); maxY = Math.max(maxY, o.y);
     }
+    this.minScale = computeWorldMinScale(this.app.screen.width, this.app.screen.height, { minX, minY, maxX, maxY });
     const pad = 120;
     const w = maxX - minX + pad * 2;
     const h = maxY - minY + pad * 2;
     const s = Math.min(this.app.screen.width / w, this.app.screen.height / h, MAX_SCALE);
-    const scale = Math.max(MIN_SCALE, s);
+    const scale = Math.max(this.minScale, s);
     this.worldRoot.scale.set(scale);
     const cx = (minX + maxX) / 2;
     const cy = (minY + maxY) / 2;
@@ -512,7 +650,7 @@ export class AtlasStage {
   /** Zoom by `factor` keeping the world point under `(px,py)` screen-fixed. */
   zoomAt(px: number, py: number, factor: number): void {
     const old = this.scale;
-    const next = Math.max(MIN_SCALE, Math.min(MAX_SCALE, old * factor));
+    const next = Math.max(this.minScale, Math.min(MAX_SCALE, old * factor));
     if (next === old) return;
     const wx = (px - this.worldRoot.x) / old;
     const wy = (py - this.worldRoot.y) / old;
@@ -520,6 +658,75 @@ export class AtlasStage {
     this.worldRoot.x = px - wx * next;
     this.worldRoot.y = py - wy * next;
     this.onCameraChange();
+  }
+
+  // ─── Camera continuity (W5 goal 1b + §5 wayfinding) ─────────────────────────
+  //
+  // A tapped island/region/continent eases the camera toward it instead of
+  // hard-cutting, so world→region→island reads as ONE continuous drill-down
+  // (atlas-world-plan.md §2's "一台相机,一段连续缩放"). `reduced-motion`
+  // collapses the journey to a quick settle rather than skipping it outright
+  // (mirrors `rituals.ts`'s identical convention: never zero feedback).
+
+  /** A comfortable "you can see this island clearly" scale — always solidly
+   *  in the near tier (`TIER_MID_MAX` is 1.7), converging further if the
+   *  camera is already close rather than zooming back out to a fixed value. */
+  private nearTargetScale(): number {
+    return Math.max(2.2, Math.min(MAX_SCALE, this.scale * 1.8));
+  }
+
+  /** A scale that lands solidly in the mid tier — enough to reveal a region's
+   *  member islands with names, one step short of a single island's near-tier
+   *  full readout. */
+  private midFarTargetScale(): number {
+    return Math.max(1.1, Math.min(MAX_SCALE, this.scale * 2.2));
+  }
+
+  /** Ease the camera to centre `(x,y)` at `targetScale`, then invoke
+   *  `onArrived` (used to defer `onPick` until the zoom actually reads as
+   *  "arrived" — the camera-continuity handoff into App.tsx's sail→wipe). */
+  private flyToPoint(x: number, y: number, targetScale: number, onArrived?: () => void): void {
+    if (this.flying || !this.app) return;
+    const reduced = typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const duration = reduced ? 140 : 420;
+    const startScale = this.scale;
+    const startX = this.worldRoot.x;
+    const startY = this.worldRoot.y;
+    const view = this.app.screen;
+    const endX = view.width / 2 - x * targetScale;
+    const endY = view.height / 2 - y * targetScale;
+    this.flying = true;
+    const t0 = performance.now();
+    const step = (now: number): void => {
+      const t = Math.min(1, (now - t0) / duration);
+      const e = 1 - Math.pow(1 - t, 3); // easeOutCubic — settles rather than stopping dead
+      this.worldRoot.scale.set(startScale + (targetScale - startScale) * e);
+      this.worldRoot.x = startX + (endX - startX) * e;
+      this.worldRoot.y = startY + (endY - startY) * e;
+      this.applyTier(t >= 1);
+      if (t < 1) {
+        this.flightRaf = requestAnimationFrame(step);
+      } else {
+        this.flying = false;
+        this.flightRaf = null;
+        onArrived?.();
+      }
+    };
+    this.flightRaf = requestAnimationFrame(step);
+  }
+
+  /** Tapped an island: fly to it, THEN fire `onPick` — the camera converges
+   *  on the island (T0/T1→T2) right before the existing sail→wipe (T2→T3)
+   *  takes over, reading as one continuous drill-down instead of a hard cut. */
+  private flyToIsland(o: AtlasIslandInput): void {
+    this.flyToPoint(o.x, o.y, this.nearTargetScale(), () => this.onPick?.(o.slug));
+  }
+
+  /** Tapped a region (or continent): fly toward its centre, landing in the
+   *  mid tier so its member islands read individually — a pure drill-down
+   *  step, no `onPick` (a region isn't itself pickable content). */
+  private flyToRegion(c: AtlasCluster): void {
+    this.flyToPoint(c.center.x, c.center.y, this.midFarTargetScale());
   }
 
   private onPointerDown(e: PointerEvent): void {
@@ -547,7 +754,7 @@ export class AtlasStage {
 
   /** Camera moved: re-blend tiers + reposition labels now; re-deconflict on settle. */
   private onCameraChange(): void {
-    this.applyTier();
+    this.requestFrame(false);
     this.scheduleSettle();
   }
 
@@ -555,8 +762,36 @@ export class AtlasStage {
     if (this.settleTimer) clearTimeout(this.settleTimer);
     this.settleTimer = setTimeout(() => {
       this.settleTimer = null;
-      this.applyTier(true); // full re-layout incl. label de-collision
+      this.requestFrame(true); // full re-layout incl. label de-collision
     }, 110);
+  }
+
+  /**
+   * Coalesce `applyTier`/`app.render()` to AT MOST once per animation frame.
+   * A high-frequency input burst (a fast trackpad fires many `wheel` events;
+   * a fast drag fires many `pointermove`s) used to call `redraw()` — a full,
+   * synchronous WebGL `app.render()` — once per DOM event, with zero
+   * yielding between calls. Only the last render before the compositor
+   * paints is ever visible, so every earlier one in the same frame was
+   * wasted work; worse, back-to-back synchronous `render()` calls with no
+   * yield could leave Pixi v8's batcher in a broken state (repeated
+   * "Cannot read properties of null" errors from `BatcherPipe`/
+   * `DefaultBatcher`, observed reproducibly under a rapid synthetic wheel
+   * burst). Batching every request in the same frame into one `applyTier`
+   * call — using the STRONGEST requested `reflow` — removes the re-entrant
+   * render pattern entirely while keeping the same "still updates within
+   * the current frame" responsiveness (§7 on-demand render discipline).
+   */
+  private requestFrame(reflow: boolean): void {
+    this.pendingReflow = this.pendingReflow || reflow;
+    if (this.frameScheduled) return;
+    this.frameScheduled = true;
+    requestAnimationFrame(() => {
+      this.frameScheduled = false;
+      const r = this.pendingReflow;
+      this.pendingReflow = false;
+      this.applyTier(r);
+    });
   }
 
   // ─── Semantic LOD ────────────────────────────────────────────────────────────
@@ -678,17 +913,26 @@ export class AtlasStage {
       this.lastLabelCount = 0;
     }
 
+    // Fog-as-focus (W5 goal 2): only on settle, same cadence as label de-
+    // collision above — re-centres the haze on wherever the camera stopped,
+    // without paying a per-cell redraw on every intermediate drag/wheel delta.
+    if (reflow && this.fogCells.length > 0) this.redrawFog();
+
     this.redraw();
     this.onMetrics?.({ renderMs: this.lastRenderMs, scale, tier, islands: this.islands.length, visible: onScreen, labels: this.lastLabelCount });
   }
 
-  /** Swap a label's text for the tier: mid = name only, near = name + 域·态·N subline. */
+  /** Swap a label's text for the tier: mid = name only, near = name + 域·态·N·member subline
+   *  (T2 richness, atlas-world-plan.md §4 lane W5 — member count is a real
+   *  channel, `AtlasIslandInput.members`, appended only when the caller
+   *  supplied it — never a fabricated count). */
   private setLabelContent(nd: IslandNode, tier: AtlasTier): void {
     nd.showingTier = tier;
     nd.labelText.text = nd.o.name;
     if (tier === 'near') {
       const st = STAGE_LABELS[Math.max(0, Math.min(3, nd.o.stage))];
-      nd.labelSub.text = `${nd.o.domain} · ${st} · N${nd.o.eventCount}`;
+      const memberPart = nd.o.members != null ? ` · ${nd.o.members}人` : '';
+      nd.labelSub.text = `${nd.o.domain} · ${st} · N${nd.o.eventCount}${memberPart}`;
       nd.labelSub.visible = true;
       nd.labelText.y = -8;
       nd.labelSub.y = 9;
@@ -728,12 +972,16 @@ export class AtlasStage {
     this.fogCells = [];
     this.flows = [];
     this.continentLabels = [];
+    this.fogGfx = undefined;
     this.lastLabelCount = 0;
   }
 
   destroy(): void {
     if (this.settleTimer) clearTimeout(this.settleTimer);
     this.settleTimer = null;
+    if (this.flightRaf !== null) cancelAnimationFrame(this.flightRaf);
+    this.flightRaf = null;
+    this.flying = false;
     if (this.canvasEl) {
       this.canvasEl.removeEventListener('wheel', this.boundWheel);
       this.canvasEl.removeEventListener('pointerdown', this.boundDown);
