@@ -40,6 +40,7 @@ import {
 import { domainToVec } from "@frontier-isles/data";
 import type { DB } from "./db.js";
 import { refHash, type RefKind } from "./refs.js";
+import { dispatchNightDigest } from "./webhook.js";
 import { randomBytes } from "node:crypto";
 
 export const ORG = "frontier-isles";
@@ -507,6 +508,7 @@ export class Store {
         },
         input.expectPrev,
       );
+      this.notifyIfNightDigest(opId, event);
       return { event, degraded: true, effectiveAction: "dock_proposal", refHash: payloadHash, proposalHash };
     }
 
@@ -547,7 +549,31 @@ export class Store {
       }
     }
 
+    this.notifyIfNightDigest(opId, event);
     return { event, degraded: false, effectiveAction: action, refHash: payloadHash };
+  }
+
+  /**
+   * Phase B.5: fire-and-forget outbound webhook for `night_digest` ledger
+   * events only (§6 interop — "the platform is not an IM"). Both `gateway()`
+   * branches funnel through here, right after the ledger write succeeds, so
+   * this can never block or fail the write path; a failed push is retried
+   * once internally by {@link dispatchNightDigest} and then just warned about.
+   * Seed-time history (`seed.ts`) bypasses `gateway()` entirely via
+   * `appendRaw`, so replaying/re-seeding never re-fires old digests.
+   */
+  private notifyIfNightDigest(opId: string, event: LedgerEvent): void {
+    if (event.action !== "night_digest") return;
+    const slug = slugOf(opId);
+    const row = this.getProblemRow(slug);
+    const ref = event.ref ? this.getRef(event.ref) : undefined;
+    void dispatchNightDigest({
+      islandSlug: slug,
+      islandName: row?.meta.name ?? row?.object.title ?? slug,
+      actorId: event.actor.id,
+      refHash: event.ref ?? "",
+      ref,
+    }).catch((e) => console.warn("[webhook] night digest dispatch threw:", e));
   }
 
   // --- founding ceremony ----------------------------------------------------

@@ -1,3 +1,20 @@
+/**
+ * `apps/server` entry point.
+ *
+ * Env config:
+ * - `PORT` (default 8787), `DB_FILE` (default `data/isles.db`), `WEB_ORIGIN`
+ *   (CORS + OAuth redirect base, default `http://localhost:5173`).
+ * - `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` — enables GitHub OAuth login;
+ *   without them the dev-auth bypass (`POST /api/auth/dev-login`) is used,
+ *   which is itself disabled when `NODE_ENV=production`.
+ * - `NIGHT_DIGEST_WEBHOOKS` — comma-separated webhook URLs. Every ledger event
+ *   with `action: "night_digest"` (the AI night shift's digests, driftwood,
+ *   dock proposals, …) is pushed to each, fire-and-forget, never blocking or
+ *   failing the write. Provider is auto-detected from the URL: `hooks.slack.com`
+ *   → Slack, `open.feishu.cn/open-apis/bot` → Feishu (飞书), anything else →
+ *   generic JSON (also what Matrix's hookshot bridge expects). Unset/empty →
+ *   fully disabled, zero network calls (see `src/webhook.ts`).
+ */
 import { serve } from "@hono/node-server";
 import type { Server } from "node:http";
 import { openDb } from "./db.js";
