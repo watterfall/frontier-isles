@@ -111,3 +111,9 @@ export type { NightTimelineMarker, NightTimelineModel } from "./night-timeline";
 // Transplant-through-dock (Phase B.3 — driftwood → dock → station; pure data shape)
 export { buildTransplant, TRANSPLANT_TARGETS } from "./transplant";
 export type { TransplantInput, TransplantBuild, BridgeArtifactContent } from "./transplant";
+
+// Synthetic scale corpus (atlas-world-plan.md §4 lane W4 — believable N=200/700
+// frontier data for stress-testing the world-map tiers; honestly flagged
+// `synthetic`/`syn-*`, never mixed into the curated fallback DATA)
+export { makeScaleCorpus, SCALE_WORLD } from "./scaleCorpus";
+export type { ScaleCorpusIsland } from "./scaleCorpus";
