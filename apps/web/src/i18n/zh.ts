@@ -107,6 +107,18 @@ export const zh = {
       activityValue: '{{n}} 条事件',
       footer: '一切状态来自账本 reduce（projectClaimState）· 无新造字段',
     },
+    ritual: {
+      kicker: '仪式事件 · RITUAL',
+      lanternTitle: '河灯 · publish',
+      lanternBody: '完成的成果化作一盏河灯，自岸边漂向大海——账本事件 publish 的可见回响。',
+      transplantTitle: '移栽之路 · transplant',
+      transplantBody: '一枚构件正被搬运，经渡口运往另一座岛——账本事件 transplant 的可见回响。',
+      opLabel: '所在岛（op）',
+      tsLabel: '发生时间',
+      refLabel: '内容哈希（ref）',
+      actorLabel: '触发者',
+      footer: '仪式只转写这一条账本事件 · 拿掉仪式，事件照常入账、照常出现在清单',
+    },
     night: {
       replay: '夜晚回放 · 第 {{t}} 夜',
       of: '/ 86',

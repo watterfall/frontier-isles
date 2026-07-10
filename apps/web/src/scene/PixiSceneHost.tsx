@@ -12,6 +12,7 @@ import { projectClaimState, type ClaimState, type StationKind } from '@frontier-
 import type { ActionType, LedgerEvent } from '@frontier-isles/opp';
 import PixiScene, { type PixiSceneMetrics } from './PixiScene';
 import type { LayoutInput } from './layout';
+import type { RitualEvent } from './rituals';
 import { ClaimDetailPanel } from '../components/island/ClaimDetailPanel';
 
 /**
@@ -59,15 +60,40 @@ const DEMO: LayoutInput = {
   eventCount: 40,
 };
 
+let demoRitualSeq = 0;
+
 export default function PixiSceneHost({ input = DEMO }: { input?: LayoutInput }) {
   const [t, setT] = useState(0);
   const [undertow, setUndertow] = useState(false);
   const [stat, setStat] = useState<PixiSceneMetrics>({ renderMs: 0, sorted: 0, objects: 0 });
   const [claimPanel, setClaimPanel] = useState<ClaimState | null>(null);
+  // Ritual moments demo (Batch 1 — 河灯/移栽之路, depth-plan-v1 §6/§9). DEMO-PAGE
+  // ONLY: the live L1 computes `rituals` from the real ledger via
+  // `scene/rituals.ts`'s `dueRituals`; here a button just manufactures one
+  // fake event so the animation can be eyeballed without a running server.
+  const [demoRituals, setDemoRituals] = useState<RitualEvent[]>([]);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const [ritualTap, setRitualTap] = useState<RitualEvent | null>(null);
+  const fireDemoRitual = (kind: RitualEvent['kind']): void => {
+    const evt: RitualEvent = { id: `demo:${kind}:${++demoRitualSeq}`, kind, ts: new Date().toISOString(), op: 'op://demo', ref: `sha256:demo${demoRitualSeq}` };
+    setDemoRituals((prev) => [...prev, evt]);
+  };
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: '#f2ecd9' }}>
-      <PixiScene input={input} claims={DEMO_CLAIMS} t={t} activeStations={DEMO_ACTIVE} substrate={0.7} undertow={undertow} onClaim={setClaimPanel} onMetrics={setStat} />
+      <PixiScene
+        input={input}
+        claims={DEMO_CLAIMS}
+        t={t}
+        activeStations={DEMO_ACTIVE}
+        substrate={0.7}
+        undertow={undertow}
+        onClaim={setClaimPanel}
+        onMetrics={setStat}
+        rituals={demoRituals}
+        reducedMotion={reducedMotion}
+        onRitualTap={setRitualTap}
+      />
       <ClaimDetailPanel claim={claimPanel} onClose={() => setClaimPanel(null)} />
 
       <div style={{ position: 'absolute', top: 12, left: 12, color: '#cfd6e6', font: '12px ui-monospace, monospace', background: 'rgba(0,0,0,.45)', padding: '6px 9px', borderRadius: 6, lineHeight: 1.5, pointerEvents: 'auto' }}>
@@ -81,6 +107,31 @@ export default function PixiSceneHost({ input = DEMO }: { input?: LayoutInput })
         >
           undertow {undertow ? 'ON' : 'off'}
         </button>
+      </div>
+
+      {/* Ritual moments demo panel (Batch 1) — manual fire buttons, DEMO PAGE ONLY. */}
+      <div style={{ position: 'absolute', top: 12, right: 12, color: '#cfd6e6', font: '11px ui-monospace, monospace', background: 'rgba(0,0,0,.45)', padding: '8px 10px', borderRadius: 6, display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'stretch', pointerEvents: 'auto', maxWidth: 220 }}>
+        <div>ritual moments (Batch 1)</div>
+        <button type="button" onClick={() => fireDemoRitual('lantern')} style={{ font: '11px ui-monospace, monospace', color: '#2b2620', background: '#f6c66b', border: '1px solid rgba(0,0,0,.3)', borderRadius: 5, padding: '4px 8px', cursor: 'pointer' }}>
+          🏮 fire 河灯 lantern (publish)
+        </button>
+        <button type="button" onClick={() => fireDemoRitual('transplant')} style={{ font: '11px ui-monospace, monospace', color: '#2b2620', background: '#b98a2e', border: '1px solid rgba(0,0,0,.3)', borderRadius: 5, padding: '4px 8px', cursor: 'pointer' }}>
+          ⛵ fire 移栽之路 transplant (~8s)
+        </button>
+        <button
+          type="button"
+          onClick={() => setReducedMotion((v) => !v)}
+          style={{ font: '11px ui-monospace, monospace', color: '#cfd6e6', background: reducedMotion ? 'rgba(120,60,90,.7)' : 'rgba(255,255,255,.12)', border: '1px solid rgba(255,255,255,.2)', borderRadius: 5, padding: '4px 8px', cursor: 'pointer' }}
+        >
+          prefers-reduced-motion {reducedMotion ? 'ON' : 'off'}
+        </button>
+        {ritualTap && (
+          <div style={{ marginTop: 2, borderTop: '1px solid rgba(255,255,255,.2)', paddingTop: 6 }}>
+            tapped: {ritualTap.kind} · {ritualTap.ref}
+            <br />
+            {ritualTap.op} · {ritualTap.ts}
+          </div>
+        )}
       </div>
 
       <label style={{ position: 'absolute', bottom: 16, left: '50%', transform: 'translateX(-50%)', color: '#cfd6e6', font: '12px system-ui', background: 'rgba(0,0,0,.45)', padding: '8px 12px', borderRadius: 8, display: 'flex', gap: 10, alignItems: 'center' }}>
