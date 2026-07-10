@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import type { StationKind } from '@frontier-isles/core';
+import type { StationKind, NightTimelineModel } from '@frontier-isles/core';
 import { NIGHT_SCENE_VARS, sceneVarsToStyle } from '@frontier-isles/assets';
 import { Scene } from '../../scene/Scene';
 import { DayNightLever } from './DayNightLever';
@@ -10,6 +10,22 @@ import { NightTimeline } from './NightTimeline';
 import { QftPanel } from './QftPanel';
 import { api } from '../../api/client';
 import { SAMPLE_SLUG, SAMPLE_TITLE, SAMPLE_QFOCUS, type QuestionDatum } from '../../api/fallback';
+
+// TODO(hero-lane): replace with projectNightTimeline(api.ledger(SAMPLE_SLUG)).
+// Placeholder timeline so the scrubber keeps the sample island's 86-night look
+// after NightTimeline went model-driven (B.2). The hero island's real
+// ledger-driven replay is wired by a separate lane; App still owns props.t.
+const HERO_TIMELINE_MODEL: NightTimelineModel = {
+  nights: 86,
+  genesis: '',
+  eventCountByNight: [],
+  markers: [
+    { night: 1, pct: 0, action: 'found_island', index: 0, ts: '' },
+    { night: 12, pct: 13, action: 'refute', index: 1, ts: '' },
+    { night: 41, pct: 47, action: 'publish', index: 2, ts: '' },
+    { night: 63, pct: 73, action: 'transplant', index: 3, ts: '' },
+  ],
+};
 
 export interface IslandScreenProps {
   night: boolean;
@@ -99,7 +115,7 @@ export function IslandScreen(props: IslandScreenProps) {
         <DriftwoodModal onClose={props.onCloseDrift} driftDest={props.driftDest} transTo={props.transTo} onMove={props.onMove} onToWorkshop={props.onToWorkshop} onToCanvas={props.onToCanvas} />
       )}
 
-      {night && <NightTimeline t={props.t} onT={props.onT} />}
+      {night && <NightTimeline model={HERO_TIMELINE_MODEL} t={props.t} onT={props.onT} />}
 
       <div style={{ position: 'absolute', left: 22, bottom: 14, fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 10.5, color: 'var(--ink2,#6B6154)', display: 'flex', gap: 12 }}>
         <span>{t('island.footer')}</span>
