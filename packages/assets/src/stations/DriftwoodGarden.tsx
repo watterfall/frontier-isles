@@ -11,7 +11,7 @@ export interface DriftwoodGardenProps extends StationProps {
  * `<g transform="translate(790,606)">` block: dashed diamond plot, post
  * fence, a crooked tree, and scattered half-formed pieces.
  */
-export function DriftwoodGarden({ x = 790, y = 606, onClick, selected = false, label, showTransplantTag = true }: DriftwoodGardenProps) {
+export function DriftwoodGarden({ x = 790, y = 606, onClick, selected = false, label, showTransplantTag = true, showLabel = true }: DriftwoodGardenProps) {
   return (
     <g transform={`translate(${x},${y})`} onClick={onClick} style={{ cursor: onClick ? 'pointer' : undefined }}>
       <polygon points="0,0 108,54 0,108 -108,54" fill="var(--garden,#DFE6CC)" stroke="var(--ink,#3A342B)" strokeWidth="1" strokeDasharray="5 4" />
@@ -37,13 +37,15 @@ export function DriftwoodGarden({ x = 790, y = 606, onClick, selected = false, l
       <rect x="-8" y="78" width="22" height="8" rx="4" fill="#FBF6E9" stroke="var(--ink,#3A342B)" strokeWidth="0.75" transform="rotate(-8 3 82)" />
       <rect x="20" y="46" width="16" height="12" fill="none" stroke="var(--ink,#3A342B)" strokeWidth="0.75" strokeDasharray="2 2" transform="rotate(6 28 52)" />
       {selected && <SelectionHighlight cx={0} cy={54} />}
-      <g transform="translate(0,118)">
-        <rect x="-56" y="-11" width="112" height="21" rx="3" fill="var(--card,rgba(250,245,232,0.92))" stroke="var(--ink,#3A342B)" strokeWidth="0.75" />
-        <circle cx="-46" cy="-0.5" r="2.5" fill={label?.sealColor ?? '#6B6154'} />
-        <text x="4" y="4" textAnchor="middle" fontSize="12" fill="var(--inkT,#2B2620)" style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 600 }}>
-          {label?.text ?? '散木园'} <tspan fontSize="10" fill="var(--ink2,#6B6154)">· 无考核野地</tspan>
-        </text>
-      </g>
+      {showLabel && (
+        <g transform="translate(0,118)">
+          <rect x="-56" y="-11" width="112" height="21" rx="3" fill="var(--card,rgba(250,245,232,0.92))" stroke="var(--ink,#3A342B)" strokeWidth="0.75" />
+          <circle cx="-46" cy="-0.5" r="2.5" fill={label?.sealColor ?? '#6B6154'} />
+          <text x="4" y="4" textAnchor="middle" fontSize="12" fill="var(--inkT,#2B2620)" style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 600 }}>
+            {label?.text ?? '散木园'} <tspan fontSize="10" fill="var(--ink2,#6B6154)">· 无考核野地</tspan>
+          </text>
+        </g>
+      )}
       {showTransplantTag && (
         <>
           <path d="M -26 40 Q -70 14 -90 -10" fill="none" stroke="var(--gold,#E3A93C)" strokeWidth="1.5" strokeDasharray="4 4" opacity="0.85" />

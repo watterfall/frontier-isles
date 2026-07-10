@@ -5,7 +5,7 @@ import { NameCard, SelectionHighlight, type StationProps } from '../NameCard';
  * `<g transform="translate(560,356)">` block — whiteboard face with a
  * curved marker stroke, ruled note lines, and an ochre focus ring.
  */
-export function StationWhiteboardHall({ x = 560, y = 356, onClick, selected = false, label }: StationProps) {
+export function StationWhiteboardHall({ x = 560, y = 356, onClick, selected = false, label, showLabel = true }: StationProps) {
   return (
     <g transform={`translate(${x},${y})`} onClick={onClick} style={{ cursor: onClick ? 'pointer' : undefined }}>
       <ellipse cx="12" cy="66" rx="120" ry="46" fill="var(--shadow,rgba(58,48,36,0.16))" />
@@ -21,7 +21,7 @@ export function StationWhiteboardHall({ x = 560, y = 356, onClick, selected = fa
       <circle cx="-103" cy="10" r="2.2" fill="var(--capD,#4A4238)" stroke="var(--ink,#3A342B)" strokeWidth="0.6" />
       <circle cx="127" cy="10" r="2.2" fill="var(--capD,#4A4238)" stroke="var(--ink,#3A342B)" strokeWidth="0.6" />
       {selected && <SelectionHighlight cx={12} cy={22} />}
-      <NameCard x={12} y={-72} width={64} text={label?.text ?? '白板厅'} sealColor={label?.sealColor ?? '#3E9B7E'} />
+      {showLabel && <NameCard x={12} y={-72} width={64} text={label?.text ?? '白板厅'} sealColor={label?.sealColor ?? '#3E9B7E'} />}
     </g>
   );
 }

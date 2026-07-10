@@ -4,7 +4,7 @@ import { NameCard, SelectionHighlight, type StationProps } from '../NameCard';
  * 茶寮 · Tearoom — never metricized (docs/architecture.md §3). Extracted
  * verbatim from the L1 `<g transform="translate(880,590)">` block.
  */
-export function StationTearoom({ x = 880, y = 590, onClick, selected = false, label }: StationProps) {
+export function StationTearoom({ x = 880, y = 590, onClick, selected = false, label, showLabel = true }: StationProps) {
   return (
     <g transform={`translate(${x},${y})`} onClick={onClick} style={{ cursor: onClick ? 'pointer' : undefined }}>
       <ellipse cx="0" cy="34" rx="66" ry="26" fill="var(--shadow,rgba(58,48,36,0.16))" />
@@ -22,7 +22,7 @@ export function StationTearoom({ x = 880, y = 590, onClick, selected = false, la
         style={{ animation: 'smoke 3.6s ease-in-out infinite', animationPlayState: 'var(--play,running)' as never }}
       />
       {selected && <SelectionHighlight cx={0} cy={17} />}
-      <NameCard x={0} y={-46} width={52} text={label?.text ?? '茶寮'} sealColor={label?.sealColor ?? '#3E9B7E'} />
+      {showLabel && <NameCard x={0} y={-46} width={52} text={label?.text ?? '茶寮'} sealColor={label?.sealColor ?? '#3E9B7E'} />}
     </g>
   );
 }

@@ -10,7 +10,7 @@ import { SelectionHighlight, type StationProps } from '../NameCard';
  * gold border + `breathe` animation that makes this station's card
  * distinct from the plain name cards on the other stations.
  */
-export function StationQuestionWall({ x = 976, y = 392, onClick, selected = false, label }: StationProps) {
+export function StationQuestionWall({ x = 976, y = 392, onClick, selected = false, label, showLabel = true }: StationProps) {
   return (
     <g transform={`translate(${x},${y})`} onClick={onClick} style={{ cursor: onClick ? 'pointer' : undefined }}>
       <ellipse cx="36" cy="42" rx="88" ry="34" fill="var(--shadow,rgba(58,48,36,0.16))" />
@@ -30,16 +30,18 @@ export function StationQuestionWall({ x = 976, y = 392, onClick, selected = fals
       <circle cx="-30" cy="-18" r="2.2" fill="var(--ochre,#B5673A)" stroke="var(--ink,#3A342B)" strokeWidth="0.6" />
       <circle cx="102" cy="-18" r="2.2" fill="var(--ochre,#B5673A)" stroke="var(--ink,#3A342B)" strokeWidth="0.6" />
       {selected && <SelectionHighlight cx={36} cy={12} />}
-      <g
-        transform="translate(36,-64)"
-        style={{ animation: 'breathe 4.5s ease-in-out infinite', animationPlayState: 'var(--play,running)' as never }}
-      >
-        <rect x="-56" y="-12" width="112" height="23" rx="3" fill="var(--card,rgba(250,245,232,0.92))" stroke="var(--gold,#E3A93C)" strokeWidth="1.5" />
-        <text x="0" y="4" textAnchor="middle" fontSize="12" fill="var(--inkT,#2B2620)" style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 600 }}>
-          {label?.text ?? '问题墙 · QFT ↗'}
-        </text>
-        {label && <circle cx="-46" cy="-0.5" r="2.5" fill={label.sealColor} />}
-      </g>
+      {showLabel && (
+        <g
+          transform="translate(36,-64)"
+          style={{ animation: 'breathe 4.5s ease-in-out infinite', animationPlayState: 'var(--play,running)' as never }}
+        >
+          <rect x="-56" y="-12" width="112" height="23" rx="3" fill="var(--card,rgba(250,245,232,0.92))" stroke="var(--gold,#E3A93C)" strokeWidth="1.5" />
+          <text x="0" y="4" textAnchor="middle" fontSize="12" fill="var(--inkT,#2B2620)" style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 600 }}>
+            {label?.text ?? '问题墙 · QFT ↗'}
+          </text>
+          {label && <circle cx="-46" cy="-0.5" r="2.5" fill={label.sealColor} />}
+        </g>
+      )}
     </g>
   );
 }
