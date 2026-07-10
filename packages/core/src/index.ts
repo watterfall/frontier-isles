@@ -90,6 +90,19 @@ export type {
 export { projectHarbor, fogLevel, archipelagoIndex } from "./harbor";
 export type { HarborFootprintLike, HarborIslandPosition, Harbor, FogContext } from "./harbor";
 
+// Climate — the domain manifold as far-tier named continents + fog + inter-
+// territory currents (depth-plan-v2 §4 / atlas-world-plan.md §2 T0, lane W2)
+export { projectClimate, projectContinentCurrents } from "./climate";
+export type {
+  ClimateIslandLike,
+  ClimateTerritory,
+  ClimateField,
+  ClimateBounds,
+  ClimateOptions,
+  FogCell,
+  ContinentFlow,
+} from "./climate";
+
 // Per-claim building state (scene-upgrade M4.3 — foundation/floors/roof/ghost)
 // + claims-&-evidence compliance (Phase B.4, architecture §4)
 export { projectClaimState, CONSENSUS_MIN, extractEvidence, hasClaimEvidence } from "./claims";

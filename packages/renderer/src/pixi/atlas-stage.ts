@@ -33,6 +33,10 @@ import {
   tierBlend,
   zoomTier,
   type AtlasCluster,
+  type AtlasContinent,
+  type AtlasDomain,
+  type AtlasFlow,
+  type AtlasFogCell,
   type AtlasIslandInput,
   type AtlasTier,
   type LabelBox,
@@ -119,6 +123,9 @@ export class AtlasStage {
 
   /** Camera-transformed world root (chart space). */
   readonly worldRoot = new Container();
+  /** Far-tier climate territories: soft watercolor washes + inter-territory
+   * currents + fog (world space, BELOW the cluster layer — lane W2 owns this). */
+  readonly continentLayer = new Container();
   /** Far-tier archipelago blobs (world space). */
   readonly clusterLayer = new Container();
   /** Outlier variance-select glow (world space, all tiers). */
@@ -127,6 +134,9 @@ export class AtlasStage {
   readonly islandLayer = new Container();
   /** Screen-space labels (never camera-transformed → constant crisp size). */
   readonly uiLayer = new Container();
+  /** Far-tier climate-territory name billboards (screen space, BEHIND the
+   * cluster names — lane W2). */
+  readonly continentLabelLayer = new Container();
   /** Far-tier archipelago name billboards (screen space). */
   readonly clusterLabelLayer = new Container();
   /** Mid/near island name billboards + demoted dots (screen space). */
@@ -144,6 +154,10 @@ export class AtlasStage {
   private islands: IslandNode[] = [];
   private clusters: AtlasCluster[] = [];
   private clusterLabels: Array<{ c: AtlasCluster; group: Container; halfW: number; halfH: number }> = [];
+  private continents: AtlasContinent[] = [];
+  private fogCells: AtlasFogCell[] = [];
+  private flows: AtlasFlow[] = [];
+  private continentLabels: Array<{ c: AtlasContinent; group: Container }> = [];
   private lastLabelCount = 0;
   private settleTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -162,15 +176,18 @@ export class AtlasStage {
 
   constructor() {
     this.worldRoot.label = 'atlas-camera';
+    this.continentLayer.label = 'continents';
     this.clusterLayer.label = 'clusters';
     this.glowLayer.label = 'glow';
     this.islandLayer.label = 'islands';
     this.uiLayer.label = 'atlas-ui';
+    this.continentLabelLayer.label = 'continent-labels';
     this.clusterLabelLayer.label = 'cluster-labels';
     this.labelLayer.label = 'island-labels';
     this.uiLayer.eventMode = 'none';
-    // paint order within world: blobs (back) → glow → islands (front).
-    this.worldRoot.addChild(this.clusterLayer, this.glowLayer, this.islandLayer);
+    // paint order within world: climate washes (back) → cluster blobs → glow →
+    // islands (front). The continent layer is lane W2's and sits BELOW clusters.
+    this.worldRoot.addChild(this.continentLayer, this.clusterLayer, this.glowLayer, this.islandLayer);
   }
 
   async init(target: HTMLCanvasElement | HTMLElement, opts: AtlasStageOptions = {}): Promise<void> {
@@ -197,7 +214,7 @@ export class AtlasStage {
       target.appendChild(app.canvas);
     }
     app.stage.addChild(this.worldRoot, this.uiLayer);
-    this.uiLayer.addChild(this.clusterLabelLayer, this.labelLayer);
+    this.uiLayer.addChild(this.continentLabelLayer, this.clusterLabelLayer, this.labelLayer);
     this.app = app;
     this.canvasEl = app.canvas;
     // Camera input is handled on the DOM canvas (no ticker → on-demand frames).
@@ -340,6 +357,116 @@ export class AtlasStage {
     }
   }
 
+  // ─── Climate territories (far tier, lane W2) ─────────────────────────────────
+
+  /**
+   * Ingest the far-tier climate field: 4 named domain territories (soft
+   * watercolor washes), inter-territory currents (cross-domain relations), and a
+   * fog grid over the unexplored edges. All three are a `reduce` over data
+   * (`core.projectClimate`/`projectContinentCurrents`) — this stage only draws
+   * them. Call AFTER {@link setIslands}. Every argument is optional-empty so an
+   * empty field renders nothing (data-honest: no data → no wash).
+   */
+  setClimate(continents: AtlasContinent[], fog: AtlasFogCell[] = [], flows: AtlasFlow[] = []): void {
+    if (!this.app) return;
+    this.continents = continents;
+    this.fogCells = fog;
+    this.flows = flows;
+    this.buildContinents();
+    this.applyTier();
+  }
+
+  /** Chart-space anchor for a territory's name — biased outward from its centroid
+   * toward its manifold corner so the 4 names spread apart, not pile at centre. */
+  private continentLabelAt(c: AtlasContinent): { x: number; y: number } {
+    const bx = (c.manifold[0] - 0.5) * 2; // −1..1 (formal→empirical)
+    const by = (c.manifold[1] - 0.5) * 2; // −1..1 (physical→living)
+    // Bias the name out toward the territory's manifold corner so the 4 names
+    // ring the map's outer zone, clear of the central region-label pile.
+    return { x: c.center.x + bx * c.extent.x * 0.6, y: c.center.y + by * c.extent.y * 0.6 };
+  }
+
+  private buildContinents(): void {
+    this.continentLayer.removeChildren().forEach((c) => c.destroy());
+    this.continentLabelLayer.removeChildren().forEach((c) => c.destroy());
+    this.continentLabels = [];
+
+    const byDomain = new Map<AtlasDomain, AtlasContinent>();
+    for (const c of this.continents) byDomain.set(c.domain, c);
+
+    // 1. Territory washes — soft watercolor: nested low-alpha ellipses build a
+    //    feathered edge (界画式海图 language), NEVER a polygon coastline.
+    for (const c of this.continents) {
+      const wash = new Graphics();
+      const rings = 6;
+      for (let k = rings; k >= 1; k--) {
+        const f = k / rings; // 1 = outermost, → inner
+        const rx = c.extent.x * (0.42 + 0.78 * f);
+        const ry = c.extent.y * (0.42 + 0.78 * f);
+        wash.ellipse(c.center.x, c.center.y, rx, ry).fill({ color: c.tint, alpha: 0.075 });
+      }
+      this.continentLayer.addChild(wash);
+    }
+
+    // 2. Inter-territory currents — a bowed flowline between two territory
+    //    centres, coloured by relation kind, width by weight (invariant 14).
+    for (const fl of this.flows) {
+      const a = byDomain.get(fl.from);
+      const b = byDomain.get(fl.to);
+      if (!a || !b) continue;
+      const width = Math.min(16, 3.5 + Math.sqrt(Math.max(0, fl.weight)) * 2.4);
+      const dx = b.center.x - a.center.x;
+      const dy = b.center.y - a.center.y;
+      const len = Math.hypot(dx, dy) || 1;
+      const nx = -dy / len;
+      const ny = dx / len;
+      const bow = Math.min(150, len * 0.15);
+      const mx = (a.center.x + b.center.x) / 2 + nx * bow;
+      const my = (a.center.y + b.center.y) / 2 + ny * bow;
+      const line = new Graphics();
+      line.moveTo(a.center.x, a.center.y).quadraticCurveTo(mx, my, b.center.x, b.center.y);
+      line.stroke({ color: fl.tint, width, alpha: 0.5, cap: 'round', join: 'round' });
+      this.continentLayer.addChild(line);
+    }
+
+    // 3. Fog — soft paper-coloured haze over the empty/unexplored cells; content
+    //    cells stay clear. A FOCUS aid: alpha is capped well under 1 (never a
+    //    wall), and the whole layer fades out as you zoom toward content.
+    const fog = new Graphics();
+    let fogDrawn = false;
+    for (const cell of this.fogCells) {
+      if (cell.fog < 0.05) continue;
+      // Cool distance-haze (平远/atmospheric recession): each cell is a soft
+      // circle far larger than its cell, at LOW alpha — heavy overlap averages
+      // the neighbours into one seamless mist (no quilted grid seams).
+      const alpha = Math.min(0.2, cell.fog * 0.2);
+      fog.circle(cell.x + cell.w / 2, cell.y + cell.h / 2, cell.w * 0.95).fill({ color: 0xccd6dd, alpha });
+      fogDrawn = true;
+    }
+    // Only mount the fog if it actually drew geometry — an empty Graphics trips
+    // Pixi v8's batcher on a later render (null-batcher break).
+    if (fogDrawn) this.continentLayer.addChild(fog);
+    else fog.destroy();
+
+    // 4. Territory name billboards (screen space, constant crisp size).
+    for (const c of this.continents) {
+      const group = new Container();
+      group.eventMode = 'none';
+      const text = new Text({
+        text: c.name,
+        style: new TextStyle({ fontFamily: "'Noto Serif SC','PingFang SC',serif", fontSize: 38, fontWeight: '700', fill: c.ink, align: 'center', letterSpacing: 8 }),
+        resolution: 2,
+      });
+      text.anchor.set(0.5, 0.5);
+      // Watermark weight: a big, faint ambient territory label BEHIND the crisp
+      // region pins (which occlude it where they overlap — correct z-order).
+      text.alpha = 0.5;
+      group.addChild(text);
+      this.continentLabelLayer.addChild(group);
+      this.continentLabels.push({ c, group });
+    }
+  }
+
   // ─── Camera ────────────────────────────────────────────────────────────────
 
   private redraw(): void {
@@ -448,11 +575,29 @@ export class AtlasStage {
     const view = this.app.screen;
 
     // Layer opacities from the cross-fade (never a hard cut).
+    // Climate territories (washes + currents + fog) are the FAR/world tier — they
+    // read strongest at overview and dissolve as you zoom toward content, so the
+    // fog lifts and the washes never fight the mid/near island detail.
+    this.continentLayer.alpha = blend.far;
+    // Territory NAMES fade faster than their washes (crisp only at true far zoom).
+    this.continentLabelLayer.alpha = blend.far * blend.far;
     this.clusterLayer.alpha = blend.far;
     this.clusterLabelLayer.alpha = blend.far;
     this.islandLayer.alpha = Math.max(blend.mid, blend.near);
     // outlier glow floats at every tier, but strongest at far (it IS the overview signal).
     this.glowLayer.alpha = Math.max(0.55, blend.far);
+
+    // Territory name billboards (screen space, constant size) — anchored outward
+    // toward each domain's manifold corner so the 4 names spread, not pile up.
+    const continentLabelsVisible = this.continentLabelLayer.alpha > 0.02;
+    for (const { c, group } of this.continentLabels) {
+      const at = this.continentLabelAt(c);
+      const sx = at.x * scale + this.worldRoot.x;
+      const sy = at.y * scale + this.worldRoot.y;
+      group.x = Math.round(sx);
+      group.y = Math.round(sy);
+      group.visible = continentLabelsVisible && sx > -400 && sx < view.width + 400 && sy > -200 && sy < view.height + 200;
+    }
 
     // Region name billboards (screen space, constant size). Position always;
     // de-collide so a crowd of ~30–50 regions never overlaps into mush — an
@@ -575,8 +720,14 @@ export class AtlasStage {
     this.islands = [];
     this.clusterLayer.removeChildren().forEach((c) => c.destroy());
     this.clusterLabelLayer.removeChildren().forEach((c) => c.destroy());
+    this.continentLayer.removeChildren().forEach((c) => c.destroy());
+    this.continentLabelLayer.removeChildren().forEach((c) => c.destroy());
     this.clusters = [];
     this.clusterLabels = [];
+    this.continents = [];
+    this.fogCells = [];
+    this.flows = [];
+    this.continentLabels = [];
     this.lastLabelCount = 0;
   }
 

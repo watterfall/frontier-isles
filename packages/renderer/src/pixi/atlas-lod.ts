@@ -83,6 +83,54 @@ export interface AtlasCluster {
   caption?: string;
 }
 
+/**
+ * A far-tier continental TERRITORY — the top of the world map (atlas-world-plan
+ * §2 T0 / lane W2). The host maps it from `core.projectClimate(...).territories`;
+ * this package only draws it, as a soft watercolor WASH — NEVER a polygon border
+ * or coastline (see the coastline rollback note above: no invented angular
+ * grammar, the prototype's 平远/界画式 language only). `tint`/`ink` are Pixi hex
+ * ints from `ATLAS_DOMAIN_FILL`/`ATLAS_DOMAIN_INK`.
+ */
+export interface AtlasContinent {
+  domain: AtlasDomain;
+  /** Territory name — authored zh or en (invariant 9); the host picks the locale. */
+  name: string;
+  /** Unit-square manifold corner (x = formal→empirical, y = physical→living). */
+  manifold: readonly [number, number];
+  center: { x: number; y: number };
+  /** Chart-space half-extents of the elliptical wash. */
+  extent: { x: number; y: number };
+  tint: number;
+  ink: number;
+}
+
+/**
+ * A fog cell — chart-space haze over an unexplored / empty region. Fog is a
+ * FOCUS aid (depth-plan-v1/v2), never a wall: `fog` 0..1 = clear..haze, and the
+ * stage caps the drawn alpha well under 1. From `core.projectClimate(...).fog`.
+ */
+export interface AtlasFogCell {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  fog: number;
+}
+
+/**
+ * An inter-territory CURRENT — a cross-domain ledger relation aggregated to the
+ * continent scale (invariant 14: no current without an event). Endpoints are the
+ * two named domains; the stage resolves their territory centers from the
+ * continent list. `tint` is a Pixi hex int (azurite/ochre/malachite by kind).
+ */
+export interface AtlasFlow {
+  from: AtlasDomain;
+  to: AtlasDomain;
+  tint: number;
+  /** Aggregate relation weight → flowline width. */
+  weight: number;
+}
+
 // ─── Zoom → semantic tier ────────────────────────────────────────────────────
 //
 // Three DISCRETE cartographic scales (INFO-HIERARCHY §2 row 1): far = atlas
