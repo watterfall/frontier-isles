@@ -128,7 +128,7 @@ export const FRONTIERS: FrontierEntry[] = [
     scores: [5, 5, 4, 3, 4, 4, 3, 4, 5],
     citation: { url: 'https://doi.org/10.1038/nrmicro.2016.93', title: 'Extracellular electron transfer mechanisms', venue: 'Nature Reviews Microbiology', year: 2016 },
     brief: { zh: 'Geobacter 与电缆细菌沿厘米级蛋白纤维导电，导电率超 20 S/cm 媲美掺杂聚合物。', en: 'Geobacter and cable bacteria conduct over cm-scale protein fibers at >20 S/cm, rivaling doped polymers.' },
-    stage: 3, members: 14, activity: 88, resolved: true, chart: { x: 1080, y: 260, scale: 1.1 },
+    stage: 3, members: 14, activity: 88, chart: { x: 1080, y: 260, scale: 1.1 },
   },
   {
     id: 8, atlasN: 1491, slug: 'self-learning-matter',

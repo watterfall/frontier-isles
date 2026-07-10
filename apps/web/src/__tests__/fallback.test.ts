@@ -34,10 +34,12 @@ describe('fallback data matches the curated atlas', () => {
     expect(hi.d).toBe('物质');
   });
 
-  it('marks exactly one resolved island (flies the L0 lighthouse)', () => {
-    const resolved = DATA.filter((d) => d.res);
-    expect(resolved).toHaveLength(1);
-    expect(resolved[0]!.slug).toBe('living-wires');
+  it('marks no curated island resolved — every atlas frontier is genuinely open', () => {
+    // The lighthouse-if-resolved mechanism (L0 fingerprint) is wired and
+    // rendered from `res`, but none of the curated frontiers has actually been
+    // resolved, so hand-authoring the flag would be editorial fabrication.
+    // The first lighthouse must be earned by a real resolution.
+    expect(DATA.every((d) => !d.res)).toBe(true);
   });
 
   it('every curated frontier carries a slug (enterable)', () => {
