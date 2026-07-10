@@ -177,6 +177,9 @@ importers:
         specifier: ^3.24.0
         version: 3.25.76
     devDependencies:
+      '@frontier-isles/data':
+        specifier: workspace:*
+        version: link:../data
       typescript:
         specifier: ^5.7.2
         version: 5.9.3

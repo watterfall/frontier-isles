@@ -76,6 +76,20 @@ export type {
 export { projectCurrents, projectWhirlpools } from "./currents";
 export type { Current, CurrentKind, CurrentSign, CurrentMaturity, Whirlpool } from "./currents";
 
+// Archipelago clustering (depth-plan-v2 §4 / INFO-HIERARCHY C3 — Phase C3 data layer)
+export { projectArchipelagos } from "./archipelago";
+export type {
+  DomainKey,
+  ArchipelagoIslandLike,
+  ArchipelagoOpts,
+  Archipelago,
+  ArchipelagoProjection,
+} from "./archipelago";
+
+// My Harbor + fog (depth-plan-v1 §3(d) — Phase C3 data layer)
+export { projectHarbor, fogLevel, archipelagoIndex } from "./harbor";
+export type { HarborFootprintLike, HarborIslandPosition, Harbor, FogContext } from "./harbor";
+
 // Per-claim building state (scene-upgrade M4.3 — foundation/floors/roof/ghost)
 // + claims-&-evidence compliance (Phase B.4, architecture §4)
 export { projectClaimState, CONSENSUS_MIN, extractEvidence, hasClaimEvidence } from "./claims";
