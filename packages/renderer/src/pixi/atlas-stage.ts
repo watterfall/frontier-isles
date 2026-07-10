@@ -143,7 +143,7 @@ export class AtlasStage {
 
   private islands: IslandNode[] = [];
   private clusters: AtlasCluster[] = [];
-  private clusterLabels: Array<{ c: AtlasCluster; group: Container }> = [];
+  private clusterLabels: Array<{ c: AtlasCluster; group: Container; halfW: number; halfH: number }> = [];
   private lastLabelCount = 0;
   private settleTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -285,9 +285,26 @@ export class AtlasStage {
 
   private buildClusters(): void {
     for (const c of this.clusters) {
-      const blob = new Graphics().circle(c.center.x, c.center.y, c.radius).fill({ color: c.tint, alpha: 0.5 });
-      blob.stroke({ color: c.tint, width: 3, alpha: 0.6 });
+      // Soft WATERCOLOUR WASH, never a polygon/border (design authority: region
+      // blobs are washes). A stack of concentric fills — faint & wide at the rim,
+      // denser toward the centre — approximates a radial gradient with no hard
+      // edge. 体温 (c.heat) modulates the peak opacity: a live region glows a
+      // touch warmer, a dormant one barely tints the water (data transcription,
+      // not a size rank — see Archipelago.heat).
+      const heat = Math.max(0, Math.min(1, c.heat ?? 0));
+      const peak = 0.14 + heat * 0.16; // dormant ≈0.14 → live ≈0.30
+      const blob = new Graphics();
+      const RINGS = 5;
+      for (let k = RINGS; k >= 1; k--) {
+        const t = k / RINGS; // 1 (rim) → 1/RINGS (core)
+        const rr = c.radius * (0.4 + 0.6 * t);
+        // rim faint, core densest — additive alpha builds the soft mound.
+        const alpha = peak * (1 - t) * 0.5 + peak * (t <= 1 / RINGS ? 1 : 0.18);
+        blob.circle(c.center.x, c.center.y, rr).fill({ color: c.tint, alpha });
+      }
       this.clusterLayer.addChild(blob);
+
+      // Region name billboard (screen space, constant size) + optional caption.
       const group = new Container();
       group.eventMode = 'none';
       const bg = new Graphics();
@@ -297,12 +314,29 @@ export class AtlasStage {
         resolution: 2,
       });
       text.anchor.set(0.5, 0.5);
-      const halfW = text.width / 2 + 12;
-      const halfH = text.height / 2 + 6;
-      bg.roundRect(-halfW, -halfH, halfW * 2, halfH * 2, 8).fill({ color: 0xfaf5e8, alpha: 0.85 }).stroke({ color: c.tint, width: 1.5 });
+      let captionText: Text | undefined;
+      if (c.caption) {
+        captionText = new Text({
+          text: c.caption,
+          style: new TextStyle({ fontFamily: "'Noto Serif SC','PingFang SC',serif", fontStyle: 'italic', fontSize: 11, fill: 0x6b6154, align: 'center' }),
+          resolution: 2,
+        });
+        captionText.anchor.set(0.5, 0.5);
+      }
+      const contentW = Math.max(text.width, captionText?.width ?? 0);
+      const contentH = text.height + (captionText ? captionText.height + 3 : 0);
+      const halfW = contentW / 2 + 12;
+      const halfH = contentH / 2 + 6;
+      // Chip stays a soft rounded wash (subtle tint edge, not a hard region border).
+      bg.roundRect(-halfW, -halfH, halfW * 2, halfH * 2, 9).fill({ color: 0xfaf5e8, alpha: 0.82 }).stroke({ color: c.tint, width: 1, alpha: 0.55 });
+      if (captionText) {
+        text.y = -captionText.height / 2 - 1;
+        captionText.y = text.height / 2 + 1;
+      }
       group.addChild(bg, text);
+      if (captionText) group.addChild(captionText);
       this.clusterLabelLayer.addChild(group);
-      this.clusterLabels.push({ c, group });
+      this.clusterLabels.push({ c, group, halfW, halfH });
     }
   }
 
@@ -420,13 +454,31 @@ export class AtlasStage {
     // outlier glow floats at every tier, but strongest at far (it IS the overview signal).
     this.glowLayer.alpha = Math.max(0.55, blend.far);
 
-    // Cluster name billboards (screen space, constant size).
-    for (const { c, group } of this.clusterLabels) {
+    // Region name billboards (screen space, constant size). Position always;
+    // de-collide so a crowd of ~30–50 regions never overlaps into mush — an
+    // overlapping label is simply HIDDEN (the soft wash already marks the region),
+    // a discrete label/no-label outcome, not a "bigger = better" rank. Priority is
+    // member count purely as display disambiguation (which name survives a crowd),
+    // the same discipline as island billboards (see deconflictLabels).
+    const farVisible = blend.far > 0.02;
+    const clusterBoxes: LabelBox[] = [];
+    for (const { c, group, halfW, halfH } of this.clusterLabels) {
       const sx = c.center.x * scale + this.worldRoot.x;
       const sy = c.center.y * scale + this.worldRoot.y;
       group.x = Math.round(sx);
       group.y = Math.round(sy);
-      group.visible = blend.far > 0.02 && sx > -200 && sx < view.width + 200 && sy > -100 && sy < view.height + 100;
+      const onscreen = sx > -200 && sx < view.width + 200 && sy > -100 && sy < view.height + 100;
+      if (farVisible && onscreen) {
+        clusterBoxes.push({ id: c.id, priority: c.islandSlugs.length, sx, sy, halfW, halfH });
+      } else {
+        group.visible = false;
+      }
+    }
+    if (clusterBoxes.length > 0) {
+      const verdict = deconflictLabels(clusterBoxes);
+      for (const { c, group } of this.clusterLabels) {
+        group.visible = verdict.get(c.id) === 'label';
+      }
     }
 
     const labelsVisible = blend.mid + blend.near > 0.02;
