@@ -50,6 +50,9 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
   const [scene, setScene] = useState<GeneratedScene | null>(null);
   const [input, setInput] = useState<LayoutInput | null>(null);
   const [claims, setClaims] = useState<ClaimState[] | undefined>(undefined);
+  // 海即数据 (depth-plan-v2): substrate → sea darkness, refuted claims → undertow
+  // contention, relation counts → the text decoder (invariant 6: honest encoding).
+  const [seaStats, setSeaStats] = useState<{ substrate?: number; validates: number; refutes: number; bridges: number; contention: number } | null>(null);
   const [failed, setFailed] = useState(false);
   const [noGpu, setNoGpu] = useState(false); // WebGL absent → fall back to the SVG scene
 
@@ -82,9 +85,21 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
         hasAi,
         eventCount: det.eventCount,
       };
+      const projected = ledger ? projectClaimState(ledger) : undefined;
       setInput(layoutInput);
-      setClaims(ledger ? projectClaimState(ledger) : undefined);
+      setClaims(projected);
       setScene(generate(layoutInput)); // still needed for the SVG (no-GPU) fallback
+      // 海即数据 readouts: contention = unresolved-refute magnitude (→ undertow);
+      // relation counts decode the sea for the reader (list-twin, not a painted key).
+      const events = ledger ?? [];
+      const refuted = projected?.filter((c) => c.ghost === 'refuted').length ?? 0;
+      setSeaStats({
+        substrate: det.object.frontier?.substrate,
+        validates: events.filter((e) => e.action === 'validate').length,
+        refutes: events.filter((e) => e.action === 'refute').length,
+        bridges: events.filter((e) => e.action.startsWith('bridge')).length,
+        contention: Math.min(1, refuted * 0.5),
+      });
     });
     return () => {
       cancelled = true;
@@ -114,6 +129,15 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
   const citation = detail.atlas?.citation;
   const cluster = detail.atlas?.cluster[lang];
   const domain = detail.domain as '数理' | '物质' | '生命' | '交叉';
+  // 海即数据 decoder (invariant 6): abstractness tier for the sea-depth readout +
+  // the relation counts that make the current/undertow legible as text (list-twin).
+  const abstractKey = (s: number): string => (s >= 0.66 ? 'island.seaData.abstract.hi' : s >= 0.33 ? 'island.seaData.abstract.mid' : 'island.seaData.abstract.lo');
+  const relParts: string[] = [];
+  if (seaStats) {
+    if (seaStats.validates) relParts.push(`${seaStats.validates} ${t('island.seaData.validate')}`);
+    if (seaStats.refutes) relParts.push(`${seaStats.refutes} ${t('island.seaData.refute')}`);
+    if (seaStats.bridges) relParts.push(`${seaStats.bridges} ${t('island.seaData.bridge')}`);
+  }
   // Cascade: day defaults ← domain tint ← night override (§1: palette only, never shape).
   const sceneVars = { ...DOMAIN_SCENE_VARS[domain], ...(night ? NIGHT_SCENE_VARS : {}) };
 
@@ -132,6 +156,8 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
           input={input}
           claims={claims}
           t={night ? 1 : 0}
+          substrate={seaStats?.substrate}
+          undertow={seaStats?.contention ?? 0}
           onStation={onStation}
           onWebglError={() => setNoGpu(true)}
         />
@@ -156,6 +182,16 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
               <a href={citation.url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 5, marginTop: 7, fontSize: 10, color: 'var(--gold2,#8A6A1E)', fontFamily: "'JetBrains Mono',ui-monospace,monospace", textDecoration: 'none', border: '1px solid var(--gold,#B98A2E)', borderRadius: 3, padding: '2px 7px' }}>
                 {citation.venue} ({citation.year})
               </a>
+            )}
+            {/* 海即数据 decoder: sea darkness = abstractness, undertow = contention;
+                stated as text so the sea's data channels are always decodable. */}
+            {seaStats && (seaStats.substrate != null || relParts.length > 0) && (
+              <div style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 10, color: 'var(--ink2,#6B6154)', marginTop: 7, display: 'flex', gap: 12, flexWrap: 'wrap', opacity: 0.9 }}>
+                {seaStats.substrate != null && (
+                  <span>🌊 {t('island.seaData.depth')} {seaStats.substrate.toFixed(2)} · {t(abstractKey(seaStats.substrate))}</span>
+                )}
+                {relParts.length > 0 && <span>⇄ {relParts.join(' · ')}</span>}
+              </div>
             )}
           </div>
         </div>

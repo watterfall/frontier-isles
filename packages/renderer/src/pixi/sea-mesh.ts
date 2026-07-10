@@ -40,6 +40,8 @@ export interface SeaMeshOptions {
   deepColor: [number, number, number];
   /** Foam colour (0..1 rgb). */
   foamColor: [number, number, number];
+  /** Sea-depth darkening alpha = domain abstractness (seaDepthAt().overlayAlpha, 0..0.42). */
+  depthAlpha?: number;
 }
 
 export interface SeaMesh {
@@ -72,7 +74,8 @@ out vec4 finalColor;
 
 uniform float uTime;
 uniform vec4 uMaskRect;      // x, y, w, h (world-screen)
-uniform float uUndertow;     // 0 = calm, 1 = disputed undertow
+uniform float uUndertow;     // 0 = calm, 1..N = disputed-sea contention magnitude
+uniform float uDepth;        // sea darkness = domain abstractness (depth-plan-v2 §4); 0..~0.42
 uniform vec3 uSeaColor;
 uniform vec3 uDeepColor;
 uniform vec3 uFoamColor;
@@ -123,7 +126,13 @@ void main() {
   float lap = 0.8 + 0.2 * sin(uTime * 0.8 + (w.x + w.y) * 0.04);
   col = mix(col, uFoamColor, band * lap * 0.35);
 
-  // Undertow: a dark, slow-swirling patch for disputed seas (toggle).
+  // Sea depth = domain abstractness (depth-plan-v2 §4, invariant 14): a formal/
+  // theoretical island floats over darker deep water, an applied one over a bright
+  // shallow shelf. uDepth is seaDepthAt(substrate).overlayAlpha — a darkening only,
+  // never a new hue, and independent of the domain-hue channel above.
+  col *= (1.0 - uDepth);
+
+  // Undertow: a dark, slow-swirling patch for disputed seas (contention magnitude).
   if (uUndertow > 0.001) {
     float swirl = smoothstep(0.55, 0.92, fbm(w * 0.018 - vec2(uTime * 0.12, uTime * 0.08)));
     col = mix(col, col * 0.62, swirl * uUndertow * (1.0 - here));
@@ -135,7 +144,7 @@ void main() {
 
 /** Build the sea Mesh + its Shader for one island. */
 export function createSeaMesh(opts: SeaMeshOptions): SeaMesh {
-  const { rect, maskRect, mask, seaColor, deepColor, foamColor } = opts;
+  const { rect, maskRect, mask, seaColor, deepColor, foamColor, depthAlpha = 0 } = opts;
   const x0 = rect.x;
   const y0 = rect.y;
   const x1 = rect.x + rect.w;
@@ -154,6 +163,7 @@ export function createSeaMesh(opts: SeaMeshOptions): SeaMesh {
         uTime: { value: 0, type: 'f32' },
         uMaskRect: { value: new Float32Array(maskRect), type: 'vec4<f32>' },
         uUndertow: { value: 0, type: 'f32' },
+        uDepth: { value: depthAlpha, type: 'f32' },
         uSeaColor: { value: new Float32Array(seaColor), type: 'vec3<f32>' },
         uDeepColor: { value: new Float32Array(deepColor), type: 'vec3<f32>' },
         uFoamColor: { value: new Float32Array(foamColor), type: 'vec3<f32>' },

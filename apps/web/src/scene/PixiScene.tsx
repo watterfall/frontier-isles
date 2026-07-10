@@ -15,7 +15,7 @@
 import { useEffect, useRef, type ReactElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { SceneStage, type TextureResolver, type ResolvedTexture } from '@frontier-isles/renderer/pixi';
-import { worldToScreen } from '@frontier-isles/renderer';
+import { worldToScreen, seaDepthAt } from '@frontier-isles/renderer';
 import type { ClaimState, StationKind } from '@frontier-isles/core';
 import {
   StationWorkshop,
@@ -69,8 +69,10 @@ export interface PixiSceneProps {
   claims?: ClaimState[];
   /** Day↔night ∈ [0,1], controlled by the parent (App's lever). Applied without re-mount. */
   t: number;
-  /** Disputed-sea undertow toggle (M2 dev affordance; live L1 omits it). */
-  undertow?: boolean;
+  /** Domain abstractness (frontier.substrate, 0..1) → sea darkness (海即数据, depth-plan-v2 §4). */
+  substrate?: number;
+  /** Disputed-sea undertow: a boolean (demo toggle) or 0..1 contention magnitude (海即数据). */
+  undertow?: boolean | number;
   /** Tapping a station calls back with its kind so the parent opens that station. */
   onStation?: (kind: StationKind) => void;
   /** GPU absent → parent renders the SVG fallback scene instead. */
@@ -83,7 +85,7 @@ export interface PixiSceneProps {
  * The embeddable Pixi scene. Re-boots on `input`/`claims` change (once per island
  * open); `t`/`undertow` apply live without a re-boot.
  */
-export default function PixiScene({ input, claims, t, undertow = false, onStation, onWebglError, onMetrics }: PixiSceneProps) {
+export default function PixiScene({ input, claims, t, substrate, undertow = false, onStation, onWebglError, onMetrics }: PixiSceneProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<SceneStage | null>(null);
   const cam = useRef({ ...worldToScreen(8, 8), zoom: 0.75 }); // island centre (tile 8,8)
@@ -92,6 +94,8 @@ export default function PixiScene({ input, claims, t, undertow = false, onStatio
   // and callbacks don't re-boot the scene when their identity changes each render.
   const tRef = useRef(t);
   tRef.current = t;
+  const substrateRef = useRef(substrate);
+  substrateRef.current = substrate;
   const cbRef = useRef({ onStation, onWebglError, onMetrics });
   cbRef.current = { onStation, onWebglError, onMetrics };
   const objCountRef = useRef(0); // last object count, for the dev-HUD sampler
@@ -155,7 +159,10 @@ export default function PixiScene({ input, claims, t, undertow = false, onStatio
       s.render(graph, resolve);
       s.setDayNight(tRef.current);
       applyCam();
-      s.buildSea(SEA_COLORS[input.domain] ?? SEA_COLORS['数理']!); // animated water plane (M2)
+      // Sea = data (海即数据): domain hue (climate) + darkness = abstractness (depth).
+      s.buildSea(SEA_COLORS[input.domain] ?? SEA_COLORS['数理']!, {
+        depthAlpha: seaDepthAt(substrateRef.current).overlayAlpha,
+      });
       objCountRef.current = graph.objects.length;
       cbRef.current.onMetrics?.({ objects: graph.objects.length, sorted: s.sortedNodeCount(), renderMs: s.lastRenderMs });
     })();

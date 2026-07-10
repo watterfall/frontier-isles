@@ -483,7 +483,7 @@ export class SceneStage {
    * the only animated content, so the rest of the static scene rides along cheaply.
    * Call after {@link render} (needs the terrain in place).
    */
-  buildSea(colors: SeaColors, opts: { margin?: number } = {}): void {
+  buildSea(colors: SeaColors, opts: { margin?: number; depthAlpha?: number } = {}): void {
     if (!this.app) return;
     const b = this.terrainRoot.getLocalBounds();
     if (b.width <= 0 || b.height <= 0) return; // no terrain yet
@@ -499,7 +499,7 @@ export class SceneStage {
 
     const margin = opts.margin ?? 800;
     const rect: Rect = { x: b.x - margin, y: b.y - margin, w: b.width + 2 * margin, h: b.height + 2 * margin };
-    const { mesh, shader } = createSeaMesh({ rect, maskRect, mask, ...colors });
+    const { mesh, shader } = createSeaMesh({ rect, maskRect, mask, ...colors, depthAlpha: opts.depthAlpha });
 
     this.seaMask?.destroy(true);
     this.seaLayer.removeChildren().forEach((c) => c.destroy());
@@ -514,10 +514,15 @@ export class SceneStage {
     }
   }
 
-  /** Toggle the disputed-sea undertow (M2 acceptance: switchable). */
-  setUndertow(on: boolean): void {
+  /**
+   * Set the disputed-sea undertow. Accepts a boolean (M2 dev toggle) OR a 0..1
+   * contention magnitude (海即数据: this island's unresolved-refute intensity —
+   * depth-plan-v2 §3 whirlpool, data-bound not decorative).
+   */
+  setUndertow(on: boolean | number): void {
+    const v = typeof on === 'number' ? Math.max(0, Math.min(1, on)) : on ? 1 : 0;
     const u = this.seaShader?.resources.waveUniforms?.uniforms as { uUndertow: number } | undefined;
-    if (u) u.uUndertow = on ? 1 : 0;
+    if (u) u.uUndertow = v;
   }
 
   /** Advance the wave clock each frame; app.start() auto-renders after. */

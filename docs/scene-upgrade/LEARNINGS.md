@@ -81,6 +81,20 @@
 - **可靠 e2e 导航验收(新)**:global-playwright 不止能截 `?scene=pixi`,**也能驱动真 app L0→L1**:goto `/` → `waitForTimeout(3000)` → `page.mouse.click(x,y)` 点 L0 岛 `<g>`(坐标从 `getBoundingClientRect` 探)→ 等 canvas 出现 + ~3.5s boot/海 ticker → 截图。DayNightLever 是 104×40 圆角 pill `<div onClick>`,用 `getComputedStyle` 找 width===104 的 div 点其中心翻夜。**验证真岛需 server :8787 活 + seed**(否则退 "not reachable" 卡)。
 - **⚠️ seed 账本 claim 极稀疏**:全岛最多 1 submit_claim + 1 validate,真岛几乎无高塔/共识屋顶——**claim 生长满量程只在 demo 的手造账本可见**。这是数据丰富度缺口,非渲染 bug;要在真岛展示 M4.3 需 seed 更多 validate(跨岛复现)或等真实使用。
 
+## M5 微动态已落地（Iter 15）— 一个 ticker 驱动全部
+- **骑现有 sea ticker,不新增循环**:`buildSea` 已 `app.start()` 常驻 rAF;`tickDynamics` 挂同一 ticker(`ensureDynamicsTicker` 幂等)。M1 的"按需渲染"早被 M2 海面 ticker 取代,微动态零额外成本。
+- **注册表每 render 重建**:ghost/halo 节点是 claim 容器的子节点,`clearNodes` 销毁 → 必须 `this.ghostNodes=[]/haloNodes=[]` 重置,render 循环里重新 push,否则指向已销毁节点崩。
+- **要动的东西必须是独立节点**:共识光环原本画进 claim 的共享 `g`,无法单独缩放 → 抽成 `makeHalo()` 居中于原点的独立 Graphics 子节点(labeled 'halo'),`getChildByLabel('halo')` 找回来 breathe。**教训:任何要独立动画的视觉元素,渲染时就得给它自己的容器/节点,别烘进共享 Graphics。**
+- **平滑 crossfade**:`setDayNight` 拆 `applyDayNight`(纯改 alpha/tone,无 redraw)+ `setDayNight`(=applyDayNight+redraw,外部瞬时调用)+ `tweenDayNight`(ticker 缓动 curT→targetT,PixiScene `[t]` effect 调它)。boot 首帧仍瞬时 setDayNight。验证铁证=拨杆 t=1 时截到**半罩中间帧**(瞬跳不可能有)。
+- **twinkle perf gate**:仅 `lightsLayer.alpha>0.01`(夜间组亮)时才遍历灯节点,白天零开销。
+
+## 海即数据 · L1（Iter 16）— Fable A+，严守 deferral + 禁即兴
+- **先查 deferral 再动手**:L0 海即数据(SeaLayer/currents/sea.ts)**已建但因杂乱被隐藏**(`ROADMAP.md` §3.10)。ratified 指令="a better form, not 'render more sea-plane'"——关系层 rework 是需先有表征方案的 Phase C 事项。**所以任何 always-on 洋流/关系可视化都违背已拍板决定**,别去扩 L0。海即数据在 L1 campaign = 把 thesis 带进 L1 Pixi 海。
+- **区分气候通道 vs 关系通道**:§3.10 隐藏的是**关系**清单(currents/whirlpool/strait/FlowLegend/RelationsList)。**海深=气候通道(抽象度),不在隐藏清单** → 安全可上。这是绕过 deferral 的合法路径。
+- **零即兴三招**(Fable advisor):① 海深 shading——`seaDepthAt(substrate).overlayAlpha` 现成 helper → sea-mesh `uDepth` uniform `col*=(1-uDepth)`;暗度独立于域色(invariant 6:深≠色,永不新增 hue)。② 把已有装饰(undertow toggle)**绑到数据**(refuted claim 数→争议度),装饰变转录,不发明新形态。③ **可读性用文字不画角标**——面板一行 "🌊 水深 X·偏理论 · ⇄ N 驳斥",invariant 6 解码器走 list-twin(禁即兴角标)。
+- **不做的**:L1 洋流 flowline——你站在一座岛上,别的岛在地平线外,方向/权重编码会退化成**无设计源的边缘符号** → 需先走 design-eng-loop 设计回合,不是实现槽位。要 this-island 关系可读就上文字数字,别画。
+- **substrate 缺失→诚实无深度**:`seaDepthAt(null)` 返回 overlayAlpha 0,不假造深度(honest absence > decoration)。
+
 ## ⚠️ 最大教训：design-system 是视觉契约，禁止即兴（2026-07-09 血泪）
 - **症状**：连续三版视觉被否——深青海 GLSL、G 金板数据标记、金塔。用户一句"按 Claude Design 设计图来"点破：我一直**没看 `design-system/*.html`(22 张)就自己发挥**，做出了系统里根本不存在的外来审美。
 - **真相**：真设计语言 = **暖宣纸底(#fi-grain)+ 墨线(--ink #3A342B)+ 米墙(--wall #F8F1DE)+ 彩色屋顶 + 软影 iso 建筑 + 海即数据(暖纸+洋流/气候/水深,非写实水)**。日间 --ground=#E0DBC8、--water=#BCCEDC(淡域水),`palettes.ts`/DOMAIN_SCENE_VARS 是真相。

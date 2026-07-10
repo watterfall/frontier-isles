@@ -55,7 +55,7 @@ export default function PixiSceneHost({ input = DEMO }: { input?: LayoutInput })
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: '#f2ecd9' }}>
-      <PixiScene input={input} claims={DEMO_CLAIMS} t={t} undertow={undertow} onMetrics={setStat} />
+      <PixiScene input={input} claims={DEMO_CLAIMS} t={t} substrate={0.7} undertow={undertow} onMetrics={setStat} />
 
       <div style={{ position: 'absolute', top: 12, left: 12, color: '#cfd6e6', font: '12px ui-monospace, monospace', background: 'rgba(0,0,0,.45)', padding: '6px 9px', borderRadius: 6, lineHeight: 1.5, pointerEvents: 'auto' }}>
         <div>M4 · day/night + sea + layered + hit-test</div>
