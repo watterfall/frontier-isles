@@ -288,6 +288,7 @@ export class SceneStage {
       return c;
     }
     if (o.kind === 'claim') return this.makeClaimMark(o);
+    if (o.kind.startsWith('landmark:')) return this.makeLandmark(o);
     // diamondPoints is elevation-0 screen space; the elevation lift is applied
     // per case below (terrain columns vs objects standing on their tile).
     const pts = diamondPoints(o.gx, o.gy);
@@ -373,6 +374,44 @@ export class SceneStage {
     const c = new Container();
     c.addChild(g);
     if (halo) c.addChild(halo);
+    c.label = o.id;
+    return c;
+  }
+
+  /**
+   * The island's single biome Landmark (M4.4, M4-DESIGN §3e) — a 2–3× body
+   * visual anchor, one per island, its FORM chosen purely by `o.biome` via the
+   * `landmark:<code>` kind the layout layer assigns (layout.ts LANDMARK_CODE):
+   * 数理 → crystal cluster, 物质 → furnace obelisk, 生命 → world-tree glasshouse,
+   * 交叉 → converging bridge arches. Every dimension is fixed geometry (no per-
+   * claim data to bind — the Landmark's existence/shape is itself the datum:
+   * this island's domain), matching the other placeholder draws' contact-shadow
+   * + ink-stroke vocabulary so it reads as part of the same island, just bigger.
+   */
+  private makeLandmark(o: SceneObject): Container {
+    const pts = diamondPoints(o.gx, o.gy);
+    const cx = (pts[0]!.x + pts[2]!.x) / 2;
+    const gy = (pts[0]!.y + pts[2]!.y) / 2 - o.elevation * ELEV_STEP + 8; // front-bottom vertex
+    const code = o.kind.slice('landmark:'.length);
+    const g = new Graphics();
+    g.ellipse(cx, gy + 4, 48, 20).fill({ color: 0x3a3024, alpha: 0.2 }); // biggest shadow on the island
+    switch (code) {
+      case 'foundry':
+        drawFoundryLandmark(g, cx, gy);
+        break;
+      case 'worldtree':
+        drawWorldTreeLandmark(g, cx, gy);
+        break;
+      case 'archhub':
+        drawArchHubLandmark(g, cx, gy);
+        break;
+      case 'crystal':
+      default:
+        drawCrystalLandmark(g, cx, gy);
+        break;
+    }
+    const c = new Container();
+    c.addChild(g);
     c.label = o.id;
     return c;
   }
@@ -865,6 +904,92 @@ function drawSeal(g: Graphics, x: number, y: number, doi: boolean): void {
   } else {
     g.circle(x, y, 8.5).stroke({ color: 0x6b6154, width: 1.3, alpha: 0.8 });
   }
+}
+
+// ─── M4.4 Landmark draw functions — one 2–3× body per biome ─────────────────
+// Every shape is anchored at (cx, gy) = the tile's front-bottom vertex (same
+// convention as makeClaimMark/drawIsoBox), so it plants correctly on elevated
+// terrain. No claim/ledger data to bind here (§3e): the Landmark's shape IS the
+// datum (this island's domain), so geometry is fixed, not parameterised by growth.
+
+/** Sample a semicircular arch/dome as a poly path — avoids Graphics.arcTo's
+ * rounded-corner semantics, which don't guarantee a clean dome through 3 points. */
+function archPoints(cx: number, gy: number, w: number, h: number, steps = 12): number[] {
+  const pts: number[] = [];
+  for (let i = 0; i <= steps; i++) {
+    const a = Math.PI * (i / steps);
+    pts.push(cx - w * Math.cos(a), gy - h * Math.sin(a));
+  }
+  return pts;
+}
+
+/** 数理 Landmark — 巨型几何晶体 (a faceted crystal spike cluster), pale blue-white. */
+function drawCrystalLandmark(g: Graphics, cx: number, gy: number): void {
+  const ink = 0x2e5e8c;
+  const spikes: Array<[number, number, number]> = [
+    [-30, 40, 11],
+    [-10, 72, 14],
+    [10, 90, 16], // the tallest, central spike — the island's tallest point
+    [28, 54, 12],
+    [42, 32, 9],
+  ];
+  for (const [dx, h, w] of spikes) {
+    const bx = cx + dx;
+    const lit = dx >= 10; // the central/right facets read brighter (facing the viewer)
+    g.poly([bx - w, gy, bx, gy - h, bx + w, gy])
+      .fill({ color: lit ? 0xe4edf5 : 0xaecbdd })
+      .stroke({ color: ink, width: 1.6 });
+    g.poly([bx, gy - h, bx + w * 0.55, gy - h * 0.5, bx, gy]).fill({ color: lit ? 0xc9d8e6 : 0x8fb0c8, alpha: 0.85 });
+  }
+}
+
+/** 物质 Landmark — 不熄熔炉尖塔 (an ever-lit furnace obelisk), dark stone + ember mouth. */
+function drawFoundryLandmark(g: Graphics, cx: number, gy: number): void {
+  const ink = 0x3a2418;
+  const H = 92;
+  const wB = 22;
+  const wT = 9;
+  g.poly([cx - wB, gy, cx - wT, gy - H, cx + wT, gy - H, cx + wB, gy]).fill({ color: 0x6b4a34 }).stroke({ color: ink, width: 2 });
+  g.poly([cx - wB, gy, cx - wT, gy - H, cx, gy - H * 0.98, cx, gy]).fill({ color: 0x54382a, alpha: 0.45 }); // shade the left face
+  // ever-burning furnace mouth (a fixed emissive mark — night-window logic in
+  // buildLights already lights this building's top separately; this is the day mark).
+  g.ellipse(cx, gy - H * 0.24, 8, 11).fill({ color: 0xe3672a });
+  g.ellipse(cx, gy - H * 0.24, 4.5, 6).fill({ color: 0xffcf7a });
+  g.rect(cx - wT * 0.8, gy - H - 1, wT * 1.6, 8).fill({ color: 0x3a2418 }); // crown
+}
+
+/** 生命 Landmark — 世界树温室 (a canopy tree inside a glasshouse dome), verdant. */
+function drawWorldTreeLandmark(g: Graphics, cx: number, gy: number): void {
+  const ink = 0x2b7a5f;
+  // glasshouse dome — translucent, drawn first so the trunk/canopy read through it.
+  g.poly(archPoints(cx, gy - 6, 42, 46)).stroke({ color: ink, width: 1.4, alpha: 0.55 });
+  g.ellipse(cx, gy - 6, 42, 15).fill({ color: 0xdcefe0, alpha: 0.22 }).stroke({ color: ink, width: 1.2, alpha: 0.4 });
+  // trunk
+  g.poly([cx - 6, gy, cx - 3, gy - 46, cx + 3, gy - 46, cx + 6, gy]).fill({ color: 0x6b4a2e }).stroke({ color: 0x3a2418, width: 1.4 });
+  // canopy — three overlapping lobes for a full silhouette
+  g.circle(cx - 16, gy - 58, 20).fill({ color: 0x3e9b7e });
+  g.circle(cx + 16, gy - 60, 22).fill({ color: 0x2f8468 });
+  g.circle(cx, gy - 76, 24).fill({ color: 0x4bb08c }).stroke({ color: ink, width: 1.6 });
+}
+
+/** 交叉 Landmark — 桥拱枢纽 (several bridge arches converging on a hub deck). */
+function drawArchHubLandmark(g: Graphics, cx: number, gy: number): void {
+  const ink = 0xa08428;
+  const stone = 0xecdfb4;
+  const arches: Array<[number, number]> = [
+    [-46, 0.9],
+    [0, 1],
+    [42, 0.85],
+  ];
+  for (const [dx, s] of arches) {
+    const bx = cx + dx * 0.55;
+    const w = 40 * s;
+    const h = 56 * s;
+    g.poly(archPoints(bx, gy, w, h)).stroke({ color: stone, width: 9, alpha: 0.95 });
+    g.poly(archPoints(bx, gy, w, h)).stroke({ color: ink, width: 1.6 });
+  }
+  // hub deck at the convergence point
+  g.poly([cx - 20, gy - 30, cx + 20, gy - 30, cx + 14, gy - 42, cx - 14, gy - 42]).fill({ color: 0xd8c98a }).stroke({ color: ink, width: 1.6 });
 }
 
 /**

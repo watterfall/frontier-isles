@@ -12,6 +12,7 @@ import { projectClaimState, type ClaimState } from '@frontier-isles/core';
 import type { ActionType, LedgerEvent } from '@frontier-isles/opp';
 import PixiScene, { type PixiSceneMetrics } from './PixiScene';
 import type { LayoutInput } from './layout';
+import { ClaimDetailPanel } from '../components/island/ClaimDetailPanel';
 
 /**
  * A mock ledger for the demo island, reduced through projectClaimState (M4.3) so
@@ -52,10 +53,12 @@ export default function PixiSceneHost({ input = DEMO }: { input?: LayoutInput })
   const [t, setT] = useState(0);
   const [undertow, setUndertow] = useState(false);
   const [stat, setStat] = useState<PixiSceneMetrics>({ renderMs: 0, sorted: 0, objects: 0 });
+  const [claimPanel, setClaimPanel] = useState<ClaimState | null>(null);
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: '#f2ecd9' }}>
-      <PixiScene input={input} claims={DEMO_CLAIMS} t={t} substrate={0.7} undertow={undertow} onMetrics={setStat} />
+      <PixiScene input={input} claims={DEMO_CLAIMS} t={t} substrate={0.7} undertow={undertow} onClaim={setClaimPanel} onMetrics={setStat} />
+      <ClaimDetailPanel claim={claimPanel} onClose={() => setClaimPanel(null)} />
 
       <div style={{ position: 'absolute', top: 12, left: 12, color: '#cfd6e6', font: '12px ui-monospace, monospace', background: 'rgba(0,0,0,.45)', padding: '6px 9px', borderRadius: 6, lineHeight: 1.5, pointerEvents: 'auto' }}>
         <div>M4 · day/night + sea + layered + hit-test</div>

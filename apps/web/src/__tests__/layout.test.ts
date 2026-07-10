@@ -4,7 +4,7 @@
  * ordered, and the day/night visibility path wired for ghosts.
  */
 import { describe, expect, it } from 'vitest';
-import { buildSceneGraph, type LayoutInput } from '../scene/layout';
+import { buildSceneGraph, claimIndexFromId, type LayoutInput } from '../scene/layout';
 
 const base: LayoutInput = {
   slug: 'machine-curiosity',
@@ -94,5 +94,77 @@ describe('buildSceneGraph', () => {
   it('tags every object with the island biome', () => {
     const g = buildSceneGraph({ ...base, domain: '生命' });
     expect(g.objects.every((o) => o.biome === '生命')).toBe(true);
+  });
+
+  it('places exactly one biome Landmark, 2–3× a station body (M4.4)', () => {
+    const g = buildSceneGraph(base);
+    const landmarks = g.objects.filter((o) => o.kind.startsWith('landmark:'));
+    expect(landmarks).toHaveLength(1);
+    const lm = landmarks[0]!;
+    expect(lm.height).toBeGreaterThanOrEqual(60); // ≥2× the 30px station body
+    expect(lm.height!).toBeLessThanOrEqual(90); // ≤3×
+    expect(lm.layer).toBe('world');
+  });
+
+  it('picks a distinct Landmark form per domain (M4.4 — two↔two 一眼可辨)', () => {
+    const kindFor = (domain: LayoutInput['domain']) =>
+      buildSceneGraph({ ...base, domain }).objects.find((o) => o.kind.startsWith('landmark:'))!.kind;
+    const forms = (['数理', '物质', '生命', '交叉'] as const).map(kindFor);
+    expect(new Set(forms).size).toBe(4); // all four biomes render a different shape
+  });
+
+  it('density-gradient scatter is core-sparse, mid-densest, shore-sparser (M4.5)', () => {
+    const g = buildSceneGraph({ ...base, domain: '生命' }); // 生命 → richest scenery pool
+    const scatter = g.objects.filter((o) => o.kind.startsWith('scenery:'));
+    expect(scatter.length).toBeGreaterThan(0);
+    const CENTER = 8;
+    const ISLAND_R = 7;
+    const ringOf = (o: (typeof scatter)[number]) => {
+      const d = Math.hypot(o.gx + 0.5 - CENTER, o.gy + 0.5 - CENTER) / ISLAND_R;
+      return d < 0.35 ? 'core' : d < 0.7 ? 'mid' : 'shore';
+    };
+    const counts = { core: 0, mid: 0, shore: 0 };
+    for (const o of scatter) counts[ringOf(o)]++;
+    // mid is the densest ring by construction (scatterProb mid > shore > core).
+    expect(counts.mid).toBeGreaterThan(counts.core);
+    expect(counts.mid).toBeGreaterThanOrEqual(counts.shore);
+  });
+
+  it('never places a scatter object on a station/claim/Landmark tile', () => {
+    const g = buildSceneGraph(base);
+    const occupied = new Set(
+      g.objects.filter((o) => o.kind.startsWith('station:') || o.kind === 'claim' || o.kind.startsWith('landmark:')).map((o) => `${o.gx},${o.gy}`),
+    );
+    const scatter = g.objects.filter((o) => o.kind.startsWith('scenery:'));
+    expect(scatter.some((o) => occupied.has(`${o.gx},${o.gy}`))).toBe(false);
+  });
+});
+
+describe('claimIndexFromId', () => {
+  it('parses a claim scene-object id back to its index into `claims`', () => {
+    expect(claimIndexFromId('claim:0')).toBe(0);
+    expect(claimIndexFromId('claim:3')).toBe(3);
+  });
+
+  it('round-trips every claim tower id built by buildSceneGraph', () => {
+    const claims = [
+      { ref: 'sha256:a', island: 'op://x', foundation: true, floors: 5, roof: true, hasDoi: false, activity: 6 },
+      { ref: 'sha256:b', island: 'op://x', foundation: true, floors: 1, roof: false, hasDoi: false, activity: 2 },
+    ];
+    const g = buildSceneGraph(base, 0, claims);
+    const towers = g.objects.filter((o) => o.kind === 'claim');
+    for (const o of towers) {
+      const i = claimIndexFromId(o.id);
+      expect(i).not.toBeNull();
+      expect(claims[i!]).toBeDefined();
+    }
+  });
+
+  it('returns null for non-claim ids (stations, ghosts, ground, malformed)', () => {
+    expect(claimIndexFromId('station:workshop')).toBeNull();
+    expect(claimIndexFromId('ghost:0:refuted')).toBeNull();
+    expect(claimIndexFromId('ground:3,4')).toBeNull();
+    expect(claimIndexFromId('claim:abc')).toBeNull();
+    expect(claimIndexFromId('claim:-1')).toBeNull();
   });
 });

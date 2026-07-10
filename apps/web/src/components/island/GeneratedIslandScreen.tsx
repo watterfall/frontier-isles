@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { projectClaimState, type ClaimState, type StationKind } from '@frontier-isles/core';
 import { NIGHT_SCENE_VARS, DOMAIN_SCENE_VARS, sceneVarsToStyle } from '@frontier-isles/assets';
 import { DayNightLever } from './DayNightLever';
+import { ClaimDetailPanel } from './ClaimDetailPanel';
 import { api } from '../../api/client';
 import { generate, type GeneratedScene } from '../../scene/generator';
 import { GeneratedSceneView } from '../../scene/GeneratedScene';
@@ -58,6 +59,10 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
   const [seaStats, setSeaStats] = useState<{ substrate?: number; validates: number; refutes: number; bridges: number; contention: number } | null>(null);
   const [failed, setFailed] = useState(false);
   const [noGpu, setNoGpu] = useState(false); // WebGL absent → fall back to the SVG scene
+  // Claim-tower tap → detail panel (scene-upgrade OUTSTANDING P1). Local state,
+  // same pattern as the other Pixi-only readouts above — the SVG fallback has no
+  // claim towers to tap.
+  const [claimPanel, setClaimPanel] = useState<ClaimState | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -163,10 +168,13 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
             substrate={seaStats?.substrate}
             undertow={seaStats?.contention ?? 0}
             onStation={onStation}
+            onClaim={setClaimPanel}
             onWebglError={() => setNoGpu(true)}
           />
         </Suspense>
       )}
+
+      <ClaimDetailPanel claim={claimPanel} onClose={() => setClaimPanel(null)} />
 
       {/* L1 顶部信息 */}
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '18px 24px', pointerEvents: 'none' }}>
