@@ -43,3 +43,20 @@ Phase B(第一个真 AI 居民/CrossRef → 夜班 → 晨报闭环)仍是产品
 - [x] 概念图落 `design/inspiration/ludo/`(8 张,`5019708`);depth-plan-v1 重建时 ludo 目录尚不存在,引用留待泳道 E 河灯实现时补——**未弃用**。
 
 _泳道 E(河灯 + 移栽之路,按 depth-plan-v1 §6/§9 Batch 1)为下一批。额外收获:泳道 C 顺手修了渡口码头因绝对坐标锚点在 live L1 完全不渲染的真 bug;Data Bench 旗帜机制正确但协议缺 dataset 动词,真岛暂不可达(诚实记录于 OUTSTANDING)。_
+
+## 6. 第二批(2026-07-10,同日实测截图驱动)
+
+实测 live L1(Miyake)+ L0 后的诊断:海面死平、地形单绿、真岛散布稀疏、夜=滤镜、L0 岛形雷同无从辨认。据此并行三泳道:
+
+| 泳道 | 模型 | 交付物 | 数据绑定 |
+|---|---|---|---|
+| **E · 仪式** | sonnet | 河灯 on `publish` + ~8s 移栽之路 on `transplant`(depth-plan-v1 §6/§9 Batch 1);渲染进新模块 `renderer/pixi/rituals.ts` | 恰好一动词一仪式,once-per-event(不变量 17) |
+| **F · L1 氛围** | opus | 海深渐变 + 岸线潮圈;per-tile 地形指纹微变(Batch-3 切片**拉前**,因直接命中"层次感"诉求);夜萤火(OUTSTANDING M8 第二批);诊断修复真岛 scatter 稀疏 | 水深 meta(=抽象度,inv 16)/ tide N / hash(slug) 种子(inv 13)/ projectActiveStations |
+| **G · L0 指纹** | sonnet | 岛形 pre-echo:footprint 绑 stage、海岸线语法分 4 域、resolved → 灯塔、密度档位(§5 L0 剪影即指纹) | stage/status/domain/eventCount + hash(slug),档位离散不排名 |
+
+**红线**:G 不得 remount SeaLayer/画关系线——ChartScreen 头注已明确 sea-plane 故意不挂载,等 §3.10 关系表示重做,本批不重开该决定。
+
+- [ ] E:发表触发河灯离**本岛**;移栽 ~8s 走桥;点击追溯到事件;reduced-motion 优雅降级
+- [ ] F:水深/潮圈/指纹/萤火全部可答"转写什么数据";scatter 稀疏根因写明并修复
+- [ ] G:同岛永远同形(确定性测试);4 域轮廓一眼可辨;school 岛远看就比空岛密
+- [ ] 门禁:`pnpm -r test && pnpm -r typecheck` 全绿(≥242),live L1/L0 截图对比留档
