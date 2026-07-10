@@ -274,6 +274,93 @@ describe("morning report HITL", () => {
   });
 });
 
+describe("transplant-through-dock (Phase B.3)", () => {
+  const OP = "op://frontier-isles/prob/machine-curiosity";
+  const APPRENTICE = { id: "github:a-ruo", kind: "human" as const }; // seeded apprentice — no station_write
+
+  const firstDriftwood = async (): Promise<{ refHash: string; atom: string; text: string }> => {
+    const list = await jsonOf(await app.request("/api/islands/machine-curiosity/driftwood"));
+    return list.atoms[0];
+  };
+
+  it("lists real driftwood atoms available to transplant (not the returned-to-driftwood ghosts)", async () => {
+    const list = await jsonOf(await app.request("/api/islands/machine-curiosity/driftwood"));
+    expect(list.atoms.length).toBe(4); // seed drops 4 driftwood atoms; the 3 ghosts are excluded
+    for (const a of list.atoms) {
+      expect(typeof a.refHash).toBe("string");
+      expect(typeof a.text).toBe("string");
+      expect(a.text.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("a researcher-or-above human transplants a driftwood atom → one transplant event whose ref is a bridge artifact carrying the persistent once-driftwood mark", async () => {
+    const drift = await firstDriftwood();
+    const res = await post("/api/islands/machine-curiosity/transplant", {
+      actor: MASTER,
+      driftwoodRef: drift.refHash,
+      type: "concept-prototype",
+      dest: "workshop",
+      body: "陶土原型机 · 曾为散木",
+      flow: "hypothesis-output",
+    });
+    expect(res.status).toBe(201);
+    const body = await jsonOf(res);
+    expect(body.degraded).toBe(false);
+    expect(body.event.action).toBe("transplant");
+    expect(body.event.phase).toBe("B");
+    expect(body.event.flow).toBe("hypothesis-output");
+
+    // The event carries only a ref — the bridge artifact content lives in the ref store.
+    const artifact = await jsonOf(await app.request(`/api/refs/${encodeURIComponent(body.refHash)}`));
+    expect(artifact.kind).toBe("bridge_artifact");
+    expect(artifact.content.type).toBe("concept-prototype");
+    expect(artifact.content.dest).toBe("workshop");
+    // "once driftwood" mark persists inside the artifact, pointing back at the source.
+    expect(artifact.content.onceDriftwood).toBe(drift.refHash);
+
+    // Place plane: passed through the dock AND landed at the target station.
+    expect(store.getPlacements(OP, "dock").some((p) => p.refHash === body.refHash)).toBe(true);
+    expect(store.getPlacements(OP, "workshop").some((p) => p.refHash === body.refHash)).toBe(true);
+
+    // Exactly one transplant event, chain intact.
+    const events = store.getEvents(OP).filter((e) => e.action === "transplant");
+    expect(events.length).toBe(1);
+    expect(store.verify(OP).ok).toBe(true);
+  });
+
+  it("404s on a driftwood ref that does not exist", async () => {
+    const res = await post("/api/islands/machine-curiosity/transplant", {
+      actor: MASTER,
+      driftwoodRef: "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      type: "concept-prototype",
+      dest: "workshop",
+    });
+    expect(res.status).toBe(404);
+  });
+
+  it("denies an apprentice with no station_write (403) — the only path into a formal station is a privileged human", async () => {
+    const drift = await firstDriftwood();
+    const res = await post("/api/islands/machine-curiosity/transplant", {
+      actor: APPRENTICE,
+      driftwoodRef: drift.refHash,
+      type: "analogy-mapping",
+      dest: "library",
+    });
+    expect(res.status).toBe(403);
+  });
+
+  it("400s on an invalid bridge artifact type", async () => {
+    const drift = await firstDriftwood();
+    const res = await post("/api/islands/machine-curiosity/transplant", {
+      actor: MASTER,
+      driftwoodRef: drift.refHash,
+      type: "not-a-bridge",
+      dest: "workshop",
+    });
+    expect(res.status).toBe(400);
+  });
+});
+
 describe("export", () => {
   it("problem.md round-trips through opp", async () => {
     const md = await (await app.request("/api/islands/machine-curiosity/problem.md")).text();

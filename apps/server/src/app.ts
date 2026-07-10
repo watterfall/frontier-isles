@@ -4,7 +4,8 @@ import { cors } from "hono/cors";
 import { getCookie, setCookie, deleteCookie } from "hono/cookie";
 import { ZodError } from "zod";
 import type { Actor, FlowType, Phase } from "@frontier-isles/opp";
-import type { GatewayAction, StationKind } from "@frontier-isles/core";
+import type { BridgeArtifactType, GatewayAction, StationKind } from "@frontier-isles/core";
+import { BRIDGE_ARTIFACT_TYPES, TRANSPLANT_TARGETS } from "@frontier-isles/core";
 import { Store, GatewayDenied, ChainError, NotFound } from "./store.js";
 import type { RefKind } from "./refs.js";
 
@@ -179,6 +180,50 @@ export function createApp(store: Store): Hono {
       return c.json({ error: "decision must be adopt|return" }, 400);
     try {
       const result = store.resolveMorningReport(slug, refHashValue, decision, actor);
+      return c.json(result, 201);
+    } catch (e) {
+      return errorResponse(c, e);
+    }
+  });
+
+  // --- transplant-through-dock (Phase B.3) ---------------------------------
+
+  // The Driftwood Garden's transplantable atoms (resolved server-side), for the
+  // web's transplant picker. Read-only projection over the place plane.
+  app.get("/api/islands/:slug/driftwood", (c) => {
+    const row = store.getProblemRow(c.req.param("slug"));
+    if (!row) return c.json({ error: "not found" }, 404);
+    return c.json({ atoms: store.listDriftwood(row.opId) });
+  });
+
+  // Human transplant: driftwood → dock → target station, forming one of the
+  // four bridge artifacts. Human-only path into a formal station (§4). Mirrors
+  // the morning-report endpoint's actor/error conventions.
+  app.post("/api/islands/:slug/transplant", async (c) => {
+    const slug = c.req.param("slug");
+    if (!store.getProblemRow(slug)) return c.json({ error: "not found" }, 404);
+    const body = await c.req.json().catch(() => null);
+    if (!body || typeof body !== "object") return c.json({ error: "invalid body" }, 400);
+    const actor: Actor | undefined = body.actor ?? actorOf(c);
+    if (!actor) return c.json({ error: "actor required" }, 401);
+    const type = body.type as string;
+    const dest = body.dest as string;
+    if (!(BRIDGE_ARTIFACT_TYPES as readonly string[]).includes(type))
+      return c.json({ error: `type must be one of ${BRIDGE_ARTIFACT_TYPES.join("|")}` }, 400);
+    if (!(TRANSPLANT_TARGETS as readonly string[]).includes(dest))
+      return c.json({ error: `dest must be a formal station` }, 400);
+    if (typeof body.driftwoodRef !== "string" || !body.driftwoodRef)
+      return c.json({ error: "driftwoodRef required" }, 400);
+    try {
+      const result = store.transplant(slug, {
+        driftwoodRef: body.driftwoodRef,
+        type: type as BridgeArtifactType,
+        dest: dest as StationKind,
+        body: typeof body.body === "string" ? body.body : undefined,
+        flow: body.flow as FlowType | undefined,
+        actor,
+        credit: Array.isArray(body.credit) ? body.credit : undefined,
+      });
       return c.json(result, 201);
     } catch (e) {
       return errorResponse(c, e);

@@ -33,6 +33,8 @@ import {
   projectCurrents,
   projectWhirlpools,
   projectMorningReport,
+  buildTransplant,
+  type BridgeArtifactType,
   type Current,
   type Whirlpool,
   type MorningReportEntry,
@@ -821,6 +823,119 @@ export class Store {
     });
     this.addPlacement(opId, "driftwood", refHashValue, { action: "return_to_driftwood", actorId: actor.id });
     return { event, degraded: false, effectiveAction: "return_to_driftwood", refHash: refHashValue };
+  }
+
+  // --- transplant-through-dock (Phase B.3) ---------------------------------
+
+  /**
+   * The driftwood atoms currently available to transplant — real driftwood
+   * refs placed in the Garden (not the returned-to-driftwood ghosts, which
+   * carry a `ghost` meta). Resolved server-side so the web picker shows the
+   * atom text without N ref round-trips; deduped by ref hash.
+   */
+  listDriftwood(opId: string): Array<{ refHash: string; atom: string; text: string; actorId: string }> {
+    const seen = new Set<string>();
+    const out: Array<{ refHash: string; atom: string; text: string; actorId: string }> = [];
+    for (const pl of this.getPlacements(opId, "driftwood")) {
+      if (!pl.refHash || pl.meta.ghost || seen.has(pl.refHash)) continue;
+      const ref = this.getRef(pl.refHash);
+      if (ref?.kind !== "driftwood") continue;
+      const c = (ref.content ?? {}) as { atom?: string; text?: string };
+      seen.add(pl.refHash);
+      out.push({
+        refHash: pl.refHash,
+        atom: c.atom ?? "thought",
+        text: c.text ?? "",
+        actorId: (pl.meta.actorId as string) ?? "",
+      });
+    }
+    return out;
+  }
+
+  /**
+   * Transplant a driftwood atom through the Ferry Dock into a formal station
+   * (architecture.md §4, Phase B.3). "transplant 移栽 always passes the dock,
+   * forming one of the four bridge artifacts; 'once driftwood' marks persist."
+   *
+   * Human-only by construction — the ONLY path into a formal station is a human
+   * transplant (§4). We reuse core's `can()` role ladder: `station_write`
+   * (researcher+); an apprentice/visitor is denied ({@link GatewayDenied} → 403).
+   * A lone agent has no role and no `station_write`, so this path denies it too
+   * (and there is deliberately no MCP transplant tool — see mcp.ts).
+   *
+   * Writes EXACTLY ONE `transplant` event whose `ref` is the freshly-formed
+   * `bridge_artifact` (its content carries `onceDriftwood` + the four-type + the
+   * dest — never inlined into the event). The place plane then records the
+   * pass-through: one placement at the dock, one at the target station.
+   */
+  transplant(
+    slug: string,
+    input: {
+      driftwoodRef: string;
+      type: BridgeArtifactType;
+      dest: StationKind;
+      body?: string;
+      flow?: FlowType;
+      actor: Actor;
+      credit?: string[];
+      ts?: string;
+    },
+  ): GatewayResult {
+    const row = this.getProblemRow(slug);
+    if (!row) throw new NotFound(slug);
+    const opId = row.opId;
+
+    // Source must be a real driftwood atom.
+    const src = this.getRef(input.driftwoodRef);
+    if (!src || src.kind !== "driftwood") throw new NotFound(`driftwood ${input.driftwoodRef}`);
+
+    // Capability: human role ladder `station_write` (researcher+); agents never transplant.
+    const role = input.actor.kind === "agent" ? undefined : this.memberRole(opId, input.actor.id);
+    const capActor = { id: input.actor.id, kind: input.actor.kind, role };
+    if (!can(capActor, "transplant", this.grantsFor(opId, input.actor.id))) {
+      throw new GatewayDenied("transplant");
+    }
+
+    // Pure data shape (throws on a bad type / target — surfaces as a 400 via ZodError-less Error → 500 guard;
+    // the web only ever passes valid enums, and the endpoint validates before calling).
+    const build = buildTransplant({
+      driftwoodRef: input.driftwoodRef,
+      type: input.type,
+      dest: input.dest,
+      body: input.body,
+      flow: input.flow,
+    });
+
+    const when = input.ts ?? new Date().toISOString();
+    const artifactRef = this.putRef("bridge_artifact", build.artifact);
+    const event = this.appendRaw(opId, {
+      ts: when,
+      op: opId as ProblemObject["id"],
+      actor: input.actor,
+      credit: input.credit ?? ["conceptualization"],
+      phase: build.event.phase,
+      action: "transplant",
+      flow: build.event.flow,
+      ref: artifactRef,
+    });
+
+    // Place plane (regenerable): the artifact passes THROUGH the dock, then lands
+    // at the target formal station. Two placements, still one ledger event.
+    this.addPlacement(opId, "dock", artifactRef, {
+      action: "transplant",
+      actorId: input.actor.id,
+      dest: input.dest,
+      onceDriftwood: input.driftwoodRef,
+      pass: true,
+    });
+    this.addPlacement(opId, input.dest, artifactRef, {
+      action: "transplant",
+      actorId: input.actor.id,
+      from: "dock",
+      onceDriftwood: input.driftwoodRef,
+    });
+
+    return { event, degraded: false, effectiveAction: "transplant", refHash: artifactRef };
   }
 
   // --- sessions -------------------------------------------------------------

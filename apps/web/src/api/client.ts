@@ -6,6 +6,15 @@
  * the UI is identical online or offline.
  */
 import type { LedgerEvent } from '@frontier-isles/opp';
+import type { BridgeArtifactType } from '@frontier-isles/core';
+
+/** A transplantable driftwood atom (GET `/api/islands/:slug/driftwood`). */
+export interface DriftwoodAtom {
+  refHash: string;
+  atom: string;
+  text: string;
+  actorId: string;
+}
 
 // ── Server payload shapes (from the API table) ────────────────────────────
 export interface ApiIsland {
@@ -198,6 +207,35 @@ export const api = {
     req<unknown>(`/api/islands/${slug}/morning-report/${encodeURIComponent(refHash)}`, {
       method: 'POST',
       body: JSON.stringify({ decision, actor: toActor(actor) }),
+    }),
+
+  /**
+   * The Driftwood Garden's transplantable atoms, resolved server-side
+   * (GET `/api/islands/:slug/driftwood`). Best-effort → null on failure.
+   */
+  driftwood: (slug: string) =>
+    req<{ atoms: DriftwoodAtom[] }>(`/api/islands/${slug}/driftwood`),
+
+  /**
+   * Human transplant-through-dock (Phase B.3): forms one of the four bridge
+   * artifacts at the dock and lands it at `dest`. Writes exactly one
+   * `transplant` event (which the ritual layer then animates on next poll).
+   * Best-effort like every call here; returns null on any failure.
+   */
+  transplant: (
+    slug: string,
+    input: { driftwoodRef: string; type: BridgeArtifactType; dest: string; body?: string; flow?: string; actor: string },
+  ) =>
+    req<unknown>(`/api/islands/${slug}/transplant`, {
+      method: 'POST',
+      body: JSON.stringify({
+        driftwoodRef: input.driftwoodRef,
+        type: input.type,
+        dest: input.dest,
+        body: input.body,
+        flow: input.flow,
+        actor: toActor(input.actor),
+      }),
     }),
 
   /** Append a ledger event (vote, transplant, focus, …). */

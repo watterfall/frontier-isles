@@ -297,6 +297,8 @@ export default function App() {
               onToggleNight={() => setNight((v) => !v)}
               onBack={goChart}
               onStation={onStation}
+              actor={actor}
+              onToast={showToast}
             />
           )}
           {wipe.view === 'island' && (selSlug === SAMPLE_SLUG || !selSlug) && (

@@ -148,6 +148,15 @@ export function createMcpServer(store: Store, islandSlug: string, agentId: strin
       text(write("refute", { payload: { ref, body }, refKind: "claim", credit: ["credit:ai/critique"] })),
   );
 
+  // NB: there is deliberately NO `transplant` tool here. architecture.md §4:
+  // "the only path into the formal stations is a human transplant". Agents
+  // leave driftwood in the Garden (create_driftwood) and park proposals at the
+  // dock (an ungranted station push degrades to a dock_proposal above); a human
+  // then transplants an atom through the dock into a formal station via the
+  // HTTP endpoint (POST /api/islands/:slug/transplant, store.transplant). Adding
+  // an agent-side transplant tool would break that governance boundary — the
+  // omission is the feature. See packages/core/src/transplant.ts (buildTransplant).
+
   return server;
 }
 
