@@ -40,3 +40,41 @@ describe('api.ledger', () => {
     expect(await api.ledger('slug')).toBeNull();
   });
 });
+
+/**
+ * api.decideBrief posts by the draft's own content-addressed refHash — never
+ * by array position — so MorningReport never has to re-fetch the list to
+ * resolve "index i" into a ref, and can't mis-resolve a shifted index after
+ * another draft has already been decided.
+ */
+describe('api.decideBrief', () => {
+  it('posts to the ref-addressed endpoint, url-encoding the ref and wrapping the actor', async () => {
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ ok: true }), { status: 201 }));
+    vi.stubGlobal('fetch', fetchMock);
+    await api.decideBrief('machine-curiosity', 'sha256:abc/def', 'adopt', 'github:shen-kuo');
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe('/api/islands/machine-curiosity/morning-report/sha256%3Aabc%2Fdef');
+    const body = JSON.parse(init.body as string);
+    expect(body).toEqual({ decision: 'adopt', actor: { id: 'github:shen-kuo', kind: 'human' } });
+  });
+
+  it('resolves to null (never throws) when the write fails — caller rolls back optimistically', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response('', { status: 403 })));
+    expect(await api.decideBrief('machine-curiosity', 'sha256:x', 'return', 'github:nobody')).toBeNull();
+  });
+});
+
+describe('api.morningReport', () => {
+  it('parses the {drafts: [...]} wrapper', async () => {
+    const drafts = [{ refHash: 'r1', title: 'A', dest: 'library', actorId: 'github:scout', actorKind: 'agent', credit: [], ts: '2026-07-10T00:00:00.000Z' }];
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ drafts }), { status: 200 })));
+    const res = await api.morningReport('machine-curiosity');
+    expect(res?.drafts).toEqual(drafts);
+  });
+
+  it('returns null on failure (caller falls back to the static BRIEF seed)', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response('', { status: 500 })));
+    expect(await api.morningReport('machine-curiosity')).toBeNull();
+  });
+});

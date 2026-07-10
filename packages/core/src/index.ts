@@ -79,3 +79,12 @@ export type { Current, CurrentKind, CurrentSign, CurrentMaturity, Whirlpool } fr
 // Per-claim building state (scene-upgrade M4.3 — foundation/floors/roof/ghost)
 export { projectClaimState, CONSENSUS_MIN } from "./claims";
 export type { ClaimState } from "./claims";
+
+// Morning report (Phase B.1 — the AI night shift's dock drafts, HITL-resolved)
+export { projectMorningReport } from "./morning-report";
+export type {
+  MorningReportEntry,
+  MorningReportOptions,
+  MorningReportStatus,
+  ResolvedRef,
+} from "./morning-report";
