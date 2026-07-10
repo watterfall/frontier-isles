@@ -35,11 +35,11 @@ import {
   DAY_RESIDENTS,
   CONSTANT_RESIDENTS,
   NIGHT_RESIDENT,
-  GHOSTS,
   HANGING_LANTERNS,
   TRANS_TAG_POS,
   type ResidentPlacement,
 } from './sampleIsland';
+import { DEFAULT_GHOST_REVEALS, type GhostReveal } from './nightReveal';
 
 export interface SceneProps {
   night: boolean;
@@ -48,6 +48,13 @@ export interface SceneProps {
   selKey: StationKind | null;
   transTo: string | null;
   onStation: (key: StationKind) => void;
+  /**
+   * Ghost-reveal thresholds (Phase B.2, `scene/nightReveal.ts`) — driven by
+   * the real machine-curiosity ledger when the caller has one, otherwise
+   * `DEFAULT_GHOST_REVEALS` (the seed constants, identical to pre-B.2
+   * rendering). Optional so Scene stays usable standalone (tests, Storybook).
+   */
+  ghostReveals?: GhostReveal[];
 }
 
 const STATION_COMPONENTS: Record<
@@ -109,11 +116,12 @@ function Resident({ r, i, lang }: { r: ResidentPlacement; i: number; lang: 'zh' 
  * is palette-only: the caller applies NIGHT_SCENE_VARS on the wrapping div,
  * so every `var(--x,…)` shape repaints without changing shape.
  */
-export function Scene({ night, nightT, selKey, transTo, onStation }: SceneProps) {
+export function Scene({ night, nightT, selKey, transTo, onStation, ghostReveals }: SceneProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
   const sel = selKey ? STN.find((s) => s.k === selKey) : undefined;
   const transPos = transTo ? TRANS_TAG_POS[transTo] : undefined;
+  const ghosts = ghostReveals ?? DEFAULT_GHOST_REVEALS;
 
   return (
     <svg viewBox="0 0 1440 900" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
@@ -209,8 +217,9 @@ export function Scene({ night, nightT, selKey, transTo, onStation }: SceneProps)
               {t('scene.synthesizerDraft')}
             </text>
           </g>
-          {/* 魂影三件，按时间轴阈值渐显 */}
-          {GHOSTS.map((g) => (
+          {/* 魂影三件，按时间轴阈值渐显 — 阈值来自真账本（见 scene/nightReveal.ts），
+              离线/无数据时回落到 seed 常量（GHOSTS，与旧行为一致）。 */}
+          {ghosts.map((g) => (
             <GhostArtifact key={g.type} type={g.type} opacity={nightT >= g.threshold ? 0.85 : 0} />
           ))}
         </g>
