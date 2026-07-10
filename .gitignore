@@ -10,3 +10,6 @@ coverage/
 .DS_Store
 *.tsbuildinfo
 .claude/worktrees/
+
+# per-lane verification screenshots (not source)
+.verify/
