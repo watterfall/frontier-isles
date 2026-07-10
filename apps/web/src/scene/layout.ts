@@ -119,6 +119,19 @@ function variantSeed(id: string): number {
 /** The input a layout needs — a superset of the generator's input. */
 export type LayoutInput = GenerateInput;
 
+/**
+ * Parse a claim scene-object id (`claim:${i}`, pushed above) back to its index
+ * into the `claims` array passed to {@link buildSceneGraph} — the inverse of the
+ * id this module assigns each claim tower. Used by the Pixi hit-test callback to
+ * look up the tapped tower's {@link ClaimState} for the detail panel (scene-upgrade
+ * OUTSTANDING P1 "claim 点击接面板"). Returns null for any non-claim id.
+ */
+export function claimIndexFromId(id: string): number | null {
+  if (!id.startsWith('claim:')) return null;
+  const n = Number(id.slice('claim:'.length));
+  return Number.isInteger(n) && n >= 0 ? n : null;
+}
+
 /** One claim building's data-driven form (from projectClaimState, or synthesised). */
 interface ClaimSpec {
   floors: number;

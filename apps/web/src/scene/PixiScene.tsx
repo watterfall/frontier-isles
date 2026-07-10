@@ -28,7 +28,7 @@ import {
   DriftwoodGarden,
   FerryDock,
 } from '@frontier-isles/assets';
-import { buildSceneGraph, type LayoutInput } from './layout';
+import { buildSceneGraph, claimIndexFromId, type LayoutInput } from './layout';
 import { bakeSvg } from './bakeTexture';
 
 // The 9 L1 stations as their real SVG assets, baked WITHOUT their namecards
@@ -77,6 +77,10 @@ export interface PixiSceneProps {
   undertow?: boolean | number;
   /** Tapping a station calls back with its kind so the parent opens that station. */
   onStation?: (kind: StationKind) => void;
+  /** Tapping a claim tower calls back with its ledger-projected {@link ClaimState}
+   * so the parent can open the claim detail panel (no new data — the same object
+   * `projectClaimState` already produced). */
+  onClaim?: (claim: ClaimState) => void;
   /** GPU absent → parent renders the SVG fallback scene instead. */
   onWebglError?: (msg: string) => void;
   /** Live render metrics for a dev HUD (the demo shows them; live L1 omits). */
@@ -87,7 +91,7 @@ export interface PixiSceneProps {
  * The embeddable Pixi scene. Re-boots on `input`/`claims` change (once per island
  * open); `t`/`undertow` apply live without a re-boot.
  */
-export default function PixiScene({ input, claims, t, substrate, undertow = false, onStation, onWebglError, onMetrics }: PixiSceneProps) {
+export default function PixiScene({ input, claims, t, substrate, undertow = false, onStation, onClaim, onWebglError, onMetrics }: PixiSceneProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<SceneStage | null>(null);
   const cam = useRef({ ...worldToScreen(8, 8), zoom: 0.75 }); // island centre (tile 8,8)
@@ -98,8 +102,8 @@ export default function PixiScene({ input, claims, t, substrate, undertow = fals
   tRef.current = t;
   const substrateRef = useRef(substrate);
   substrateRef.current = substrate;
-  const cbRef = useRef({ onStation, onWebglError, onMetrics });
-  cbRef.current = { onStation, onWebglError, onMetrics };
+  const cbRef = useRef({ onStation, onClaim, onWebglError, onMetrics });
+  cbRef.current = { onStation, onClaim, onWebglError, onMetrics };
   const objCountRef = useRef(0); // last object count, for the dev-HUD sampler
 
   const applyCam = (): void => {
@@ -132,9 +136,20 @@ export default function PixiScene({ input, claims, t, substrate, undertow = fals
       }
       stage = s;
       stageRef.current = s;
-      // Hit-testing → open the tapped station (claims not yet wired to a panel).
+      // Hit-testing → open the tapped station, or the tapped claim tower's detail
+      // panel (scene-upgrade OUTSTANDING P1). The claim id encodes its index into
+      // `claims` (see layout.ts push order); look the ClaimState back up rather
+      // than inventing any new data.
       s.onPick = (id) => {
-        if (id.startsWith('station:')) cbRef.current.onStation?.(id.slice('station:'.length) as StationKind);
+        if (id.startsWith('station:')) {
+          cbRef.current.onStation?.(id.slice('station:'.length) as StationKind);
+          return;
+        }
+        const ci = claimIndexFromId(id);
+        if (ci !== null) {
+          const c = claims?.[ci];
+          if (c) cbRef.current.onClaim?.(c);
+        }
       };
       const graph = buildSceneGraph(input, tRef.current, claims);
       // Texture-lift (design-system alignment): rasterise the 9 real station SVG

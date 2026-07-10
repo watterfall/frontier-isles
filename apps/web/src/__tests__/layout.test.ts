@@ -4,7 +4,7 @@
  * ordered, and the day/night visibility path wired for ghosts.
  */
 import { describe, expect, it } from 'vitest';
-import { buildSceneGraph, type LayoutInput } from '../scene/layout';
+import { buildSceneGraph, claimIndexFromId, type LayoutInput } from '../scene/layout';
 
 const base: LayoutInput = {
   slug: 'machine-curiosity',
@@ -94,5 +94,34 @@ describe('buildSceneGraph', () => {
   it('tags every object with the island biome', () => {
     const g = buildSceneGraph({ ...base, domain: '生命' });
     expect(g.objects.every((o) => o.biome === '生命')).toBe(true);
+  });
+});
+
+describe('claimIndexFromId', () => {
+  it('parses a claim scene-object id back to its index into `claims`', () => {
+    expect(claimIndexFromId('claim:0')).toBe(0);
+    expect(claimIndexFromId('claim:3')).toBe(3);
+  });
+
+  it('round-trips every claim tower id built by buildSceneGraph', () => {
+    const claims = [
+      { ref: 'sha256:a', island: 'op://x', foundation: true, floors: 5, roof: true, hasDoi: false, activity: 6 },
+      { ref: 'sha256:b', island: 'op://x', foundation: true, floors: 1, roof: false, hasDoi: false, activity: 2 },
+    ];
+    const g = buildSceneGraph(base, 0, claims);
+    const towers = g.objects.filter((o) => o.kind === 'claim');
+    for (const o of towers) {
+      const i = claimIndexFromId(o.id);
+      expect(i).not.toBeNull();
+      expect(claims[i!]).toBeDefined();
+    }
+  });
+
+  it('returns null for non-claim ids (stations, ghosts, ground, malformed)', () => {
+    expect(claimIndexFromId('station:workshop')).toBeNull();
+    expect(claimIndexFromId('ghost:0:refuted')).toBeNull();
+    expect(claimIndexFromId('ground:3,4')).toBeNull();
+    expect(claimIndexFromId('claim:abc')).toBeNull();
+    expect(claimIndexFromId('claim:-1')).toBeNull();
   });
 });
