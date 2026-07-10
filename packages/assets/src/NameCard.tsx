@@ -47,4 +47,10 @@ export interface StationProps {
   onClick?: () => void;
   selected?: boolean;
   label?: StationLabelSpec;
+  /**
+   * Render the baked-in NameCard? Default true (the SVG scene wants it). The Pixi
+   * L1 bakes stations with `showLabel={false}` and draws crisp, LOD-tiered labels
+   * in a screen-space layer instead — baked raster text goes soft when scaled.
+   */
+  showLabel?: boolean;
 }

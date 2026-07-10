@@ -5,7 +5,7 @@ import { NameCard, SelectionHighlight, type StationProps } from '../NameCard';
  * `<g transform="translate(940,512)">` block — bar-chart columns and a
  * pennant flag on a pole.
  */
-export function StationDataBench({ x = 940, y = 512, onClick, selected = false, label }: StationProps) {
+export function StationDataBench({ x = 940, y = 512, onClick, selected = false, label, showLabel = true }: StationProps) {
   return (
     <g transform={`translate(${x},${y})`} onClick={onClick} style={{ cursor: onClick ? 'pointer' : undefined }}>
       <polygon points="-58,15 38,63 38,77 -58,29" fill="var(--wall,#F8F1DE)" stroke="var(--ink,#3A342B)" strokeWidth="1.5" />
@@ -25,7 +25,7 @@ export function StationDataBench({ x = 940, y = 512, onClick, selected = false, 
         <path d="M 0 -32 L 14 -27 L 0 -22 Z" fill="var(--gold,#E3A93C)" stroke="var(--ink,#3A342B)" strokeWidth="0.75" />
       </g>
       {selected && <SelectionHighlight cx={19} cy={30} />}
-      <NameCard x={20} y={-30} width={64} text={label?.text ?? '数据台'} sealColor={label?.sealColor ?? '#2E5E8C'} />
+      {showLabel && <NameCard x={20} y={-30} width={64} text={label?.text ?? '数据台'} sealColor={label?.sealColor ?? '#2E5E8C'} />}
     </g>
   );
 }

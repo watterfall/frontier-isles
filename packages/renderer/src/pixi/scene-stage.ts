@@ -18,6 +18,8 @@ import {
   Matrix,
   RenderTexture,
   Sprite,
+  Text,
+  TextStyle,
   Texture,
   isWebGLSupported,
   type Shader,
@@ -144,6 +146,16 @@ export class SceneStage {
   private ghostNodes: Array<{ node: Container; baseY: number; phase: number }> = [];
   private haloNodes: Container[] = [];
 
+  // ── Screen-space station labels (crisp, LOD-tiered). Billboarded above each
+  //    station at a CONSTANT screen size so they read at ANY zoom; the baked
+  //    raster namecards went soft/illegible when scaled. LOD: far zoom → the
+  //    single-glyph seal, near zoom → the full name. ─────────────────────────
+  readonly labelLayer = new Container();
+  private labelSpecs: Array<{
+    gx: number; gy: number; elevation: number; height: number;
+    short: string; full: string; group: Container; text: Text; bg: Graphics; showing: string;
+  }> = [];
+
   constructor(chunk = 8) {
     this.chunk = chunk;
 
@@ -180,6 +192,13 @@ export class SceneStage {
     this.lightsLayer.alpha = 0; // day: no window lights
     this.cameraRoot.addChild(this.gradedContent, this.toneOverlay, this.lightsLayer);
     this.sceneContent.addChild(this.cameraRoot);
+
+    // Station labels live in the screen-space uiLayer (never camera-transformed,
+    // so text stays a constant, crisp size). eventMode 'none' → they never
+    // intercept the pointer, so station click hit-testing underneath still works.
+    this.labelLayer.label = 'labels';
+    this.labelLayer.eventMode = 'none';
+    this.uiLayer.addChild(this.labelLayer);
   }
 
   /** Boot the Pixi v8 renderer (async API), then wire the top-level layer order. */
@@ -477,6 +496,57 @@ export class SceneStage {
   }
 
   /**
+   * Set the crisp, LOD-tiered station labels. Each spec is a station's tile +
+   * height + two text tiers (`short` = single-glyph seal, `full` = name). Labels
+   * billboard in screen space at a CONSTANT size, so they read at any zoom —
+   * unlike the baked raster namecards, which the layout layer now suppresses.
+   * Call after {@link render}. Content (P2) is passed in; the stage only lays out.
+   */
+  setStationLabels(specs: Array<{ gx: number; gy: number; elevation: number; height: number; short: string; full: string }>): void {
+    this.labelLayer.removeChildren().forEach((c) => c.destroy({ children: true }));
+    this.labelSpecs = specs.map((s) => {
+      const group = new Container();
+      group.eventMode = 'none';
+      const bg = new Graphics();
+      const text = new Text({
+        text: s.full,
+        style: new TextStyle({ fontFamily: "'Noto Serif SC', 'PingFang SC', serif", fontSize: 13, fontWeight: '600', fill: 0x2b2620, align: 'center' }),
+        resolution: 2,
+      });
+      text.anchor.set(0.5, 0.5);
+      group.addChild(bg, text);
+      this.labelLayer.addChild(group);
+      return { ...s, group, text, bg, showing: '' };
+    });
+    this.layoutLabels();
+  }
+
+  /** Reposition + LOD-swap station labels for the current camera (screen-space billboards). */
+  private layoutLabels(): void {
+    if (!this.app || this.labelSpecs.length === 0) return;
+    const scale = this.cameraRoot.scale.x || 1;
+    const full = scale >= 0.5; // LOD: far zoom → seal glyph, near → full name
+    const view = this.app.screen;
+    for (const L of this.labelSpecs) {
+      const want = full ? L.full : L.short;
+      if (want !== L.showing) {
+        L.text.text = want;
+        L.showing = want;
+        const halfW = L.text.width / 2 + 7;
+        const halfH = L.text.height / 2 + 3;
+        L.bg.clear();
+        L.bg.roundRect(-halfW, -halfH, halfW * 2, halfH * 2, 5).fill({ color: 0xfaf5e8, alpha: 0.92 }).stroke({ color: 0x3a342b, width: 1 });
+      }
+      const w = worldToScreenElevated(L.gx + 0.5, L.gy + 0.5, L.elevation);
+      const sx = w.x * scale + this.cameraRoot.x;
+      const sy = (w.y - (L.height + 46)) * scale + this.cameraRoot.y;
+      L.group.x = Math.round(sx);
+      L.group.y = Math.round(sy);
+      L.group.visible = sx > -100 && sx < view.width + 100 && sy > -50 && sy < view.height + 50;
+    }
+  }
+
+  /**
    * Build the animated water plane (M2) in the sea layer. Renders the static
    * terrain silhouette to a coastline mask (land = alpha 1) so the shader can
    * paint a shore-foam band, then starts a ticker that advances the wave time —
@@ -655,6 +725,7 @@ export class SceneStage {
   cullToViewport(): void {
     const visible = new Set(cull(this.index, this.viewport(), this.chunk).map((p) => p.id));
     for (const [id, node] of this.nodes) node.visible = visible.has(id);
+    this.layoutLabels(); // labels are screen-space → follow the camera + re-LOD on zoom
     this.redraw();
   }
 

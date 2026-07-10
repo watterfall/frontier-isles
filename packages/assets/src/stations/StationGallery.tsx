@@ -20,6 +20,7 @@ export function StationGallery({
   label,
   showDayBadge = true,
   driftwoodTag = true,
+  showLabel = true,
 }: StationGalleryProps) {
   return (
     <g transform={`translate(${x},${y})`} onClick={onClick} style={{ cursor: onClick ? 'pointer' : undefined }}>
@@ -59,7 +60,7 @@ export function StationGallery({
         </g>
       )}
       {selected && <SelectionHighlight cx={12} cy={28} />}
-      <NameCard x={12} y={-72} width={52} text={label?.text ?? '展厅'} sealColor={label?.sealColor ?? '#4A4238'} />
+      {showLabel && <NameCard x={12} y={-72} width={52} text={label?.text ?? '展厅'} sealColor={label?.sealColor ?? '#4A4238'} />}
     </g>
   );
 }

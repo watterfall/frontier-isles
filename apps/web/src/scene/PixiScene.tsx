@@ -16,7 +16,7 @@ import { useEffect, useRef, type ReactElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { SceneStage, type TextureResolver, type ResolvedTexture } from '@frontier-isles/renderer/pixi';
 import { worldToScreen, seaDepthAt } from '@frontier-isles/renderer';
-import type { ClaimState, StationKind } from '@frontier-isles/core';
+import { STATION_META, type ClaimState, type StationKind } from '@frontier-isles/core';
 import {
   StationWorkshop,
   StationLibrary,
@@ -31,17 +31,19 @@ import {
 import { buildSceneGraph, type LayoutInput } from './layout';
 import { bakeSvg } from './bakeTexture';
 
-/** The 9 L1 stations as their real SVG assets, keyed by scene-object kind. */
+// The 9 L1 stations as their real SVG assets, baked WITHOUT their namecards
+// (showLabel={false}) — crisp LOD-tiered labels are drawn in the screen-space
+// label layer instead, so text stays sharp + legible at any zoom.
 const STATION_ELS: Record<string, ReactElement> = {
-  'station:workshop': <StationWorkshop x={160} y={160} />,
-  'station:library': <StationLibrary x={160} y={160} />,
-  'station:canvas': <StationWhiteboardHall x={160} y={160} />,
-  'station:questions': <StationQuestionWall x={160} y={160} />,
-  'station:data': <StationDataBench x={160} y={160} />,
-  'station:gallery': <StationGallery x={160} y={160} />,
-  'station:tearoom': <StationTearoom x={160} y={160} />,
-  'station:driftwood': <DriftwoodGarden x={160} y={160} showTransplantTag={false} />,
-  'station:dock': <FerryDock x={160} y={160} />,
+  'station:workshop': <StationWorkshop x={160} y={160} showLabel={false} />,
+  'station:library': <StationLibrary x={160} y={160} showLabel={false} />,
+  'station:canvas': <StationWhiteboardHall x={160} y={160} showLabel={false} />,
+  'station:questions': <StationQuestionWall x={160} y={160} showLabel={false} />,
+  'station:data': <StationDataBench x={160} y={160} showLabel={false} />,
+  'station:gallery': <StationGallery x={160} y={160} showLabel={false} />,
+  'station:tearoom': <StationTearoom x={160} y={160} showLabel={false} />,
+  'station:driftwood': <DriftwoodGarden x={160} y={160} showTransplantTag={false} showLabel={false} />,
+  'station:dock': <FerryDock x={160} y={160} showLabel={false} />,
 };
 
 /** Per-domain water colours (0..1 rgb): shallow / deep / foam. */
@@ -159,6 +161,17 @@ export default function PixiScene({ input, claims, t, substrate, undertow = fals
       s.render(graph, resolve);
       s.setDayNight(tRef.current);
       applyCam();
+      // Crisp, LOD-tiered station labels (screen-space billboards) — sharp at any
+      // zoom, unlike the baked namecards (now suppressed via showLabel={false}).
+      // far zoom → the single-glyph seal; near → the full name.
+      s.setStationLabels(
+        graph.objects
+          .filter((o) => o.layer === 'world' && o.kind.startsWith('station:'))
+          .map((o) => {
+            const meta = STATION_META[o.kind.slice('station:'.length) as StationKind];
+            return { gx: o.gx, gy: o.gy, elevation: o.elevation, height: o.height ?? 30, short: meta?.seal ?? '?', full: meta?.zh ?? o.kind };
+          }),
+      );
       // Sea = data (海即数据): domain hue (climate) + darkness = abstractness (depth).
       s.buildSea(SEA_COLORS[input.domain] ?? SEA_COLORS['数理']!, {
         depthAlpha: seaDepthAt(substrateRef.current).overlayAlpha,

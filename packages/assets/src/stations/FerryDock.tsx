@@ -18,13 +18,13 @@ import { Boat } from '../scenery/Boat';
  * Replace this component wholesale once the real 渡口 art lands; do not
  * build on top of its shape.
  */
-export function FerryDock({ x = 0, y = 0, onClick, selected = false, label }: StationProps) {
+export function FerryDock({ x = 0, y = 0, onClick, selected = false, label, showLabel = true }: StationProps) {
   return (
     <g transform={`translate(${x},${y})`} onClick={onClick} style={{ cursor: onClick ? 'pointer' : undefined }}>
       <Jetty />
       <Boat x={836} y={792} variant="jetty" />
       {selected && <SelectionHighlight cx={790} cy={760} />}
-      <NameCard x={790} y={706} width={64} text={label?.text ?? '渡口'} sealColor={label?.sealColor ?? '#6B6154'} />
+      {showLabel && <NameCard x={790} y={706} width={64} text={label?.text ?? '渡口'} sealColor={label?.sealColor ?? '#6B6154'} />}
     </g>
   );
 }

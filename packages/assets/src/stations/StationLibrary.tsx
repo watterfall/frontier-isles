@@ -5,7 +5,7 @@ import { NameCard, SelectionHighlight, type StationProps } from '../NameCard';
  * block: window grid (front + side faces), gold plaque, roof + ridge finials.
  * Default position (760,296) reproduces the prototype's static composition.
  */
-export function StationLibrary({ x = 760, y = 296, onClick, selected = false, label }: StationProps) {
+export function StationLibrary({ x = 760, y = 296, onClick, selected = false, label, showLabel = true }: StationProps) {
   return (
     <g transform={`translate(${x},${y})`} onClick={onClick} style={{ cursor: onClick ? 'pointer' : undefined }}>
       <ellipse cx="0" cy="52" rx="112" ry="44" fill="var(--shadow,rgba(58,48,36,0.16))" />
@@ -39,7 +39,7 @@ export function StationLibrary({ x = 760, y = 296, onClick, selected = false, la
       <path d="M -30 86 a 30 11 0 0 1 60 0" fill="none" stroke="var(--ink,#3A342B)" strokeWidth="0.75" opacity="0.3" />
       <path d="M -20 90 a 20 8 0 0 1 40 0" fill="none" stroke="var(--ink,#3A342B)" strokeWidth="0.75" opacity="0.22" />
       {selected && <SelectionHighlight />}
-      <NameCard x={0} y={-104} width={64} text={label?.text ?? '文献阁'} sealColor={label?.sealColor ?? '#2E5E8C'} />
+      {showLabel && <NameCard x={0} y={-104} width={64} text={label?.text ?? '文献阁'} sealColor={label?.sealColor ?? '#2E5E8C'} />}
     </g>
   );
 }

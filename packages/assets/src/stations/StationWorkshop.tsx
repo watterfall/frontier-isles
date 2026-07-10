@@ -5,7 +5,7 @@ import { NameCard, SelectionHighlight, type StationProps } from '../NameCard';
  * `<g transform="translate(470,490)">` block — a chimney with the
  * `smoke` keyframe animation.
  */
-export function StationWorkshop({ x = 470, y = 490, onClick, selected = false, label }: StationProps) {
+export function StationWorkshop({ x = 470, y = 490, onClick, selected = false, label, showLabel = true }: StationProps) {
   return (
     <g transform={`translate(${x},${y})`} onClick={onClick} style={{ cursor: onClick ? 'pointer' : undefined }}>
       <ellipse cx="0" cy="56" rx="108" ry="42" fill="var(--shadow,rgba(58,48,36,0.16))" />
@@ -31,7 +31,7 @@ export function StationWorkshop({ x = 470, y = 490, onClick, selected = false, l
         />
       </g>
       {selected && <SelectionHighlight />}
-      <NameCard x={0} y={-64} width={64} text={label?.text ?? '实验坊'} sealColor={label?.sealColor ?? '#B5673A'} />
+      {showLabel && <NameCard x={0} y={-64} width={64} text={label?.text ?? '实验坊'} sealColor={label?.sealColor ?? '#B5673A'} />}
     </g>
   );
 }
