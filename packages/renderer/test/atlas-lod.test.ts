@@ -222,9 +222,16 @@ describe('atlasCoastline — deterministic per-slug silhouette', () => {
   it('same slug ⇒ identical point list', () => {
     expect(atlasCoastline('x', '数理', 2, 0, 0)).toEqual(atlasCoastline('x', '数理', 2, 0, 0));
   });
-  it('vertex count follows the domain grammar', () => {
-    expect(atlasCoastline('x', '数理', 2, 0, 0)).toHaveLength(7 * 2); // angular: 7 verts
-    expect(atlasCoastline('x', '生命', 2, 0, 0)).toHaveLength(11 * 2); // organic: 11 verts
+  it('vertex count is the SAME one soft-mound family for every domain (no per-domain shape grammar)', () => {
+    // A per-domain "coastline grammar" (数理 angular / 物质 faceted / 生命
+    // organic / 交叉 hybrid) was tried once for the SVG L0 and rolled back
+    // after user testing (islandSilhouette.ts's ROLLBACK NOTE) — domain
+    // legibility lives in fill/ink colour only, never in vertex count/jitter.
+    // This guards against reintroducing that pattern in the atlas engine.
+    const n = atlasCoastline('x', '数理', 2, 0, 0).length;
+    for (const d of ['物质', '生命', '交叉'] as const) {
+      expect(atlasCoastline('x', d, 2, 0, 0)).toHaveLength(n);
+    }
   });
   it('higher stage ⇒ larger footprint (extent grows with stage)', () => {
     const extent = (pts: number[]): number => {

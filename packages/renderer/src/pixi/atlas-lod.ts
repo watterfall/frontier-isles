@@ -157,30 +157,37 @@ export function atlasRng(seed: number): () => number {
  * score), mirroring assets STAGE_RADIUS. */
 export const ATLAS_STAGE_RADIUS: readonly [number, number, number, number] = [30, 40, 52, 64];
 
+/** One shared vertex count + jitter magnitude for EVERY domain — matches
+ * `assets/islandSilhouette`'s `VERTEX_COUNT`/`JITTER` (the one soft-mound
+ * family the prototype draws). See the ROLLBACK NOTE at the top of that file:
+ * a per-domain "coastline grammar" (数理 angular / 物质 faceted / 生命 organic
+ * / 交叉 hybrid) was tried once already for the SVG L0 and reverted after
+ * user testing called it an invented visual language, never authorized by
+ * `design/handoff/问题群岛-原型 v3.dc.html`. `atlasCoastline` must not
+ * reintroduce that pattern — domain stays a FILL/INK input only
+ * (`ATLAS_DOMAIN_FILL`/`ATLAS_DOMAIN_INK` in `atlas-stage.ts`), never a shape
+ * input. */
+const COASTLINE_VERTEX_COUNT = 9;
+const COASTLINE_JITTER = 0.22;
+
 /**
  * A deterministic closed coastline as a flat `[x,y,x,y,…]` point list around
- * `(cx,cy)`, seeded by `slug`. Follows islandSilhouette's parameter approach
- * (n vertices per domain grammar, stable per-vertex jitter) but emits POINTS
- * (Pixi `Graphics.poly`) instead of an SVG path, and lives here to keep the
- * renderer package free of an assets dependency. Angular/faceted/hybrid/organic
- * are approximated by vertex count + jitter amount so the four domains read
- * apart in silhouette; the L0 atlas draws them small, so exact curve family is
- * not required (the L1 fingerprint remains the authoritative shape).
+ * `(cx,cy)`, seeded by `slug` — the SAME soft-mound family at every zoom, only
+ * perturbed by seed (never by domain, see the rollback note above). Emits
+ * POINTS (consumed by `atlas-stage.ts` as a smooth closed Catmull-Rom curve,
+ * mirroring `islandSilhouette.moundPath`'s technique) instead of an SVG path,
+ * and lives here to keep the renderer package free of an assets dependency.
+ * `domain` is accepted (kept for call-site stability / possible future
+ * non-geometric use) but intentionally UNUSED for the point layout.
  */
-export function atlasCoastline(slug: string, domain: AtlasDomain, stage: number, cx: number, cy: number): number[] {
+export function atlasCoastline(slug: string, _domain: AtlasDomain, stage: number, cx: number, cy: number): number[] {
   const rng = atlasRng(atlasHash(slug));
   const r = ATLAS_STAGE_RADIUS[Math.max(0, Math.min(3, stage)) as 0 | 1 | 2 | 3];
-  const grammar: Record<AtlasDomain, { n: number; jitter: number }> = {
-    数理: { n: 7, jitter: 0.12 }, // angular — few vertices, crisp
-    物质: { n: 6, jitter: 0.3 }, // faceted — terraced, higher jitter
-    生命: { n: 11, jitter: 0.16 }, // organic — many vertices, gentle
-    交叉: { n: 8, jitter: 0.22 }, // hybrid — in-between
-  };
-  const { n, jitter } = grammar[domain];
+  const n = COASTLINE_VERTEX_COUNT;
   const pts: number[] = [];
   for (let i = 0; i < n; i++) {
     const theta = (i / n) * Math.PI * 2 - Math.PI / 2;
-    const j = 1 - jitter / 2 + rng() * jitter;
+    const j = 1 - COASTLINE_JITTER / 2 + rng() * COASTLINE_JITTER;
     pts.push(cx + Math.cos(theta) * r * j, cy + Math.sin(theta) * r * 0.62 * j);
   }
   return pts;
