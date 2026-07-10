@@ -235,6 +235,15 @@ export interface SceneObject extends Placed {
    */
   height?: number;
   growth?: Growth;
+  /**
+   * Data-bound "alive" flag for a station (M8 micro-dynamics second batch —
+   * scene-upgrade OUTSTANDING.md P1). Set only for `station:*` objects the
+   * layout layer found in `core.projectActiveStations` (recent ledger
+   * activity touching that station) — never a decorative default. Drives
+   * the Pixi renderer's chimney smoke / flag-wave attachments; `undefined`
+   * for every non-station object.
+   */
+  active?: boolean;
 }
 
 /**

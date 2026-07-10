@@ -263,6 +263,65 @@ export function projectContributions(events: readonly LedgerEvent[]): Contributi
 }
 
 // ---------------------------------------------------------------------------
+// projectActiveStations
+// ---------------------------------------------------------------------------
+
+export interface ActiveStationsOptions {
+  /** Reference "now"; without it every ever-touched station counts (best-effort demo mode). */
+  now?: string | number | Date;
+  /** Days since a station's last touching event to still count as active (default 14). */
+  windowDays?: number;
+}
+
+/**
+ * Which stations have had ledger activity recently enough to read as "alive"
+ * (scene-upgrade M8 micro-dynamics second batch: chimney smoke / flag wave
+ * are data-bound to this, not a decorative always-on loop). Reuses
+ * {@link ACTION_STATION} — the same action→station map `projectGrowth` uses
+ * for the academy-stage (≥3 stations) check — so "active" means the same
+ * thing everywhere in the codebase.
+ *
+ * Not every station kind is reachable here: `canvas` (Yjs collab, no ledger
+ * action), `library` (no dedicated action) and `tearoom` ("never
+ * metricized", architecture.md §3) never appear by DESIGN — invariant 1, no
+ * station gets a synthetic activity signal it didn't earn from real events.
+ * `data` (Data Bench) also never appears — NOT by design, but because the
+ * protocol has no dedicated verb yet for adding a dataset ref (its own note
+ * is "dataset refs: input/output/evidence/replication", but `submit_claim`
+ * is the only artifact action and it maps to `workshop`). A consumer wiring
+ * a `data`-gated visual (M8 flag wave) is correctly data-bound today and
+ * will start firing the moment such a verb exists — it is not dead code,
+ * just not yet reachable from any current ledger.
+ */
+export function projectActiveStations(
+  events: readonly LedgerEvent[],
+  options: ActiveStationsOptions = {},
+): Set<StationKind> {
+  const lastByStation = new Map<StationKind, number>();
+  for (const e of events) {
+    const station = ACTION_STATION[e.action];
+    if (!station) continue;
+    const ms = new Date(e.ts).getTime();
+    if (Number.isNaN(ms)) continue;
+    const prev = lastByStation.get(station);
+    if (prev === undefined || ms > prev) lastByStation.set(station, ms);
+  }
+
+  const active = new Set<StationKind>();
+  if (options.now === undefined) {
+    // No reference time: any station the ledger ever touched counts.
+    for (const k of lastByStation.keys()) active.add(k);
+    return active;
+  }
+  const nowMs = new Date(options.now).getTime();
+  const windowMs = (options.windowDays ?? 14) * DAY_MS;
+  for (const [k, ms] of lastByStation) {
+    if (nowMs - ms <= windowMs) active.add(k);
+  }
+  return active;
+}
+
+// ---------------------------------------------------------------------------
 // transplantInsight
 // ---------------------------------------------------------------------------
 

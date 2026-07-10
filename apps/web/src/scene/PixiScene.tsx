@@ -12,11 +12,12 @@
  * Fallback discipline (CLAUDE.md): on WebGL failure it calls `onWebglError` so the
  * parent can render the SVG scene instead — the app must render without the GPU.
  */
-import { useEffect, useRef, type ReactElement } from 'react';
+import { useEffect, useRef, cloneElement, type ReactElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { SceneStage, type TextureResolver, type ResolvedTexture } from '@frontier-isles/renderer/pixi';
 import { worldToScreen, seaDepthAt } from '@frontier-isles/renderer';
 import { STATION_META, type ClaimState, type StationKind } from '@frontier-isles/core';
+import { localizeStation, type Lang } from '../i18n/stations';
 import {
   StationWorkshop,
   StationLibrary,
@@ -30,20 +31,23 @@ import {
 } from '@frontier-isles/assets';
 import { buildSceneGraph, claimIndexFromId, type LayoutInput } from './layout';
 import { bakeSvg } from './bakeTexture';
+import { STATION_TEX_SIZE, STATION_TEX_SCALE, stationBakeOrigin, stationLabelHeight } from './stationAnchors';
 
 // The 9 L1 stations as their real SVG assets, baked WITHOUT their namecards
 // (showLabel={false}) — crisp LOD-tiered labels are drawn in the screen-space
-// label layer instead, so text stays sharp + legible at any zoom.
-const STATION_ELS: Record<string, ReactElement> = {
-  'station:workshop': <StationWorkshop x={160} y={160} showLabel={false} />,
-  'station:library': <StationLibrary x={160} y={160} showLabel={false} />,
-  'station:canvas': <StationWhiteboardHall x={160} y={160} showLabel={false} />,
-  'station:questions': <StationQuestionWall x={160} y={160} showLabel={false} />,
-  'station:data': <StationDataBench x={160} y={160} showLabel={false} />,
-  'station:gallery': <StationGallery x={160} y={160} showLabel={false} />,
-  'station:tearoom': <StationTearoom x={160} y={160} showLabel={false} />,
-  'station:driftwood': <DriftwoodGarden x={160} y={160} showTransplantTag={false} showLabel={false} />,
-  'station:dock': <FerryDock x={160} y={160} showLabel={false} />,
+// label layer instead, so text stays sharp + legible at any zoom. `x`/`y` here
+// are placeholders `cloneElement`d to each station's own ground offset (P1
+// per-station vertical registration, see `./stationAnchors`) before baking.
+const STATION_ELS: Record<string, ReactElement<{ x?: number; y?: number; showSmoke?: boolean; showFlag?: boolean }>> = {
+  'station:workshop': <StationWorkshop showLabel={false} />,
+  'station:library': <StationLibrary showLabel={false} />,
+  'station:canvas': <StationWhiteboardHall showLabel={false} />,
+  'station:questions': <StationQuestionWall showLabel={false} />,
+  'station:data': <StationDataBench showLabel={false} />,
+  'station:gallery': <StationGallery showLabel={false} />,
+  'station:tearoom': <StationTearoom showLabel={false} />,
+  'station:driftwood': <DriftwoodGarden showTransplantTag={false} showLabel={false} />,
+  'station:dock': <FerryDock showLabel={false} />,
 };
 
 /** Per-domain water colours (0..1 rgb): shallow / deep / foam. */
@@ -71,6 +75,19 @@ export interface PixiSceneProps {
   claims?: ClaimState[];
   /** Day↔night ∈ [0,1], controlled by the parent (App's lever). Applied without re-mount. */
   t: number;
+  /**
+   * UI language for the screen-space station labels (architecture.md §9: station
+   * names are load-bearing glossary terms, not untranslated editorial content —
+   * unlike island names/questions/resident names). Defaults 'zh'; a change
+   * re-boots the scene (labels are baked into {@link setStationLabels} at boot).
+   */
+  lang?: Lang;
+  /**
+   * Stations with recent ledger activity (`core.projectActiveStations`, M8
+   * micro-dynamics second batch). Drives chimney smoke / flag wave — omitted
+   * → no station animates (never a decorative default).
+   */
+  activeStations?: ReadonlySet<StationKind>;
   /** Domain abstractness (frontier.substrate, 0..1) → sea darkness (海即数据, depth-plan-v2 §4). */
   substrate?: number;
   /** Disputed-sea undertow: a boolean (demo toggle) or 0..1 contention magnitude (海即数据). */
@@ -91,7 +108,7 @@ export interface PixiSceneProps {
  * The embeddable Pixi scene. Re-boots on `input`/`claims` change (once per island
  * open); `t`/`undertow` apply live without a re-boot.
  */
-export default function PixiScene({ input, claims, t, substrate, undertow = false, onStation, onClaim, onWebglError, onMetrics }: PixiSceneProps) {
+export default function PixiScene({ input, claims, t, lang = 'zh', activeStations, substrate, undertow = false, onStation, onClaim, onWebglError, onMetrics }: PixiSceneProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<SceneStage | null>(null);
   const cam = useRef({ ...worldToScreen(8, 8), zoom: 0.75 }); // island centre (tile 8,8)
@@ -151,22 +168,36 @@ export default function PixiScene({ input, claims, t, substrate, undertow = fals
           if (c) cbRef.current.onClaim?.(c);
         }
       };
-      const graph = buildSceneGraph(input, tRef.current, claims);
+      const graph = buildSceneGraph(input, tRef.current, claims, activeStations);
       // Texture-lift (design-system alignment): rasterise the 9 real station SVG
       // assets → Pixi textures via the resolver, so the island renders in the
       // hand-drawn design vocabulary instead of placeholder boxes.
       let resolve: TextureResolver | undefined;
       try {
-        const C = 320;
+        const C = STATION_TEX_SIZE;
         const texMap: Record<string, ResolvedTexture> = {};
         for (const [kind, elx] of Object.entries(STATION_ELS)) {
+          const stationKind = kind.slice('station:'.length) as StationKind;
+          const origin = stationBakeOrigin(stationKind);
+          // M8 micro-dynamics: an active Workshop/Data Bench bakes WITHOUT its
+          // static smoke wisp / pennant fabric — SceneStage.render draws its
+          // own animated one instead (attachSmoke/attachFlag) so exactly one
+          // is ever visible, never both. A dormant station keeps the static
+          // art (its resting look), matching each component's own default.
+          const active = graph.objects.find((o) => o.id === kind)?.active ?? false;
+          const dynamicProps =
+            kind === 'station:workshop' ? { showSmoke: !active } : kind === 'station:data' ? { showFlag: !active } : {};
+          const placed = cloneElement(elx, { ...origin, ...dynamicProps });
           const svg = renderToStaticMarkup(
             <svg xmlns="http://www.w3.org/2000/svg" width={C} height={C} viewBox={`0 0 ${C} ${C}`}>
-              {elx}
+              {placed}
             </svg>,
           );
           const tex = await bakeSvg(svg, { width: C, height: C, scale: 3 });
-          texMap[kind] = { texture: tex, anchor: { x: 0.5, y: 0.675 }, scale: 150 / (220 * 3) };
+          // A shared (0.5,0.5) anchor now works for every station because the
+          // ground offset above already re-centred each one's own ground point
+          // on the texture — no per-station anchor variance needed.
+          texMap[kind] = { texture: tex, anchor: { x: 0.5, y: 0.5 }, scale: STATION_TEX_SCALE };
         }
         if (disposed) return;
         resolve = (o) => texMap[o.kind];
@@ -178,13 +209,28 @@ export default function PixiScene({ input, claims, t, substrate, undertow = fals
       applyCam();
       // Crisp, LOD-tiered station labels (screen-space billboards) — sharp at any
       // zoom, unlike the baked namecards (now suppressed via showLabel={false}).
-      // far zoom → the single-glyph seal; near → the full name.
+      // far zoom → the single-glyph seal (language-neutral); near → the full name,
+      // localized from STATION_META (architecture §9 glossary — station names ARE
+      // UI-translatable, unlike untranslated editorial content).
       s.setStationLabels(
         graph.objects
           .filter((o) => o.layer === 'world' && o.kind.startsWith('station:'))
           .map((o) => {
-            const meta = STATION_META[o.kind.slice('station:'.length) as StationKind];
-            return { gx: o.gx, gy: o.gy, elevation: o.elevation, height: o.height ?? 30, short: meta?.seal ?? '?', full: meta?.zh ?? o.kind };
+            const kind = o.kind.slice('station:'.length) as StationKind;
+            const meta = STATION_META[kind];
+            // Per-station label clearance (part of the same P1 vertical-registration
+            // fix): each station's own roof height above ITS ground marker, instead
+            // of the generic `o.height ?? 30` that otherwise pokes a tall roof (e.g.
+            // Question Wall) out above a label sized for a shorter one, or floats a
+            // short station's label too high.
+            return {
+              gx: o.gx,
+              gy: o.gy,
+              elevation: o.elevation,
+              height: stationLabelHeight(kind),
+              short: meta?.seal ?? '?',
+              full: meta ? localizeStation(kind, lang) : o.kind,
+            };
           }),
       );
       // Sea = data (海即数据): domain hue (climate) + darkness = abstractness (depth).
@@ -199,8 +245,12 @@ export default function PixiScene({ input, claims, t, substrate, undertow = fals
       if (stage) stage.destroy();
       stageRef.current = null;
     };
+    // lang/activeStations aren't read via a ref (unlike t/onStation/onMetrics)
+    // because label text and the smoke/flag bake decision both happen once at
+    // boot — a language switch or a station's activity flipping re-boots the
+    // scene, which is rare and acceptably cheap (same cost as an island change).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [input, claims]);
+  }, [input, claims, lang, activeStations]);
 
   // Day↔night → per-object alpha + tone veil (P4). No re-boot. tweenDayNight (M5)
   // sweeps smoothly instead of snapping; the boot did an instant setDayNight so
