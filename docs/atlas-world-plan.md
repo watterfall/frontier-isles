@@ -85,6 +85,28 @@ _定位:这是 `INFO-HIERARCHY.md`(语义 LOD 原理)+ `depth-plan-v2 §4`(archi
 
 ---
 
+## 落地状态 (2026-07-11) — 六泳道全部合并,507 测试绿
+
+| 泳道 | 交付 | commit |
+|---|---|---|
+| **W1** 转正地基 | 语义缩放图集换成默认 L0(懒加载 Pixi + WebGL 探测 + SVG 兜底);顺带回滚 `atlas-lod.atlasCoastline` 的四域棱角语法为软丘 | `1bcc09e` |
+| **W4** 规模数据脊 | `makeScaleCorpus` 可信合成前沿语料(`syn-`/`synthetic`,非 lorem),压测 N=200/700 | `c6152e2` |
+| **W3** 命名区域中层 | hybrid 命名(计算聚类 + `data/regions.ts` 人工名叠加)+ 软色块(拆掉 `stroke:3` 硬边)+ 体温/caption | `102e399` |
+| **W2** 大陆/气候层 | `projectClimate` 4 命名气候疆域 + 洋流 + 雾(软 nested-ellipse washes) | `e023b94` |
+| **W6** 聚类均衡 | 单链→确定性 k-means++;700 岛从 3 巨块(max 22.9%)+ 32/35 序号碎片 → 均衡(max 4.3%,0 序号,0 重名),34ms | `a69e496` |
+| **W5** 连续下钻+雾聚焦+T2 | `computeWorldMinScale` 修远景过度缩放;点岛/区/陆 fly-to(≤2 tap 到岛)接 sail 入 L1;fog-as-focus;T2 潮汐辉光/成员数/resolved 灯塔/休眠褪色;`requestFrame` 合帧修 per-event render | `808d855` |
+
+**已达成**:默认路径=可缩放四层世界(大陆→命名区域→岛→站);700 岛读作均衡命名区 + 4 大陆;下钻连续非硬切;单岛 T2 更丰富;全程守住"软色块非多边形"红线(两处违例被 W1/W3 顺手回滚)。
+
+**诚实的剩余项(follow-up)**:
+1. **搜索框→fly-to 未接**(ChartChrome 搜索框目前纯装饰,无输入态)——`/`触发搜索→`flyToIsland` 用现成 `flyToPoint` 原语即可,留给下一批。「任一岛 ≤3 级缩放可寻得」现由点区/陆下钻满足(≤2 tap),搜索路径未补。
+2. **高密度 wash 略糊**:700 岛时区域软色块中心重叠成一片,标签清楚但底色偏糊——可细化 wash 分离/降透明度。
+3. **700 岛 + dSF2 重场景渲染**:截图时遇 Pixi `collectRenderables` 递归(W5 已证是 Playwright `captureScreenshot` CDP 与 Pixi 按需渲染的交互 artifact,非产品 bug);但 700 岛真机 retina 性能未独立验证,P3 atlas 上规模前值得实测。
+4. **洋流未入聚类**:`projectArchipelagos` 目前 spatial+domain,currents 的 op↔slug join 待接(sharpen 聚类)。
+5. 默认仍是 26 真岛(规模走 `?atlas=pixi&n=`);真内容增长是平台的事,呈现已能承接。
+
+---
+
 ## 与既有文档关系
 
 - **INFO-HIERARCHY.md** = 原理(语义 LOD across scales);本文 = 把原理做成默认路径上的 4 层世界 + 转正 + 大陆/命名区域两个缺失层。回填 INFO-HIERARCHY §5 分期:C1/C2/C3 已建(藏 flag);本文 = **C1'(转正)+ C4(大陆)+ C5(命名区域)+ C6(连续下钻)**。
