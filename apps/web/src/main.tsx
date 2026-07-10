@@ -8,13 +8,23 @@ import App from './App';
 const el = document.getElementById('root');
 if (el) {
   const root = createRoot(el);
-  // `?scene=pixi` mounts the M1 layered Pixi scene in isolation (dynamic import
-  // keeps pixi.js out of the default bundle). Everything else renders the app.
-  if (new URLSearchParams(location.search).get('scene') === 'pixi') {
+  const params = new URLSearchParams(location.search);
+  // `?scene=pixi` mounts the M1 layered Pixi scene in isolation; `?atlas=pixi`
+  // mounts the L0 图集 camera + semantic-LOD demo (Phase C1+C2). Both dynamic-
+  // import so pixi.js stays out of the default bundle. Everything else = the app.
+  if (params.get('scene') === 'pixi') {
     void import('./scene/PixiSceneHost').then(({ default: PixiSceneHost }) => {
       root.render(
         <StrictMode>
           <PixiSceneHost />
+        </StrictMode>,
+      );
+    });
+  } else if (params.get('atlas') === 'pixi') {
+    void import('./chart/AtlasPixiHost').then(({ default: AtlasPixiHost }) => {
+      root.render(
+        <StrictMode>
+          <AtlasPixiHost />
         </StrictMode>,
       );
     });
