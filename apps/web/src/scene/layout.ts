@@ -45,14 +45,23 @@ const STATION_TILES: Record<StationKind, { gx: number; gy: number }> = {
   dock: { gx: 8, gy: 15 }, // on the shore, front-most
 };
 
-/** Inner-ring tiles for claim growth-bodies (between centre and the station ring). */
+/**
+ * Stele tiles — "steles before the Gallery" (architecture §4 Claims & evidence,
+ * Phase B.4). Claims are first-class artifacts displayed as inscribed steles
+ * clustered in a two-row arc IN FRONT of the Gallery station (gallery sits at
+ * {5,12}; "front" is seaward, +gy, toward the viewer), replacing the M1 inner
+ * ring around the island centre. The first stele stands directly before the
+ * Gallery door; later ones fan out along the arc. Ghost steles (refuted /
+ * returned, night-only) reuse the same rows — a spectral stele among the stone
+ * ones. All tiles are clear of every STATION_TILE and the LANDMARK_TILE.
+ */
 const CLAIM_TILES = [
-  { gx: 8, gy: 8 },
-  { gx: 9, gy: 7 },
-  { gx: 7, gy: 9 },
-  { gx: 9, gy: 9 },
-  { gx: 7, gy: 7 },
-  { gx: 8, gy: 6 },
+  { gx: 5, gy: 13 }, // directly before the Gallery
+  { gx: 4, gy: 13 },
+  { gx: 6, gy: 13 },
+  { gx: 3, gy: 14 }, // second row, fanned seaward
+  { gx: 5, gy: 14 },
+  { gx: 7, gy: 14 },
 ];
 
 /** Fixed anchor tile for the island's single biome Landmark (M4.4) — "岛心最高
@@ -310,12 +319,14 @@ export function buildSceneGraph(
     elevation: 2,
   });
 
-  // ── claim growth-bodies (world layer) — floors/roof/ghost from the ledger ────
+  // ── claim steles before the Gallery (world layer) — B.4, architecture §4 ────
+  // Same semantics as the M4.3 growth-bodies (claims.ts), new form language:
+  // 碑身 = foundation, 碑文行数 = floors (countable reproductions), 碑顶 = roof
+  // (domain consensus), ghost 碑夜现 (refuted/returned, P5 — never deleted).
   claimSpecs.forEach((spec, i) => {
     const tile = CLAIM_TILES[i]!;
     const growth: Growth = { foundation: true, floors: spec.floors, roof: spec.roof };
-    const height = 16 + spec.floors * 12; // base + one storey per reproduction (P1)
-    // A refuted/returned claim (ghost) shows only at night (P5 — never deleted).
+    const height = 16 + spec.floors * 12; // base + one inscription row per reproduction (P1)
     const night = spec.ghost ? { dayVisibility: 0, nightVisibility: 1 } : {};
     push(`claim:${i}`, 'claim', tile.gx, tile.gy, 'world', { growth, height, elevation: elev(tile.gx, tile.gy), ...night });
   });

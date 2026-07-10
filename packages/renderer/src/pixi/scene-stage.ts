@@ -337,25 +337,32 @@ export class SceneStage {
   }
 
   /**
-   * A claim as a slim stacked TOWER — variant A「体量对比·细塔聚落」from the
-   * Claude Design handoff (claim-as-building, project a3f16e64). A claim is smaller
-   * and slimmer than a civic station; every independent reproduction stacks one iso
-   * storey (with a lit window so the count is legible); domain consensus (floors≥5)
-   * caps it with a broad domain canopy + a gamboge halo that reads at distance; a
-   * refuted claim is a pale spectral tower (night-only). Ported from the design's
-   * `claimA`/`story`/`cap`/`seal` with verbatim --fi-* tokens. Every dimension binds
-   * to data (P1); nothing is ornament.
+   * A claim as an inscribed STELE before the Gallery (Phase B.4, architecture §4
+   * "claims are first-class artifacts (steles before the Gallery)"). Same ledger
+   * semantics as the former tower (claims.ts, unchanged), new form language:
+   *
+   *   碑身 slab   = foundation (the claim exists publicly) — a slim upright iso
+   *                 slab on a stone plinth, taller as reproductions accrue;
+   *   碑文 rows   = floors (one carved inscription row per countable
+   *                 reproduction, so the count is legible at a glance);
+   *   碑顶 cap    = roof (domain consensus, growth.roof) — the domain canopy
+   *                 crowns the stele + the breathing gamboge halo (M5 node);
+   *   ghost 碑    = a refuted/returned claim is a pale spectral stele, visible
+   *                 only at night (P5 — never deleted).
+   *
+   * Reuses the tower's exact palette/tokens (wall/shade/ink, domain fills,
+   * drawStory prism for the plinth, drawCap canopy, drawSeal DOI mark) — only
+   * the silhouette changes. Every dimension binds to data (P1).
    */
   private makeClaimMark(o: SceneObject): Container {
     const pts = diamondPoints(o.gx, o.gy);
     const cx = (pts[0]!.x + pts[2]!.x) / 2;
     const groundY = (pts[0]!.y + pts[2]!.y) / 2 - o.elevation * ELEV_STEP;
     const floors = Math.max(0, o.growth?.floors ?? 0);
+    const roof = o.growth?.roof ?? false;
     const spectral = o.dayVisibility === 0; // refuted/returned ghost — night-only
     const dom = claimDomain(o.biome);
-    const a = 24;
-    const H = 18;
-    const stories = floors + 1;
+    const a = 16; // plinth half-width — a stele is slighter than a civic station
     const gy = groundY + a / 2; // front-bottom vertex → footprint centres on the tile
     const wall = spectral ? 0xc9d7f2 : 0xf8f1de;
     const sh = spectral ? 0xc9d7f2 : 0xe7dabe;
@@ -364,19 +371,47 @@ export class SceneStage {
     const fa = spectral ? 0.16 : 1;
     const sw = spectral ? 1.3 : 1.5;
     const g = new Graphics();
-    if (!spectral) g.ellipse(cx, gy + a / 2 + 2, a * 1.3, a * 0.6).fill({ color: 0x3a3024, alpha: 0.16 });
-    for (let k = 0; k < stories; k++) {
-      const y = gy - k * H;
-      drawStory(g, cx, y, a, H, wall, sh, top, ink, sw, fa);
-      if (!spectral) g.rect(cx - a * 0.45, y - a * 0.22 - H * 0.62, 6, 7).fill({ color: 0xe3a93c, alpha: 0.85 });
+    if (!spectral) g.ellipse(cx, gy + a / 2 + 2, a * 1.4, a * 0.6).fill({ color: 0x3a3024, alpha: 0.16 });
+    // 台基 plinth: one squat iso prism (foundation — the claim exists).
+    const plinthH = 7;
+    drawStory(g, cx, gy, a, plinthH, wall, sh, top, ink, sw, fa);
+    // 碑身 slab: a slim upright board rising from the plinth top's centre; its
+    // height grows with the inscription count so a well-reproduced claim stands
+    // taller (matches layout's height = 16 + floors·12 vertical budget).
+    const ROW = 8; // vertical budget per inscription row
+    const slabW = a * 0.95;
+    const slabH = 24 + floors * ROW;
+    const yBase = gy - plinthH - a * 0.28; // plinth top face centre
+    const skew = slabW * 0.22; // iso lean so the slab reads as standing on the diamond
+    const face = [
+      cx - slabW / 2, yBase - skew / 2,
+      cx + slabW / 2, yBase + skew / 2,
+      cx + slabW / 2, yBase + skew / 2 - slabH,
+      cx - slabW / 2, yBase - skew / 2 - slabH,
+    ];
+    // slab edge (thickness) then face, so the face's ink outline sits on top.
+    const edge = 4;
+    g.poly([face[2]!, face[3]!, face[2]! + edge, face[3]! - edge * 0.5, face[4]! + edge, face[5]! - edge * 0.5, face[4]!, face[5]!])
+      .fill({ color: sh, alpha: fa })
+      .stroke({ color: ink, width: sw, alpha: 0.9 });
+    g.poly(face).fill({ color: wall, alpha: fa }).stroke({ color: ink, width: sw, alpha: 0.9 });
+    // 碑文 inscription rows — ONE per countable reproduction (§4: "a replication
+    // ref is one countable reproduction"). Zero floors → an uncarved stele.
+    for (let k = 0; k < floors; k++) {
+      const ry = yBase - slabH + 10 + k * ROW;
+      const rx = cx - slabW / 2 + 4;
+      g.moveTo(rx, ry + (skew / slabW) * 4)
+        .lineTo(rx + slabW - 8, ry + skew - (skew / slabW) * 4)
+        .stroke({ color: spectral ? ink : 0x6b6154, width: 2, alpha: spectral ? 0.5 : 0.85 });
     }
-    const yTop = gy - stories * H;
+    const yTop = yBase - skew / 2 - slabH;
     let halo: Graphics | null = null;
-    if (floors >= 5) {
+    if (roof) {
+      // 碑顶: domain consensus crowns the stele with the domain canopy + halo.
       drawCap(g, cx, yTop, a, dom, spectral);
       if (!spectral) {
-        // Separate, animatable halo node (M5 breathe). Position matches drawCap's
-        // former inline halo: centre = (cx, yTop - cH - 30), cA = a*2.15, cH = cA*0.42.
+        // Separate, animatable halo node (M5 breathe) — same registration
+        // contract as before (child labelled 'halo').
         const cA = a * 2.15;
         halo = makeHalo(cA);
         halo.label = 'halo';
@@ -384,13 +419,16 @@ export class SceneStage {
         halo.y = yTop - cA * 0.42 - 30;
       }
     } else if (!spectral) {
-      // simple domain hip lid while pre-consensus
-      g.poly([cx, yTop - a * 0.5, cx + a, yTop, cx, yTop + a * 0.5, cx - a, yTop]).fill({ color: dom.fill }).stroke({ color: ink, width: 1.5 });
+      // pre-consensus 碑首: a plain rounded stone crown in the domain fill.
+      g.poly([cx - slabW / 2, yTop + 1, cx, yTop - 6, cx + slabW / 2, yTop + skew + 1])
+        .fill({ color: dom.fill })
+        .stroke({ color: ink, width: 1.5 });
     } else {
-      g.poly([cx, yTop - a * 0.5, cx + a, yTop, cx, yTop + a * 0.5, cx - a, yTop]).stroke({ color: ink, width: 1.3, alpha: 0.8 });
+      g.poly([cx - slabW / 2, yTop + 1, cx, yTop - 6, cx + slabW / 2, yTop + skew + 1])
+        .stroke({ color: ink, width: 1.3, alpha: 0.8 });
     }
     // seal: preprint open-mark for now (hasDoi not yet threaded onto SceneObject — deferred)
-    if (!spectral) drawSeal(g, cx - a * 0.5, gy - a * 0.25 - H * 0.5, false);
+    if (!spectral) drawSeal(g, cx - a * 0.9, gy - plinthH - 2, false);
     const c = new Container();
     c.addChild(g);
     if (halo) c.addChild(halo);
