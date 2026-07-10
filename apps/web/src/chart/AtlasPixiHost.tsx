@@ -15,12 +15,15 @@
  */
 import { useEffect, useRef, useState } from 'react';
 import {
+  ATLAS_DOMAIN_FILL,
   AtlasStage,
   makeFakeIslands,
-  placeholderClusters,
+  type AtlasCluster,
+  type AtlasDomain,
   type AtlasIslandInput,
   type AtlasMetrics,
 } from '@frontier-isles/renderer/pixi';
+import { projectArchipelagos } from '@frontier-isles/core';
 import { DATA, type IslandDatum } from '../api/fallback';
 
 /** Map a curated `IslandDatum` to the atlas' input shape (fields carried over
@@ -64,8 +67,33 @@ export default function AtlasPixiHost() {
       }
       const real = DATA.map(toAtlasInput);
       const islands = n > 0 ? [...real, ...makeFakeIslands(n)] : real;
-      const clusters = placeholderClusters(islands);
-      stage.setIslands(islands, clusters);
+      // C3 real projection (core.projectArchipelagos) fills the far-tier cluster
+      // slot: spatial × domain-vector × current-strength single-linkage,
+      // statistical outliers never clustered. Cluster provenance (curated
+      // `cluster` field) feeds the derived bilingual names; the demo passes no
+      // currents (spatial+domain only — the live wire-up adds api.currents()).
+      const clusterOf = new Map(DATA.map((d) => [d.slug ?? `id-${d.id}`, d.cluster] as const));
+      const proj = projectArchipelagos(
+        islands.map((i) => ({ slug: i.slug, domain: i.domain, x: i.x, y: i.y, outlier: i.outlier, cluster: clusterOf.get(i.slug) })),
+      );
+      // Statistical outliers float above the bulk exactly like editorial ones.
+      const statOutliers = new Set(proj.outliers);
+      const withOutliers = islands.map((i) => (statOutliers.has(i.slug) ? { ...i, outlier: true } : i));
+      const dominantDomain = (mix: Record<string, number>): AtlasDomain => {
+        let best: AtlasDomain = '交叉';
+        let bestV = -1;
+        for (const d of Object.keys(ATLAS_DOMAIN_FILL) as AtlasDomain[]) if ((mix[d] ?? 0) > bestV) { bestV = mix[d] ?? 0; best = d; }
+        return best;
+      };
+      const clusters: AtlasCluster[] = proj.archipelagos.map((a) => ({
+        id: a.id,
+        name: a.name.zh, // editorial naming surfaces zh in the demo host
+        islandSlugs: a.islandSlugs,
+        center: a.center,
+        radius: a.radius,
+        tint: ATLAS_DOMAIN_FILL[dominantDomain(a.domainMix)],
+      }));
+      stage.setIslands(withOutliers, clusters);
       stageRef.current = stage;
     });
 
