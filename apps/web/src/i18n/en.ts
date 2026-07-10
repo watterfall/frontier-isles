@@ -123,7 +123,7 @@ export const en: Resources = {
     },
     night: {
       replay: 'Night replay · night {{t}}',
-      of: '/ 86',
+      of: '/ {{nights}}',
       genesis: 'Genesis night',
       tonight: 'Tonight',
       footer: 'The night layer is member-only · the master may declare an Open Night → seal',
@@ -132,6 +132,17 @@ export const en: Resources = {
         n12: 'Night 12 · a question card was taken down',
         n41: 'Night 41 · a Workshop prototype was declared a failure',
         n63: 'Night 63 · a Whiteboard Hall canvas was abandoned',
+      },
+      // Ledger-driven marker captions (ROADMAP B.2): one key per
+      // TIMELINE_MARKER_ACTIONS entry, shown for the latest marker at or
+      // before the scrub night. `silent` = scrub sits before any marker.
+      marker: {
+        found_island: 'Founding night · the island was charted',
+        refute: 'A claim was refuted · it fades to a night ghost',
+        publish: 'An artifact was published · a lantern was lit',
+        transplant: 'An insight was transplanted to another isle',
+        adopt: 'A neighbour’s artifact was adopted here',
+        silent: 'A quiet night · nothing was marked',
       },
     },
     leaveLinks: { problem: 'problem.md', ledger: 'ledger.jsonl', label: 'Leavable · ' },

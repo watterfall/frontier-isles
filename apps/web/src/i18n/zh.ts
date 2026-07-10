@@ -122,7 +122,7 @@ export const zh = {
     },
     night: {
       replay: '夜晚回放 · 第 {{t}} 夜',
-      of: '/ 86',
+      of: '/ {{nights}}',
       genesis: '创世之夜',
       tonight: '今夜',
       footer: '夜晚层仅岛内成员可见 · 岛主可启「开放之夜」→ 徽记',
@@ -131,6 +131,16 @@ export const zh = {
         n12: '第 12 夜 · 一张问题卡被撤下',
         n41: '第 41 夜 · 实验坊原型宣告失败',
         n63: '第 63 夜 · 白板厅一张画布被废弃',
+      },
+      // 账本驱动的标记点文案（ROADMAP B.2）：每个 TIMELINE_MARKER_ACTIONS
+      // 一条 key，显示"该夜或之前最近一个 marker"的动作；silent = 尚无标记。
+      marker: {
+        found_island: '建岛之夜 · 群岛落图',
+        refute: '一条主张被反驳 · 化作夜之魅影',
+        publish: '一件成果被发布 · 点亮一盏灯',
+        transplant: '一个洞见被移植到别的岛',
+        adopt: '采纳了邻岛的一件成果',
+        silent: '寂静之夜 · 无标记事件',
       },
     },
     leaveLinks: { problem: 'problem.md', ledger: 'ledger.jsonl', label: '可离场 · ' },
