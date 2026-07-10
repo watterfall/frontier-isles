@@ -203,6 +203,33 @@ function fnv1a(str: string): string {
   return (h >>> 0).toString(16).padStart(8, "0");
 }
 
+/** Same FNV-1a but returning the raw 32-bit unsigned int — the deterministic seed
+ *  for k-means++ (below). The "seed" clustering draws from is ALWAYS a hash of the
+ *  sorted member slugs, never `Date.now`/`Math.random` (invariant 13/14). */
+function fnv1aInt(str: string): number {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return h >>> 0;
+}
+
+/** mulberry32 — a small dependency-free deterministic PRNG. Seeded from
+ *  {@link fnv1aInt} over the sorted slug list, it makes k-means++ a pure function
+ *  of the island SET (never its input order): same islands ⇒ same seed ⇒ same
+ *  centers ⇒ same regions. */
+function mulberry32(seed: number): () => number {
+  let a = seed >>> 0;
+  return function next(): number {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
 interface Prepared {
   slug: string;
   pos: readonly [number, number];
@@ -328,61 +355,221 @@ function computeStatisticalOutliers(
   return flagged;
 }
 
-/**
- * Single-linkage agglomerative clustering (Kruskal-style), cut at exactly `target`
- * components. `pairs` is the ALREADY-SCORED (see `computeAllPairs`), pre-filtered
- * (outliers excluded) pair list — this function only sorts and unions, it never
- * calls the scorer again. Pairs are processed in DESCENDING closeness order (ties
- * broken by the lexicographically smaller pair key), unioning the strongest links
- * first, until the component count hits `target`. On a complete graph this always
- * reaches `target` exactly (for 1 ≤ target ≤ n) — no separate "merge stragglers"
- * or "split oversized cluster" pass is needed.
+/* ── Balanced clustering: deterministic k-means++ / Lloyd's ─────────────────────
+ * REPLACES the former single-linkage agglomeration. Single-linkage chains: at
+ * N=700 it snowballed a few regions into GIANTS (168/163/149 ≈ 480 of 700 in 3
+ * blobs) while stranding the rest as ordinal-suffixed slivers — a muddy blob +
+ * huge labels, not a legible layered world. k-means on the SAME scored feature
+ * space (normalized chart position × domain-manifold corner × current-pull drift,
+ * each weighted by the same spatial/domain/current knob the closeness scorer uses)
+ * minimizes within-cluster variance instead, so it yields SIZE-BALANCED, spatially
+ * COMPACT regions — the eye reads ~35 comparable archipelagos.
+ *
+ * Determinism (invariant 13/14 — the shuffle test): every step is a pure function
+ * of the SET of clusterable islands, never their input order —
+ *   • points are indexed in canonical (sorted-slug) order;
+ *   • k-means++ seeding draws from a mulberry32 PRNG seeded by fnv1aInt over the
+ *     sorted slug list (a content hash — never Date.now/Math.random);
+ *   • Lloyd assignment breaks distance ties toward the lower centroid index;
+ *   • empty-cluster reseeding takes the worst-served point (max distance to its
+ *     centroid), tie-broken by canonical order.
  */
-function clusterToTarget(slugs: readonly string[], pairs: readonly PairScore[], target: number): string[][] {
-  const parent = new Map<string, string>(slugs.map((s) => [s, s]));
-  function find(x: string): string {
-    let root = x;
-    while (parent.get(root) !== root) root = parent.get(root)!;
-    let cur = x;
-    while (parent.get(cur) !== root) {
-      const next = parent.get(cur)!;
-      parent.set(cur, root);
-      cur = next;
+
+interface FeaturePoint {
+  slug: string;
+  /** Position in the scored feature space (see {@link buildFeaturePoints}). */
+  f: readonly number[];
+}
+
+/** Undirected current adjacency restricted to the clusterable set — only used to
+ *  bias k-means features (below). Empty (the common case: no currents wired) ⇒ the
+ *  drift term is a no-op and clustering is pure spatial × domain. */
+function buildAdjacency(
+  currents: readonly Pick<Current, "from" | "to" | "weight">[],
+  keep: ReadonlySet<string>,
+): Map<string, [string, number][]> {
+  const adj = new Map<string, [string, number][]>();
+  if (currents.length === 0) return adj;
+  const add = (a: string, b: string, wgt: number) => {
+    const list = adj.get(a);
+    if (list) list.push([b, wgt]);
+    else adj.set(a, [[b, wgt]]);
+  };
+  for (const c of currents) {
+    if (c.from === c.to) continue;
+    if (!keep.has(c.from) || !keep.has(c.to)) continue;
+    add(c.from, c.to, c.weight);
+    add(c.to, c.from, c.weight);
+  }
+  return adj;
+}
+
+/**
+ * Per-node feature vector in the scored space: normalized chart position and
+ * domain-manifold corner, each scaled by √weight so a unit of squared k-means
+ * distance carries the same spatial/domain emphasis the LINEAR closeness score
+ * gives it (the three `weights` knobs stay the single source of truth for
+ * "what makes two islands close"). Currents, when present, pull a node's position
+ * toward the weighted centroid of its current-neighbors — a bounded drift that
+ * lets pairwise flow bias which region a node lands in without leaving the
+ * per-node feature model k-means needs; with no currents the drift is exactly 0.
+ * `slugs` MUST already be in canonical (sorted) order — the whole k-means is a
+ * pure function of that ordering.
+ */
+function buildFeaturePoints(
+  slugs: readonly string[],
+  prepared: ReadonlyMap<string, Prepared>,
+  adjacency: ReadonlyMap<string, ReadonlyArray<readonly [string, number]>>,
+  w: Required<NonNullable<ArchipelagoOpts["weights"]>>,
+): FeaturePoint[] {
+  const rootS = Math.sqrt(w.spatial);
+  const rootD = Math.sqrt(w.domain);
+  const hasCurrents = adjacency.size > 0;
+  return slugs.map((slug) => {
+    const p = prepared.get(slug)!;
+    let px = p.pos[0];
+    let py = p.pos[1];
+    if (hasCurrents) {
+      const nbrs = adjacency.get(slug);
+      if (nbrs && nbrs.length > 0) {
+        let wsum = 0;
+        let cx = 0;
+        let cy = 0;
+        for (const [other, weight] of nbrs) {
+          const op = prepared.get(other);
+          if (!op) continue;
+          wsum += weight;
+          cx += weight * op.pos[0];
+          cy += weight * op.pos[1];
+        }
+        if (wsum > 0) {
+          // Saturating blend, strictly < w.current (matches the closeness scorer's
+          // curScore = w/(w+2) shape) so currents nudge, never dominate, geometry.
+          const lambda = w.current * (wsum / (wsum + 2));
+          px = (1 - lambda) * px + lambda * (cx / wsum);
+          py = (1 - lambda) * py + lambda * (cy / wsum);
+        }
+      }
     }
-    return root;
-  }
-  function union(a: string, b: string): boolean {
-    const ra = find(a);
-    const rb = find(b);
-    if (ra === rb) return false;
-    // Union favors the lexicographically smaller root so the surviving root name
-    // (used nowhere externally, but internally) is deterministic regardless of
-    // input order.
-    if (ra < rb) parent.set(rb, ra);
-    else parent.set(ra, rb);
-    return true;
-  }
+    return { slug, f: [rootS * px, rootS * py, rootD * p.vec[0], rootD * p.vec[1]] };
+  });
+}
 
-  let componentCount = slugs.length;
-  if (componentCount > target) {
-    const sorted = pairs
-      .slice()
-      .sort((x, y) => y.score - x.score || pairKey(x.a, x.b).localeCompare(pairKey(y.a, y.b)));
+function sqDist(a: readonly number[], b: readonly number[]): number {
+  let s = 0;
+  for (let i = 0; i < a.length; i++) {
+    const d = a[i]! - b[i]!;
+    s += d * d;
+  }
+  return s;
+}
 
-    for (const { a, b } of sorted) {
-      if (componentCount <= target) break;
-      if (union(a, b)) componentCount--;
+/** Deterministic k-means++ seeding (D²-weighted farthest-spread), drawing from a
+ *  seeded PRNG so the same point SET always yields the same k well-spread centers
+ *  — the spread is exactly what kills single-linkage's chaining. */
+function kmeansPlusPlusInit(points: readonly FeaturePoint[], k: number, rng: () => number): number[] {
+  const n = points.length;
+  const centers: number[] = [Math.min(n - 1, Math.floor(rng() * n))];
+  const d2 = points.map((p) => sqDist(p.f, points[centers[0]!]!.f));
+  while (centers.length < k) {
+    let sum = 0;
+    for (const v of d2) sum += v;
+    let next: number;
+    if (sum <= 0) {
+      // Remaining points all coincide with a chosen center — take the first
+      // not-yet-center point in canonical order (deterministic).
+      next = 0;
+      while (centers.includes(next) && next < n - 1) next++;
+    } else {
+      let r = rng() * sum;
+      next = n - 1;
+      for (let i = 0; i < n; i++) {
+        r -= d2[i]!;
+        if (r <= 0) {
+          next = i;
+          break;
+        }
+      }
+    }
+    centers.push(next);
+    for (let i = 0; i < n; i++) {
+      const nd = sqDist(points[i]!.f, points[next]!.f);
+      if (nd < d2[i]!) d2[i] = nd;
     }
   }
+  return centers;
+}
 
-  const groups = new Map<string, string[]>();
-  for (const slug of slugs) {
-    const root = find(slug);
-    const g = groups.get(root);
-    if (g) g.push(slug);
-    else groups.set(root, [slug]);
+/**
+ * Lloyd's k-means over the feature points, `target` clusters. Returns each cluster
+ * as a sorted slug list (empty clusters — possible only with heavily coincident
+ * points — are dropped, so the count is ≤ target, never a hard giant). Balanced by
+ * construction: minimizing within-cluster squared distance splits dense areas and
+ * merges sparse ones toward comparable-radius regions.
+ */
+function kMeansClusters(points: readonly FeaturePoint[], target: number, rng: () => number): string[][] {
+  const n = points.length;
+  const k = Math.max(1, Math.min(target, n));
+  const dim = points[0]!.f.length;
+  const centroids = kmeansPlusPlusInit(points, k, rng).map((i) => points[i]!.f.slice());
+  const assign = new Array<number>(n).fill(-1);
+
+  const MAX_ITERS = 64;
+  for (let iter = 0; iter < MAX_ITERS; iter++) {
+    let changed = false;
+    for (let i = 0; i < n; i++) {
+      let best = 0;
+      let bestD = Infinity;
+      for (let c = 0; c < k; c++) {
+        const d = sqDist(points[i]!.f, centroids[c]!);
+        if (d < bestD) {
+          bestD = d;
+          best = c;
+        }
+      }
+      if (assign[i] !== best) {
+        assign[i] = best;
+        changed = true;
+      }
+    }
+
+    const sums = Array.from({ length: k }, () => new Array<number>(dim).fill(0));
+    const counts = new Array<number>(k).fill(0);
+    for (let i = 0; i < n; i++) {
+      const c = assign[i]!;
+      counts[c]!++;
+      const f = points[i]!.f;
+      const s = sums[c]!;
+      for (let d = 0; d < dim; d++) s[d]! += f[d]!;
+    }
+    for (let c = 0; c < k; c++) {
+      if (counts[c]! > 0) {
+        for (let d = 0; d < dim; d++) centroids[c]![d] = sums[c]![d]! / counts[c]!;
+      } else {
+        // Reseed an emptied cluster onto the worst-served point (splits the
+        // largest cluster). Strict `>` keeps the lower canonical index on ties.
+        let worst = -1;
+        let worstD = -1;
+        for (let i = 0; i < n; i++) {
+          const d = sqDist(points[i]!.f, centroids[assign[i]!]!);
+          if (d > worstD) {
+            worstD = d;
+            worst = i;
+          }
+        }
+        if (worst >= 0) {
+          centroids[c] = points[worst]!.f.slice();
+          assign[worst] = c;
+          changed = true;
+        }
+      }
+    }
+    if (!changed) break;
   }
-  return [...groups.values()].map((g) => g.slice().sort());
+
+  const groups: string[][] = Array.from({ length: k }, () => []);
+  for (let i = 0; i < n; i++) groups[assign[i]!]!.push(points[i]!.slug);
+  return groups.filter((g) => g.length > 0).map((g) => g.slice().sort());
 }
 
 function firstSegment(text: string | undefined, delimiters: readonly string[]): string | undefined {
@@ -417,12 +604,75 @@ function mostFrequent(values: readonly string[]): string | undefined {
   return best;
 }
 
-/** Roman-ish disambiguation suffix for archipelagos that would otherwise share a
- *  name (no cluster descriptor available). Deterministic, supports up to 20. */
+/** 8-way compass + centre, indexed by the sector of `atan2(dy, dx)` in quarter-π
+ *  steps (chart y grows DOWNWARD, so +dy = 南/South). A MEANINGFUL, place-like
+ *  qualifier for same-named split regions — never a Roman-numeral ordinal. */
+const COMPASS: Record<number, { zh: string; en: string }> = {
+  [-4]: { zh: "西部", en: "West" },
+  [-3]: { zh: "西北", en: "Northwest" },
+  [-2]: { zh: "北部", en: "North" },
+  [-1]: { zh: "东北", en: "Northeast" },
+  [0]: { zh: "东部", en: "East" },
+  [1]: { zh: "东南", en: "Southeast" },
+  [2]: { zh: "南部", en: "South" },
+  [3]: { zh: "西南", en: "Southwest" },
+  [4]: { zh: "西部", en: "West" },
+};
+
+/** Absolute last-resort suffix — reached only if the meaningful qualifiers
+ *  (secondary subfield · compass · ring) somehow all collide, which the candidate
+ *  space below makes practically unreachable. Kept purely so a duplicate name can
+ *  never escape (correctness), NOT as the normal disambiguation path. */
 const ORDINAL = [
   "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X",
   "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX",
 ] as const;
+
+/** The member clusters of a region, ranked by member count (tie: zh order), as
+ *  first-segment {zh,en} descriptors. rank[0] is the dominant subfield the region
+ *  is already named for; rank[1] (if any) is the honest SECONDARY subfield used to
+ *  give a split-sibling a distinct, meaningful name. */
+function rankedClusterDescriptors(
+  members: readonly string[],
+  byIsland: ReadonlyMap<string, ArchipelagoIslandLike>,
+): { zh: string; en: string }[] {
+  const freq = new Map<string, { zh: string; en: string; c: number }>();
+  for (const s of members) {
+    const cl = byIsland.get(s)?.cluster;
+    if (!cl?.zh && !cl?.en) continue;
+    const key = `${cl.zh ?? ""}||${cl.en ?? ""}`;
+    const e = freq.get(key);
+    if (e) e.c++;
+    else
+      freq.set(key, {
+        zh: firstSegment(cl.zh, ["·", "、"]) ?? "",
+        en: firstSegment(cl.en, [" · ", "·"]) ?? "",
+        c: 1,
+      });
+  }
+  return [...freq.values()]
+    .sort((a, b) => b.c - a.c || a.zh.localeCompare(b.zh))
+    .map(({ zh, en }) => ({ zh, en }));
+}
+
+function compassOf(cx: number, cy: number, mx: number, my: number, spread: number): { zh: string; en: string } {
+  const dx = cx - mx;
+  const dy = cy - my;
+  if (Math.hypot(dx, dy) < spread * 0.12) return { zh: "中部", en: "Central" };
+  const sector = Math.round(Math.atan2(dy, dx) / (Math.PI / 4)); // -4..4
+  return COMPASS[sector] ?? { zh: "中部", en: "Central" };
+}
+
+/** Requalify a region's name by inserting `·<qual>` before the uniform place-word
+ *  (群岛 / Archipelago), so curated, derived and fallback names all requalify in
+ *  one register. */
+function requalify(a: Archipelago, qualZh: string, qualEn: string): void {
+  const zhBase = a.name.zh.endsWith("群岛") ? a.name.zh.slice(0, -2) : a.name.zh;
+  a.name.zh = `${zhBase}·${qualZh}群岛`;
+  const EN_SUFFIX = " Archipelago";
+  const enBase = a.name.en.endsWith(EN_SUFFIX) ? a.name.en.slice(0, -EN_SUFFIX.length) : a.name.en;
+  a.name.en = `${enBase} · ${qualEn} Archipelago`;
+}
 
 /**
  * Project islands + currents into named archipelagos (depth-plan-v2 §4). Pure
@@ -471,14 +721,22 @@ export function projectArchipelagos(
 
   if (clusterable.length === 0) return { archipelagos: [], outliers };
 
-  const clusterablePairs = allPairs.filter((p) => !outlierSet.has(p.a) && !outlierSet.has(p.b));
   // Region count scales ~√n (cartographic legibility: the eye reads regions, not
   // dots) but denser than a bare √n so scale reads as a real MIDDLE TIER — 700
   // islands → ~30–50 named regions, not a hard ceiling of 20 (docs/atlas-world-
   // plan.md §0 pt 3, §2 T1; xfrontier ≈ 53 regions for 1481). Clamped so small N
   // stays legible and an explicit `maxClusters` still bounds it hard.
   const target = Math.max(1, Math.min(maxClusters, Math.round(regionDensity * Math.sqrt(clusterable.length))));
-  const groups = clusterToTarget(clusterable, clusterablePairs, target);
+
+  // Balanced clustering (see the k-means block above). Points are indexed in
+  // canonical sorted-slug order and the PRNG is seeded from a hash of that order,
+  // so `groups` is a pure function of the island SET — the shuffle test holds.
+  const clusterableSet = new Set(clusterable);
+  const sortedClusterable = clusterable.slice().sort();
+  const adjacency = buildAdjacency(currents, clusterableSet);
+  const featurePoints = buildFeaturePoints(sortedClusterable, prepared, adjacency, w);
+  const rng = mulberry32(fnv1aInt(sortedClusterable.join(",")));
+  const groups = kMeansClusters(featurePoints, target, rng);
 
   const archipelagosRaw = groups.map((slugs) => buildArchipelago(slugs, byIsland, prepared, opts.curatedNames));
   // Stable output order: by centroid x, then y, then id (so array order never
@@ -487,7 +745,7 @@ export function projectArchipelagos(
     (a, b) => a.center.x - b.center.x || a.center.y - b.center.y || a.id.localeCompare(b.id),
   );
 
-  disambiguateNames(archipelagosRaw);
+  disambiguateNames(archipelagosRaw, byIsland);
 
   return { archipelagos: archipelagosRaw, outliers };
 }
@@ -580,21 +838,63 @@ function buildArchipelago(
   };
 }
 
-/** In-place: append a stable ordinal suffix to any archipelagos sharing a name
- *  (only happens when no cluster descriptor disambiguated them naturally). */
-function disambiguateNames(archipelagos: Archipelago[]): void {
+/**
+ * In-place: give any archipelagos that would otherwise SHARE a name a distinct,
+ * MEANINGFUL qualifier — never a Roman-numeral ordinal (the old "群岛 II/III/VIII"
+ * sliver smell). Because balanced clustering makes each region one compact place,
+ * collisions only happen when the SAME subfield is split across neighbouring
+ * regions; the honest way to tell those apart is by what actually differs — the
+ * region's own secondary subfield, or its compass position within the shared-name
+ * cluster. Priority per region: secondary subfield → compass → secondary·compass →
+ * compass·ring. Deterministic (group processed in centroid order); the Roman
+ * ordinal survives only as an unreachable correctness backstop.
+ */
+function disambiguateNames(
+  archipelagos: Archipelago[],
+  byIsland: ReadonlyMap<string, ArchipelagoIslandLike>,
+): void {
   const byZh = new Map<string, Archipelago[]>();
   for (const a of archipelagos) {
     const g = byZh.get(a.name.zh);
     if (g) g.push(a);
     else byZh.set(a.name.zh, [a]);
   }
+
   for (const group of byZh.values()) {
     if (group.length < 2) continue;
-    group.forEach((a, i) => {
-      const suffix = ORDINAL[i] ?? String(i + 1);
-      a.name.zh = `${a.name.zh} ${suffix}`;
-      a.name.en = `${a.name.en} ${suffix}`;
+    // Stable order + group centroid (for compass) + spread (for the 中部 cut-off).
+    const sorted = group.slice().sort(
+      (a, b) => a.center.x - b.center.x || a.center.y - b.center.y || a.id.localeCompare(b.id),
+    );
+    const mx = sorted.reduce((s, a) => s + a.center.x, 0) / sorted.length;
+    const my = sorted.reduce((s, a) => s + a.center.y, 0) / sorted.length;
+    const spread = Math.max(...sorted.map((a) => Math.hypot(a.center.x - mx, a.center.y - my)), 1);
+
+    const used = new Set<string>();
+    sorted.forEach((a, i) => {
+      const baseZh = a.name.zh.endsWith("群岛") ? a.name.zh.slice(0, -2) : a.name.zh;
+      const ranked = rankedClusterDescriptors(a.islandSlugs, byIsland);
+      // rank[0] is the shared dominant subfield; a useful secondary is a REAL other
+      // subfield (never a redundant repeat of the base, e.g. "元科学·元科学").
+      const secondary = ranked[1] && ranked[1].zh !== baseZh ? ranked[1] : undefined;
+      const compass = compassOf(a.center.x, a.center.y, mx, my, spread);
+      const ring = Math.hypot(a.center.x - mx, a.center.y - my) >= spread * 0.55
+        ? { zh: "外环", en: "Outer" }
+        : { zh: "内环", en: "Inner" };
+
+      const cands: { zh: string; en: string }[] = [];
+      if (secondary?.zh || secondary?.en) cands.push({ zh: secondary.zh, en: secondary.en });
+      cands.push(compass);
+      if (secondary?.zh || secondary?.en) {
+        cands.push({ zh: `${secondary.zh}·${compass.zh}`, en: `${secondary.en} · ${compass.en}` });
+      }
+      cands.push({ zh: `${compass.zh}·${ring.zh}`, en: `${compass.en} · ${ring.en}` });
+
+      let chosen = cands.find((c) => !used.has(`${baseZh}·${c.zh}群岛`));
+      if (!chosen) chosen = { zh: ORDINAL[i] ?? String(i + 1), en: ORDINAL[i] ?? String(i + 1) };
+
+      requalify(a, chosen.zh, chosen.en);
+      used.add(a.name.zh);
     });
   }
 }
