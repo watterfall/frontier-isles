@@ -8,14 +8,46 @@
  * Pure (no DOM, no Pixi import): safe to unit-test headless and to call from
  * either host's effect.
  */
-import { projectArchipelagos } from '@frontier-isles/core';
+import { projectArchipelagos, projectClimate, projectContinentCurrents, type CurrentKind } from '@frontier-isles/core';
 import {
   ATLAS_DOMAIN_FILL,
+  ATLAS_DOMAIN_INK,
   type AtlasCluster,
+  type AtlasContinent,
   type AtlasDomain,
+  type AtlasFlow,
+  type AtlasFogCell,
   type AtlasIslandInput,
 } from '@frontier-isles/renderer/pixi';
 import { DATA, type IslandDatum } from '../api/fallback';
+import { fixtureSeaData } from '../api/seaFallback';
+
+/** Current-kind → flowline colour (the frozen token palette, depth-plan-v2 §3):
+ *  石青 azurite = evidence · 赭石 ochre = bridge · 石绿 malachite = lineage. */
+const FLOW_TINT: Record<CurrentKind, number> = {
+  evidence: 0x2e5e8c, // --fi-azurite
+  bridge: 0xb5673a, // --fi-ochre
+  lineage: 0x3e9b7e, // --fi-malachite
+};
+
+/**
+ * Inter-territory currents for the far tier — the SAME real cross-island
+ * relations the server seeds (`SEA_SEED_RELATIONS`), projected offline-identical
+ * by `fixtureSeaData()` and reduced to domain-pair flows. Every flow transcribes
+ * a real event (invariant 14). Memoised: the curated relation set is static.
+ */
+let cachedFlows: AtlasFlow[] | null = null;
+function curatedContinentFlows(): AtlasFlow[] {
+  if (cachedFlows) return cachedFlows;
+  const sea = fixtureSeaData();
+  const domainOf = new Map(sea.islands.map((i) => [i.op, i.domain] as const));
+  const flows = projectContinentCurrents(
+    sea.currents.map((c) => ({ from: c.from, to: c.to, kind: c.kind, weight: c.weight })),
+    (op) => domainOf.get(op),
+  ).map<AtlasFlow>((f) => ({ from: f.from as AtlasDomain, to: f.to as AtlasDomain, tint: FLOW_TINT[f.kind], weight: f.weight }));
+  cachedFlows = flows;
+  return flows;
+}
 
 /** Map a curated/live `IslandDatum` to the atlas' input shape (fields carried
  * over verbatim; `eventCount` uses the activity proxy — the fallback has no
@@ -39,6 +71,12 @@ export function toAtlasInput(d: IslandDatum): AtlasIslandInput {
 export interface AtlasSceneData {
   islands: AtlasIslandInput[];
   clusters: AtlasCluster[];
+  /** Far-tier climate territories (soft washes, one per populated domain). */
+  continents: AtlasContinent[];
+  /** Fog grid over the unexplored edges (focus aid). */
+  fog: AtlasFogCell[];
+  /** Inter-territory currents (cross-domain relations). */
+  flows: AtlasFlow[];
 }
 
 function dominantDomain(mix: Record<string, number>): AtlasDomain {
@@ -85,5 +123,22 @@ export function buildAtlasScene(source: IslandDatum[] = DATA, extra: AtlasIsland
     radius: a.radius,
     tint: ATLAS_DOMAIN_FILL[dominantDomain(a.domainMix)],
   }));
-  return { islands: withOutliers, clusters };
+
+  // Far-tier climate: 4 named domain territories (soft washes) + fog on the
+  // unexplored edges — a pure reduce over island domain positions (lane W2).
+  const climate = projectClimate(
+    islands.map((i) => ({ slug: i.slug, domain: i.domain, x: i.x, y: i.y, eventCount: i.eventCount, dormant: i.dormant })),
+  );
+  const continents: AtlasContinent[] = climate.territories.map((t) => ({
+    domain: t.domain as AtlasDomain,
+    name: t.name.zh, // editorial territory name (invariant 9)
+    manifold: t.manifold,
+    center: t.center,
+    extent: t.extent,
+    tint: ATLAS_DOMAIN_FILL[t.domain as AtlasDomain],
+    ink: ATLAS_DOMAIN_INK[t.domain as AtlasDomain],
+  }));
+  const fog: AtlasFogCell[] = climate.fog.map((f) => ({ x: f.x, y: f.y, w: f.w, h: f.h, fog: f.fog }));
+
+  return { islands: withOutliers, clusters, continents, fog, flows: curatedContinentFlows() };
 }

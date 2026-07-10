@@ -32,6 +32,9 @@ export {
   type AtlasTier,
   type AtlasIslandInput,
   type AtlasCluster,
+  type AtlasContinent,
+  type AtlasFogCell,
+  type AtlasFlow,
   type LabelBox,
   type LabelVerdict,
 } from './atlas-lod';

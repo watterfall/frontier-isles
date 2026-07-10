@@ -73,8 +73,9 @@ export default function AtlasChartHost({ islands, onPick, onHoverIsland, onWebgl
           stage.destroy();
           return;
         }
-        const { islands: atlasIslands, clusters } = buildAtlasScene(islands);
+        const { islands: atlasIslands, clusters, continents, fog, flows } = buildAtlasScene(islands);
         stage.setIslands(atlasIslands, clusters);
+        stage.setClimate(continents, fog, flows);
         stageRef.current = stage;
       })
       .catch(() => {

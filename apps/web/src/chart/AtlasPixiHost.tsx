@@ -52,9 +52,12 @@ export default function AtlasPixiHost() {
       // Scale test: append N believable synthetic frontier islands (W4) through
       // the SHARED scene builder (W1) — same spatial×domain projectArchipelagos
       // clustering + statistical-outlier float the default L0 uses, no drift.
-      const { islands, clusters } = buildAtlasScene(undefined, n > 0 ? makeScaleCorpus(n) : []);
+      const { islands, clusters, continents, fog, flows } = buildAtlasScene(undefined, n > 0 ? makeScaleCorpus(n) : []);
       stage.setIslands(islands, clusters);
+      stage.setClimate(continents, fog, flows);
       stageRef.current = stage;
+      // DEV-only handle for deterministic camera control (verification screenshots).
+      if (import.meta.env.DEV) (window as unknown as { __atlas?: AtlasStage }).__atlas = stage;
     });
 
     return () => {
