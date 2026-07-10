@@ -34,6 +34,12 @@ describe('fallback data matches the curated atlas', () => {
     expect(hi.d).toBe('物质');
   });
 
+  it('marks exactly one resolved island (flies the L0 lighthouse)', () => {
+    const resolved = DATA.filter((d) => d.res);
+    expect(resolved).toHaveLength(1);
+    expect(resolved[0]!.slug).toBe('living-wires');
+  });
+
   it('every curated frontier carries a slug (enterable)', () => {
     for (const d of DATA) {
       expect(d.slug, `island #${d.id} (${d.n.zh}) missing slug`).toBeTruthy();

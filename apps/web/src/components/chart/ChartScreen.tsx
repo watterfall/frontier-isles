@@ -6,7 +6,8 @@ import {
   WaveGroup,
   DEFAULT_WAVE_POSITIONS,
   Compass,
-  MOUND_PATHS,
+  IslandFingerprint,
+  hashSeed,
 } from '@frontier-isles/assets';
 import { DOMAIN_META, STAGE_LABELS, type IslandDatum } from '../../api/fallback';
 import { spaceIslands } from '../../chart/despace';
@@ -61,13 +62,36 @@ function truncateToWidth(s: string, maxW: number, fontPx: number): string {
   return out + '…';
 }
 
+export interface DensityTier {
+  h1: boolean;
+  h2: boolean;
+  h3: boolean;
+  veg1: boolean;
+  veg2: boolean;
+}
+
+/**
+ * Building/vegetation *count* is a density pre-echo of growth stage (depth-plan-v1
+ * §5: "the L0 form should pre-echo its L1 richness"): hut shows exactly one hut +
+ * one alternating veg piece (id-parity picks which, for hand-drawn variety, not
+ * rank); academy and school always show both veg pieces plus their extra
+ * building tier — density only ever grows with stage, never with anything
+ * continuous or per-island. Pure/exported so the stage→count mapping is
+ * unit-testable without rendering the SVG.
+ */
+export function buildingDensityTier(d: Pick<IslandDatum, 'st' | 'dor' | 'id'>): DensityTier {
+  return {
+    h1: d.st >= 1 && !d.dor,
+    h2: d.st >= 2,
+    h3: d.st === 3,
+    veg1: d.st >= 1 && !d.dor && (d.st >= 2 || d.id % 2 === 0),
+    veg2: d.st >= 1 && !d.dor && (d.st >= 2 || d.id % 2 === 1),
+  };
+}
+
 function Buildings({ d }: { d: IslandDatum }) {
   const { t } = useTranslation();
-  const h1 = d.st >= 1 && !d.dor;
-  const h2 = d.st >= 2;
-  const h3 = d.st === 3;
-  const veg1 = d.st >= 1 && d.id % 2 === 0 && !d.dor;
-  const veg2 = d.st >= 1 && d.id % 2 === 1 && !d.dor;
+  const { h1, h2, h3, veg1, veg2 } = buildingDensityTier(d);
   return (
     <>
       {veg1 && (
@@ -164,6 +188,12 @@ export function ChartScreen({ islands, hover, onHover, onIsland, onBuild, onColl
           const isHover = hover === d.id;
           const cap = truncateToWidth(d.n[lang], 150, 12.5);
           const capW = estWidth(cap, 12.5);
+          // Terrain fingerprint (depth-plan-v1 §5): stage is the discrete size/density
+          // tier (never a continuous rank), domain picks the coastline grammar, and the
+          // seed is stable per island (hash of its slug, falling back to id) so the same
+          // island always renders the same coastline (invariant 13).
+          const fpStage = d.st <= 0 ? 0 : d.st >= 3 ? 3 : (d.st as 1 | 2);
+          const fpSeed = hashSeed(d.slug ?? String(d.id));
           return (
             <g
               key={d.id}
@@ -188,7 +218,7 @@ export function ChartScreen({ islands, hover, onHover, onIsland, onBuild, onColl
                 <path d="M -58 34 q 28 7 58 7 q 30 0 58 -7" stroke="#BFCEDB" strokeWidth="1" fill="none" opacity="0.5" />
                 <ellipse cx="0" cy="26" rx="58" ry="9" fill="rgba(58,48,36,0.15)" opacity={isHover ? 1 : 0} style={{ transition: 'opacity .35s' }} />
                 <g style={{ transform: isHover ? 'translateY(-5px)' : 'translateY(0px)', transition: 'transform .35s cubic-bezier(0.22,1,0.36,1)' }}>
-                  <path d={MOUND_PATHS[d.id % 5]} fill={fill} stroke="#4A4238" strokeWidth="1.5" />
+                  <IslandFingerprint domain={d.d} stage={fpStage} seed={fpSeed} fill={fill} lighthouse={!!d.res} />
                   <path d="M -22 -8 Q 0 -15 20 -8" stroke="#4A4238" strokeWidth="0.75" fill="none" opacity="0.3" />
                   <Buildings d={d} />
                 </g>

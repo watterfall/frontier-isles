@@ -46,6 +46,9 @@ export * from './chart/Compass';
 export * from './chart/WaveGroup';
 export * from './chart/MountainRange';
 export * from './chart/SettlementText';
+export * from './chart/islandSilhouette';
+export * from './chart/Lighthouse';
+export * from './chart/IslandFingerprint';
 
 // Sea plane — v2 海即数据 (depth-plan-v2 §3/§4: currents · climate · depth · legend · list twin)
 export * from './sea/ClimateField';

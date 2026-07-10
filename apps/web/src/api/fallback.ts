@@ -44,6 +44,8 @@ export interface IslandDatum {
   a: number;
   dor?: boolean;
   out?: boolean;
+  /** `status: resolved` — flies a lighthouse on the L0 fingerprint (depth-plan-v1 §5). */
+  res?: boolean;
   sample?: boolean;
   born?: boolean;
   /** Server slug, where known. */
@@ -77,6 +79,7 @@ export const DATA: IslandDatum[] = [
     a: f.activity,
     dor: f.dormant,
     out: f.outlier,
+    res: f.resolved,
     slug: f.slug,
     brief: f.brief,
     cluster: f.cluster,
