@@ -88,3 +88,7 @@ export type {
   MorningReportStatus,
   ResolvedRef,
 } from "./morning-report";
+
+// Night timeline (Phase B.2 — the replay scrubber's ledger-derived model)
+export { projectNightTimeline, TIMELINE_MARKER_ACTIONS } from "./night-timeline";
+export type { NightTimelineMarker, NightTimelineModel } from "./night-timeline";
