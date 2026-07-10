@@ -4,7 +4,7 @@ import { z } from "zod";
 import type { Actor } from "@frontier-isles/opp";
 import type { GatewayAction, StationKind } from "@frontier-isles/core";
 import { openDb } from "./db.js";
-import { Store, type GatewayInput } from "./store.js";
+import { Store, EvidenceRequired, type GatewayInput } from "./store.js";
 import { seed } from "./seed.js";
 import type { RefKind } from "./refs.js";
 
@@ -38,7 +38,17 @@ export function createMcpServer(store: Store, islandSlug: string, agentId: strin
   const text = (t: string) => ({ content: [{ type: "text" as const, text: t }] });
 
   function write(gatewayAction: GatewayAction, extra: Partial<GatewayInput>): string {
-    const r = store.gateway(opId(), { actor: agent, gatewayAction, ...extra });
+    let r;
+    try {
+      r = store.gateway(opId(), { actor: agent, gatewayAction, ...extra });
+    } catch (e) {
+      // §4 Claims & evidence: an evidence-less refute/validate is REJECTED with
+      // explicit copy (record honesty), never silently degraded to a proposal.
+      if (e instanceof EvidenceRequired) {
+        return `✗ ${gatewayAction} REJECTED — no evidence reference (architecture §4). Pass evidence_ro_crate + evidence_role (evidence|replication) + evidence_hash (sha256:…). Nothing was written to the ledger.`;
+      }
+      throw e;
+    }
     if (r.degraded) {
       return `⚓ Unauthorized station push — degraded to a DOCK PROPOSAL (HITL pending). proposal=${r.proposalHash} event=${r.event.action}`;
     }
@@ -142,10 +152,28 @@ export function createMcpServer(store: Store, islandSlug: string, agentId: strin
 
   server.tool(
     "refute",
-    "Refute a claim; must reference evidence.",
-    { ref: z.string(), body: z.string() },
-    async ({ ref, body }) =>
-      text(write("refute", { payload: { ref, body }, refKind: "claim", credit: ["credit:ai/critique"] })),
+    "Refute a claim. MUST reference an evidence-role data ref (§4): pass evidence_ro_crate + evidence_role + evidence_hash, or the write is rejected.",
+    {
+      ref: z.string(),
+      body: z.string(),
+      evidence_ro_crate: z.string().optional(),
+      evidence_role: z.enum(["evidence", "replication"]).optional(),
+      evidence_hash: z.string().optional(),
+    },
+    async ({ ref, body, evidence_ro_crate, evidence_role, evidence_hash }) =>
+      text(
+        write("refute", {
+          payload: {
+            ref,
+            body,
+            ...(evidence_ro_crate && evidence_hash
+              ? { evidence: { ro_crate: evidence_ro_crate, role: evidence_role ?? "evidence", hash: evidence_hash } }
+              : {}),
+          },
+          refKind: "claim",
+          credit: ["credit:ai/critique"],
+        }),
+      ),
   );
 
   // NB: there is deliberately NO `transplant` tool here. architecture.md §4:

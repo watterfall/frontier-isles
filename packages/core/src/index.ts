@@ -77,8 +77,9 @@ export { projectCurrents, projectWhirlpools } from "./currents";
 export type { Current, CurrentKind, CurrentSign, CurrentMaturity, Whirlpool } from "./currents";
 
 // Per-claim building state (scene-upgrade M4.3 — foundation/floors/roof/ghost)
-export { projectClaimState, CONSENSUS_MIN } from "./claims";
-export type { ClaimState } from "./claims";
+// + claims-&-evidence compliance (Phase B.4, architecture §4)
+export { projectClaimState, CONSENSUS_MIN, extractEvidence, hasClaimEvidence } from "./claims";
+export type { ClaimState, EvidenceRef, EvidenceRole } from "./claims";
 
 // Morning report (Phase B.1 — the AI night shift's dock drafts, HITL-resolved)
 export { projectMorningReport } from "./morning-report";

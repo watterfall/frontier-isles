@@ -20,6 +20,62 @@ import type { ActionType, LedgerEvent } from "@frontier-isles/opp";
 /** Distinct independent reproductions needed for consensus → a roof (approved: 5). */
 export const CONSENSUS_MIN = 5;
 
+// ---------------------------------------------------------------------------
+// Claims & evidence (architecture §4): "refute/validate events must reference
+// an evidence-role data ref; a replication ref is one countable reproduction."
+// The event's `ref` resolves (via the content-addressed ref store) to a content;
+// these pure functions judge whether that CONTENT carries an evidence reference.
+// Two accepted shapes — chosen to match what already exists on the wire:
+//   (a) the content IS a data ref (attach_data payload shape, §5 `data:` rows):
+//       { ro_crate, role: "evidence" | "replication", hash: "sha256:…" }
+//   (b) the content EMBEDS one under an `evidence` key (claim-response shape,
+//       e.g. the MCP refute payload { ref, body, evidence: {…} }, or a claim
+//       record that ships with its evidence RO-Crate — "evidence backs claims").
+// Write-side strict, read-side tolerant: the server gateway rejects new
+// refute/validate writes whose payload fails this check; the projections in
+// this file never reject historical events (older/demo DBs project unchanged).
+// ---------------------------------------------------------------------------
+
+/** The two data-ref roles that count as claim evidence (§4/§5 data roles). */
+export type EvidenceRole = "evidence" | "replication";
+
+/** An evidence-role data reference (the §5 `data:` row / attach_data shape). */
+export interface EvidenceRef {
+  ro_crate: string;
+  role: EvidenceRole;
+  hash: string;
+}
+
+function asEvidenceRef(value: unknown): EvidenceRef | null {
+  if (value === null || typeof value !== "object") return null;
+  const r = value as Record<string, unknown>;
+  if (typeof r.ro_crate !== "string" || r.ro_crate.length === 0) return null;
+  if (r.role !== "evidence" && r.role !== "replication") return null;
+  if (typeof r.hash !== "string" || !/^sha256:[0-9a-f]{64}$/.test(r.hash)) return null;
+  return { ro_crate: r.ro_crate, role: r.role, hash: r.hash };
+}
+
+/**
+ * Extract the evidence reference from a ref content, or null when it carries
+ * none. Pure and total: accepts shape (a) — the content is itself a data ref
+ * with an evidence/replication role — or shape (b) — the content embeds one
+ * under `evidence`. Anything else (including input/output-role data refs,
+ * malformed hashes, bare prose) yields null.
+ */
+export function extractEvidence(content: unknown): EvidenceRef | null {
+  const direct = asEvidenceRef(content);
+  if (direct) return direct;
+  if (content !== null && typeof content === "object") {
+    return asEvidenceRef((content as Record<string, unknown>).evidence);
+  }
+  return null;
+}
+
+/** True iff the content satisfies §4's evidence requirement for refute/validate. */
+export function hasClaimEvidence(content: unknown): boolean {
+  return extractEvidence(content) !== null;
+}
+
 /** A claim's building state, reduced from the ledger. */
 export interface ClaimState {
   /** Content-addressed claim id (`sha256:…`). */

@@ -25,6 +25,7 @@ import {
   type Role,
 } from "@frontier-isles/core";
 import {
+  hasClaimEvidence,
   projectGrowth,
   computeTide,
   transplantInsight,
@@ -143,6 +144,22 @@ export class ChainError extends Error {
   constructor(msg: string) {
     super(msg);
     this.name = "ChainError";
+  }
+}
+/**
+ * A refute/validate write whose payload carries no evidence-role data ref
+ * (architecture §4 Claims & evidence). This is RECORD HONESTY, not capability:
+ * it is a hard rejection (HTTP 422 / MCP tool error), never a silent dock
+ * degradation, and it applies only to NEW writes — historical events in an
+ * existing DB still project (write-side strict, read-side tolerant).
+ */
+export class EvidenceRequired extends Error {
+  constructor(public action: string) {
+    super(
+      `${action} must reference an evidence-role data ref (§4): payload must be ` +
+        `{ ro_crate, role: "evidence"|"replication", hash: "sha256:…" } or embed one under "evidence"`,
+    );
+    this.name = "EvidenceRequired";
   }
 }
 export class NotFound extends Error {
@@ -467,6 +484,16 @@ export class Store {
    */
   gateway(opId: string, input: GatewayInput): GatewayResult {
     const { actor, gatewayAction } = input;
+
+    // Claims & evidence (§4, Phase B.4): a refute/validate must reference an
+    // evidence-role data ref. Judged BEFORE the capability degrade path — an
+    // evidence-less refute is rejected outright (record honesty), never parked
+    // at the dock as a proposal. Only new writes pass here; appendRaw replay
+    // of an existing ledger is untouched (write-side strict, read-side tolerant).
+    if ((gatewayAction === "refute" || gatewayAction === "validate") && !hasClaimEvidence(input.payload)) {
+      throw new EvidenceRequired(gatewayAction);
+    }
+
     const ts = input.ts ?? new Date().toISOString();
     const role = actor.kind === "agent" ? undefined : this.memberRole(opId, actor.id);
     const capActor = { id: actor.id, kind: actor.kind, role };

@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { parseProblemObject, verifyChain, type LedgerEvent } from "@frontier-isles/opp";
+import { hasClaimEvidence } from "@frontier-isles/core";
 import { openDb } from "../src/db.js";
 import { Store } from "../src/store.js";
 import { createApp } from "../src/app.js";
@@ -194,6 +195,78 @@ describe("capability gateway", () => {
       payload: { agent: "github:x", capability: "publish" },
     });
     expect(res.status).toBe(403);
+  });
+});
+
+describe("claims & evidence enforcement (§4, Phase B.4)", () => {
+  const HASH = `sha256:${"cd".repeat(32)}`;
+  const EVIDENCE = { ro_crate: "https://zenodo.org/record/9/ro-crate", role: "replication", hash: HASH };
+
+  it("rejects an evidence-less validate with 422 evidence_required (not silent degradation)", async () => {
+    const before = store.getEvents("op://frontier-isles/prob/machine-curiosity").length;
+    const res = await post("/api/islands/machine-curiosity/events", {
+      actor: MASTER,
+      action: "validate",
+      payload: { ref: "sha256:claim1", body: "我复现了,信我" },
+    });
+    expect(res.status).toBe(422);
+    const body = await jsonOf(res);
+    expect(body.code).toBe("evidence_required");
+    // Nothing was written — the ledger is exactly as long as before.
+    expect(store.getEvents("op://frontier-isles/prob/machine-curiosity")).toHaveLength(before);
+  });
+
+  it("rejects an evidence-less refute even from an agent that WOULD degrade to a dock proposal", async () => {
+    // Record honesty precedes the capability gateway: an ungranted agent's
+    // evidence-less refute is a hard 422, never parked at the dock.
+    const res = await post("/api/islands/machine-curiosity/events", {
+      actor: { id: "github:test-agent", kind: "agent" },
+      action: "refute",
+      payload: { ref: "sha256:claim1", body: "无证据的反驳" },
+    });
+    expect(res.status).toBe(422);
+    expect((await jsonOf(res)).code).toBe("evidence_required");
+  });
+
+  it("accepts a validate whose payload embeds an evidence-role data ref (claim-response shape)", async () => {
+    const res = await post("/api/islands/machine-curiosity/events", {
+      actor: MASTER,
+      action: "validate",
+      payload: { ref: "sha256:claim1", body: "独立复现成功", evidence: EVIDENCE },
+    });
+    expect(res.status).toBe(201);
+    const body = await jsonOf(res);
+    expect(body.degraded).toBe(false);
+    expect(body.effectiveAction).toBe("validate");
+    // The event's ref resolves to content carrying the evidence (§4).
+    const ref = store.getRef(body.event.ref)!;
+    expect((ref.content as { evidence?: unknown }).evidence).toEqual(EVIDENCE);
+  });
+
+  it("accepts a refute whose payload IS a direct evidence-role data ref", async () => {
+    const res = await post("/api/islands/machine-curiosity/events", {
+      actor: MASTER,
+      action: "refute",
+      payload: { ro_crate: "https://osf.io/c/ro-crate", role: "evidence", hash: HASH },
+    });
+    expect(res.status).toBe(201);
+    expect((await jsonOf(res)).effectiveAction).toBe("refute");
+  });
+
+  it("seeded refute/validate events all reference evidence-compliant content (compliant demo ledger)", async () => {
+    const islands = await jsonOf(await app.request("/api/islands"));
+    let checked = 0;
+    for (const island of islands.islands) {
+      for (const e of store.getEvents(island.opId) as LedgerEvent[]) {
+        if (e.action !== "refute" && e.action !== "validate") continue;
+        expect(e.ref).toBeTruthy();
+        const resolved = store.getRef(e.ref!);
+        expect(resolved).toBeTruthy();
+        expect(hasClaimEvidence(resolved!.content)).toBe(true);
+        checked++;
+      }
+    }
+    expect(checked).toBeGreaterThan(0); // the sea's refute/validate currents exist
   });
 });
 
