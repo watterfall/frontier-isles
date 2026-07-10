@@ -130,8 +130,16 @@ interface ClaimSpec {
  * Build the SceneGraph for one island at day↔night slider `t`. Deterministic:
  * same input → same graph. `claims` (from `projectClaimState`, M4.3) drives claim
  * buildings — floors/roof/ghost from the ledger; omitted → a deterministic synth.
+ * `activeStations` (from `core.projectActiveStations`, M8) marks which stations
+ * had recent ledger activity — the renderer's chimney smoke / flag wave read it;
+ * omitted → no station is marked active (micro-dynamics simply don't play).
  */
-export function buildSceneGraph(input: LayoutInput, t = 0, claims?: ClaimState[]): SceneGraph {
+export function buildSceneGraph(
+  input: LayoutInput,
+  t = 0,
+  claims?: ClaimState[],
+  activeStations?: ReadonlySet<StationKind>,
+): SceneGraph {
   const scene = generate(input);
   const objects: SceneObject[] = [];
 
@@ -162,6 +170,7 @@ export function buildSceneGraph(input: LayoutInput, t = 0, claims?: ClaimState[]
       variant: variantSeed(id),
       height: opts.height,
       growth: opts.growth,
+      active: opts.active,
     });
   };
 
@@ -199,7 +208,11 @@ export function buildSceneGraph(input: LayoutInput, t = 0, claims?: ClaimState[]
     if (!s.visible) continue;
     const tile = STATION_TILES[s.kind];
     const height = s.kind === 'dock' ? 10 : 30; // dock is a low pier
-    push(`station:${s.kind}`, `station:${s.kind}`, tile.gx, tile.gy, 'world', { height, elevation: elev(tile.gx, tile.gy) });
+    push(`station:${s.kind}`, `station:${s.kind}`, tile.gx, tile.gy, 'world', {
+      height,
+      elevation: elev(tile.gx, tile.gy),
+      active: activeStations?.has(s.kind) ?? false,
+    });
   }
 
   // ── claim growth-bodies (world layer) — floors/roof/ghost from the ledger ────

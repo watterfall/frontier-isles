@@ -8,7 +8,7 @@
  * this file exists only so the scene can be inspected in isolation.
  */
 import { useState } from 'react';
-import { projectClaimState, type ClaimState } from '@frontier-isles/core';
+import { projectClaimState, type ClaimState, type StationKind } from '@frontier-isles/core';
 import type { ActionType, LedgerEvent } from '@frontier-isles/opp';
 import PixiScene, { type PixiSceneMetrics } from './PixiScene';
 import type { LayoutInput } from './layout';
@@ -36,6 +36,16 @@ const DEMO_CLAIMS: ClaimState[] = (() => {
   return projectClaimState(ev);
 })();
 
+/**
+ * Demo activity for M8 micro-dynamics (chimney smoke / flag wave): `workshop`
+ * is genuinely reachable (DEMO_CLAIMS' events all touch it via submit_claim/
+ * validate/refute). `data` is forced on for demo visibility — as
+ * `core.projectActiveStations`'s own doc explains, the protocol has no
+ * dedicated dataset verb yet, so no REAL ledger can produce `data` here; this
+ * override exists only so the flag-wave attachment can be eyeballed at all.
+ */
+const DEMO_ACTIVE: Set<StationKind> = new Set<StationKind>(['workshop', 'data']);
+
 const DEMO: LayoutInput = {
   slug: 'machine-curiosity',
   domain: '数理',
@@ -55,7 +65,7 @@ export default function PixiSceneHost({ input = DEMO }: { input?: LayoutInput })
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: '#f2ecd9' }}>
-      <PixiScene input={input} claims={DEMO_CLAIMS} t={t} substrate={0.7} undertow={undertow} onMetrics={setStat} />
+      <PixiScene input={input} claims={DEMO_CLAIMS} t={t} activeStations={DEMO_ACTIVE} substrate={0.7} undertow={undertow} onMetrics={setStat} />
 
       <div style={{ position: 'absolute', top: 12, left: 12, color: '#cfd6e6', font: '12px ui-monospace, monospace', background: 'rgba(0,0,0,.45)', padding: '6px 9px', borderRadius: 6, lineHeight: 1.5, pointerEvents: 'auto' }}>
         <div>M4 · day/night + sea + layered + hit-test</div>

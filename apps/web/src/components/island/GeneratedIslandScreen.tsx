@@ -1,6 +1,6 @@
 import { useEffect, useState, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
-import { projectClaimState, type ClaimState, type StationKind } from '@frontier-isles/core';
+import { projectClaimState, projectActiveStations, type ClaimState, type StationKind } from '@frontier-isles/core';
 import { NIGHT_SCENE_VARS, DOMAIN_SCENE_VARS, sceneVarsToStyle } from '@frontier-isles/assets';
 import { DayNightLever } from './DayNightLever';
 import { api } from '../../api/client';
@@ -53,6 +53,9 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
   const [scene, setScene] = useState<GeneratedScene | null>(null);
   const [input, setInput] = useState<LayoutInput | null>(null);
   const [claims, setClaims] = useState<ClaimState[] | undefined>(undefined);
+  // M8 micro-dynamics second batch: which stations had recent ledger activity
+  // (chimney smoke / flag wave read this — never a decorative always-on loop).
+  const [activeStations, setActiveStations] = useState<Set<StationKind> | undefined>(undefined);
   // 海即数据 (depth-plan-v2): substrate → sea darkness, refuted claims → undertow
   // contention, relation counts → the text decoder (invariant 6: honest encoding).
   const [seaStats, setSeaStats] = useState<{ substrate?: number; validates: number; refutes: number; bridges: number; contention: number } | null>(null);
@@ -95,6 +98,7 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
       // 海即数据 readouts: contention = unresolved-refute magnitude (→ undertow);
       // relation counts decode the sea for the reader (list-twin, not a painted key).
       const events = ledger ?? [];
+      setActiveStations(ledger ? projectActiveStations(ledger, { now: Date.now() }) : undefined);
       const refuted = projected?.filter((c) => c.ghost === 'refuted').length ?? 0;
       setSeaStats({
         substrate: det.object.frontier?.substrate,
@@ -161,6 +165,7 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
             claims={claims}
             t={night ? 1 : 0}
             lang={lang}
+            activeStations={activeStations}
             substrate={seaStats?.substrate}
             undertow={seaStats?.contention ?? 0}
             onStation={onStation}

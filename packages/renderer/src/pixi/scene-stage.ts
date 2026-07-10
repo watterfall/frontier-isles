@@ -146,6 +146,14 @@ export class SceneStage {
   private ghostNodes: Array<{ node: Container; baseY: number; phase: number }> = [];
   private haloNodes: Container[] = [];
 
+  // ── M8 micro-dynamics (second batch): chimney smoke / flag wave. Both are
+  //    gated on SceneObject.active — set only by core.projectActiveStations
+  //    (recent ledger activity touching that station), never a decorative
+  //    always-on loop (scene-upgrade OUTSTANDING.md P1). Ride the SAME
+  //    dynamics ticker as M5; no second loop. ─────────────────────────────
+  private smokePuffs: Array<{ node: Graphics; baseX: number; baseY: number; phase: number }> = [];
+  private flagPennants: Array<{ node: Container; phase: number }> = [];
+
   // ── Screen-space station labels (crisp, LOD-tiered). Billboarded above each
   //    station at a CONSTANT screen size so they read at ANY zoom; the baked
   //    raster namecards went soft/illegible when scaled. LOD: far zoom → the
@@ -378,6 +386,85 @@ export class SceneStage {
   }
 
   /**
+   * Local offset of Workshop's chimney mouth, in the SAME world/screen units
+   * as the station's baked-texture ground offset (apps/web's
+   * `stationAnchors.ts`: `STATION_GROUND_OFFSET.workshop = {dx:0, dy:56}`,
+   * `STATION_TEX_SCALE = 150/(220*3)`). Read off `StationWorkshop`'s own SVG
+   * (`packages/assets/src/stations/StationWorkshop.tsx`): the chimney+smoke
+   * group sits at local `(-44,-22)` with the smoke wisp starting `~20` above
+   * that, i.e. local `(-44,-42)`; `((-44,-42) − (0,56)) × STATION_TEX_SCALE`.
+   * The station's baked texture is drawn WITHOUT its own static smoke wisp
+   * (`showSmoke={false}` in `PixiScene`'s `STATION_ELS`) so this animated one
+   * is the only smoke — never doubled, never on for a dormant station.
+   */
+  private static readonly SMOKE_OFFSET = { x: -10, y: -22.3 };
+  /** How far (world units) a puff drifts up before looping. */
+  private static readonly SMOKE_RISE = 13;
+
+  /**
+   * M8 micro-dynamics: three small rising, fading puffs above Workshop's
+   * chimney — attached ONLY when {@link SceneObject.active} is true (the
+   * caller already gated on `o.kind === 'station:workshop' && o.active`).
+   * Desynced via phase so they don't all pulse in lockstep (M5's `variant`
+   * seed precedent). Position/alpha-only per frame (no per-frame redraw),
+   * matching the ghost-bob technique.
+   */
+  private attachSmoke(container: Container, seed: number): void {
+    const { x: bx, y: by } = SceneStage.SMOKE_OFFSET;
+    for (let i = 0; i < 3; i++) {
+      const puff = new Graphics().circle(0, 0, 2.4).fill({ color: 0x6b6154, alpha: 0.5 });
+      puff.label = 'smoke';
+      puff.x = bx;
+      puff.y = by;
+      container.addChild(puff);
+      this.smokePuffs.push({ node: puff, baseX: bx, baseY: by, phase: i / 3 + seed });
+    }
+  }
+
+  /**
+   * Local offset of Data Bench's flag pole top / pennant, same unit system as
+   * {@link SMOKE_OFFSET}. Read off `StationDataBench`'s own SVG: the flag
+   * group sits at local `(56,40)` with the pole rising to local `(56,8)` and
+   * the pennant tip at `(70,13)`; offsets are relative to Data Bench's own
+   * ground marker `(38,63)` (`STATION_GROUND_OFFSET.data`, `stationAnchors.ts`
+   * — it has no `--shadow` ellipse, so that table uses its wall/platform
+   * front vertex instead). The station's baked texture always keeps its own
+   * static pole (`<line>`) but is baked with `showFlag={false}` when the
+   * station is active, so only ONE pennant is ever visible: the static one
+   * (dormant station) or this animated one (active) — never both.
+   */
+  private static readonly FLAG_POLE_TOP = { x: 4.1, y: -12.5 };
+  private static readonly FLAG_PENNANT_TIP = { x: 3.2, y: 1.1 }; // relative to the pole top
+
+  /**
+   * M8 micro-dynamics: the Data Bench pennant leans on a gentle sine — wind,
+   * not decoration, because it only exists while the station is
+   * {@link SceneObject.active}. A separate sub-container pinned at the pole
+   * top so `skew.x` shears only the fabric, never the rigid pole.
+   *
+   * Honest caveat (see `core.projectActiveStations`'s own doc): the protocol
+   * has no dedicated ledger verb yet for adding a dataset ref, so `data`
+   * never actually appears in `activeStations` from a real island today —
+   * this is correctly wired, forward-compatible, and NOT decorative; it
+   * simply won't be observed animating until that verb exists.
+   */
+  private attachFlag(container: Container, seed: number): void {
+    const pole = SceneStage.FLAG_POLE_TOP;
+    const tip = SceneStage.FLAG_PENNANT_TIP;
+    const pennant = new Container();
+    pennant.label = 'flag';
+    pennant.x = pole.x;
+    pennant.y = pole.y;
+    const g = new Graphics()
+      .poly([0, 0, tip.x, tip.y * 0.5, 0, tip.y])
+      .fill({ color: 0xe3a93c, alpha: 0.9 })
+      .stroke({ color: 0x3a342b, width: 0.5 });
+    pennant.addChild(g);
+    container.addChild(pennant);
+    this.flagPennants.push({ node: pennant, phase: seed * 6.283 });
+  }
+
+  /**
    * Render a full scene graph. Clears the previous frame, dispatches every object
    * to its layer with `zIndex = depthKey` and `alpha = visibilityAt(o, t)`, caches
    * the static terrain bed, then culls to the viewport. The renderer computes no
@@ -405,6 +492,11 @@ export class SceneStage {
         const halo = node.getChildByLabel('halo');
         if (halo) this.haloNodes.push(halo);
       }
+      // M8 micro-dynamics second batch: chimney smoke / flag wave, gated on
+      // SceneObject.active (core.projectActiveStations) — never for a dormant
+      // station, never a decorative always-on loop.
+      if (o.kind === 'station:workshop' && o.active) this.attachSmoke(node, o.variant ?? 0);
+      if (o.kind === 'station:data' && o.active) this.attachFlag(node, o.variant ?? 0);
       this.layerFor(o.layer).addChild(node);
       this.nodes.set(o.id, node);
       this.objects.set(o.id, o);
@@ -649,6 +741,21 @@ export class SceneStage {
       h.scale.set(s);
       h.alpha = 0.72 + 0.28 * (0.5 + 0.5 * Math.sin(e * 0.04));
     }
+
+    // M8: chimney smoke — a puff rises and fades in a loop, then resets to the
+    // chimney mouth (position/alpha only, no per-frame redraw, per M5 precedent).
+    for (const p of this.smokePuffs) {
+      const cycle = (((e * 0.006 + p.phase) % 1) + 1) % 1;
+      p.node.y = p.baseY - cycle * SceneStage.SMOKE_RISE;
+      p.node.x = p.baseX + Math.sin(cycle * Math.PI * 2) * 1.4;
+      p.node.alpha = 0.5 * (1 - cycle);
+    }
+
+    // M8: flag pennant leans on a gentle sine — the fabric only, since the
+    // sub-container is pinned at the pole top (skew.x shears in place).
+    for (const f of this.flagPennants) {
+      f.node.skew.x = Math.sin(e * 0.045 + f.phase) * 0.3;
+    }
   };
 
   /** Rasterise the static terrain bed to a single texture (fewest draw calls). */
@@ -677,8 +784,10 @@ export class SceneStage {
     this.lightsLayer.removeChildren().forEach((c) => c.destroy());
     this.nodes.clear();
     this.objects.clear();
-    this.ghostNodes = []; // M5 registries point at nodes we just destroyed
+    this.ghostNodes = []; // M5/M8 registries point at nodes we just destroyed
     this.haloNodes = [];
+    this.smokePuffs = [];
+    this.flagPennants = [];
   }
 
   // ─── Camera (mirrors IsoStage, applied to cameraRoot) ──────────────────────

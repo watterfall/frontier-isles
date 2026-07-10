@@ -38,7 +38,7 @@ import { STATION_TEX_SIZE, STATION_TEX_SCALE, stationBakeOrigin, stationLabelHei
 // label layer instead, so text stays sharp + legible at any zoom. `x`/`y` here
 // are placeholders `cloneElement`d to each station's own ground offset (P1
 // per-station vertical registration, see `./stationAnchors`) before baking.
-const STATION_ELS: Record<string, ReactElement<{ x?: number; y?: number }>> = {
+const STATION_ELS: Record<string, ReactElement<{ x?: number; y?: number; showSmoke?: boolean; showFlag?: boolean }>> = {
   'station:workshop': <StationWorkshop showLabel={false} />,
   'station:library': <StationLibrary showLabel={false} />,
   'station:canvas': <StationWhiteboardHall showLabel={false} />,
@@ -82,6 +82,12 @@ export interface PixiSceneProps {
    * re-boots the scene (labels are baked into {@link setStationLabels} at boot).
    */
   lang?: Lang;
+  /**
+   * Stations with recent ledger activity (`core.projectActiveStations`, M8
+   * micro-dynamics second batch). Drives chimney smoke / flag wave — omitted
+   * → no station animates (never a decorative default).
+   */
+  activeStations?: ReadonlySet<StationKind>;
   /** Domain abstractness (frontier.substrate, 0..1) → sea darkness (海即数据, depth-plan-v2 §4). */
   substrate?: number;
   /** Disputed-sea undertow: a boolean (demo toggle) or 0..1 contention magnitude (海即数据). */
@@ -98,7 +104,7 @@ export interface PixiSceneProps {
  * The embeddable Pixi scene. Re-boots on `input`/`claims` change (once per island
  * open); `t`/`undertow` apply live without a re-boot.
  */
-export default function PixiScene({ input, claims, t, lang = 'zh', substrate, undertow = false, onStation, onWebglError, onMetrics }: PixiSceneProps) {
+export default function PixiScene({ input, claims, t, lang = 'zh', activeStations, substrate, undertow = false, onStation, onWebglError, onMetrics }: PixiSceneProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<SceneStage | null>(null);
   const cam = useRef({ ...worldToScreen(8, 8), zoom: 0.75 }); // island centre (tile 8,8)
@@ -147,7 +153,7 @@ export default function PixiScene({ input, claims, t, lang = 'zh', substrate, un
       s.onPick = (id) => {
         if (id.startsWith('station:')) cbRef.current.onStation?.(id.slice('station:'.length) as StationKind);
       };
-      const graph = buildSceneGraph(input, tRef.current, claims);
+      const graph = buildSceneGraph(input, tRef.current, claims, activeStations);
       // Texture-lift (design-system alignment): rasterise the 9 real station SVG
       // assets → Pixi textures via the resolver, so the island renders in the
       // hand-drawn design vocabulary instead of placeholder boxes.
@@ -158,7 +164,15 @@ export default function PixiScene({ input, claims, t, lang = 'zh', substrate, un
         for (const [kind, elx] of Object.entries(STATION_ELS)) {
           const stationKind = kind.slice('station:'.length) as StationKind;
           const origin = stationBakeOrigin(stationKind);
-          const placed = cloneElement(elx, origin);
+          // M8 micro-dynamics: an active Workshop/Data Bench bakes WITHOUT its
+          // static smoke wisp / pennant fabric — SceneStage.render draws its
+          // own animated one instead (attachSmoke/attachFlag) so exactly one
+          // is ever visible, never both. A dormant station keeps the static
+          // art (its resting look), matching each component's own default.
+          const active = graph.objects.find((o) => o.id === kind)?.active ?? false;
+          const dynamicProps =
+            kind === 'station:workshop' ? { showSmoke: !active } : kind === 'station:data' ? { showFlag: !active } : {};
+          const placed = cloneElement(elx, { ...origin, ...dynamicProps });
           const svg = renderToStaticMarkup(
             <svg xmlns="http://www.w3.org/2000/svg" width={C} height={C} viewBox={`0 0 ${C} ${C}`}>
               {placed}
@@ -216,11 +230,12 @@ export default function PixiScene({ input, claims, t, lang = 'zh', substrate, un
       if (stage) stage.destroy();
       stageRef.current = null;
     };
-    // lang isn't read via a ref (unlike t/onStation/onMetrics) because label text
-    // is baked once at boot via setStationLabels — a language switch re-boots the
+    // lang/activeStations aren't read via a ref (unlike t/onStation/onMetrics)
+    // because label text and the smoke/flag bake decision both happen once at
+    // boot — a language switch or a station's activity flipping re-boots the
     // scene, which is rare and acceptably cheap (same cost as an island change).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [input, claims, lang]);
+  }, [input, claims, lang, activeStations]);
 
   // Day↔night → per-object alpha + tone veil (P4). No re-boot. tweenDayNight (M5)
   // sweeps smoothly instead of snapping; the boot did an instant setDayNight so

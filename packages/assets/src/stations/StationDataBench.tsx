@@ -1,11 +1,22 @@
 import { NameCard, SelectionHighlight, type StationProps } from '../NameCard';
 
+export interface StationDataBenchProps extends StationProps {
+  /**
+   * Draw the static pennant fabric? Default true. The Pixi L1 bakes this
+   * station with `showFlag={false}` when the station is data-active
+   * (`core.projectActiveStations`) and draws its own animated, wind-leaning
+   * pennant instead (`SceneStage.attachFlag`, M8) — the pole (`<line>`)
+   * always bakes, only the fabric is swapped for the animated one.
+   */
+  showFlag?: boolean;
+}
+
 /**
  * 数据台 · Data Bench. Extracted verbatim from the L1
  * `<g transform="translate(940,512)">` block — bar-chart columns and a
  * pennant flag on a pole.
  */
-export function StationDataBench({ x = 940, y = 512, onClick, selected = false, label, showLabel = true }: StationProps) {
+export function StationDataBench({ x = 940, y = 512, onClick, selected = false, label, showLabel = true, showFlag = true }: StationDataBenchProps) {
   return (
     <g transform={`translate(${x},${y})`} onClick={onClick} style={{ cursor: onClick ? 'pointer' : undefined }}>
       <polygon points="-58,15 38,63 38,77 -58,29" fill="var(--wall,#F8F1DE)" stroke="var(--ink,#3A342B)" strokeWidth="1.5" />
@@ -19,10 +30,10 @@ export function StationDataBench({ x = 940, y = 512, onClick, selected = false, 
       <g transform="translate(34,32)">
         <rect x="-5" y="-19" width="10" height="19" fill="var(--capG,#3E9B7E)" stroke="var(--ink,#3A342B)" strokeWidth="0.75" />
       </g>
-      {/* flag */}
+      {/* flag pole (always) + pennant (suppressed only when the Pixi L1 draws its own animated one) */}
       <g transform="translate(56,40)">
         <line x1="0" y1="0" x2="0" y2="-32" stroke="var(--ink,#3A342B)" strokeWidth="1.5" />
-        <path d="M 0 -32 L 14 -27 L 0 -22 Z" fill="var(--gold,#E3A93C)" stroke="var(--ink,#3A342B)" strokeWidth="0.75" />
+        {showFlag && <path d="M 0 -32 L 14 -27 L 0 -22 Z" fill="var(--gold,#E3A93C)" stroke="var(--ink,#3A342B)" strokeWidth="0.75" />}
       </g>
       {selected && <SelectionHighlight cx={19} cy={30} />}
       {showLabel && <NameCard x={20} y={-30} width={64} text={label?.text ?? '数据台'} sealColor={label?.sealColor ?? '#2E5E8C'} />}

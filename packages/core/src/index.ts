@@ -54,6 +54,7 @@ export {
   computeTide,
   projectContributions,
   transplantInsight,
+  projectActiveStations,
   A_PHASE_WEIGHT,
 } from "./projections";
 export type {
@@ -68,6 +69,7 @@ export type {
   Tide,
   Contribution,
   Insight,
+  ActiveStationsOptions,
 } from "./projections";
 
 // Sea-plane projections (depth-plan-v2 §3 — currents & whirlpools)

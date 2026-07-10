@@ -1,11 +1,25 @@
 import { NameCard, SelectionHighlight, type StationProps } from '../NameCard';
 
+export interface StationWorkshopProps extends StationProps {
+  /**
+   * Draw the static smoke wisp? Default true (the SVG scenes' CSS `smoke`
+   * keyframe). The Pixi L1 bakes this station with `showSmoke={false}` when
+   * the station is data-active (`core.projectActiveStations`) and draws its
+   * OWN animated puffs instead (`SceneStage.attachSmoke`, M8) — a static
+   * raster snapshot of a CSS keyframe can't animate once baked to a texture,
+   * and a station with no recent activity keeps the still wisp rather than
+   * an idle chimney (a bare stack with never any smoke reads as broken, not
+   * dormant).
+   */
+  showSmoke?: boolean;
+}
+
 /**
  * 实验坊 · Workshop. Extracted verbatim from the L1
  * `<g transform="translate(470,490)">` block — a chimney with the
  * `smoke` keyframe animation.
  */
-export function StationWorkshop({ x = 470, y = 490, onClick, selected = false, label, showLabel = true }: StationProps) {
+export function StationWorkshop({ x = 470, y = 490, onClick, selected = false, label, showLabel = true, showSmoke = true }: StationWorkshopProps) {
   return (
     <g transform={`translate(${x},${y})`} onClick={onClick} style={{ cursor: onClick ? 'pointer' : undefined }}>
       <ellipse cx="0" cy="56" rx="108" ry="42" fill="var(--shadow,rgba(58,48,36,0.16))" />
@@ -18,17 +32,19 @@ export function StationWorkshop({ x = 470, y = 490, onClick, selected = false, l
       <polygon points="0,-53 106,0 0,53 -106,0" transform="translate(0,4)" fill="var(--capO,#B5673A)" stroke="var(--ink,#3A342B)" strokeWidth="1.5" />
       <circle cx="-103" cy="4" r="2.2" fill="var(--capD,#4A4238)" stroke="var(--ink,#3A342B)" strokeWidth="0.6" />
       <circle cx="103" cy="4" r="2.2" fill="var(--capD,#4A4238)" stroke="var(--ink,#3A342B)" strokeWidth="0.6" />
-      {/* chimney + smoke */}
+      {/* chimney (always) + smoke (suppressed only when the Pixi L1 draws its own animated puffs) */}
       <g transform="translate(-44,-22)">
         <rect x="-6" y="-16" width="12" height="18" fill="var(--wallSh,#E7DABE)" stroke="var(--ink,#3A342B)" strokeWidth="1" />
-        <path
-          d="M 0 -20 c 6 -8 -6 -14 2 -24"
-          stroke="var(--ink2,#6B6154)"
-          strokeWidth="1.5"
-          fill="none"
-          opacity="0.5"
-          style={{ animation: 'smoke 4s ease-in-out infinite', animationPlayState: 'var(--play,running)' as never }}
-        />
+        {showSmoke && (
+          <path
+            d="M 0 -20 c 6 -8 -6 -14 2 -24"
+            stroke="var(--ink2,#6B6154)"
+            strokeWidth="1.5"
+            fill="none"
+            opacity="0.5"
+            style={{ animation: 'smoke 4s ease-in-out infinite', animationPlayState: 'var(--play,running)' as never }}
+          />
+        )}
       </g>
       {selected && <SelectionHighlight />}
       {showLabel && <NameCard x={0} y={-64} width={64} text={label?.text ?? '实验坊'} sealColor={label?.sealColor ?? '#B5673A'} />}

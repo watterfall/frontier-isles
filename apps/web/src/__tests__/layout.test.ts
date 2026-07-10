@@ -95,4 +95,17 @@ describe('buildSceneGraph', () => {
     const g = buildSceneGraph({ ...base, domain: '生命' });
     expect(g.objects.every((o) => o.biome === '生命')).toBe(true);
   });
+
+  it('marks a station active only when core.projectActiveStations says so (M8 micro-dynamics)', () => {
+    const active = new Set<'workshop' | 'data'>(['workshop']);
+    const g = buildSceneGraph(base, 0, undefined, active);
+    const workshop = g.objects.find((o) => o.id === 'station:workshop')!;
+    const gallery = g.objects.find((o) => o.id === 'station:gallery')!;
+    expect(workshop.active).toBe(true);
+    expect(gallery.active).toBe(false);
+    // Omitted activeStations → every station defaults to inactive, never undefined
+    // ambiguity (the renderer treats `active` as a strict boolean gate).
+    const noActivity = buildSceneGraph(base);
+    expect(noActivity.objects.filter((o) => o.kind.startsWith('station:')).every((o) => o.active === false)).toBe(true);
+  });
 });
