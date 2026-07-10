@@ -167,9 +167,11 @@ export default function PixiScene({ input, claims, t, undertow = false, onStatio
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [input, claims]);
 
-  // Day↔night → per-object alpha + tone veil (P4). No re-boot.
+  // Day↔night → per-object alpha + tone veil (P4). No re-boot. tweenDayNight (M5)
+  // sweeps smoothly instead of snapping; the boot did an instant setDayNight so
+  // the first paint is correct, and this only animates subsequent lever pulls.
   useEffect(() => {
-    stageRef.current?.setDayNight(t);
+    stageRef.current?.tweenDayNight(t);
   }, [t]);
 
   // Disputed-sea undertow toggle (M2).

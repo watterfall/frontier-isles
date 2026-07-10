@@ -133,6 +133,17 @@ export class SceneStage {
   private seaMask?: RenderTexture;
   private seaAnimating = false;
 
+  // ── M5 micro-dynamics: one ticker drives every subtle motion. Each binds to
+  //    data (P1): ghost bob ← refuted/returned, halo breathe ← consensus, window
+  //    twinkle ← per-building phase (ambiance, on the M5 whitelist). ──────────
+  private dynAnimating = false;
+  private elapsed = 0; // frames accumulated (ticker.deltaTime units)
+  private curT = 0; // the day↔night value actually applied this frame
+  private targetT = 0; // where tweenDayNight is easing curT toward
+  private tweeningT = false;
+  private ghostNodes: Array<{ node: Container; baseY: number; phase: number }> = [];
+  private haloNodes: Container[] = [];
+
   constructor(chunk = 8) {
     this.chunk = chunk;
 
@@ -320,8 +331,18 @@ export class SceneStage {
       if (!spectral) g.rect(cx - a * 0.45, y - a * 0.22 - H * 0.62, 6, 7).fill({ color: 0xe3a93c, alpha: 0.85 });
     }
     const yTop = gy - stories * H;
+    let halo: Graphics | null = null;
     if (floors >= 5) {
       drawCap(g, cx, yTop, a, dom, spectral);
+      if (!spectral) {
+        // Separate, animatable halo node (M5 breathe). Position matches drawCap's
+        // former inline halo: centre = (cx, yTop - cH - 30), cA = a*2.15, cH = cA*0.42.
+        const cA = a * 2.15;
+        halo = makeHalo(cA);
+        halo.label = 'halo';
+        halo.x = cx;
+        halo.y = yTop - cA * 0.42 - 30;
+      }
     } else if (!spectral) {
       // simple domain hip lid while pre-consensus
       g.poly([cx, yTop - a * 0.5, cx + a, yTop, cx, yTop + a * 0.5, cx - a, yTop]).fill({ color: dom.fill }).stroke({ color: ink, width: 1.5 });
@@ -332,6 +353,7 @@ export class SceneStage {
     if (!spectral) drawSeal(g, cx - a * 0.5, gy - a * 0.25 - H * 0.5, false);
     const c = new Container();
     c.addChild(g);
+    if (halo) c.addChild(halo);
     c.label = o.id;
     return c;
   }
@@ -356,6 +378,14 @@ export class SceneStage {
         node.cursor = 'pointer';
         node.on('pointertap', () => this.onPick?.(o.id));
       }
+      // Register M5 animatable nodes (data-bound): refuted/returned ghosts bob,
+      // consensus halos breathe. Registries are rebuilt each render (clearNodes resets).
+      const isGhost = (o.kind === 'claim' && o.dayVisibility === 0) || o.kind.startsWith('ghost:');
+      if (isGhost) this.ghostNodes.push({ node, baseY: node.y, phase: (o.variant ?? 0) * 6.283 });
+      if (o.kind === 'claim') {
+        const halo = node.getChildByLabel('halo');
+        if (halo) this.haloNodes.push(halo);
+      }
       this.layerFor(o.layer).addChild(node);
       this.nodes.set(o.id, node);
       this.objects.set(o.id, o);
@@ -364,6 +394,8 @@ export class SceneStage {
     this.buildLights(graph);
     this.buildToneOverlay();
     this.applyToneAndLights(graph.t);
+    this.curT = graph.t;
+    this.ensureDynamicsTicker(); // M5: micro-dynamics ride the render loop
     this.recacheTerrain();
     this.cullToViewport();
   }
@@ -407,17 +439,41 @@ export class SceneStage {
     this.lightsLayer.alpha = this.nightLights(t);
   }
 
-  /**
-   * Update only the day↔night mix without rebuilding the scene — the per-object
-   * visibility path (P4). Alpha interpolates `dayVisibility → nightVisibility`.
-   */
-  setDayNight(t: number): void {
+  /** Apply the day↔night mix (per-object alpha + tone + lights) WITHOUT a redraw. */
+  private applyDayNight(t: number): void {
+    this.curT = t;
     for (const [id, node] of this.nodes) {
       const o = this.objects.get(id);
       if (o) node.alpha = visibilityAt(o, t);
     }
     this.applyToneAndLights(t);
+  }
+
+  /**
+   * Update only the day↔night mix without rebuilding the scene — the per-object
+   * visibility path (P4). Alpha interpolates `dayVisibility → nightVisibility`.
+   * Instant (no tween); {@link tweenDayNight} is the animated lever path (M5).
+   */
+  setDayNight(t: number): void {
+    this.tweeningT = false; // an explicit set cancels any in-flight tween
+    this.applyDayNight(t);
     this.redraw();
+  }
+
+  /**
+   * Ease the day↔night value toward `target` over ~0.7s instead of snapping (M5).
+   * The lever becomes a smooth dawn/dusk sweep — the tone veil, window lights and
+   * ghost fade all cross-fade together. Rides the dynamics ticker; falls back to an
+   * instant set if the app (hence ticker) isn't up yet.
+   */
+  tweenDayNight(target: number): void {
+    this.targetT = Math.max(0, Math.min(1, target));
+    if (!this.app) {
+      this.applyDayNight(this.targetT);
+      return;
+    }
+    this.tweeningT = true;
+    this.ensureDynamicsTicker();
   }
 
   /**
@@ -470,6 +526,56 @@ export class SceneStage {
     if (u) u.uTime += ticker.deltaTime * 0.02;
   };
 
+  /** Register the M5 micro-dynamics ticker once (and resume the render loop). */
+  private ensureDynamicsTicker(): void {
+    if (this.dynAnimating || !this.app) return;
+    this.app.ticker.add(this.tickDynamics);
+    this.app.start(); // init used autoStart:false; the ticker drives frames now
+    this.dynAnimating = true;
+  }
+
+  /**
+   * M5 micro-dynamics — one per-frame pass over the registered animatable nodes.
+   * Everything here is subtle and, where it isn't pure ambiance, data-bound (P1):
+   *  - day↔night tween: ease curT → targetT so the lever sweeps (not snaps).
+   *  - window twinkle: each night light breathes its own alpha within the group
+   *    (organic desync via index phase); only when the group is lit (perf gate).
+   *  - ghost bob: refuted/returned claims drift vertically — bound to their state.
+   *  - halo breathe: the gamboge consensus ring pulses — bound to consensus (only
+   *    a roofed claim has one).
+   */
+  private tickDynamics = (ticker: Ticker): void => {
+    this.elapsed += ticker.deltaTime;
+    const e = this.elapsed;
+
+    if (this.tweeningT) {
+      const d = this.targetT - this.curT;
+      if (Math.abs(d) < 0.004) {
+        this.applyDayNight(this.targetT);
+        this.tweeningT = false;
+      } else {
+        this.applyDayNight(this.curT + d * Math.min(1, ticker.deltaTime * 0.12));
+      }
+    }
+
+    if (this.lightsLayer.alpha > 0.01) {
+      const kids = this.lightsLayer.children;
+      for (let i = 0; i < kids.length; i++) {
+        kids[i]!.alpha = 0.72 + 0.28 * Math.sin(e * 0.05 + i * 1.7);
+      }
+    }
+
+    for (const gh of this.ghostNodes) {
+      gh.node.y = gh.baseY + Math.sin(e * 0.035 + gh.phase) * 3;
+    }
+
+    for (const h of this.haloNodes) {
+      const s = 1 + 0.08 * Math.sin(e * 0.04);
+      h.scale.set(s);
+      h.alpha = 0.72 + 0.28 * (0.5 + 0.5 * Math.sin(e * 0.04));
+    }
+  };
+
   /** Rasterise the static terrain bed to a single texture (fewest draw calls). */
   private recacheTerrain(): void {
     if (this.terrainCached) {
@@ -496,6 +602,8 @@ export class SceneStage {
     this.lightsLayer.removeChildren().forEach((c) => c.destroy());
     this.nodes.clear();
     this.objects.clear();
+    this.ghostNodes = []; // M5 registries point at nodes we just destroyed
+    this.haloNodes = [];
   }
 
   // ─── Camera (mirrors IsoStage, applied to cameraRoot) ──────────────────────
@@ -661,9 +769,16 @@ function drawCap(g: Graphics, cx: number, cyTop: number, a: number, dom: { fill:
   // ridge + domain-ink crest
   g.moveTo(cx - cA, cyTop).lineTo(cx + cA, cyTop).stroke({ color: st, width: 1, alpha: 0.5 });
   g.poly([cx, cyTop - cH - 6, cx + cA * 0.5, cyTop - cH * 0.5 - 3, cx, cyTop - cH * 0.5, cx - cA * 0.5, cyTop - cH * 0.5 - 3]).fill({ color: dom.ink }).stroke({ color: 0x3a342b, width: 1.4 });
-  // radiant consensus halo (gamboge — signals 领域共识, far-readable)
-  g.circle(cx, cyTop - cH - 30, cA * 0.62).stroke({ color: 0xe3a93c, width: 2.2, alpha: 0.7 });
-  g.circle(cx, cyTop - cH - 30, 4.5).fill({ color: 0xe3a93c }).stroke({ color: 0x3a342b, width: 1 });
+  // The radiant consensus halo is a SEPARATE node (see makeClaimMark) so M5 can
+  // breathe it; drawCap no longer paints it into the shared claim Graphics.
+}
+
+/** The gamboge consensus halo (领域共识 beacon), centred at local origin so it can be scaled to breathe (M5). */
+function makeHalo(cA: number): Graphics {
+  const g = new Graphics();
+  g.circle(0, 0, cA * 0.62).stroke({ color: 0xe3a93c, width: 2.2, alpha: 0.7 });
+  g.circle(0, 0, 4.5).fill({ color: 0xe3a93c }).stroke({ color: 0x3a342b, width: 1 });
+  return g;
 }
 
 /** DOI seal (published) vs preprint open-mark. Ported from the design's `seal()`. */
