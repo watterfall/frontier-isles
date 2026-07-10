@@ -42,6 +42,8 @@ export interface SeaMeshOptions {
   foamColor: [number, number, number];
   /** Sea-depth darkening alpha = domain abstractness (seaDepthAt().overlayAlpha, 0..0.42). */
   depthAlpha?: number;
+  /** Tide N = A − D, normalised 0..1 → shore-ripple amplitude/density (0 = calm ebb). */
+  tide?: number;
 }
 
 export interface SeaMesh {
@@ -76,6 +78,7 @@ uniform float uTime;
 uniform vec4 uMaskRect;      // x, y, w, h (world-screen)
 uniform float uUndertow;     // 0 = calm, 1..N = disputed-sea contention magnitude
 uniform float uDepth;        // sea darkness = domain abstractness (depth-plan-v2 §4); 0..~0.42
+uniform float uTide;         // tide N = A − D, normalised 0..1: shore-ripple amplitude/density
 uniform vec3 uSeaColor;
 uniform vec3 uDeepColor;
 uniform vec3 uFoamColor;
@@ -114,8 +117,21 @@ void main() {
   float grain = noise(w * 0.9);
   col += (grain - 0.5) * 0.015;
 
-  // Soft shore halo: a gentle, mostly-static warm band where sea meets land
-  // (foam = coastline geometry, §5 binding). Quiet, not a bright lapping ring.
+  // Offshore depth gradient (invariant 16: sea depth = abstractness). Radial from
+  // the island's centre: water hugging the coast stays on the bright shallow shelf,
+  // water further out sinks toward uDeepColor. The gradient's REACH scales with
+  // uDepth — an abstract/theoretical island (deep 水深) drops off fast into dark
+  // open sea, an applied one keeps a wide bright shelf. No new hue, only the
+  // shallow↔deep channel the palette already carries.
+  vec2 center = uMaskRect.xy + uMaskRect.zw * 0.5;
+  float islR = 0.5 * max(uMaskRect.z, uMaskRect.w);
+  float radial = clamp(distance(w, center) / max(1.0, islR * 1.9), 0.0, 1.0);
+  col = mix(col, uDeepColor, smoothstep(0.0, 1.0, radial) * (0.28 + 0.55 * uDepth) * (1.0 - here));
+
+  // Soft shore halo: a gentle warm band where sea meets land (foam = coastline
+  // geometry, §5 binding). Its amplitude/density bind to tide N (A − D, uTide):
+  // a flood tide (high abduction) runs a livelier lapping ring, an ebb tide
+  // (settled/validated) barely ripples. Quiet baseline, never a bright surf line.
   float near = 0.0;
   for (int i = 0; i < 8; i++) {
     float a = float(i) / 8.0 * 6.2831;
@@ -123,8 +139,13 @@ void main() {
   }
   float coast = near * (1.0 - here);
   float band = smoothstep(0.15, 0.6, coast);
-  float lap = 0.8 + 0.2 * sin(uTime * 0.8 + (w.x + w.y) * 0.04);
-  col = mix(col, uFoamColor, band * lap * 0.35);
+  float lap = 0.78 + (0.14 + 0.16 * uTide) * sin(uTime * 0.8 + (w.x + w.y) * 0.04);
+  float foamStrength = 0.24 + 0.20 * uTide;
+  col = mix(col, uFoamColor, band * lap * foamStrength);
+  // A tighter second ripple ring whose density/visibility rise with the tide —
+  // present only when the tide actually runs (uTide → 0 ⇒ this term vanishes).
+  float ripple = smoothstep(0.25, 0.7, coast) * (0.5 + 0.5 * sin((w.x + w.y) * 0.09 - uTime * 1.4));
+  col = mix(col, uFoamColor, ripple * band * 0.14 * uTide);
 
   // Sea depth = domain abstractness (depth-plan-v2 §4, invariant 14): a formal/
   // theoretical island floats over darker deep water, an applied one over a bright
@@ -144,7 +165,7 @@ void main() {
 
 /** Build the sea Mesh + its Shader for one island. */
 export function createSeaMesh(opts: SeaMeshOptions): SeaMesh {
-  const { rect, maskRect, mask, seaColor, deepColor, foamColor, depthAlpha = 0 } = opts;
+  const { rect, maskRect, mask, seaColor, deepColor, foamColor, depthAlpha = 0, tide = 0 } = opts;
   const x0 = rect.x;
   const y0 = rect.y;
   const x1 = rect.x + rect.w;
@@ -164,6 +185,7 @@ export function createSeaMesh(opts: SeaMeshOptions): SeaMesh {
         uMaskRect: { value: new Float32Array(maskRect), type: 'vec4<f32>' },
         uUndertow: { value: 0, type: 'f32' },
         uDepth: { value: depthAlpha, type: 'f32' },
+        uTide: { value: Math.max(0, Math.min(1, tide)), type: 'f32' },
         uSeaColor: { value: new Float32Array(seaColor), type: 'vec3<f32>' },
         uDeepColor: { value: new Float32Array(deepColor), type: 'vec3<f32>' },
         uFoamColor: { value: new Float32Array(foamColor), type: 'vec3<f32>' },

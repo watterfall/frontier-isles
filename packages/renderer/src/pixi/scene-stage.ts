@@ -16,6 +16,8 @@ import {
   Container,
   Graphics,
   Matrix,
+  Particle,
+  ParticleContainer,
   RenderTexture,
   Sprite,
   Text,
@@ -153,6 +155,16 @@ export class SceneStage {
   //    dynamics ticker as M5; no second loop. ─────────────────────────────
   private smokePuffs: Array<{ node: Graphics; baseX: number; baseY: number; phase: number }> = [];
   private flagPennants: Array<{ node: Container; phase: number }> = [];
+
+  // ── M8 micro-dynamics (second batch): night fireflies. A ParticleContainer of
+  //    a few motes hovering over each ACTIVE station (core.projectActiveStations
+  //    → SceneObject.active) — the data reading is "someone is at work here."
+  //    Lives in lightsLayer, so it inherits the night gate (alpha ← nightLights,
+  //    invisible by day, same day0/night1 door as the ghosts). Rebuilt each render
+  //    (after buildLights clears lightsLayer); driven by the shared dynamics ticker.
+  private fireflyContainer?: ParticleContainer;
+  private fireflyTexture?: Texture;
+  private fireflyParticles: Array<{ p: Particle; cx: number; cy: number; ampX: number; ampY: number; phase: number }> = [];
 
   // ── Screen-space station labels (crisp, LOD-tiered). Billboarded above each
   //    station at a CONSTANT screen size so they read at ANY zoom; the baked
@@ -542,6 +554,7 @@ export class SceneStage {
       this.index.add(o);
     }
     this.buildLights(graph);
+    this.buildFireflies(graph); // after buildLights (which clears lightsLayer)
     this.buildToneOverlay();
     this.applyToneAndLights(graph.t);
     this.curT = graph.t;
@@ -576,6 +589,50 @@ export class SceneStage {
       const g = new Graphics().circle(c.x, c.y - h * 0.55, Math.max(5, h * 0.32)).fill({ color: 0xffe6b0 });
       this.lightsLayer.addChild(g);
     }
+  }
+
+  /**
+   * M8 micro-dynamics (second batch): a few fireflies hovering over each ACTIVE
+   * station (SceneObject.active ← core.projectActiveStations). Data-bound — motes
+   * appear only where recent ledger activity says "someone is at work," never a
+   * decorative default. They live in {@link lightsLayer} so they inherit the night
+   * gate (the layer's alpha is `nightLights(t)`), and ride the shared dynamics
+   * ticker (no second loop). Count 3–6 per station, deterministic from the object's
+   * `variant` seed. Rebuilt every render because buildLights clears lightsLayer.
+   */
+  private buildFireflies(graph: SceneGraph): void {
+    this.fireflyParticles = [];
+    this.fireflyContainer = undefined;
+    if (!this.app) return;
+    const actives = graph.objects.filter((o) => o.kind.startsWith('station:') && o.active);
+    if (actives.length === 0) return;
+
+    // One tiny warm glow texture, generated once and reused for every particle.
+    if (!this.fireflyTexture) {
+      const dot = new Graphics().circle(0, 0, 3).fill({ color: 0xffe6b0 });
+      this.fireflyTexture = this.app.renderer.generateTexture(dot);
+      dot.destroy();
+    }
+    const container = new ParticleContainer({ dynamicProperties: { position: true, alpha: true } });
+    container.label = 'fireflies';
+
+    for (const o of actives) {
+      const p = worldToScreenElevated(o.gx + 0.5, o.gy + 0.5, o.elevation);
+      const h = o.height ?? 30;
+      const seed = o.variant ?? 0;
+      const n = 3 + Math.floor(seed * 4); // 3..6, deterministic per station
+      for (let i = 0; i < n; i++) {
+        const a = (seed + i / n) * 6.283;
+        const r = 10 + ((seed * 97 + i * 31) % 10); // 10..20px cluster radius
+        const cx = p.x + Math.cos(a) * r;
+        const cy = p.y - h * 0.5 - Math.abs(Math.sin(a)) * 10; // hover around mid-height
+        const part = new Particle({ texture: this.fireflyTexture, x: cx, y: cy, anchorX: 0.5, anchorY: 0.5, tint: 0xffe6b0, alpha: 0 });
+        container.addParticle(part);
+        this.fireflyParticles.push({ p: part, cx, cy, ampX: 4 + (i % 3), ampY: 3 + (i % 2), phase: a });
+      }
+    }
+    this.lightsLayer.addChild(container);
+    this.fireflyContainer = container;
   }
 
   /** How lit the night windows are at slider `t` — off in daylight, on past dusk. */
@@ -684,7 +741,7 @@ export class SceneStage {
    * the only animated content, so the rest of the static scene rides along cheaply.
    * Call after {@link render} (needs the terrain in place).
    */
-  buildSea(colors: SeaColors, opts: { margin?: number; depthAlpha?: number } = {}): void {
+  buildSea(colors: SeaColors, opts: { margin?: number; depthAlpha?: number; tide?: number } = {}): void {
     if (!this.app) return;
     const b = this.terrainRoot.getLocalBounds();
     if (b.width <= 0 || b.height <= 0) return; // no terrain yet
@@ -700,7 +757,7 @@ export class SceneStage {
 
     const margin = opts.margin ?? 800;
     const rect: Rect = { x: b.x - margin, y: b.y - margin, w: b.width + 2 * margin, h: b.height + 2 * margin };
-    const { mesh, shader } = createSeaMesh({ rect, maskRect, mask, ...colors, depthAlpha: opts.depthAlpha });
+    const { mesh, shader } = createSeaMesh({ rect, maskRect, mask, ...colors, depthAlpha: opts.depthAlpha, tide: opts.tide });
 
     this.seaMask?.destroy(true);
     this.seaLayer.removeChildren().forEach((c) => c.destroy());
@@ -767,6 +824,9 @@ export class SceneStage {
     if (this.lightsLayer.alpha > 0.01) {
       const kids = this.lightsLayer.children;
       for (let i = 0; i < kids.length; i++) {
+        // The firefly ParticleContainer manages its own per-particle alpha (below);
+        // leave its group alpha at 1 so the window-light twinkle doesn't fight it.
+        if (kids[i] === this.fireflyContainer) continue;
         kids[i]!.alpha = 0.72 + 0.28 * Math.sin(e * 0.05 + i * 1.7);
       }
     }
@@ -794,6 +854,17 @@ export class SceneStage {
     // sub-container is pinned at the pole top (skew.x shears in place).
     for (const f of this.flagPennants) {
       f.node.skew.x = Math.sin(e * 0.045 + f.phase) * 0.3;
+    }
+
+    // M8: night fireflies drift on a slow lissajous and breathe their alpha —
+    // only while the night lights are up (same perf gate as the twinkle above),
+    // so they cost nothing by day.
+    if (this.fireflyParticles.length > 0 && this.lightsLayer.alpha > 0.01) {
+      for (const f of this.fireflyParticles) {
+        f.p.x = f.cx + Math.sin(e * 0.03 + f.phase) * f.ampX;
+        f.p.y = f.cy + Math.cos(e * 0.041 + f.phase * 1.3) * f.ampY;
+        f.p.alpha = 0.3 + 0.5 * (0.5 + 0.5 * Math.sin(e * 0.06 + f.phase * 2.0));
+      }
     }
   };
 
@@ -827,6 +898,8 @@ export class SceneStage {
     this.haloNodes = [];
     this.smokePuffs = [];
     this.flagPennants = [];
+    this.fireflyParticles = []; // container is a lightsLayer child (buildLights destroys it)
+    this.fireflyContainer = undefined;
   }
 
   // ─── Camera (mirrors IsoStage, applied to cameraRoot) ──────────────────────
@@ -892,6 +965,8 @@ export class SceneStage {
     this.seaMask?.destroy(true);
     this.seaMask = undefined;
     this.seaShader = undefined;
+    this.fireflyTexture?.destroy(true);
+    this.fireflyTexture = undefined;
     if (this.app) {
       this.app.destroy(true, { children: true });
       this.app = undefined;
@@ -1132,9 +1207,35 @@ function groundTint(biome: string, elevation: number): number {
   return elevation >= 1 ? shade(base, 0.06 * elevation) : base;
 }
 
+/** Linear blend between two hex colours (`t` 0 → a, 1 → b). */
+function mixColor(a: number, b: number, t: number): number {
+  const ar = (a >> 16) & 255, ag = (a >> 8) & 255, ab = a & 255;
+  const br = (b >> 16) & 255, bg = (b >> 8) & 255, bb = b & 255;
+  const r = Math.round(ar + (br - ar) * t);
+  const g = Math.round(ag + (bg - ag) * t);
+  const bl = Math.round(ab + (bb - ab) * t);
+  return (r << 16) | (g << 8) | bl;
+}
+
+/** Warm sand/shallows tone for the coastal transition band (depth-plan-v1 §5). */
+const SHORE_SAND = 0xe7d8b0;
+
+/**
+ * Terrain fill for one ground tile — the design-system biome ground, then the
+ * fingerprint layer (depth-plan-v1 §5): a shore tile blends toward warm sand, and
+ * every tile takes its per-tile lightness jitter (`o.tint`, layout-seeded) so the
+ * bed breathes like hand-drawn paper. Both are pure reads of layout-set fields.
+ */
+function terrainColor(o: SceneObject): number {
+  let c = groundTint(o.biome, o.elevation);
+  if (o.shore) c = mixColor(c, SHORE_SAND, 0.5);
+  if (o.tint) c = shade(c, o.tint);
+  return c;
+}
+
 /** A fallback colour for untextured objects, tinted by kind + biome. */
 function placeholderColor(o: SceneObject): number {
-  if (o.layer === 'terrain') return groundTint(o.biome, o.elevation);
+  if (o.layer === 'terrain') return terrainColor(o);
   if (o.layer === 'sea') return 0xbccedc; // pale domain water (--water 数理), not deep teal
   if (o.kind.startsWith('ghost:')) return 0x8a86b8;
   if (o.kind.startsWith('scenery:')) return shade(groundTint(o.biome, 0), 0.15);
