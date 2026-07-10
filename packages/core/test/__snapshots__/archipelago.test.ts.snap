@@ -4,41 +4,10 @@ exports[`projectArchipelagos — 27-island real dataset (packages/data) > full r
 [
   {
     "members": [
-      "ai-theory-discovery",
-      "animal-ai-decode",
-      "cross-species-umwelt",
-      "formal-unknown",
-      "invertebrate-sentience",
-      "verified-pqc",
-    ],
-    "name": "交叉·后量子群岛",
-  },
-  {
-    "members": [
-      "active-inference",
-      "adar-sensors",
       "code-dark-matter",
-      "genome-writing",
-      "minimal-genome",
       "miyake-anchors",
     ],
-    "name": "生命·合成生物群岛",
-  },
-  {
-    "members": [
-      "bio-compute-thermo",
-      "causal-rep-learning",
-      "tabletop-quantum-gravity",
-    ],
-    "name": "数理·因果科学群岛",
-  },
-  {
-    "members": [
-      "compositional-modeling",
-      "dark-matter-paleo",
-      "formal-math",
-    ],
-    "name": "数理·AI数学群岛",
+    "name": "地球群岛",
   },
   {
     "members": [
@@ -47,10 +16,51 @@ exports[`projectArchipelagos — 27-island real dataset (packages/data) > full r
       "chemical-vision",
       "info-chemistry",
       "living-wires",
-      "rock-battery",
       "self-learning-matter",
     ],
-    "name": "物质·分子机器群岛",
+    "name": "分子机器群岛",
+  },
+  {
+    "members": [
+      "active-inference",
+      "adar-sensors",
+      "genome-writing",
+      "minimal-genome",
+    ],
+    "name": "合成生物群岛",
+  },
+  {
+    "members": [
+      "ai-theory-discovery",
+      "animal-ai-decode",
+      "cross-species-umwelt",
+      "formal-unknown",
+      "invertebrate-sentience",
+      "verified-pqc",
+    ],
+    "name": "后量子群岛",
+  },
+  {
+    "members": [
+      "rock-battery",
+    ],
+    "name": "新能源范式群岛",
+  },
+  {
+    "members": [
+      "bio-compute-thermo",
+      "causal-rep-learning",
+      "tabletop-quantum-gravity",
+    ],
+    "name": "因果科学群岛",
+  },
+  {
+    "members": [
+      "compositional-modeling",
+      "dark-matter-paleo",
+      "formal-math",
+    ],
+    "name": "AI数学群岛",
   },
 ]
 `;

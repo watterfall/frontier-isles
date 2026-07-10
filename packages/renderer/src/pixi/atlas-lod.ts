@@ -76,6 +76,11 @@ export interface AtlasCluster {
   center: { x: number; y: number };
   radius: number;
   tint: number;
+  /** Region 体温 in [0,1] (mean member activity → wash intensity). Optional so the
+   *  placeholder generator can omit it; the stage treats absent as 0 (cold). */
+  heat?: number;
+  /** Optional curated one-line caption rendered under the region name billboard. */
+  caption?: string;
 }
 
 // ─── Zoom → semantic tier ────────────────────────────────────────────────────

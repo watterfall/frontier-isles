@@ -82,19 +82,54 @@ export interface ArchipelagoIslandLike {
   outlier?: boolean;
   /** Real-data cluster provenance (fallback.ts `cluster`) — used only for naming. */
   cluster?: { code?: string; zh?: string; en?: string };
+  /** Activity proxy (ledger eventCount / curated `activity` 0..~100). Aggregated
+   *  into the region's `heat` (体温) — a data transcription, never a rank. Absent
+   *  ⇒ counted as 0 (a cold region), never as "unknown". */
+  activity?: number;
+}
+
+/** Curated place-plane name for a computed region (see `@frontier-isles/data`'s
+ *  `REGION_NAMES` / `CuratedRegionName`). `zh`/`en` are BARE descriptors — the
+ *  projection appends 群岛/Archipelago so curated and derived names read alike.
+ *  Restated structurally here so `core` stays decoupled from `data` (the caller
+ *  injects the table via `opts.curatedNames`; `core` never imports it). */
+export interface CuratedRegionNameLike {
+  zh: string;
+  en: string;
+  caption?: { zh: string; en: string };
 }
 
 export interface ArchipelagoOpts {
-  /** Hard ceiling on cluster count regardless of island count (depth-plan-v2 §4:
-   *  "the eye reads ~20 archipelagos"). Default 20. */
+  /** Hard ceiling on cluster count regardless of island count. Default
+   *  {@link DEFAULT_MAX_CLUSTERS} — raised from the v1 "~20" so a 700-island
+   *  frontier reads as ~30–50 NAMED regions (xfrontier's middle tier is ~53 for
+   *  1481), not a single ceiling of 20 generic blobs (docs/atlas-world-plan.md
+   *  §0 pt 3 "中层太薄", §2 T1). Small N never hits the ceiling. */
   maxClusters?: number;
+  /** Region count scales as `round(regionDensity · √clusterable)`, clamped to
+   *  `maxClusters`. Default {@link DEFAULT_REGION_DENSITY} (≈ xfrontier's
+   *  53/√1481). Higher ⇒ finer regions; lower ⇒ coarser. Legibility, not a rank. */
+  regionDensity?: number;
   /** z-score threshold below the mean best-neighbor score to flag a statistical
    *  outlier (on top of any explicit `outlier: true`). Default 1.5. */
   outlierZ?: number;
   /** Relative weight of spatial proximity / domain similarity / current strength
    *  in the pairwise closeness score. */
   weights?: { spatial?: number; domain?: number; current?: number };
+  /** Curated place-plane overlay (invariant 9): keyed by a region's DOMINANT
+   *  member `cluster.code`. Where present, the region takes the curated
+   *  descriptor + caption; otherwise its name is derived from the dominant
+   *  cluster label. Injected by the caller (e.g. web wires `data.REGION_NAMES`)
+   *  — this module never reaches into the data package. Purely a RE-LABEL:
+   *  membership, ids, centers, radii and outliers are byte-identical with or
+   *  without it. */
+  curatedNames?: Record<string, CuratedRegionNameLike>;
 }
+
+/** Default ceiling on region count (see {@link ArchipelagoOpts.maxClusters}). */
+export const DEFAULT_MAX_CLUSTERS = 48;
+/** Default region-count density factor (see {@link ArchipelagoOpts.regionDensity}). */
+export const DEFAULT_REGION_DENSITY = 1.4;
 
 export interface Archipelago {
   /** Deterministic id derived from the sorted member slugs (content-addressed —
@@ -109,6 +144,14 @@ export interface Archipelago {
   /** Domain composition — a DESCRIPTION of the cluster's makeup (fractions sum to
    *  1), never a ranking: no leaderboard, per architecture §7 invariants. */
   domainMix: Record<DomainKey, number>;
+  /** Region 体温 in [0,1] — the MEAN activity of member islands (transcribed from
+   *  the ledger, exactly like an island's tide glow), mapped to a wash intensity.
+   *  Mean, not sum, so a region is "warm" because its work is live, NOT because it
+   *  is large — heat is temperature, never a size leaderboard (architecture §7). */
+  heat: number;
+  /** Optional curated one-line caption (体温/性格 of the place) — present only for
+   *  regions matched by the `opts.curatedNames` place-plane overlay. */
+  caption?: { zh: string; en: string };
 }
 
 export interface ArchipelagoProjection {
@@ -395,7 +438,8 @@ export function projectArchipelagos(
 ): ArchipelagoProjection {
   if (islands.length === 0) return { archipelagos: [], outliers: [] };
 
-  const maxClusters = opts.maxClusters ?? 20;
+  const maxClusters = opts.maxClusters ?? DEFAULT_MAX_CLUSTERS;
+  const regionDensity = opts.regionDensity ?? DEFAULT_REGION_DENSITY;
   const outlierZ = opts.outlierZ ?? 1.5;
   const w = {
     spatial: opts.weights?.spatial ?? 0.45,
@@ -428,10 +472,15 @@ export function projectArchipelagos(
   if (clusterable.length === 0) return { archipelagos: [], outliers };
 
   const clusterablePairs = allPairs.filter((p) => !outlierSet.has(p.a) && !outlierSet.has(p.b));
-  const target = Math.max(1, Math.min(maxClusters, Math.round(Math.sqrt(clusterable.length))));
+  // Region count scales ~√n (cartographic legibility: the eye reads regions, not
+  // dots) but denser than a bare √n so scale reads as a real MIDDLE TIER — 700
+  // islands → ~30–50 named regions, not a hard ceiling of 20 (docs/atlas-world-
+  // plan.md §0 pt 3, §2 T1; xfrontier ≈ 53 regions for 1481). Clamped so small N
+  // stays legible and an explicit `maxClusters` still bounds it hard.
+  const target = Math.max(1, Math.min(maxClusters, Math.round(regionDensity * Math.sqrt(clusterable.length))));
   const groups = clusterToTarget(clusterable, clusterablePairs, target);
 
-  const archipelagosRaw = groups.map((slugs) => buildArchipelago(slugs, byIsland, prepared));
+  const archipelagosRaw = groups.map((slugs) => buildArchipelago(slugs, byIsland, prepared, opts.curatedNames));
   // Stable output order: by centroid x, then y, then id (so array order never
   // depends on incidental Map/Set iteration order).
   archipelagosRaw.sort(
@@ -443,10 +492,16 @@ export function projectArchipelagos(
   return { archipelagos: archipelagosRaw, outliers };
 }
 
+/** Aggregate member activity → region 体温 in [0,1]. MEAN (not sum) so heat is a
+ *  temperature, not a size rank; a fixed reference maps the curated/ledger
+ *  activity scale (0..~100) onto the wash-intensity unit interval. */
+const HEAT_REF = 100;
+
 function buildArchipelago(
   slugs: readonly string[],
   byIsland: ReadonlyMap<string, ArchipelagoIslandLike>,
   prepared: ReadonlyMap<string, Prepared>,
+  curatedNames?: Record<string, CuratedRegionNameLike>,
 ): Archipelago {
   const members = slugs.slice().sort();
   const cx = members.reduce((sum, s) => sum + byIsland.get(s)!.x, 0) / members.length;
@@ -468,6 +523,25 @@ function buildArchipelago(
   let dominant: DomainKey = DOMAIN_KEYS[0]!;
   for (const key of DOMAIN_KEYS) if (domainMix[key] > domainMix[dominant]) dominant = key;
 
+  // 体温: mean member activity, clamped onto [0,1] (transcription, not a rank).
+  const meanActivity =
+    members.reduce((sum, s) => sum + (byIsland.get(s)!.activity ?? 0), 0) / members.length;
+  const heat = Math.max(0, Math.min(1, meanActivity / HEAT_REF));
+
+  // ── Hybrid naming (docs/atlas-world-plan.md §2 中层区域模型) ──────────────────
+  // 1. curated place-plane overlay, keyed by the region's DOMINANT member
+  //    cluster.code (invariant 9 authored layer);
+  // 2. else derived from the dominant member cluster label (real cluster data);
+  // 3. else a plain domain fallback (disambiguated by ordinal below).
+  // The place-word (群岛 / Archipelago) is appended UNIFORMLY so all three read in
+  // one register; the domain prefix is dropped (T0 already names the domain, so
+  // repeating it at T1 was the "≤20 generic names" smell).
+  const codes = members
+    .map((s) => byIsland.get(s)!.cluster?.code)
+    .filter((v): v is string => !!v);
+  const dominantCode = mostFrequent(codes);
+  const curated = dominantCode ? curatedNames?.[dominantCode] : undefined;
+
   const zhSegments = members
     .map((s) => firstSegment(byIsland.get(s)!.cluster?.zh, ["·", "、"]))
     .filter((v): v is string => !!v);
@@ -477,10 +551,20 @@ function buildArchipelago(
   const descriptorZh = mostFrequent(zhSegments);
   const descriptorEn = mostFrequent(enSegments);
 
-  const nameZh = descriptorZh ? `${ZH_DOMAIN_NAME[dominant]}·${descriptorZh}群岛` : `${ZH_DOMAIN_NAME[dominant]}群岛`;
-  const nameEn = descriptorEn
-    ? `${descriptorEn} · ${EN_DOMAIN_NAME[dominant]} Archipelago`
-    : `${EN_DOMAIN_NAME[dominant]} Archipelago`;
+  let nameZh: string;
+  let nameEn: string;
+  let caption: { zh: string; en: string } | undefined;
+  if (curated) {
+    nameZh = `${curated.zh}群岛`;
+    nameEn = `${curated.en} Archipelago`;
+    caption = curated.caption;
+  } else if (descriptorZh || descriptorEn) {
+    nameZh = descriptorZh ? `${descriptorZh}群岛` : `${ZH_DOMAIN_NAME[dominant]}群岛`;
+    nameEn = descriptorEn ? `${descriptorEn} Archipelago` : `${EN_DOMAIN_NAME[dominant]} Archipelago`;
+  } else {
+    nameZh = `${ZH_DOMAIN_NAME[dominant]}群岛`;
+    nameEn = `${EN_DOMAIN_NAME[dominant]} Archipelago`;
+  }
 
   const id = `arch-${fnv1a(members.join(","))}`;
 
@@ -491,6 +575,8 @@ function buildArchipelago(
     center: { x: cx, y: cy },
     radius,
     domainMix,
+    heat,
+    ...(caption ? { caption } : {}),
   };
 }
 

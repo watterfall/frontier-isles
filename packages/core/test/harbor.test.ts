@@ -103,6 +103,7 @@ describe("fogLevel — monotonic focus, never a wall", () => {
         center: { x: 0, y: 0 },
         radius: 10,
         domainMix: { 数理: 1, 物质: 0, 生命: 0, 交叉: 0 },
+        heat: 0,
       },
     ];
     const archipelagoOf = archipelagoIndex(archipelagos);
@@ -147,6 +148,7 @@ describe("fogLevel — monotonic focus, never a wall", () => {
         center: { x: 0, y: 0 },
         radius: 10,
         domainMix: { 数理: 1, 物质: 0, 生命: 0, 交叉: 0 },
+        heat: 0,
       },
     ];
     const archipelagoOf = archipelagoIndex(archipelagos);

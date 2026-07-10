@@ -170,6 +170,65 @@ describe("projectArchipelagos — naming", () => {
   });
 });
 
+describe("projectArchipelagos — curated overlay is a PURE re-label (hybrid honesty, inv 14/15)", () => {
+  // A tiny place-plane overlay keyed by real curated cluster codes (frontiers.ts).
+  const CURATED = {
+    C01: { zh: "工程生命", en: "Engineered Life", caption: { zh: "可编程的生命", en: "programmable life" } },
+    C34: { zh: "无知测绘", en: "Mapping Ignorance" },
+  } as const;
+
+  it("does NOT change membership, ids, centers, radii or outliers — names/captions only", () => {
+    const islands = realIslands();
+    const plain = projectArchipelagos(islands, []);
+    const curated = projectArchipelagos(islands, [], { curatedNames: CURATED });
+
+    // Regions are computed BEFORE naming: the two runs must agree on everything
+    // structural. Compare by id (content-addressed over sorted member slugs).
+    const structural = (p: typeof plain) =>
+      p.archipelagos
+        .map((a) => ({ id: a.id, members: a.islandSlugs, center: a.center, radius: a.radius }))
+        .sort((x, y) => x.id.localeCompare(y.id));
+    expect(structural(curated)).toEqual(structural(plain));
+    expect([...curated.outliers].sort()).toEqual([...plain.outliers].sort());
+  });
+
+  it("re-labels at least the region a curated code dominates, and only the name/caption move", () => {
+    const islands = realIslands();
+    const plain = projectArchipelagos(islands, []);
+    const curated = projectArchipelagos(islands, [], { curatedNames: CURATED });
+    const plainById = new Map(plain.archipelagos.map((a) => [a.id, a] as const));
+
+    let renamed = 0;
+    for (const a of curated.archipelagos) {
+      const p = plainById.get(a.id)!;
+      expect(a.islandSlugs).toEqual(p.islandSlugs); // membership frozen
+      if (a.name.zh !== p.name.zh) renamed++;
+    }
+    // The curated set covers C01 (合成生物·工程生命) which dominates a real region.
+    expect(renamed).toBeGreaterThanOrEqual(1);
+    // A curated caption surfaces on the matched region (and never on an unmatched one).
+    expect(curated.archipelagos.some((a) => a.caption?.zh === "可编程的生命")).toBe(true);
+  });
+
+  it("region 体温 (heat) is the mean member activity mapped to [0,1], not a size rank", () => {
+    // Two same-size regions, one all-hot one all-cold → heat orders by activity,
+    // never by member count (which is equal here).
+    const hot = Array.from({ length: 6 }, (_, i) => ({
+      slug: `hot-${i}`, domain: "生命" as const, x: 100 + i, y: 100 + i, activity: 90,
+    }));
+    const cold = Array.from({ length: 6 }, (_, i) => ({
+      slug: `cold-${i}`, domain: "数理" as const, x: 1300 + i, y: 800 + i, activity: 5,
+    }));
+    const { archipelagos } = projectArchipelagos([...hot, ...cold], [], { maxClusters: 2 });
+    for (const a of archipelagos) {
+      expect(a.heat).toBeGreaterThanOrEqual(0);
+      expect(a.heat).toBeLessThanOrEqual(1);
+    }
+    const heats = archipelagos.map((a) => a.heat).sort((x, y) => x - y);
+    expect(heats[heats.length - 1]!).toBeGreaterThan(heats[0]!); // hot region warmer than cold
+  });
+});
+
 describe("projectArchipelagos — 27-island real dataset (packages/data)", () => {
   const islands = realIslands();
   const { archipelagos, outliers } = projectArchipelagos(islands, []);
@@ -195,15 +254,26 @@ describe("projectArchipelagos — 27-island real dataset (packages/data)", () =>
   });
 });
 
-describe("projectArchipelagos — 700 synthetic islands (performance + bound)", () => {
-  it("clusters into ≤20 archipelagos in well under a second", () => {
+describe("projectArchipelagos — 700 synthetic islands (scale, count-legibility + perf)", () => {
+  it("reads as ~30–50 NAMED regions (a real middle tier), not a ceiling of 20 blobs", () => {
+    // docs/atlas-world-plan.md §0 pt 3 "中层太薄" / §2 T1 / §5 acceptance: 700
+    // islands must resolve into a middle tier that reads as named regions — the
+    // xfrontier bar is ~53 for 1481. Density scaling (round(1.4·√n)) puts 700 at
+    // ~36, comfortably inside the legible band and well under the raised ceiling.
     const islands = syntheticIslands(700);
     const start = performance.now();
     const { archipelagos } = projectArchipelagos(islands, []);
     const elapsedMs = performance.now() - start;
     // eslint-disable-next-line no-console
     console.log(`[archipelago perf] 700 islands → ${archipelagos.length} archipelagos in ${elapsedMs.toFixed(1)}ms`);
-    expect(archipelagos.length).toBeLessThanOrEqual(20);
+    expect(archipelagos.length).toBeGreaterThanOrEqual(30);
+    expect(archipelagos.length).toBeLessThanOrEqual(50);
     expect(elapsedMs).toBeLessThan(2000); // generous ceiling; expected magnitude is <100ms
+  });
+
+  it("an explicit maxClusters still bounds the count hard, at any scale", () => {
+    const islands = syntheticIslands(700);
+    const { archipelagos } = projectArchipelagos(islands, [], { maxClusters: 12 });
+    expect(archipelagos.length).toBeLessThanOrEqual(12);
   });
 });
