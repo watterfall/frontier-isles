@@ -233,9 +233,12 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
             };
           }),
       );
-      // Sea = data (海即数据): domain hue (climate) + darkness = abstractness (depth).
+      // Sea = data (海即数据): domain hue (climate) + darkness = abstractness (depth)
+      // + shore-ripple = tide N (A − D). Tide is normalised to 0..1 here (a flood
+      // tide runs a livelier coast; an ebb/negative tide barely ripples).
       s.buildSea(SEA_COLORS[input.domain] ?? SEA_COLORS['数理']!, {
         depthAlpha: seaDepthAt(substrateRef.current).overlayAlpha,
+        tide: clamp((input.tide ?? 0) / 8, 0, 1),
       });
       objCountRef.current = graph.objects.length;
       cbRef.current.onMetrics?.({ objects: graph.objects.length, sorted: s.sortedNodeCount(), renderMs: s.lastRenderMs });

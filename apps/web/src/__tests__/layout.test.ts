@@ -151,6 +151,46 @@ describe('buildSceneGraph', () => {
     const scatter = g.objects.filter((o) => o.kind.startsWith('scenery:'));
     expect(scatter.some((o) => occupied.has(`${o.gx},${o.gy}`))).toBe(false);
   });
+
+  it('gives every ground tile a small terrain-fingerprint tint (depth-plan-v1 §5)', () => {
+    const g = buildSceneGraph(base);
+    const terrain = g.objects.filter((o) => o.layer === 'terrain');
+    // Every tile carries a signed lightness jitter, and it stays a QUIET ±≈4.5%
+    // (a paper breathing, not a colourful patchwork).
+    expect(terrain.every((o) => typeof o.tint === 'number')).toBe(true);
+    expect(terrain.every((o) => Math.abs(o.tint!) <= 0.05)).toBe(true);
+    // Non-terrain objects never carry a terrain tint/shore.
+    const nonTerrain = g.objects.filter((o) => o.layer !== 'terrain');
+    expect(nonTerrain.every((o) => o.tint === undefined && o.shore === undefined)).toBe(true);
+  });
+
+  it('marks a coastal transition band — some elevation-0 tiles border sea (shore)', () => {
+    const g = buildSceneGraph(base);
+    const terrain = g.objects.filter((o) => o.layer === 'terrain');
+    const shore = terrain.filter((o) => o.shore === true);
+    expect(shore.length).toBeGreaterThan(0);
+    // A shore tile is always elevation 0 (a beach, never a highland cliff top).
+    expect(shore.every((o) => o.elevation === 0)).toBe(true);
+  });
+
+  it('two islands render different terrain fingerprints (seeded by slug)', () => {
+    const a = buildSceneGraph({ ...base, slug: 'alpha-isle' }).objects.filter((o) => o.layer === 'terrain');
+    const b = buildSceneGraph({ ...base, slug: 'beta-isle' }).objects.filter((o) => o.layer === 'terrain');
+    const tintAt = (list: typeof a, id: string) => list.find((o) => o.id === id)?.tint;
+    // At least one shared ground tile carries a different jitter between islands.
+    const shared = a.filter((o) => b.some((x) => x.id === o.id));
+    expect(shared.some((o) => tintAt(a, o.id) !== tintAt(b, o.id))).toBe(true);
+  });
+
+  it('scatter density transcribes liveliness — busier islands are at least as dense', () => {
+    // members-only variation holds the forced tiles / land / seeded rolls fixed,
+    // so a livelier island's scatter is a strict superset of a quieter one's.
+    const quiet = buildSceneGraph({ ...base, members: 0, eventCount: 0, stage: 0 }).objects.filter((o) => o.kind.startsWith('scenery:'));
+    const busy = buildSceneGraph({ ...base, members: 6, eventCount: 40, stage: 3 }).objects.filter((o) => o.kind.startsWith('scenery:'));
+    expect(busy.length).toBeGreaterThanOrEqual(quiet.length);
+    // And the effect is real, not a no-op: the busy island actually fills more.
+    expect(busy.length).toBeGreaterThan(quiet.length);
+  });
 });
 
 describe('claimIndexFromId', () => {

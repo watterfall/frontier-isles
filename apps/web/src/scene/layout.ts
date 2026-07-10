@@ -155,6 +155,17 @@ function elevationAt(gx: number, gy: number, seed: number): 0 | 1 | 2 {
   return h > 0.64 ? 2 : h > 0.36 ? 1 : 0;
 }
 
+/**
+ * Per-tile ground lightness jitter (terrain fingerprint, depth-plan-v1 §5). A
+ * small SIGNED delta in ±0.045 (≈ ±4.5% lightness, the "手绘纸面的呼吸感" band,
+ * NOT a colourful patchwork), seeded by `hash(op-id)` (the island `seed`) so the
+ * same island renders identically on every client (invariant 13) yet two islands
+ * differ. Non-semantic noise only — it transcribes nothing, so it stays this quiet.
+ */
+function groundTintDelta(gx: number, gy: number, seed: number): number {
+  return (hash2(gx * 3.11 + seed * 0.73, gy * 3.11 + seed * 0.29) - 0.5) * 0.09;
+}
+
 /** Stable 0..1 variant seed from an id (djb2). */
 function variantSeed(id: string): number {
   let h = 5381;
@@ -230,6 +241,8 @@ export function buildSceneGraph(
       height: opts.height,
       growth: opts.growth,
       active: opts.active,
+      tint: opts.tint,
+      shore: opts.shore,
     });
   };
 
@@ -256,9 +269,22 @@ export function buildSceneGraph(
   const elev = (gx: number, gy: number): 0 | 1 | 2 => elevationAt(gx, gy, seed);
 
   // ── ground bed (terrain layer) — 3-level elevation from the height field ────
+  // Each tile also carries the terrain fingerprint (depth-plan-v1 §5): a stable
+  // per-tile lightness jitter (seeded by the island) for a hand-drawn paper feel,
+  // and a `shore` flag for elevation-0 tiles bordering open sea → the renderer
+  // gives those a warm sand/shallows transition instead of a hard green coast.
   for (let gy = 0; gy < GRID; gy++) {
     for (let gx = 0; gx < GRID; gx++) {
-      if (land(gx, gy)) push(`ground:${gx},${gy}`, 'ground', gx, gy, 'terrain', { elevation: elev(gx, gy) });
+      if (!land(gx, gy)) continue;
+      const e = elev(gx, gy);
+      const shore =
+        e === 0 &&
+        (!land(gx - 1, gy) || !land(gx + 1, gy) || !land(gx, gy - 1) || !land(gx, gy + 1));
+      push(`ground:${gx},${gy}`, 'ground', gx, gy, 'terrain', {
+        elevation: e,
+        tint: groundTintDelta(gx, gy, seed),
+        shore,
+      });
     }
   }
 
@@ -302,6 +328,21 @@ export function buildSceneGraph(
   // from the domain's own scenery pool (sceneryForDomain) — coastal kinds (reef)
   // are favoured at the shore, everything else inland — so no new kind/data is
   // invented, only *where* the domain's existing kinds land.
+  // Density transcribes liveliness (richness-plan §1.1, depth-plan-v1 §5 "growth
+  // stage → building density"): scatter fill scales with the island's activity
+  // (stage + eventCount + members), NOT a constant. A brand-new empty island reads
+  // bare; a bustling school fills its mid-ring. Bounded so it stays a modulation of
+  // the ring probabilities, never an override — and it's a pure function of the
+  // input, so the graph stays deterministic (invariant 13). Each tile's roll is
+  // still the seeded `scatterRng`, so a denser island is a strict superset of a
+  // quieter one's scatter — density grades with data, tile placement stays stable.
+  const clamp01 = (v: number, lo: number, hi: number): number => Math.max(lo, Math.min(hi, v));
+  const ec = input.eventCount ?? 0;
+  const liveliness = clamp01(
+    0.55 + input.stage * 0.15 + Math.min(ec, 40) / 40 * 0.4 + Math.min(input.members, 6) / 6 * 0.15,
+    0.5,
+    1.5,
+  );
   const coastalKinds = scene.scenery.map((s) => s.kind).filter((k) => COASTAL_KINDS.has(k));
   const inlandKinds = scene.scenery.map((s) => s.kind).filter((k) => !COASTAL_KINDS.has(k));
   let coastalI = 0;
@@ -314,7 +355,7 @@ export function buildSceneGraph(
     const key = tileKey(gx, gy);
     if (forced.has(key) || !isLand(gx, gy, seed)) continue;
     const ring = ringAt(gx, gy);
-    if (scatterRng(gx, gy, seed) >= scatterProb(ring)) continue;
+    if (scatterRng(gx, gy, seed) >= scatterProb(ring) * liveliness) continue;
     const useCoastal = ring === 'shore' && coastalKinds.length > 0;
     const pool = useCoastal ? coastalKinds : inlandKinds.length > 0 ? inlandKinds : coastalKinds;
     if (pool.length === 0) continue;

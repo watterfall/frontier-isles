@@ -244,6 +244,22 @@ export interface SceneObject extends Placed {
    * for every non-station object.
    */
   active?: boolean;
+  /**
+   * Terrain fingerprint (depth-plan-v1 §5, invariant 13): a small SIGNED
+   * lightness delta the layout layer derives from `hash(op-id)` (the island
+   * slug seed) per ground tile, so a hand-drawn "paper breathing" reads across
+   * the bed without any per-tile data. Deterministic — same island renders the
+   * same jitter on every client. Applied via `shade()` to the ground fill only;
+   * `undefined` for every non-terrain object.
+   */
+  tint?: number;
+  /**
+   * Coastal transition flag (depth-plan-v1 §5): an elevation-0 land tile that
+   * borders open sea. The renderer blends its ground fill toward a warm
+   * sand/shallows tone so the coast reads as a beach, not a hard green edge.
+   * Set only by the layout layer for terrain tiles; `undefined` otherwise.
+   */
+  shore?: boolean;
 }
 
 /**
