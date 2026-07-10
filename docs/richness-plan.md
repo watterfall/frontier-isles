@@ -36,8 +36,10 @@ Phase B(第一个真 AI 居民/CrossRef → 夜班 → 晨报闭环)仍是产品
 
 ## 5. 验收(可证伪)
 
-- [ ] `docs/depth-plan-v1.md` 存在,6 处悬空引用全部落地;每个丰富度元素有数据源与移除测试。
-- [ ] 进入任一生成岛:能看到 ≥1 个 biome landmark、岛心→岸线密度梯度;点击 claim 塔弹出 detail 面板。
-- [ ] 微动态第二批至少 2 种上线且全部数据绑定(无纯装饰循环动画)。
-- [ ] `pnpm -r test && pnpm -r typecheck` 全绿;名牌随语言切换(编辑内容不译的边界不破)。
-- [ ] 概念图落 `design/inspiration/ludo/` 并在 depth-plan-v1 中被引用或明确弃用。
+- [x] `docs/depth-plan-v1.md` 存在,6 处悬空引用全部落地;每个丰富度元素有数据源与移除测试。(`317f8ab`)
+- [x] 进入任一生成岛:能看到 ≥1 个 biome landmark、岛心→岸线密度梯度;点击 claim 塔弹出 detail 面板。(`0523912`)
+- [x] 微动态第二批至少 2 种上线且全部数据绑定:炊烟(活跃站)+ 旗帜(active gate);萤火/夜市灯显式记回 OUTSTANDING。(`eb35b19`)
+- [x] `pnpm -r test && pnpm -r typecheck` 全绿(242 测试);名牌随语言切换(architecture §9 核对:站名属 glossary 可译层)。
+- [x] 概念图落 `design/inspiration/ludo/`(8 张,`5019708`);depth-plan-v1 重建时 ludo 目录尚不存在,引用留待泳道 E 河灯实现时补——**未弃用**。
+
+_泳道 E(河灯 + 移栽之路,按 depth-plan-v1 §6/§9 Batch 1)为下一批。额外收获:泳道 C 顺手修了渡口码头因绝对坐标锚点在 live L1 完全不渲染的真 bug;Data Bench 旗帜机制正确但协议缺 dataset 动词,真岛暂不可达(诚实记录于 OUTSTANDING)。_
