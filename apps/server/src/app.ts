@@ -5,7 +5,7 @@ import { getCookie, setCookie, deleteCookie } from "hono/cookie";
 import { ZodError } from "zod";
 import type { Actor, FlowType, Phase } from "@frontier-isles/opp";
 import type { GatewayAction, StationKind } from "@frontier-isles/core";
-import { Store, GatewayDenied, ChainError, NotFound } from "./store.js";
+import { Store, GatewayDenied, ChainError, EvidenceRequired, NotFound } from "./store.js";
 import type { RefKind } from "./refs.js";
 
 const GATEWAY_ACTIONS = new Set<string>([
@@ -269,6 +269,9 @@ export function createApp(store: Store): Hono {
 
 function errorResponse(c: import("hono").Context, e: unknown) {
   if (e instanceof GatewayDenied) return c.json({ error: e.message, code: "denied" }, 403);
+  // §4 Claims & evidence: an evidence-less refute/validate is a hard 422 —
+  // record honesty, not a capability problem, so never a dock degradation.
+  if (e instanceof EvidenceRequired) return c.json({ error: e.message, code: "evidence_required" }, 422);
   if (e instanceof ChainError) return c.json({ error: e.message, code: "chain" }, 409);
   if (e instanceof NotFound) return c.json({ error: e.message, code: "not_found" }, 404);
   if (e instanceof ZodError) return c.json({ error: "validation", issues: e.issues }, 400);

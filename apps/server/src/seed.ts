@@ -15,6 +15,7 @@ import {
 import type { StationKind } from "@frontier-isles/core";
 import { FRONTIERS, SEA_SEED_RELATIONS, type FrontierEntry, type SeaVerb } from "@frontier-isles/data";
 import { Store, opIdFor, type ProblemMeta } from "./store.js";
+import { refHash } from "./refs.js";
 import { openDb } from "./db.js";
 
 /**
@@ -36,6 +37,23 @@ const FIXTURE = resolve(__dirname, "../../../packages/opp/test/fixtures/machine-
 // recently-active islands are awake, and only islands whose last event is
 // pinned to the story's early nights project as dormant.
 const day = (n: number) => new Date(Date.now() - (86 - n) * 86_400_000).toISOString();
+
+/**
+ * Deterministic evidence-role data ref for seeded claim contents (Phase B.4,
+ * architecture §4 "refute/validate events must reference an evidence-role data
+ * ref"). Seeded refute/validate events keep their ref pointing at the ANCHOR
+ * claim/record itself — that is what lets projectCurrents / projectClaimState
+ * group them (the sea and the claim buildings are `reduce`s over shared refs) —
+ * so compliance is met by the referenced record SHIPPING its evidence RO-Crate
+ * ("evidence backs claims", §6): the ref then resolves to a content that
+ * embeds `{ ro_crate, role, hash }`, exactly what core.hasClaimEvidence accepts.
+ * The hash is a real sha256 (via refHash) of the crate URL, so it is stable
+ * across reseeds and honest about being content-addressed.
+ */
+const seedEvidence = (label: string, role: "evidence" | "replication" = "evidence") => {
+  const ro_crate = `https://frontier-isles.example/ro-crate/${label}`;
+  return { ro_crate, role, hash: refHash({ ro_crate }) };
+};
 
 // Prototype DATA array (id, name, qfocus, domain, chart x/y/scale, stage, members, activity).
 interface Chart {
@@ -220,7 +238,13 @@ function seedSampleIsland(store: Store): void {
   });
   store.addPlacement(opId, "driftwood", g1, { action: "return_to_driftwood", ghost: "night-12" });
 
-  const g2 = store.putRef("claim", { atom: "contradiction", text: "实验坊原型宣告失败 · 疑似反例成立" });
+  // The night-41 refute carries its counterexample data ref (§4: a refute must
+  // reference evidence) — the ref content embeds the evidence-role RO-Crate.
+  const g2 = store.putRef("claim", {
+    atom: "contradiction",
+    text: "实验坊原型宣告失败 · 疑似反例成立",
+    evidence: seedEvidence("machine-curiosity/night-41-counterexample"),
+  });
   store.appendRaw(opId, {
     ts: day(41),
     op: opId as ProblemObject["id"],
@@ -328,12 +352,23 @@ function seedMinimalIsland(store: Store, c: Chart): void {
   }
   if (c.st >= 2) {
     // Academy: activity across ≥3 distinct stations (questions + workshop + driftwood).
-    ev(2, "submit_claim", "B", store.putRef("claim", { text: `${c.n} · 首个可检验论断` }));
+    // The claim record ships its evidence RO-Crate (§4 "evidence backs claims"),
+    // so cross-island refute/validate events that reference this claim ref
+    // (seedCrossIslandRelations) resolve to evidence-compliant content while
+    // keeping the shared-ref grouping the currents/claims projections need.
+    ev(2, "submit_claim", "B", store.putRef("claim", {
+      text: `${c.n} · 首个可检验论断`,
+      evidence: seedEvidence(`${c.slug}/claim-1`),
+    }));
     ev(3, "night_digest", "A", store.putRef("driftwood", { atom: "thought", text: `${c.n} · 夜间散木` }));
   }
   if (c.st >= 3) {
-    // School: a gallery publication.
-    ev(4, "publish", "D", store.putRef("note", { title: `${c.n} · 开放实验记录本 v1` }));
+    // School: a gallery publication — also referenced by cross-island validates,
+    // so it too ships its evidence RO-Crate (replication package for a record).
+    ev(4, "publish", "D", store.putRef("note", {
+      title: `${c.n} · 开放实验记录本 v1`,
+      evidence: seedEvidence(`${c.slug}/publication-1`, "replication"),
+    }));
   }
 }
 
