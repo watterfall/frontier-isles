@@ -1,0 +1,44 @@
+{
+  "status": "ok",
+  "message-type": "work-list",
+  "message": {
+    "items": [
+      {
+        "DOI": "10.1000/aaa",
+        "title": ["Curiosity-driven question generation in AI"],
+        "container-title": ["Journal of AI"],
+        "issued": { "date-parts": [[2024, 5]] },
+        "score": 15,
+        "abstract": "A study of curiosity and question generation."
+      },
+      {
+        "DOI": "10.1000/bbb",
+        "title": ["Novelty search and open-ended learning"],
+        "container-title": ["Machine Learning"],
+        "issued": { "date-parts": [[2024, 2]] },
+        "score": 20
+      },
+      {
+        "DOI": "10.1000/ccc",
+        "title": ["A survey of human creativity"],
+        "container-title": ["Cognition"],
+        "issued": { "date-parts": [[2023, 11]] },
+        "score": 5
+      },
+      {
+        "DOI": "10.1000/ddd",
+        "title": ["An already-archived paper the scout saw last week"],
+        "container-title": ["Old Journal"],
+        "issued": { "date-parts": [[2024, 1]] },
+        "score": 30
+      },
+      {
+        "DOI": "10.1000/EEE",
+        "title": ["Question asking machines"],
+        "container-title": ["AI Review"],
+        "issued": { "date-parts": [[2024, 7]] },
+        "score": 12
+      }
+    ]
+  }
+}

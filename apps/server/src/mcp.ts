@@ -87,9 +87,23 @@ export function createMcpServer(store: Store, islandSlug: string, agentId: strin
   server.tool(
     "create_driftwood",
     "Leave a driftwood atom in the Garden (six types).",
-    { atom: z.enum(["thought", "question", "metaphor", "sketch", "contradiction", "thought-experiment"]), text: z.string() },
-    async ({ atom, text: t }) =>
-      text(write("create_driftwood", { payload: { atom, text: t }, refKind: "driftwood", credit: ["credit:ai/ideation"] })),
+    {
+      atom: z.enum(["thought", "question", "metaphor", "sketch", "contradiction", "thought-experiment"]),
+      text: z.string(),
+      // Optional AI-credit role(s) so specialized residents (e.g. the literature
+      // scout → credit:ai/literature) attribute correctly; defaults to ideation.
+      credit: z.array(z.string()).optional(),
+    },
+    async ({ atom, text: t, credit }) =>
+      text(write("create_driftwood", { payload: { atom, text: t }, refKind: "driftwood", credit: credit ?? ["credit:ai/ideation"] })),
+  );
+
+  server.tool(
+    "night_digest",
+    "Record a night-shift digest in the Driftwood Garden (night wilds; private by default).",
+    { text: z.string(), credit: z.array(z.string()).optional() },
+    async ({ text: t, credit }) =>
+      text(write("night_digest", { payload: { note: t }, refKind: "note", credit: credit ?? ["credit:ai/ideation"] })),
   );
 
   server.tool(
