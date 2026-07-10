@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { projectClaimState, type ClaimState, type StationKind } from '@frontier-isles/core';
 import { NIGHT_SCENE_VARS, DOMAIN_SCENE_VARS, sceneVarsToStyle } from '@frontier-isles/assets';
@@ -6,8 +6,11 @@ import { DayNightLever } from './DayNightLever';
 import { api } from '../../api/client';
 import { generate, type GeneratedScene } from '../../scene/generator';
 import { GeneratedSceneView } from '../../scene/GeneratedScene';
-import PixiScene from '../../scene/PixiScene';
 import type { LayoutInput } from '../../scene/layout';
+
+// Lazy so PixiJS (heavy) stays OUT of the main bundle — the L0 chart never pays
+// for it; the chunk loads only when a WebGL island L1 actually mounts.
+const PixiScene = lazy(() => import('../../scene/PixiScene'));
 
 /** Shape of the server's GET /api/islands/:slug detail (only the fields we use). */
 interface IslandDetail {
@@ -152,15 +155,17 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
       {noGpu ? (
         <GeneratedSceneView scene={scene} night={night} nightT={50} onStation={onStation} />
       ) : (
-        <PixiScene
-          input={input}
-          claims={claims}
-          t={night ? 1 : 0}
-          substrate={seaStats?.substrate}
-          undertow={seaStats?.contention ?? 0}
-          onStation={onStation}
-          onWebglError={() => setNoGpu(true)}
-        />
+        <Suspense fallback={null}>
+          <PixiScene
+            input={input}
+            claims={claims}
+            t={night ? 1 : 0}
+            substrate={seaStats?.substrate}
+            undertow={seaStats?.contention ?? 0}
+            onStation={onStation}
+            onWebglError={() => setNoGpu(true)}
+          />
+        </Suspense>
       )}
 
       {/* L1 顶部信息 */}
