@@ -17,6 +17,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { SceneStage, type TextureResolver, type ResolvedTexture } from '@frontier-isles/renderer/pixi';
 import { worldToScreen, seaDepthAt } from '@frontier-isles/renderer';
 import { STATION_META, type ClaimState, type StationKind } from '@frontier-isles/core';
+import { localizeStation, type Lang } from '../i18n/stations';
 import {
   StationWorkshop,
   StationLibrary,
@@ -71,6 +72,13 @@ export interface PixiSceneProps {
   claims?: ClaimState[];
   /** Day↔night ∈ [0,1], controlled by the parent (App's lever). Applied without re-mount. */
   t: number;
+  /**
+   * UI language for the screen-space station labels (architecture.md §9: station
+   * names are load-bearing glossary terms, not untranslated editorial content —
+   * unlike island names/questions/resident names). Defaults 'zh'; a change
+   * re-boots the scene (labels are baked into {@link setStationLabels} at boot).
+   */
+  lang?: Lang;
   /** Domain abstractness (frontier.substrate, 0..1) → sea darkness (海即数据, depth-plan-v2 §4). */
   substrate?: number;
   /** Disputed-sea undertow: a boolean (demo toggle) or 0..1 contention magnitude (海即数据). */
@@ -87,7 +95,7 @@ export interface PixiSceneProps {
  * The embeddable Pixi scene. Re-boots on `input`/`claims` change (once per island
  * open); `t`/`undertow` apply live without a re-boot.
  */
-export default function PixiScene({ input, claims, t, substrate, undertow = false, onStation, onWebglError, onMetrics }: PixiSceneProps) {
+export default function PixiScene({ input, claims, t, lang = 'zh', substrate, undertow = false, onStation, onWebglError, onMetrics }: PixiSceneProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<SceneStage | null>(null);
   const cam = useRef({ ...worldToScreen(8, 8), zoom: 0.75 }); // island centre (tile 8,8)
@@ -163,13 +171,23 @@ export default function PixiScene({ input, claims, t, substrate, undertow = fals
       applyCam();
       // Crisp, LOD-tiered station labels (screen-space billboards) — sharp at any
       // zoom, unlike the baked namecards (now suppressed via showLabel={false}).
-      // far zoom → the single-glyph seal; near → the full name.
+      // far zoom → the single-glyph seal (language-neutral); near → the full name,
+      // localized from STATION_META (architecture §9 glossary — station names ARE
+      // UI-translatable, unlike untranslated editorial content).
       s.setStationLabels(
         graph.objects
           .filter((o) => o.layer === 'world' && o.kind.startsWith('station:'))
           .map((o) => {
-            const meta = STATION_META[o.kind.slice('station:'.length) as StationKind];
-            return { gx: o.gx, gy: o.gy, elevation: o.elevation, height: o.height ?? 30, short: meta?.seal ?? '?', full: meta?.zh ?? o.kind };
+            const kind = o.kind.slice('station:'.length) as StationKind;
+            const meta = STATION_META[kind];
+            return {
+              gx: o.gx,
+              gy: o.gy,
+              elevation: o.elevation,
+              height: o.height ?? 30,
+              short: meta?.seal ?? '?',
+              full: meta ? localizeStation(kind, lang) : o.kind,
+            };
           }),
       );
       // Sea = data (海即数据): domain hue (climate) + darkness = abstractness (depth).
@@ -184,8 +202,11 @@ export default function PixiScene({ input, claims, t, substrate, undertow = fals
       if (stage) stage.destroy();
       stageRef.current = null;
     };
+    // lang isn't read via a ref (unlike t/onStation/onMetrics) because label text
+    // is baked once at boot via setStationLabels — a language switch re-boots the
+    // scene, which is rare and acceptably cheap (same cost as an island change).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [input, claims]);
+  }, [input, claims, lang]);
 
   // Day↔night → per-object alpha + tone veil (P4). No re-boot. tweenDayNight (M5)
   // sweeps smoothly instead of snapping; the boot did an instant setDayNight so

@@ -160,6 +160,7 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
             input={input}
             claims={claims}
             t={night ? 1 : 0}
+            lang={lang}
             substrate={seaStats?.substrate}
             undertow={seaStats?.contention ?? 0}
             onStation={onStation}
