@@ -39,6 +39,13 @@ export const zh = {
     notReachable: '此岛暂时无法抵达（服务未响应）',
     dissolved: '雾岛 · 已消散',
     qfocusPrefix: 'QFocus · ',
+    seaData: {
+      depth: '水深',
+      abstract: { hi: '偏理论', mid: '居中', lo: '偏应用' },
+      validate: '验证',
+      refute: '驳斥',
+      bridge: '桥接',
+    },
     academy: '书院',
     residents: '9 位居民',
     aiResidents: 'AI 居民 ×4 · 斥/辩/综/渡',

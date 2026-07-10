@@ -40,6 +40,13 @@ export const en: Resources = {
     notReachable: 'This island is unreachable for now (server not responding)',
     dissolved: 'Mist island · dissolved',
     qfocusPrefix: 'QFocus · ',
+    seaData: {
+      depth: 'sea depth',
+      abstract: { hi: 'theoretical', mid: 'mixed', lo: 'applied' },
+      validate: 'validated',
+      refute: 'refuted',
+      bridge: 'bridges',
+    },
     academy: 'Academy',
     residents: '9 residents',
     aiResidents: 'AI residents ×4 · scout/advocate/synth/ferry',
