@@ -12,7 +12,7 @@
  * Fallback discipline (CLAUDE.md): on WebGL failure it calls `onWebglError` so the
  * parent can render the SVG scene instead — the app must render without the GPU.
  */
-import { useEffect, useRef, type ReactElement } from 'react';
+import { useEffect, useRef, cloneElement, type ReactElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { SceneStage, type TextureResolver, type ResolvedTexture } from '@frontier-isles/renderer/pixi';
 import { worldToScreen, seaDepthAt } from '@frontier-isles/renderer';
@@ -31,20 +31,23 @@ import {
 } from '@frontier-isles/assets';
 import { buildSceneGraph, type LayoutInput } from './layout';
 import { bakeSvg } from './bakeTexture';
+import { STATION_TEX_SIZE, STATION_TEX_SCALE, stationBakeOrigin, stationLabelHeight } from './stationAnchors';
 
 // The 9 L1 stations as their real SVG assets, baked WITHOUT their namecards
 // (showLabel={false}) — crisp LOD-tiered labels are drawn in the screen-space
-// label layer instead, so text stays sharp + legible at any zoom.
-const STATION_ELS: Record<string, ReactElement> = {
-  'station:workshop': <StationWorkshop x={160} y={160} showLabel={false} />,
-  'station:library': <StationLibrary x={160} y={160} showLabel={false} />,
-  'station:canvas': <StationWhiteboardHall x={160} y={160} showLabel={false} />,
-  'station:questions': <StationQuestionWall x={160} y={160} showLabel={false} />,
-  'station:data': <StationDataBench x={160} y={160} showLabel={false} />,
-  'station:gallery': <StationGallery x={160} y={160} showLabel={false} />,
-  'station:tearoom': <StationTearoom x={160} y={160} showLabel={false} />,
-  'station:driftwood': <DriftwoodGarden x={160} y={160} showTransplantTag={false} showLabel={false} />,
-  'station:dock': <FerryDock x={160} y={160} showLabel={false} />,
+// label layer instead, so text stays sharp + legible at any zoom. `x`/`y` here
+// are placeholders `cloneElement`d to each station's own ground offset (P1
+// per-station vertical registration, see `./stationAnchors`) before baking.
+const STATION_ELS: Record<string, ReactElement<{ x?: number; y?: number }>> = {
+  'station:workshop': <StationWorkshop showLabel={false} />,
+  'station:library': <StationLibrary showLabel={false} />,
+  'station:canvas': <StationWhiteboardHall showLabel={false} />,
+  'station:questions': <StationQuestionWall showLabel={false} />,
+  'station:data': <StationDataBench showLabel={false} />,
+  'station:gallery': <StationGallery showLabel={false} />,
+  'station:tearoom': <StationTearoom showLabel={false} />,
+  'station:driftwood': <DriftwoodGarden showTransplantTag={false} showLabel={false} />,
+  'station:dock': <FerryDock showLabel={false} />,
 };
 
 /** Per-domain water colours (0..1 rgb): shallow / deep / foam. */
@@ -150,16 +153,22 @@ export default function PixiScene({ input, claims, t, lang = 'zh', substrate, un
       // hand-drawn design vocabulary instead of placeholder boxes.
       let resolve: TextureResolver | undefined;
       try {
-        const C = 320;
+        const C = STATION_TEX_SIZE;
         const texMap: Record<string, ResolvedTexture> = {};
         for (const [kind, elx] of Object.entries(STATION_ELS)) {
+          const stationKind = kind.slice('station:'.length) as StationKind;
+          const origin = stationBakeOrigin(stationKind);
+          const placed = cloneElement(elx, origin);
           const svg = renderToStaticMarkup(
             <svg xmlns="http://www.w3.org/2000/svg" width={C} height={C} viewBox={`0 0 ${C} ${C}`}>
-              {elx}
+              {placed}
             </svg>,
           );
           const tex = await bakeSvg(svg, { width: C, height: C, scale: 3 });
-          texMap[kind] = { texture: tex, anchor: { x: 0.5, y: 0.675 }, scale: 150 / (220 * 3) };
+          // A shared (0.5,0.5) anchor now works for every station because the
+          // ground offset above already re-centred each one's own ground point
+          // on the texture — no per-station anchor variance needed.
+          texMap[kind] = { texture: tex, anchor: { x: 0.5, y: 0.5 }, scale: STATION_TEX_SCALE };
         }
         if (disposed) return;
         resolve = (o) => texMap[o.kind];
@@ -180,11 +189,16 @@ export default function PixiScene({ input, claims, t, lang = 'zh', substrate, un
           .map((o) => {
             const kind = o.kind.slice('station:'.length) as StationKind;
             const meta = STATION_META[kind];
+            // Per-station label clearance (part of the same P1 vertical-registration
+            // fix): each station's own roof height above ITS ground marker, instead
+            // of the generic `o.height ?? 30` that otherwise pokes a tall roof (e.g.
+            // Question Wall) out above a label sized for a shorter one, or floats a
+            // short station's label too high.
             return {
               gx: o.gx,
               gy: o.gy,
               elevation: o.elevation,
-              height: o.height ?? 30,
+              height: stationLabelHeight(kind),
               short: meta?.seal ?? '?',
               full: meta ? localizeStation(kind, lang) : o.kind,
             };
