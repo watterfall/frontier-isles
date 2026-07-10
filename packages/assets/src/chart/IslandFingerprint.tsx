@@ -3,6 +3,15 @@ import { islandSilhouettePath, STAGE_RADIUS } from './islandSilhouette';
 import { Lighthouse } from './Lighthouse';
 
 export interface IslandFingerprintProps {
+  /** Kept for caller compatibility (`ChartScreen` computes `fill` from this
+   * upstream) and as a documented extension point for future *non-geometric*
+   * domain decoration. No longer selects coastline geometry — see the
+   * rollback note atop `islandSilhouette.ts`: a per-domain "coastline
+   * grammar" was invented, never authorized by the prototype, and read as
+   * "wrong" on user testing. Every island now shares one soft-mound family;
+   * domain legibility lives in fill color (already the caller's job) and
+   * growth-stage-driven building/vegetation density (`ChartScreen`'s
+   * `Buildings`), not in this component's geometry. */
   domain: Domain;
   /** Growth stage 0..3 — drives footprint size and building/vegetation
    * density upstream (ChartScreen's `Buildings`); here it also grows a
@@ -17,17 +26,17 @@ export interface IslandFingerprintProps {
 }
 
 /**
- * The L0 "terrain fingerprint" body: a domain-grammar, stage-sized coastline
+ * The L0 "terrain fingerprint" body: one soft-mound, stage-sized coastline
  * (`islandSilhouettePath`) plus the two data-bound embellishments the spec
  * calls out — a second terrace for school-stage islands, and a lighthouse
  * for resolved ones. Composes into `ChartScreen`'s existing water-ring /
  * shadow / hover-lift wrapper; this component owns only the landmass +
  * lighthouse geometry so no SVG path literals live in ChartScreen itself.
  */
-export function IslandFingerprint({ domain, stage, seed, fill, lighthouse = false }: IslandFingerprintProps) {
-  const basePath = islandSilhouettePath({ domain, stage, seed });
+export function IslandFingerprint({ domain: _domain, stage, seed, fill, lighthouse = false }: IslandFingerprintProps) {
+  const basePath = islandSilhouettePath({ stage, seed });
   const hasCap = stage === 3;
-  const capPath = hasCap ? islandSilhouettePath({ domain, stage, seed, tier: 'cap' }) : null;
+  const capPath = hasCap ? islandSilhouettePath({ stage, seed, tier: 'cap' }) : null;
   const capOffsetY = -STAGE_RADIUS[3] * 0.5;
   const topY = hasCap
     ? capOffsetY - STAGE_RADIUS[1] * 0.36 * 0.6 - 6

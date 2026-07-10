@@ -1,21 +1,44 @@
-import type { Domain } from '../palettes';
-
 /**
  * L0 "terrain fingerprint" — deterministic procgen for the chart-island
  * silhouette (docs/depth-plan-v1.md §5, invariant 13: an island's *form* is a
  * pure function of its problem-object attributes, seeded by `hash(op-id)`;
  * the same object renders the same island on any client, forever).
  *
- * Two knobs, both discrete/deterministic — never a continuous rank:
+ * --- ROLLBACK NOTE (design-authority violation, reverted on user feedback) ---
+ * A prior version of this module gave each of the 4 domains its own
+ * "coastline grammar" — 数理 a straight-edged polygon, 物质 a
+ * stepped/faceted silhouette, 生命 a smooth curve, 交叉 alternating
+ * straight+curved edges — so islands would read apart by silhouette alone
+ * (this had been written up as a spec in docs/depth-plan-v1.md §5's "domain
+ * vector → coastline character" row and docs/richness-plan.md's 泳道 G
+ * checklist). That geometry was never authorized by
+ * `design/handoff/问题群岛-原型 v3.dc.html` — the **sole visual authority**
+ * (see repo CLAUDE.md) — which only ever draws one hand-drawn soft-mound
+ * family (`const MOUNDS = [...]`, picked by `id % 5`; ported verbatim as
+ * `MOUND_PATHS` in `../IslandMound.tsx`). Direct user testing confirmed the
+ * angular/faceted shapes read as "wrong, worse than the original" — i.e. an
+ * invented visual language, not a defensible extension of one.
+ *
+ * Rolled back: every island now renders from the SAME soft-mound grammar (a
+ * closed Catmull-Rom curve — the same curve family as `MOUND_PATHS`, see
+ * `moundPath` below). `seed` only perturbs control points and the aspect
+ * ratio *within* that one family — it must never again select a different
+ * geometric grammar. Domain is no longer a shape input at all; four-domain
+ * legibility stays on channels the prototype actually uses — fill color
+ * (`DOMAIN_META` / prototype's `DOMC`) and, upstream in `ChartScreen`'s
+ * `Buildings`, growth-stage-driven building/vegetation density. Do not
+ * reintroduce per-domain geometry without first updating the prototype —
+ * the prototype leads, code follows, never the other way around.
+ *
+ * One knob drives size:
  *  - `stage` (0..3, the growth-stage projection) drives footprint size —
  *    school > academy > hut > empty isle (§5 "the L0 form should pre-echo
- *    its L1 richness").
- *  - `domain` drives coastline *grammar* — "angular near 数理, organic near
- *    生命" (§5), 物质/交叉 given their own distinct grammar so all four read
- *    apart at a glance.
+ *    its L1 richness"). A small fixed table, not a formula over a
+ *    continuous score — size is a *transcription of stage*, never a rank
+ *    (task red line).
  * `seed` (caller passes `hashSeed(slug ?? String(id))`) only perturbs
- * control points within each grammar — stable per-island jitter, not
- * arbitrary noise (invariant 13).
+ * control points and aspect ratio — stable per-island jitter, not arbitrary
+ * noise (invariant 13). Same stage+seed always renders the identical path.
  */
 
 /** Deterministic 32-bit FNV-1a hash — the seed source for every per-island
@@ -41,25 +64,6 @@ function mulberry32(seed: number): () => number {
   };
 }
 
-/** Coastline grammar, one per domain (§5: "angular near 数理, organic near
- * 生命"; 物质/交叉 given their own consistent voice so all four are
- * distinguishable in silhouette alone). */
-export type CoastlineGrammar = 'angular' | 'organic' | 'faceted' | 'hybrid';
-
-export const DOMAIN_GRAMMAR: Record<Domain, CoastlineGrammar> = {
-  数理: 'angular', // straight-edged polygon — crisp, instrument-precise facets
-  物质: 'faceted', // stepped/terraced rectilinear silhouette — cut rock, built matter
-  生命: 'organic', // smooth flowing Catmull-Rom curve — lush, biological
-  交叉: 'hybrid', // alternates straight + curved edges — literally in-between
-};
-
-const VERTEX_COUNT: Record<CoastlineGrammar, number> = {
-  angular: 8,
-  faceted: 6,
-  organic: 10,
-  hybrid: 8,
-};
-
 /** Discrete footprint radius per growth stage (0 empty isle .. 3 school).
  * Deliberately a small fixed table, not a formula over a continuous score —
  * size is a *transcription of stage*, never a rank (task red line). */
@@ -72,13 +76,25 @@ interface Pt {
   y: number;
 }
 
+/** One soft-mound family, one vertex count — matches the hand-drawn feel of
+ * the prototype's `MOUND_PATHS` (6-8 control points per mound) closely
+ * enough that the Catmull-Rom pass below reads as "the same kind of blob". */
+const VERTEX_COUNT = 9;
+
+/** Per-vertex jitter magnitude — bounded so every island reads as "the same
+ * soft mound, nudged", never a different shape language (rollback note
+ * above). */
+const JITTER = 0.22;
+
 /** Points around a squashed ellipse (rx, ry), each nudged by a stable
- * per-vertex jitter factor so the coastline is irregular but reproducible. */
-function basePoints(n: number, rx: number, ry: number, rng: () => number, jitter: number): Pt[] {
+ * per-vertex jitter factor so the coastline is irregular but reproducible —
+ * plus a small constant upward bias so the mound sits like the prototype's
+ * (flatter base, rounded top), matching `MOUND_PATHS`' asymmetry. */
+function basePoints(rx: number, ry: number, rng: () => number): Pt[] {
   const pts: Pt[] = [];
-  for (let i = 0; i < n; i++) {
-    const theta = (i / n) * Math.PI * 2 - Math.PI / 2;
-    const j = 1 - jitter / 2 + rng() * jitter;
+  for (let i = 0; i < VERTEX_COUNT; i++) {
+    const theta = (i / VERTEX_COUNT) * Math.PI * 2 - Math.PI / 2;
+    const j = 1 - JITTER / 2 + rng() * JITTER;
     pts.push({
       x: Math.cos(theta) * rx * j,
       y: Math.sin(theta) * ry * j - rx * 0.06,
@@ -87,18 +103,10 @@ function basePoints(n: number, rx: number, ry: number, rng: () => number, jitter
   return pts;
 }
 
-/** 数理 angular — a plain straight-edged polygon. */
-function polygonPath(pts: Pt[]): string {
-  const [p0, ...rest] = pts;
-  if (!p0) return '';
-  let d = `M ${fmt(p0.x)} ${fmt(p0.y)} `;
-  for (const p of rest) d += `L ${fmt(p.x)} ${fmt(p.y)} `;
-  return d + 'Z';
-}
-
-/** 生命 organic — a smooth closed Catmull-Rom curve (converted to cubic
- * Beziers), the same curve family as the prototype's own hand-drawn mounds. */
-function smoothPath(pts: Pt[]): string {
+/** The one coastline grammar: a smooth closed Catmull-Rom curve (converted
+ * to cubic Beziers) — the same curve family as the prototype's own
+ * hand-drawn `MOUND_PATHS` mounds. */
+function moundPath(pts: Pt[]): string {
   const n = pts.length;
   const p0first = pts[0];
   if (!p0first) return '';
@@ -117,57 +125,7 @@ function smoothPath(pts: Pt[]): string {
   return d + 'Z';
 }
 
-/** 物质 faceted — each edge gets one axis-aligned kink, blended partway
- * toward a full right-angle corner (deterministic per edge, seeded) rather
- * than snapping all the way to it — a terraced / cut-rock coastline, not a
- * staircase silhouette. */
-function facetedPath(pts: Pt[], rng: () => number): string {
-  const n = pts.length;
-  const p0 = pts[0];
-  if (!p0) return '';
-  let d = `M ${fmt(p0.x)} ${fmt(p0.y)} `;
-  for (let i = 0; i < n; i++) {
-    const p1 = pts[i]!;
-    const p2 = pts[(i + 1) % n]!;
-    const stepFirst = rng() < 0.5;
-    const cornerX = stepFirst ? p2.x : p1.x;
-    const cornerY = stepFirst ? p1.y : p2.y;
-    const midX = (p1.x + p2.x) / 2;
-    const midY = (p1.y + p2.y) / 2;
-    const blend = 0.5 + rng() * 0.25; // partial kink, not a full right-angle jump
-    const kx = midX + (cornerX - midX) * blend;
-    const ky = midY + (cornerY - midY) * blend;
-    d += `L ${fmt(kx)} ${fmt(ky)} L ${fmt(p2.x)} ${fmt(p2.y)} `;
-  }
-  return d + 'Z';
-}
-
-/** 交叉 hybrid — alternates straight edges with outward-bulging quadratic
- * curves, literally splicing the angular and organic grammars together. */
-function hybridPath(pts: Pt[], rng: () => number): string {
-  const n = pts.length;
-  const p0 = pts[0];
-  if (!p0) return '';
-  let d = `M ${fmt(p0.x)} ${fmt(p0.y)} `;
-  for (let i = 0; i < n; i++) {
-    const p1 = pts[i]!;
-    const p2 = pts[(i + 1) % n]!;
-    if (i % 2 === 0) {
-      d += `L ${fmt(p2.x)} ${fmt(p2.y)} `;
-    } else {
-      const mx = (p1.x + p2.x) / 2;
-      const my = (p1.y + p2.y) / 2;
-      const bulge = 0.15 + rng() * 0.1;
-      const nx = -(p2.y - p1.y) * bulge;
-      const ny = (p2.x - p1.x) * bulge;
-      d += `Q ${fmt(mx + nx)} ${fmt(my + ny)} ${fmt(p2.x)} ${fmt(p2.y)} `;
-    }
-  }
-  return d + 'Z';
-}
-
 export interface SilhouetteOptions {
-  domain: Domain;
   /** Growth stage 0..3 — the size tier. */
   stage: 0 | 1 | 2 | 3;
   /** Stable per-island seed — pass `hashSeed(slug ?? String(id))`. */
@@ -177,24 +135,20 @@ export interface SilhouetteOptions {
   tier?: 'base' | 'cap';
 }
 
-/** The whole L0 fingerprint entry point: `domain` + `stage` + `seed` in,
- * one deterministic closed SVG path out. */
+/** The whole L0 fingerprint entry point: `stage` + `seed` in, one
+ * deterministic closed SVG path out — always the same soft-mound grammar
+ * (rollback note above; there is deliberately no `domain` input here
+ * anymore — four-domain legibility lives in fill color and building/
+ * vegetation density, not in coastline geometry). */
 export function islandSilhouettePath(opts: SilhouetteOptions): string {
-  const grammar = DOMAIN_GRAMMAR[opts.domain];
   const isCap = opts.tier === 'cap';
   const rng = mulberry32(isCap ? opts.seed ^ 0x9e3779b9 : opts.seed);
+  // Small per-island aspect-ratio variation ("宽高比小幅变化") — every island
+  // stays within the same squashed-mound proportions, just not pixel-identical
+  // ones.
+  const aspect = 0.3 + rng() * 0.1;
   const rx = STAGE_RADIUS[isCap ? 1 : opts.stage];
-  const ry = rx * 0.36;
-  const n = VERTEX_COUNT[grammar];
-  const pts = basePoints(n, rx, ry, rng, 0.22);
-  switch (grammar) {
-    case 'angular':
-      return polygonPath(pts);
-    case 'organic':
-      return smoothPath(pts);
-    case 'faceted':
-      return facetedPath(pts, rng);
-    case 'hybrid':
-      return hybridPath(pts, rng);
-  }
+  const ry = rx * aspect;
+  const pts = basePoints(rx, ry, rng);
+  return moundPath(pts);
 }

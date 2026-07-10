@@ -77,10 +77,10 @@ Every island's *form* is a pure function of its problem object — so an island 
 | `frontier.substrate` (0–1) | landmass size / built-up footprint — more foundation, more land |
 | `frontier.heat` (0–1) | shoreline traffic / ambient bustle — hot frontiers are crowded coasts |
 | night-science `A` vs `D` | vertical profile — high `A` → tall sky (§1); high `D` → deep seabed |
-| domain vector (meta) | coastline character — the silhouette grammar of its region (angular near 数理, organic near 生命) |
-| growth stage (projected) | building density & height — hut → academy → school (already partly driven) |
+| ~~domain vector (meta)~~ | ~~coastline character — the silhouette grammar of its region (angular near 数理, organic near 生命)~~ **rolled back** — this row specced a per-domain "coastline grammar" that was never authorized by `design/handoff/问题群岛-原型 v3.dc.html` (the prototype only ever draws one soft-mound family, `MOUNDS[id % 5]`). User testing confirmed the angular/faceted shapes read as worse than the original. Domain no longer drives coastline geometry; it stays on fill color + building/vegetation density, below. See `packages/assets/src/chart/islandSilhouette.ts` header. |
+| growth stage (projected) | building density & height — hut → academy → school (already partly driven); also the sole footprint-size driver for the L0 fingerprint (`STAGE_RADIUS`) |
 | `lineage` (fork depth) | a channel/isthmus toward the parent island |
-| `hash(op-id)` | the seed for *non-semantic* coastline noise — stable jitter, not arbitrary |
+| `hash(op-id)` | the seed for *non-semantic* coastline noise — stable jitter, not arbitrary; perturbs control points and aspect ratio *within* the one soft-mound family, never a different grammar |
 
 - ① **Data source** — problem-object meta + growth projection, above. Every knob traces to an attribute or a `reduce` (invariant 10). ② **LOD** — L0: silhouette (size, coastline, altitude, lighthouse-if-resolved) is the whole fingerprint at range. L1: full terrain + buildings. ③ **Interaction** — none directly; the fingerprint *is* wayfinding — you learn to know an island by its shape (the L0 form should pre-echo its L1 richness: a school reads denser/taller than an empty isle). ④ **Removal test** — remove the fingerprint and islands become identical blobs; you can still enter, read, and work every one. Form is recognizability, never a gate or a score.
 
