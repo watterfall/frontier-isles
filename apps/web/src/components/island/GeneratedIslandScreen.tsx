@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { StationKind } from '@frontier-isles/core';
+import { projectClaimState, type ClaimState, type StationKind } from '@frontier-isles/core';
 import { NIGHT_SCENE_VARS, DOMAIN_SCENE_VARS, sceneVarsToStyle } from '@frontier-isles/assets';
 import { DayNightLever } from './DayNightLever';
 import { api } from '../../api/client';
 import { generate, type GeneratedScene } from '../../scene/generator';
 import { GeneratedSceneView } from '../../scene/GeneratedScene';
+import PixiScene from '../../scene/PixiScene';
+import type { LayoutInput } from '../../scene/layout';
 
 /** Shape of the server's GET /api/islands/:slug detail (only the fields we use). */
 interface IslandDetail {
@@ -46,12 +48,19 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
   const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
   const [detail, setDetail] = useState<IslandDetail | null>(null);
   const [scene, setScene] = useState<GeneratedScene | null>(null);
+  const [input, setInput] = useState<LayoutInput | null>(null);
+  const [claims, setClaims] = useState<ClaimState[] | undefined>(undefined);
   const [failed, setFailed] = useState(false);
+  const [noGpu, setNoGpu] = useState(false); // WebGL absent → fall back to the SVG scene
 
   useEffect(() => {
     let cancelled = false;
     setFailed(false);
-    api.island(slug).then((d) => {
+    setNoGpu(false);
+    // Fetch the island detail + its real ledger in parallel: the ledger drives the
+    // Pixi claim buildings (M4「接线上」); the detail drives everything else. Either
+    // is best-effort — a null ledger just means buildSceneGraph synths from eventCount.
+    Promise.all([api.island(slug), api.ledger(slug)]).then(([d, ledger]) => {
       if (cancelled) return;
       if (!d) {
         setFailed(true);
@@ -61,20 +70,21 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
       setDetail(det);
       const stage = STAGE_INDEX[det.growth.stage] ?? 1;
       const hasAi = det.memberships.some((m) => m.actorKind === 'agent');
-      setScene(
-        generate({
-          slug,
-          domain: det.domain as '数理' | '物质' | '生命' | '交叉',
-          stage,
-          members: det.chart.members ?? det.memberships.length,
-          dormant: det.growth.stage === 'empty' && det.eventCount === 0,
-          status: det.object.status,
-          outlier: det.atlas?.outlier ?? false,
-          tide: det.tide.N,
-          hasAi,
-          eventCount: det.eventCount,
-        }),
-      );
+      const layoutInput: LayoutInput = {
+        slug,
+        domain: det.domain as '数理' | '物质' | '生命' | '交叉',
+        stage,
+        members: det.chart.members ?? det.memberships.length,
+        dormant: det.growth.stage === 'empty' && det.eventCount === 0,
+        status: det.object.status,
+        outlier: det.atlas?.outlier ?? false,
+        tide: det.tide.N,
+        hasAi,
+        eventCount: det.eventCount,
+      };
+      setInput(layoutInput);
+      setClaims(ledger ? projectClaimState(ledger) : undefined);
+      setScene(generate(layoutInput)); // still needed for the SVG (no-GPU) fallback
     });
     return () => {
       cancelled = true;
@@ -90,7 +100,7 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
     );
   }
 
-  if (!detail || !scene) {
+  if (!detail || !scene || !input) {
     return (
       <div style={{ position: 'absolute', inset: 0, background: '#F2EAD8', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B6154' }}>
         <span style={{ fontFamily: "'Noto Serif SC',serif", fontSize: 16 }}>{t('island.loading')}</span>
@@ -112,7 +122,20 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
       data-screen-label="L1 生成岛"
       style={{ position: 'absolute', inset: 0, background: 'var(--pp,#F2EAD8)', transition: 'background .8s ease', ...sceneVarsToStyle(sceneVars) }}
     >
-      <GeneratedSceneView scene={scene} night={night} nightT={50} onStation={onStation} />
+      {/* L1 scene: the Pixi isometric renderer (M4「接线上」), fed the island's real
+          ledger-driven claims + App day/night. SVG scene is the no-GPU fallback
+          (CLAUDE.md: the app must render without the GPU). */}
+      {noGpu ? (
+        <GeneratedSceneView scene={scene} night={night} nightT={50} onStation={onStation} />
+      ) : (
+        <PixiScene
+          input={input}
+          claims={claims}
+          t={night ? 1 : 0}
+          onStation={onStation}
+          onWebglError={() => setNoGpu(true)}
+        />
+      )}
 
       {/* L1 顶部信息 */}
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '18px 24px', pointerEvents: 'none' }}>

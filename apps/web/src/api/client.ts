@@ -5,6 +5,7 @@
  * resolves to a null-ish value and the caller falls back to static data, so
  * the UI is identical online or offline.
  */
+import type { LedgerEvent } from '@frontier-isles/opp';
 
 // ── Server payload shapes (from the API table) ────────────────────────────
 export interface ApiIsland {
@@ -131,6 +132,37 @@ export const api = {
   logout: () => req<{ ok: boolean }>('/api/auth/logout', { method: 'POST' }),
 
   island: (slug: string) => req<unknown>(`/api/islands/${slug}`),
+
+  /**
+   * The island's append-only ledger as JSONL (one {@link LedgerEvent} per line).
+   * Feeds `projectClaimState` so the L1 Pixi scene's claim buildings grow from the
+   * real ledger (M4 「接线上」). Best-effort: null on any failure → caller synths
+   * from eventCount so the scene still renders. The endpoint returns text/plain,
+   * not JSON, so it bypasses `req` (which parses JSON) and parses line-by-line.
+   */
+  ledger: async (slug: string): Promise<LedgerEvent[] | null> => {
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
+      const res = await fetch(`/api/islands/${slug}/ledger.jsonl`, { signal: ctrl.signal });
+      clearTimeout(timer);
+      if (!res.ok) return null;
+      const text = await res.text();
+      const events: LedgerEvent[] = [];
+      for (const line of text.split('\n')) {
+        const s = line.trim();
+        if (!s) continue;
+        try {
+          events.push(JSON.parse(s) as LedgerEvent);
+        } catch {
+          /* skip a malformed line rather than drop the whole ledger */
+        }
+      }
+      return events;
+    } catch {
+      return null;
+    }
+  },
 
   morningReport: (slug: string) =>
     req<{ drafts: Array<{ refHash: string; kind: string; content: unknown }> }>(

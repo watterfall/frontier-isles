@@ -72,6 +72,15 @@
 - 计划为 Pixi 而写、现状为 SVG —— **平台是决定一切的总开关**，先拍板再动，别在错误平台上做 M1 设计。
 - 只研究参考项目（arafays/messenger-copy、hexianWeb/CubeCity）逻辑，不复制资产。
 
+## M4 终点「接线上」已落地（Iter 14）— Pixi = 生成岛 L1 主渲染器
+- **接缝三块**（Explore 摸清）：① 缺 `api.ledger(slug)`——线上 L1 只有 `eventCount`,从不拉真账本;② `SceneStage` 无命中测试;③ `PixiSceneHost` 是 mock-only 孤立兄弟。补齐后即通,因为 `buildSceneGraph(input,t,claims)` 的 `LayoutInput` 契约**早已与 `GeneratedIslandScreen` 组的对象同形**。
+- **`ledger.jsonl` 直接可喂**：server 序列化 = `store.getEvents(opId).map(e=>JSON.stringify(e)).join("\n")`,每行就是 `LedgerEvent`(`{ts,op,actor:{id,kind},credit,phase,action,ref,prev?}`)。client 拉文本逐行 parse(**注意是 text/plain 不是 JSON,绕开 `req` 的 `res.json()`**)→ `projectClaimState` → claims。跳坏行别丢整本,失败 null → 调用方 synth。
+- **受控组件模式**：把渲染器抽成 `<PixiScene input claims t undertow onStation onWebglError onMetrics>`——数据/昼夜全 props,组件只持有 GPU boot+相机+烘纹理+命中映射。`t` 用 `tRef` 读、boot effect 依赖 `[input,claims]`(**t 变不重 boot,只 `setDayNight`**);回调用 `cbRef` 存(身份变不重 boot)。挂载 `position:absolute;inset:0`(**非 fixed**),才能活在 `.fi-stage` 帧内、被信息卡/lever 覆盖层压在上面。demo host 复用同一组件喂 mock,`?scene=pixi` 仍在。
+- **Pixi 命中测试**：`app.stage.eventMode='static'`(init 里)+ 对 world 层 station/claim 节点 `node.eventMode='static';node.cursor='pointer';node.on('pointertap',()=>onPick(id))`。**DOM 驱动,autoStart:false 也生效,不需 ticker**。包围盒命中够用,重叠按绘制序(高 depthKey 在前)取胜。id `station:<kind>` → `onStation(kind)`。
+- **no-GPU 兜底 = SVG 降级不删**:`onWebglError` → parent `setNoGpu(true)` → 渲染旧 `GeneratedSceneView`。正好满足"无 GPU 也渲染"不变式,SVG 场景从主路降级为 fallback。
+- **可靠 e2e 导航验收(新)**:global-playwright 不止能截 `?scene=pixi`,**也能驱动真 app L0→L1**:goto `/` → `waitForTimeout(3000)` → `page.mouse.click(x,y)` 点 L0 岛 `<g>`(坐标从 `getBoundingClientRect` 探)→ 等 canvas 出现 + ~3.5s boot/海 ticker → 截图。DayNightLever 是 104×40 圆角 pill `<div onClick>`,用 `getComputedStyle` 找 width===104 的 div 点其中心翻夜。**验证真岛需 server :8787 活 + seed**(否则退 "not reachable" 卡)。
+- **⚠️ seed 账本 claim 极稀疏**:全岛最多 1 submit_claim + 1 validate,真岛几乎无高塔/共识屋顶——**claim 生长满量程只在 demo 的手造账本可见**。这是数据丰富度缺口,非渲染 bug;要在真岛展示 M4.3 需 seed 更多 validate(跨岛复现)或等真实使用。
+
 ## ⚠️ 最大教训：design-system 是视觉契约，禁止即兴（2026-07-09 血泪）
 - **症状**：连续三版视觉被否——深青海 GLSL、G 金板数据标记、金塔。用户一句"按 Claude Design 设计图来"点破：我一直**没看 `design-system/*.html`(22 张)就自己发挥**，做出了系统里根本不存在的外来审美。
 - **真相**：真设计语言 = **暖宣纸底(#fi-grain)+ 墨线(--ink #3A342B)+ 米墙(--wall #F8F1DE)+ 彩色屋顶 + 软影 iso 建筑 + 海即数据(暖纸+洋流/气候/水深,非写实水)**。日间 --ground=#E0DBC8、--water=#BCCEDC(淡域水),`palettes.ts`/DOMAIN_SCENE_VARS 是真相。

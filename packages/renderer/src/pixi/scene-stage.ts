@@ -122,6 +122,13 @@ export class SceneStage {
   private terrainCached = false;
   /** Milliseconds the last on-demand frame took to render — the §7 baseline metric. */
   lastRenderMs = 0;
+  /**
+   * Called with a picked object's id when the user taps an interactive world node
+   * (station / claim). The React host maps the id back to a domain action
+   * (e.g. `station:workshop` → open that station). Set before/after render; the
+   * handler is read live, so late assignment still works.
+   */
+  onPick?: (id: string) => void;
   private seaShader?: Shader;
   private seaMask?: RenderTexture;
   private seaAnimating = false;
@@ -193,6 +200,10 @@ export class SceneStage {
     }
     // Paint order: sky (back) → scene content (sea/world/fog) → ui (front).
     app.stage.addChild(this.skyBackdrop, this.sceneContent, this.uiLayer);
+    // Enable the pointer event system so interactive world nodes (stations/claims)
+    // can be tapped (see render()). Events are DOM-driven, so this works even with
+    // autoStart:false / on-demand render — no ticker required for picking.
+    app.stage.eventMode = 'static';
     this.app = app;
   }
 
@@ -337,6 +348,14 @@ export class SceneStage {
       const node = this.makeNode(o, resolve);
       node.zIndex = o.depthKey;
       node.alpha = visibilityAt(o, graph.t);
+      // Interactive world nodes (stations + claims) are tappable → onPick(id).
+      // Bounding-box hit is fine here; Pixi resolves overlaps by paint order (the
+      // frontmost, i.e. higher depthKey, wins). Terrain/scenery/ghosts stay inert.
+      if (o.layer === 'world' && (o.kind.startsWith('station:') || o.kind === 'claim')) {
+        node.eventMode = 'static';
+        node.cursor = 'pointer';
+        node.on('pointertap', () => this.onPick?.(o.id));
+      }
       this.layerFor(o.layer).addChild(node);
       this.nodes.set(o.id, node);
       this.objects.set(o.id, o);
