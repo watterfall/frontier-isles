@@ -75,6 +75,49 @@ function anchorTile(p: Placed): TileCoord {
 }
 
 /**
+ * Depth-key band width per iso row (M1-DESIGN §3c/§3d). Must exceed the maximum
+ * intra-row contribution — `elevation·K_ELEV + OBJECT_BIAS + gx·TIE` — so no
+ * elevation or tie-break can ever push an object into an adjacent row's band.
+ * With the values below the intra-row span is < 21, ~48× below K_ROW: proven
+ * non-crossing (M1-DESIGN §3d).
+ */
+export const K_ROW = 1000;
+/** Per-elevation depth contribution within a row. Headroom for future sub-levels. */
+export const K_ELEV = 8;
+/** Depth bias of a ground tile within its anchor. */
+export const GROUND_BIAS = 0;
+/** Depth bias of a dynamic object — sits above the ground tile of the same anchor. */
+export const OBJECT_BIAS = 4;
+/**
+ * gx tie-break weight; sub-unit so it never crosses an integer band. Positive so
+ * a larger gx draws later, matching {@link compareDepth}'s `a.gx − b.gx` tie.
+ */
+export const TIE = 0.01;
+
+/** Which depth band a placed item occupies within its iso row. */
+export type DepthBand = 'ground' | 'object';
+
+/**
+ * Numeric isometric depth key for `sprite.zIndex` (M1-DESIGN §3c). Composes:
+ *
+ *   `anchorDepth·K_ROW + elevation·K_ELEV + bias + anchorGx·TIE`
+ *
+ * `anchorDepth`/`anchorGx` use the footprint's FAR corner (as {@link sortByDepth}
+ * does), so multi-tile buildings occlude correctly and the key reproduces
+ * `sortByDepth`'s order when `elevation = 0` and the band is uniform. Proven to
+ * never cross iso rows regardless of elevation/bias/tie (M1-DESIGN §3d): the
+ * intra-row span (< 21) is far below `K_ROW` (1000). Building *height* (claim
+ * floors) lifts the sprite visually via {@link ./iso!worldToScreenElevated} but
+ * does NOT enter this key, so growth never consumes depth budget.
+ */
+export function isoDepthKey(p: Placed, elevation = 0, band: DepthBand = 'object'): number {
+  const f = footprintOf(p);
+  const anchorGx = p.gx + (f.w - 1);
+  const bias = band === 'ground' ? GROUND_BIAS : OBJECT_BIAS;
+  return anchorDepth(p) * K_ROW + elevation * K_ELEV + bias + anchorGx * TIE;
+}
+
+/**
  * Painter's-order sort. Returns a NEW array (input untouched), ascending by
  * far-corner anchor depth so earlier items draw behind later ones. Ties break
  * by `gx` via {@link compareDepth}, and the sort is stabilised by original
@@ -139,4 +182,77 @@ export function sliceFootprint<T extends Placed>(p: T): FootprintSlice[] {
  */
 export function allPlaced(scene: IslandScene): Placed[] {
   return [...scene.stations, ...scene.placements, ...scene.scenery];
+}
+
+// ───────────────────────── SceneGraph — the layout → renderer contract ──────
+// M1-DESIGN §2. The layout layer resolves every spatial/visual decision here;
+// the renderer computes nothing (P2). A SceneGraph is a PixiJS-free superset of
+// IslandScene, so it serialises and unit-tests headless.
+
+/** Which render layer a {@link SceneObject} is dispatched to (M1-DESIGN §1). */
+export type SceneLayer = 'sea' | 'terrain' | 'world' | 'fog' | 'ui';
+
+/** Semantic LOD level (M7). M1 emits `Z2` only; `Z0` is interface-reserved. */
+export type LodLevel = 'Z0' | 'Z1' | 'Z2';
+
+/** Per-claim building growth (D2/M4); absent for non-claim objects. */
+export interface Growth {
+  /** Preprint / open data present → the base exists. */
+  foundation: boolean;
+  /** +1 per independent reproduction (distinct validating island). */
+  floors: number;
+  /** Domain consensus reached → roofed. */
+  roof: boolean;
+}
+
+/**
+ * A fully laid-out render object — the layout layer's output, consumed verbatim
+ * by the renderer. Extends {@link Placed} with the depth key ({@link isoDepthKey}),
+ * day/night visibility, LOD, biome and variation seed the layout layer resolves.
+ * `biome` is a domain key the layout owns; the renderer treats it only as a tint
+ * hint, so this module stays free of domain semantics.
+ */
+export interface SceneObject extends Placed {
+  layer: SceneLayer;
+  /** Terrain elevation level (0 = beach, 1 = terrace, 2 = highland). M1 = 0. */
+  elevation: number;
+  /** {@link isoDepthKey} output → `sprite.zIndex`. */
+  depthKey: number;
+  /** Alpha at `t = 0` (published/day state). */
+  dayVisibility: number;
+  /** Alpha at `t = 1` (process/night state). */
+  nightVisibility: number;
+  lodLevel: LodLevel;
+  /** Domain key (数理/物质/生命/交叉); layout-owned tint hint. */
+  biome: string;
+  /** Deterministic P7 variation seed (derived from `id`). */
+  variant: number;
+  /**
+   * Screen-space build height in px for the placeholder box renderer (M1). The
+   * layout layer computes it from data (claim floors, station kind), so building
+   * height already binds to the ledger before the 36-primitive kit lands (M4).
+   * `0` / undefined → drawn flat. Independent of {@link elevation} (terrain).
+   */
+  height?: number;
+  growth?: Growth;
+}
+
+/**
+ * The layout → renderer contract (M1-DESIGN §2). `t ∈ [0,1]` is the day↔night
+ * semantic slider (P4): `t = 0` published state, `t = 1` process/night state.
+ */
+export interface SceneGraph {
+  size: { w: number; h: number };
+  objects: SceneObject[];
+  t: number;
+}
+
+/**
+ * An object's alpha for the current day↔night slider `t` — a straight lerp from
+ * {@link SceneObject.dayVisibility} to {@link SceneObject.nightVisibility}. The
+ * renderer applies this per object; it is the second, independent day/night path
+ * alongside the global tone filter (P3/P4, M3).
+ */
+export function visibilityAt(o: SceneObject, t: number): number {
+  return o.dayVisibility + (o.nightVisibility - o.dayVisibility) * t;
 }

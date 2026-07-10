@@ -7,9 +7,22 @@ import App from './App';
 
 const el = document.getElementById('root');
 if (el) {
-  createRoot(el).render(
-    <StrictMode>
-      <App />
-    </StrictMode>,
-  );
+  const root = createRoot(el);
+  // `?scene=pixi` mounts the M1 layered Pixi scene in isolation (dynamic import
+  // keeps pixi.js out of the default bundle). Everything else renders the app.
+  if (new URLSearchParams(location.search).get('scene') === 'pixi') {
+    void import('./scene/PixiSceneHost').then(({ default: PixiSceneHost }) => {
+      root.render(
+        <StrictMode>
+          <PixiSceneHost />
+        </StrictMode>,
+      );
+    });
+  } else {
+    root.render(
+      <StrictMode>
+        <App />
+      </StrictMode>,
+    );
+  }
 }

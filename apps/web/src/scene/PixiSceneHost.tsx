@@ -1,0 +1,241 @@
+/**
+ * PixiSceneHost — M1 mount surface for the layered Pixi scene (M1-DESIGN §5).
+ *
+ * Boots a {@link SceneStage} into a canvas, feeds it a {@link buildSceneGraph}
+ * output, and wires camera pan/zoom + the day↔night slider. Isolated behind
+ * `?scene=pixi` (see main.tsx) so it never perturbs the existing SVG scene — the
+ * no-regression boundary for M1. Falls back to a message when WebGL is absent
+ * (architecture: the app must render without the GPU too; full SVG fallback wiring
+ * lands when the Pixi scene replaces the SVG one in M4).
+ */
+import { useEffect, useRef, useState, type ReactElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { SceneStage, type TextureResolver, type ResolvedTexture } from '@frontier-isles/renderer/pixi';
+import { worldToScreen } from '@frontier-isles/renderer';
+import { projectClaimState, type ClaimState } from '@frontier-isles/core';
+import {
+  StationWorkshop,
+  StationLibrary,
+  StationWhiteboardHall,
+  StationQuestionWall,
+  StationDataBench,
+  StationGallery,
+  StationTearoom,
+  DriftwoodGarden,
+  FerryDock,
+} from '@frontier-isles/assets';
+import type { ActionType, LedgerEvent } from '@frontier-isles/opp';
+import { buildSceneGraph, type LayoutInput } from './layout';
+import { bakeSvg } from './bakeTexture';
+
+/** The 9 L1 stations as their real SVG assets, keyed by scene-object kind. */
+const STATION_ELS: Record<string, ReactElement> = {
+  'station:workshop': <StationWorkshop x={160} y={160} />,
+  'station:library': <StationLibrary x={160} y={160} />,
+  'station:canvas': <StationWhiteboardHall x={160} y={160} />,
+  'station:questions': <StationQuestionWall x={160} y={160} />,
+  'station:data': <StationDataBench x={160} y={160} />,
+  'station:gallery': <StationGallery x={160} y={160} />,
+  'station:tearoom': <StationTearoom x={160} y={160} />,
+  'station:driftwood': <DriftwoodGarden x={160} y={160} showTransplantTag={false} />,
+  'station:dock': <FerryDock x={160} y={160} />,
+};
+
+/**
+ * A mock ledger for the demo island, reduced through projectClaimState (M4.3) so
+ * the claim buildings' floors/roof/ghost come from events, not a synth: one
+ * consensus claim (5 reproductions → roofed), one partially reproduced, one
+ * refuted (night ghost), one bare preprint.
+ */
+const DEMO_CLAIMS: ClaimState[] = (() => {
+  const ev: LedgerEvent[] = [];
+  let sec = 0;
+  const push = (op: string, action: ActionType, ref: string): void => {
+    ev.push({ ts: `2026-01-01T00:00:${String(++sec).padStart(2, '0')}.000Z`, op, actor: { id: 'github:demo', kind: 'human' }, credit: [], phase: 'A', action, ref });
+  };
+  push('op://demo', 'submit_claim', 'sha256:c1');
+  for (const o of ['b', 'c', 'd', 'e', 'f']) push(`op://${o}`, 'validate', 'sha256:c1'); // 5 → roofed
+  push('op://demo', 'submit_claim', 'sha256:c2');
+  push('op://b', 'validate', 'sha256:c2');
+  push('op://c', 'validate', 'sha256:c2'); // 2 reproductions
+  push('op://demo', 'submit_claim', 'sha256:c3');
+  push('op://b', 'refute', 'sha256:c3'); // refuted → ghost
+  push('op://demo', 'submit_claim', 'sha256:c4'); // bare preprint
+  return projectClaimState(ev);
+})();
+
+const DEMO: LayoutInput = {
+  slug: 'machine-curiosity',
+  domain: '数理',
+  stage: 2,
+  members: 4,
+  dormant: false,
+  status: 'active',
+  outlier: false,
+  hasAi: true,
+  eventCount: 40,
+};
+
+/** Per-domain water colours (0..1 rgb): shallow / deep / foam. */
+// Pale domain water, VERBATIM the design-system `--water` day values
+// (DOMAIN_SCENE_VARS): a warm-paper data field, NOT photographic deep teal.
+const SEA_COLORS: Record<string, { seaColor: [number, number, number]; deepColor: [number, number, number]; foamColor: [number, number, number] }> = {
+  数理: { seaColor: [0.737, 0.808, 0.863], deepColor: [0.651, 0.745, 0.816], foamColor: [0.941, 0.918, 0.847] },
+  物质: { seaColor: [0.784, 0.847, 0.8], deepColor: [0.698, 0.776, 0.722], foamColor: [0.941, 0.918, 0.847] },
+  生命: { seaColor: [0.722, 0.831, 0.769], deepColor: [0.627, 0.761, 0.69], foamColor: [0.933, 0.941, 0.863] },
+  交叉: { seaColor: [0.8, 0.784, 0.847], deepColor: [0.714, 0.698, 0.8], foamColor: [0.941, 0.918, 0.847] },
+};
+
+const clamp = (v: number, lo: number, hi: number): number => Math.max(lo, Math.min(hi, v));
+
+export default function PixiSceneHost({ input = DEMO }: { input?: LayoutInput }) {
+  const hostRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<SceneStage | null>(null);
+  const cam = useRef({ ...worldToScreen(8, 8), zoom: 0.75 }); // island centre (tile 8,8)
+  const drag = useRef<{ x: number; y: number } | null>(null);
+  const [t, setT] = useState(0);
+  const [undertow, setUndertow] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const [stat, setStat] = useState({ renderMs: 0, sorted: 0, objects: 0 });
+
+  const applyCam = (): void => {
+    const s = stageRef.current;
+    if (!s) return;
+    s.zoomTo(cam.current.zoom);
+    s.panTo(cam.current.x, cam.current.y);
+  };
+
+  // Boot once. StrictMode double-invokes effects, so guard init/destroy.
+  useEffect(() => {
+    const el = hostRef.current;
+    if (!el) return;
+    let disposed = false;
+    let stage: SceneStage | null = null;
+    void (async () => {
+      const s = new SceneStage();
+      try {
+        // Pass the host DIV (not a shared canvas): Pixi creates its own canvas so
+        // StrictMode's double-mount can't init two apps onto one element and then
+        // have the first destroy(removeView) tear the canvas out from under the
+        // survivor. resizeTo fills + follows the container.
+        await s.init(el, { resizeTo: el, background: 0xf2ecd9, backgroundAlpha: 1 }); // warm paper (design base)
+      } catch (e) {
+        if (!disposed) setErr(String(e));
+        return;
+      }
+      if (disposed) {
+        s.destroy();
+        return;
+      }
+      stage = s;
+      stageRef.current = s;
+      const graph = buildSceneGraph(input, t, DEMO_CLAIMS);
+      // Texture-lift (design-system alignment): rasterise ALL 9 real station SVG
+      // assets → Pixi textures and feed them through the resolver, replacing the
+      // placeholder boxes so the whole island renders in the hand-drawn design
+      // vocabulary. Uniform bake box (per-station registration tuning deferred);
+      // anchor = the art's shadow centre; scale maps ~220 SVG units → ~150 scene px.
+      let resolve: TextureResolver | undefined;
+      try {
+        const C = 320;
+        const texMap: Record<string, ResolvedTexture> = {};
+        for (const [kind, el] of Object.entries(STATION_ELS)) {
+          const svg = renderToStaticMarkup(
+            <svg xmlns="http://www.w3.org/2000/svg" width={C} height={C} viewBox={`0 0 ${C} ${C}`}>
+              {el}
+            </svg>,
+          );
+          const tex = await bakeSvg(svg, { width: C, height: C, scale: 3 });
+          texMap[kind] = { texture: tex, anchor: { x: 0.5, y: 0.675 }, scale: 150 / (220 * 3) };
+        }
+        if (disposed) return;
+        resolve = (o) => texMap[o.kind];
+      } catch (err) {
+        console.warn('[probe] station bake failed', err);
+      }
+      s.render(graph, resolve);
+      applyCam();
+      s.buildSea(SEA_COLORS[input.domain] ?? SEA_COLORS['数理']!); // animated water plane (M2)
+      setStat({ objects: graph.objects.length, sorted: s.sortedNodeCount(), renderMs: s.lastRenderMs });
+    })();
+    return () => {
+      disposed = true;
+      if (stage) stage.destroy();
+      stageRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [input]);
+
+  // Day↔night slider → per-object alpha path (P4).
+  useEffect(() => {
+    stageRef.current?.setDayNight(t);
+  }, [t]);
+
+  // Disputed-sea undertow toggle (M2).
+  useEffect(() => {
+    stageRef.current?.setUndertow(undertow);
+  }, [undertow]);
+
+  // Render-cost sampler for the §7 frame baseline (updates as the user interacts).
+  useEffect(() => {
+    const id = setInterval(() => {
+      const s = stageRef.current;
+      if (s?.app) setStat((v) => ({ ...v, renderMs: s.lastRenderMs, sorted: s.sortedNodeCount() }));
+    }, 500);
+    return () => clearInterval(id);
+  }, []);
+
+  const onWheel = (e: React.WheelEvent): void => {
+    cam.current.zoom = clamp(cam.current.zoom * (e.deltaY < 0 ? 1.1 : 0.9), 0.2, 3);
+    applyCam();
+  };
+  const onPointerDown = (e: React.PointerEvent): void => {
+    drag.current = { x: e.clientX, y: e.clientY };
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  };
+  const onPointerMove = (e: React.PointerEvent): void => {
+    if (!drag.current) return;
+    cam.current.x -= (e.clientX - drag.current.x) / cam.current.zoom;
+    cam.current.y -= (e.clientY - drag.current.y) / cam.current.zoom;
+    drag.current = { x: e.clientX, y: e.clientY };
+    applyCam();
+  };
+  const onPointerUp = (): void => {
+    drag.current = null;
+  };
+
+  return (
+    <div
+      ref={hostRef}
+      style={{ position: 'fixed', inset: 0, background: '#f2ecd9', touchAction: 'none', cursor: 'grab' }}
+      onWheel={onWheel}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+    >
+      {err && (
+        <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', color: '#e8e8f0', font: '14px system-ui', padding: 24, textAlign: 'center' }}>
+          WebGL unavailable — the Pixi scene needs a GPU context.<br />
+          {err}
+        </div>
+      )}
+      <div style={{ position: 'absolute', top: 12, left: 12, color: '#cfd6e6', font: '12px ui-monospace, monospace', background: 'rgba(0,0,0,.45)', padding: '6px 9px', borderRadius: 6, lineHeight: 1.5 }}>
+        <div>M3 · day/night + sea + layered</div>
+        <div>render {stat.renderMs.toFixed(1)}ms · sorted {stat.sorted} · objects {stat.objects}</div>
+        <div>drag = pan · wheel = zoom</div>
+        <button
+          type="button"
+          onClick={() => setUndertow((v) => !v)}
+          style={{ marginTop: 5, font: '11px ui-monospace, monospace', color: '#cfd6e6', background: undertow ? 'rgba(120,60,90,.7)' : 'rgba(255,255,255,.12)', border: '1px solid rgba(255,255,255,.2)', borderRadius: 5, padding: '3px 7px', cursor: 'pointer' }}
+        >
+          undertow {undertow ? 'ON' : 'off'}
+        </button>
+      </div>
+      <label style={{ position: 'absolute', bottom: 16, left: '50%', transform: 'translateX(-50%)', color: '#cfd6e6', font: '12px system-ui', background: 'rgba(0,0,0,.45)', padding: '8px 12px', borderRadius: 8, display: 'flex', gap: 10, alignItems: 'center' }}>
+        <span>☀︎ day</span>
+        <input type="range" min={0} max={1} step={0.01} value={t} onChange={(e) => setT(Number(e.target.value))} style={{ width: 220 }} />
+        <span>night ☾ · t={t.toFixed(2)}</span>
+      </label>
+    </div>
+  );
+}
