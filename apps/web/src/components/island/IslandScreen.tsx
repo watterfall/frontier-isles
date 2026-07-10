@@ -1,7 +1,11 @@
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { LedgerEvent } from '@frontier-isles/opp';
 import type { StationKind } from '@frontier-isles/core';
+import { projectNightTimeline } from '@frontier-isles/core';
 import { NIGHT_SCENE_VARS, sceneVarsToStyle } from '@frontier-isles/assets';
 import { Scene } from '../../scene/Scene';
+import { computeGhostReveals } from '../../scene/nightReveal';
 import { DayNightLever } from './DayNightLever';
 import { ListTwin } from './ListTwin';
 import { MorningReport } from './MorningReport';
@@ -48,12 +52,65 @@ export function IslandScreen(props: IslandScreenProps) {
   const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
   const { night, peers } = props;
 
+  /**
+   * Phase B.2 (docs/ROADMAP.md §4 Phase B item 2, "ledger-driven night
+   * replay"): best-effort pull of the real machine-curiosity ledger on
+   * mount. `null` covers both "not loaded yet" and "fetch failed" — either
+   * way `computeGhostReveals` below falls back to the seed constants, so
+   * the scene renders identically to before this change while offline
+   * (build-spec resilience rule, src/api/client.ts `ledger()` doc comment).
+   */
+  const [ledgerEvents, setLedgerEvents] = useState<LedgerEvent[] | null>(null);
+  useEffect(() => {
+    let alive = true;
+    void (async () => {
+      const events = await api.ledger(SAMPLE_SLUG);
+      if (alive && events) setLedgerEvents(events);
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  // Frozen once per mount rather than re-evaluated every render, so the
+  // model doesn't drift mid-session (projectNightTimeline is otherwise
+  // clock-free/pure — see packages/core/src/night-timeline.ts).
+  const [nowIso] = useState(() => new Date().toISOString());
+
+  /**
+   * The night-replay scrubber's data contract (packages/core/src/night-
+   * timeline.ts `projectNightTimeline`, Phase B.2). `nights`/`markers` here
+   * are the real-ledger truth; the seed's "night 86 = today" is a *story*
+   * anchor for NightTimeline.tsx's still-hardcoded 1..86 slider (owned by a
+   * parallel lane migrating it to consume this model directly) — once real
+   * events exist, this model's `nights` (usually far fewer than 86, since
+   * the real ledger only spans a handful of actual days) is what's true,
+   * and the seed's 86 yields to it. See scene/nightReveal.ts for how the
+   * scene layer bridges the two axes in the meantime.
+   */
+  const nightModel = useMemo(
+    () => projectNightTimeline(ledgerEvents ?? [], { now: nowIso }),
+    [ledgerEvents, nowIso],
+  );
+
+  const ghostReveals = useMemo(
+    () => computeGhostReveals(ledgerEvents, nightModel),
+    [ledgerEvents, nightModel],
+  );
+
   return (
     <div
       data-screen-label="L1 样板岛"
       style={{ position: 'absolute', inset: 0, background: 'var(--pp,#F2EAD8)', transition: 'background .8s ease', ...sceneVarsToStyle(night ? NIGHT_SCENE_VARS : {}) }}
     >
-      <Scene night={night} nightT={props.t} selKey={props.sel} transTo={props.transTo} onStation={props.onStation} />
+      <Scene
+        night={night}
+        nightT={props.t}
+        selKey={props.sel}
+        transTo={props.transTo}
+        onStation={props.onStation}
+        ghostReveals={ghostReveals}
+      />
 
       {/* L1 顶部信息 */}
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '18px 24px', pointerEvents: 'none' }}>

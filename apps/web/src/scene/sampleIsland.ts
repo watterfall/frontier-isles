@@ -96,8 +96,20 @@ export const CONSTANT_RESIDENTS: ResidentPlacement[] = [
 /** Night watch figure (沈括 · 守夜). */
 export const NIGHT_RESIDENT: ResidentPlacement = { x: 960, y: 470, kind: 'human', nightWatch: true, caption: { zh: '沈括 · 守夜', en: 'Shen Kuo · night watch' } };
 
-/** Ghost artifacts, gated by the night timeline threshold (prototype g1/g2/g3op). */
-export const GHOSTS: Array<{ type: 'card' | 'prototype' | 'canvas'; threshold: number }> = [
+export type GhostType = 'card' | 'prototype' | 'canvas';
+
+/**
+ * Ghost artifacts, gated by the night timeline threshold (prototype
+ * g1/g2/g3op). These are the SEED fallback thresholds — Phase B.2
+ * (`scene/nightReveal.ts`) derives real thresholds from the machine-curiosity
+ * ledger when it's reachable and falls back to these exact numbers when it
+ * isn't, so offline rendering stays pixel-identical to before that change.
+ * They correspond 1:1 to `apps/server/src/seed.ts`'s g1/g2/g3 ghost events:
+ * g1 = return_to_driftwood @ night 12 ("被撤下的问题卡"), g2 = refute @ night
+ * 41 ("实验坊原型宣告失败"), g3 = return_to_driftwood @ night 63 ("一张画布
+ * 被废弃").
+ */
+export const GHOSTS: Array<{ type: GhostType; threshold: number }> = [
   { type: 'card', threshold: 12 },
   { type: 'prototype', threshold: 41 },
   { type: 'canvas', threshold: 63 },
