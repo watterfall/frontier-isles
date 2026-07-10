@@ -12,6 +12,12 @@ describe('toAtlasInput', () => {
     expect(i.slug).toBe(d.slug ?? `id-${d.id}`);
   });
 
+  it('carries the member count through for T2 richness (atlas-world-plan.md §4 lane W5)', () => {
+    const d = DATA[0]!;
+    const i = toAtlasInput(d);
+    expect(i.members).toBe(d.m);
+  });
+
   it('derives status from resolved/dormant flags, discrete never continuous', () => {
     const resolved = toAtlasInput({ ...DATA[0]!, res: true, dor: false });
     const dormant = toAtlasInput({ ...DATA[0]!, res: false, dor: true });

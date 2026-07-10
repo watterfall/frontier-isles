@@ -77,6 +77,9 @@ export default function AtlasChartHost({ islands, onPick, onHoverIsland, onWebgl
         stage.setIslands(atlasIslands, clusters);
         stage.setClimate(continents, fog, flows);
         stageRef.current = stage;
+        // DEV-only handle for deterministic camera control (verification
+        // screenshots) — mirrors AtlasPixiHost's identical debug hook.
+        if (import.meta.env.DEV) (window as unknown as { __atlas?: AtlasStage }).__atlas = stage;
       })
       .catch(() => {
         if (!disposed) cbRef.current.onWebglError();
