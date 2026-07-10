@@ -6,6 +6,7 @@ import { NIGHT_SCENE_VARS, DOMAIN_SCENE_VARS, sceneVarsToStyle } from '@frontier
 import { DayNightLever } from './DayNightLever';
 import { ClaimDetailPanel } from './ClaimDetailPanel';
 import { RitualEventPanel } from './RitualEventPanel';
+import { TransplantPanel } from './TransplantPanel';
 import { NightTimeline } from './NightTimeline';
 import { api } from '../../api/client';
 import { generate, type GeneratedScene } from '../../scene/generator';
@@ -52,6 +53,9 @@ export interface GeneratedIslandScreenProps {
   onToggleNight: () => void;
   onBack: () => void;
   onStation: (key: StationKind) => void;
+  /** Current user's ledger actor id — for the human transplant (Phase B.3). */
+  actor: string;
+  onToast: (msg: string) => void;
 }
 
 /**
@@ -60,7 +64,7 @@ export interface GeneratedIslandScreenProps {
  * and renders it with the island's real title/qfocus/brief/citation. The
  * sample island keeps its bespoke {@link Scene}; this is the data-driven path.
  */
-export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onStation }: GeneratedIslandScreenProps) {
+export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onStation, actor, onToast }: GeneratedIslandScreenProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
   const [detail, setDetail] = useState<IslandDetail | null>(null);
@@ -86,6 +90,8 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
   // accumulates a tally either).
   const [dueRitualEvents, setDueRitualEvents] = useState<RitualEvent[]>([]);
   const [ritualPanel, setRitualPanel] = useState<RitualEvent | null>(null);
+  // Human transplant-through-dock (Phase B.3): the driftwood→dock→station panel.
+  const [transplantOpen, setTransplantOpen] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   // Ledger-driven night replay (ROADMAP B.2). `timeline` = projectNightTimeline
   // over the real ledger; `scrubNight` = the dragged night (default = tonight =
@@ -312,6 +318,9 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
 
       <ClaimDetailPanel claim={claimPanel} onClose={() => setClaimPanel(null)} />
       <RitualEventPanel event={ritualPanel} onClose={() => setRitualPanel(null)} />
+      {transplantOpen && (
+        <TransplantPanel slug={slug} actor={actor} lang={lang} onClose={() => setTransplantOpen(false)} onToast={onToast} />
+      )}
 
       {/* Ledger-driven night replay scrubber (B.2) — only at night, only when
           the ledger has events to replay. Dragging slices the ledger and
@@ -355,6 +364,17 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
         <div style={{ pointerEvents: 'auto' }}>
           <DayNightLever night={night} onToggle={onToggleNight} />
         </div>
+      </div>
+
+      {/* Transplant-through-dock trigger (Phase B.3) — a human moves a driftwood
+          atom through the dock into a formal station. Bottom-right, opposite the
+          leave links; the panel does the picking + POST. */}
+      <div
+        onClick={() => setTransplantOpen(true)}
+        data-testid="transplant-open"
+        style={{ position: 'absolute', right: 22, bottom: 12, cursor: 'pointer', background: 'var(--card,rgba(250,245,232,0.92))', border: '1.5px solid var(--ink,#3A342B)', borderRadius: 6, padding: '7px 13px', fontSize: 12, color: 'var(--inkT,#2B2620)', display: 'flex', alignItems: 'center', gap: 7 }}
+      >
+        渡 {t('island.transplant.open')}
       </div>
 
       {/* Leave links */}

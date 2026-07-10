@@ -92,3 +92,7 @@ export type {
 // Night timeline (Phase B.2 — the replay scrubber's ledger-derived model)
 export { projectNightTimeline, TIMELINE_MARKER_ACTIONS } from "./night-timeline";
 export type { NightTimelineMarker, NightTimelineModel } from "./night-timeline";
+
+// Transplant-through-dock (Phase B.3 — driftwood → dock → station; pure data shape)
+export { buildTransplant, TRANSPLANT_TARGETS } from "./transplant";
+export type { TransplantInput, TransplantBuild, BridgeArtifactContent } from "./transplant";
