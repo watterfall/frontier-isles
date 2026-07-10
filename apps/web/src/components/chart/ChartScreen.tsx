@@ -189,9 +189,12 @@ export function ChartScreen({ islands, hover, onHover, onIsland, onBuild, onColl
           const cap = truncateToWidth(d.n[lang], 150, 12.5);
           const capW = estWidth(cap, 12.5);
           // Terrain fingerprint (depth-plan-v1 §5): stage is the discrete size/density
-          // tier (never a continuous rank), domain picks the coastline grammar, and the
-          // seed is stable per island (hash of its slug, falling back to id) so the same
-          // island always renders the same coastline (invariant 13).
+          // tier (never a continuous rank); seed is stable per island (hash of its
+          // slug, falling back to id) so the same island always renders the same
+          // coastline (invariant 13). Every island shares one soft-mound coastline
+          // family (rollback note in islandSilhouette.ts) — domain differentiates
+          // via fill color (`DOMAIN_META`, just below) and building/vegetation
+          // density (`Buildings`), never geometry.
           const fpStage = d.st <= 0 ? 0 : d.st >= 3 ? 3 : (d.st as 1 | 2);
           const fpSeed = hashSeed(d.slug ?? String(d.id));
           return (

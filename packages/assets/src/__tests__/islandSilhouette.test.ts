@@ -1,14 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  hashSeed,
-  islandSilhouettePath,
-  DOMAIN_GRAMMAR,
-  STAGE_RADIUS,
-  type CoastlineGrammar,
-} from '../chart/islandSilhouette';
-import type { Domain } from '../palettes';
-
-const DOMAINS: Domain[] = ['数理', '物质', '生命', '交叉'];
+import { hashSeed, islandSilhouettePath, STAGE_RADIUS } from '../chart/islandSilhouette';
 
 /** Max |x| across every coordinate pair in a path `d` string — a cheap,
  * command-agnostic stand-in for "footprint radius". */
@@ -35,65 +26,52 @@ describe('hashSeed', () => {
 });
 
 describe('islandSilhouettePath — determinism (invariant 13)', () => {
-  it('the same domain+stage+seed always renders the identical path', () => {
-    const opts = { domain: '生命' as Domain, stage: 2 as const, seed: hashSeed('bio-compute-thermo') };
+  it('the same stage+seed always renders the identical path', () => {
+    const opts = { stage: 2 as const, seed: hashSeed('bio-compute-thermo') };
     expect(islandSilhouettePath(opts)).toBe(islandSilhouettePath({ ...opts }));
   });
 
   it('every island (unique slug) gets a stable seed and thus a stable shape across renders', () => {
     for (const slug of ['living-wires', 'dark-instrumentation', 'compositional-modeling']) {
       const seed = hashSeed(slug);
-      const a = islandSilhouettePath({ domain: '物质', stage: 1, seed });
-      const b = islandSilhouettePath({ domain: '物质', stage: 1, seed });
+      const a = islandSilhouettePath({ stage: 1, seed });
+      const b = islandSilhouettePath({ stage: 1, seed });
       expect(a).toBe(b);
     }
   });
 
   it('different islands (different seeds) get visibly different coastlines', () => {
-    const a = islandSilhouettePath({ domain: '生命', stage: 2, seed: hashSeed('island-a') });
-    const b = islandSilhouettePath({ domain: '生命', stage: 2, seed: hashSeed('island-b') });
+    const a = islandSilhouettePath({ stage: 2, seed: hashSeed('island-a') });
+    const b = islandSilhouettePath({ stage: 2, seed: hashSeed('island-b') });
     expect(a).not.toBe(b);
   });
 });
 
-describe('islandSilhouettePath — domain coastline grammar', () => {
-  it('数理 is angular — a straight-edged polygon (only M/L/Z commands)', () => {
-    const d = islandSilhouettePath({ domain: '数理', stage: 2, seed: 1 });
-    expect(/^[MLZ0-9.\-\s]+$/.test(d)).toBe(true);
-    expect(d).not.toMatch(/[CQ]/);
+describe('islandSilhouettePath — rollback: one soft-mound grammar for every island', () => {
+  // Design-authority rollback (see the header note in islandSilhouette.ts):
+  // a previous version picked a different geometric "grammar" per domain
+  // (straight polygon / stepped facets / smooth curve / straight+curve
+  // hybrid). That was never authorized by the prototype and read as
+  // "wrong, worse than the original" on user testing. These tests lock in
+  // the fix: there is now exactly one family — a closed Catmull-Rom curve,
+  // the same curve family as the prototype's own hand-drawn `MOUND_PATHS` —
+  // and `domain` is no longer even an input to the silhouette function.
+
+  it('every path is built only from soft-mound curve commands (M/C/Z) — no straight edges, ever', () => {
+    for (const seed of [hashSeed('a'), hashSeed('b'), hashSeed('c'), 1, 42]) {
+      for (const stage of [0, 1, 2, 3] as const) {
+        const d = islandSilhouettePath({ stage, seed });
+        expect(/^[MCZ0-9.\-\s]+$/.test(d)).toBe(true);
+        expect(d).not.toMatch(/[LQ]/);
+      }
+    }
   });
 
-  it('生命 is organic — a smooth curve built entirely from cubic Beziers', () => {
-    const d = islandSilhouettePath({ domain: '生命', stage: 2, seed: 1 });
-    expect(d).toMatch(/C/);
-    expect(d).not.toMatch(/[LQ]/);
-  });
-
-  it('物质 is faceted — stepped polylines, twice the corners of a plain polygon', () => {
-    const d = islandSilhouettePath({ domain: '物质', stage: 2, seed: 1 });
-    const lCount = (d.match(/L/g) ?? []).length;
-    expect(d).not.toMatch(/[CQ]/);
-    // 6 base vertices × 2 corners per edge = 12 L commands
-    expect(lCount).toBe(12);
-  });
-
-  it('交叉 is hybrid — alternates straight edges with curved bulges', () => {
-    const d = islandSilhouettePath({ domain: '交叉', stage: 2, seed: 1 });
-    expect(d).toMatch(/L/);
-    expect(d).toMatch(/Q/);
-  });
-
-  it('all four domains produce a distinct grammar (no accidental overlap)', () => {
-    const grammars = new Set(DOMAINS.map((dm) => DOMAIN_GRAMMAR[dm]));
-    expect(grammars.size).toBe(4);
-    const known: CoastlineGrammar[] = ['angular', 'organic', 'faceted', 'hybrid'];
-    for (const g of grammars) expect(known).toContain(g);
-  });
-
-  it('the same seed+stage renders a different path per domain (shape follows domain, not just size)', () => {
-    const seed = hashSeed('cross-cutting-example');
-    const paths = DOMAINS.map((domain) => islandSilhouettePath({ domain, stage: 2, seed }));
-    expect(new Set(paths).size).toBe(4);
+  it('the silhouette function no longer accepts (or needs) a `domain` input', () => {
+    // Compile-time guarantee too: SilhouetteOptions has no `domain` field —
+    // this call would be a type error if `domain` were required again.
+    const d = islandSilhouettePath({ stage: 2, seed: 1 });
+    expect(d.length).toBeGreaterThan(0);
   });
 });
 
@@ -105,24 +83,25 @@ describe('islandSilhouettePath — stage-bound size tiers (no continuous ranking
     }
   });
 
-  it('a school (stage 3) silhouette is visibly larger than an empty isle (stage 0), same domain+seed', () => {
+  it('a school (stage 3) silhouette is visibly larger than an empty isle (stage 0), same seed', () => {
     const seed = hashSeed('same-island-across-stages');
-    const empty = islandSilhouettePath({ domain: '物质', stage: 0, seed });
-    const school = islandSilhouettePath({ domain: '物质', stage: 3, seed });
+    const empty = islandSilhouettePath({ stage: 0, seed });
+    const school = islandSilhouettePath({ stage: 3, seed });
     expect(maxAbsX(school)).toBeGreaterThan(maxAbsX(empty));
   });
 
   it('stage is the only size driver — same stage, different seeds, comparable footprint radius', () => {
-    const a = islandSilhouettePath({ domain: '生命', stage: 1, seed: hashSeed('x') });
-    const b = islandSilhouettePath({ domain: '生命', stage: 1, seed: hashSeed('y') });
-    // jitter is bounded (±11%), so same-stage footprints stay within a tight band —
-    // never spread out into a continuous per-island ranking.
+    const a = islandSilhouettePath({ stage: 1, seed: hashSeed('x') });
+    const b = islandSilhouettePath({ stage: 1, seed: hashSeed('y') });
+    // jitter (control points + aspect ratio) is bounded, so same-stage
+    // footprints stay within a tight band — never spread out into a
+    // continuous per-island ranking.
     expect(Math.abs(maxAbsX(a) - maxAbsX(b))).toBeLessThan(STAGE_RADIUS[1] * 0.25);
   });
 
   it('the cap tier (school second terrace) is always hut-sized, regardless of the base stage', () => {
     const seed = hashSeed('capped-school-island');
-    const cap = islandSilhouettePath({ domain: '生命', stage: 3, seed, tier: 'cap' });
+    const cap = islandSilhouettePath({ stage: 3, seed, tier: 'cap' });
     expect(maxAbsX(cap)).toBeLessThan(STAGE_RADIUS[3]);
     expect(maxAbsX(cap)).toBeLessThanOrEqual(STAGE_RADIUS[1] * 1.15);
   });
