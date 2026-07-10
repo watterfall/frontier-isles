@@ -10,14 +10,12 @@
 - ✅ **海即数据 L1**:海深=抽象度(substrate)· undertow=争议度(refuted)· 面板文字解码器。
 - ✅ **名牌 LOD**:栅格烘入 → 屏幕空间 billboard Text 层,任意缩放清晰,远印章单字/近全名。
 - ✅ **信息层级规划**:`INFO-HIERARCHY.md`(众岛语义 LOD)+ ROADMAP §3.11 指针。
+- ✅ **Bundle 代码分割**:live L1 用 `React.lazy` 懒加载 `PixiScene` + `<Suspense>` → 主包 **339→182KB gzip(−46%)**,Pixi(156KB)独立 chunk,进岛才载;L0 海图不再付 Pixi 代价。真岛 e2e 验证无损。
 
 ---
 
-## P0 · 应尽快（含本次引入的回归）
-- **Bundle 代码分割回归**:live L1(`GeneratedIslandScreen`)**静态 import `PixiScene`**,把 Pixi 打进主包 → 主 bundle ~1.1MB/339KB gzip,**L0 海图在进岛前就付 Pixi 代价**(此前 Pixi 仅 `?scene=pixi` 动态载)。**修法**:`GeneratedIslandScreen` 用 `React.lazy(() => import('../../scene/PixiScene'))` + `<Suspense>` 兜底,把 Pixi 挪出主包、进岛才载。~10 行,低风险。
-- **样板英雄岛未接 Pixi**:`machine-curiosity` 仍走 bespoke SVG `Scene`(默认入口就是它)。要么接 Pixi 统一,要么明确它是 SVG 手绘 hero 的定位。
-
 ## P1 · 计划内下一批（L1 丰富度 + 交互补全）
+- **样板英雄岛未接 Pixi**:`machine-curiosity` 仍走 bespoke SVG `Scene`(默认入口就是它)。要么接 Pixi 统一,要么明确它是 SVG 手绘 hero 的定位。
 - **claim 点击接面板**:现仅站点 `station:*` → `onStation`;claim 塔点击未接 detail 面板。
 - **M4.4 Landmark×4**(每 biome 一个 2–3× 体量地标)· **M4.5 密度梯度环带**(岛心高密→岸线稀疏)—— 单岛丰富度,scene-upgrade 原计划 deferred。
 - **M8 微动态第二批**:炊烟(A3)/ 旗帜摆动(A4)/ 萤火 / 夜市灯 —— 需 `ParticleContainer` + 未建的 A3/A4 附件原语。
