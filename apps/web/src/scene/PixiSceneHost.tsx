@@ -8,15 +8,38 @@
  * (architecture: the app must render without the GPU too; full SVG fallback wiring
  * lands when the Pixi scene replaces the SVG one in M4).
  */
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { SceneStage, type TextureResolver } from '@frontier-isles/renderer/pixi';
+import { SceneStage, type TextureResolver, type ResolvedTexture } from '@frontier-isles/renderer/pixi';
 import { worldToScreen } from '@frontier-isles/renderer';
 import { projectClaimState, type ClaimState } from '@frontier-isles/core';
-import { StationWorkshop } from '@frontier-isles/assets';
+import {
+  StationWorkshop,
+  StationLibrary,
+  StationWhiteboardHall,
+  StationQuestionWall,
+  StationDataBench,
+  StationGallery,
+  StationTearoom,
+  DriftwoodGarden,
+  FerryDock,
+} from '@frontier-isles/assets';
 import type { ActionType, LedgerEvent } from '@frontier-isles/opp';
 import { buildSceneGraph, type LayoutInput } from './layout';
 import { bakeSvg } from './bakeTexture';
+
+/** The 9 L1 stations as their real SVG assets, keyed by scene-object kind. */
+const STATION_ELS: Record<string, ReactElement> = {
+  'station:workshop': <StationWorkshop x={160} y={160} />,
+  'station:library': <StationLibrary x={160} y={160} />,
+  'station:canvas': <StationWhiteboardHall x={160} y={160} />,
+  'station:questions': <StationQuestionWall x={160} y={160} />,
+  'station:data': <StationDataBench x={160} y={160} />,
+  'station:gallery': <StationGallery x={160} y={160} />,
+  'station:tearoom': <StationTearoom x={160} y={160} />,
+  'station:driftwood': <DriftwoodGarden x={160} y={160} showTransplantTag={false} />,
+  'station:dock': <FerryDock x={160} y={160} />,
+};
 
 /**
  * A mock ledger for the demo island, reduced through projectClaimState (M4.3) so
@@ -107,24 +130,28 @@ export default function PixiSceneHost({ input = DEMO }: { input?: LayoutInput })
       stage = s;
       stageRef.current = s;
       const graph = buildSceneGraph(input, t, DEMO_CLAIMS);
-      // Probe (texture-lift strategy): rasterise the REAL Workshop SVG asset →
-      // Pixi texture and feed it through the resolver, replacing the placeholder
-      // box. This is the make-or-break test that the illustrated hand-art reads
-      // correctly inside the iso scene. anchor = the art's shadow centre (ground
-      // point); scale maps 220 SVG units → ~150 scene px (~one tile footprint).
+      // Texture-lift (design-system alignment): rasterise ALL 9 real station SVG
+      // assets → Pixi textures and feed them through the resolver, replacing the
+      // placeholder boxes so the whole island renders in the hand-drawn design
+      // vocabulary. Uniform bake box (per-station registration tuning deferred);
+      // anchor = the art's shadow centre; scale maps ~220 SVG units → ~150 scene px.
       let resolve: TextureResolver | undefined;
       try {
-        const svg = renderToStaticMarkup(
-          <svg xmlns="http://www.w3.org/2000/svg" width={280} height={300} viewBox="0 0 280 300">
-            <StationWorkshop x={140} y={150} label={{ text: '实验坊', sealColor: '#B5673A' }} />
-          </svg>,
-        );
-        const tex = await bakeSvg(svg, { width: 280, height: 300, scale: 3 });
+        const C = 320;
+        const texMap: Record<string, ResolvedTexture> = {};
+        for (const [kind, el] of Object.entries(STATION_ELS)) {
+          const svg = renderToStaticMarkup(
+            <svg xmlns="http://www.w3.org/2000/svg" width={C} height={C} viewBox={`0 0 ${C} ${C}`}>
+              {el}
+            </svg>,
+          );
+          const tex = await bakeSvg(svg, { width: C, height: C, scale: 3 });
+          texMap[kind] = { texture: tex, anchor: { x: 0.5, y: 0.675 }, scale: 150 / (220 * 3) };
+        }
         if (disposed) return;
-        const workshop = { texture: tex, anchor: { x: 0.5, y: 0.687 }, scale: 150 / (220 * 3) };
-        resolve = (o) => (o.kind === 'station:workshop' ? workshop : undefined);
+        resolve = (o) => texMap[o.kind];
       } catch (err) {
-        console.warn('[probe] workshop bake failed', err);
+        console.warn('[probe] station bake failed', err);
       }
       s.render(graph, resolve);
       applyCam();

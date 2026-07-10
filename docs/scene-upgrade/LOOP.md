@@ -88,3 +88,10 @@ Move:     (1) 环境重皮:scene-stage groundTint/biomeTint/placeholderColor + P
 Verify:   ✅ 目视: 暖宣纸环境一眼是 design-system 语言(probe-parchment-day.png);claim 变小建筑、高楼+旗=共识、与 Workshop 同语言(probe-claimC-day.png)。renderer+web typecheck 干净,render 0.2ms。
 Decision: **环境纠偏 ✅ + claim C 桥 ✅ + A brief 交付**。未提交(探针层)。→ 等 A 设计图回流替换 makeClaimMark;继续:海压波光+接洋流/气候(Fable #1)、批量烘 station 纹理、名牌上 UI 层。
 Deferred(Iter11→后续): claim vs station 视觉混淆(A 设计解决);海还太"水"(压 shimmer+数据场);8 座 station 未烘纹理;夜版;claim-brief 走 design-eng-loop evolve 回流。
+
+## Iter 12 — 2026-07-10（修海 + 批量烘 9 座 station + design-sync 校验）
+Orient:   环境已对齐,继续按用户"好"推进:轨1 修海 + 轨2 整岛手绘。claim A 走 design-eng-loop:brief 已由用户发画布(DesignSync list_files 见 uploads/claim-brief.md 已上传;项目 a3f16e64 = "Frontier Isles" 核对无误,全 22 卡在,无新卡要推 → sync 不做 busywork)。
+Move:     (1) 修海:sea-mesh FRAG 去掉写实 glint 斜白浪 → 极淡纸颗粒 + 柔和海岸光晕,深浅对比压半(平静暖纸水面)。(2) 批量烘 9 座 station:PixiSceneHost STATION_ELS 映射 kind→真组件,循环 renderToStaticMarkup→bakeSvg 喂 texMap resolver(统一烘盒 320²,per-station 配准待调)。(3) 修双影:纹理精灵不再加 makeNode 接触阴影(组件自带 --shadow;ground 不齐时多余影会脱离飘在地形上)。
+Verify:   ✅ 目视: 海平静(probe-sea-day.png);9 座全真手绘、投影贴地、脱离椭圆消失(probe-allstations-day.png);零 pageerror;render 0.3ms。renderer+web typecheck 干净。DesignSync 身份核对: 避开撞名的 "Frontier Atlas"(8048b1c7)。
+Decision: **修海 ✅ + 整岛手绘 ✅**。→ 提交固化。等 claim A 设计回流(evolve 替换 makeClaimMark)。
+Deferred(Iter12→后续): per-station 垂直配准(统一 anchor 使几座略高);名牌烘进纹理→移 UI 层;夜版纹理(NIGHT_SCENE_VARS)+昼夜纹理交叉淡入;claim vs station 混淆(等 A);海接洋流/气候数据场(Fable #1 深化)。

@@ -237,11 +237,10 @@ export class SceneStage {
       const spr = new Sprite(tex);
       spr.anchor.set(anchor.x, anchor.y);
       spr.scale.set(scl);
-      // Contact shadow (advisory): grounds the sprite so it doesn't read as
-      // pasted. A soft ellipse at the tile point, under the art's own foot.
-      const shW = Math.max(6, spr.width * 0.34);
-      const shadow = new Graphics().ellipse(0, 0, shW, shW * 0.42).fill({ color: 0x241c10, alpha: 0.22 });
-      c.addChild(shadow, spr);
+      // The station art bakes in its own `--shadow` contact ellipse, so we do NOT
+      // add a second one here: a mismatched ground point would make the extra
+      // shadow detach from the building and float on the terrain.
+      c.addChild(spr);
       c.x = p.x;
       c.y = p.y;
       c.label = o.id;
