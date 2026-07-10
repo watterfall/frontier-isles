@@ -8,3 +8,4 @@
 export { IsoStage, type IsoStageOptions } from './stage';
 export { SceneStage, type SceneStageOptions, type TextureResolver, type ResolvedTexture, type SeaColors } from './scene-stage';
 export { createSeaMesh, type SeaMesh, type SeaMeshOptions } from './sea-mesh';
+export { RitualLayer, type RitualPoint, type RitualFireOptions } from './rituals';
