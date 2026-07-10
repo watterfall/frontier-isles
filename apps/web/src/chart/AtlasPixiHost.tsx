@@ -9,21 +9,24 @@
  *
  * Data source: the curated frontier atlas (`DATA` in api/fallback — the same
  * source the server seed uses, so these ARE the 27 real islands, rendered
- * identically with the server absent). `?n=300` appends N deterministically
- * hash-generated FAKE islands (slug `fake-*`) for the scale test — clearly not
- * real data. This host does NOT touch ChartScreen; the SVG L0 stays the default.
+ * identically with the server absent). `?n=300` appends N deterministic,
+ * BELIEVABLE synthetic islands (slug `syn-*`, `synthetic: true`) from
+ * `@frontier-isles/core`'s `makeScaleCorpus` (docs/atlas-world-plan.md §4 lane
+ * W4) for the scale test — compositionally-generated CJK frontier titles from
+ * a curated per-domain subfield vocabulary, honestly flagged and never mixed
+ * into the curated `DATA`. This host does NOT touch ChartScreen; the SVG L0
+ * stays the default.
  */
 import { useEffect, useRef, useState } from 'react';
 import {
   ATLAS_DOMAIN_FILL,
   AtlasStage,
-  makeFakeIslands,
   type AtlasCluster,
   type AtlasDomain,
   type AtlasIslandInput,
   type AtlasMetrics,
 } from '@frontier-isles/renderer/pixi';
-import { projectArchipelagos } from '@frontier-isles/core';
+import { makeScaleCorpus, projectArchipelagos } from '@frontier-isles/core';
 import { DATA, type IslandDatum } from '../api/fallback';
 
 /** Map a curated `IslandDatum` to the atlas' input shape (fields carried over
@@ -49,7 +52,7 @@ export default function AtlasPixiHost() {
   const [metrics, setMetrics] = useState<AtlasMetrics>({ renderMs: 0, scale: 1, tier: 'far', islands: 0, visible: 0, labels: 0 });
   const [picked, setPicked] = useState<string | null>(null);
 
-  // `?n=` fake-island count for the scale test (0 = curated atlas only).
+  // `?n=` synthetic-island count for the scale test (0 = curated atlas only).
   const n = Number(new URLSearchParams(location.search).get('n')) || 0;
 
   useEffect(() => {
@@ -66,7 +69,7 @@ export default function AtlasPixiHost() {
         return;
       }
       const real = DATA.map(toAtlasInput);
-      const islands = n > 0 ? [...real, ...makeFakeIslands(n)] : real;
+      const islands: AtlasIslandInput[] = n > 0 ? [...real, ...makeScaleCorpus(n)] : real;
       // C3 real projection (core.projectArchipelagos) fills the far-tier cluster
       // slot: spatial × domain-vector × current-strength single-linkage,
       // statistical outliers never clustered. Cluster provenance (curated
@@ -113,7 +116,7 @@ export default function AtlasPixiHost() {
         <div>render {metrics.renderMs.toFixed(2)}ms · tier <b>{metrics.tier}</b> · scale {metrics.scale.toFixed(2)}</div>
         <div>islands {metrics.islands} · on-screen {metrics.visible} · labels {metrics.labels}</div>
         <div style={{ opacity: 0.7 }}>wheel = zoom (pointer-anchored) · drag = pan · tap isle</div>
-        <div style={{ opacity: 0.7 }}>?n=300 → +N fake islands (scale test){n > 0 ? ` · +${n}` : ''}</div>
+        <div style={{ opacity: 0.7 }}>?n=300 → +N synthetic frontier islands (scale test){n > 0 ? ` · +${n}` : ''}</div>
         {picked && <div style={{ marginTop: 4, color: '#B5673A' }}>picked: {picked}</div>}
       </div>
     </div>
