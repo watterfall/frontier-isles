@@ -95,6 +95,49 @@ describe('buildSceneGraph', () => {
     const g = buildSceneGraph({ ...base, domain: '生命' });
     expect(g.objects.every((o) => o.biome === '生命')).toBe(true);
   });
+
+  it('places exactly one biome Landmark, 2–3× a station body (M4.4)', () => {
+    const g = buildSceneGraph(base);
+    const landmarks = g.objects.filter((o) => o.kind.startsWith('landmark:'));
+    expect(landmarks).toHaveLength(1);
+    const lm = landmarks[0]!;
+    expect(lm.height).toBeGreaterThanOrEqual(60); // ≥2× the 30px station body
+    expect(lm.height!).toBeLessThanOrEqual(90); // ≤3×
+    expect(lm.layer).toBe('world');
+  });
+
+  it('picks a distinct Landmark form per domain (M4.4 — two↔two 一眼可辨)', () => {
+    const kindFor = (domain: LayoutInput['domain']) =>
+      buildSceneGraph({ ...base, domain }).objects.find((o) => o.kind.startsWith('landmark:'))!.kind;
+    const forms = (['数理', '物质', '生命', '交叉'] as const).map(kindFor);
+    expect(new Set(forms).size).toBe(4); // all four biomes render a different shape
+  });
+
+  it('density-gradient scatter is core-sparse, mid-densest, shore-sparser (M4.5)', () => {
+    const g = buildSceneGraph({ ...base, domain: '生命' }); // 生命 → richest scenery pool
+    const scatter = g.objects.filter((o) => o.kind.startsWith('scenery:'));
+    expect(scatter.length).toBeGreaterThan(0);
+    const CENTER = 8;
+    const ISLAND_R = 7;
+    const ringOf = (o: (typeof scatter)[number]) => {
+      const d = Math.hypot(o.gx + 0.5 - CENTER, o.gy + 0.5 - CENTER) / ISLAND_R;
+      return d < 0.35 ? 'core' : d < 0.7 ? 'mid' : 'shore';
+    };
+    const counts = { core: 0, mid: 0, shore: 0 };
+    for (const o of scatter) counts[ringOf(o)]++;
+    // mid is the densest ring by construction (scatterProb mid > shore > core).
+    expect(counts.mid).toBeGreaterThan(counts.core);
+    expect(counts.mid).toBeGreaterThanOrEqual(counts.shore);
+  });
+
+  it('never places a scatter object on a station/claim/Landmark tile', () => {
+    const g = buildSceneGraph(base);
+    const occupied = new Set(
+      g.objects.filter((o) => o.kind.startsWith('station:') || o.kind === 'claim' || o.kind.startsWith('landmark:')).map((o) => `${o.gx},${o.gy}`),
+    );
+    const scatter = g.objects.filter((o) => o.kind.startsWith('scenery:'));
+    expect(scatter.some((o) => occupied.has(`${o.gx},${o.gy}`))).toBe(false);
+  });
 });
 
 describe('claimIndexFromId', () => {

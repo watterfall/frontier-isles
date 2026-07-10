@@ -4,9 +4,11 @@
  *
  * M1 scope: deterministic tile placement good enough to render and measure — a
  * ground disc (elevation 0), the six visible stations on a ring, domain scenery,
- * a few claim growth-bodies, and night-only ghosts. The real density-ring
- * algorithm, elevation and 36-primitive kit land in M4; this file exists so the
- * `fold → layout → SceneGraph → renderer` pipeline is wired and testable now.
+ * a few claim growth-bodies, and night-only ghosts. M4 added the height field
+ * (M4.1), one biome Landmark per island (M4.4) and the density-gradient scatter
+ * rings (M4.5); the 36-primitive building kit (M4.2) has not landed yet — this
+ * file exists so the `fold → layout → SceneGraph → renderer` pipeline is wired
+ * and testable now.
  *
  * Pure and PixiJS-free: only headless renderer types + the pure generator, so it
  * unit-tests in node without a GPU. Every visual dimension binds to data (P1):
@@ -53,12 +55,56 @@ const CLAIM_TILES = [
   { gx: 8, gy: 6 },
 ];
 
-/** Mid-ring tiles for scenery scatter. */
-const SCENERY_TILES = [
-  { gx: 3, gy: 5 }, { gx: 13, gy: 5 }, { gx: 13, gy: 13 }, { gx: 3, gy: 13 },
-  { gx: 8, gy: 2 }, { gx: 2, gy: 9 }, { gx: 14, gy: 9 }, { gx: 6, gy: 3 },
-  { gx: 10, gy: 3 }, { gx: 6, gy: 14 }, { gx: 10, gy: 14 }, { gx: 2, gy: 7 },
-];
+/** Fixed anchor tile for the island's single biome Landmark (M4.4) — "岛心最高
+ *  tile" (M4-DESIGN §2): near the geometric centre but clear of every claim/
+ *  station tile above, so it never collides with either ring. */
+const LANDMARK_TILE = { gx: 8, gy: 9 };
+/** ~2.8× a normal station's 30px body — "2–3× 体量" (M4-DESIGN §3e). */
+const LANDMARK_HEIGHT = 84;
+/** One Landmark form per biome/domain (M4-DESIGN §3e) — the renderer (scene-stage.ts)
+ *  picks the draw function from this code; the mapping is the only place biome →
+ *  landmark shape is decided, so it stays a pure function of `input.domain`. */
+const LANDMARK_CODE: Record<Domain, string> = {
+  数理: 'crystal', // 巨型几何晶体 · 多面棱晶簇
+  物质: 'foundry', // 不熄熔炉尖塔 · 发光炉口方尖碑
+  生命: 'worldtree', // 世界树温室 · 巨树 + 玻璃穹
+  交叉: 'archhub', // 桥拱枢纽 · 多向连桥拱
+};
+
+/**
+ * Density-ring classification (M4.5, M4-DESIGN §2): normalised centre-distance
+ * `d` buckets into 3 bands — core (Landmark + high building density, almost no
+ * scatter), mid (the densest scatter/vegetation ring), shore (sparse, coastal
+ * kinds). Scatter placement below samples every land tile against this ring's
+ * probability, so density visibly grades outward.
+ */
+type ScatterRing = 'core' | 'mid' | 'shore';
+function ringAt(gx: number, gy: number): ScatterRing {
+  const d = centreDist(gx, gy);
+  if (d < 0.35) return 'core';
+  if (d < 0.7) return 'mid';
+  return 'shore';
+}
+/** Per-tile scatter probability by ring — mid is the densest (M4-DESIGN §2 table). */
+function scatterProb(ring: ScatterRing): number {
+  switch (ring) {
+    case 'core':
+      return 0.05;
+    case 'mid':
+      return 0.32;
+    case 'shore':
+      return 0.14;
+  }
+}
+/** Deterministic per-tile roll (0..1), seeded by the island so re-renders don't flicker. */
+function scatterRng(gx: number, gy: number, seed: number): number {
+  return hash2(gx * 1.7 + seed * 0.37, gy * 1.7 + seed * 0.61);
+}
+/** Kinds that read as coastal (M4-DESIGN §2 shore examples: 礁石…); everything
+ *  else in a domain's scenery pool is "inland" and favoured by core/mid tiles. */
+const COASTAL_KINDS: ReadonlySet<string> = new Set(['reef']);
+/** Hard cap on generated scatter objects — bounds worst-case sortedNodeCount (§7). */
+const MAX_SCATTER = 48;
 
 // ── deterministic height field (M4.1) ──────────────────────────────────────
 
@@ -194,7 +240,7 @@ export function buildSceneGraph(input: LayoutInput, t = 0, claims?: ClaimState[]
   const forced = new Set<string>();
   for (const s of scene.stations) if (s.visible) forced.add(tileKey(STATION_TILES[s.kind].gx, STATION_TILES[s.kind].gy));
   for (let i = 0; i < claimSpecs.length; i++) forced.add(tileKey(CLAIM_TILES[i]!.gx, CLAIM_TILES[i]!.gy));
-  scene.scenery.forEach((_, i) => forced.add(tileKey(SCENERY_TILES[i % SCENERY_TILES.length]!.gx, SCENERY_TILES[i % SCENERY_TILES.length]!.gy)));
+  forced.add(tileKey(LANDMARK_TILE.gx, LANDMARK_TILE.gy));
   scene.ghosts.forEach((_, i) => forced.add(tileKey(CLAIM_TILES[(i + 3) % CLAIM_TILES.length]!.gx, CLAIM_TILES[(i + 3) % CLAIM_TILES.length]!.gy)));
 
   const land = (gx: number, gy: number): boolean => isLand(gx, gy, seed) || forced.has(tileKey(gx, gy));
@@ -215,6 +261,16 @@ export function buildSceneGraph(input: LayoutInput, t = 0, claims?: ClaimState[]
     push(`station:${s.kind}`, `station:${s.kind}`, tile.gx, tile.gy, 'world', { height, elevation: elev(tile.gx, tile.gy) });
   }
 
+  // ── biome Landmark (world layer) — M4.4, one per island, 2–3× body ──────────
+  // Fixed at LANDMARK_TILE (the "岛心最高 tile"): elevation forced to the top
+  // tier so it always reads as the island's tallest silhouette, regardless of
+  // what the noisy height field would have put there. Shape is a pure function
+  // of `input.domain` via LANDMARK_CODE — the renderer picks the draw function.
+  push(`landmark:${input.domain}`, `landmark:${LANDMARK_CODE[input.domain]}`, LANDMARK_TILE.gx, LANDMARK_TILE.gy, 'world', {
+    height: LANDMARK_HEIGHT,
+    elevation: 2,
+  });
+
   // ── claim growth-bodies (world layer) — floors/roof/ghost from the ledger ────
   claimSpecs.forEach((spec, i) => {
     const tile = CLAIM_TILES[i]!;
@@ -225,11 +281,35 @@ export function buildSceneGraph(input: LayoutInput, t = 0, claims?: ClaimState[]
     push(`claim:${i}`, 'claim', tile.gx, tile.gy, 'world', { growth, height, elevation: elev(tile.gx, tile.gy), ...night });
   });
 
-  // ── scenery (world layer) — kinds bound to domain ──────────────────────────
-  scene.scenery.forEach((sc, i) => {
-    const tile = SCENERY_TILES[i % SCENERY_TILES.length]!;
-    push(`scenery:${i}:${sc.kind}`, `scenery:${sc.kind}`, tile.gx, tile.gy, 'world', { height: 12, elevation: elev(tile.gx, tile.gy) });
-  });
+  // ── scenery (world layer) — density-gradient rings (M4.5) ───────────────────
+  // Every land tile not already claimed by a station/claim/Landmark/ghost is a
+  // scatter candidate; whether it gets an object is a deterministic per-tile roll
+  // against that ring's probability (core sparse → mid densest → shore sparse),
+  // so density visibly grades from the island's core to its shoreline. Kind comes
+  // from the domain's own scenery pool (sceneryForDomain) — coastal kinds (reef)
+  // are favoured at the shore, everything else inland — so no new kind/data is
+  // invented, only *where* the domain's existing kinds land.
+  const coastalKinds = scene.scenery.map((s) => s.kind).filter((k) => COASTAL_KINDS.has(k));
+  const inlandKinds = scene.scenery.map((s) => s.kind).filter((k) => !COASTAL_KINDS.has(k));
+  let coastalI = 0;
+  let inlandI = 0;
+  let scatterN = 0;
+  const scatterCandidates: Array<{ gx: number; gy: number }> = [];
+  for (let gy = 0; gy < GRID; gy++) for (let gx = 0; gx < GRID; gx++) scatterCandidates.push({ gx, gy });
+  for (const { gx, gy } of scatterCandidates) {
+    if (scatterN >= MAX_SCATTER) break;
+    const key = tileKey(gx, gy);
+    if (forced.has(key) || !isLand(gx, gy, seed)) continue;
+    const ring = ringAt(gx, gy);
+    if (scatterRng(gx, gy, seed) >= scatterProb(ring)) continue;
+    const useCoastal = ring === 'shore' && coastalKinds.length > 0;
+    const pool = useCoastal ? coastalKinds : inlandKinds.length > 0 ? inlandKinds : coastalKinds;
+    if (pool.length === 0) continue;
+    const kind = useCoastal ? pool[coastalI++ % pool.length]! : pool[inlandI++ % pool.length]!;
+    forced.add(key); // reserve — nothing placed after this loop can collide
+    push(`scenery:${key}:${kind}`, `scenery:${kind}`, gx, gy, 'world', { height: 12, elevation: elev(gx, gy) });
+    scatterN++;
+  }
 
   // ── ghosts (world layer) — NIGHT-ONLY, bound to abandon/refute events ───────
   // The day/night visibility path (P4): dayVisibility 0 → nightVisibility 1, so
