@@ -27,7 +27,7 @@ import {
   type Shader,
   type Ticker,
 } from 'pixi.js';
-import { ELEV_STEP, diamondPoints, worldToScreenElevated } from '../iso';
+import { ELEV_STEP, diamondPoints, worldToScreen, worldToScreenElevated, type ScreenPoint } from '../iso';
 import { visibilityAt, type SceneGraph, type SceneLayer, type SceneObject } from '../scene';
 import { ChunkIndex, cull, type Viewport } from '../chunks';
 import { createSeaMesh, type Rect } from './sea-mesh';
@@ -554,6 +554,96 @@ export class SceneStage {
   }
 
   /**
+   * Build the island's ground as ONE continuous organic surface (generator-quality
+   * P1 — docs/scene-upgrade/GENERATOR-QUALITY.md). Replaces the per-tile iso-diamond
+   * bed, which read as a stepped voxel plateau with a ragged diamond coastline. The
+   * tile DATA is unchanged (hit-test/height semantics stay in the layout layer);
+   * only the RENDER changes:
+   *
+   *  - Coastline: the outer boundary of the tile union is traced ({@link
+   *    terrainBoundaryLoops}) then Chaikin-smoothed ({@link chaikinClosed}) into a
+   *    soft closed curve — a hand-drawn mound edge, not a sawtooth of tile corners.
+   *  - Elevation: each raised level (≥1, ≥2) is its OWN smoothed plateau lifted by
+   *    ELEV_STEP, with a soft shaded skirt + a thin contour line, so height reads as
+   *    rolling terraces / topographic contours, never a hard per-tile cliff step.
+   *  - Shore + fingerprint: a warm sand band strokes the coast; the per-tile
+   *    lightness jitter (`o.tint`, invariant 13) survives as a seam-free interior
+   *    mottle so the bed still "breathes" like hand-drawn paper.
+   *
+   * Baked to one texture by {@link recacheTerrain}, so the extra sub-shapes cost
+   * nothing per frame.
+   */
+  private buildGround(graph: SceneGraph): void {
+    const terrain = graph.objects.filter((o) => o.layer === 'terrain');
+    if (terrain.length === 0) return;
+
+    // Occupancy + per-tile lookup; the island's biome = its commonest terrain biome.
+    const occ = new Set<string>();
+    const cell = new Map<string, SceneObject>();
+    const biomeCount = new Map<string, number>();
+    let maxElev = 0;
+    for (const o of terrain) {
+      const k = `${o.gx},${o.gy}`;
+      occ.add(k);
+      cell.set(k, o);
+      biomeCount.set(o.biome, (biomeCount.get(o.biome) ?? 0) + 1);
+      if (o.elevation > maxElev) maxElev = o.elevation;
+    }
+    let biome = terrain[0]!.biome;
+    let best = -1;
+    for (const [b, n] of biomeCount) if (n > best) { best = n; biome = b; }
+
+    const g = new Graphics();
+    const ink = 0x9a8c6a;
+
+    // ── level 0: the whole island. Smooth coast, mound skirt, sand shore band. ──
+    const baseColor = groundTint(biome, 0);
+    for (const loop of terrainBoundaryLoops(occ)) {
+      const scr = chaikinClosed(loop.map(([x, y]) => worldToScreen(x, y)), 3);
+      const flat = flattenLoop(scr, 0);
+      // Mound thickness: a short skirt below the coast so the island reads as a
+      // raised landmass over the sea (matching the L0 chart mounds).
+      g.poly(skirtBand(scr, 0, 7)).fill({ color: shade(baseColor, -0.22) });
+      g.poly(flat).fill({ color: baseColor });
+      // Warm sand shore band + a faint foam/ink coast line for a defined edge.
+      g.poly(flat).stroke({ color: SHORE_SAND, width: 13, alpha: 0.5 });
+      g.poly(flat).stroke({ color: ink, width: 1.4, alpha: 0.5 });
+    }
+
+    // ── raised levels: smoothed plateaus, soft skirt + contour (no hard steps). ──
+    for (let L = 1; L <= maxElev; L++) {
+      const sub = new Set<string>();
+      for (const k of occ) if ((cell.get(k)!.elevation ?? 0) >= L) sub.add(k);
+      if (sub.size === 0) continue;
+      const lift = L * ELEV_STEP;
+      const top = groundTint(biome, L);
+      for (const loop of terrainBoundaryLoops(sub)) {
+        const scr = chaikinClosed(loop.map(([x, y]) => worldToScreen(x, y)), 3);
+        // Skirt from this level down to the one below — ONE smooth band per level,
+        // following the organic outline, not a per-tile zigzag of cliff faces.
+        g.poly(skirtBand(scr, lift, ELEV_STEP)).fill({ color: shade(top, -0.16) });
+        g.poly(flattenLoop(scr, lift)).fill({ color: top });
+        g.poly(flattenLoop(scr, lift)).stroke({ color: ink, width: 1, alpha: 0.35 });
+      }
+    }
+
+    // ── fingerprint: seam-free paper mottle on INTERIOR tiles only (all four grid
+    //    neighbours present → safely inside the smoothed coast, so no spill). ──
+    const has = (x: number, y: number): boolean => occ.has(`${x},${y}`);
+    for (const o of terrain) {
+      if (!o.tint) continue;
+      if (!(has(o.gx - 1, o.gy) && has(o.gx + 1, o.gy) && has(o.gx, o.gy - 1) && has(o.gx, o.gy + 1))) continue;
+      const lift = o.elevation * ELEV_STEP;
+      const poly: number[] = [];
+      for (const p of diamondPoints(o.gx, o.gy)) poly.push(p.x, p.y - lift);
+      g.poly(poly).fill({ color: shade(groundTint(biome, o.elevation), o.tint), alpha: 0.3 });
+    }
+
+    g.label = 'ground';
+    this.terrainRoot.addChild(g);
+  }
+
+  /**
    * Render a full scene graph. Clears the previous frame, dispatches every object
    * to its layer with `zIndex = depthKey` and `alpha = visibilityAt(o, t)`, caches
    * the static terrain bed, then culls to the viewport. The renderer computes no
@@ -561,7 +651,10 @@ export class SceneStage {
    */
   render(graph: SceneGraph, resolve?: TextureResolver): void {
     this.clearNodes();
+    this.buildGround(graph); // unified organic terrain (replaces per-tile diamonds)
     for (const o of graph.objects) {
+      // Terrain is rendered as ONE continuous surface by buildGround, not per tile.
+      if (o.layer === 'terrain') continue;
       const node = this.makeNode(o, resolve);
       node.zIndex = o.depthKey;
       node.alpha = visibilityAt(o, graph.t);
@@ -924,6 +1017,9 @@ export class SceneStage {
       this.terrainRoot.cacheAsTexture(false);
       this.terrainCached = false;
     }
+    // The unified ground (buildGround) is a terrainRoot child, not a this.nodes
+    // entry, so it must be freed here explicitly before the next frame rebuilds it.
+    this.terrainRoot.removeChildren().forEach((c) => c.destroy({ children: true }));
     for (const [id, node] of this.nodes) {
       node.parent?.removeChild(node);
       node.destroy({ children: true });
@@ -1020,6 +1116,75 @@ function shade(color: number, f: number): number {
   const m = (c: number): number =>
     Math.max(0, Math.min(255, Math.round(f >= 0 ? c + (255 - c) * f : c * (1 + f))));
   return (m(r) << 16) | (m(g) << 8) | m(b);
+}
+
+/**
+ * Trace the boundary loop(s) of a set of occupied unit tiles, in grid space. An
+ * edge belongs to the boundary iff the tile across it is empty; edges are emitted
+ * with a consistent winding (interior on one side) so shared edges of two occupied
+ * tiles cancel and the remaining boundary edges chain end-to-start into closed
+ * loops. Diagonal-only pinch points (rare for island blobs) are approximated.
+ */
+function terrainBoundaryLoops(tiles: Set<string>): Array<Array<[number, number]>> {
+  const has = (x: number, y: number): boolean => tiles.has(`${x},${y}`);
+  const next = new Map<string, [number, number]>();
+  for (const key of tiles) {
+    const [x, y] = key.split(',').map(Number) as [number, number];
+    if (!has(x, y - 1)) next.set(`${x},${y}`, [x + 1, y]); // top edge
+    if (!has(x + 1, y)) next.set(`${x + 1},${y}`, [x + 1, y + 1]); // right edge
+    if (!has(x, y + 1)) next.set(`${x + 1},${y + 1}`, [x, y + 1]); // bottom edge
+    if (!has(x - 1, y)) next.set(`${x},${y + 1}`, [x, y]); // left edge
+  }
+  const loops: Array<Array<[number, number]>> = [];
+  const used = new Set<string>();
+  for (const start of next.keys()) {
+    if (used.has(start)) continue;
+    const loop: Array<[number, number]> = [];
+    let cur = start;
+    while (next.has(cur) && !used.has(cur)) {
+      used.add(cur);
+      const [cx, cy] = cur.split(',').map(Number) as [number, number];
+      loop.push([cx, cy]);
+      const [ex, ey] = next.get(cur)!;
+      cur = `${ex},${ey}`;
+    }
+    if (loop.length >= 3) loops.push(loop);
+  }
+  return loops;
+}
+
+/**
+ * Closed-loop Chaikin corner-cutting, `iters` passes — rounds a jagged tile
+ * silhouette into a smooth organic coast/plateau outline.
+ */
+function chaikinClosed(pts: ScreenPoint[], iters: number): ScreenPoint[] {
+  let p = pts;
+  for (let k = 0; k < iters && p.length >= 3; k++) {
+    const q: ScreenPoint[] = [];
+    for (let i = 0; i < p.length; i++) {
+      const a = p[i]!;
+      const b = p[(i + 1) % p.length]!;
+      q.push({ x: a.x * 0.75 + b.x * 0.25, y: a.y * 0.75 + b.y * 0.25 });
+      q.push({ x: a.x * 0.25 + b.x * 0.75, y: a.y * 0.25 + b.y * 0.75 });
+    }
+    p = q;
+  }
+  return p;
+}
+
+/** Flatten a screen-space loop to a Pixi poly array, lifted up the screen by `lift`. */
+function flattenLoop(pts: ScreenPoint[], lift: number): number[] {
+  const out: number[] = [];
+  for (const p of pts) out.push(p.x, p.y - lift);
+  return out;
+}
+
+/** A vertical skirt band under a loop: the outline at `lift`, dropped by `drop` px. */
+function skirtBand(pts: ScreenPoint[], lift: number, drop: number): number[] {
+  const out: number[] = [];
+  for (const p of pts) out.push(p.x, p.y - lift);
+  for (let i = pts.length - 1; i >= 0; i--) out.push(pts[i]!.x, pts[i]!.y - lift + drop);
+  return out;
 }
 
 /**
