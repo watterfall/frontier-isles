@@ -4,18 +4,12 @@ exports[`projectArchipelagos — 27-island real dataset (packages/data) > full r
 [
   {
     "members": [
-      "code-dark-matter",
-      "miyake-anchors",
-    ],
-    "name": "地球群岛",
-  },
-  {
-    "members": [
       "analog-solver",
       "artificial-photosynthesis",
       "chemical-vision",
       "info-chemistry",
       "living-wires",
+      "rock-battery",
       "self-learning-matter",
     ],
     "name": "分子机器群岛",
@@ -24,27 +18,28 @@ exports[`projectArchipelagos — 27-island real dataset (packages/data) > full r
     "members": [
       "active-inference",
       "adar-sensors",
+      "code-dark-matter",
       "genome-writing",
       "minimal-genome",
+      "miyake-anchors",
     ],
     "name": "合成生物群岛",
   },
   {
     "members": [
-      "ai-theory-discovery",
       "animal-ai-decode",
-      "cross-species-umwelt",
       "formal-unknown",
-      "invertebrate-sentience",
       "verified-pqc",
     ],
     "name": "后量子群岛",
   },
   {
     "members": [
-      "rock-battery",
+      "ai-theory-discovery",
+      "cross-species-umwelt",
+      "invertebrate-sentience",
     ],
-    "name": "新能源范式群岛",
+    "name": "意识的本质与硬核理论群岛",
   },
   {
     "members": [
@@ -56,11 +51,16 @@ exports[`projectArchipelagos — 27-island real dataset (packages/data) > full r
   },
   {
     "members": [
-      "compositional-modeling",
       "dark-matter-paleo",
       "formal-math",
     ],
-    "name": "AI数学群岛",
+    "name": "AI数学·东部群岛",
+  },
+  {
+    "members": [
+      "compositional-modeling",
+    ],
+    "name": "AI数学·西部群岛",
   },
 ]
 `;
