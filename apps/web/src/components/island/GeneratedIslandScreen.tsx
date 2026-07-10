@@ -4,10 +4,20 @@ import { projectClaimState, projectActiveStations, type ClaimState, type Station
 import { NIGHT_SCENE_VARS, DOMAIN_SCENE_VARS, sceneVarsToStyle } from '@frontier-isles/assets';
 import { DayNightLever } from './DayNightLever';
 import { ClaimDetailPanel } from './ClaimDetailPanel';
+import { RitualEventPanel } from './RitualEventPanel';
 import { api } from '../../api/client';
 import { generate, type GeneratedScene } from '../../scene/generator';
 import { GeneratedSceneView } from '../../scene/GeneratedScene';
 import type { LayoutInput } from '../../scene/layout';
+import { dueRituals, extractRitualEvents, loadWatermark, saveWatermark, type RitualEvent } from '../../scene/rituals';
+
+// Ritual moments (depth-plan-v1 §6/§9 Batch 1): how often the live L1 re-polls
+// the ledger so a publish/transplant fired by someone else while you're
+// looking at the island still lights a lantern / sends a carrier out — a
+// best-effort poll, same discipline as every other network call here
+// (fallback.ts convention: the UI must render identically with the server
+// absent, so a failed poll below is just silently skipped).
+const RITUAL_POLL_MS = 20_000;
 
 // Lazy so PixiJS (heavy) stays OUT of the main bundle — the L0 chart never pays
 // for it; the chunk loads only when a WebGL island L1 actually mounts.
@@ -66,11 +76,34 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
   // same pattern as the other Pixi-only readouts above — the SVG fallback has no
   // claim towers to tap.
   const [claimPanel, setClaimPanel] = useState<ClaimState | null>(null);
+  // Ritual moments (Batch 1): events due to fire NOW (initial catch-up + each
+  // live poll), the tapped ritual's ledger event (→ RitualEventPanel), and
+  // `prefers-reduced-motion` — all best-effort, none of it is a counter
+  // (invariant 17: PixiScene fires each id at most once, this screen never
+  // accumulates a tally either).
+  const [dueRitualEvents, setDueRitualEvents] = useState<RitualEvent[]>([]);
+  const [ritualPanel, setRitualPanel] = useState<RitualEvent | null>(null);
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  // prefers-reduced-motion: best-effort (older browsers / non-browser test
+  // environments without matchMedia keep full motion, never a crash).
+  useEffect(() => {
+    try {
+      const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+      setReducedMotion(mq.matches);
+      const onChange = (): void => setReducedMotion(mq.matches);
+      mq.addEventListener('change', onChange);
+      return () => mq.removeEventListener('change', onChange);
+    } catch {
+      /* no matchMedia — keep full motion */
+    }
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
     setFailed(false);
     setNoGpu(false);
+    setDueRitualEvents([]);
     // Fetch the island detail + its real ledger in parallel: the ledger drives the
     // Pixi claim buildings (M4「接线上」); the detail drives everything else. Either
     // is best-effort — a null ledger just means buildSceneGraph synths from eventCount.
@@ -112,10 +145,36 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
         bridges: events.filter((e) => e.action.startsWith('bridge')).length,
         contention: Math.min(1, refuted * 0.5),
       });
+      // Ritual moments — the "just landed" catch-up (recent publish/transplant
+      // within the window still fire; older history silently advances the
+      // watermark without replaying a backlog, dueRituals in scene/rituals.ts).
+      if (ledger) {
+        const candidates = extractRitualEvents(ledger);
+        const { due, watermark } = dueRituals(candidates, loadWatermark(slug), Date.now());
+        setDueRitualEvents(due);
+        saveWatermark(slug, watermark);
+      }
     });
     return () => {
       cancelled = true;
     };
+  }, [slug]);
+
+  // Ritual moments — live poll: a publish/transplant fired while you're on the
+  // island (by you or anyone else) still lights a lantern / sends a carrier
+  // out, without a page reload. Ledger-only (no full detail refetch), and a
+  // failed poll just silently retries next tick (best-effort, same as above).
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      api.ledger(slug).then((ledger) => {
+        if (!ledger) return;
+        const candidates = extractRitualEvents(ledger);
+        const { due, watermark } = dueRituals(candidates, loadWatermark(slug), Date.now());
+        if (due.length > 0) setDueRitualEvents(due);
+        saveWatermark(slug, watermark);
+      });
+    }, RITUAL_POLL_MS);
+    return () => window.clearInterval(id);
   }, [slug]);
 
   if (failed) {
@@ -176,11 +235,15 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
             onStation={onStation}
             onClaim={setClaimPanel}
             onWebglError={() => setNoGpu(true)}
+            rituals={dueRitualEvents}
+            reducedMotion={reducedMotion}
+            onRitualTap={setRitualPanel}
           />
         </Suspense>
       )}
 
       <ClaimDetailPanel claim={claimPanel} onClose={() => setClaimPanel(null)} />
+      <RitualEventPanel event={ritualPanel} onClose={() => setRitualPanel(null)} />
 
       {/* L1 顶部信息 */}
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '18px 24px', pointerEvents: 'none' }}>

@@ -14,10 +14,11 @@
  */
 import { useEffect, useRef, cloneElement, type ReactElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { SceneStage, type TextureResolver, type ResolvedTexture } from '@frontier-isles/renderer/pixi';
-import { worldToScreen, seaDepthAt } from '@frontier-isles/renderer';
+import { SceneStage, RitualLayer, type TextureResolver, type ResolvedTexture, type RitualPoint } from '@frontier-isles/renderer/pixi';
+import { worldToScreen, worldToScreenElevated, seaDepthAt } from '@frontier-isles/renderer';
 import { STATION_META, type ClaimState, type StationKind } from '@frontier-isles/core';
 import { localizeStation, type Lang } from '../i18n/stations';
+import type { RitualEvent } from './rituals';
 import {
   StationWorkshop,
   StationLibrary,
@@ -98,6 +99,22 @@ export interface PixiSceneProps {
    * so the parent can open the claim detail panel (no new data — the same object
    * `projectClaimState` already produced). */
   onClaim?: (claim: ClaimState) => void;
+  /**
+   * Ritual triggers due to fire NOW (depth-plan-v1 §6/§9 Batch 1 — 河灯 on
+   * `publish`, ~8s 移栽之路 on `transplant`). The host computes which ledger
+   * events are due (see `scene/rituals.ts`'s `dueRituals` + a localStorage
+   * watermark) and passes them here; this component only guards against
+   * re-firing the SAME event id twice within one mounted scene (defence in
+   * depth — the host already dedupes via the watermark) and never keeps a
+   * counter of its own (invariant 17: event-triggered, never scored).
+   */
+  rituals?: RitualEvent[];
+  /** Tapping a fired ritual node (lantern/carrier) → its underlying ledger
+   * event, so the host can open the event-ref + artifact panel. */
+  onRitualTap?: (evt: RitualEvent) => void;
+  /** `prefers-reduced-motion` (host reads matchMedia) — degrades the ritual's
+   * multi-second travel to a quiet in-place fade (still visible, still tappable). */
+  reducedMotion?: boolean;
   /** GPU absent → parent renders the SVG fallback scene instead. */
   onWebglError?: (msg: string) => void;
   /** Live render metrics for a dev HUD (the demo shows them; live L1 omits). */
@@ -108,7 +125,7 @@ export interface PixiSceneProps {
  * The embeddable Pixi scene. Re-boots on `input`/`claims` change (once per island
  * open); `t`/`undertow` apply live without a re-boot.
  */
-export default function PixiScene({ input, claims, t, lang = 'zh', activeStations, substrate, undertow = false, onStation, onClaim, onWebglError, onMetrics }: PixiSceneProps) {
+export default function PixiScene({ input, claims, t, lang = 'zh', activeStations, substrate, undertow = false, onStation, onClaim, rituals, onRitualTap, reducedMotion = false, onWebglError, onMetrics }: PixiSceneProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<SceneStage | null>(null);
   const cam = useRef({ ...worldToScreen(8, 8), zoom: 0.75 }); // island centre (tile 8,8)
@@ -119,9 +136,44 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
   tRef.current = t;
   const substrateRef = useRef(substrate);
   substrateRef.current = substrate;
-  const cbRef = useRef({ onStation, onClaim, onWebglError, onMetrics });
-  cbRef.current = { onStation, onClaim, onWebglError, onMetrics };
+  const reducedMotionRef = useRef(reducedMotion);
+  reducedMotionRef.current = reducedMotion;
+  const ritualsPropRef = useRef(rituals);
+  ritualsPropRef.current = rituals;
+  const cbRef = useRef({ onStation, onClaim, onWebglError, onMetrics, onRitualTap });
+  cbRef.current = { onStation, onClaim, onWebglError, onMetrics, onRitualTap };
   const objCountRef = useRef(0); // last object count, for the dev-HUD sampler
+  // Ritual moments (Batch 1): the layer + the shore/渡口 anchor it fires from,
+  // set once at boot (see the main effect); `firedRitualIdsRef` is this
+  // mounted scene's own once-per-event guard (defence in depth alongside the
+  // host's watermark — reset whenever the scene re-boots for a new island).
+  const ritualLayerRef = useRef<RitualLayer | null>(null);
+  const ritualAnchorRef = useRef<{ at: RitualPoint; direction: RitualPoint } | null>(null);
+  const firedRitualIdsRef = useRef<Set<string>>(new Set());
+
+  /** Fire every not-yet-fired ritual in `list` now (no-op before boot completes
+   * or with nothing due — safe to call from both the boot effect, so an
+   * initial catch-up batch isn't dropped by the async GPU boot race, and the
+   * `rituals`-prop-changed effect below, for live new arrivals). */
+  const fireDue = (list?: RitualEvent[]): void => {
+    const layer = ritualLayerRef.current;
+    const anchor = ritualAnchorRef.current;
+    if (!layer || !anchor || !list || list.length === 0) return;
+    const night = tRef.current >= 0.5; // palette-only glow brightening, never a shape change
+    for (const evt of list) {
+      if (firedRitualIdsRef.current.has(evt.id)) continue;
+      firedRitualIdsRef.current.add(evt.id);
+      const opts = {
+        id: evt.id,
+        at: anchor.at,
+        direction: anchor.direction,
+        reducedMotion: reducedMotionRef.current,
+        onTap: () => cbRef.current.onRitualTap?.(evt),
+      };
+      if (evt.kind === 'lantern') layer.fireLantern(opts, night);
+      else layer.fireTransplant(opts);
+    }
+  };
 
   const applyCam = (): void => {
     const s = stageRef.current;
@@ -169,6 +221,25 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
         }
       };
       const graph = buildSceneGraph(input, tRef.current, claims, activeStations);
+      // Ritual moments (depth-plan-v1 §6/§9 Batch 1): mount a thin, camera-space
+      // layer ON TOP of the tone overlay + lightsLayer (so a daytime `publish`
+      // still shows its lantern — unlike lightsLayer, which collapses to alpha
+      // 0 in daylight, M3). Zero scene-stage.ts changes needed: `cameraRoot`
+      // and `app` are already public. The dock tile (visible at every growth
+      // stage, generator.ts's `stationsForStage`) IS the shore/渡口 both
+      // rituals depart from; direction is straight out from the island centre.
+      firedRitualIdsRef.current = new Set();
+      ritualLayerRef.current?.destroy();
+      ritualLayerRef.current = new RitualLayer(s.app!, s.cameraRoot);
+      const dockObj = graph.objects.find((o) => o.kind === 'station:dock');
+      const centre = worldToScreenElevated(8, 8, 0);
+      const shoreTile = dockObj ?? { gx: 8, gy: 15, elevation: 0 };
+      const shore = worldToScreenElevated(shoreTile.gx + 0.5, shoreTile.gy + 0.5, shoreTile.elevation);
+      const dx = shore.x - centre.x;
+      const dy = shore.y - centre.y;
+      const mag = Math.hypot(dx, dy) || 1;
+      ritualAnchorRef.current = { at: shore, direction: { x: dx / mag, y: dy / mag } };
+      fireDue(ritualsPropRef.current); // don't drop an initial catch-up batch to the async GPU-boot race
       // Texture-lift (design-system alignment): rasterise the 9 real station SVG
       // assets → Pixi textures via the resolver, so the island renders in the
       // hand-drawn design vocabulary instead of placeholder boxes.
@@ -242,6 +313,8 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
     })();
     return () => {
       disposed = true;
+      ritualLayerRef.current?.destroy();
+      ritualLayerRef.current = null;
       if (stage) stage.destroy();
       stageRef.current = null;
     };
@@ -251,6 +324,14 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
     // scene, which is rare and acceptably cheap (same cost as an island change).
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [input, claims, lang, activeStations]);
+
+  // Ritual moments: fire newly-due events as the host discovers them (initial
+  // catch-up + each live ledger poll — see GeneratedIslandScreen). A no-op
+  // before boot completes or once every id in `rituals` has already fired.
+  useEffect(() => {
+    fireDue(rituals);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rituals]);
 
   // Day↔night → per-object alpha + tone veil (P4). No re-boot. tweenDayNight (M5)
   // sweeps smoothly instead of snapping; the boot did an instant setDayNight so

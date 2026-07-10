@@ -108,6 +108,18 @@ export const en: Resources = {
       activityValue: '{{n}} events',
       footer: 'Every field is a ledger reduce (projectClaimState) · no new data invented',
     },
+    ritual: {
+      kicker: 'Ritual event · RITUAL',
+      lanternTitle: 'River lantern · publish',
+      lanternBody: 'A finished piece of work becomes a river lantern, floating out from the shore onto the open sea — the visible echo of a `publish` ledger event.',
+      transplantTitle: 'Transplant walk · transplant',
+      transplantBody: 'An artifact is being carried, through the dock, to another island — the visible echo of a `transplant` ledger event.',
+      opLabel: 'Island (op)',
+      tsLabel: 'When',
+      refLabel: 'Content hash (ref)',
+      actorLabel: 'Triggered by',
+      footer: 'A ritual transcribes exactly this one ledger event · remove the ritual and the event still lands in the ledger and the list twin',
+    },
     night: {
       replay: 'Night replay · night {{t}}',
       of: '/ 86',
