@@ -32,7 +32,7 @@ describe("seed + chart", () => {
   it("seeds the chart islands", async () => {
     const res = await app.request("/api/islands");
     const { islands } = await jsonOf(res);
-    expect(islands).toHaveLength(27);
+    expect(islands).toHaveLength(79);
     const sample = islands.find((i: any) => i.slug === "machine-curiosity");
     expect(sample.name).toBe("AI 之问");
     expect(sample.members).toBe(9);
@@ -48,7 +48,7 @@ describe("GET /api/currents — the sea plane over the real seeded ledger", () =
     // non-empty because seedCrossIslandRelations wired real relations in.
     expect(sea.currents.length).toBeGreaterThan(0);
     expect(sea.whirlpools.length).toBeGreaterThan(0);
-    expect(sea.islands.length).toBe(27);
+    expect(sea.islands.length).toBe(79);
   });
 
   it("every current & whirlpool is genuinely BETWEEN two distinct islands", async () => {

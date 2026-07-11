@@ -64,6 +64,15 @@ export const en: Resources = {
 
   island: {
     back: 'Back to chart',
+    depth: {
+      title: 'Deep brief',
+      overview: 'Overview',
+      whyMatters: 'Why it matters',
+      ifAnswered: 'If answered',
+      approaches: 'Approaches',
+      barrier: 'The hard barrier',
+      subQuestions: 'Open sub-questions',
+    },
     loading: 'The island is rising…',
     notReachable: 'This island is unreachable for now (server not responding)',
     dissolved: 'Mist island · dissolved',

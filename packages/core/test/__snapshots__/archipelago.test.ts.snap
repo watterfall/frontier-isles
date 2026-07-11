@@ -1,43 +1,101 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`projectArchipelagos — 27-island real dataset (packages/data) > full roster snapshot (archipelago name → member slugs) 1`] = `
+exports[`projectArchipelagos — 78-island real dataset (packages/data) > full roster snapshot (archipelago name → member slugs) 1`] = `
 [
   {
     "members": [
+      "adversarial-falsification-benchmark-science",
+      "minimal-genome",
+      "perennial-grain-crops",
+    ],
+    "name": "单细胞群岛",
+  },
+  {
+    "members": [
+      "code-dark-matter",
+      "deep-biosphere-extreme-life",
+      "ice-sheet-basal-ecology-subglacial",
+      "in-tissue-spatial-functional-genomics",
+      "vivo-hematopoietic-stem-cell-editing",
+    ],
+    "name": "地球群岛",
+  },
+  {
+    "members": [
       "analog-solver",
-      "artificial-photosynthesis",
+      "cable-bacteria-conductive-nanoribbons",
       "chemical-vision",
+      "clonal-hematopoiesis-chip-personalized",
+      "end-to-end-advantage-accounting-reckoning",
+      "hyperuniformity-hidden-order-disorder",
       "info-chemistry",
-      "living-wires",
-      "rock-battery",
-      "self-learning-matter",
+      "soft-gradients-through-hard",
     ],
     "name": "分子机器群岛",
   },
   {
     "members": [
-      "active-inference",
-      "adar-sensors",
-      "code-dark-matter",
-      "genome-writing",
-      "minimal-genome",
+      "falsifiable-consciousness-metrology-organoids",
+      "genetically-encoded-rna-origami-cellular-hardware",
       "miyake-anchors",
     ],
     "name": "合成生物群岛",
   },
   {
     "members": [
-      "animal-ai-decode",
-      "formal-unknown",
-      "verified-pqc",
+      "ai-assisted-theorem-proving",
+      "gravitational-coupling-milligram-source",
+      "proximal-causal-inference-negative-control",
+      "tabletop-quantum-gravity",
     ],
-    "name": "后量子群岛",
+    "name": "基础物理群岛",
+  },
+  {
+    "members": [
+      "erasure-conversion-qubits-turning-loss",
+      "magic-state-cultivation-cheap",
+      "neural-reconstruction-real-to-sim-policy-evaluation",
+      "self-learning-matter",
+      "self-supervised-latent-world-models",
+      "stochastic-memristors-turning-device",
+    ],
+    "name": "具身基础模型群岛",
+  },
+  {
+    "members": [
+      "3d-synthesizable-co-generation-joint",
+      "active-inference",
+      "adar-sensors",
+      "ancient-dna-paleoproteomics",
+      "energy-limit-ecology-deep-subsurface-dark",
+      "genome-writing",
+      "unknomics-systematically-studying-least-known",
+    ],
+    "name": "生物暗物质群岛",
+  },
+  {
+    "members": [
+      "artificial-photosynthesis",
+      "ferroelectric-in-memory-ising-annealer",
+      "living-wires",
+      "magnetic-levitational-bioassembly-label-",
+      "photonic-time-crystals-space-time",
+    ],
+    "name": "生物电子群岛",
   },
   {
     "members": [
       "ai-theory-discovery",
+      "biological-computationalism-substrate-inseparability-criterion",
+      "calibration-problem-artificial-consciousness",
+      "complexity-consciousness-proxy-brain",
+      "complexity-theoretic-debate-provable-protocols",
       "cross-species-umwelt",
+      "evaluation-awareness-how-models",
+      "idiographic-dynamic-network-psychology",
       "invertebrate-sentience",
+      "self-play-dueling-agents-autonomous",
+      "stimulated-raman-activated-cell-ejection",
     ],
     "name": "意识的本质与硬核理论群岛",
   },
@@ -45,22 +103,36 @@ exports[`projectArchipelagos — 27-island real dataset (packages/data) > full r
     "members": [
       "bio-compute-thermo",
       "causal-rep-learning",
-      "tabletop-quantum-gravity",
+      "cosmological-origin-arrow-time",
+      "fundamental-limits-information-thermodynamics",
+      "proximal-causal-identification-negative",
     ],
     "name": "因果科学群岛",
   },
   {
     "members": [
-      "dark-matter-paleo",
-      "formal-math",
+      "developmental-interpretability-singular-learning",
+      "differentiable-manufacturing-simulation-gradient-based",
+      "epistemic-boundaries-autonomous-science",
+      "structural-enforcement-statistical-rigor",
+      "verifiable-reward-discovery-agents-pushing",
+      "verified-pqc",
     ],
-    "name": "AI数学·东部群岛",
+    "name": "自主科学发现群岛",
   },
   {
     "members": [
+      "category-theory-algebraic-theory",
+      "coarse-graining-free-causal-emergence-dynamical",
       "compositional-modeling",
+      "dark-matter-paleo",
+      "emergent-conventions-collective-bias-tipping",
+      "experimental-determination-wavefunction-collapse",
+      "formal-math",
+      "out-of-variable-generalization-partial-transportability",
+      "triadic-percolation-connectivity-dynamical",
     ],
-    "name": "AI数学·西部群岛",
+    "name": "AI数学群岛",
   },
 ]
 `;

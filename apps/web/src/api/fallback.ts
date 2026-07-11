@@ -56,6 +56,16 @@ export interface IslandDatum {
   cluster?: { code: string; zh: string; en: string };
   /** Citation provenance (real DOI/URL). */
   citation?: { url: string; title: string; venue: string; year: number };
+  /** Grounded deep content (overview/whyMatters/ifAnswered/approaches/barrier/
+   *  subQuestions) — the same block the server serves via meta.atlas.depth. */
+  depth?: {
+    overview: Bilingual;
+    whyMatters: Bilingual;
+    ifAnswered: Bilingual;
+    approaches: Bilingual[];
+    barrier: Bilingual;
+    subQuestions: Bilingual[];
+  };
 }
 
 /** The chart islands — derived from the curated xfrontier frontiers
@@ -84,6 +94,7 @@ export const DATA: IslandDatum[] = [
     brief: f.brief,
     cluster: f.cluster,
     citation: f.citation,
+    depth: f.depth,
   })),
   // The bespoke sample island (full L1 scene + rich ledger) — not in FRONTIERS.
   {
