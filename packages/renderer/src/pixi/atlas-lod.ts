@@ -122,6 +122,16 @@ export function assignAtlasAltitudes<T extends AtlasIslandInput>(islands: readon
 
 /** Vertical foreshortening of the top-down chart into the tilted archipelago view. */
 export const ATLAS_Y_TILT = 0.84;
+/**
+ * North–south spread. The authored chart is a wide, flat strip (~2.45:1) that
+ * letterboxes top/bottom in a ~1.68:1 viewport. This scales the vertical axis
+ * about y=0 so the world reads closer to the frame's aspect — a pure place-plane
+ * framing constant applied to EVERY y projection (island, cluster, territory)
+ * so the three stay locked together; the camera's `fitToContent` re-centres the
+ * enlarged bbox for free, so no world-centre needs computing. The band lift is
+ * deliberately NOT spread — stratum height is a screen-pixel semantic (低/中/高空),
+ * not a chart distance. */
+export const ATLAS_Y_SPREAD = 1.5;
 /** Screen-up lift per named air stratum (band-level features: washes, names). */
 export const ATLAS_BAND_LIFT: Record<AtlasAltitudeBand, number> = { low: 10, middle: 72, high: 136 };
 
@@ -137,7 +147,7 @@ export function atlasIslandLift(o: Pick<AtlasIslandInput, 'altitude' | 'altitude
 
 /** An island's projected (rendered) vertical position. */
 export function projectAtlasIslandY(o: Pick<AtlasIslandInput, 'y' | 'altitude' | 'altitudeZ'>): number {
-  return o.y * ATLAS_Y_TILT - atlasIslandLift(o);
+  return o.y * ATLAS_Y_TILT * ATLAS_Y_SPREAD - atlasIslandLift(o);
 }
 
 /**
