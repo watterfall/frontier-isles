@@ -11,6 +11,15 @@ import { NightTimeline } from './NightTimeline';
 import { StationInteriorDrawer } from './StationInteriorDrawer';
 import type { IslandInterior } from '@frontier-isles/data';
 import { api } from '../../api/client';
+import { DATA } from '../../api/fallback';
+
+/** The curated interior for a slug from the offline fallback atlas. Used when
+ *  the server detail omits it — e.g. a DB seeded before interiors existed, or
+ *  the server being absent entirely (the app must render identically offline,
+ *  fallback.ts convention). Flagship islands carry an interior here. */
+function fallbackInterior(slug: string): IslandInterior | undefined {
+  return DATA.find((d) => d.slug === slug)?.interior;
+}
 import { generate, type GeneratedScene } from '../../scene/generator';
 import { GeneratedSceneView } from '../../scene/GeneratedScene';
 import type { LayoutInput } from '../../scene/layout';
@@ -157,7 +166,13 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
       }
       const det = d as IslandDetail;
       setDetail(det);
-      const stage = STAGE_INDEX[det.growth.stage] ?? 1;
+      // A flagship island's interior may be absent from the server detail (a DB
+      // seeded before interiors shipped) — fall back to the offline atlas so the
+      // station drawers still open. An island WITH an interior is an academy by
+      // definition, so floor its scene stage at 2: otherwise a stale-DB low stage
+      // would hide library/whiteboard/data and leave them untappable.
+      const hasInterior = !!(det.atlas?.interior ?? fallbackInterior(slug));
+      const stage = Math.max(STAGE_INDEX[det.growth.stage] ?? 1, hasInterior ? 2 : 0);
       const hasAi = det.memberships.some((m) => m.actorKind === 'agent');
       const layoutInput: LayoutInput = {
         slug,
@@ -284,7 +299,9 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
   const citation = detail.atlas?.citation;
   const cluster = detail.atlas?.cluster[lang];
   const depth = detail.atlas?.depth;
-  const interior = detail.atlas?.interior;
+  // Server interior first; fall back to the offline atlas when the server omits
+  // it (pre-interior DB seed, or server absent) so the drawers still open.
+  const interior = detail.atlas?.interior ?? fallbackInterior(slug);
   // Station tap: flagship islands (with an interior) open the L2 station-interior
   // drawer; islands without one fall through to the parent (toast), unchanged.
   const handleStation = (key: StationKind): void => {
