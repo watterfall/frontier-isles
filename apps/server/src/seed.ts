@@ -341,6 +341,7 @@ function seedMinimalIsland(store: Store, c: Chart): void {
           brief: atlas.brief,
           outlier: atlas.outlier,
           depth: atlas.depth,
+          interior: atlas.interior,
         }
       : undefined,
   };

@@ -8,6 +8,8 @@ import { ClaimDetailPanel } from './ClaimDetailPanel';
 import { RitualEventPanel } from './RitualEventPanel';
 import { TransplantPanel } from './TransplantPanel';
 import { NightTimeline } from './NightTimeline';
+import { StationInteriorDrawer } from './StationInteriorDrawer';
+import type { IslandInterior } from '@frontier-isles/data';
 import { api } from '../../api/client';
 import { generate, type GeneratedScene } from '../../scene/generator';
 import { GeneratedSceneView } from '../../scene/GeneratedScene';
@@ -50,6 +52,7 @@ interface IslandDetail {
       barrier: { zh: string; en: string };
       subQuestions: { zh: string; en: string }[];
     };
+    interior?: IslandInterior;
   };
 }
 
@@ -99,6 +102,12 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
   // accumulates a tally either).
   const [dueRitualEvents, setDueRitualEvents] = useState<RitualEvent[]>([]);
   const [ritualPanel, setRitualPanel] = useState<RitualEvent | null>(null);
+  // L2 station-interior drawer: which station the visitor tapped (null = closed).
+  // Flagship islands carry a rich interior (meta.atlas.interior); tapping a
+  // station opens its archive (Question Wall / library / whiteboard / data /
+  // driftwood / residents). Islands without an interior fall through to the
+  // parent's onStation (a "station coming soon" toast), unchanged.
+  const [drawerStation, setDrawerStation] = useState<StationKind | null>(null);
   // Human transplant-through-dock (Phase B.3): the driftwood→dock→station panel.
   const [transplantOpen, setTransplantOpen] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
@@ -132,6 +141,7 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
     let cancelled = false;
     setFailed(false);
     setNoGpu(false);
+    setDrawerStation(null);
     setDueRitualEvents([]);
     setReplay(null);
     setTimeline(null);
@@ -274,6 +284,13 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
   const citation = detail.atlas?.citation;
   const cluster = detail.atlas?.cluster[lang];
   const depth = detail.atlas?.depth;
+  const interior = detail.atlas?.interior;
+  // Station tap: flagship islands (with an interior) open the L2 station-interior
+  // drawer; islands without one fall through to the parent (toast), unchanged.
+  const handleStation = (key: StationKind): void => {
+    if (interior) setDrawerStation(key);
+    else onStation(key);
+  };
   const domain = detail.domain as '数理' | '物质' | '生命' | '交叉';
   // 海即数据 decoder (invariant 6): abstractness tier for the sea-depth readout +
   // the relation counts that make the current/undertow legible as text (list-twin).
@@ -307,7 +324,7 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
           ledger-driven claims + App day/night. SVG scene is the no-GPU fallback
           (CLAUDE.md: the app must render without the GPU). */}
       {noGpu ? (
-        <GeneratedSceneView scene={scene} night={night} nightT={50} onStation={onStation} />
+        <GeneratedSceneView scene={scene} night={night} nightT={50} onStation={handleStation} />
       ) : (
         <Suspense fallback={<div className="fi-island-loading-mark" role="status"><i aria-hidden="true" /><span>{t('island.loading')}</span></div>}>
           <PixiScene
@@ -318,7 +335,7 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
             activeStations={effActive}
             substrate={seaStats?.substrate}
             undertow={seaStats?.contention ?? 0}
-            onStation={onStation}
+            onStation={handleStation}
             onClaim={setClaimPanel}
             onWebglError={() => setNoGpu(true)}
             rituals={dueRitualEvents}
@@ -330,6 +347,7 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
 
       <ClaimDetailPanel claim={claimPanel} onClose={() => setClaimPanel(null)} />
       <RitualEventPanel event={ritualPanel} onClose={() => setRitualPanel(null)} />
+      <StationInteriorDrawer station={drawerStation} interior={interior} lang={lang} onClose={() => setDrawerStation(null)} />
       {transplantOpen && (
         <TransplantPanel slug={slug} actor={actor} lang={lang} onClose={() => setTransplantOpen(false)} onToast={onToast} />
       )}
