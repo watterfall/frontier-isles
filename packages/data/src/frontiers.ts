@@ -82,10 +82,19 @@ export interface InteriorDatum {
   note?: Bilingual;
 }
 
-/** One 散木园 (Driftwood) scrap — an honest half-finished atom. */
+/** One 散木园 (Driftwood) scrap — an honest half-finished atom. Also used for
+ *  实验坊 (Workshop) prototypes-in-progress and 茶寮 (Tearoom) informal exchanges. */
 export interface InteriorScrap {
   text: Bilingual;
   author: Bilingual;
+}
+
+/** One 展厅 (Gallery) piece — a published / exhibited result of this island,
+ *  optionally with a real citation (the record it produced or replicated). */
+export interface InteriorGalleryItem {
+  title: Bilingual;
+  gist: Bilingual;
+  cite?: { title: string; venue: string; year: number; url?: string };
 }
 
 /**
@@ -98,11 +107,23 @@ export interface InteriorScrap {
  * fallback (offline), exactly like {@link DepthContent}.
  */
 export interface IslandInterior {
+  /** 问题墙 Question Wall. */
   questions: InteriorQuestion[];
+  /** 文献阁 Library — clustered real-paper digests. */
   digests: InteriorDigest[];
+  /** 白板厅 Whiteboard — live debates. */
   debates: InteriorDebate[];
+  /** 数据台 Data Desk — real figures / benchmarks. */
   data: InteriorDatum[];
+  /** 散木园 Driftwood Garden — honest half-finished scraps. */
   driftwood: InteriorScrap[];
+  /** 实验坊 Workshop — prototypes / experiments in progress. */
+  workshop: InteriorScrap[];
+  /** 展厅 Gallery — published / exhibited results. */
+  gallery: InteriorGalleryItem[];
+  /** 茶寮 Tearoom — informal exchanges, hallway musings. */
+  tearoom: InteriorScrap[];
+  /** Named residents (human + AI). */
   residents: InteriorResident[];
 }
 

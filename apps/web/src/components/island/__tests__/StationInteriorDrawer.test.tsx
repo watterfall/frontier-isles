@@ -45,6 +45,30 @@ describe('StationInteriorDrawer', () => {
     expect(html).toContain(interior.questions[0]!.author.zh);
   });
 
+  it('the Workshop station renders a real prototype scrap', () => {
+    const html = renderToStaticMarkup(
+      <StationInteriorDrawer station="workshop" interior={interior} lang="zh" onClose={() => {}} />,
+    );
+    expect(html).toContain(interior.workshop[0]!.text.zh);
+    expect(html).toContain(interior.workshop[0]!.author.zh);
+  });
+
+  it('the Gallery station renders an exhibited result with its citation', () => {
+    const cited = interior.gallery.find((g) => g.cite)!;
+    const html = renderToStaticMarkup(
+      <StationInteriorDrawer station="gallery" interior={interior} lang="en" onClose={() => {}} />,
+    );
+    expect(html).toContain(cited.cite!.title);
+    expect(html).toContain(String(cited.cite!.year));
+  });
+
+  it('the Tearoom station renders an informal musing', () => {
+    const html = renderToStaticMarkup(
+      <StationInteriorDrawer station="tearoom" interior={interior} lang="zh" onClose={() => {}} />,
+    );
+    expect(html).toContain(interior.tearoom[0]!.text.zh);
+  });
+
   it('the Library station renders a real citation title and venue', () => {
     const cited = interior.digests.find((d) => d.cite)!;
     const html = renderToStaticMarkup(
