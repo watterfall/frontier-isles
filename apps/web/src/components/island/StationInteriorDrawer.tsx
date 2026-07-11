@@ -30,16 +30,18 @@ export interface StationInteriorDrawerProps {
 /** Station kind → which interior section it opens. Stations without a dedicated
  *  archive section (workshop/gallery/tearoom/dock — the "life" of the island)
  *  open the resident roster. */
-type Section = 'questions' | 'library' | 'whiteboard' | 'data' | 'driftwood' | 'residents';
+type Section = 'questions' | 'library' | 'whiteboard' | 'data' | 'driftwood' | 'workshop' | 'gallery' | 'tearoom' | 'residents';
 const SECTION_OF: Record<StationKind, Section> = {
   questions: 'questions',
   library: 'library',
   canvas: 'whiteboard',
   data: 'data',
   driftwood: 'driftwood',
-  workshop: 'residents',
-  gallery: 'residents',
-  tearoom: 'residents',
+  workshop: 'workshop',
+  gallery: 'gallery',
+  tearoom: 'tearoom',
+  // The dock (渡口) is the ferry stub in the sample island too — no archive of
+  // its own; it opens the resident/ferry roster.
   dock: 'residents',
 };
 
@@ -66,6 +68,9 @@ export function StationInteriorDrawer({ station, interior, lang, onClose }: Stat
     whiteboard: t('island.interior.whiteboard.seal'),
     data: t('island.interior.data.seal'),
     driftwood: t('island.interior.driftwood.seal'),
+    workshop: t('island.interior.workshop.seal'),
+    gallery: t('island.interior.gallery.seal'),
+    tearoom: t('island.interior.tearoom.seal'),
     residents: t('island.interior.residents.seal'),
   };
   const sealBg: Record<Section, string> = {
@@ -74,6 +79,9 @@ export function StationInteriorDrawer({ station, interior, lang, onClose }: Stat
     whiteboard: '#3E9B7E',
     data: '#2E5E8C',
     driftwood: '#6B6154',
+    workshop: '#B5673A',
+    gallery: '#4A4238',
+    tearoom: '#3E9B7E',
     residents: '#4A4238',
   };
   const titleText: Record<Section, string> = {
@@ -82,6 +90,9 @@ export function StationInteriorDrawer({ station, interior, lang, onClose }: Stat
     whiteboard: t('island.interior.whiteboard.title'),
     data: t('island.interior.data.title'),
     driftwood: t('island.interior.driftwood.title'),
+    workshop: t('island.interior.workshop.title'),
+    gallery: t('island.interior.gallery.title'),
+    tearoom: t('island.interior.tearoom.title'),
     residents: t('island.interior.residents.title'),
   };
 
@@ -221,6 +232,57 @@ function SectionBody({ section, interior, lang, t }: { section: Section; interio
               <div key={i} style={{ ...cardStyle, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ flex: 1, fontSize: 13, color: '#2B2620', fontFamily: "'Noto Serif SC',serif", fontWeight: 600, lineHeight: 1.45 }}>{it.text[lang]}</span>
                 <span style={{ fontSize: 9.5, padding: '1.5px 7px', borderRadius: 999, border: '1px solid rgba(139,148,178,0.55)', color: '#6B7594', whiteSpace: 'nowrap', flex: 'none' }}>{it.author[lang]}</span>
+              </div>
+            ))}
+          </div>
+        </>
+      );
+    case 'workshop':
+      return (
+        <>
+          <div style={{ margin: '0 0 10px', fontSize: 11.5, color: '#6B6154' }}>{t('island.interior.workshop.sub')}</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {interior.workshop.map((it, i) => (
+              <div key={i} style={{ ...cardStyle, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ flex: 1, fontSize: 13, color: '#2B2620', fontFamily: "'Noto Serif SC',serif", fontWeight: 600, lineHeight: 1.45 }}>{it.text[lang]}</span>
+                <span style={{ fontSize: 9.5, padding: '1.5px 7px', borderRadius: 999, border: '1px solid rgba(139,148,178,0.55)', color: '#6B7594', whiteSpace: 'nowrap', flex: 'none' }}>{it.author[lang]}</span>
+              </div>
+            ))}
+          </div>
+        </>
+      );
+    case 'gallery':
+      return (
+        <>
+          <div style={{ margin: '0 0 10px', fontSize: 11.5, color: '#6B6154' }}>{t('island.interior.gallery.sub')}</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {interior.gallery.map((g, i) => (
+              <div key={i} style={cardStyle}>
+                <div style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 700, fontSize: 14, color: '#2B2620', lineHeight: 1.45 }}>{g.title[lang]}</div>
+                <div style={{ marginTop: 5, fontSize: 12.5, color: '#4A4238', lineHeight: 1.55 }}>{g.gist[lang]}</div>
+                {g.cite && (
+                  <div style={{ marginTop: 7, fontSize: 10.5, color: '#6B6154', fontFamily: "'JetBrains Mono',ui-monospace,monospace" }}>
+                    {t('island.interior.gallery.exhibit')} · {g.cite.url ? (
+                      <a href={g.cite.url} target="_blank" rel="noopener noreferrer" style={{ color: '#2E5E8C' }}>{g.cite.title} · {g.cite.venue} {g.cite.year} ↗</a>
+                    ) : (
+                      <span>{g.cite.title} · {g.cite.venue} {g.cite.year}</span>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </>
+      );
+    case 'tearoom':
+      return (
+        <>
+          <div style={{ margin: '0 0 10px', fontSize: 11.5, color: '#6B6154' }}>{t('island.interior.tearoom.sub')}</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {interior.tearoom.map((it, i) => (
+              <div key={i} style={{ ...cardStyle }}>
+                <div style={{ fontSize: 13, color: '#2B2620', lineHeight: 1.5 }}>{it.text[lang]}</div>
+                <div style={{ marginTop: 5, fontSize: 9.5, color: '#8C8270', fontStyle: 'italic' }}>— {it.author[lang]}</div>
               </div>
             ))}
           </div>
