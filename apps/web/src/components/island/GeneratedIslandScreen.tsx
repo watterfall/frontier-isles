@@ -42,6 +42,14 @@ interface IslandDetail {
     citation: { url: string; title: string; venue: string; year: number };
     brief: { zh: string; en: string };
     outlier?: boolean;
+    depth?: {
+      overview: { zh: string; en: string };
+      whyMatters: { zh: string; en: string };
+      ifAnswered: { zh: string; en: string };
+      approaches: { zh: string; en: string }[];
+      barrier: { zh: string; en: string };
+      subQuestions: { zh: string; en: string }[];
+    };
   };
 }
 
@@ -265,6 +273,7 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
   const brief = detail.atlas?.brief[lang] ?? '';
   const citation = detail.atlas?.citation;
   const cluster = detail.atlas?.cluster[lang];
+  const depth = detail.atlas?.depth;
   const domain = detail.domain as '数理' | '物质' | '生命' | '交叉';
   // 海即数据 decoder (invariant 6): abstractness tier for the sea-depth readout +
   // the relation counts that make the current/undertow legible as text (list-twin).
@@ -352,6 +361,27 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
               {seaStats?.substrate != null && <span>≈ {t('island.seaData.depth')} {seaStats.substrate.toFixed(2)} · {t(abstractKey(seaStats.substrate))}</span>}
               {relParts.length > 0 && <span>⇄ {relParts.join(' · ')}</span>}
             </div>
+            {depth && (
+              <details className="fi-island-depth" style={{ marginTop: 8, maxWidth: 540 }}>
+                <summary style={{ cursor: 'pointer', fontSize: 12, letterSpacing: '.04em', opacity: 0.82 }}>
+                  {t('island.depth.title')}
+                </summary>
+                <div style={{ maxHeight: 268, overflowY: 'auto', marginTop: 6, fontSize: 12.5, lineHeight: 1.55, display: 'grid', gap: 5 }}>
+                  <p><b>{t('island.depth.overview')} · </b>{depth.overview[lang]}</p>
+                  <p><b>{t('island.depth.whyMatters')} · </b>{depth.whyMatters[lang]}</p>
+                  <p><b>{t('island.depth.ifAnswered')} · </b>{depth.ifAnswered[lang]}</p>
+                  <p style={{ margin: 0 }}><b>{t('island.depth.approaches')}</b></p>
+                  <ul style={{ margin: 0, paddingLeft: 18 }}>
+                    {depth.approaches.map((a, i) => <li key={i}>{a[lang]}</li>)}
+                  </ul>
+                  <p><b>{t('island.depth.barrier')} · </b>{depth.barrier[lang]}</p>
+                  <p style={{ margin: 0 }}><b>{t('island.depth.subQuestions')}</b></p>
+                  <ul style={{ margin: 0, paddingLeft: 18 }}>
+                    {depth.subQuestions.map((q, i) => <li key={i}>{q[lang]}</li>)}
+                  </ul>
+                </div>
+              </details>
+            )}
           </section>
         </div>
         <div className="fi-island-hud-mode">

@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { DATA, QUESTIONS, STN, RITQ, DRIFT, BRIEF, AUTHQ } from '../api/fallback';
 
 describe('fallback data matches the curated atlas', () => {
-  it('has 27 chart islands (26 curated frontiers + 1 bespoke sample)', () => {
-    expect(DATA).toHaveLength(27);
+  it('has 79 chart islands (78 curated frontiers + 1 bespoke sample)', () => {
+    expect(DATA).toHaveLength(79);
   });
 
   it('has 7 Question-Wall questions', () => {
@@ -45,6 +45,18 @@ describe('fallback data matches the curated atlas', () => {
   it('every curated frontier carries a slug (enterable)', () => {
     for (const d of DATA) {
       expect(d.slug, `island #${d.id} (${d.n.zh}) missing slug`).toBeTruthy();
+    }
+  });
+
+  it('every curated frontier carries grounded depth (opening an island is never empty)', () => {
+    for (const d of DATA) {
+      if (d.sample) continue; // the bespoke sample carries a full L1 scene instead
+      const dp = d.depth;
+      expect(dp, `island #${d.id} (${d.n.zh}) missing depth`).toBeTruthy();
+      expect(dp!.overview.zh && dp!.overview.en, `#${d.id} overview`).toBeTruthy();
+      expect(dp!.whyMatters.zh && dp!.ifAnswered.zh && dp!.barrier.zh, `#${d.id} depth text`).toBeTruthy();
+      expect(dp!.approaches.length, `#${d.id} approaches`).toBeGreaterThanOrEqual(2);
+      expect(dp!.subQuestions.length, `#${d.id} subQuestions`).toBeGreaterThanOrEqual(2);
     }
   });
 

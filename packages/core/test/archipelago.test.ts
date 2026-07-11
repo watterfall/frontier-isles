@@ -229,13 +229,13 @@ describe("projectArchipelagos — curated overlay is a PURE re-label (hybrid hon
   });
 });
 
-describe("projectArchipelagos — 27-island real dataset (packages/data)", () => {
+describe("projectArchipelagos — 78-island real dataset (packages/data)", () => {
   const islands = realIslands();
   const { archipelagos, outliers } = projectArchipelagos(islands, []);
 
-  it("clusters the 27 real islands into 4–8 named archipelagos", () => {
-    expect(archipelagos.length).toBeGreaterThanOrEqual(4);
-    expect(archipelagos.length).toBeLessThanOrEqual(8);
+  it("clusters the 78 real islands into 8–18 named archipelagos", () => {
+    expect(archipelagos.length).toBeGreaterThanOrEqual(8);
+    expect(archipelagos.length).toBeLessThanOrEqual(18);
   });
 
   it("the editorially-flagged outlier (dark-instrumentation) never joins a cluster", () => {

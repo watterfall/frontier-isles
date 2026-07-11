@@ -289,6 +289,27 @@ function seedSampleIsland(store: Store): void {
   });
 }
 
+/** Rich, grounded problem.md body built from the frontier's curated `depth`
+ *  content — so opening an island is never empty (the deep brief + open
+ *  sub-questions are the leavable artifact, §6). Editorial zh only, per
+ *  architecture invariant 9. Islands without curated depth keep the lean
+ *  qfocus-only stub. */
+function buildIslandBody(c: Chart, atlas?: FrontierEntry): string {
+  const d = atlas?.depth;
+  if (!d) return `## Open sub-questions\n\n- ${c.q}\n`;
+  const bullets = (arr: { zh: string }[]): string => arr.map((x) => `- ${x.zh}`).join("\n");
+  return (
+    [
+      "## 概览", d.overview.zh,
+      "## 为什么重要", d.whyMatters.zh,
+      "## 若被回答", d.ifAnswered.zh,
+      "## 主要路径", bullets(d.approaches),
+      "## 硬骨头", d.barrier.zh,
+      "## Open sub-questions", bullets(d.subQuestions),
+    ].join("\n\n") + "\n"
+  );
+}
+
 function seedMinimalIsland(store: Store, c: Chart): void {
   const opId = opIdFor(c.slug);
   const atlas = ATLAS[c.slug];
@@ -304,7 +325,7 @@ function seedMinimalIsland(store: Store, c: Chart): void {
     frontier: { heat: (scores[0] ?? 3) / 5, substrate: (scores[6] ?? 3) / 5, mode: "variance-select" },
   };
   const object = ProblemObjectSchema.parse(raw);
-  const body = { raw: `## Open sub-questions\n\n- ${c.q}\n` };
+  const body = { raw: buildIslandBody(c, atlas) };
   const parsedBody = parseProblemObject(serializeProblemObject(object, body)).body;
   const md = serializeProblemObject(object, parsedBody);
   const meta: ProblemMeta = {
@@ -319,6 +340,7 @@ function seedMinimalIsland(store: Store, c: Chart): void {
           citation: atlas.citation,
           brief: atlas.brief,
           outlier: atlas.outlier,
+          depth: atlas.depth,
         }
       : undefined,
   };

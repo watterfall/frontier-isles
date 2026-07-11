@@ -63,6 +63,15 @@ export const zh = {
 
   island: {
     back: '返回海图',
+    depth: {
+      title: '深度简报',
+      overview: '概览',
+      whyMatters: '为什么重要',
+      ifAnswered: '若被回答',
+      approaches: '主要路径',
+      barrier: '硬骨头',
+      subQuestions: '开放子问题',
+    },
     loading: '岛影升起中…',
     notReachable: '此岛暂时无法抵达（服务未响应）',
     dissolved: '雾岛 · 已消散',

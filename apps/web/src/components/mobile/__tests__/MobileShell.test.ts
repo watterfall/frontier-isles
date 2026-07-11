@@ -3,10 +3,10 @@ import { DATA } from '../../../api/fallback';
 import { buildMobileHierarchy } from '../MobileShell';
 
 describe('buildMobileHierarchy — compact nested atlas projection', () => {
-  it('reduces the 27-island phone overview to eight geometry anchors', () => {
+  it('reduces the 79-island phone overview to eight geometry anchors', () => {
     const hierarchy = buildMobileHierarchy(DATA);
     expect([...hierarchy.values()].filter((item) => item.role === 'anchor')).toHaveLength(8);
-    expect([...hierarchy.values()].filter((item) => item.role === 'satellite')).toHaveLength(19);
+    expect([...hierarchy.values()].filter((item) => item.role === 'satellite')).toHaveLength(70);
   });
 
   it('gives every satellite a real anchor parent', () => {

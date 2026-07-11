@@ -187,6 +187,17 @@ export interface ProblemMeta {
     citation: { url: string; title: string; venue: string; year: number };
     brief: { zh: string; en: string };
     outlier?: boolean;
+    /** Grounded deep content (overview/whyMatters/ifAnswered/approaches/barrier/
+     *  subQuestions) — feeds the L1 detail dossier + problem.md body so opening
+     *  an island is never empty. From @frontier-isles/data FrontierEntry.depth. */
+    depth?: {
+      overview: { zh: string; en: string };
+      whyMatters: { zh: string; en: string };
+      ifAnswered: { zh: string; en: string };
+      approaches: { zh: string; en: string }[];
+      barrier: { zh: string; en: string };
+      subQuestions: { zh: string; en: string }[];
+    };
   };
 }
 
