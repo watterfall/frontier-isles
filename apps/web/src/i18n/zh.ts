@@ -86,6 +86,8 @@ export const zh = {
       gallery: { title: '展厅', seal: '展', sub: '已发布 / 展出的成果', exhibit: '展品' },
       tearoom: { title: '茶寮', seal: '茶', sub: '闲谈与开放遐想 · 不作数' },
       residents: { title: '此间居民', seal: '居', human: '人', ai: 'AI', note: '在场不计时 · 日积成径' },
+      dock: { title: '渡口', seal: '渡' },
+      index: { title: '岛内建筑', motto: '点建筑进内景', hint: '每栋都可点开' },
     },
     loading: '岛影升起中…',
     notReachable: '此岛暂时无法抵达（服务未响应）',

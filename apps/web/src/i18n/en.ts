@@ -87,6 +87,8 @@ export const en: Resources = {
       gallery: { title: 'Gallery', seal: '展', sub: 'Published / exhibited results', exhibit: 'Exhibit' },
       tearoom: { title: 'Tearoom', seal: '茶', sub: 'Hallway talk & open musings · off the record' },
       residents: { title: 'Residents here', seal: '居', human: 'Human', ai: 'AI', note: 'Presence isn’t timed · paths form by accretion' },
+      dock: { title: 'Ferry Dock', seal: '渡' },
+      index: { title: 'Buildings', motto: 'tap a building to enter', hint: 'every one opens' },
     },
     loading: 'The island is rising…',
     notReachable: 'This island is unreachable for now (server not responding)',
