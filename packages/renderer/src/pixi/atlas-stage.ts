@@ -31,6 +31,7 @@ import {
   ATLAS_DOMAIN_INK,
   ATLAS_STAGE_RADIUS,
   ATLAS_Y_TILT,
+  ATLAS_Y_SPREAD,
   atlasCoastline,
   atlasIslandLift,
   computeWorldMinScale,
@@ -63,8 +64,8 @@ const ALTITUDE_DEPTH: Record<AtlasAltitudeBand, number> = { low: 20, middle: 34,
 const altitudeOf = (o: AtlasIslandInput): AtlasAltitudeBand => o.altitude ?? 'middle';
 const altitudeZOf = (o: AtlasIslandInput): number => Math.max(0, Math.min(1, o.altitudeZ ?? ALTITUDE_INDEX[altitudeOf(o)] / 2));
 const altitudeLiftOf = (o: AtlasIslandInput): number => atlasIslandLift(o);
-const projectAtlasY = (y: number, band?: AtlasAltitudeBand): number => y * ATLAS_Y_TILT - (band ? ALTITUDE_LIFT[band] : 0);
-const projectIslandY = (o: AtlasIslandInput): number => o.y * ATLAS_Y_TILT - altitudeLiftOf(o);
+const projectAtlasY = (y: number, band?: AtlasAltitudeBand): number => y * ATLAS_Y_TILT * ATLAS_Y_SPREAD - (band ? ALTITUDE_LIFT[band] : 0);
+const projectIslandY = (o: AtlasIslandInput): number => o.y * ATLAS_Y_TILT * ATLAS_Y_SPREAD - altitudeLiftOf(o);
 
 /**
  * Trace `atlasCoastline`'s flat point list as a SMOOTH closed curve (Catmull-
@@ -363,6 +364,13 @@ export class AtlasStage {
    *  guards against overlapping flights from a rapid double-tap. */
   private flying = false;
   private flightRaf: number | null = null;
+  /** Wheel/trackpad zoom easing — the wheel sets a TARGET scale and an anchor,
+   *  and a rAF loop glides the live scale toward it so a burst of ticks reads as
+   *  one smooth push instead of stair-steps. `wheelTarget === 0` means idle. */
+  private wheelTarget = 0;
+  private wheelPx = 0;
+  private wheelPy = 0;
+  private wheelRaf: number | null = null;
   /** rAF-coalesced render request state — see `requestFrame`'s doc comment. */
   private frameScheduled = false;
   private pendingReflow = false;
@@ -617,10 +625,20 @@ export class AtlasStage {
       }
       const contentW = Math.max(text.width, captionText?.width ?? 0);
       const contentH = text.height + (captionText ? captionText.height + 3 : 0);
-      const halfW = contentW / 2 + 12;
+      // Extra left inset makes room for the domain bullet so the text never
+      // crowds it.
+      const halfW = contentW / 2 + 20;
       const halfH = contentH / 2 + 6;
-      // Chip stays a soft rounded wash (subtle tint edge, not a hard region border).
-      bg.roundRect(-halfW, -halfH, halfW * 2, halfH * 2, 9).fill({ color: 0xfaf5e8, alpha: 0.82 }).stroke({ color: c.tint, width: 1, alpha: 0.55 });
+      // Chip stays a soft rounded wash (subtle tint edge, not a hard region
+      // border). A domain-ink spine down the left and a bullet at its head give
+      // each region its climate's colour — a cartographic legend mark, so the
+      // chips stop reading as one uniform SaaS card grid.
+      bg.roundRect(-halfW, -halfH, halfW * 2, halfH * 2, 9).fill({ color: 0xfbf6ea, alpha: 0.9 }).stroke({ color: c.tint, width: 1, alpha: 0.5 });
+      bg.roundRect(-halfW, -halfH, 4, halfH * 2, 2).fill({ color: c.tint, alpha: 0.85 });
+      bg.circle(-halfW + 11, 0, 3.4).fill({ color: c.tint, alpha: 0.92 });
+      // Nudge the text right of the bullet (group is centred on the anchor).
+      text.x = 8;
+      if (captionText) captionText.x = 8;
       if (captionText) {
         text.y = -captionText.height / 2 - 1;
         captionText.y = text.height / 2 + 1;
@@ -658,9 +676,18 @@ export class AtlasStage {
   private continentLabelAt(c: AtlasContinent): { x: number; y: number } {
     const bx = (c.manifold[0] - 0.5) * 2; // −1..1 (formal→empirical)
     const by = (c.manifold[1] - 0.5) * 2; // −1..1 (physical→living)
-    // Bias the name out toward the territory's manifold corner so the 4 names
-    // ring the map's outer zone, clear of the central region-label pile.
-    return { x: c.center.x + bx * c.extent.x * 0.6, y: c.center.y + by * c.extent.y * 0.6 };
+    // Bias the name hard out toward the territory's manifold corner so the 4
+    // names ring the map's OUTER frame, well clear of the central region-pin
+    // pile (a firmer push than before — the watermark reads as a cartouche in
+    // the margin, not a label competing with the chips). A constant floor keeps
+    // even a small-extent territory's name pushed clear.
+    // Strong horizontal push (names ring the left/right frame), but a GENTLE
+    // vertical one: the ATLAS_Y_SPREAD stretch already separates the territories
+    // top-to-bottom, so a big vertical bias here compounds with it and flings the
+    // names into the masthead / bottom chrome. Keep them inside the content band.
+    const ox = bx * (c.extent.x * 0.98 + 60);
+    const oy = by * (c.extent.y * 0.32 + 12);
+    return { x: c.center.x + ox, y: c.center.y + oy };
   }
 
   private continentBand(c: AtlasContinent): AtlasAltitudeBand {
@@ -800,14 +827,25 @@ export class AtlasStage {
       group.eventMode = 'none';
       const text = new Text({
         text: c.name,
-        style: new TextStyle({ fontFamily: "'Noto Serif SC','PingFang SC',serif", fontSize: 38, fontWeight: '700', fill: c.ink, align: 'center', letterSpacing: 8 }),
+        style: new TextStyle({ fontFamily: "'Noto Serif SC','PingFang SC',serif", fontSize: 40, fontWeight: '700', fill: c.ink, align: 'center', letterSpacing: 10 }),
         resolution: 2,
       });
       text.anchor.set(0.5, 0.5);
+      // A soft paper halo feathered behind the glyphs (nested low-alpha ellipses,
+      // same 界画 wash grammar as the territories). It lets a region pin that
+      // grazes the name read as a chip resting ON a watermark, not a card slicing
+      // live text — the failure mode when the two label sets deconflict apart.
+      const halo = new Graphics();
+      const hw = text.width / 2 + 34;
+      const hh = text.height / 2 + 20;
+      for (let k = 3; k >= 1; k--) {
+        halo.ellipse(0, 0, hw * (0.7 + k * 0.12), hh * (0.7 + k * 0.16))
+          .fill({ color: 0xf5efe0, alpha: 0.12 });
+      }
       // Watermark weight: a big, faint ambient territory label BEHIND the crisp
       // region pins (which occlude it where they overlap — correct z-order).
-      text.alpha = 0.5;
-      group.addChild(text);
+      text.alpha = 0.42;
+      group.addChild(halo, text);
       this.continentLabelLayer.addChild(group);
       this.continentLabels.push({ c, group });
     }
@@ -964,11 +1002,41 @@ export class AtlasStage {
   private onWheel(e: WheelEvent): void {
     e.preventDefault();
     const rect = this.canvasEl!.getBoundingClientRect();
-    const px = e.clientX - rect.left;
-    const py = e.clientY - rect.top;
-    const factor = e.deltaY < 0 ? 1.12 : 1 / 1.12;
-    this.zoomAt(px, py, factor);
+    this.wheelPx = e.clientX - rect.left;
+    this.wheelPy = e.clientY - rect.top;
+    // Trackpads fire a fine stream of small deltas; a mouse wheel fires a few
+    // big notches. Scale the step to the delta magnitude so both feel like the
+    // same continuous push (capped so one violent notch can't leap a whole tier).
+    const mag = Math.min(1, Math.abs(e.deltaY) / 100);
+    const perTick = 1 + 0.16 * mag;
+    const factor = e.deltaY < 0 ? perTick : 1 / perTick;
+    // reduced-motion (and the tiny-viewport test env) skip the glide.
+    const reduced = typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) { this.zoomAt(this.wheelPx, this.wheelPy, factor); return; }
+    // Accumulate onto the pending target (or the live scale if idle), then glide.
+    if (this.flying) { if (this.flightRaf != null) cancelAnimationFrame(this.flightRaf); this.flying = false; }
+    const base = this.wheelTarget > 0 ? this.wheelTarget : this.scale;
+    this.wheelTarget = Math.max(this.minScale, Math.min(MAX_SCALE, base * factor));
+    if (this.wheelRaf == null) this.wheelRaf = requestAnimationFrame(this.stepWheelZoom);
   }
+
+  /** One eased frame of wheel zoom: move a fixed fraction of the remaining
+   *  log-distance toward the target, keeping the anchored world point fixed via
+   *  {@link zoomAt}. Converges fast, settles soft (never overshoots). */
+  private stepWheelZoom = (): void => {
+    this.wheelRaf = null;
+    if (this.wheelTarget <= 0 || !this.app) return;
+    const remaining = Math.log(this.wheelTarget / this.scale);
+    if (Math.abs(remaining) < 0.006) {
+      // Snap the last sliver so we land exactly on target, then idle.
+      this.zoomAt(this.wheelPx, this.wheelPy, this.wheelTarget / this.scale);
+      this.wheelTarget = 0;
+      return;
+    }
+    const stepRatio = Math.exp(remaining * 0.28); // ease-out: 28% of the gap/frame
+    this.zoomAt(this.wheelPx, this.wheelPy, stepRatio);
+    this.wheelRaf = requestAnimationFrame(this.stepWheelZoom);
+  };
 
   /** Zoom by `factor` keeping the world point under `(px,py)` screen-fixed. */
   zoomAt(px: number, py: number, factor: number): void {
@@ -1192,8 +1260,13 @@ export class AtlasStage {
     // fog lifts and the washes never fight the mid/near island detail.
     this.continentLayer.alpha = blend.far;
     this.terrainLayer.alpha = Math.max(blend.far * 0.95, blend.mid * 0.24);
-    this.routeLayer.alpha = Math.max(blend.far * 0.9, blend.mid * 0.32);
-    this.localRouteLayer.alpha = Math.max(blend.far * 0.08, blend.mid * 0.44, blend.near * 0.58);
+    // Routes recede at the world tier: with only a handful of cross-domain
+    // currents in the whole atlas, a single arc at full strength reads as a
+    // stray pen stroke over the overview. Keep them a faint ambient hint at far
+    // and let them gain body at mid/near, where enough are in frame that they
+    // mean "sail between these" instead of floating alone.
+    this.routeLayer.alpha = Math.max(blend.far * 0.28, blend.mid * 0.34);
+    this.localRouteLayer.alpha = Math.max(blend.far * 0.06, blend.mid * 0.44, blend.near * 0.58);
     this.cloudBackLayer.alpha = Math.max(blend.far * 0.82, blend.mid * 0.46, blend.near * 0.18);
     this.cloudFrontLayer.alpha = Math.max(blend.far * 0.54, blend.mid * 0.3, blend.near * 0.08);
     // Territory NAMES fade faster than their washes (crisp only at true far zoom).
