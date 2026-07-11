@@ -9,6 +9,7 @@ import { RitualEventPanel } from './RitualEventPanel';
 import { TransplantPanel } from './TransplantPanel';
 import { NightTimeline } from './NightTimeline';
 import { StationInteriorDrawer } from './StationInteriorDrawer';
+import { GeneratedStationIndex } from './GeneratedStationIndex';
 import type { IslandInterior } from '@frontier-isles/data';
 import { api } from '../../api/client';
 import { DATA } from '../../api/fallback';
@@ -364,6 +365,12 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
 
       <ClaimDetailPanel claim={claimPanel} onClose={() => setClaimPanel(null)} />
       <RitualEventPanel event={ritualPanel} onClose={() => setRitualPanel(null)} />
+      {/* DOM station index (list twin) — the reliable, scale-proof way to open
+          every one of the nine buildings; only shown when the island actually
+          has an interior to open. */}
+      {interior && (
+        <GeneratedStationIndex interior={interior} sel={drawerStation} onStation={handleStation} />
+      )}
       <StationInteriorDrawer station={drawerStation} interior={interior} lang={lang} onClose={() => setDrawerStation(null)} />
       {transplantOpen && (
         <TransplantPanel slug={slug} actor={actor} lang={lang} onClose={() => setTransplantOpen(false)} onToast={onToast} />
