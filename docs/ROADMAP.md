@@ -47,7 +47,7 @@ _As of 2026-07-12, after Phase B closed (§8 accepted), the richness + world-map
 
 ### Phase A — close P1 (small; days)
 _Immediately-actionable P1 work is **deploy** + **presence names**. The whiteboard, though it's what formally completes the P1 acceptance, is **consciously deferred** (2026-07-12) pending a dedicated positioning/design discussion — see §3.1._
-- **Deploy** single process (Fly.io per §6.1): serve the built web from the server, register the GitHub OAuth app + real creds, `NODE_ENV=production` (disables dev bypass), CI (`pnpm -r test && typecheck && build`).
+- **Deploy** single process (Fly.io per §6.1) — **runbook: `docs/deploy-fly.md`**. Single-process web serving + `Dockerfile`/`fly.toml` landed and container-validated end-to-end (2026-07-12, `1d4f303`); only the operator credential steps remain (flyctl auth, `fly apps create`, GitHub OAuth app + secrets, DB volume, `fly deploy`). CI (`pnpm -r test && typecheck && build`) still to add.
 - Presence names/positions in awareness (not just a count).
 - **Whiteboard canvas UI** (⏸ **deferred 2026-07-12**, awaiting a positioning discussion) on the existing `island:<slug>:canvas` room (fold-on-empty already server-side; server half ready, client-only build) → completes the P1 acceptance: two browsers, see each other, co-edit, replay from the ledger.
 
