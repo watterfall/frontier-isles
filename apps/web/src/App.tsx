@@ -278,18 +278,19 @@ export default function App() {
   );
 
   // ── mobile (read-only) ───────────────────────────────────────────────
-  if (isMobile) return <MobileShell />;
+  if (isMobile) return <MobileShell islands={chartIslands} />;
 
-  // ── desktop shell (1440×900, scaled to viewport) ─────────────────────
+  // ── desktop shell (1440×900 world, fitted edge-to-edge) ──────────────
   return (
-    <div style={{ minHeight: '100vh', background: '#E4DAC2', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 0' }}>
-      <div style={{ position: 'fixed', top: 16, right: 20, zIndex: 200, display: 'flex', gap: 10, alignItems: 'center' }}>
+    <main className="fi-app-shell">
+      <div className={`fi-global-controls fi-global-controls-${wipe.view}`} aria-label={t('shell.accountControls')}>
         <SessionBadge />
         <LangToggle />
       </div>
 
-      <div className="fi-stage" style={{ width: 1440, height: 900, border: '1.5px solid #3A342B', padding: 5, background: '#F2EAD8', boxShadow: '0 18px 50px rgba(58,48,36,.18)', transform: `scale(${scale})`, transformOrigin: 'top center' }}>
-        <div style={{ position: 'relative', width: '100%', height: '100%', border: '0.75px solid rgba(58,52,43,.5)', overflow: 'hidden', background: '#F2EAD8' }}>
+      <div className="fi-stage-viewport" style={{ width: 1440 * scale, height: 900 * scale }}>
+        <div className="fi-stage" style={{ transform: `scale(${scale})` }}>
+          <div className="fi-stage-inner">
           {wipe.view === 'island' && selSlug && selSlug !== SAMPLE_SLUG && (
             <GeneratedIslandScreen
               slug={selSlug}
@@ -373,8 +374,9 @@ export default function App() {
           {wipe.wipeOn && <ScrollWipe wipeTf={wipe.wipeTf} wipeTrans={wipe.wipeTrans} />}
 
           <Toast text={toast} on={toastOn} />
+          </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

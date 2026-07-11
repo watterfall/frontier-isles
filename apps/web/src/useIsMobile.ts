@@ -12,11 +12,15 @@ export function useIsMobile(): boolean {
   return mobile;
 }
 
-/** Uniform scale that fits the fixed 1440×900 stage into the viewport
- *  (capped at 1× so it never enlarges). */
+/** Uniform scale that fits the fixed 1440×900 stage into the viewport.
+ *
+ * The old shell reserved 110 vertical pixels for chrome that now lives over
+ * the atlas. On a laptop that shrank the actual world to barely half of the
+ * screen. Keep a quiet 16px paper margin instead: the atlas is the product,
+ * not a preview floating inside the product. */
 export function useStageScale(): number {
   const compute = () =>
-    typeof window === 'undefined' ? 1 : Math.min(1, (window.innerWidth - 40) / 1450, (window.innerHeight - 110) / 950);
+    typeof window === 'undefined' ? 1 : Math.min(1, (window.innerWidth - 24) / 1440, (window.innerHeight - 24) / 900);
   const [scale, setScale] = useState(compute);
   useEffect(() => {
     const on = () => setScale(compute());

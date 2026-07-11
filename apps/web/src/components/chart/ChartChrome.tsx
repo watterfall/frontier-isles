@@ -1,61 +1,182 @@
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { IslandDatum } from '../../api/fallback';
+import type { AtlasControls, AtlasMetrics } from '../../chart/atlasControls';
 
 export interface ChartChromeProps {
+  islands: IslandDatum[];
+  onPick: (island: IslandDatum) => void;
   onBuild: () => void;
   onCollide: () => void;
+  filter?: string;
+  onFilter?: (filter: string) => void;
+  controls?: AtlasControls | null;
+  metrics?: AtlasMetrics | null;
 }
 
+const DOMAIN_KEYS = [
+  { key: 'math', color: 'var(--fi-domain-math-ink)' },
+  { key: 'matter', color: 'var(--fi-domain-matter-ink)' },
+  { key: 'life', color: 'var(--fi-domain-life-ink)' },
+  { key: 'cross', color: 'var(--fi-domain-cross-ink)' },
+] as const;
+
 /**
- * ChartChrome — the L0's top overlay (title stack, search field, build/
- * collision buttons, legend). Extracted verbatim from `ChartScreen` (byte-
- * identical markup) so the atlas-world-plan.md W1 default (`AtlasChartScreen`)
- * shows the SAME chrome over the Pixi atlas that the flat SVG chart always
- * had — one definition, no drift. (The domain-filter chip row stays hidden
- * here exactly as it already was in `ChartScreen` — see that file's header
- * comment; `filter`/`onFilter` remain props-only for API compatibility.)
+ * The atlas' instrument layer. It stays visually quiet until used, but every
+ * visible affordance is real: `/` focuses search, results sail through the
+ * normal L0→L1 route, and all actions are semantic keyboard-reachable buttons.
  */
-export function ChartChrome({ onBuild, onCollide }: ChartChromeProps) {
-  const { t } = useTranslation();
+export function ChartChrome({ islands, onPick, onBuild, onCollide, filter = '全部', onFilter, controls, metrics }: ChartChromeProps) {
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [query, setQuery] = useState('');
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [altitude, setAltitude] = useState<'low' | 'middle' | 'high' | null>(null);
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (event.key === '/' && target?.tagName !== 'INPUT' && target?.tagName !== 'TEXTAREA') {
+        event.preventDefault();
+        inputRef.current?.focus();
+        setSearchOpen(true);
+      }
+      if (event.key === 'Escape' && document.activeElement === inputRef.current) {
+        setQuery('');
+        setSearchOpen(false);
+        inputRef.current?.blur();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
+  const results = useMemo(() => {
+    const needle = query.trim().toLocaleLowerCase();
+    if (!needle) return [];
+    return islands
+      .filter((island) => `${island.n.zh} ${island.n.en} ${island.q.zh} ${island.q.en} ${island.d}`.toLocaleLowerCase().includes(needle))
+      .slice(0, 5);
+  }, [islands, query]);
+
+  const choose = (island: IslandDatum) => {
+    setSearchOpen(false);
+    setQuery('');
+    inputRef.current?.blur();
+    if (controls && island.slug) controls.enter(island.slug);
+    else onPick(island);
+  };
+
+  const setDomain = (domain: string) => {
+    onFilter?.(domain);
+    controls?.focusDomain(domain === '全部' ? null : domain as '数理' | '物质' | '生命' | '交叉');
+  };
+
+  const tierLabel = metrics ? t(`chart.tiers.${metrics.tier}`) : t('chart.tiers.loading');
+
+  const setAltitudeBand = (band: 'low' | 'middle' | 'high' | null) => {
+    setAltitude(band);
+    controls?.focusAltitude(band);
+  };
+
   return (
-    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '20px 26px', pointerEvents: 'none' }}>
-      <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-        <div style={{ background: 'rgba(250,245,232,0.95)', border: '1.5px solid #3A342B', borderRadius: 4, padding: '12px 9px 10px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 9, boxShadow: '3px 3px 0 rgba(58,48,36,0.12)' }}>
-          {/* Stacked per-glyph — identical to writing-mode:vertical-rl here, but
-              robust on systems whose CJK fonts lack vertical metrics. */}
-          <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', fontFamily: "'Noto Serif SC',serif", fontWeight: 900, fontSize: 21, color: '#2B2620', lineHeight: 1.16 }}>
-            {['问', '题', '群', '岛'].map((ch) => (
-              <span key={ch}>{ch}</span>
-            ))}
-          </span>
+    <header className="fi-chart-chrome">
+      <div className="fi-chart-brand" aria-label={t('chart.brandLabel')}>
+        <div className="fi-chart-seal" aria-hidden="true">
+          {['问', '题', '群', '岛'].map((ch) => <span key={ch}>{ch}</span>)}
         </div>
-        <div style={{ paddingTop: 4 }}>
-          <div style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 10.5, color: '#6B6154', letterSpacing: '0.22em' }}>{t('chart.latin')}</div>
-          <div style={{ fontSize: 11.5, color: '#6B6154', marginTop: 8, maxWidth: 200, lineHeight: 1.7 }} dangerouslySetInnerHTML={{ __html: t('chart.tagline') }} />
+        <div className="fi-chart-brand-copy">
+          <span className="fi-chart-kicker">{t('chart.latin')}</span>
+          <p dangerouslySetInnerHTML={{ __html: t('chart.tagline') }} />
+          <span className="fi-chart-live"><i aria-hidden="true" />{t('chart.liveAtlas')}</span>
         </div>
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 10, pointerEvents: 'auto' }}>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(250,245,232,0.95)', border: '1.5px solid #3A342B', borderRadius: 999, padding: '7px 16px', fontSize: 12.5, color: '#A89C88', whiteSpace: 'nowrap' }}>
-            {t('chart.searchPlaceholder')}
-            <span style={{ marginLeft: 14, fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 10, border: '1px solid #A89C88', borderRadius: 3, padding: '0 5px' }}>/</span>
+
+      <div className="fi-chart-search-wrap">
+        <label className="fi-chart-search">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="5.8" /><path d="m15 15 4.4 4.4" /></svg>
+          <span className="sr-only">{t('chart.searchLabel')}</span>
+          <input
+            ref={inputRef}
+            value={query}
+            onChange={(event) => { setQuery(event.target.value); setSearchOpen(true); }}
+            onFocus={() => setSearchOpen(true)}
+            onBlur={() => window.setTimeout(() => setSearchOpen(false), 140)}
+            placeholder={t('chart.searchPlaceholder')}
+            aria-expanded={searchOpen && query.length > 0}
+            aria-controls="atlas-search-results"
+          />
+          {query ? (
+            <button type="button" className="fi-search-clear" aria-label={t('chart.searchClear')} onMouseDown={(event) => event.preventDefault()} onClick={() => setQuery('')}>×</button>
+          ) : <kbd>/</kbd>}
+        </label>
+
+        {searchOpen && query && (
+          <div id="atlas-search-results" className="fi-search-results" role="listbox">
+            <div className="fi-search-results-head">
+              <span>{t('chart.searchResults')}</span>
+              <span>{results.length}</span>
+            </div>
+            {results.length > 0 ? results.map((island) => (
+              <button key={island.slug ?? island.id} type="button" role="option" onMouseDown={(event) => event.preventDefault()} onClick={() => choose(island)}>
+                <span className="fi-search-result-mark" data-domain={island.d} aria-hidden="true" />
+                <span>
+                  <strong>{island.n[lang]}</strong>
+                  <small>{island.q[lang]}</small>
+                </span>
+                <i aria-hidden="true">↗</i>
+              </button>
+            )) : <p className="fi-search-empty">{t('chart.searchEmpty')}</p>}
           </div>
-          <div onClick={onBuild} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, background: '#2B2620', borderRadius: 999, padding: '5px 14px 5px 6px', userSelect: 'none', border: '1.5px solid #2B2620' }}>
-            <span style={{ width: 24, height: 24, borderRadius: '50%', background: '#E3A93C', color: '#3A2E14', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Noto Serif SC',serif", fontSize: 13 }}>{t('chart.buildSeal')}</span>
-            <span style={{ fontSize: 12.5, color: '#F2EAD8' }}>{t('chart.build')}</span>
-            <span style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 9.5, color: 'rgba(242,234,216,0.65)' }}>{t('chart.buildHint')}</span>
-          </div>
-          <div onClick={onCollide} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(250,245,232,0.95)', borderRadius: 999, padding: '5px 13px 5px 10px', userSelect: 'none', border: '1.5px solid #5B45C9', color: '#5B45C9' }}>
-            <span style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 13 }}>↯</span>
-            <span style={{ fontSize: 12.5 }}>{t('collision.button')}</span>
-          </div>
-        </div>
-        <div style={{ display: 'flex', gap: 16, alignItems: 'center', fontSize: 11, color: '#6B6154', background: 'rgba(250,245,232,0.85)', borderRadius: 6, padding: '5px 12px' }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-            <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="#E3A93C" opacity="0.4" /><circle cx="7" cy="7" r="2.5" fill="#E3A93C" /></svg>
-            {t('chart.legendOutlier')}
-          </span>
+        )}
+      </div>
+
+      <div className="fi-chart-actions">
+        <button type="button" className="fi-action fi-action-primary" onClick={onBuild}>
+          <span className="fi-action-seal" aria-hidden="true">{t('chart.buildSeal')}</span>
+          <span><strong>{t('chart.build')}</strong><small>{t('chart.buildHint')}</small></span>
+        </button>
+        <button type="button" className="fi-action fi-action-secondary" onClick={onCollide}>
+          <span className="fi-action-collision" aria-hidden="true">↯</span>
+          <span><strong>{t('collision.button')}</strong><small>{t('chart.collisionHint')}</small></span>
+        </button>
+      </div>
+
+      <div className="fi-atlas-context" aria-live="polite">
+        <span className="fi-atlas-index">{t('chart.atlasStatus', { count: islands.length })} · {tierLabel}</span>
+        <div className="fi-domain-key" aria-label={t('chart.domainLegend')}>
+          <button type="button" className={filter === '全部' ? 'is-active' : ''} aria-pressed={filter === '全部'} onClick={() => setDomain('全部')}>{t('chart.domains.all')}</button>
+          {DOMAIN_KEYS.map((domain) => (
+            <button key={domain.key} type="button" className={filter === t(`chart.domains.${domain.key}`) || filter === ({ math: '数理', matter: '物质', life: '生命', cross: '交叉' } as const)[domain.key] ? 'is-active' : ''} aria-pressed={filter === ({ math: '数理', matter: '物质', life: '生命', cross: '交叉' } as const)[domain.key]} onClick={() => setDomain(({ math: '数理', matter: '物质', life: '生命', cross: '交叉' } as const)[domain.key])}><i style={{ background: domain.color }} aria-hidden="true" />{t(`chart.domains.${domain.key}`)}</button>
+          ))}
         </div>
       </div>
-    </div>
+
+      <div className="fi-atlas-guidance">
+        <div className="fi-guidance-icon" aria-hidden="true"><span>⌖</span><i /></div>
+        <div><strong>{t('chart.navigationHint')}</strong><small>{t('chart.detailHint')}</small></div>
+      </div>
+
+      <div className="fi-outlier-key"><i aria-hidden="true" />{t('chart.legendOutlier')}</div>
+
+      <div className="fi-altitude-key" aria-label={t('chart.altitudeLegend')}>
+        <span><i aria-hidden="true" />{t('chart.altitudeLegend')}</span>
+        <div>
+          {([null, 'low', 'middle', 'high'] as const).map((band) => (
+            <button key={band ?? 'all'} type="button" className={altitude === band ? 'is-active' : ''} aria-pressed={altitude === band} onClick={() => setAltitudeBand(band)}>
+              {t(`chart.altitudes.${band ?? 'all'}`)}
+            </button>
+          ))}
+        </div>
+        <small>{t('chart.altitudeNote')}</small>
+      </div>
+
+      <nav className="fi-atlas-camera" aria-label={t('chart.cameraControls')}>
+        <button type="button" onClick={() => controls?.zoomIn()} disabled={!controls} aria-label={t('chart.zoomIn')}>＋</button>
+        <button type="button" onClick={() => controls?.zoomOut()} disabled={!controls} aria-label={t('chart.zoomOut')}>−</button>
+        <button type="button" className="fi-camera-reset" onClick={() => controls?.reset()} disabled={!controls} aria-label={t('chart.resetView')}><span aria-hidden="true">⌾</span><small>{t('chart.resetShort')}</small></button>
+      </nav>
+    </header>
   );
 }

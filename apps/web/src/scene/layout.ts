@@ -68,6 +68,12 @@ const CLAIM_TILES = [
  *  tile" (M4-DESIGN §2): near the geometric centre but clear of every claim/
  *  station tile above, so it never collides with either ring. */
 const LANDMARK_TILE = { gx: 8, gy: 9 };
+/** Small life-trace anchors along the civic circuit. Generator data decides how
+ * many are occupied and whether an AI resident joins; the renderer decides form. */
+const RESIDENT_TILES = [
+  { gx: 9, gy: 6 }, { gx: 10, gy: 8 }, { gx: 9, gy: 11 },
+  { gx: 7, gy: 11 }, { gx: 6, gy: 9 }, { gx: 7, gy: 7 }, { gx: 8, gy: 10 },
+];
 /** ~2.8× a normal station's 30px body — "2–3× 体量" (M4-DESIGN §3e). */
 const LANDMARK_HEIGHT = 84;
 /** One Landmark form per biome/domain (M4-DESIGN §3e) — the renderer (scene-stage.ts)
@@ -271,6 +277,7 @@ export function buildSceneGraph(
   const forced = new Set<string>();
   for (const s of scene.stations) if (s.visible) forced.add(tileKey(STATION_TILES[s.kind].gx, STATION_TILES[s.kind].gy));
   for (let i = 0; i < claimSpecs.length; i++) forced.add(tileKey(CLAIM_TILES[i]!.gx, CLAIM_TILES[i]!.gy));
+  scene.residents.slice(0, RESIDENT_TILES.length).forEach((_, i) => forced.add(tileKey(RESIDENT_TILES[i]!.gx, RESIDENT_TILES[i]!.gy)));
   forced.add(tileKey(LANDMARK_TILE.gx, LANDMARK_TILE.gy));
   scene.ghosts.forEach((_, i) => forced.add(tileKey(CLAIM_TILES[(i + 3) % CLAIM_TILES.length]!.gx, CLAIM_TILES[(i + 3) % CLAIM_TILES.length]!.gy)));
 
@@ -319,10 +326,24 @@ export function buildSceneGraph(
     elevation: 2,
   });
 
-  // ── claim steles before the Gallery (world layer) — B.4, architecture §4 ────
-  // Same semantics as the M4.3 growth-bodies (claims.ts), new form language:
-  // 碑身 = foundation, 碑文行数 = floors (countable reproductions), 碑顶 = roof
-  // (domain consensus), ghost 碑夜现 (refuted/returned, P5 — never deleted).
+  // ── residents (world layer) — the previously generated occupancy now reaches
+  // Pixi. Human/AI identity is categorical, never a score; figures stand along
+  // the civic circuit so the island reads as inhabited rather than as a model.
+  scene.residents.slice(0, RESIDENT_TILES.length).forEach((resident, i) => {
+    const tile = RESIDENT_TILES[i]!;
+    push(`resident:${resident.kind}:${i}`, `resident:${resident.kind}`, tile.gx, tile.gy, 'world', {
+      height: resident.kind === 'ai' ? 18 : 16,
+      elevation: elev(tile.gx, tile.gy),
+      dayVisibility: resident.kind === 'ai' ? 0.62 : 1,
+      nightVisibility: resident.kind === 'ai' ? 1 : 0.72,
+    });
+  });
+
+  // ── claim buildings before the Gallery ────────────────────────────────────
+  // A claim is a slender research building: foundation = public claim, storeys
+  // = countable reproductions, roof = consensus, spectral scaffold = refuted /
+  // returned. It stays distinctly smaller than civic stations and remains
+  // clustered before Gallery, preserving the first-class-artifact semantics.
   claimSpecs.forEach((spec, i) => {
     const tile = CLAIM_TILES[i]!;
     const growth: Growth = { foundation: true, floors: spec.floors, roof: spec.roof };

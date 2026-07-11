@@ -96,6 +96,14 @@ describe('buildSceneGraph', () => {
     expect(g.objects.every((o) => o.biome === '生命')).toBe(true);
   });
 
+  it('projects generated residents into the Pixi scene without turning them into a score', () => {
+    const g = buildSceneGraph({ ...base, members: 4, hasAi: true });
+    const residents = g.objects.filter((o) => o.kind.startsWith('resident:'));
+    expect(residents.filter((o) => o.kind === 'resident:human')).toHaveLength(4);
+    expect(residents.filter((o) => o.kind === 'resident:ai')).toHaveLength(1);
+    expect(residents.every((o) => o.layer === 'world')).toBe(true);
+  });
+
   it('marks a station active only when core.projectActiveStations says so (M8 micro-dynamics)', () => {
     const active = new Set<'workshop' | 'data'>(['workshop']);
     const g = buildSceneGraph(base, 0, undefined, active);

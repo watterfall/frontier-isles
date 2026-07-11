@@ -21,6 +21,14 @@
  * depend on the assets package, so the union is restated locally). */
 export type AtlasDomain = '数理' | '物质' | '生命' | '交叉';
 
+/** Cartographic altitude is a place-plane coordinate, never a score. The
+ * existing north-to-south atlas axis is folded into three readable air strata
+ * so the same world gains depth without claiming that one question is more
+ * mature or valuable than another. */
+export type AtlasAltitudeBand = 'low' | 'middle' | 'high';
+
+export const ATLAS_ALTITUDE_BANDS: readonly AtlasAltitudeBand[] = ['low', 'middle', 'high'];
+
 export const ATLAS_DOMAINS: readonly AtlasDomain[] = ['数理', '物质', '生命', '交叉'];
 
 /** Domain → base fill (Pixi hex ints, matching assets DOMAIN_COLORS verbatim). */
@@ -63,6 +71,27 @@ export interface AtlasIslandInput {
    *  keeps assigning without change; a node with no member data simply shows
    *  one fewer channel at near tier, never a fabricated number. */
   members?: number;
+  /** Stable place-plane stratum assigned from the atlas' existing y-order.
+   * It is deliberately unrelated to activity, stage, consensus, or rank. */
+  altitude?: AtlasAltitudeBand;
+}
+
+/**
+ * Fold an already-authored atlas layout into three equally populated air
+ * strata. Sorting by y preserves the map's existing geographic order; slug is
+ * only the deterministic tie-breaker. This adds a Z reading without inventing
+ * a new research-state field (invariant 14 / no-XP).
+ */
+export function assignAtlasAltitudes<T extends AtlasIslandInput>(islands: readonly T[]): T[] {
+  if (islands.length === 0) return [];
+  const order = [...islands].sort((a, b) => (a.y - b.y) || a.slug.localeCompare(b.slug));
+  const bandOf = new Map<string, AtlasAltitudeBand>();
+  const n = order.length;
+  order.forEach((island, index) => {
+    const q = (index + 0.5) / n;
+    bandOf.set(island.slug, q <= 1 / 3 ? 'high' : q <= 2 / 3 ? 'middle' : 'low');
+  });
+  return islands.map((island) => ({ ...island, altitude: bandOf.get(island.slug) ?? 'middle' }));
 }
 
 /**

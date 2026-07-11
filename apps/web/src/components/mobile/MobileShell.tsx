@@ -1,81 +1,184 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { IslandDatum } from '../../api/fallback';
 import { LangToggle } from '../shell/LangToggle';
 
-/** Read-only mobile L0 (artboard 3b): status bar, 問 header + 只读 pill,
- *  segmented control, mini sea-chart SVG, 3 island cards, footer tabs.
- *  Rendered when viewport width < 640 (architecture §2: mobile is read-only). */
-export function MobileShell() {
-  const { t } = useTranslation();
+export interface MobileShellProps {
+  islands: IslandDatum[];
+}
+
+const DOMAIN_COLOR: Record<string, string> = {
+  数理: 'var(--fi-domain-math-ink)',
+  物质: 'var(--fi-domain-matter-ink)',
+  生命: 'var(--fi-domain-life-ink)',
+  交叉: 'var(--fi-domain-cross-ink)',
+};
+const DOMAIN_LABEL: Record<string, string> = { 数理: 'chart.domains.math', 物质: 'chart.domains.matter', 生命: 'chart.domains.life', 交叉: 'chart.domains.cross' };
+type MobileAltitude = 'low' | 'middle' | 'high';
+const MOBILE_ALTITUDE_LIFT: Record<MobileAltitude, number> = { low: 0, middle: 17, high: 34 };
+
+/**
+ * Read-only does not mean inert. Mobile visitors browse the real atlas data,
+ * search it, switch between its spatial and list twins, and inspect one island
+ * at a time. Ledger-writing rituals remain a desktop affordance by design.
+ */
+export function MobileShell({ islands }: MobileShellProps) {
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
   const [seg, setSeg] = useState<'chart' | 'list'>('chart');
+  const [query, setQuery] = useState('');
+  const [altitude, setAltitude] = useState<MobileAltitude | null>(null);
+  const [selectedId, setSelectedId] = useState<number | null>(islands[0]?.id ?? null);
+
+  const altitudeById = useMemo(() => {
+    const order = [...islands].sort((a, b) => (a.y - b.y) || (a.id - b.id));
+    const out = new Map<number, MobileAltitude>();
+    order.forEach((island, index) => {
+      const q = (index + 0.5) / Math.max(1, order.length);
+      out.set(island.id, q <= 1 / 3 ? 'high' : q <= 2 / 3 ? 'middle' : 'low');
+    });
+    return out;
+  }, [islands]);
+
+  const filtered = useMemo(() => {
+    const needle = query.trim().toLocaleLowerCase();
+    return islands.filter((island) => {
+      const matchesQuery = !needle || `${island.n.zh} ${island.n.en} ${island.q.zh} ${island.q.en} ${island.d}`.toLocaleLowerCase().includes(needle);
+      return matchesQuery && (!altitude || altitudeById.get(island.id) === altitude);
+    });
+  }, [altitude, altitudeById, islands, query]);
+
+  const selected = filtered.find((island) => island.id === selectedId) ?? filtered[0] ?? null;
+  const plotted = filtered;
+  const xs = plotted.map((island) => island.x);
+  const ys = plotted.map((island) => island.y);
+  const minX = Math.min(...xs, 0);
+  const maxX = Math.max(...xs, 1);
+  const minY = Math.min(...ys, 0);
+  const maxY = Math.max(...ys, 1);
+  const point = (island: IslandDatum) => {
+    const band = altitudeById.get(island.id) ?? 'middle';
+    return {
+      x: 24 + ((island.x - minX) / Math.max(1, maxX - minX)) * 306,
+      y: 62 + ((island.y - minY) / Math.max(1, maxY - minY)) * 150 - MOBILE_ALTITUDE_LIFT[band],
+    };
+  };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#E4DAC2', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px 12px 0' }}>
+    <main className="fi-mobile-shell">
+      <header className="fi-mobile-header">
+        <div className="fi-mobile-brand">
+          <span aria-hidden="true">问</span>
+          <div><strong>问题群岛</strong><small>{t('chart.latin')}</small></div>
+        </div>
         <LangToggle />
-      </div>
-      <div style={{ position: 'relative', flex: 1, background: '#F2EAD8', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 22px 6px', fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 12, color: '#2B2620' }}>
-          <span>9:41</span>
-          <span style={{ letterSpacing: 2 }}>▮▮▮ ᯤ</span>
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 18px 10px' }}>
-          <div style={{ display: 'flex', gap: 9, alignItems: 'center' }}>
-            <div style={{ width: 30, height: 30, background: '#B5673A', borderRadius: 2.5, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#F6F2E6', fontFamily: "'Noto Serif SC',serif", fontWeight: 900, fontSize: 15 }}>问</div>
-            <span style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 900, fontSize: 18, color: '#2B2620' }}>问题群岛</span>
-          </div>
-          <span style={{ fontSize: 10.5, padding: '3px 10px', borderRadius: 999, border: '1.2px solid #B5673A', color: '#B5673A' }}>{t('mobile.readonly')}</span>
-        </div>
-        <div style={{ display: 'flex', gap: 6, margin: '0 18px 10px', background: 'rgba(43,38,32,0.07)', borderRadius: 999, padding: 3 }}>
-          <span onClick={() => setSeg('chart')} style={{ flex: 1, textAlign: 'center', fontSize: 12.5, padding: '6px 0', borderRadius: 999, background: seg === 'chart' ? '#2B2620' : 'transparent', color: seg === 'chart' ? '#F2EAD8' : '#6B6154', cursor: 'pointer' }}>{t('mobile.segChart')}</span>
-          <span onClick={() => setSeg('list')} style={{ flex: 1, textAlign: 'center', fontSize: 12.5, padding: '6px 0', borderRadius: 999, background: seg === 'list' ? '#2B2620' : 'transparent', color: seg === 'list' ? '#F2EAD8' : '#6B6154', cursor: 'pointer' }}>{t('mobile.segList')}</span>
-        </div>
+      </header>
 
-        {seg === 'chart' && (
-          <div style={{ margin: '0 18px', border: '1.2px solid #3A342B', borderRadius: 8, overflow: 'hidden', background: '#EFE8D4', position: 'relative' }}>
-            <svg viewBox="0 0 354 258" style={{ display: 'block', width: '100%' }}>
-              <rect x="0" y="0" width="354" height="258" fill="#F0E9D6" />
-              <path d="M 0 40 Q 60 18 120 36 Q 200 56 280 30 Q 320 20 354 32" fill="none" stroke="#B9AE92" strokeWidth="1" opacity="0.6" />
-              <text x="116" y="200" fontSize="30" letterSpacing="4" fill="rgba(74,66,56,0.07)" style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 900 }}>交叉之湾</text>
-              <path d="M 250 118 Q 200 96 156 120" stroke="#B5673A" strokeWidth="1.6" fill="none" />
-              <g transform="translate(66,92)"><path d="M -26 8 C -22 -5 -10 -11 2 -11 C 14 -11 22 -5 26 7 C 16 11 -16 11 -26 8 Z" fill="#C9D8E6" stroke="#4A4238" strokeWidth="1.2" /><text x="0" y="24" textAnchor="middle" fontSize="8.5" fill="#5B5344">随机性度量</text></g>
-              <g transform="translate(156,124)"><path d="M -30 9 C -25 -6 -11 -13 2 -13 C 16 -13 25 -6 30 8 C 18 13 -18 13 -30 9 Z" fill="#ECDFB4" stroke="#4A4238" strokeWidth="1.2" /><g transform="translate(-8,-16)"><rect x="-7" y="-6" width="14" height="6" fill="#F8F1DE" stroke="#4A4238" strokeWidth="0.75" /><path d="M -9.5 -6 L -5 -11 L 5 -11 L 9.5 -6 Z" fill="#2E5E8C" /></g><text x="0" y="26" textAnchor="middle" fontSize="8.5" fill="#5B5344">AI 之问 ★</text></g>
-              <g transform="translate(250,112)"><path d="M -26 8 C -22 -5 -10 -11 2 -11 C 14 -11 22 -5 26 7 C 16 11 -16 11 -26 8 Z" fill="#C6DECC" stroke="#4A4238" strokeWidth="1.2" /><text x="0" y="24" textAnchor="middle" fontSize="8.5" fill="#5B5344">记忆的载体</text></g>
-              <g transform="translate(300,196)"><circle cx="0" cy="-2" r="26" fill="#E3A93C" opacity="0.25" /><path d="M -22 7 C -18 -4 -8 -9 1 -9 C 11 -9 18 -4 22 6 C 13 10 -13 10 -22 7 Z" fill="#DFD3E6" stroke="#4A4238" strokeWidth="1.2" /><text x="0" y="22" textAnchor="middle" fontSize="8.5" fill="#8A6A1E">梦的回收 ✦</text></g>
-              <g transform="translate(84,190)"><path d="M -24 7 C -20 -5 -9 -10 1 -10 C 12 -10 19 -5 24 7 C 14 10 -14 10 -24 7 Z" fill="#E8CFAE" stroke="#4A4238" strokeWidth="1.2" /><text x="0" y="23" textAnchor="middle" fontSize="8.5" fill="#5B5344">驯服湍流</text></g>
-              <g transform="translate(50,232)"><path d="M -10 0 Q 0 5 10 0 L 8 -2 L -8 -2 Z" fill="#5B4F3C" stroke="#3A342B" strokeWidth="0.8" /><line x1="0" y1="-2" x2="0" y2="-11" stroke="#3A342B" strokeWidth="1" /><path d="M 0 -11 L 7 -4 L 0 -4 Z" fill="#F8F1DE" stroke="#3A342B" strokeWidth="0.6" /></g>
-              <path d="M 20 224 q 10 -6 20 0 q 10 6 20 0 M 260 60 q 10 -6 20 0" stroke="#BFCEDB" strokeWidth="1" fill="none" />
-            </svg>
-            <span style={{ position: 'absolute', right: 8, bottom: 6, fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 9, color: '#8C8270' }}>{t('mobile.chartHint')}</span>
+      <section className="fi-mobile-intro">
+        <div>
+          <span className="fi-mobile-kicker">{t('mobile.caption')}</span>
+          <h1>{t('chart.atlasStatus', { count: islands.length })}</h1>
+          <p dangerouslySetInnerHTML={{ __html: t('chart.tagline') }} />
+        </div>
+        <span className="fi-mobile-readonly"><i aria-hidden="true" />{t('mobile.readonly')}</span>
+      </section>
+
+      <label className="fi-mobile-search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="5.8" /><path d="m15 15 4.4 4.4" /></svg>
+        <span className="sr-only">{t('chart.searchLabel')}</span>
+        <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t('chart.searchPlaceholder')} />
+        {query && <button type="button" aria-label={t('chart.searchClear')} onClick={() => setQuery('')}>×</button>}
+      </label>
+
+      <div className="fi-mobile-segments" role="tablist" aria-label={t('mobile.note')}>
+        <button type="button" role="tab" aria-selected={seg === 'chart'} onClick={() => setSeg('chart')}>{t('mobile.segChart')}</button>
+        <button type="button" role="tab" aria-selected={seg === 'list'} onClick={() => setSeg('list')}>{t('mobile.segList')} <span>{filtered.length}</span></button>
+      </div>
+
+      <div className="fi-mobile-altitudes" aria-label={t('chart.altitudeLegend')}>
+        <span>{t('chart.altitudeLegend')}</span>
+        {([null, 'low', 'middle', 'high'] as const).map((band) => (
+          <button key={band ?? 'all'} type="button" className={altitude === band ? 'is-active' : ''} aria-pressed={altitude === band} onClick={() => setAltitude(band)}>{t(`chart.altitudes.${band ?? 'all'}`)}</button>
+        ))}
+      </div>
+
+      <section className="fi-mobile-content">
+        {seg === 'chart' ? (
+          <>
+            <div className="fi-mobile-map">
+              <svg viewBox="0 0 354 258" role="img" aria-label={t('mobile.chartHint')}>
+                <rect width="354" height="258" fill="var(--fi-paper)" />
+                <path d="M -10 66 Q 54 34 126 54 T 270 44 T 368 63 M -12 188 Q 60 154 138 178 T 276 168 T 366 184" fill="none" stroke="rgba(107,97,84,.16)" strokeWidth="1" />
+                <path d="M 42 22 Q 94 58 134 26 M 246 222 Q 284 190 334 218" fill="none" stroke="rgba(46,94,140,.2)" strokeWidth="1.2" strokeDasharray="3 5" />
+                {plotted.map((island) => {
+                  const p = point(island);
+                  const active = selected?.id === island.id;
+                  const color = DOMAIN_COLOR[island.d] ?? DOMAIN_COLOR.交叉;
+                  const rx = 8 + Math.max(0, island.st) * 2.2;
+                  const band = altitudeById.get(island.id) ?? 'middle';
+                  const depth = band === 'high' ? 12 : band === 'middle' ? 9 : 6;
+                  return (
+                    <g key={island.slug ?? island.id} role="button" tabIndex={0} aria-label={`${island.n[lang]} · ${t(`chart.altitudes.${band}`)}`} transform={`translate(${p.x},${p.y})`} onClick={() => setSelectedId(island.id)} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') setSelectedId(island.id); }}>
+                      {island.out && <circle r={rx + 9} fill="var(--fi-gamboge)" opacity=".16" />}
+                      {active && <circle r={rx + 7} fill="none" stroke="var(--fi-azurite)" strokeWidth="1.2" strokeDasharray="3 3" />}
+                      <ellipse cy={depth + rx * .45} rx={rx * .7} ry={rx * .15} fill="var(--fi-ink)" opacity=".1" />
+                      <path d={`M ${-rx * .82} 1 Q ${-rx * .36} ${depth * .8} 0 ${depth} Q ${rx * .36} ${depth * .8} ${rx * .82} 1 Q 0 ${rx * .34} ${-rx * .82} 1 Z`} fill="var(--fi-ink-2)" opacity=".68" stroke="var(--fi-ink)" strokeWidth=".55" />
+                      <ellipse rx={rx} ry={rx * .58} fill={color} opacity={active ? .95 : .58} stroke="var(--fi-ink)" strokeWidth={active ? 1.3 : .7} />
+                      <path d={`M ${-rx * .7} 2 Q 0 ${rx * .45} ${rx * .7} 2`} fill="none" stroke="var(--fi-paper-raised)" strokeWidth=".7" opacity=".55" />
+                      {island.st >= 1 && (
+                        <g transform="translate(-2,-3)">
+                          <rect x="-3.5" y="-5" width="7" height="5" fill="var(--fi-paper-raised)" stroke="var(--fi-ink)" strokeWidth=".55" />
+                          <path d="M -5 -5 L 0 -9 L 5 -5 Z" fill={color} stroke="var(--fi-ink)" strokeWidth=".45" />
+                        </g>
+                      )}
+                      {island.st >= 2 && (
+                        <g transform="translate(5,-1)">
+                          <rect x="-2.5" y="-5" width="5" height="5" fill="var(--fi-paper-raised)" stroke="var(--fi-ink)" strokeWidth=".5" />
+                          <path d="M -4 -5 L 0 -8 L 4 -5 Z" fill="var(--fi-gamboge)" stroke="var(--fi-ink)" strokeWidth=".4" />
+                        </g>
+                      )}
+                      {Array.from({ length: Math.min(3, island.m) }, (_, i) => (
+                        <circle key={i} cx={-4 + i * 4} cy={rx * .34} r=".9" fill="var(--fi-ink)" opacity=".78" />
+                      ))}
+                    </g>
+                  );
+                })}
+              </svg>
+              <span>{t('mobile.chartHint')}</span>
+            </div>
+            {selected && <MobileIslandNote island={selected} altitude={altitudeById.get(selected.id) ?? 'middle'} lang={lang} onSelectList={() => setSeg('list')} />}
+          </>
+        ) : (
+          <div className="fi-mobile-list">
+            {filtered.length > 0 ? filtered.map((island) => (
+              <button key={island.slug ?? island.id} type="button" className={selected?.id === island.id ? 'is-selected' : ''} onClick={() => setSelectedId(island.id)}>
+                <i style={{ background: DOMAIN_COLOR[island.d] ?? DOMAIN_COLOR.交叉 }} aria-hidden="true" />
+                <span><small>{t(`chart.altitudes.${altitudeById.get(island.id) ?? 'middle'}`)} · {t(DOMAIN_LABEL[island.d] ?? 'chart.domains.cross')} · #{String(island.id).padStart(2, '0')}</small><strong>{island.n[lang]}</strong><em>{island.q[lang]}</em></span>
+                <b aria-hidden="true">›</b>
+              </button>
+            )) : <p className="fi-mobile-empty">{t('chart.searchEmpty')}</p>}
           </div>
         )}
+      </section>
 
-        <div style={{ flex: 1, overflow: 'auto', margin: '12px 18px 0', display: 'flex', flexDirection: 'column', gap: 9 }}>
-          <div style={{ border: '1.2px solid #E3A93C', background: '#FBF6E9', borderRadius: 8, padding: '11px 13px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, fontFamily: "'JetBrains Mono',ui-monospace,monospace", color: '#A08428' }}><span>书院</span><span>#18</span></div>
-            <div style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 700, fontSize: 14, color: '#2B2620', margin: '4px 0 7px' }}>AI 能否提出一个人类没想到的好问题？</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: '#6B6154' }}><span>{t('chart.card.members', { n: 9 })}</span><span style={{ flex: 1, height: 4, borderRadius: 2, background: 'rgba(43,38,32,0.1)', overflow: 'hidden' }}><span style={{ display: 'block', height: '100%', width: '76%', background: '#A08428' }} /></span><span>76</span><span style={{ color: '#A89C88' }}>{t('mobile.browseOnly')}</span></div>
-          </div>
-          <div style={{ border: '1.2px solid #3A342B', background: '#FBF6E9', borderRadius: 8, padding: '11px 13px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, fontFamily: "'JetBrains Mono',ui-monospace,monospace", color: '#B5673A' }}><span>学派</span><span>#06</span></div>
-            <div style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 700, fontSize: 14, color: '#2B2620', margin: '4px 0 7px' }}>室温超导的机制边界究竟在哪里？</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: '#6B6154' }}><span>{t('chart.card.members', { n: 14 })}</span><span style={{ flex: 1, height: 4, borderRadius: 2, background: 'rgba(43,38,32,0.1)', overflow: 'hidden' }}><span style={{ display: 'block', height: '100%', width: '88%', background: '#B5673A' }} /></span><span>88</span><span>{t('mobile.forkTwice')}</span></div>
-          </div>
-          <div style={{ border: '1.2px solid #3A342B', background: '#FBF6E9', borderRadius: 8, padding: '11px 13px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, fontFamily: "'JetBrains Mono',ui-monospace,monospace", color: '#8A6A1E' }}><span>离群 ✦</span><span>#20</span></div>
-            <div style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 700, fontSize: 14, color: '#2B2620', margin: '4px 0 7px' }}>做梦是大脑的垃圾回收进程吗？</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: '#6B6154' }}><span>{t('chart.card.members', { n: 3 })}</span><span style={{ flex: 1, height: 4, borderRadius: 2, background: 'rgba(43,38,32,0.1)', overflow: 'hidden' }}><span style={{ display: 'block', height: '100%', width: '57%', background: '#8A6A1E' }} /></span><span>57</span><span style={{ color: '#8A6A1E' }}>{t('mobile.highVar')}</span></div>
-          </div>
-          <div style={{ fontSize: 10.5, color: '#A89C88', textAlign: 'center' }}>{t('mobile.note')}</div>
-        </div>
+      <nav className="fi-mobile-nav" aria-label={t('mobile.note')}>
+        <button type="button" aria-current="page"><span aria-hidden="true">⌖</span>{t('mobile.tabs.chart')}</button>
+        <button type="button" disabled><span aria-hidden="true">⌁</span>{t('mobile.tabs.bridge')}</button>
+        <button type="button" disabled><span aria-hidden="true">◌</span>{t('mobile.tabs.notif')}</button>
+        <button type="button" disabled><span aria-hidden="true">印</span>{t('mobile.tabs.mine')}</button>
+      </nav>
+    </main>
+  );
+}
 
-        <div style={{ display: 'flex', borderTop: '1px solid rgba(43,38,32,0.15)', background: 'rgba(250,245,232,0.95)', padding: '10px 0 22px' }}>
-          <span style={{ flex: 1, textAlign: 'center', fontSize: 11.5, color: '#2B2620', fontWeight: 600 }}>{t('mobile.tabs.chart')}</span>
-          <span style={{ flex: 1, textAlign: 'center', fontSize: 11.5, color: '#A89C88' }}>{t('mobile.tabs.bridge')}</span>
-          <span style={{ flex: 1, textAlign: 'center', fontSize: 11.5, color: '#A89C88' }}>{t('mobile.tabs.notif')}</span>
-          <span style={{ flex: 1, textAlign: 'center', fontSize: 11.5, color: '#A89C88' }}>{t('mobile.tabs.mine')}</span>
-        </div>
-      </div>
-    </div>
+function MobileIslandNote({ island, altitude, lang, onSelectList }: { island: IslandDatum; altitude: MobileAltitude; lang: 'zh' | 'en'; onSelectList: () => void }) {
+  const { t } = useTranslation();
+  return (
+    <article className="fi-mobile-island-note" style={{ '--fi-note-domain': DOMAIN_COLOR[island.d] ?? DOMAIN_COLOR.交叉 } as React.CSSProperties}>
+      <div><span>{t(`chart.altitudes.${altitude}`)} · {t(DOMAIN_LABEL[island.d] ?? 'chart.domains.cross')} · #{String(island.id).padStart(2, '0')}</span><span>{island.out ? t('chart.card.outlier') : t(`chart.stages.${['空岛', '草棚', '书院', '学派'][island.st] ?? '空岛'}`)}</span></div>
+      <h2>{island.n[lang]}</h2>
+      <p>{island.q[lang]}</p>
+      <footer><span>{t('chart.card.members', { n: island.m })}</span><button type="button" onClick={onSelectList}>{t('mobile.segList')} →</button></footer>
+    </article>
   );
 }

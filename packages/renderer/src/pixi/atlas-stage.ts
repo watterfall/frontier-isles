@@ -6,8 +6,10 @@
  * lifecycle discipline (construct → `await init` → `setIslands` → interact →
  * `destroy`), same on-demand render + `lastRenderMs` §7 metric, same screen-
  * space billboard-label technique (constant font, re-laid-out on camera move).
- * It does NOT reuse the iso projection — L0 is a top-down sea chart, so the
- * camera works directly in chart (1440×900-family) coordinates.
+ * The atlas keeps its authored chart coordinates but folds the north/south
+ * place axis into three orthographic air strata. This is a 2.5D cartographic
+ * projection, not a perspective game camera: labels stay crisp and the list
+ * twin remains authoritative while islands gain readable vertical separation.
  *
  * Three cartographic tiers by camera scale (INFO-HIERARCHY §2 row 1), the
  * decision made by the pure {@link ./atlas-lod!zoomTier}; cross-faded by
@@ -35,6 +37,7 @@ import {
   tierBlend,
   zoomTier,
   type AtlasCluster,
+  type AtlasAltitudeBand,
   type AtlasContinent,
   type AtlasDomain,
   type AtlasFlow,
@@ -45,6 +48,14 @@ import {
 } from './atlas-lod';
 
 const STAGE_LABELS = ['空岛', '草棚', '书院', '学派'] as const;
+const ALTITUDE_LABELS: Record<AtlasAltitudeBand, string> = { low: '低空', middle: '中空', high: '高空' };
+const ALTITUDE_INDEX: Record<AtlasAltitudeBand, number> = { low: 0, middle: 1, high: 2 };
+const ALTITUDE_LIFT: Record<AtlasAltitudeBand, number> = { low: 10, middle: 72, high: 136 };
+const ALTITUDE_DEPTH: Record<AtlasAltitudeBand, number> = { low: 20, middle: 34, high: 48 };
+const ATLAS_Y_TILT = 0.84;
+
+const altitudeOf = (o: AtlasIslandInput): AtlasAltitudeBand => o.altitude ?? 'middle';
+const projectAtlasY = (y: number, band?: AtlasAltitudeBand): number => y * ATLAS_Y_TILT - (band ? ALTITUDE_LIFT[band] : 0);
 
 /**
  * Trace `atlasCoastline`'s flat point list as a SMOOTH closed curve (Catmull-
@@ -100,6 +111,119 @@ function drawLighthouseGfx(g: Graphics, x: number, y: number, scale: number): vo
   g.poly([x, y - 27 * s, x + 6 * s, y - 24.5 * s, x, y - 22 * s]).fill({ color: 0xe3a93c }).stroke({ color: 0x4a4238, width: 0.5 });
 }
 
+/** Stable 0..1 value used only for hand-authored-looking placement. */
+function atlasSeed(value: string, salt = 0): number {
+  let h = 2166136261 ^ salt;
+  for (let i = 0; i < value.length; i++) h = Math.imul(h ^ value.charCodeAt(i), 16777619);
+  return ((h >>> 0) % 10_000) / 10_000;
+}
+
+/** One tiny jiehua building for the L0 settlement silhouette. */
+function drawAtlasHouse(g: Graphics, x: number, y: number, s: number, roof: number, tall = false): void {
+  const w = (tall ? 11 : 14) * s;
+  const h = (tall ? 13 : 8) * s;
+  g.ellipse(x, y + 3 * s, w * 0.72, 3.2 * s).fill({ color: 0x3a3024, alpha: 0.14 });
+  g.rect(x - w / 2, y - h, w, h).fill({ color: 0xf8f1de }).stroke({ color: 0x4a4238, width: Math.max(0.6, s) });
+  g.poly([x - w * 0.68, y - h, x, y - h - 6 * s, x + w * 0.68, y - h])
+    .fill({ color: roof })
+    .stroke({ color: 0x4a4238, width: Math.max(0.6, s) });
+  g.rect(x - 1.7 * s, y - 5 * s, 3.4 * s, 5 * s).fill({ color: 0x5b4f3c });
+  if (tall) {
+    g.moveTo(x + w * 0.28, y - h - 3 * s).lineTo(x + w * 0.28, y - h - 11 * s).stroke({ color: 0x4a4238, width: Math.max(0.6, s) });
+    g.poly([x + w * 0.28, y - h - 11 * s, x + w * 0.28 + 6 * s, y - h - 8 * s, x + w * 0.28, y - h - 6 * s]).fill({ color: 0xe3a93c });
+  }
+}
+
+function drawAtlasTree(g: Graphics, x: number, y: number, s: number, domain: AtlasDomain): void {
+  const leaf = domain === '生命' ? 0x3e9b7e : domain === '物质' ? 0x73836b : 0x4e7d62;
+  g.moveTo(x, y).lineTo(x, y - 9 * s).stroke({ color: 0x6d5136, width: Math.max(0.7, 1.2 * s) });
+  if (domain === '数理') {
+    g.poly([x, y - 17 * s, x + 6 * s, y - 8 * s, x - 6 * s, y - 8 * s]).fill({ color: leaf }).stroke({ color: 0x4a4238, width: 0.55 });
+  } else {
+    g.circle(x, y - 13 * s, 5.5 * s).fill({ color: leaf, alpha: 0.9 });
+    g.circle(x - 4 * s, y - 10 * s, 3.5 * s).fill({ color: leaf, alpha: 0.72 });
+  }
+}
+
+/**
+ * L0 richness from real island channels: growth stage controls civic density,
+ * members control visible resident marks, activity controls smoke/flags, and
+ * status controls lighthouse/mist. These are silhouettes, not a second set of
+ * invented stations; the exact L1 arrangement still belongs to the place plane.
+ */
+function drawAtlasSettlement(g: Graphics, o: AtlasIslandInput, r: number): void {
+  const roof = ATLAS_DOMAIN_INK[o.domain];
+  const s = Math.max(0.72, r / 52);
+  if (o.stage <= 0) {
+    g.circle(-2 * s, -3 * s, 3.2 * s).fill({ color: 0xdccfab }).stroke({ color: 0x4a4238, width: 0.7 });
+    g.circle(-2 * s, -3 * s, 7 * s).stroke({ color: roof, width: 0.7, alpha: 0.35 });
+  } else {
+    drawAtlasHouse(g, -r * 0.2, -r * 0.12, s, roof, false);
+    if (o.stage >= 2) drawAtlasHouse(g, r * 0.2, -r * 0.22, s * 0.9, o.domain === '交叉' ? 0xb5673a : 0x2e5e8c, true);
+    if (o.stage >= 3) drawAtlasHouse(g, r * 0.03, r * 0.08, s * 0.82, 0x3e9b7e, false);
+  }
+
+  const treeN = Math.min(4, Math.max(1, o.stage + ((o.members ?? 0) > 6 ? 1 : 0)));
+  for (let i = 0; i < treeN; i++) {
+    const a = atlasSeed(o.slug, i + 7) * Math.PI * 1.2 + Math.PI * 0.3;
+    const rr = r * (0.42 + atlasSeed(o.slug, i + 19) * 0.24);
+    drawAtlasTree(g, Math.cos(a) * rr, Math.sin(a) * rr * 0.48 + r * 0.08, s * 0.72, o.domain);
+  }
+
+  // Residents: one mark per visible inhabitant up to three. Actor identity is
+  // deliberately absent at L0; this is only a truthful occupancy pre-echo.
+  const residentN = Math.min(3, o.members ?? 0);
+  for (let i = 0; i < residentN; i++) {
+    const x = (-10 + i * 9) * s;
+    const y = (r * 0.22 + (i % 2) * 3) * s;
+    g.circle(x, y - 4 * s, 1.6 * s).fill({ color: 0x3a342b });
+    g.moveTo(x, y - 2.4 * s).lineTo(x, y + 3 * s).stroke({ color: 0x3a342b, width: 0.8 * s });
+  }
+
+  // A busy workshop reads as a distant smoke clue — the open-world equivalent
+  // of “something is happening there”, derived from activity rather than HUD.
+  if (!o.dormant && o.eventCount >= 45 && o.stage >= 1) {
+    const x = -r * 0.2 + 5 * s;
+    const y = -r * 0.12 - 17 * s;
+    g.moveTo(x, y).bezierCurveTo(x - 4 * s, y - 7 * s, x + 5 * s, y - 11 * s, x + 1 * s, y - 18 * s)
+      .stroke({ color: 0x6b6154, width: Math.max(0.7, s), alpha: 0.42 });
+  }
+
+  if (o.dormant) {
+    g.ellipse(-r * 0.22, r * 0.12, r * 0.24, r * 0.1).fill({ color: 0x8f9b7e, alpha: 0.46 });
+    g.ellipse(r * 0.2, r * 0.22, r * 0.18, r * 0.08).fill({ color: 0x8f9b7e, alpha: 0.34 });
+    g.ellipse(0, -r * 0.16, r * 0.76, r * 0.2).fill({ color: 0xf2ead8, alpha: 0.52 });
+  }
+}
+
+function drawAtlasWaterRings(g: Graphics, r: number): void {
+  for (let i = 0; i < 3; i++) {
+    const y = r * (0.56 + i * 0.16);
+    const w = r * (0.92 - i * 0.09);
+    g.moveTo(-w, y).bezierCurveTo(-w * 0.45, y + 7, w * 0.45, y + 7, w, y)
+      .stroke({ color: 0x9db9cb, width: 1, alpha: 0.42 - i * 0.08 });
+  }
+}
+
+/** Mineral-ink underside: one tapered body and a few ruled strata turn the
+ * familiar soft mound into a floating island without changing its coastline. */
+function drawAtlasUnderside(g: Graphics, r: number, depth: number, domain: AtlasDomain, dormant: boolean): void {
+  const ink = ATLAS_DOMAIN_INK[domain];
+  g.moveTo(-r * 0.86, r * 0.08)
+    .bezierCurveTo(-r * 0.62, r * 0.42, -r * 0.28, depth * 0.82, 0, depth)
+    .bezierCurveTo(r * 0.28, depth * 0.82, r * 0.62, r * 0.42, r * 0.86, r * 0.08)
+    .bezierCurveTo(r * 0.42, r * 0.25, -r * 0.42, r * 0.25, -r * 0.86, r * 0.08)
+    .closePath()
+    .fill({ color: dormant ? 0x9d9787 : 0x81735e, alpha: 0.96 })
+    .stroke({ color: ink, width: 1.2, alpha: 0.72 });
+  for (let i = 0; i < 5; i++) {
+    const x = -r * 0.58 + i * r * 0.29;
+    const tipX = (i - 2) * r * 0.07;
+    g.moveTo(x, r * 0.18).quadraticCurveTo(x * 0.64, depth * 0.52, tipX, depth * (0.8 + Math.abs(i - 2) * 0.025))
+      .stroke({ color: i % 2 === 0 ? ink : 0xf2ead8, width: 0.75, alpha: i % 2 === 0 ? 0.28 : 0.2 });
+  }
+}
+
 /** Options for {@link AtlasStage.init}; mirrors {@link SceneStageOptions}. */
 export interface AtlasStageOptions {
   width?: number;
@@ -140,6 +264,7 @@ interface IslandNode {
   halfW: number;
   halfH: number;
   showingTier: AtlasTier | '';
+  band: AtlasAltitudeBand;
 }
 
 export class AtlasStage {
@@ -147,15 +272,23 @@ export class AtlasStage {
 
   /** Camera-transformed world root (chart space). */
   readonly worldRoot = new Container();
+  /** Hand-authored-looking contour/horizon layer: visual geography below the
+   * data climate, giving the world long sightlines without inventing borders. */
+  readonly terrainLayer = new Container();
   /** Far-tier climate territories: soft watercolor washes + inter-territory
    * currents + fog (world space, BELOW the cluster layer — lane W2 owns this). */
   readonly continentLayer = new Container();
   /** Far-tier archipelago blobs (world space). */
   readonly clusterLayer = new Container();
+  /** Data-current routes redrawn as elevated air lanes. */
+  readonly routeLayer = new Container();
+  /** Fog-derived cloud banks behind and in front of the islands. */
+  readonly cloudBackLayer = new Container();
   /** Outlier variance-select glow (world space, all tiers). */
   readonly glowLayer = new Container();
   /** Island coastlines (world space, mid/near). */
   readonly islandLayer = new Container();
+  readonly cloudFrontLayer = new Container();
   /** Screen-space labels (never camera-transformed → constant crisp size). */
   readonly uiLayer = new Container();
   /** Far-tier climate-territory name billboards (screen space, BEHIND the
@@ -177,7 +310,7 @@ export class AtlasStage {
 
   private islands: IslandNode[] = [];
   private clusters: AtlasCluster[] = [];
-  private clusterLabels: Array<{ c: AtlasCluster; group: Container; halfW: number; halfH: number }> = [];
+  private clusterLabels: Array<{ c: AtlasCluster; band: AtlasAltitudeBand; group: Container; halfW: number; halfH: number }> = [];
   private continents: AtlasContinent[] = [];
   private fogCells: AtlasFogCell[] = [];
   private flows: AtlasFlow[] = [];
@@ -201,6 +334,9 @@ export class AtlasStage {
   /** rAF-coalesced render request state — see `requestFrame`'s doc comment. */
   private frameScheduled = false;
   private pendingReflow = false;
+  private domainFocus: AtlasDomain | null = null;
+  private altitudeFocus: AtlasAltitudeBand | null = null;
+  private altitudeBySlug = new Map<string, AtlasAltitudeBand>();
 
   // pointer / drag state
   private dragging = false;
@@ -217,10 +353,14 @@ export class AtlasStage {
 
   constructor() {
     this.worldRoot.label = 'atlas-camera';
+    this.terrainLayer.label = 'atlas-topography';
     this.continentLayer.label = 'continents';
     this.clusterLayer.label = 'clusters';
+    this.routeLayer.label = 'air-routes';
+    this.cloudBackLayer.label = 'clouds-behind';
     this.glowLayer.label = 'glow';
     this.islandLayer.label = 'islands';
+    this.cloudFrontLayer.label = 'clouds-front';
     this.uiLayer.label = 'atlas-ui';
     this.continentLabelLayer.label = 'continent-labels';
     this.clusterLabelLayer.label = 'cluster-labels';
@@ -228,7 +368,8 @@ export class AtlasStage {
     this.uiLayer.eventMode = 'none';
     // paint order within world: climate washes (back) → cluster blobs → glow →
     // islands (front). The continent layer is lane W2's and sits BELOW clusters.
-    this.worldRoot.addChild(this.continentLayer, this.clusterLayer, this.glowLayer, this.islandLayer);
+    this.islandLayer.sortableChildren = true;
+    this.worldRoot.addChild(this.terrainLayer, this.continentLayer, this.clusterLayer, this.routeLayer, this.glowLayer, this.cloudBackLayer, this.islandLayer, this.cloudFrontLayer);
   }
 
   async init(target: HTMLCanvasElement | HTMLElement, opts: AtlasStageOptions = {}): Promise<void> {
@@ -273,15 +414,21 @@ export class AtlasStage {
     if (!this.app) return;
     this.disposeNodes();
     this.clusters = clusters;
+    this.altitudeBySlug = new Map(islands.map((island) => [island.slug, altitudeOf(island)]));
     this.buildClusters();
     for (const o of islands) this.islands.push(this.buildIsland(o));
     this.fitToContent(islands);
-    this.applyTier();
+    // setIslands + setClimate + ResizeObserver arrive in one boot turn. Never
+    // synchronously render each step: Pixi v8's batcher can be re-entered before
+    // its prior instruction build settles. One rAF paints the composed result.
+    this.requestFrame(true);
   }
 
   private buildIsland(o: AtlasIslandInput): IslandNode {
     const app = this.app!;
     const r = ATLAS_STAGE_RADIUS[Math.max(0, Math.min(3, o.stage)) as 0 | 1 | 2 | 3];
+    const band = altitudeOf(o);
+    const depth = ALTITUDE_DEPTH[band];
 
     // T2 richness (atlas-world-plan.md §4 lane W5): "tide glow" — a soft warm
     // halo whose intensity transcribes REAL activity data (`eventCount`, the
@@ -294,18 +441,28 @@ export class AtlasStage {
     const tideAlpha = !o.dormant ? Math.min(0.34, (o.eventCount / 140) * 0.34) : 0;
     const tideGlow = tideAlpha > 0.02 ? new Graphics().circle(0, 0, r * 1.22).fill({ color: 0xf5b94b, alpha: tideAlpha }) : null;
 
-    // Bake the coastline (+ tide glow + shadow + lighthouse) to a texture once;
+    // Bake the coastline (+ floating underside + tide glow + lighthouse) once;
     // the Sprite is what draws every frame.
     const gfx = new Graphics();
     const pts = atlasCoastline(o.slug, o.domain, o.stage, 0, 0);
     const fill = o.dormant ? 0xd8d3c2 : ATLAS_DOMAIN_FILL[o.domain];
     traceSmoothClosed(gfx, pts);
     gfx.fill({ color: fill }).stroke({ color: ATLAS_DOMAIN_INK[o.domain], width: 2, alpha: 0.85 });
-    // small contact shadow so the isle reads as floating (matches SVG L0)
-    const shadow = new Graphics().ellipse(0, r * 0.5, r * 0.8, r * 0.28).fill({ color: 0x3a3024, alpha: 0.12 });
+    // One inner contour makes the mound read as terrain, not a flat coloured blob.
+    const inner = pts.map((v, i) => v * (i % 2 === 0 ? 0.78 : 0.7) - (i % 2 === 0 ? 0 : 2));
+    traceSmoothClosed(gfx, inner);
+    gfx.stroke({ color: ATLAS_DOMAIN_INK[o.domain], width: 0.75, alpha: 0.28 });
+    const shadow = new Graphics().ellipse(0, depth + r * 0.38, r * 0.72, r * 0.18).fill({ color: 0x3a3024, alpha: 0.12 });
     const bake = new Container();
+    const water = new Graphics();
+    drawAtlasWaterRings(water, r);
+    water.y = depth * 0.76;
+    const underside = new Graphics();
+    drawAtlasUnderside(underside, r, depth, o.domain, o.dormant);
+    const settlement = new Graphics();
+    drawAtlasSettlement(settlement, o, r);
     if (tideGlow) bake.addChild(tideGlow);
-    bake.addChild(shadow, gfx);
+    bake.addChild(shadow, water, underside, gfx, settlement);
     // T2 richness: "resolved → lighthouse" — flies the SAME landmark the SVG
     // L0 already draws for `status: 'resolved'` (IslandFingerprint.tsx), baked
     // above the coastline so it costs nothing per-frame.
@@ -319,7 +476,8 @@ export class AtlasStage {
     const sprite = new Sprite(texture);
     sprite.anchor.set(0.5, 0.5);
     sprite.x = o.x;
-    sprite.y = o.y;
+    sprite.y = projectAtlasY(o.y, band);
+    sprite.zIndex = sprite.y + ALTITUDE_INDEX[band] * 0.01;
     // T2 richness: "dormancy fade" — a boolean `dormant` is all the client has
     // (no exact recency days), so the honest transcription is a flat dampened
     // alpha (on top of the existing grey fill) rather than a fabricated
@@ -340,8 +498,8 @@ export class AtlasStage {
       // variance-select outlier: a soft double-ring glow that floats it above the
       // bulk at EVERY tier (INFO-HIERARCHY §2 — outliers never fold into a cluster).
       glow = new Graphics()
-        .circle(o.x, o.y, r + 22).fill({ color: 0xe3a93c, alpha: 0.1 })
-        .circle(o.x, o.y, r + 10).fill({ color: 0xe3a93c, alpha: 0.14 });
+        .circle(o.x, projectAtlasY(o.y, band), r + 22).fill({ color: 0xe3a93c, alpha: 0.1 })
+        .circle(o.x, projectAtlasY(o.y, band), r + 10).fill({ color: 0xe3a93c, alpha: 0.14 });
       this.glowLayer.addChild(glow);
     }
 
@@ -368,11 +526,15 @@ export class AtlasStage {
     dot.eventMode = 'none';
     this.labelLayer.addChild(dot);
 
-    return { o, sprite, glow, labelGroup: group, labelText, labelSub, labelBg, dot, halfW: 0, halfH: 0, showingTier: '' };
+    return { o, sprite, glow, labelGroup: group, labelText, labelSub, labelBg, dot, halfW: 0, halfH: 0, showingTier: '', band };
   }
 
   private buildClusters(): void {
     for (const c of this.clusters) {
+      const bands = c.islandSlugs.map((slug) => this.altitudeBySlug.get(slug) ?? 'middle');
+      const meanBand = bands.reduce((sum, band) => sum + ALTITUDE_INDEX[band], 0) / Math.max(1, bands.length);
+      const band: AtlasAltitudeBand = meanBand < 0.67 ? 'low' : meanBand > 1.33 ? 'high' : 'middle';
+      const cy = projectAtlasY(c.center.y, band);
       // Soft WATERCOLOUR WASH, never a polygon/border (design authority: region
       // blobs are washes). A stack of concentric fills — faint & wide at the rim,
       // denser toward the centre — approximates a radial gradient with no hard
@@ -388,7 +550,7 @@ export class AtlasStage {
         const rr = c.radius * (0.4 + 0.6 * t);
         // rim faint, core densest — additive alpha builds the soft mound.
         const alpha = peak * (1 - t) * 0.5 + peak * (t <= 1 / RINGS ? 1 : 0.18);
-        blob.circle(c.center.x, c.center.y, rr).fill({ color: c.tint, alpha });
+        blob.ellipse(c.center.x, cy, rr, rr * 0.64).fill({ color: c.tint, alpha });
       }
       // Wayfinding (W5 §5 acceptance: "≤3 zoom levels" world→region→island):
       // tapping a region at far tier flies the camera toward it, landing in
@@ -396,7 +558,7 @@ export class AtlasStage {
       // is not itself pickable content (no `onPick`), just a drill-down step.
       blob.eventMode = 'static';
       blob.cursor = 'pointer';
-      blob.on('pointertap', () => { if (!this.moved) this.flyToRegion(c); });
+      blob.on('pointertap', () => { if (!this.moved) this.flyToRegion(c, band); });
       this.clusterLayer.addChild(blob);
 
       // Region name billboard (screen space, constant size) + optional caption.
@@ -431,7 +593,7 @@ export class AtlasStage {
       group.addChild(bg, text);
       if (captionText) group.addChild(captionText);
       this.clusterLabelLayer.addChild(group);
-      this.clusterLabels.push({ c, group, halfW, halfH });
+      this.clusterLabels.push({ c, band, group, halfW, halfH });
     }
   }
 
@@ -451,7 +613,7 @@ export class AtlasStage {
     this.fogCells = fog;
     this.flows = flows;
     this.buildContinents();
-    this.applyTier();
+    this.requestFrame(true);
   }
 
   /** Chart-space anchor for a territory's name — biased outward from its centroid
@@ -464,24 +626,63 @@ export class AtlasStage {
     return { x: c.center.x + bx * c.extent.x * 0.6, y: c.center.y + by * c.extent.y * 0.6 };
   }
 
+  private continentBand(c: AtlasContinent): AtlasAltitudeBand {
+    const members = this.islands.filter((node) => node.o.domain === c.domain);
+    if (members.length === 0) return 'middle';
+    const mean = members.reduce((sum, node) => sum + ALTITUDE_INDEX[node.band], 0) / members.length;
+    return mean < 0.67 ? 'low' : mean > 1.33 ? 'high' : 'middle';
+  }
+
   private buildContinents(): void {
+    this.terrainLayer.removeChildren().forEach((c) => c.destroy());
     this.continentLayer.removeChildren().forEach((c) => c.destroy());
+    this.routeLayer.removeChildren().forEach((c) => c.destroy());
+    this.cloudBackLayer.removeChildren().forEach((c) => c.destroy());
+    this.cloudFrontLayer.removeChildren().forEach((c) => c.destroy());
     this.continentLabelLayer.removeChildren().forEach((c) => c.destroy());
     this.continentLabels = [];
 
     const byDomain = new Map<AtlasDomain, AtlasContinent>();
     for (const c of this.continents) byDomain.set(c.domain, c);
 
+    // Long-sightline topography: nested contour arcs and a few large triangular
+    // ridges derived from each territory's actual extent. They guide the eye
+    // toward populated basins like an open-world horizon, but remain ambient
+    // paper marks rather than clickable/invented geography.
+    const topo = new Graphics();
+    for (const c of this.continents) {
+      const band = this.continentBand(c);
+      const cy = projectAtlasY(c.center.y, band);
+      for (let ring = 0; ring < 3; ring++) {
+        const rx = c.extent.x * (0.62 + ring * 0.22);
+        const ry = c.extent.y * ATLAS_Y_TILT * (0.3 + ring * 0.13);
+        topo.ellipse(c.center.x, cy + c.extent.y * 0.05, rx, ry)
+          .stroke({ color: c.ink, width: 1.1, alpha: 0.08 + ring * 0.018 });
+      }
+      const dir = c.manifold[1] < 0.5 ? -1 : 1;
+      const ridgeY = cy + dir * c.extent.y * ATLAS_Y_TILT * 0.74;
+      const w = c.extent.x * 0.7;
+      topo.moveTo(c.center.x - w, ridgeY)
+        .lineTo(c.center.x - w * 0.42, ridgeY - 32 * dir)
+        .lineTo(c.center.x - w * 0.06, ridgeY - 8 * dir)
+        .lineTo(c.center.x + w * 0.26, ridgeY - 44 * dir)
+        .lineTo(c.center.x + w, ridgeY)
+        .stroke({ color: c.ink, width: 1.2, alpha: 0.11 });
+    }
+    this.terrainLayer.addChild(topo);
+
     // 1. Territory washes — soft watercolor: nested low-alpha ellipses build a
     //    feathered edge (界画式海图 language), NEVER a polygon coastline.
     for (const c of this.continents) {
       const wash = new Graphics();
+      const band = this.continentBand(c);
+      const cy = projectAtlasY(c.center.y, band);
       const rings = 6;
       for (let k = rings; k >= 1; k--) {
         const f = k / rings; // 1 = outermost, → inner
         const rx = c.extent.x * (0.42 + 0.78 * f);
         const ry = c.extent.y * (0.42 + 0.78 * f);
-        wash.ellipse(c.center.x, c.center.y, rx, ry).fill({ color: c.tint, alpha: 0.075 });
+        wash.ellipse(c.center.x, cy, rx, ry * ATLAS_Y_TILT * 0.72).fill({ color: c.tint, alpha: 0.075 });
       }
       // Wayfinding (W5 §5 acceptance): tapping a continent nudges the camera
       // toward its regions (mirrors the region-tap below, one step earlier in
@@ -490,7 +691,7 @@ export class AtlasStage {
       // — an acceptable ambiguity for a "nudge inward", not a precise pick.
       wash.eventMode = 'static';
       wash.cursor = 'pointer';
-      wash.on('pointertap', () => { if (!this.moved) this.flyToPoint(c.center.x, c.center.y, this.midFarTargetScale()); });
+      wash.on('pointertap', () => { if (!this.moved) this.flyToPoint(c.center.x, cy, this.midFarTargetScale()); });
       this.continentLayer.addChild(wash);
     }
 
@@ -500,20 +701,47 @@ export class AtlasStage {
       const a = byDomain.get(fl.from);
       const b = byDomain.get(fl.to);
       if (!a || !b) continue;
+      const ay = projectAtlasY(a.center.y, this.continentBand(a));
+      const by = projectAtlasY(b.center.y, this.continentBand(b));
       const width = Math.min(16, 3.5 + Math.sqrt(Math.max(0, fl.weight)) * 2.4);
       const dx = b.center.x - a.center.x;
-      const dy = b.center.y - a.center.y;
+      const dy = by - ay;
       const len = Math.hypot(dx, dy) || 1;
       const nx = -dy / len;
       const ny = dx / len;
       const bow = Math.min(150, len * 0.15);
       const mx = (a.center.x + b.center.x) / 2 + nx * bow;
-      const my = (a.center.y + b.center.y) / 2 + ny * bow;
+      const my = (ay + by) / 2 + ny * bow - 18;
       const line = new Graphics();
-      line.moveTo(a.center.x, a.center.y).quadraticCurveTo(mx, my, b.center.x, b.center.y);
-      line.stroke({ color: fl.tint, width, alpha: 0.5, cap: 'round', join: 'round' });
-      this.continentLayer.addChild(line);
+      line.moveTo(a.center.x, ay).quadraticCurveTo(mx, my, b.center.x, by);
+      line.stroke({ color: 0xf8f1de, width: width + 4, alpha: 0.52, cap: 'round', join: 'round' });
+      line.moveTo(a.center.x, ay).quadraticCurveTo(mx, my, b.center.x, by);
+      line.stroke({ color: fl.tint, width: Math.max(1.4, width * 0.42), alpha: 0.68, cap: 'round', join: 'round' });
+      // Three wind knots make direction and elevation legible without HUD arrows.
+      for (let knot = 1; knot <= 3; knot++) {
+        const t = knot / 4;
+        const u = 1 - t;
+        const kx = u * u * a.center.x + 2 * u * t * mx + t * t * b.center.x;
+        const ky = u * u * ay + 2 * u * t * my + t * t * by;
+        line.circle(kx, ky, 2.2 + knot * 0.35).fill({ color: fl.tint, alpha: 0.8 });
+      }
+      this.routeLayer.addChild(line);
     }
+
+    // Fog cells already encode explored/empty space. Reinterpreting a sparse
+    // sample as cloud banks gives altitude occlusion without inventing content.
+    this.fogCells.forEach((cell, index) => {
+      if (cell.fog < 0.12 || index % 2 !== 0) return;
+      const cx = cell.x + cell.w / 2;
+      const cy = projectAtlasY(cell.y + cell.h / 2) + (index % 4 === 0 ? -34 : 44);
+      const radius = cell.w * (0.34 + Math.min(0.28, cell.fog * 0.22));
+      const cloud = new Graphics();
+      const alpha = 0.08 + Math.min(0.12, cell.fog * 0.12);
+      cloud.ellipse(cx, cy, radius, radius * 0.24).fill({ color: 0xf8f1de, alpha });
+      cloud.ellipse(cx - radius * 0.38, cy - 5, radius * 0.54, radius * 0.2).fill({ color: 0xdbe4e4, alpha: alpha * 0.74 });
+      cloud.ellipse(cx + radius * 0.3, cy + 3, radius * 0.48, radius * 0.17).fill({ color: 0xf8f1de, alpha: alpha * 0.82 });
+      (index % 4 === 0 ? this.cloudFrontLayer : this.cloudBackLayer).addChild(cloud);
+    });
 
     // 3. Fog — soft paper-coloured haze over the empty/unexplored cells; content
     //    cells stay clear. A FOCUS aid: alpha is capped well under 1 (never a
@@ -578,14 +806,14 @@ export class AtlasStage {
     let drawn = false;
     for (const cell of this.fogCells) {
       const cx = cell.x + cell.w / 2;
-      const cy = cell.y + cell.h / 2;
+      const cy = projectAtlasY(cell.y + cell.h / 2);
       const fog = focusFog(cell.fog, cx, cy, focusX, focusY, focusRadius);
       if (fog < 0.05) continue;
       // Cool distance-haze (平远/atmospheric recession): each cell is a soft
       // circle far larger than its cell, at LOW alpha — heavy overlap averages
       // the neighbours into one seamless mist (no quilted grid seams).
       const alpha = Math.min(0.2, fog * 0.2);
-      this.fogGfx.circle(cx, cy, cell.w * 0.95).fill({ color: 0xccd6dd, alpha });
+      this.fogGfx.ellipse(cx, cy, cell.w * 0.95, cell.w * 0.52).fill({ color: 0xccd6dd, alpha });
       drawn = true;
     }
     // Keep the Graphics non-empty even when nothing draws (e.g. the whole
@@ -623,7 +851,8 @@ export class AtlasStage {
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     for (const o of islands) {
       minX = Math.min(minX, o.x); maxX = Math.max(maxX, o.x);
-      minY = Math.min(minY, o.y); maxY = Math.max(maxY, o.y);
+      const py = projectAtlasY(o.y, altitudeOf(o));
+      minY = Math.min(minY, py); maxY = Math.max(maxY, py);
     }
     this.minScale = computeWorldMinScale(this.app.screen.width, this.app.screen.height, { minX, minY, maxX, maxY });
     const pad = 120;
@@ -658,6 +887,49 @@ export class AtlasStage {
     this.worldRoot.x = px - wx * next;
     this.worldRoot.y = py - wy * next;
     this.onCameraChange();
+  }
+
+  /** Public instrument controls used by the React chart chrome. */
+  zoomBy(factor: number): void {
+    if (!this.app) return;
+    this.zoomAt(this.app.screen.width / 2, this.app.screen.height / 2, factor);
+  }
+
+  resetView(): void {
+    if (!this.app) return;
+    this.fitToContent(this.islands.map((node) => node.o));
+    this.requestFrame(true);
+  }
+
+  enter(slug: string): void {
+    const node = this.islands.find((candidate) => candidate.o.slug === slug);
+    if (node) this.flyToIsland(node.o);
+  }
+
+  focusDomain(domain: AtlasDomain | null): void {
+    this.domainFocus = domain;
+    this.requestFrame(true);
+  }
+
+  focusAltitude(band: AtlasAltitudeBand | null): void {
+    this.altitudeFocus = band;
+    this.requestFrame(true);
+  }
+
+  /** Current screen-space anchor for React hover cards and verification. */
+  screenPoint(slug: string): { x: number; y: number } | null {
+    const node = this.islands.find((candidate) => candidate.o.slug === slug);
+    if (!node) return null;
+    return {
+      x: node.o.x * this.scale + this.worldRoot.x,
+      y: projectAtlasY(node.o.y, node.band) * this.scale + this.worldRoot.y,
+    };
+  }
+
+  resize(width: number, height: number): void {
+    if (!this.app || width < 1 || height < 1) return;
+    this.app.renderer.resize(width, height);
+    this.resetView();
   }
 
   // ─── Camera continuity (W5 goal 1b + §5 wayfinding) ─────────────────────────
@@ -719,14 +991,14 @@ export class AtlasStage {
    *  on the island (T0/T1→T2) right before the existing sail→wipe (T2→T3)
    *  takes over, reading as one continuous drill-down instead of a hard cut. */
   private flyToIsland(o: AtlasIslandInput): void {
-    this.flyToPoint(o.x, o.y, this.nearTargetScale(), () => this.onPick?.(o.slug));
+    this.flyToPoint(o.x, projectAtlasY(o.y, altitudeOf(o)), this.nearTargetScale(), () => this.onPick?.(o.slug));
   }
 
   /** Tapped a region (or continent): fly toward its centre, landing in the
    *  mid tier so its member islands read individually — a pure drill-down
    *  step, no `onPick` (a region isn't itself pickable content). */
-  private flyToRegion(c: AtlasCluster): void {
-    this.flyToPoint(c.center.x, c.center.y, this.midFarTargetScale());
+  private flyToRegion(c: AtlasCluster, band: AtlasAltitudeBand): void {
+    this.flyToPoint(c.center.x, projectAtlasY(c.center.y, band), this.midFarTargetScale());
   }
 
   private onPointerDown(e: PointerEvent): void {
@@ -814,6 +1086,10 @@ export class AtlasStage {
     // read strongest at overview and dissolve as you zoom toward content, so the
     // fog lifts and the washes never fight the mid/near island detail.
     this.continentLayer.alpha = blend.far;
+    this.terrainLayer.alpha = Math.max(blend.far * 0.95, blend.mid * 0.24);
+    this.routeLayer.alpha = Math.max(blend.far * 0.9, blend.mid * 0.32);
+    this.cloudBackLayer.alpha = Math.max(blend.far * 0.82, blend.mid * 0.46, blend.near * 0.18);
+    this.cloudFrontLayer.alpha = Math.max(blend.far * 0.54, blend.mid * 0.3, blend.near * 0.08);
     // Territory NAMES fade faster than their washes (crisp only at true far zoom).
     this.continentLabelLayer.alpha = blend.far * blend.far;
     this.clusterLayer.alpha = blend.far;
@@ -828,7 +1104,7 @@ export class AtlasStage {
     for (const { c, group } of this.continentLabels) {
       const at = this.continentLabelAt(c);
       const sx = at.x * scale + this.worldRoot.x;
-      const sy = at.y * scale + this.worldRoot.y;
+      const sy = projectAtlasY(at.y, this.continentBand(c)) * scale + this.worldRoot.y;
       group.x = Math.round(sx);
       group.y = Math.round(sy);
       group.visible = continentLabelsVisible && sx > -400 && sx < view.width + 400 && sy > -200 && sy < view.height + 200;
@@ -842,9 +1118,9 @@ export class AtlasStage {
     // the same discipline as island billboards (see deconflictLabels).
     const farVisible = blend.far > 0.02;
     const clusterBoxes: LabelBox[] = [];
-    for (const { c, group, halfW, halfH } of this.clusterLabels) {
+    for (const { c, band, group, halfW, halfH } of this.clusterLabels) {
       const sx = c.center.x * scale + this.worldRoot.x;
-      const sy = c.center.y * scale + this.worldRoot.y;
+      const sy = projectAtlasY(c.center.y, band) * scale + this.worldRoot.y;
       group.x = Math.round(sx);
       group.y = Math.round(sy);
       const onscreen = sx > -200 && sx < view.width + 200 && sy > -100 && sy < view.height + 100;
@@ -866,14 +1142,19 @@ export class AtlasStage {
     const boxes: LabelBox[] = [];
     for (const nd of this.islands) {
       const o = nd.o;
+      const domainVisible = !this.domainFocus || o.domain === this.domainFocus;
+      const altitudeVisible = !this.altitudeFocus || nd.band === this.altitudeFocus;
+      const focusVisible = domainVisible && altitudeVisible;
       const sx = o.x * scale + this.worldRoot.x;
       const r = ATLAS_STAGE_RADIUS[Math.max(0, Math.min(3, o.stage)) as 0 | 1 | 2 | 3];
-      const sy = o.y * scale + this.worldRoot.y;
+      const sy = projectAtlasY(o.y, nd.band) * scale + this.worldRoot.y;
       const vis = sx > -80 && sx < view.width + 80 && sy > -80 && sy < view.height + 80;
       // Sprite culling: hide when off-screen or when the island layer is invisible (far tier).
-      nd.sprite.visible = vis && this.islandLayer.alpha > 0.02;
-      if (nd.glow) nd.glow.visible = vis; // glow rides glowLayer alpha
-      if (vis && this.islandLayer.alpha > 0.02) onScreen++;
+      nd.sprite.visible = vis && focusVisible && this.islandLayer.alpha > 0.02;
+      nd.sprite.alpha = o.dormant ? 0.68 : 1;
+      if (nd.glow) nd.glow.visible = vis && focusVisible; // glow rides glowLayer alpha
+      if (nd.glow) nd.glow.alpha = 1;
+      if (vis && focusVisible && this.islandLayer.alpha > 0.02) onScreen++;
 
       // Refresh label content when the tier changes (mid = name only, near = name+subline).
       if (labelsVisible && nd.showingTier !== tier) this.setLabelContent(nd, tier);
@@ -883,7 +1164,7 @@ export class AtlasStage {
       nd.labelGroup.y = Math.round(ly);
       nd.dot.x = Math.round(sx);
       nd.dot.y = Math.round(ly);
-      if (labelsVisible && vis) boxes.push({ id: o.slug, priority: islandPriority(o), sx, sy: ly, halfW: nd.halfW, halfH: nd.halfH });
+      if (labelsVisible && vis && focusVisible) boxes.push({ id: o.slug, priority: islandPriority(o), sx, sy: ly, halfW: nd.halfW, halfH: nd.halfH });
       else { nd.labelGroup.visible = false; nd.dot.visible = false; }
     }
 
@@ -932,7 +1213,7 @@ export class AtlasStage {
     if (tier === 'near') {
       const st = STAGE_LABELS[Math.max(0, Math.min(3, nd.o.stage))];
       const memberPart = nd.o.members != null ? ` · ${nd.o.members}人` : '';
-      nd.labelSub.text = `${nd.o.domain} · ${st} · N${nd.o.eventCount}${memberPart}`;
+      nd.labelSub.text = `${ALTITUDE_LABELS[nd.band]} · ${nd.o.domain} · ${st} · N${nd.o.eventCount}${memberPart}`;
       nd.labelSub.visible = true;
       nd.labelText.y = -8;
       nd.labelSub.y = 9;
@@ -963,8 +1244,12 @@ export class AtlasStage {
     }
     this.islands = [];
     this.clusterLayer.removeChildren().forEach((c) => c.destroy());
+    this.routeLayer.removeChildren().forEach((c) => c.destroy());
+    this.cloudBackLayer.removeChildren().forEach((c) => c.destroy());
+    this.cloudFrontLayer.removeChildren().forEach((c) => c.destroy());
     this.clusterLabelLayer.removeChildren().forEach((c) => c.destroy());
     this.continentLayer.removeChildren().forEach((c) => c.destroy());
+    this.terrainLayer.removeChildren().forEach((c) => c.destroy());
     this.continentLabelLayer.removeChildren().forEach((c) => c.destroy());
     this.clusters = [];
     this.clusterLabels = [];
@@ -972,6 +1257,7 @@ export class AtlasStage {
     this.fogCells = [];
     this.flows = [];
     this.continentLabels = [];
+    this.altitudeBySlug.clear();
     this.fogGfx = undefined;
     this.lastLabelCount = 0;
   }

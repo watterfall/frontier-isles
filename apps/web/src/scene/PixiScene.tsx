@@ -189,12 +189,13 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
     if (!el) return;
     let disposed = false;
     let stage: SceneStage | null = null;
+    let resizeObserver: ResizeObserver | null = null;
     void (async () => {
       const s = new SceneStage();
       try {
         // Pass the host DIV (not a shared canvas): Pixi creates its own canvas so
         // StrictMode's double-mount can't tear one canvas out from under the other.
-        await s.init(el, { resizeTo: el, background: 0xf2ecd9, backgroundAlpha: 1 }); // warm paper (design base)
+        await s.init(el, { width: Math.max(1, el.clientWidth), height: Math.max(1, el.clientHeight), background: 0xf2ecd9, backgroundAlpha: 1 }); // warm paper (design base)
       } catch (e) {
         if (!disposed) cbRef.current.onWebglError?.(String(e));
         return;
@@ -205,6 +206,11 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
       }
       stage = s;
       stageRef.current = s;
+      resizeObserver = new ResizeObserver(([entry]) => {
+        if (!entry || disposed) return;
+        s.resize(Math.round(entry.contentRect.width), Math.round(entry.contentRect.height));
+      });
+      resizeObserver.observe(el);
       // Hit-testing → open the tapped station, or the tapped claim tower's detail
       // panel (scene-upgrade OUTSTANDING P1). The claim id encodes its index into
       // `claims` (see layout.ts push order); look the ClaimState back up rather
@@ -316,6 +322,7 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
     })();
     return () => {
       disposed = true;
+      resizeObserver?.disconnect();
       ritualLayerRef.current?.destroy();
       ritualLayerRef.current = null;
       if (stage) stage.destroy();

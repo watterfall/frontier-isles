@@ -13,6 +13,7 @@ import { REGION_NAMES } from '@frontier-isles/data';
 import {
   ATLAS_DOMAIN_FILL,
   ATLAS_DOMAIN_INK,
+  assignAtlasAltitudes,
   type AtlasCluster,
   type AtlasContinent,
   type AtlasDomain,
@@ -167,5 +168,5 @@ export function buildAtlasScene(source: IslandDatum[] = DATA, extra: AtlasExtraI
   }));
   const fog: AtlasFogCell[] = climate.fog.map((f) => ({ x: f.x, y: f.y, w: f.w, h: f.h, fog: f.fog }));
 
-  return { islands: withOutliers, clusters, continents, fog, flows: curatedContinentFlows() };
+  return { islands: assignAtlasAltitudes(withOutliers), clusters, continents, fog, flows: curatedContinentFlows() };
 }

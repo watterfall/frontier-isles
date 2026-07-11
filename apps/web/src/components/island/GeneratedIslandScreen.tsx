@@ -46,6 +46,7 @@ interface IslandDetail {
 }
 
 const STAGE_INDEX: Record<string, number> = { empty: 0, hut: 1, academy: 2, school: 3 };
+const DOMAIN_I18N: Record<string, string> = { 数理: 'chart.domains.math', 物质: 'chart.domains.matter', 生命: 'chart.domains.life', 交叉: 'chart.domains.cross' };
 
 export interface GeneratedIslandScreenProps {
   slug: string;
@@ -289,7 +290,9 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
   return (
     <div
       data-screen-label="L1 生成岛"
-      style={{ position: 'absolute', inset: 0, background: 'var(--pp,#F2EAD8)', transition: 'background .8s ease', ...sceneVarsToStyle(sceneVars) }}
+      className="fi-island-screen"
+      data-night={night}
+      style={{ ...sceneVarsToStyle(sceneVars) }}
     >
       {/* L1 scene: the Pixi isometric renderer (M4「接线上」), fed the island's real
           ledger-driven claims + App day/night. SVG scene is the no-GPU fallback
@@ -297,7 +300,7 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
       {noGpu ? (
         <GeneratedSceneView scene={scene} night={night} nightT={50} onStation={onStation} />
       ) : (
-        <Suspense fallback={null}>
+        <Suspense fallback={<div className="fi-island-loading-mark" role="status"><i aria-hidden="true" /><span>{t('island.loading')}</span></div>}>
           <PixiScene
             input={input}
             claims={effClaims}
@@ -329,39 +332,29 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
         <NightTimeline model={timeline} t={scrubNight} onT={onScrub} />
       )}
 
-      {/* L1 顶部信息 */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '18px 24px', pointerEvents: 'none' }}>
-        <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-          <div onClick={onBack} style={{ pointerEvents: 'auto', cursor: 'pointer', background: 'var(--card,rgba(250,245,232,0.92))', border: '1.5px solid var(--ink,#3A342B)', borderRadius: 6, padding: '9px 14px', fontSize: 13, color: 'var(--inkT,#2B2620)', display: 'flex', alignItems: 'center', gap: 8, transition: 'background .7s,color .7s' }}>
-            ◀ {t('island.back')}
-          </div>
-          <div style={{ background: 'var(--card,rgba(250,245,232,0.92))', border: '1.5px solid var(--ink,#3A342B)', borderRadius: 6, padding: '10px 18px', maxWidth: 520, transition: 'background .7s' }}>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>
-              <span style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 900, fontSize: 20, color: 'var(--inkT,#2B2620)', transition: 'color .7s' }}>{title}</span>
-              {cluster && <span style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 9.5, color: 'var(--ink2,#6B6154)', border: '1px solid var(--ink2,#6B6154)', borderRadius: 4, padding: '1px 6px' }}>{cluster}</span>}
+      <div className="fi-island-hud">
+        <div className="fi-island-hud-left">
+          <button type="button" onClick={onBack} className="fi-island-back"><span aria-hidden="true">←</span><span><strong>{t('island.back')}</strong><small>L0 · ATLAS</small></span></button>
+          <section className="fi-island-dossier">
+            <div className="fi-island-dossier-meta">
+              <span>L1 · ISLAND</span>
+              <span>{t(DOMAIN_I18N[domain] ?? 'chart.domains.cross')}</span>
+              <span>{t(`chart.stages.${['空岛', '草棚', '书院', '学派'][STAGE_INDEX[detail.growth.stage] ?? 0]}`)}</span>
+              {cluster && <span>{cluster}</span>}
             </div>
-            <div style={{ fontSize: 12, color: 'var(--ink2,#6B6154)', marginTop: 4, lineHeight: 1.5 }}>
-              {t('island.qfocusPrefix')}{qfocus}
-            </div>
-            {brief && <div style={{ fontSize: 11, color: 'var(--ink2,#6B6154)', marginTop: 6, lineHeight: 1.6, opacity: 0.85 }}>{brief}</div>}
-            {citation && (
-              <a href={citation.url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 5, marginTop: 7, fontSize: 10, color: 'var(--gold2,#8A6A1E)', fontFamily: "'JetBrains Mono',ui-monospace,monospace", textDecoration: 'none', border: '1px solid var(--gold,#B98A2E)', borderRadius: 3, padding: '2px 7px' }}>
-                {citation.venue} ({citation.year})
-              </a>
-            )}
+            <h1>{title}</h1>
+            <p className="fi-island-qfocus"><span>QFocus</span>{qfocus}</p>
+            {brief && <p className="fi-island-brief">{brief}</p>}
+            <div className="fi-island-evidence-row">
+              {citation && <a href={citation.url} target="_blank" rel="noopener noreferrer">↗ {citation.venue} · {citation.year}</a>}
             {/* 海即数据 decoder: sea darkness = abstractness, undertow = contention;
                 stated as text so the sea's data channels are always decodable. */}
-            {seaStats && (seaStats.substrate != null || relParts.length > 0) && (
-              <div style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 10, color: 'var(--ink2,#6B6154)', marginTop: 7, display: 'flex', gap: 12, flexWrap: 'wrap', opacity: 0.9 }}>
-                {seaStats.substrate != null && (
-                  <span>🌊 {t('island.seaData.depth')} {seaStats.substrate.toFixed(2)} · {t(abstractKey(seaStats.substrate))}</span>
-                )}
-                {relParts.length > 0 && <span>⇄ {relParts.join(' · ')}</span>}
-              </div>
-            )}
-          </div>
+              {seaStats?.substrate != null && <span>≈ {t('island.seaData.depth')} {seaStats.substrate.toFixed(2)} · {t(abstractKey(seaStats.substrate))}</span>}
+              {relParts.length > 0 && <span>⇄ {relParts.join(' · ')}</span>}
+            </div>
+          </section>
         </div>
-        <div style={{ pointerEvents: 'auto' }}>
+        <div className="fi-island-hud-mode">
           <DayNightLever night={night} onToggle={onToggleNight} />
         </div>
       </div>
@@ -369,16 +362,17 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
       {/* Transplant-through-dock trigger (Phase B.3) — a human moves a driftwood
           atom through the dock into a formal station. Bottom-right, opposite the
           leave links; the panel does the picking + POST. */}
-      <div
+      <button
+        type="button"
         onClick={() => setTransplantOpen(true)}
         data-testid="transplant-open"
-        style={{ position: 'absolute', right: 22, bottom: 12, cursor: 'pointer', background: 'var(--card,rgba(250,245,232,0.92))', border: '1.5px solid var(--ink,#3A342B)', borderRadius: 6, padding: '7px 13px', fontSize: 12, color: 'var(--inkT,#2B2620)', display: 'flex', alignItems: 'center', gap: 7 }}
+        className="fi-transplant-trigger"
       >
-        渡 {t('island.transplant.open')}
-      </div>
+        <span aria-hidden="true">渡</span><span><strong>{t('island.transplant.open')}</strong><small>DRIFTWOOD → DOCK → STATION</small></span>
+      </button>
 
       {/* Leave links */}
-      <div style={{ position: 'absolute', left: 22, bottom: 14, fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 10.5, color: 'var(--ink2,#6B6154)' }}>
+      <div className="fi-leave-links">
         <span>{t('island.leaveLinks.label')}</span>
         <a href={api.problemMdUrl(slug)} style={{ color: 'var(--gold2,#8A6A1E)' }}> {t('island.leaveLinks.problem')}</a>
         {' · '}

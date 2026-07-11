@@ -14,6 +14,7 @@ import { describe, expect, it } from 'vitest';
 import {
   atlasHash,
   atlasCoastline,
+  assignAtlasAltitudes,
   computeWorldMinScale,
   deconflictLabels,
   focusFog,
@@ -41,6 +42,22 @@ const isle = (over: Partial<AtlasIslandInput> = {}): AtlasIslandInput => ({
   x: 0,
   y: 0,
   ...over,
+});
+
+describe('assignAtlasAltitudes — place-plane strata, never progress', () => {
+  it('folds existing y-order into balanced high, middle, and low air bands', () => {
+    const source = Array.from({ length: 9 }, (_, index) => isle({ slug: `isle-${index}`, y: index * 10 }));
+    const assigned = assignAtlasAltitudes(source);
+    expect(assigned.slice(0, 3).every((item) => item.altitude === 'high')).toBe(true);
+    expect(assigned.slice(3, 6).every((item) => item.altitude === 'middle')).toBe(true);
+    expect(assigned.slice(6).every((item) => item.altitude === 'low')).toBe(true);
+  });
+
+  it('is deterministic and does not mutate the input', () => {
+    const source = [isle({ slug: 'b', y: 2 }), isle({ slug: 'a', y: 2 }), isle({ slug: 'c', y: 8 })];
+    expect(assignAtlasAltitudes(source)).toEqual(assignAtlasAltitudes(source));
+    expect(source.every((item) => item.altitude == null)).toBe(true);
+  });
 });
 
 describe('zoomTier — discrete cartographic scales (§6: ≤3 zoom levels)', () => {

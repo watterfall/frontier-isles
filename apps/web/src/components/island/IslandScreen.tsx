@@ -117,7 +117,9 @@ export function IslandScreen(props: IslandScreenProps) {
   return (
     <div
       data-screen-label="L1 样板岛"
-      style={{ position: 'absolute', inset: 0, background: 'var(--pp,#F2EAD8)', transition: 'background .8s ease', ...sceneVarsToStyle(night ? NIGHT_SCENE_VARS : {}) }}
+      className="fi-island-screen"
+      data-night={night}
+      style={{ ...sceneVarsToStyle(night ? NIGHT_SCENE_VARS : {}) }}
     >
       <Scene
         night={night}
@@ -128,40 +130,17 @@ export function IslandScreen(props: IslandScreenProps) {
         ghostReveals={ghostReveals}
       />
 
-      {/* L1 顶部信息 */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '18px 24px', pointerEvents: 'none' }}>
-        <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-          <div onClick={props.onBack} style={{ pointerEvents: 'auto', cursor: 'pointer', background: 'var(--card,rgba(250,245,232,0.92))', border: '1.5px solid var(--ink,#3A342B)', borderRadius: 6, padding: '9px 14px', fontSize: 13, color: 'var(--inkT,#2B2620)', display: 'flex', alignItems: 'center', gap: 8, transition: 'background .7s,color .7s' }}>
-            ◀ {t('island.back')}
-          </div>
-          <div style={{ background: 'var(--card,rgba(250,245,232,0.92))', border: '1.5px solid var(--ink,#3A342B)', borderRadius: 6, padding: '10px 18px', transition: 'background .7s' }}>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
-              <span style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 900, fontSize: 20, color: 'var(--inkT,#2B2620)', transition: 'color .7s' }}>{SAMPLE_TITLE[lang]}</span>
-              <span style={{ fontSize: 12, color: 'var(--ink2,#6B6154)' }}>{t('island.qfocusPrefix')}{SAMPLE_QFOCUS[lang]}</span>
-            </div>
-            <div style={{ display: 'flex', gap: 8, marginTop: 7, alignItems: 'center' }}>
-              <span style={{ fontSize: 11, padding: '2px 9px', borderRadius: 999, background: 'var(--capG,#3E9B7E)', color: '#F6F2E6' }}>{t('island.academy')}</span>
-              <span style={{ fontSize: 11, padding: '2px 9px', borderRadius: 999, border: '1px solid var(--ink2,#6B6154)', color: 'var(--ink2,#6B6154)' }}>{t('island.residents')}</span>
-              <span style={{ fontSize: 11, padding: '2px 9px', borderRadius: 999, border: '1px solid var(--gold,#B98A2E)', color: 'var(--gold2,#8A6A1E)', background: 'rgba(227,169,60,0.12)' }}>{t('island.aiResidents')}</span>
-            </div>
-          </div>
-          <div style={{ background: 'var(--card,rgba(250,245,232,0.92))', border: '1.5px solid var(--ink,#3A342B)', borderRadius: 6, padding: '8px 14px', transition: 'background .7s' }}>
-            <div style={{ fontSize: 11, color: 'var(--inkT,#2B2620)', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#3E9B7E' }} />
-              {peers > 0 ? (
-                t('island.presencePeers', { n: 5 + peers, peers })
-              ) : (
-                <>
-                  {t('island.presence')} <span style={{ color: 'var(--ink2,#6B6154)' }}>{t('island.presenceBreak')}</span>
-                </>
-              )}
-            </div>
-            <div style={{ fontSize: 10, color: 'var(--ink2,#6B6154)', marginTop: 4 }}>{t('island.presenceNote')}</div>
-          </div>
+      <div className="fi-island-hud">
+        <div className="fi-island-hud-left">
+          <button type="button" onClick={props.onBack} className="fi-island-back"><span aria-hidden="true">←</span><span><strong>{t('island.back')}</strong><small>L0 · ATLAS</small></span></button>
+          <section className="fi-island-dossier fi-island-dossier-sample">
+            <div className="fi-island-dossier-meta"><span>L1 · ISLAND</span><span>{t('island.academy')}</span><span>{t('island.residents')}</span></div>
+            <h1>{SAMPLE_TITLE[lang]}</h1>
+            <p className="fi-island-qfocus"><span>QFocus</span>{SAMPLE_QFOCUS[lang]}</p>
+            <div className="fi-island-evidence-row"><span>AI · {t('island.aiResidents')}</span><span className="fi-presence-dot">{peers > 0 ? t('island.presencePeers', { n: 5 + peers, peers }) : `${t('island.presence')} ${t('island.presenceBreak')}`}</span><span>{t('island.presenceNote')}</span></div>
+          </section>
         </div>
-        <div style={{ pointerEvents: 'auto' }}>
-          <DayNightLever night={night} onToggle={props.onToggleNight} />
-        </div>
+        <div className="fi-island-hud-mode"><DayNightLever night={night} onToggle={props.onToggleNight} /></div>
       </div>
 
       <ListTwin sel={props.sel} stFilter={props.stFilter} onStFilter={props.onStFilter} onStation={props.onStation} />
@@ -174,7 +153,7 @@ export function IslandScreen(props: IslandScreenProps) {
 
       {night && <NightTimeline model={ledgerEvents ? nightModel : HERO_TIMELINE_MODEL} t={props.t} onT={props.onT} />}
 
-      <div style={{ position: 'absolute', left: 22, bottom: 14, fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 10.5, color: 'var(--ink2,#6B6154)', display: 'flex', gap: 12 }}>
+      <div className="fi-leave-links fi-leave-links-sample">
         <span>{t('island.footer')}</span>
         <span>
           {t('island.leaveLinks.label')}

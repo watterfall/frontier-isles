@@ -265,6 +265,16 @@ export class SceneStage {
     this.lastRenderMs = performance.now() - t0;
   }
 
+  /** Controlled host resize. Kept outside Pixi's ResizePlugin so unmounting a
+   * desktop scene while crossing the mobile breakpoint cannot leave a queued
+   * resize callback touching an already-destroyed renderer. */
+  resize(width: number, height: number): void {
+    if (!this.app || width < 1 || height < 1) return;
+    this.app.renderer.resize(width, height);
+    this.layoutLabels();
+    this.cullToViewport();
+  }
+
   private layerFor(layer: SceneLayer): Container {
     switch (layer) {
       case 'sea':
@@ -309,6 +319,9 @@ export class SceneStage {
     }
     if (o.kind === 'claim') return this.makeClaimMark(o);
     if (o.kind.startsWith('landmark:')) return this.makeLandmark(o);
+    if (o.kind.startsWith('resident:')) return this.makeResident(o);
+    if (o.kind.startsWith('scenery:')) return this.makeScenery(o);
+    if (o.kind.startsWith('ghost:')) return this.makeGhostArtifact(o);
     // diamondPoints is elevation-0 screen space; the elevation lift is applied
     // per case below (terrain columns vs objects standing on their tile).
     const pts = diamondPoints(o.gx, o.gy);
@@ -336,23 +349,124 @@ export class SceneStage {
     return g;
   }
 
+  /** Human and AI inhabitants are small life traces, not anonymous boxes. */
+  private makeResident(o: SceneObject): Container {
+    const p = worldToScreenElevated(o.gx + 0.5, o.gy + 0.5, o.elevation);
+    const ai = o.kind === 'resident:ai';
+    const g = new Graphics();
+    g.ellipse(p.x, p.y + 2, 7, 3).fill({ color: 0x3a3024, alpha: 0.16 });
+    g.circle(p.x, p.y - 13, ai ? 3.5 : 3).fill({ color: ai ? 0xe3a93c : 0x3a342b, alpha: ai ? 0.9 : 1 });
+    g.moveTo(p.x, p.y - 9).lineTo(p.x, p.y - 1).stroke({ color: ai ? 0x2e5e8c : 0x3a342b, width: 2, alpha: 0.92 });
+    g.moveTo(p.x, p.y - 6).lineTo(p.x - 4, p.y - 3).moveTo(p.x, p.y - 6).lineTo(p.x + 4, p.y - 4)
+      .stroke({ color: ai ? 0x2e5e8c : 0x3a342b, width: 1.4, alpha: 0.9 });
+    if (ai) {
+      g.circle(p.x, p.y - 13, 6.5).stroke({ color: 0x2e5e8c, width: 1, alpha: 0.58 });
+      g.moveTo(p.x - 7, p.y - 13).lineTo(p.x - 10, p.y - 13).moveTo(p.x + 7, p.y - 13).lineTo(p.x + 10, p.y - 13)
+        .stroke({ color: 0x2e5e8c, width: 1, alpha: 0.48 });
+    }
+    const c = new Container();
+    c.addChild(g);
+    c.label = o.id;
+    return c;
+  }
+
+  /** Domain scenery keeps its own silhouette so the biome is readable at a glance. */
+  private makeScenery(o: SceneObject): Container {
+    const p = worldToScreenElevated(o.gx + 0.5, o.gy + 0.5, o.elevation);
+    const kind = o.kind.slice('scenery:'.length);
+    const g = new Graphics();
+    if (kind === 'tree' || kind === 'bamboo') {
+      const bamboo = kind === 'bamboo';
+      const trunks = bamboo ? [-5, 0, 5] : [0];
+      for (const dx of trunks) {
+        g.moveTo(p.x + dx, p.y).lineTo(p.x + dx, p.y - (bamboo ? 28 : 22)).stroke({ color: 0x6d5136, width: bamboo ? 1.5 : 2 });
+        if (bamboo) for (let y = 8; y < 26; y += 8) g.moveTo(p.x + dx - 2, p.y - y).lineTo(p.x + dx + 2, p.y - y).stroke({ color: 0x4e7d62, width: 1 });
+      }
+      if (!bamboo) {
+        g.circle(p.x, p.y - 28, 10).fill({ color: 0x4e7d62, alpha: 0.9 });
+        g.circle(p.x - 8, p.y - 23, 7).fill({ color: 0x6f946d, alpha: 0.82 });
+        g.circle(p.x + 7, p.y - 22, 6).fill({ color: 0x3e8067, alpha: 0.82 });
+        g.circle(p.x - 13, p.y - 3, 4).fill({ color: 0x6f946d, alpha: 0.64 });
+        g.circle(p.x + 11, p.y - 2, 3).fill({ color: 0x4e7d62, alpha: 0.58 });
+      } else {
+        g.ellipse(p.x - 8, p.y - 20, 7, 2.5).fill({ color: 0x4e7d62, alpha: 0.88 });
+        g.ellipse(p.x + 8, p.y - 15, 7, 2.5).fill({ color: 0x4e7d62, alpha: 0.78 });
+      }
+    } else if (kind === 'lotus') {
+      g.ellipse(p.x, p.y, 20, 8).fill({ color: 0x85a8b8, alpha: 0.58 }).stroke({ color: 0x2e5e8c, width: 1, alpha: 0.5 });
+      g.ellipse(p.x - 7, p.y - 1, 6, 2.5).fill({ color: 0x4e7d62, alpha: 0.85 });
+      g.circle(p.x + 5, p.y - 4, 2.5).fill({ color: 0xd8898f });
+    } else if (kind === 'reef' || kind === 'creationStone') {
+      g.poly([p.x - 11, p.y, p.x - 6, p.y - 15, p.x, p.y - 8, p.x + 5, p.y - 19, p.x + 12, p.y])
+        .fill({ color: kind === 'creationStone' ? 0x99a9b3 : 0xb5aa92 }).stroke({ color: 0x4a4238, width: 1 });
+      if (kind === 'reef') {
+        g.poly([p.x + 10, p.y + 2, p.x + 15, p.y - 7, p.x + 20, p.y + 2]).fill({ color: 0x9f9684, alpha: 0.82 }).stroke({ color: 0x4a4238, width: 0.7 });
+        g.moveTo(p.x - 18, p.y + 5).quadraticCurveTo(p.x, p.y + 9, p.x + 24, p.y + 4).stroke({ color: 0x85a8b8, width: 1, alpha: 0.52 });
+      }
+    } else if (kind === 'stoneLantern') {
+      g.rect(p.x - 3, p.y - 16, 6, 16).fill({ color: 0xc8bea8 }).stroke({ color: 0x4a4238, width: 1 });
+      g.poly([p.x - 9, p.y - 16, p.x, p.y - 22, p.x + 9, p.y - 16]).fill({ color: 0x66756f }).stroke({ color: 0x4a4238, width: 1 });
+      g.circle(p.x, p.y - 15, 2).fill({ color: 0xe3a93c });
+    } else {
+      // stepping stones / desire-path marks: low, quiet navigation texture.
+      for (let i = 0; i < 3; i++) g.ellipse(p.x - 8 + i * 8, p.y - i * 3, 5, 2.5).fill({ color: 0xb7a98e, alpha: 0.72 });
+    }
+    const c = new Container();
+    c.addChild(g);
+    c.label = o.id;
+    return c;
+  }
+
+  /** Night history survives as a translucent artifact, never a dark solid box. */
+  private makeGhostArtifact(o: SceneObject): Container {
+    const p = worldToScreenElevated(o.gx + 0.5, o.gy + 0.5, o.elevation);
+    const kind = o.kind.slice('ghost:'.length);
+    const g = new Graphics();
+    g.ellipse(p.x, p.y + 2, 16, 6).fill({ color: 0x151d3b, alpha: 0.2 });
+    if (kind === 'card') {
+      g.poly([p.x - 13, p.y - 3, p.x - 9, p.y - 22, p.x + 13, p.y - 18, p.x + 10, p.y])
+        .fill({ color: 0xc9d7f2, alpha: 0.18 }).stroke({ color: 0xc9d7f2, width: 1.2, alpha: 0.78 });
+      g.moveTo(p.x - 6, p.y - 15).lineTo(p.x + 7, p.y - 13).moveTo(p.x - 7, p.y - 10).lineTo(p.x + 3, p.y - 8)
+        .stroke({ color: 0xc9d7f2, width: 1, alpha: 0.5 });
+    } else {
+      g.rect(p.x - 12, p.y - 21, 24, 20).fill({ color: 0xc9d7f2, alpha: 0.1 }).stroke({ color: 0xc9d7f2, width: 1.2, alpha: 0.72 });
+      g.moveTo(p.x - 12, p.y - 21).lineTo(p.x + 12, p.y - 1).moveTo(p.x + 12, p.y - 21).lineTo(p.x - 12, p.y - 1)
+        .stroke({ color: 0xc9d7f2, width: 0.8, alpha: 0.42 });
+    }
+    g.circle(p.x + 11, p.y - 23, 2.2).fill({ color: 0xe3a93c, alpha: 0.65 });
+    const c = new Container();
+    c.addChild(g);
+    c.label = o.id;
+    return c;
+  }
+
+  /** Desire paths connect the actual visible civic stations. They are cached
+   * with terrain and therefore add no per-frame burden. */
+  private buildDesirePaths(graph: SceneGraph): void {
+    const byKind = new Map(graph.objects.filter((o) => o.kind.startsWith('station:')).map((o) => [o.kind.slice('station:'.length), o] as const));
+    const circuit = ['dock', 'gallery', 'canvas', 'data', 'library', 'workshop', 'questions', 'driftwood', 'tearoom', 'dock'];
+    const g = new Graphics();
+    for (let i = 0; i < circuit.length - 1; i++) {
+      const a = byKind.get(circuit[i]!);
+      const b = byKind.get(circuit[i + 1]!);
+      if (!a || !b) continue;
+      const pa = worldToScreenElevated(a.gx + 0.5, a.gy + 0.5, a.elevation);
+      const pb = worldToScreenElevated(b.gx + 0.5, b.gy + 0.5, b.elevation);
+      const mx = (pa.x + pb.x) / 2 + (pb.y - pa.y) * 0.08;
+      const my = (pa.y + pb.y) / 2 - (pb.x - pa.x) * 0.035;
+      g.moveTo(pa.x, pa.y).quadraticCurveTo(mx, my, pb.x, pb.y).stroke({ color: 0xe2c98f, width: 10, alpha: 0.38, cap: 'round' });
+      g.moveTo(pa.x, pa.y).quadraticCurveTo(mx, my, pb.x, pb.y).stroke({ color: 0x8f7c5b, width: 1.2, alpha: 0.42, cap: 'round' });
+    }
+    g.label = 'desire-paths';
+    this.terrainRoot.addChild(g);
+  }
+
   /**
-   * A claim as an inscribed STELE before the Gallery (Phase B.4, architecture §4
-   * "claims are first-class artifacts (steles before the Gallery)"). Same ledger
-   * semantics as the former tower (claims.ts, unchanged), new form language:
-   *
-   *   碑身 slab   = foundation (the claim exists publicly) — a slim upright iso
-   *                 slab on a stone plinth, taller as reproductions accrue;
-   *   碑文 rows   = floors (one carved inscription row per countable
-   *                 reproduction, so the count is legible at a glance);
-   *   碑顶 cap    = roof (domain consensus, growth.roof) — the domain canopy
-   *                 crowns the stele + the breathing gamboge halo (M5 node);
-   *   ghost 碑    = a refuted/returned claim is a pale spectral stele, visible
-   *                 only at night (P5 — never deleted).
-   *
-   * Reuses the tower's exact palette/tokens (wall/shade/ink, domain fills,
-   * drawStory prism for the plinth, drawCap canopy, drawSeal DOI mark) — only
-   * the silhouette changes. Every dimension binds to data (P1).
+   * Claim-as-building court before Gallery. Foundation = public claim; each
+   * countable reproduction adds one thin storey; consensus adds the domain
+   * canopy and halo; refuted/returned claims survive as night scaffolds. The
+   * footprint stays smaller than every civic station, so claim and station
+   * remain visually distinct while the old prototype's growth metaphor returns.
    */
   private makeClaimMark(o: SceneObject): Container {
     const pts = diamondPoints(o.gx, o.gy);
@@ -360,58 +474,47 @@ export class SceneStage {
     const groundY = (pts[0]!.y + pts[2]!.y) / 2 - o.elevation * ELEV_STEP;
     const floors = Math.max(0, o.growth?.floors ?? 0);
     const roof = o.growth?.roof ?? false;
-    const spectral = o.dayVisibility === 0; // refuted/returned ghost — night-only
+    const spectral = o.dayVisibility === 0;
     const dom = claimDomain(o.biome);
-    const a = 16; // plinth half-width — a stele is slighter than a civic station
-    const gy = groundY + a / 2; // front-bottom vertex → footprint centres on the tile
+    const a = 14; // thin research tower, clearly subordinate to civic stations
+    const gy = groundY + a / 2;
     const wall = spectral ? 0xc9d7f2 : 0xf8f1de;
     const sh = spectral ? 0xc9d7f2 : 0xe7dabe;
     const top = spectral ? 0xc9d7f2 : 0xfbf6e9;
     const ink = spectral ? 0xc9d7f2 : 0x3a342b;
-    const fa = spectral ? 0.16 : 1;
+    const fa = spectral ? 0.2 : 1;
     const sw = spectral ? 1.3 : 1.5;
     const g = new Graphics();
     if (!spectral) g.ellipse(cx, gy + a / 2 + 2, a * 1.4, a * 0.6).fill({ color: 0x3a3024, alpha: 0.16 });
-    // 台基 plinth: one squat iso prism (foundation — the claim exists).
-    const plinthH = 7;
-    drawStory(g, cx, gy, a, plinthH, wall, sh, top, ink, sw, fa);
-    // 碑身 slab: a slim upright board rising from the plinth top's centre; its
-    // height grows with the inscription count so a well-reproduced claim stands
-    // taller (matches layout's height = 16 + floors·12 vertical budget).
-    const ROW = 8; // vertical budget per inscription row
-    const slabW = a * 0.95;
-    const slabH = 24 + floors * ROW;
-    const yBase = gy - plinthH - a * 0.28; // plinth top face centre
-    const skew = slabW * 0.22; // iso lean so the slab reads as standing on the diamond
-    const face = [
-      cx - slabW / 2, yBase - skew / 2,
-      cx + slabW / 2, yBase + skew / 2,
-      cx + slabW / 2, yBase + skew / 2 - slabH,
-      cx - slabW / 2, yBase - skew / 2 - slabH,
-    ];
-    // slab edge (thickness) then face, so the face's ink outline sits on top.
-    const edge = 4;
-    g.poly([face[2]!, face[3]!, face[2]! + edge, face[3]! - edge * 0.5, face[4]! + edge, face[5]! - edge * 0.5, face[4]!, face[5]!])
-      .fill({ color: sh, alpha: fa })
-      .stroke({ color: ink, width: sw, alpha: 0.9 });
-    g.poly(face).fill({ color: wall, alpha: fa }).stroke({ color: ink, width: sw, alpha: 0.9 });
-    // 碑文 inscription rows — ONE per countable reproduction (§4: "a replication
-    // ref is one countable reproduction"). Zero floors → an uncarved stele.
-    for (let k = 0; k < floors; k++) {
-      const ry = yBase - slabH + 10 + k * ROW;
-      const rx = cx - slabW / 2 + 4;
-      g.moveTo(rx, ry + (skew / slabW) * 4)
-        .lineTo(rx + slabW - 8, ry + skew - (skew / slabW) * 4)
-        .stroke({ color: spectral ? ink : 0x6b6154, width: 2, alpha: spectral ? 0.5 : 0.85 });
+
+    // Public existence is a masonry foundation. Each independent reproduction
+    // earns one narrow storey; a new claim remains a visible paper scaffold.
+    const baseH = 7;
+    drawStory(g, cx, gy, a + 2, baseH, wall, sh, top, ink, sw, fa);
+    let yTop = gy - baseH;
+    const visibleStoreys = Math.max(1, floors);
+    for (let k = 0; k < visibleStoreys; k++) {
+      const storyH = floors === 0 ? 11 : 10;
+      drawStory(g, cx, yTop, a - k * 0.45, storyH, wall, sh, top, ink, sw, floors === 0 ? 0.38 : fa);
+      // window / inscription: one luminous opening per countable reproduction.
+      if (floors > 0 && !spectral) {
+        g.rect(cx - 3.2, yTop - storyH + 3, 4.8, 3.6).fill({ color: k === floors - 1 ? 0xe3a93c : 0x85a8b8, alpha: 0.82 });
+      }
+      yTop -= storyH;
     }
-    const yTop = yBase - skew / 2 - slabH;
+    // In-progress / refuted forms expose a light scaffold: research still under
+    // construction or remembered, never silently deleted.
+    if (floors === 0 || spectral) {
+      g.moveTo(cx - a, gy).lineTo(cx - a, yTop - 10).lineTo(cx + a, yTop - 4).lineTo(cx + a, gy)
+        .stroke({ color: ink, width: 1, alpha: spectral ? 0.52 : 0.42 });
+      g.moveTo(cx - a, yTop - 4).lineTo(cx + a, yTop - 10).moveTo(cx - a, yTop - 10).lineTo(cx + a, yTop - 4)
+        .stroke({ color: ink, width: 0.8, alpha: spectral ? 0.42 : 0.3 });
+    }
+
     let halo: Graphics | null = null;
     if (roof) {
-      // 碑顶: domain consensus crowns the stele with the domain canopy + halo.
       drawCap(g, cx, yTop, a, dom, spectral);
       if (!spectral) {
-        // Separate, animatable halo node (M5 breathe) — same registration
-        // contract as before (child labelled 'halo').
         const cA = a * 2.15;
         halo = makeHalo(cA);
         halo.label = 'halo';
@@ -419,16 +522,14 @@ export class SceneStage {
         halo.y = yTop - cA * 0.42 - 30;
       }
     } else if (!spectral) {
-      // pre-consensus 碑首: a plain rounded stone crown in the domain fill.
-      g.poly([cx - slabW / 2, yTop + 1, cx, yTop - 6, cx + slabW / 2, yTop + skew + 1])
+      g.poly([cx - a, yTop + 1, cx, yTop - 6, cx + a, yTop + 1])
         .fill({ color: dom.fill })
         .stroke({ color: ink, width: 1.5 });
     } else {
-      g.poly([cx - slabW / 2, yTop + 1, cx, yTop - 6, cx + slabW / 2, yTop + skew + 1])
+      g.poly([cx - a, yTop + 1, cx, yTop - 6, cx + a, yTop + 1])
         .stroke({ color: ink, width: 1.3, alpha: 0.8 });
     }
-    // seal: preprint open-mark for now (hasDoi not yet threaded onto SceneObject — deferred)
-    if (!spectral) drawSeal(g, cx - a * 0.9, gy - plinthH - 2, false);
+    if (!spectral) drawSeal(g, cx - a * 0.92, gy - baseH - 2, false);
     const c = new Container();
     c.addChild(g);
     if (halo) c.addChild(halo);
@@ -652,6 +753,7 @@ export class SceneStage {
   render(graph: SceneGraph, resolve?: TextureResolver): void {
     this.clearNodes();
     this.buildGround(graph); // unified organic terrain (replaces per-tile diamonds)
+    this.buildDesirePaths(graph); // terrain-cached civic circulation / exploration clues
     for (const o of graph.objects) {
       // Terrain is rendered as ONE continuous surface by buildGround, not per tile.
       if (o.layer === 'terrain') continue;

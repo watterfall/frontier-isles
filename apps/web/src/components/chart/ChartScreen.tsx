@@ -243,7 +243,7 @@ export function ChartScreen({ islands, hover, onHover, onIsland, onBuild, onColl
       </svg>
 
       {/* L0 顶部 chrome */}
-      <ChartChrome onBuild={onBuild} onCollide={onCollide} />
+      <ChartChrome islands={islands} onPick={onIsland} onBuild={onBuild} onCollide={onCollide} />
 
       {/* 岛卡 */}
       {card && <IslandCard content={card.content} left={card.left} top={card.top} />}

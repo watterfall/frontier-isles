@@ -108,8 +108,8 @@ export function MorningReport({ actor, onToast }: MorningReportProps) {
               <span style={{ flex: 1 }} />
               {st === 'pending' && (
                 <>
-                  <span onClick={() => void decide(b.refHash, 'adopt')} style={{ cursor: 'pointer', fontSize: 10.5, padding: '2.5px 10px', borderRadius: 5, background: '#3E9B7E', color: '#F6F2E6', userSelect: 'none' }}>{t('island.morning.adopt')}</span>
-                  <span onClick={() => void decide(b.refHash, 'return')} style={{ cursor: 'pointer', fontSize: 10.5, padding: '2.5px 10px', borderRadius: 5, border: '1px solid var(--ink2,#6B6154)', color: 'var(--ink2,#6B6154)', userSelect: 'none' }}>{t('island.morning.return')}</span>
+                  <button type="button" onClick={() => void decide(b.refHash, 'adopt')} style={{ cursor: 'pointer', fontSize: 10.5, padding: '2.5px 10px', border: 0, borderRadius: 5, background: '#3E9B7E', color: '#F6F2E6', userSelect: 'none' }}>{t('island.morning.adopt')}</button>
+                  <button type="button" onClick={() => void decide(b.refHash, 'return')} style={{ cursor: 'pointer', fontSize: 10.5, padding: '2.5px 10px', borderRadius: 5, background: 'transparent', border: '1px solid var(--ink2,#6B6154)', color: 'var(--ink2,#6B6154)', userSelect: 'none' }}>{t('island.morning.return')}</button>
                 </>
               )}
               {st === 'ok' && <span style={{ fontSize: 10.5, color: '#2B7A5F' }}>{t('island.morning.adopted')}</span>}
