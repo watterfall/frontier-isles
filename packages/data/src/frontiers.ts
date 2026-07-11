@@ -321,7 +321,7 @@ export const FRONTIERS: FrontierEntry[] = [
         { zh: "若引力被证实是经典的，全息原理与时空涌现图景将如何被重新校准？", en: "If gravity were instead shown to be classical, how would the holographic principle and the picture of emergent spacetime need to be recalibrated?" },
       ],
     },
-    stage: 1, members: 2, activity: 18,
+    stage: 2, members: 6, activity: 44,
     dormant: true,
     chart: { x: 395, y: 435, scale: 0.75 },
   },
@@ -1427,7 +1427,7 @@ export const FRONTIERS: FrontierEntry[] = [
         { zh: "生命起源能否在实验室中从非生命物质反复、独立地重启？", en: "Can the origin of life be repeatedly and independently restarted in the lab from non-living matter?" },
       ],
     },
-    stage: 1, members: 4, activity: 36,
+    stage: 2, members: 6, activity: 51,
     chart: { x: 620, y: 420, scale: 0.75 },
   },
   {
@@ -1916,7 +1916,7 @@ export const FRONTIERS: FrontierEntry[] = [
         { zh: "当AI能独立提出假设、设计实验时，人类科学家不可替代的内核究竟是什么？", en: "When AI can independently propose hypotheses and design experiments, what remains the irreplaceable human core of a scientist?" },
       ],
     },
-    stage: 1, members: 4, activity: 44,
+    stage: 2, members: 6, activity: 54,
     chart: { x: 502, y: 584, scale: 0.7 },
   },
   {

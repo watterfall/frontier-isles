@@ -78,14 +78,20 @@ describe('fallback data matches the curated atlas', () => {
 
 describe('flagship island interiors (rich station content)', () => {
   const FLAGSHIPS = [
-    'formal-math', 'causal-rep-learning', 'artificial-photosynthesis', 'living-wires',
-    'minimal-genome', 'active-inference', 'animal-ai-decode', 'verified-pqc',
+    // 数理
+    'formal-math', 'causal-rep-learning', 'tabletop-quantum-gravity',
+    // 物质
+    'artificial-photosynthesis', 'living-wires', 'self-learning-matter',
+    // 生命
+    'minimal-genome', 'active-inference', 'genome-writing',
+    // 交叉
+    'animal-ai-decode', 'verified-pqc', 'ai-theory-discovery',
   ];
   const bilingual = (o: unknown): boolean =>
     !!o && typeof (o as { zh?: unknown }).zh === 'string' && typeof (o as { en?: unknown }).en === 'string'
     && !!(o as { zh: string }).zh && !!(o as { en: string }).en;
 
-  it('exactly the 8 curated flagships carry an interior', () => {
+  it('exactly the 12 curated flagships carry an interior', () => {
     const withInterior = DATA.filter((d) => d.interior).map((d) => d.slug).sort();
     expect(withInterior).toEqual([...FLAGSHIPS].sort());
   });
