@@ -39,6 +39,94 @@ export interface DepthContent {
   subQuestions: Bilingual[];
 }
 
+/** A named resident (human or AI) staffing a flagship island's stations. */
+export interface InteriorResident {
+  /** Editorial proper noun, never auto-translated (invariant 9). */
+  name: string;
+  kind: 'human' | 'ai';
+  /** AI role, only when kind === 'ai'. */
+  aiRole?: 'scout' | 'advocate' | 'synthesizer' | 'ferryman';
+  /** Where they are / what they're doing. */
+  caption: Bilingual;
+}
+
+/** One 问题墙 (Question Wall) entry — mirrors the sample island's questions. */
+export interface InteriorQuestion {
+  text: Bilingual;
+  /** Author composition, e.g. "人 · 沈括" / "AI · 综合者". */
+  author: Bilingual;
+  open: boolean;
+  /** Interest tally (never a rank — invariant 7: no XP/leaderboards). */
+  votes: number;
+  /** Struck-through original when the question was rewritten. */
+  rewrittenFrom?: Bilingual;
+}
+
+/** One 文献阁 (Library) digest — a real paper clustered by argument. */
+export interface InteriorDigest {
+  title: Bilingual;
+  gist: Bilingual;
+  cite?: { title: string; venue: string; year: number; url?: string };
+}
+
+/** One 白板厅 (Whiteboard) debate thread — a topic with contrasting stances. */
+export interface InteriorDebate {
+  topic: Bilingual;
+  positions: Bilingual[];
+}
+
+/** One 数据台 (Data Desk) row — a real figure, dataset, or benchmark. */
+export interface InteriorDatum {
+  label: Bilingual;
+  value: Bilingual;
+  note?: Bilingual;
+}
+
+/** One 散木园 (Driftwood) scrap — an honest half-finished atom. Also used for
+ *  实验坊 (Workshop) prototypes-in-progress and 茶寮 (Tearoom) informal exchanges. */
+export interface InteriorScrap {
+  text: Bilingual;
+  author: Bilingual;
+}
+
+/** One 展厅 (Gallery) piece — a published / exhibited result of this island,
+ *  optionally with a real citation (the record it produced or replicated). */
+export interface InteriorGalleryItem {
+  title: Bilingual;
+  gist: Bilingual;
+  cite?: { title: string; venue: string; year: number; url?: string };
+}
+
+/**
+ * Rich interior content for a "flagship" island — parallels the bespoke sample
+ * island so entering the island is never empty: a real Question Wall, a library
+ * of clustered real-paper digests, live whiteboard debates, a data desk, a
+ * driftwood garden of honest scraps, and named residents. All bilingual and
+ * grounded in real literature (invariant 9: editorial content never
+ * auto-translated). Flows through place-plane meta.atlas.interior (server) and
+ * fallback (offline), exactly like {@link DepthContent}.
+ */
+export interface IslandInterior {
+  /** 问题墙 Question Wall. */
+  questions: InteriorQuestion[];
+  /** 文献阁 Library — clustered real-paper digests. */
+  digests: InteriorDigest[];
+  /** 白板厅 Whiteboard — live debates. */
+  debates: InteriorDebate[];
+  /** 数据台 Data Desk — real figures / benchmarks. */
+  data: InteriorDatum[];
+  /** 散木园 Driftwood Garden — honest half-finished scraps. */
+  driftwood: InteriorScrap[];
+  /** 实验坊 Workshop — prototypes / experiments in progress. */
+  workshop: InteriorScrap[];
+  /** 展厅 Gallery — published / exhibited results. */
+  gallery: InteriorGalleryItem[];
+  /** 茶寮 Tearoom — informal exchanges, hallway musings. */
+  tearoom: InteriorScrap[];
+  /** Named residents (human + AI). */
+  residents: InteriorResident[];
+}
+
 export interface FrontierEntry {
   /** Chart id (1..78). Stable. */
   id: number;
@@ -59,6 +147,11 @@ export interface FrontierEntry {
    * content is condensed from the xfrontier atlas cards/cluster-questions +
    * real citations (no fabrication). */
   depth?: DepthContent;
+  /** Rich station interior for flagship islands — the Question Wall, library
+   * digests, whiteboard debates, data desk, driftwood, and residents that make
+   * "opening" the island as full as the sample island. Only a curated subset of
+   * islands carry this; the rest render their {@link DepthContent} essay. */
+  interior?: IslandInterior;
   /** Growth stage 0..3 (empty/hut/academy/school) — drives the scene template. */
   stage: number;
   members: number;
@@ -191,7 +284,7 @@ export const FRONTIERS: FrontierEntry[] = [
         { zh: "失去人类叙事组织的数学语料库，会加速研究还是变得无人能导航？", en: "Would a math corpus stripped of human organizing narrative accelerate research, or become un-navigable by anyone?" },
       ],
     },
-    stage: 1, members: 4, activity: 45,
+    stage: 2, members: 6, activity: 58,
     chart: { x: 435, y: 315, scale: 0.85 },
   },
   {
@@ -220,7 +313,7 @@ export const FRONTIERS: FrontierEntry[] = [
         { zh: "可识别性定理的成立条件能否被设计成可现场验证，而非只能事后假设？", en: "Can the conditions under which identifiability theorems hold be made field-verifiable, rather than assumed only after the fact?" },
       ],
     },
-    stage: 0, members: 1, activity: 8,
+    stage: 2, members: 6, activity: 42,
     chart: { x: 170, y: 425, scale: 0.68 },
   },
   {
@@ -249,7 +342,7 @@ export const FRONTIERS: FrontierEntry[] = [
         { zh: "若引力被证实是经典的，全息原理与时空涌现图景将如何被重新校准？", en: "If gravity were instead shown to be classical, how would the holographic principle and the picture of emergent spacetime need to be recalibrated?" },
       ],
     },
-    stage: 1, members: 2, activity: 18,
+    stage: 2, members: 6, activity: 44,
     dormant: true,
     chart: { x: 395, y: 435, scale: 0.75 },
   },
@@ -759,7 +852,7 @@ export const FRONTIERS: FrontierEntry[] = [
         { zh: "从实验室规模走向中试，如何在保持转化效率的同时把系统成本压到可与现有能源路线竞争？", en: "Scaling from lab to pilot, how can conversion efficiency be maintained while driving system cost down to compete with existing energy routes?" },
       ],
     },
-    stage: 1, members: 5, activity: 4,
+    stage: 2, members: 6, activity: 47,
     dormant: true,
     chart: { x: 1290, y: 245, scale: 0.72 },
   },
@@ -1299,7 +1392,7 @@ export const FRONTIERS: FrontierEntry[] = [
         { zh: "在同一任务上，最小化自由能与最大化奖励这两条设计主线的实际表现该如何公平比较？", en: "On the same task, how should the two design mainlines — minimizing free energy versus maximizing reward — be fairly compared in practice?" },
       ],
     },
-    stage: 1, members: 5, activity: 41,
+    stage: 2, members: 6, activity: 49,
     chart: { x: 556, y: 428, scale: 0.8 },
   },
   {
@@ -1355,7 +1448,7 @@ export const FRONTIERS: FrontierEntry[] = [
         { zh: "生命起源能否在实验室中从非生命物质反复、独立地重启？", en: "Can the origin of life be repeatedly and independently restarted in the lab from non-living matter?" },
       ],
     },
-    stage: 1, members: 4, activity: 36,
+    stage: 2, members: 6, activity: 51,
     chart: { x: 620, y: 420, scale: 0.75 },
   },
   {
@@ -1816,7 +1909,7 @@ export const FRONTIERS: FrontierEntry[] = [
         { zh: "\"规范上安全\"与\"部署代码真的实现了它\"之间的缝隙，在多大程度上能被自动化工具而非人工证明社区持续焊死？", en: "To what extent can the gap between \"secure in spec\" and \"the deployed code actually implements it\" keep being welded shut by automated tooling rather than a manual proof community?" },
       ],
     },
-    stage: 1, members: 4, activity: 44,
+    stage: 2, members: 6, activity: 52,
     chart: { x: 924, y: 602, scale: 0.75 },
   },
   {
@@ -1844,7 +1937,7 @@ export const FRONTIERS: FrontierEntry[] = [
         { zh: "当AI能独立提出假设、设计实验时，人类科学家不可替代的内核究竟是什么？", en: "When AI can independently propose hypotheses and design experiments, what remains the irreplaceable human core of a scientist?" },
       ],
     },
-    stage: 1, members: 4, activity: 44,
+    stage: 2, members: 6, activity: 54,
     chart: { x: 502, y: 584, scale: 0.7 },
   },
   {

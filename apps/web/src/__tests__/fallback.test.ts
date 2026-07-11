@@ -75,3 +75,78 @@ describe('fallback data matches the curated atlas', () => {
     expect(AUTHQ).toHaveLength(7);
   });
 });
+
+describe('flagship island interiors (rich station content)', () => {
+  const FLAGSHIPS = [
+    // 数理
+    'formal-math', 'causal-rep-learning', 'tabletop-quantum-gravity',
+    // 物质
+    'artificial-photosynthesis', 'living-wires', 'self-learning-matter',
+    // 生命
+    'minimal-genome', 'active-inference', 'genome-writing',
+    // 交叉
+    'animal-ai-decode', 'verified-pqc', 'ai-theory-discovery',
+  ];
+  const bilingual = (o: unknown): boolean =>
+    !!o && typeof (o as { zh?: unknown }).zh === 'string' && typeof (o as { en?: unknown }).en === 'string'
+    && !!(o as { zh: string }).zh && !!(o as { en: string }).en;
+
+  it('exactly the 12 curated flagships carry an interior', () => {
+    const withInterior = DATA.filter((d) => d.interior).map((d) => d.slug).sort();
+    expect(withInterior).toEqual([...FLAGSHIPS].sort());
+  });
+
+  it('every flagship interior is well-formed and bilingual, with real citations', () => {
+    for (const slug of FLAGSHIPS) {
+      const d = DATA.find((x) => x.slug === slug)!;
+      expect(d, `${slug} present`).toBeTruthy();
+      // A rich island reads as an academy/school — never empty/hut.
+      expect(d.st, `${slug} stage ≥ 2`).toBeGreaterThanOrEqual(2);
+      const it = d.interior!;
+      // Every one of the nine stations must open with its own content (the bar:
+      // "点进去后每个模块都有充足内容", matching the sample island).
+      expect(it.questions.length, `${slug} questions`).toBeGreaterThanOrEqual(5);
+      expect(it.digests.length, `${slug} digests`).toBeGreaterThanOrEqual(3);
+      expect(it.debates.length, `${slug} debates`).toBeGreaterThanOrEqual(2);
+      expect(it.data.length, `${slug} data`).toBeGreaterThanOrEqual(3);
+      expect(it.driftwood.length, `${slug} driftwood`).toBeGreaterThanOrEqual(3);
+      expect(it.workshop.length, `${slug} workshop`).toBeGreaterThanOrEqual(2);
+      expect(it.gallery.length, `${slug} gallery`).toBeGreaterThanOrEqual(2);
+      expect(it.tearoom.length, `${slug} tearoom`).toBeGreaterThanOrEqual(2);
+      expect(it.residents.length, `${slug} residents`).toBeGreaterThanOrEqual(3);
+      // Workshop / tearoom scraps are bilingual with authors; gallery pieces are
+      // bilingual and each carries a real citation (provenance visible).
+      for (const w of it.workshop) expect(bilingual(w.text) && bilingual(w.author), `${slug} workshop bilingual`).toBe(true);
+      for (const tr of it.tearoom) expect(bilingual(tr.text) && bilingual(tr.author), `${slug} tearoom bilingual`).toBe(true);
+      for (const g of it.gallery) {
+        expect(bilingual(g.title) && bilingual(g.gist), `${slug} gallery bilingual`).toBe(true);
+        if (g.cite) expect(g.cite.title && g.cite.venue && typeof g.cite.year === 'number', `${slug} gallery cite`).toBeTruthy();
+      }
+      expect(it.gallery.some((g) => g.cite), `${slug} gallery has ≥1 citation`).toBe(true);
+      for (const q of it.questions) {
+        expect(bilingual(q.text) && bilingual(q.author), `${slug} question bilingual`).toBe(true);
+        expect(typeof q.open === 'boolean' && typeof q.votes === 'number', `${slug} question fields`).toBe(true);
+      }
+      for (const dg of it.digests) {
+        expect(bilingual(dg.title) && bilingual(dg.gist), `${slug} digest bilingual`).toBe(true);
+        if (dg.cite) {
+          expect(dg.cite.title && dg.cite.venue && typeof dg.cite.year === 'number', `${slug} cite`).toBeTruthy();
+        }
+      }
+      for (const db of it.debates) {
+        expect(bilingual(db.topic) && db.positions.every(bilingual), `${slug} debate`).toBe(true);
+        expect(db.positions.length, `${slug} debate positions`).toBeGreaterThanOrEqual(2);
+      }
+      for (const r of it.residents) {
+        expect(typeof r.name === 'string' && !!r.name, `${slug} resident name`).toBe(true);
+        expect(r.kind === 'human' || r.kind === 'ai', `${slug} resident kind`).toBe(true);
+        expect(bilingual(r.caption), `${slug} resident caption`).toBe(true);
+      }
+    }
+  });
+
+  it('at least one flagship per domain (数理/物质/生命/交叉)', () => {
+    const domains = new Set(DATA.filter((d) => d.interior).map((d) => d.d));
+    expect(domains).toEqual(new Set(['数理', '物质', '生命', '交叉']));
+  });
+});

@@ -8,7 +8,18 @@ import { ClaimDetailPanel } from './ClaimDetailPanel';
 import { RitualEventPanel } from './RitualEventPanel';
 import { TransplantPanel } from './TransplantPanel';
 import { NightTimeline } from './NightTimeline';
+import { StationInteriorDrawer } from './StationInteriorDrawer';
+import type { IslandInterior } from '@frontier-isles/data';
 import { api } from '../../api/client';
+import { DATA } from '../../api/fallback';
+
+/** The curated interior for a slug from the offline fallback atlas. Used when
+ *  the server detail omits it — e.g. a DB seeded before interiors existed, or
+ *  the server being absent entirely (the app must render identically offline,
+ *  fallback.ts convention). Flagship islands carry an interior here. */
+function fallbackInterior(slug: string): IslandInterior | undefined {
+  return DATA.find((d) => d.slug === slug)?.interior;
+}
 import { generate, type GeneratedScene } from '../../scene/generator';
 import { GeneratedSceneView } from '../../scene/GeneratedScene';
 import type { LayoutInput } from '../../scene/layout';
@@ -50,6 +61,7 @@ interface IslandDetail {
       barrier: { zh: string; en: string };
       subQuestions: { zh: string; en: string }[];
     };
+    interior?: IslandInterior;
   };
 }
 
@@ -99,6 +111,12 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
   // accumulates a tally either).
   const [dueRitualEvents, setDueRitualEvents] = useState<RitualEvent[]>([]);
   const [ritualPanel, setRitualPanel] = useState<RitualEvent | null>(null);
+  // L2 station-interior drawer: which station the visitor tapped (null = closed).
+  // Flagship islands carry a rich interior (meta.atlas.interior); tapping a
+  // station opens its archive (Question Wall / library / whiteboard / data /
+  // driftwood / residents). Islands without an interior fall through to the
+  // parent's onStation (a "station coming soon" toast), unchanged.
+  const [drawerStation, setDrawerStation] = useState<StationKind | null>(null);
   // Human transplant-through-dock (Phase B.3): the driftwood→dock→station panel.
   const [transplantOpen, setTransplantOpen] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
@@ -132,6 +150,7 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
     let cancelled = false;
     setFailed(false);
     setNoGpu(false);
+    setDrawerStation(null);
     setDueRitualEvents([]);
     setReplay(null);
     setTimeline(null);
@@ -147,7 +166,13 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
       }
       const det = d as IslandDetail;
       setDetail(det);
-      const stage = STAGE_INDEX[det.growth.stage] ?? 1;
+      // A flagship island's interior may be absent from the server detail (a DB
+      // seeded before interiors shipped) — fall back to the offline atlas so the
+      // station drawers still open. An island WITH an interior is an academy by
+      // definition, so floor its scene stage at 2: otherwise a stale-DB low stage
+      // would hide library/whiteboard/data and leave them untappable.
+      const hasInterior = !!(det.atlas?.interior ?? fallbackInterior(slug));
+      const stage = Math.max(STAGE_INDEX[det.growth.stage] ?? 1, hasInterior ? 2 : 0);
       const hasAi = det.memberships.some((m) => m.actorKind === 'agent');
       const layoutInput: LayoutInput = {
         slug,
@@ -274,6 +299,15 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
   const citation = detail.atlas?.citation;
   const cluster = detail.atlas?.cluster[lang];
   const depth = detail.atlas?.depth;
+  // Server interior first; fall back to the offline atlas when the server omits
+  // it (pre-interior DB seed, or server absent) so the drawers still open.
+  const interior = detail.atlas?.interior ?? fallbackInterior(slug);
+  // Station tap: flagship islands (with an interior) open the L2 station-interior
+  // drawer; islands without one fall through to the parent (toast), unchanged.
+  const handleStation = (key: StationKind): void => {
+    if (interior) setDrawerStation(key);
+    else onStation(key);
+  };
   const domain = detail.domain as '数理' | '物质' | '生命' | '交叉';
   // 海即数据 decoder (invariant 6): abstractness tier for the sea-depth readout +
   // the relation counts that make the current/undertow legible as text (list-twin).
@@ -307,7 +341,7 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
           ledger-driven claims + App day/night. SVG scene is the no-GPU fallback
           (CLAUDE.md: the app must render without the GPU). */}
       {noGpu ? (
-        <GeneratedSceneView scene={scene} night={night} nightT={50} onStation={onStation} />
+        <GeneratedSceneView scene={scene} night={night} nightT={50} onStation={handleStation} />
       ) : (
         <Suspense fallback={<div className="fi-island-loading-mark" role="status"><i aria-hidden="true" /><span>{t('island.loading')}</span></div>}>
           <PixiScene
@@ -318,7 +352,7 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
             activeStations={effActive}
             substrate={seaStats?.substrate}
             undertow={seaStats?.contention ?? 0}
-            onStation={onStation}
+            onStation={handleStation}
             onClaim={setClaimPanel}
             onWebglError={() => setNoGpu(true)}
             rituals={dueRitualEvents}
@@ -330,6 +364,7 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
 
       <ClaimDetailPanel claim={claimPanel} onClose={() => setClaimPanel(null)} />
       <RitualEventPanel event={ritualPanel} onClose={() => setRitualPanel(null)} />
+      <StationInteriorDrawer station={drawerStation} interior={interior} lang={lang} onClose={() => setDrawerStation(null)} />
       {transplantOpen && (
         <TransplantPanel slug={slug} actor={actor} lang={lang} onClose={() => setTransplantOpen(false)} onToast={onToast} />
       )}
