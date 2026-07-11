@@ -1,0 +1,15 @@
+# Reinstalled / rebuilt inside the image — never ship from the host.
+node_modules
+**/node_modules
+**/dist
+# Local SQLite data (a Fly volume provides the production DB).
+**/data/*.db
+**/data/*.db-*
+# VCS + noise
+.git
+.github
+*.log
+.DS_Store
+# Session scratch + heavy non-runtime dirs.
+scratchpad
+**/scratchpad
