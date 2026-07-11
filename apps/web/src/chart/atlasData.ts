@@ -13,8 +13,11 @@ import { REGION_NAMES } from '@frontier-isles/data';
 import {
   ATLAS_DOMAIN_FILL,
   ATLAS_DOMAIN_INK,
+  ATLAS_STAGE_RADIUS,
+  ATLAS_Y_TILT,
   assignAtlasAltitudes,
   assignAtlasHierarchy,
+  atlasIslandLift,
   type AtlasCluster,
   type AtlasContinent,
   type AtlasCurrent,
@@ -25,6 +28,7 @@ import {
 } from '@frontier-isles/renderer/atlas-lod';
 import { DATA, type IslandDatum } from '../api/fallback';
 import { fixtureSeaData } from '../api/seaFallback';
+import { spaceIslands } from './despace';
 
 /** Current-kind → flowline colour (the frozen token palette, depth-plan-v2 §3):
  *  石青 azurite = evidence · 赭石 ochre = bridge · 石绿 malachite = lineage. */
@@ -108,6 +112,41 @@ export interface AtlasSceneData {
   currents: AtlasCurrent[];
 }
 
+/**
+ * De-overlap the atlas world in its PROJECTED plane (x, y·tilt − lift). Raw
+ * chart coords are authored/derived and genuinely collide once the three air
+ * strata fold onto one screen — the Pixi atlas rendered them verbatim while
+ * the SVG chart already ran `spaceIslands`. Same discipline here, but in the
+ * plane the eye judges: deterministic relaxation, neighbourhoods and regions
+ * survive, only the collisions go. Lift is per-island constant, so pushing the
+ * projected point and back-solving raw `y` is exact.
+ */
+function despaceProjected<T extends AtlasIslandInput>(islands: T[]): T[] {
+  if (islands.length < 2) return islands;
+  const lifts = islands.map((island) => atlasIslandLift(island));
+  const pts = islands.map((island, k) => ({
+    x: island.x,
+    y: island.y * ATLAS_Y_TILT - lifts[k]!,
+    s: ATLAS_STAGE_RADIUS[Math.max(0, Math.min(3, island.stage)) as 0 | 1 | 2 | 3] / 52,
+  }));
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const p of pts) {
+    minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
+    minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y);
+  }
+  const slack = 90; // room to relax outward without exploding the world bbox
+  const spaced = spaceIslands(pts, {
+    minDist: 140,
+    iterations: islands.length > 220 ? 80 : 320, // O(n²) pass — cap at scale-test sizes
+    bounds: { minX: minX - slack, minY: minY - slack, maxX: maxX + slack, maxY: maxY + slack },
+  });
+  return islands.map((island, k) => ({
+    ...island,
+    x: spaced[k]!.x,
+    y: (spaced[k]!.y + lifts[k]!) / ATLAS_Y_TILT,
+  }));
+}
+
 function dominantDomain(mix: Record<string, number>): AtlasDomain {
   let best: AtlasDomain = '交叉';
   let bestV = -1;
@@ -137,7 +176,11 @@ function dominantDomain(mix: Record<string, number>): AtlasDomain {
  */
 export function buildAtlasScene(source: IslandDatum[] = DATA, extra: AtlasExtraIsland[] = []): AtlasSceneData {
   const real = source.map(toAtlasInput);
-  const islands: AtlasIslandInput[] = extra.length > 0 ? [...real, ...extra] : real;
+  const authored: AtlasIslandInput[] = extra.length > 0 ? [...real, ...extra] : real;
+  // Strata from the AUTHORED north→south order (stable per dataset), then
+  // despace in the projected plane BEFORE anything downstream (clusters,
+  // climate, anchor choice) reads positions — one world, no drift.
+  const islands = despaceProjected(assignAtlasAltitudes(authored));
   // Cluster provenance for NAMING: curated islands from their `cluster` field,
   // synthetic (extra) islands from theirs — so 700 islands still read as NAMED
   // regions, not generic domain blobs. Activity feeds region 体温.
@@ -186,7 +229,6 @@ export function buildAtlasScene(source: IslandDatum[] = DATA, extra: AtlasExtraI
   }));
   const fog: AtlasFogCell[] = climate.fog.map((f) => ({ x: f.x, y: f.y, w: f.w, h: f.h, fog: f.fog }));
 
-  const elevated = assignAtlasAltitudes(withOutliers);
-  const nested = assignAtlasHierarchy(elevated, clusters);
+  const nested = assignAtlasHierarchy(withOutliers, clusters);
   return { islands: nested, clusters, continents, fog, flows: curatedContinentFlows(), currents: curatedIslandCurrents() };
 }

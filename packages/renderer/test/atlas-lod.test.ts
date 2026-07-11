@@ -22,10 +22,15 @@ import {
   islandPriority,
   makeFakeIslands,
   placeholderClusters,
+  satelliteDisclosure,
   satelliteReveal,
+  satelliteViewFactor,
   tierBlend,
   zoomTier,
   ATLAS_ABS_MIN_SCALE,
+  SATELLITE_DEEP_END,
+  SATELLITE_REVEAL_END,
+  SATELLITE_REVEAL_START,
   TIER_FAR_MAX,
   TIER_MID_MAX,
   type AtlasIslandInput,
@@ -78,11 +83,50 @@ describe('assignAtlasHierarchy — nested navigation, never research rank', () =
 });
 
 describe('satelliteReveal — progressive mid→near disclosure', () => {
-  it('is hidden at overview, transitional in mid, and fully present near', () => {
+  it('is hidden through the whole mid tier, transitional at the boundary, full when truly near', () => {
     expect(satelliteReveal(0.5)).toBe(0);
-    expect(satelliteReveal(1.3)).toBeGreaterThan(0);
-    expect(satelliteReveal(1.3)).toBeLessThan(1);
-    expect(satelliteReveal(2.2)).toBe(1);
+    expect(satelliteReveal(1.3)).toBe(0); // mid tier stays anchors-only
+    expect(satelliteReveal(TIER_MID_MAX)).toBeGreaterThan(0);
+    expect(satelliteReveal(TIER_MID_MAX)).toBeLessThan(1);
+    expect(satelliteReveal(SATELLITE_REVEAL_END + 0.01)).toBe(1);
+  });
+
+  it('the window straddles the mid→near threshold (opens before, completes after)', () => {
+    expect(SATELLITE_REVEAL_START).toBeLessThan(TIER_MID_MAX);
+    expect(SATELLITE_REVEAL_END).toBeGreaterThan(TIER_MID_MAX);
+  });
+});
+
+describe('satelliteViewFactor + satelliteDisclosure — sail-INTO scoping', () => {
+  const W = 1440;
+  const H = 900;
+
+  it('an anchor at the viewport centre discloses fully; past the corners it folds', () => {
+    expect(satelliteViewFactor(W / 2, H / 2, W, H)).toBe(1);
+    expect(satelliteViewFactor(-200, -200, W, H)).toBe(0);
+  });
+
+  it('falls monotonically as the anchor moves from centre to edge', () => {
+    let prev = Infinity;
+    for (const fx of [0.5, 0.65, 0.8, 0.95, 1.1]) {
+      const f = satelliteViewFactor(W * fx, H / 2, W, H);
+      expect(f).toBeLessThanOrEqual(prev);
+      prev = f;
+    }
+  });
+
+  it('below the reveal window nothing discloses, even dead-centre', () => {
+    expect(satelliteDisclosure(1.0, W / 2, H / 2, W, H)).toBe(0);
+  });
+
+  it('in the window, a centred archipelago opens while an off-screen one stays folded', () => {
+    const s = SATELLITE_REVEAL_END;
+    expect(satelliteDisclosure(s, W / 2, H / 2, W, H)).toBe(1);
+    expect(satelliteDisclosure(s, -300, -300, W, H)).toBe(0);
+  });
+
+  it('deep zoom releases the spatial scoping (anchor may be off-screen)', () => {
+    expect(satelliteDisclosure(SATELLITE_DEEP_END, -300, -300, W, H)).toBe(1);
   });
 });
 
@@ -176,6 +220,24 @@ describe('deconflictLabels — billboard de-collision (§6: no illegible overlap
     // 'a' < 'b' → 'a' wins the tie
     expect(v1.get('a')).toBe('label');
     expect(v1.get('b')).toBe('dot');
+  });
+
+  it('pad demotes labels that merely sit flush (no wall-of-cards)', () => {
+    // 41px apart: clear of each other bare (2·halfW = 40) but inside pad 12.
+    const bare = deconflictLabels([box('a', 2, 0, 0), box('b', 1, 41, 0)]);
+    expect(bare.get('b')).toBe('label');
+    const padded = deconflictLabels([box('a', 2, 0, 0), box('b', 1, 41, 0)], 96, { pad: 12 });
+    expect(padded.get('a')).toBe('label');
+    expect(padded.get('b')).toBe('dot');
+  });
+
+  it('maxLabels is a hard budget: overflow demotes to dots by priority', () => {
+    const boxes = [box('a', 3, 0, 0), box('b', 2, 200, 0), box('c', 1, 400, 0)];
+    const v = deconflictLabels(boxes, 96, { maxLabels: 2 });
+    expect(v.get('a')).toBe('label');
+    expect(v.get('b')).toBe('label');
+    expect(v.get('c')).toBe('dot');
+    expect(v.size).toBe(3);
   });
 
   it('a dense cluster keeps at least the top-priority label (never all-dots)', () => {

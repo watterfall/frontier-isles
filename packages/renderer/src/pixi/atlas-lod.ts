@@ -115,6 +115,31 @@ export function assignAtlasAltitudes<T extends AtlasIslandInput>(islands: readon
   });
 }
 
+// ─── Vertical projection (shared stage ↔ data-pipeline math) ─────────────────
+// Lives here (WebGL-free) so the web data pipeline can despace islands in the
+// SAME projected plane the stage renders — "no overlap" judged where the eye
+// judges it, not in raw chart space.
+
+/** Vertical foreshortening of the top-down chart into the tilted archipelago view. */
+export const ATLAS_Y_TILT = 0.84;
+/** Screen-up lift per named air stratum (band-level features: washes, names). */
+export const ATLAS_BAND_LIFT: Record<AtlasAltitudeBand, number> = { low: 10, middle: 72, high: 136 };
+
+const ATLAS_BAND_ORD: Record<AtlasAltitudeBand, number> = { low: 0, middle: 1, high: 2 };
+
+/** Continuous per-island lift from its stratum position — cartographic place,
+ * never a rank (the altitude invariant). */
+export function atlasIslandLift(o: Pick<AtlasIslandInput, 'altitude' | 'altitudeZ'>): number {
+  const band = o.altitude ?? 'middle';
+  const z = Math.max(0, Math.min(1, o.altitudeZ ?? ATLAS_BAND_ORD[band] / 2));
+  return 10 + z * 136;
+}
+
+/** An island's projected (rendered) vertical position. */
+export function projectAtlasIslandY(o: Pick<AtlasIslandInput, 'y' | 'altitude' | 'altitudeZ'>): number {
+  return o.y * ATLAS_Y_TILT - atlasIslandLift(o);
+}
+
 /**
  * A rendered archipelago region — the C3 slot. Phase C3 (a PARALLEL lane) will
  * produce these from a real clustering projection over the domain manifold /
@@ -166,13 +191,49 @@ export function assignAtlasHierarchy<T extends AtlasIslandInput>(islands: readon
   return islands.map((island) => ({ ...island, ...(roleOf.get(island.slug) ?? { role: 'anchor' as const }) }));
 }
 
-/** Satellite islands emerge progressively through the mid→near camera move. */
-export const SATELLITE_REVEAL_START = 0.96;
-export const SATELLITE_REVEAL_END = 1.82;
+/** Satellite islands emerge progressively across the mid→near camera move.
+ * The window opens only AT the mid→near boundary (`TIER_MID_MAX` 1.7 sits a
+ * quarter into it), never inside mid: the mid tier is an anchors-only regional
+ * read. Opening earlier collapsed nested disclosure into "any slight zoom →
+ * every island + label card at once". */
+export const SATELLITE_REVEAL_START = 1.42;
+export const SATELLITE_REVEAL_END = 2.35;
+
+/** Past this scale band the spatial scoping of {@link satelliteDisclosure}
+ * fully yields — the camera is so deep inside one archipelago that its anchor
+ * may sit off-screen while the visitor studies the satellites. */
+export const SATELLITE_DEEP_START = SATELLITE_REVEAL_END + 0.45;
+export const SATELLITE_DEEP_END = SATELLITE_REVEAL_END + 1.1;
+
+const smooth01 = (t: number): number => {
+  const c = Math.max(0, Math.min(1, t));
+  return c * c * (3 - 2 * c);
+};
 
 export function satelliteReveal(scale: number): number {
-  const t = Math.max(0, Math.min(1, (scale - SATELLITE_REVEAL_START) / (SATELLITE_REVEAL_END - SATELLITE_REVEAL_START)));
-  return t * t * (3 - 2 * t);
+  return smooth01((scale - SATELLITE_REVEAL_START) / (SATELLITE_REVEAL_END - SATELLITE_REVEAL_START));
+}
+
+/** Spatial half of nested disclosure: how open an archipelago is given where
+ * its ANCHOR currently sits on screen — 1 at the viewport centre, folding to 0
+ * past the edges. Zooming discloses the archipelago you are sailing INTO, not
+ * every archipelago that happens to share the viewport. */
+export function satelliteViewFactor(anchorSx: number, anchorSy: number, viewW: number, viewH: number): number {
+  const nx = (anchorSx - viewW / 2) / Math.max(1, viewW / 2);
+  const ny = (anchorSy - viewH / 2) / Math.max(1, viewH / 2);
+  const d = Math.hypot(nx, ny);
+  return smooth01((1.3 - d) / (1.3 - 0.62));
+}
+
+/** Combined nested disclosure for one satellite: camera-scale reveal × anchor
+ * view scoping, with the scoping released again at deep zoom (see
+ * {@link SATELLITE_DEEP_START}). Purely a navigation read — never a rank. */
+export function satelliteDisclosure(scale: number, anchorSx: number, anchorSy: number, viewW: number, viewH: number): number {
+  const zoomT = satelliteReveal(scale);
+  if (zoomT <= 0) return 0;
+  const spatial = satelliteViewFactor(anchorSx, anchorSy, viewW, viewH);
+  const deep = smooth01((scale - SATELLITE_DEEP_START) / (SATELLITE_DEEP_END - SATELLITE_DEEP_START));
+  return zoomT * (spatial + (1 - spatial) * deep);
 }
 
 /**
@@ -510,24 +571,32 @@ export type LabelVerdict = 'label' | 'dot';
  * Returns a Map id→verdict (every input id present). Deterministic: ties in
  * priority break by id so the same crowd resolves identically each settle.
  */
-export function deconflictLabels(boxes: readonly LabelBox[], cell = 96): Map<string, LabelVerdict> {
+export function deconflictLabels(boxes: readonly LabelBox[], cell = 96, opts: { pad?: number; maxLabels?: number } = {}): Map<string, LabelVerdict> {
+  // `pad` keeps surviving labels a breath apart (edge-to-edge cards read as one
+  // wall of text); `maxLabels` is the screen's label BUDGET — beyond it even a
+  // collision-free card demotes to a dot. Both keep the discrete label|dot
+  // outcome (never a size ramp).
+  const pad = opts.pad ?? 0;
+  const maxLabels = opts.maxLabels ?? Infinity;
   const order = [...boxes].sort((a, b) => (b.priority - a.priority) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   const verdict = new Map<string, LabelVerdict>();
   // Spatial hash of accepted boxes: bucket key → accepted box list.
   const grid = new Map<string, LabelBox[]>();
   const cellsFor = (b: LabelBox): string[] => {
     const keys: string[] = [];
-    const x0 = Math.floor((b.sx - b.halfW) / cell);
-    const x1 = Math.floor((b.sx + b.halfW) / cell);
-    const y0 = Math.floor((b.sy - b.halfH) / cell);
-    const y1 = Math.floor((b.sy + b.halfH) / cell);
+    const x0 = Math.floor((b.sx - b.halfW - pad) / cell);
+    const x1 = Math.floor((b.sx + b.halfW + pad) / cell);
+    const y0 = Math.floor((b.sy - b.halfH - pad) / cell);
+    const y1 = Math.floor((b.sy + b.halfH + pad) / cell);
     for (let cx = x0; cx <= x1; cx++) for (let cy = y0; cy <= y1; cy++) keys.push(`${cx}:${cy}`);
     return keys;
   };
   const hit = (a: LabelBox, b: LabelBox): boolean =>
-    Math.abs(a.sx - b.sx) < a.halfW + b.halfW && Math.abs(a.sy - b.sy) < a.halfH + b.halfH;
+    Math.abs(a.sx - b.sx) < a.halfW + b.halfW + pad && Math.abs(a.sy - b.sy) < a.halfH + b.halfH + pad;
 
+  let accepted = 0;
   for (const b of order) {
+    if (accepted >= maxLabels) { verdict.set(b.id, 'dot'); continue; }
     const keys = cellsFor(b);
     let collide = false;
     for (const k of keys) {
@@ -542,6 +611,7 @@ export function deconflictLabels(boxes: readonly LabelBox[], cell = 96): Map<str
       verdict.set(b.id, 'dot');
     } else {
       verdict.set(b.id, 'label');
+      accepted++;
       for (const k of keys) {
         const bucket = grid.get(k);
         if (bucket) bucket.push(b);

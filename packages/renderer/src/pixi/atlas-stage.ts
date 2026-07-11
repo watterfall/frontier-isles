@@ -26,14 +26,18 @@
 
 import { Application, Container, Graphics, Sprite, Text, TextStyle, Texture, isWebGLSupported } from 'pixi.js';
 import {
+  ATLAS_BAND_LIFT,
   ATLAS_DOMAIN_FILL,
   ATLAS_DOMAIN_INK,
   ATLAS_STAGE_RADIUS,
+  ATLAS_Y_TILT,
   atlasCoastline,
+  atlasIslandLift,
   computeWorldMinScale,
   deconflictLabels,
   focusFog,
   islandPriority,
+  satelliteDisclosure,
   satelliteReveal,
   tierBlend,
   zoomTier,
@@ -52,13 +56,13 @@ import {
 const STAGE_LABELS = ['空岛', '草棚', '书院', '学派'] as const;
 const ALTITUDE_LABELS: Record<AtlasAltitudeBand, string> = { low: '低空', middle: '中空', high: '高空' };
 const ALTITUDE_INDEX: Record<AtlasAltitudeBand, number> = { low: 0, middle: 1, high: 2 };
-const ALTITUDE_LIFT: Record<AtlasAltitudeBand, number> = { low: 10, middle: 72, high: 136 };
+// Tilt + lift math now lives in atlas-lod (shared with the web despace pipeline).
+const ALTITUDE_LIFT = ATLAS_BAND_LIFT;
 const ALTITUDE_DEPTH: Record<AtlasAltitudeBand, number> = { low: 20, middle: 34, high: 48 };
-const ATLAS_Y_TILT = 0.84;
 
 const altitudeOf = (o: AtlasIslandInput): AtlasAltitudeBand => o.altitude ?? 'middle';
 const altitudeZOf = (o: AtlasIslandInput): number => Math.max(0, Math.min(1, o.altitudeZ ?? ALTITUDE_INDEX[altitudeOf(o)] / 2));
-const altitudeLiftOf = (o: AtlasIslandInput): number => 10 + altitudeZOf(o) * 136;
+const altitudeLiftOf = (o: AtlasIslandInput): number => atlasIslandLift(o);
 const projectAtlasY = (y: number, band?: AtlasAltitudeBand): number => y * ATLAS_Y_TILT - (band ? ALTITUDE_LIFT[band] : 0);
 const projectIslandY = (o: AtlasIslandInput): number => o.y * ATLAS_Y_TILT - altitudeLiftOf(o);
 
@@ -286,6 +290,9 @@ interface IslandNode {
   halfH: number;
   showingTier: AtlasTier | '';
   band: AtlasAltitudeBand;
+  /** Nested-disclosure alpha for THIS camera (anchors always 1; satellites from
+   * satelliteDisclosure). Written once per applyTier, read by labels + routes. */
+  reveal: number;
 }
 
 export class AtlasStage {
@@ -554,7 +561,7 @@ export class AtlasStage {
     dot.eventMode = 'none';
     this.labelLayer.addChild(dot);
 
-    return { o, sprite, glow, labelGroup: group, labelText, labelSub, labelBg, dot, halfW: 0, halfH: 0, showingTier: '', band };
+    return { o, sprite, glow, labelGroup: group, labelText, labelSub, labelBg, dot, halfW: 0, halfH: 0, showingTier: '', band, reveal: (o.role ?? 'anchor') === 'satellite' ? 0 : 1 };
   }
 
   private buildClusters(): void {
@@ -1230,7 +1237,7 @@ export class AtlasStage {
       }
     }
     if (clusterBoxes.length > 0) {
-      const verdict = deconflictLabels(clusterBoxes);
+      const verdict = deconflictLabels(clusterBoxes, 96, { pad: 10 });
       for (const { c, group } of this.clusterLabels) {
         group.visible = verdict.get(c.id) === 'label';
       }
@@ -1239,12 +1246,25 @@ export class AtlasStage {
     const labelsVisible = blend.mid + blend.near > 0.02;
     const satelliteAlpha = satelliteReveal(scale);
     const satelliteCount = this.islands.filter((node) => (node.o.role ?? 'anchor') === 'satellite').length;
+    // Anchor screen positions first: each satellite's disclosure is scoped by
+    // where its OWN archipelago's anchor sits in the viewport — you disclose
+    // the archipelago you sail INTO, not every archipelago sharing the screen.
+    const anchorScreen = new Map<string, { sx: number; sy: number }>();
+    for (const nd of this.islands) {
+      if ((nd.o.role ?? 'anchor') !== 'satellite') {
+        anchorScreen.set(nd.o.slug, { sx: nd.o.x * scale + this.worldRoot.x, sy: projectIslandY(nd.o) * scale + this.worldRoot.y });
+      }
+    }
     let onScreen = 0;
     let visibleSatellites = 0;
     const boxes: LabelBox[] = [];
     for (const nd of this.islands) {
       const o = nd.o;
-      const hierarchyAlpha = (o.role ?? 'anchor') === 'satellite' ? satelliteAlpha : 1;
+      const parent = (o.role ?? 'anchor') === 'satellite' && o.parentSlug ? anchorScreen.get(o.parentSlug) : undefined;
+      const hierarchyAlpha = (o.role ?? 'anchor') === 'satellite'
+        ? (parent ? satelliteDisclosure(scale, parent.sx, parent.sy, view.width, view.height) : satelliteAlpha)
+        : 1;
+      nd.reveal = hierarchyAlpha;
       const domainVisible = !this.domainFocus || o.domain === this.domainFocus;
       const altitudeVisible = !this.altitudeFocus || nd.band === this.altitudeFocus;
       const focusVisible = domainVisible && altitudeVisible;
@@ -1288,7 +1308,7 @@ export class AtlasStage {
       const from = this.islands.find((node) => node.o.slug === current.fromSlug);
       const to = this.islands.find((node) => node.o.slug === current.toSlug);
       if (!from || !to) { line.visible = false; continue; }
-      const revealOf = (node: IslandNode) => (node.o.role ?? 'anchor') === 'satellite' ? satelliteAlpha : 1;
+      const revealOf = (node: IslandNode) => node.reveal;
       const domainVisible = !this.domainFocus || from.o.domain === this.domainFocus || to.o.domain === this.domainFocus;
       const altitudeVisible = !this.altitudeFocus || from.band === this.altitudeFocus || to.band === this.altitudeFocus;
       line.visible = Math.min(revealOf(from), revealOf(to)) > 0.05 && domainVisible && altitudeVisible;
@@ -1297,7 +1317,10 @@ export class AtlasStage {
     // De-collision only on settle (reflow) — the expensive-ish pass. Between
     // settles labels keep their last verdict, just translated (no flicker).
     if (labelsVisible && (reflow || this.lastLabelCount === 0)) {
-      const verdict = deconflictLabels(boxes);
+      // Screen-area label budget: past it even a collision-free card demotes to
+      // a dot — a comfortable page of place names, not an index of everything.
+      const labelBudget = Math.max(10, Math.round((view.width * view.height) / 85000));
+      const verdict = deconflictLabels(boxes, 96, { pad: 12, maxLabels: labelBudget });
       let shown = 0;
       for (const nd of this.islands) {
         const v = verdict.get(nd.o.slug);
@@ -1305,7 +1328,7 @@ export class AtlasStage {
         const asLabel = v === 'label';
         nd.labelGroup.visible = onscreen && asLabel;
         nd.dot.visible = onscreen && !asLabel;
-        const hierarchyAlpha = (nd.o.role ?? 'anchor') === 'satellite' ? satelliteAlpha : 1;
+        const hierarchyAlpha = nd.reveal;
         nd.labelGroup.alpha = Math.max(blend.mid, blend.near) * hierarchyAlpha;
         nd.dot.alpha = Math.max(blend.mid, blend.near) * hierarchyAlpha;
         if (asLabel) shown++;
@@ -1314,7 +1337,7 @@ export class AtlasStage {
     } else if (labelsVisible) {
       // cheap path: keep prior verdicts, just re-apply tier alpha
       for (const nd of this.islands) {
-        const hierarchyAlpha = (nd.o.role ?? 'anchor') === 'satellite' ? satelliteAlpha : 1;
+        const hierarchyAlpha = nd.reveal;
         nd.labelGroup.alpha = Math.max(blend.mid, blend.near) * hierarchyAlpha;
         nd.dot.alpha = Math.max(blend.mid, blend.near) * hierarchyAlpha;
       }
@@ -1338,11 +1361,13 @@ export class AtlasStage {
   private setLabelContent(nd: IslandNode, tier: AtlasTier): void {
     nd.showingTier = tier;
     nd.labelText.text = nd.o.name;
-    if (tier === 'near') {
+    // Subline (the metadata card) is an ANCHOR read: at near tier the 主岛
+    // carries the archipelago's dossier while satellites stay name-only —
+    // halves the near-tier text mass, and hierarchy reads without a legend.
+    if (tier === 'near' && (nd.o.role ?? 'anchor') === 'anchor') {
       const st = STAGE_LABELS[Math.max(0, Math.min(3, nd.o.stage))];
       const memberPart = nd.o.members != null ? ` · ${nd.o.members}人` : '';
-      const role = (nd.o.role ?? 'anchor') === 'anchor' ? '主岛' : '伴岛';
-      nd.labelSub.text = `${ALTITUDE_LABELS[nd.band]} · ${role} · ${nd.o.domain} · ${st} · N${nd.o.eventCount}${memberPart}`;
+      nd.labelSub.text = `${ALTITUDE_LABELS[nd.band]} · 主岛 · ${nd.o.domain} · ${st} · N${nd.o.eventCount}${memberPart}`;
       nd.labelSub.visible = true;
       nd.labelText.y = -8;
       nd.labelSub.y = 9;
