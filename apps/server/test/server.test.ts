@@ -38,6 +38,25 @@ describe("seed + chart", () => {
     expect(sample.members).toBe(9);
     expect(sample.growth.stage).toBe("academy");
   });
+
+  it("serves a flagship island's rich interior via meta.atlas.interior", async () => {
+    const detail = await jsonOf(await app.request("/api/islands/formal-math"));
+    const interior = detail.atlas?.interior;
+    expect(interior, "formal-math interior present").toBeTruthy();
+    expect(interior.questions.length).toBeGreaterThanOrEqual(5);
+    expect(interior.digests.length).toBeGreaterThanOrEqual(3);
+    expect(interior.residents.length).toBeGreaterThanOrEqual(3);
+    // Bilingual, and a real citation is carried through so provenance stays visible.
+    expect(interior.questions[0].text.zh && interior.questions[0].text.en).toBeTruthy();
+    expect(interior.digests.some((d: any) => d.cite?.title && d.cite?.year)).toBe(true);
+    // A flagship reads as an academy/school, never empty.
+    expect(["academy", "school"]).toContain(detail.growth.stage);
+  });
+
+  it("a non-flagship island has no interior (only the curated subset carries one)", async () => {
+    const detail = await jsonOf(await app.request("/api/islands/dark-matter-paleo"));
+    expect(detail.atlas?.interior).toBeUndefined();
+  });
 });
 
 describe("GET /api/currents — the sea plane over the real seeded ledger", () => {

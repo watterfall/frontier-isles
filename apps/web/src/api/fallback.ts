@@ -66,6 +66,10 @@ export interface IslandDatum {
     barrier: Bilingual;
     subQuestions: Bilingual[];
   };
+  /** Rich station interior for flagship islands (Question Wall / library /
+   *  whiteboard / data desk / driftwood / residents) — the same block the
+   *  server serves via meta.atlas.interior. */
+  interior?: IslandInterior;
 }
 
 /** The chart islands — derived from the curated xfrontier frontiers
@@ -73,7 +77,7 @@ export interface IslandDatum {
  *  plus the bespoke sample island. When the server is unreachable the chart
  *  renders exactly these entries; useAppData.reconcile overlays live server
  *  values (members/activity/stage/slug) by title. */
-import { FRONTIERS } from '@frontier-isles/data';
+import { FRONTIERS, type IslandInterior } from '@frontier-isles/data';
 
 export const DATA: IslandDatum[] = [
   ...FRONTIERS.map((f) => ({
@@ -95,6 +99,7 @@ export const DATA: IslandDatum[] = [
     cluster: f.cluster,
     citation: f.citation,
     depth: f.depth,
+    interior: f.interior,
   })),
   // The bespoke sample island (full L1 scene + rich ledger) — not in FRONTIERS.
   {

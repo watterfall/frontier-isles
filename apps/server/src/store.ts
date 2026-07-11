@@ -40,7 +40,7 @@ import {
   type Whirlpool,
   type MorningReportEntry,
 } from "@frontier-isles/core";
-import { domainToVec } from "@frontier-isles/data";
+import { domainToVec, type IslandInterior } from "@frontier-isles/data";
 import type { DB } from "./db.js";
 import { refHash, type RefKind } from "./refs.js";
 import { dispatchNightDigest } from "./webhook.js";
@@ -198,6 +198,11 @@ export interface ProblemMeta {
       barrier: { zh: string; en: string };
       subQuestions: { zh: string; en: string }[];
     };
+    /** Rich flagship-island station interior (Question Wall / library digests /
+     *  whiteboard debates / data desk / driftwood / residents). From
+     *  @frontier-isles/data FrontierEntry.interior; feeds the L1 station drawers
+     *  so opening a curated island is as full as the sample island. */
+    interior?: IslandInterior;
   };
 }
 

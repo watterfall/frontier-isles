@@ -75,3 +75,58 @@ describe('fallback data matches the curated atlas', () => {
     expect(AUTHQ).toHaveLength(7);
   });
 });
+
+describe('flagship island interiors (rich station content)', () => {
+  const FLAGSHIPS = [
+    'formal-math', 'causal-rep-learning', 'artificial-photosynthesis', 'living-wires',
+    'minimal-genome', 'active-inference', 'animal-ai-decode', 'verified-pqc',
+  ];
+  const bilingual = (o: unknown): boolean =>
+    !!o && typeof (o as { zh?: unknown }).zh === 'string' && typeof (o as { en?: unknown }).en === 'string'
+    && !!(o as { zh: string }).zh && !!(o as { en: string }).en;
+
+  it('exactly the 8 curated flagships carry an interior', () => {
+    const withInterior = DATA.filter((d) => d.interior).map((d) => d.slug).sort();
+    expect(withInterior).toEqual([...FLAGSHIPS].sort());
+  });
+
+  it('every flagship interior is well-formed and bilingual, with real citations', () => {
+    for (const slug of FLAGSHIPS) {
+      const d = DATA.find((x) => x.slug === slug)!;
+      expect(d, `${slug} present`).toBeTruthy();
+      // A rich island reads as an academy/school — never empty/hut.
+      expect(d.st, `${slug} stage ≥ 2`).toBeGreaterThanOrEqual(2);
+      const it = d.interior!;
+      expect(it.questions.length, `${slug} questions`).toBeGreaterThanOrEqual(5);
+      expect(it.digests.length, `${slug} digests`).toBeGreaterThanOrEqual(3);
+      expect(it.debates.length, `${slug} debates`).toBeGreaterThanOrEqual(2);
+      expect(it.data.length, `${slug} data`).toBeGreaterThanOrEqual(3);
+      expect(it.driftwood.length, `${slug} driftwood`).toBeGreaterThanOrEqual(3);
+      expect(it.residents.length, `${slug} residents`).toBeGreaterThanOrEqual(3);
+      for (const q of it.questions) {
+        expect(bilingual(q.text) && bilingual(q.author), `${slug} question bilingual`).toBe(true);
+        expect(typeof q.open === 'boolean' && typeof q.votes === 'number', `${slug} question fields`).toBe(true);
+      }
+      for (const dg of it.digests) {
+        expect(bilingual(dg.title) && bilingual(dg.gist), `${slug} digest bilingual`).toBe(true);
+        if (dg.cite) {
+          expect(dg.cite.title && dg.cite.venue && typeof dg.cite.year === 'number', `${slug} cite`).toBeTruthy();
+        }
+      }
+      for (const db of it.debates) {
+        expect(bilingual(db.topic) && db.positions.every(bilingual), `${slug} debate`).toBe(true);
+        expect(db.positions.length, `${slug} debate positions`).toBeGreaterThanOrEqual(2);
+      }
+      for (const r of it.residents) {
+        expect(typeof r.name === 'string' && !!r.name, `${slug} resident name`).toBe(true);
+        expect(r.kind === 'human' || r.kind === 'ai', `${slug} resident kind`).toBe(true);
+        expect(bilingual(r.caption), `${slug} resident caption`).toBe(true);
+      }
+    }
+  });
+
+  it('at least one flagship per domain (数理/物质/生命/交叉)', () => {
+    const domains = new Set(DATA.filter((d) => d.interior).map((d) => d.d));
+    expect(domains).toEqual(new Set(['数理', '物质', '生命', '交叉']));
+  });
+});
