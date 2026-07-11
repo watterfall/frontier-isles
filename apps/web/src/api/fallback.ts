@@ -97,8 +97,10 @@ export const DATA: IslandDatum[] = [
     depth: f.depth,
   })),
   // The bespoke sample island (full L1 scene + rich ledger) — not in FRONTIERS.
+  // id sits OUTSIDE the frontier range: the 26→78 atlas expansion re-used 27,
+  // and a duplicate id breaks React list keys + every find-by-id lookup.
   {
-    id: 27,
+    id: 1001,
     n: { zh: 'AI 之问', en: 'The Question of AI' },
     q: { zh: 'AI 能否提出一个人类没想到的好问题？', en: 'Can AI ask a good question no human has thought of?' },
     d: '交叉', x: 802, y: 522, s: 1.0, st: 2, m: 9, a: 76, sample: true, slug: 'machine-curiosity',
