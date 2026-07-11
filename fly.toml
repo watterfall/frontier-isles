@@ -1,0 +1,42 @@
+# Fly.io single-process deploy (ROADMAP §6.1). One Node process serves web +
+# /api + the Yjs WebSocket; SQLite persists on a mounted volume so the ledger
+# survives redeploys.
+#
+# EDIT BEFORE `fly deploy`:
+#   - `app`             → your Fly app name (must be globally unique)
+#   - `primary_region`  → your closest region (e.g. nrt=Tokyo, sjc=San Jose, ams=Amsterdam)
+#   - `WEB_ORIGIN`      → your public URL; it is the OAuth redirect base + CORS origin
+app = "frontier-isles"
+primary_region = "nrt"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "8080"
+  DB_FILE = "/data/isles.db"
+  # Public base URL (OAuth redirect + CORS). Match your real domain / fly host.
+  WEB_ORIGIN = "https://frontier-isles.fly.dev"
+
+# GitHub OAuth is NOT set here — the secrets carry it:
+#   fly secrets set GITHUB_CLIENT_ID=... GITHUB_CLIENT_SECRET=...
+# Without them the server has NO login path in production (dev-login is 403'd
+# when NODE_ENV=production), so the app deploys read-only until they're set.
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  # Scale to zero when idle (cheap); the volume keeps the DB. Bump
+  # min_machines_running to 1 if you want warm starts / always-live Yjs rooms.
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+[[mounts]]
+  source = "isles_data"
+  destination = "/data"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
