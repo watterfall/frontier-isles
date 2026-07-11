@@ -14,13 +14,15 @@ import {
   ATLAS_DOMAIN_FILL,
   ATLAS_DOMAIN_INK,
   assignAtlasAltitudes,
+  assignAtlasHierarchy,
   type AtlasCluster,
   type AtlasContinent,
+  type AtlasCurrent,
   type AtlasDomain,
   type AtlasFlow,
   type AtlasFogCell,
   type AtlasIslandInput,
-} from '@frontier-isles/renderer/pixi';
+} from '@frontier-isles/renderer/atlas-lod';
 import { DATA, type IslandDatum } from '../api/fallback';
 import { fixtureSeaData } from '../api/seaFallback';
 
@@ -49,6 +51,20 @@ function curatedContinentFlows(): AtlasFlow[] {
   ).map<AtlasFlow>((f) => ({ from: f.from as AtlasDomain, to: f.to as AtlasDomain, tint: FLOW_TINT[f.kind], weight: f.weight }));
   cachedFlows = flows;
   return flows;
+}
+
+let cachedCurrents: AtlasCurrent[] | null = null;
+function curatedIslandCurrents(): AtlasCurrent[] {
+  if (cachedCurrents) return cachedCurrents;
+  const sea = fixtureSeaData();
+  const slugOf = new Map(sea.islands.map((island) => [island.op, island.op.split('/').at(-1) ?? island.op] as const));
+  cachedCurrents = sea.currents.flatMap<AtlasCurrent>((current) => {
+    const fromSlug = slugOf.get(current.from);
+    const toSlug = slugOf.get(current.to);
+    if (!fromSlug || !toSlug || fromSlug === toSlug) return [];
+    return [{ fromSlug, toSlug, kind: current.kind, tint: FLOW_TINT[current.kind], weight: current.weight }];
+  });
+  return cachedCurrents;
 }
 
 /** Cluster provenance an `extra` (scale-corpus) island may carry — synthetic
@@ -88,6 +104,8 @@ export interface AtlasSceneData {
   fog: AtlasFogCell[];
   /** Inter-territory currents (cross-domain relations). */
   flows: AtlasFlow[];
+  /** Real island-level ledger currents for mid/near vertical air routes. */
+  currents: AtlasCurrent[];
 }
 
 function dominantDomain(mix: Record<string, number>): AtlasDomain {
@@ -168,5 +186,7 @@ export function buildAtlasScene(source: IslandDatum[] = DATA, extra: AtlasExtraI
   }));
   const fog: AtlasFogCell[] = climate.fog.map((f) => ({ x: f.x, y: f.y, w: f.w, h: f.h, fog: f.fog }));
 
-  return { islands: assignAtlasAltitudes(withOutliers), clusters, continents, fog, flows: curatedContinentFlows() };
+  const elevated = assignAtlasAltitudes(withOutliers);
+  const nested = assignAtlasHierarchy(elevated, clusters);
+  return { islands: nested, clusters, continents, fog, flows: curatedContinentFlows(), currents: curatedIslandCurrents() };
 }

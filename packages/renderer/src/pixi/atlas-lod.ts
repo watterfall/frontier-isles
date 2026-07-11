@@ -27,6 +27,10 @@ export type AtlasDomain = '数理' | '物质' | '生命' | '交叉';
  * mature or valuable than another. */
 export type AtlasAltitudeBand = 'low' | 'middle' | 'high';
 
+/** Navigation hierarchy inside one named archipelago. An anchor is the
+ * spatial medoid used to open the group; it is never a quality/progress rank. */
+export type AtlasIslandRole = 'anchor' | 'satellite';
+
 export const ATLAS_ALTITUDE_BANDS: readonly AtlasAltitudeBand[] = ['low', 'middle', 'high'];
 
 export const ATLAS_DOMAINS: readonly AtlasDomain[] = ['数理', '物质', '生命', '交叉'];
@@ -74,6 +78,15 @@ export interface AtlasIslandInput {
   /** Stable place-plane stratum assigned from the atlas' existing y-order.
    * It is deliberately unrelated to activity, stage, consensus, or rank. */
   altitude?: AtlasAltitudeBand;
+  /** Continuous 0..1 place-plane height within/across the three named bands.
+   * This drives projection/parallax only and is never shown as a score. */
+  altitudeZ?: number;
+  /** Region-navigation role. Anchors are chosen by geometry, not activity. */
+  role?: AtlasIslandRole;
+  /** Satellite → anchor link, derived from computed archipelago membership. */
+  parentSlug?: string;
+  /** Computed archipelago id, used for nested disclosure and wayfinding. */
+  clusterId?: string;
 }
 
 /**
@@ -85,13 +98,21 @@ export interface AtlasIslandInput {
 export function assignAtlasAltitudes<T extends AtlasIslandInput>(islands: readonly T[]): T[] {
   if (islands.length === 0) return [];
   const order = [...islands].sort((a, b) => (a.y - b.y) || a.slug.localeCompare(b.slug));
-  const bandOf = new Map<string, AtlasAltitudeBand>();
+  const altitudeOf = new Map<string, { band: AtlasAltitudeBand; z: number }>();
   const n = order.length;
   order.forEach((island, index) => {
     const q = (index + 0.5) / n;
-    bandOf.set(island.slug, q <= 1 / 3 ? 'high' : q <= 2 / 3 ? 'middle' : 'low');
+    altitudeOf.set(island.slug, {
+      band: q <= 1 / 3 ? 'high' : q <= 2 / 3 ? 'middle' : 'low',
+      // Reverse the authored north→south order so northern islands float
+      // higher, while retaining continuous separation inside each named band.
+      z: 1 - q,
+    });
   });
-  return islands.map((island) => ({ ...island, altitude: bandOf.get(island.slug) ?? 'middle' }));
+  return islands.map((island) => {
+    const altitude = altitudeOf.get(island.slug);
+    return { ...island, altitude: altitude?.band ?? 'middle', altitudeZ: altitude?.z ?? 0.5 };
+  });
 }
 
 /**
@@ -115,6 +136,43 @@ export interface AtlasCluster {
   heat?: number;
   /** Optional curated one-line caption rendered under the region name billboard. */
   caption?: string;
+}
+
+/**
+ * Turn flat cluster membership into a nested anchor→satellite hierarchy.
+ * The anchor is the island nearest the computed cluster centroid (slug breaks
+ * exact ties), so navigation hierarchy cannot be mistaken for an activity,
+ * maturity, popularity, or value ranking. Unclustered/outlier islands remain
+ * their own anchors.
+ */
+export function assignAtlasHierarchy<T extends AtlasIslandInput>(islands: readonly T[], clusters: readonly AtlasCluster[]): T[] {
+  const bySlug = new Map(islands.map((island) => [island.slug, island]));
+  const roleOf = new Map<string, { role: AtlasIslandRole; parentSlug?: string; clusterId?: string }>();
+
+  for (const cluster of clusters) {
+    const members = cluster.islandSlugs.map((slug) => bySlug.get(slug)).filter((island): island is T => !!island);
+    if (members.length === 0) continue;
+    const anchor = [...members].sort((a, b) => {
+      const da = (a.x - cluster.center.x) ** 2 + (a.y - cluster.center.y) ** 2;
+      const db = (b.x - cluster.center.x) ** 2 + (b.y - cluster.center.y) ** 2;
+      return (da - db) || a.slug.localeCompare(b.slug);
+    })[0]!;
+    roleOf.set(anchor.slug, { role: 'anchor', clusterId: cluster.id });
+    for (const member of members) {
+      if (member.slug !== anchor.slug) roleOf.set(member.slug, { role: 'satellite', parentSlug: anchor.slug, clusterId: cluster.id });
+    }
+  }
+
+  return islands.map((island) => ({ ...island, ...(roleOf.get(island.slug) ?? { role: 'anchor' as const }) }));
+}
+
+/** Satellite islands emerge progressively through the mid→near camera move. */
+export const SATELLITE_REVEAL_START = 0.96;
+export const SATELLITE_REVEAL_END = 1.82;
+
+export function satelliteReveal(scale: number): number {
+  const t = Math.max(0, Math.min(1, (scale - SATELLITE_REVEAL_START) / (SATELLITE_REVEAL_END - SATELLITE_REVEAL_START)));
+  return t * t * (3 - 2 * t);
 }
 
 /**
@@ -162,6 +220,17 @@ export interface AtlasFlow {
   to: AtlasDomain;
   tint: number;
   /** Aggregate relation weight → flowline width. */
+  weight: number;
+}
+
+/** A real island-to-island ledger current, rendered as a local vertical air
+ * route at mid/near scale. Unlike cluster nesting, this line asserts a real
+ * relation and therefore carries its projected kind and weight. */
+export interface AtlasCurrent {
+  fromSlug: string;
+  toSlug: string;
+  kind: 'evidence' | 'bridge' | 'lineage';
+  tint: number;
   weight: number;
 }
 

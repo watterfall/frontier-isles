@@ -66,6 +66,23 @@ describe('buildAtlasScene — the default L0 atlas data wiring (atlas-world-plan
     expect(a.islands.map((i) => i.outlier)).toEqual(b.islands.map((i) => i.outlier));
   });
 
+  it('nests each computed region around a geometry-derived anchor', () => {
+    const scene = buildAtlasScene();
+    for (const cluster of scene.clusters) {
+      const members = scene.islands.filter((island) => cluster.islandSlugs.includes(island.slug));
+      expect(members.filter((island) => island.role === 'anchor')).toHaveLength(1);
+      const anchor = members.find((island) => island.role === 'anchor')!;
+      expect(members.filter((island) => island.role === 'satellite').every((island) => island.parentSlug === anchor.slug)).toBe(true);
+    }
+  });
+
+  it('carries only real fixture-derived island currents into local air routes', () => {
+    const scene = buildAtlasScene();
+    const slugs = new Set(scene.islands.map((island) => island.slug));
+    expect(scene.currents.length).toBeGreaterThan(0);
+    expect(scene.currents.every((current) => slugs.has(current.fromSlug) && slugs.has(current.toSlug))).toBe(true);
+  });
+
   it('appends `extra` fake islands (the ?n= scale test) without touching the real set', () => {
     const fake = { slug: 'fake-0', name: '岛屿0', domain: '交叉' as const, stage: 0, status: 'active', dormant: false, outlier: false, eventCount: 1, x: 5000, y: 10 };
     const scene = buildAtlasScene(undefined, [fake]);

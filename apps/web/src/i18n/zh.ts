@@ -39,6 +39,12 @@ export const zh = {
     altitudeLegend: '空层',
     altitudes: { all: '全空域', low: '低空', middle: '中空', high: '高空' },
     altitudeNote: '高度是制图位置，不是研究排名',
+    hierarchyLegend: '嵌套探索',
+    hierarchyLevels: { world: '世界／群岛', anchor: '主岛', satellite: '伴岛' },
+    hierarchyNote: '主岛是区域导航锚点，不是研究排名',
+    satelliteStatus: '近景显现 {{visible}} / {{total}} 座伴岛',
+    routeLegend: '实线空路来自真实账本关系',
+    anchorHint: '点主岛展开伴岛，再次点击靠岸',
     card: {
       activity: '活跃度',
       members: '居民 {{n}} 人',

@@ -40,6 +40,12 @@ export const en: Resources = {
     altitudeLegend: 'Air strata',
     altitudes: { all: 'All', low: 'Low', middle: 'Middle', high: 'High' },
     altitudeNote: 'Altitude is cartographic place, not research rank',
+    hierarchyLegend: 'Nested exploration',
+    hierarchyLevels: { world: 'World / region', anchor: 'Anchor', satellite: 'Satellite' },
+    hierarchyNote: 'Anchors guide regions; they do not rank research',
+    satelliteStatus: '{{visible}} / {{total}} satellites disclosed nearby',
+    routeLegend: 'Solid airways come from real ledger relations',
+    anchorHint: 'Tap an anchor to disclose satellites; tap again to land',
     card: {
       activity: 'Activity',
       members: '{{n}} residents',

@@ -30,7 +30,7 @@ import { buildAtlasScene } from './atlasData';
 export default function AtlasPixiHost() {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const stageRef = useRef<AtlasStage | null>(null);
-  const [metrics, setMetrics] = useState<AtlasMetrics>({ renderMs: 0, scale: 1, tier: 'far', islands: 0, visible: 0, labels: 0 });
+  const [metrics, setMetrics] = useState<AtlasMetrics>({ renderMs: 0, scale: 1, tier: 'far', islands: 0, visible: 0, labels: 0, satellites: 0, visibleSatellites: 0 });
   const [picked, setPicked] = useState<string | null>(null);
 
   // `?n=` synthetic-island count for the scale test (0 = curated atlas only).
@@ -52,9 +52,9 @@ export default function AtlasPixiHost() {
       // Scale test: append N believable synthetic frontier islands (W4) through
       // the SHARED scene builder (W1) — same spatial×domain projectArchipelagos
       // clustering + statistical-outlier float the default L0 uses, no drift.
-      const { islands, clusters, continents, fog, flows } = buildAtlasScene(undefined, n > 0 ? makeScaleCorpus(n) : []);
+      const { islands, clusters, continents, fog, flows, currents } = buildAtlasScene(undefined, n > 0 ? makeScaleCorpus(n) : []);
       stage.setIslands(islands, clusters);
-      stage.setClimate(continents, fog, flows);
+      stage.setClimate(continents, fog, flows, currents);
       stageRef.current = stage;
       // DEV-only handle for deterministic camera control (verification screenshots).
       if (import.meta.env.DEV) (window as unknown as { __atlas?: AtlasStage }).__atlas = stage;
@@ -75,6 +75,7 @@ export default function AtlasPixiHost() {
         <div style={{ fontWeight: 700 }}>L0 atlas · C1+C2 (semantic LOD)</div>
         <div>render {metrics.renderMs.toFixed(2)}ms · tier <b>{metrics.tier}</b> · scale {metrics.scale.toFixed(2)}</div>
         <div>islands {metrics.islands} · on-screen {metrics.visible} · labels {metrics.labels}</div>
+        <div>satellites {metrics.visibleSatellites}/{metrics.satellites} · geometry-derived anchors</div>
         <div style={{ opacity: 0.7 }}>wheel = zoom (pointer-anchored) · drag = pan · tap isle</div>
         <div style={{ opacity: 0.7 }}>?n=300 → +N synthetic frontier islands (scale test){n > 0 ? ` · +${n}` : ''}</div>
         {picked && <div style={{ marginTop: 4, color: '#B5673A' }}>picked: {picked}</div>}

@@ -5,7 +5,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./pixi": "./src/pixi/index.ts"
+    "./pixi": "./src/pixi/index.ts",
+    "./atlas-lod": "./src/pixi/atlas-lod.ts"
   },
   "scripts": {
     "test": "vitest run",

@@ -15,12 +15,14 @@ import {
   atlasHash,
   atlasCoastline,
   assignAtlasAltitudes,
+  assignAtlasHierarchy,
   computeWorldMinScale,
   deconflictLabels,
   focusFog,
   islandPriority,
   makeFakeIslands,
   placeholderClusters,
+  satelliteReveal,
   tierBlend,
   zoomTier,
   ATLAS_ABS_MIN_SCALE,
@@ -51,12 +53,36 @@ describe('assignAtlasAltitudes — place-plane strata, never progress', () => {
     expect(assigned.slice(0, 3).every((item) => item.altitude === 'high')).toBe(true);
     expect(assigned.slice(3, 6).every((item) => item.altitude === 'middle')).toBe(true);
     expect(assigned.slice(6).every((item) => item.altitude === 'low')).toBe(true);
+    expect(assigned.map((item) => item.altitudeZ)).toEqual([...assigned.map((item) => item.altitudeZ)].sort((a, b) => (b ?? 0) - (a ?? 0)));
   });
 
   it('is deterministic and does not mutate the input', () => {
     const source = [isle({ slug: 'b', y: 2 }), isle({ slug: 'a', y: 2 }), isle({ slug: 'c', y: 8 })];
     expect(assignAtlasAltitudes(source)).toEqual(assignAtlasAltitudes(source));
     expect(source.every((item) => item.altitude == null)).toBe(true);
+  });
+});
+
+describe('assignAtlasHierarchy — nested navigation, never research rank', () => {
+  it('chooses the spatial medoid as anchor and assigns the rest as satellites', () => {
+    const islands = [isle({ slug: 'west', x: 0 }), isle({ slug: 'center', x: 48 }), isle({ slug: 'east', x: 100 })];
+    const assigned = assignAtlasHierarchy(islands, [{ id: 'r', name: '区域', islandSlugs: ['west', 'center', 'east'], center: { x: 50, y: 0 }, radius: 80, tint: 0 }]);
+    expect(assigned.find((item) => item.slug === 'center')).toMatchObject({ role: 'anchor', clusterId: 'r' });
+    expect(assigned.find((item) => item.slug === 'west')).toMatchObject({ role: 'satellite', parentSlug: 'center', clusterId: 'r' });
+    expect(assigned.find((item) => item.slug === 'east')).toMatchObject({ role: 'satellite', parentSlug: 'center', clusterId: 'r' });
+  });
+
+  it('keeps an unclustered outlier as its own anchor', () => {
+    expect(assignAtlasHierarchy([isle({ slug: 'solo', outlier: true })], [])[0]).toMatchObject({ role: 'anchor' });
+  });
+});
+
+describe('satelliteReveal — progressive mid→near disclosure', () => {
+  it('is hidden at overview, transitional in mid, and fully present near', () => {
+    expect(satelliteReveal(0.5)).toBe(0);
+    expect(satelliteReveal(1.3)).toBeGreaterThan(0);
+    expect(satelliteReveal(1.3)).toBeLessThan(1);
+    expect(satelliteReveal(2.2)).toBe(1);
   });
 });
 

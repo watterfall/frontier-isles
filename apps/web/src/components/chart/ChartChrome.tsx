@@ -74,6 +74,7 @@ export function ChartChrome({ islands, onPick, onBuild, onCollide, filter = '全
   };
 
   const tierLabel = metrics ? t(`chart.tiers.${metrics.tier}`) : t('chart.tiers.loading');
+  const detailHint = metrics?.tier === 'mid' ? t('chart.anchorHint') : t('chart.detailHint');
 
   const setAltitudeBand = (band: 'low' | 'middle' | 'high' | null) => {
     setAltitude(band);
@@ -155,7 +156,7 @@ export function ChartChrome({ islands, onPick, onBuild, onCollide, filter = '全
 
       <div className="fi-atlas-guidance">
         <div className="fi-guidance-icon" aria-hidden="true"><span>⌖</span><i /></div>
-        <div><strong>{t('chart.navigationHint')}</strong><small>{t('chart.detailHint')}</small></div>
+        <div><strong>{t('chart.navigationHint')}</strong><small>{detailHint}</small></div>
       </div>
 
       <div className="fi-outlier-key"><i aria-hidden="true" />{t('chart.legendOutlier')}</div>
@@ -170,6 +171,18 @@ export function ChartChrome({ islands, onPick, onBuild, onCollide, filter = '全
           ))}
         </div>
         <small>{t('chart.altitudeNote')}</small>
+      </div>
+
+      <div className="fi-hierarchy-key" aria-label={t('chart.hierarchyLegend')}>
+        <span><i aria-hidden="true" />{t('chart.hierarchyLegend')}</span>
+        <div data-tier={metrics?.tier ?? 'loading'}>
+          <b className="is-world">{t('chart.hierarchyLevels.world')}</b>
+          <b className="is-anchor">{t('chart.hierarchyLevels.anchor')}</b>
+          <b className="is-satellite">{t('chart.hierarchyLevels.satellite')}</b>
+        </div>
+        <small>{metrics ? t('chart.satelliteStatus', { visible: metrics.visibleSatellites, total: metrics.satellites }) : t('chart.tiers.loading')}</small>
+        <em>{t('chart.routeLegend')}</em>
+        <em>{t('chart.hierarchyNote')}</em>
       </div>
 
       <nav className="fi-atlas-camera" aria-label={t('chart.cameraControls')}>

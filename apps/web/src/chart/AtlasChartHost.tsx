@@ -77,9 +77,9 @@ export default function AtlasChartHost({ islands, onPick, onHoverIsland, onWebgl
           stage.destroy();
           return;
         }
-        const { islands: atlasIslands, clusters, continents, fog, flows } = buildAtlasScene(islands);
+        const { islands: atlasIslands, clusters, continents, fog, flows, currents } = buildAtlasScene(islands);
         stage.setIslands(atlasIslands, clusters);
-        stage.setClimate(continents, fog, flows);
+        stage.setClimate(continents, fog, flows, currents);
         stageRef.current = stage;
         cbRef.current.onReady?.({
           zoomIn: () => stage.zoomBy(1.24),
