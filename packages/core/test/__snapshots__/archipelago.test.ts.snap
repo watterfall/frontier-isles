@@ -4,28 +4,21 @@ exports[`projectArchipelagos — 78-island real dataset (packages/data) > full r
 [
   {
     "members": [
-      "category-theory-algebraic-theory",
-      "coarse-graining-free-causal-emergence-dynamical",
-      "compositional-modeling",
-      "dark-matter-paleo",
-      "emergent-conventions-collective-bias-tipping",
-      "experimental-determination-wavefunction-collapse",
-      "formal-math",
-      "out-of-variable-generalization-partial-transportability",
-      "triadic-percolation-connectivity-dynamical",
+      "adversarial-falsification-benchmark-science",
+      "minimal-genome",
+      "perennial-grain-crops",
     ],
-    "name": "AI数学群岛",
+    "name": "单细胞群岛",
   },
   {
     "members": [
-      "erasure-conversion-qubits-turning-loss",
-      "magic-state-cultivation-cheap",
-      "neural-reconstruction-real-to-sim-policy-evaluation",
-      "self-learning-matter",
-      "self-supervised-latent-world-models",
-      "stochastic-memristors-turning-device",
+      "code-dark-matter",
+      "deep-biosphere-extreme-life",
+      "ice-sheet-basal-ecology-subglacial",
+      "in-tissue-spatial-functional-genomics",
+      "vivo-hematopoietic-stem-cell-editing",
     ],
-    "name": "具身基础模型群岛",
+    "name": "地球群岛",
   },
   {
     "members": [
@@ -42,39 +35,11 @@ exports[`projectArchipelagos — 78-island real dataset (packages/data) > full r
   },
   {
     "members": [
-      "adversarial-falsification-benchmark-science",
-      "minimal-genome",
-      "perennial-grain-crops",
-    ],
-    "name": "单细胞群岛",
-  },
-  {
-    "members": [
       "falsifiable-consciousness-metrology-organoids",
       "genetically-encoded-rna-origami-cellular-hardware",
       "miyake-anchors",
     ],
     "name": "合成生物群岛",
-  },
-  {
-    "members": [
-      "bio-compute-thermo",
-      "causal-rep-learning",
-      "cosmological-origin-arrow-time",
-      "fundamental-limits-information-thermodynamics",
-      "proximal-causal-identification-negative",
-    ],
-    "name": "因果科学群岛",
-  },
-  {
-    "members": [
-      "code-dark-matter",
-      "deep-biosphere-extreme-life",
-      "ice-sheet-basal-ecology-subglacial",
-      "in-tissue-spatial-functional-genomics",
-      "vivo-hematopoietic-stem-cell-editing",
-    ],
-    "name": "地球群岛",
   },
   {
     "members": [
@@ -87,19 +52,14 @@ exports[`projectArchipelagos — 78-island real dataset (packages/data) > full r
   },
   {
     "members": [
-      "ai-theory-discovery",
-      "biological-computationalism-substrate-inseparability-criterion",
-      "calibration-problem-artificial-consciousness",
-      "complexity-consciousness-proxy-brain",
-      "complexity-theoretic-debate-provable-protocols",
-      "cross-species-umwelt",
-      "evaluation-awareness-how-models",
-      "idiographic-dynamic-network-psychology",
-      "invertebrate-sentience",
-      "self-play-dueling-agents-autonomous",
-      "stimulated-raman-activated-cell-ejection",
+      "erasure-conversion-qubits-turning-loss",
+      "magic-state-cultivation-cheap",
+      "neural-reconstruction-real-to-sim-policy-evaluation",
+      "self-learning-matter",
+      "self-supervised-latent-world-models",
+      "stochastic-memristors-turning-device",
     ],
-    "name": "意识的本质与硬核理论群岛",
+    "name": "具身基础模型群岛",
   },
   {
     "members": [
@@ -125,6 +85,32 @@ exports[`projectArchipelagos — 78-island real dataset (packages/data) > full r
   },
   {
     "members": [
+      "ai-theory-discovery",
+      "biological-computationalism-substrate-inseparability-criterion",
+      "calibration-problem-artificial-consciousness",
+      "complexity-consciousness-proxy-brain",
+      "complexity-theoretic-debate-provable-protocols",
+      "cross-species-umwelt",
+      "evaluation-awareness-how-models",
+      "idiographic-dynamic-network-psychology",
+      "invertebrate-sentience",
+      "self-play-dueling-agents-autonomous",
+      "stimulated-raman-activated-cell-ejection",
+    ],
+    "name": "意识的本质与硬核理论群岛",
+  },
+  {
+    "members": [
+      "bio-compute-thermo",
+      "causal-rep-learning",
+      "cosmological-origin-arrow-time",
+      "fundamental-limits-information-thermodynamics",
+      "proximal-causal-identification-negative",
+    ],
+    "name": "因果科学群岛",
+  },
+  {
+    "members": [
       "developmental-interpretability-singular-learning",
       "differentiable-manufacturing-simulation-gradient-based",
       "epistemic-boundaries-autonomous-science",
@@ -133,6 +119,20 @@ exports[`projectArchipelagos — 78-island real dataset (packages/data) > full r
       "verified-pqc",
     ],
     "name": "自主科学发现群岛",
+  },
+  {
+    "members": [
+      "category-theory-algebraic-theory",
+      "coarse-graining-free-causal-emergence-dynamical",
+      "compositional-modeling",
+      "dark-matter-paleo",
+      "emergent-conventions-collective-bias-tipping",
+      "experimental-determination-wavefunction-collapse",
+      "formal-math",
+      "out-of-variable-generalization-partial-transportability",
+      "triadic-percolation-connectivity-dynamical",
+    ],
+    "name": "AI数学群岛",
   },
 ]
 `;
