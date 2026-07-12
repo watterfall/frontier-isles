@@ -72,7 +72,11 @@
 - `structure_objects` 表(知识平面,与 place plane 严格分流)。
 - `GET /api/structures`、`GET /api/structures/:slug(.md)`、`POST /api/islands/:slug/rebuild`。
 - **网关红线**:`rebuild` 走 `core.can()` + `degradeAction()`;actor.kind=agent → 降级 dock 提案(night_digest + dock placement)。MCP 工具同步实施(mcp.ts 直连 store,不走 HTTP)。
-- **种子**:3 个正交结构字母——**同步(Kuramoto)、标度、网络级联**(定位说明 §10 指定同步为第一颗)——每个配 2-4 条有真实文献背书的映射,以 `rebuild` 种子事件挂到 Phase 1 扩充后的对应岛(电网/心律/城市/级联类)。种子事件 actor 为策展身份(shen-kuo),出处可见。
+- **种子源料**:`/Users/jili/AIAI/frontier/audit/isomorphisms.json`——36 条预策展同构,每条含 skeleton/公式/domains(**已带 cluster code**)/insight,双语且有出处(Feynman 等)。三颗种子直接取:
+  - **ISO-10 耦合振子同步(Kuramoto)** → 萤火虫闪光 / 心脏起搏细胞 / 电网相位 / 神经振荡
+  - **ISO-29 异速生长标度律** → 生物代谢率(Kleiber)/ 城市基建产出 / 企业生态资源网 / 分形输运
+  - **ISO-06 网络 / 渗流** → 流行病传播 / 神经临界性 / 电网级联失效 / 观念扩散
+- **种子**:上述 3 结构,每个的 domains 对到 Phase 1 扩充后的对应岛,以 `rebuild` 种子事件铺边;映射 artifact 的量对应表 + 检验记录取自 isomorphisms 的 insight/formula(有据,不编造)。种子事件 actor 为策展身份(shen-kuo),出处可见。
 
 ### 4.3 Core 投影(`packages/core`,纯函数 + 测试)
 
