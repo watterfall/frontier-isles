@@ -1,0 +1,265 @@
+<!-- @dsCard group="Components" -->
+<!doctype html><meta charset="utf-8"><title>Claim as Building · Components</title>
+<!--
+  Design source: Claude Design project a3f16e64 / claim-as-building.html (2026-07-10, canvas A-track).
+  3 variants generated (A 体量对比细塔 / B 材质脚手架 / C 基座语言); user chose A · slim tower cluster.
+  Shipped: scene-stage.ts makeClaimMark (b8e3435, Iter 13) — this card documents variant A AS SHIPPED.
+  Honest deviations (LOOP.md Iter13 Deferred): hasDoi not yet threaded to SceneObject (seals render
+  as preprint open-marks in product); ghost whirlpool + float animation deferred to M5; micro-dynamics
+  (lit-window twinkle / halo breathe) deferred. Pixi world units differ from this card's SVG space —
+  the binding invariant is proportional: claim footprint stays smaller than every civic station.
+-->
+<style>
+:root{
+  /* --fi-* tokens · verbatim from design-system/01-foundations-color.html */
+  --fi-paper:#F2EAD8; --fi-night-paper:#161F36; --fi-paper-raised:#FAF5E8; --fi-night-raised:#212C4E;
+  --fi-ink:#2B2620; --fi-ink-2:#6B6154; --fi-azurite:#2E5E8C; --fi-ochre:#B5673A;
+  --fi-malachite:#3E9B7E; --fi-gamboge:#E3A93C; --fi-lantern:#F5B94B; --fi-water:#C8D8E4;
+  --fi-ghost:#C9D7F2; --fi-sand:#E7DBBB; --fi-stone:#DCCFAB;
+  --fi-domain-math-fill:#C9D8E6; --fi-domain-math-ink:#2E5E8C;
+  --fi-domain-matter-fill:#E8CFAE; --fi-domain-matter-ink:#B5673A;
+  --fi-domain-life-fill:#C6DECC; --fi-domain-life-ink:#2B7A5F;
+  --fi-domain-cross-fill:#ECDFB4; --fi-domain-cross-ink:#A08428;
+  --fi-font-display:'Noto Serif SC','Songti SC',serif;
+  --fi-font-mono:'JetBrains Mono',ui-monospace,monospace;
+  --fi-font-body:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',system-ui,sans-serif;
+  --fi-radius-panel:10px; --fi-radius-pill:999px;
+  --play:running;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:26px 30px;background:var(--fi-paper);color:var(--fi-ink);font-family:var(--fi-font-body)}
+.hbadge{font-family:var(--fi-font-mono);font-size:11px;color:var(--fi-ochre);letter-spacing:.05em}
+h1{font-family:var(--fi-font-display);font-size:26px;font-weight:700;margin:8px 0 6px}
+.lede{font-size:13px;line-height:1.7;color:var(--fi-ink-2);max-width:980px;margin:0 0 6px}
+.lede b{color:var(--fi-ink)}
+.dims{display:flex;gap:26px;margin:14px 0 4px;flex-wrap:wrap}
+.legcol{font-size:12px;line-height:1.75}
+.legcol h4{font-family:var(--fi-font-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--fi-ink-2);margin:0 0 6px;font-weight:500}
+.dim{display:flex;gap:9px;align-items:baseline;margin-bottom:3px}
+.dim code{font-family:var(--fi-font-mono);font-size:11px;color:var(--fi-azurite);background:rgba(46,94,140,.08);border-radius:3px;padding:0 4px;white-space:nowrap}
+.dim span{color:var(--fi-ink-2);font-size:11.5px}
+.dim span b{color:var(--fi-ink)}
+.sw{width:13px;height:13px;border-radius:3px;border:1px solid rgba(0,0,0,.2);display:inline-block;vertical-align:-2px}
+.row{display:flex;gap:18px;margin-top:16px}
+.panel{flex:1;background:var(--fi-paper-raised);border:1px solid rgba(0,0,0,.08);border-radius:var(--fi-radius-panel);padding:12px 14px 14px}
+.panel.night{background:var(--fi-night-paper);border-color:rgba(255,255,255,.06)}
+.phdr{font-family:var(--fi-font-mono);font-size:10.5px;color:var(--fi-ink-2);display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.phdr b{font-family:var(--fi-font-display);font-size:13px;color:var(--fi-ink);font-weight:600}
+.panel.night .phdr{color:#8B94B2}.panel.night .phdr b{color:#C9D0E4}
+.scene{width:100%;height:auto;display:block;overflow:visible}
+.pcap{font-family:var(--fi-font-mono);font-size:10px;line-height:1.55;color:var(--fi-ink-2);margin-top:8px}
+.panel.night .pcap{color:#8B94B2}
+.pcap b{color:var(--fi-ink)}.panel.night .pcap b{color:#C9D0E4}
+.shipped{margin-top:16px;font-size:11.5px;line-height:1.7;color:var(--fi-ink-2);border:1px dashed var(--fi-ochre);border-radius:var(--fi-radius-panel);padding:10px 14px;max-width:980px}
+.shipped b{color:var(--fi-ochre)}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes ghostFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes twinkle{0%,100%{opacity:.9}50%{opacity:.25}}
+@keyframes breathe{0%,100%{opacity:.82}50%{opacity:1}}
+.vortex{transform-origin:center;transform-box:fill-box;animation:spin 7s linear infinite;animation-play-state:var(--play)}
+.ghostb{transform-box:fill-box;animation:ghostFloat 5.5s ease-in-out infinite;animation-play-state:var(--play)}
+.tw{animation:twinkle 4.5s ease-in-out infinite;animation-play-state:var(--play)}
+.halo{animation:breathe 5s ease-in-out infinite;animation-play-state:var(--play)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+
+<span class="hbadge">frontier-isles · components · claim-as-building · 变体 A（用户选定，已 ship：makeClaimMark）</span>
+<h1>主张即建筑 — 一条 claim = 岛上一栋会成长的细塔</h1>
+<p class="lede">形态<b>只由账本验证态驱动</b>（无数据源即砍 · invariant 6/14）。不混淆策略（vs station）：claim 比 station <b>小一号、更瘦、层层叠高</b>，数座环绕 station 聚成村落——station 是<b>宽体大屋顶</b>的孤立职能设施，claim 是<b>密集细塔群</b>，靠尺度 + 聚集一眼分层。等距 2:1、墨线笔触、MOUND_PATH、Day/Night 只换调色板——全部沿用 <code style="font-family:var(--fi-font-mono);font-size:12px">14-components-stations</code> 语汇，<b>未新增色相</b>。</p>
+
+<div class="dims">
+  <div class="legcol">
+    <h4>数据维 → 视觉编码（每维必绑一源）</h4>
+    <div class="dim"><code>foundation</code><span><b>地基</b> submit_claim 预印(开口/虚) · publish 已发表(实/封)</span></div>
+    <div class="dim"><code>floors 0…N</code><span><b>层数</b> = 不同其他岛独立 validate 数（自证不算）· 一眼可数</span></div>
+    <div class="dim"><code>roof ≥5</code><span><b>共识封顶</b> CONSENSUS_MIN · 宽檐领域色顶盖 + 藤黄光环，可远读</span></div>
+  </div>
+  <div class="legcol">
+    <h4>&nbsp;</h4>
+    <div class="dim"><code>ghost</code><span><b>魂影</b> refute / return_to_driftwood · 夜间可见 · 永不删除 · 对漩涡</span></div>
+    <div class="dim"><code>hasDoi</code><span><b>发表态</b> 赭石印章 vs 预印虚开口</span></div>
+    <div class="dim"><code>activity</code><span>事件密度（可选微动态 · 灯窗/呼吸）</span></div>
+  </div>
+  <div class="legcol">
+    <h4>领域色 · DOMAIN_COLORS（不可新增）</h4>
+    <div class="dim"><span class="sw" style="background:#C9D8E6"></span><span>数理 <code>#2E5E8C</code></span></div>
+    <div class="dim"><span class="sw" style="background:#E8CFAE"></span><span>物质 <code>#B5673A</code></span></div>
+    <div class="dim"><span class="sw" style="background:#C6DECC"></span><span>生命 <code>#2B7A5F</code></span></div>
+    <div class="dim"><span class="sw" style="background:#ECDFB4"></span><span>交叉 <code>#A08428</code></span></div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="panel">
+    <div class="phdr"><b>成长语法</b><span>floors 0 → 2 → 5+</span></div>
+    <svg class="scene" viewBox="0 0 460 440" data-kind="growth"></svg>
+    <p class="pcap"><b>+1 复现 = 顶上叠一层细楼。</b>裸预印本 = 单间小屋（仅地基层）；共识封顶盖住整座塔冠。</p>
+  </div>
+  <div class="panel">
+    <div class="phdr"><b>claim vs station</b><span>同屏 · 昼</span></div>
+    <svg class="scene" viewBox="0 0 460 440" data-kind="vs"></svg>
+    <p class="pcap"><b>大宽屋 = station（文献阁）</b>；小细塔环绕成聚落 = claims。体量差 ≈ 3×，聚落关系补强。</p>
+  </div>
+  <div class="panel night">
+    <div class="phdr"><b>鬼影 + 发表态</b><span>夜 · night vars</span></div>
+    <svg class="scene" viewBox="0 0 460 440" data-kind="night"></svg>
+    <p class="pcap"><b>被驳 = 虚线魂影细塔浮于漩涡上</b>（永不删除）。右：赭石印章 = 已发表(DOI)，虚开口 = 仅预印。</p>
+  </div>
+</div>
+
+<div class="shipped"><b>SHIPPED 现实（诚实偏差，非理想原型）：</b>变体 A 已移植 Pixi（scene-stage.ts makeClaimMark，b8e3435，178 测绿，render 0.2ms）——drawStory 等距三面棱柱、逐复现叠层+灯窗、floors≥5 drawCap 宽檐顶盖+光环、pre-consensus 域色 hip lid、spectral 魂影、claimDomain 域色查表。<b>尚未落地</b>：hasDoi 未穿到 SceneObject（产品里印章暂全为预印开口）；魂影缺漩涡+浮动动画（M5/海层）；灯窗 twinkle / 光环 breathe 微动态（M5）。变体 B（脚手架）/ C（基座）落选未 ship，完整探索稿存 Claude Design 项目 a3f16e64 / claim-as-building.html。</div>
+
+<script>
+/* Variant A parametric renderer — extracted from the chosen design source (claim-as-building.html),
+   trimmed to variant A. Iso 2:1, ink strokes, MOUND_PATH, night = palette swap only. */
+const MOUND = "M -58 10 C -50 -8 -26 -20 2 -21 C 30 -20 50 -9 58 8 C 46 16 30 20 0 20 C -30 20 -48 16 -58 10 Z";
+const DOM = {
+  math:  {fill:'#C9D8E6', ink:'#2E5E8C'},
+  matter:{fill:'#E8CFAE', ink:'#B5673A'},
+  life:  {fill:'#C6DECC', ink:'#2B7A5F'},
+  cross: {fill:'#ECDFB4', ink:'#A08428'},
+};
+const NIGHT = "--wall:#2B3658;--wallSh:#232E4E;--top:#33406A;--ink:#8E99BE;--ink2:#6E76A0;"+
+  "--shadow:rgba(0,0,0,0.42);--ground:#212C4E;--stone:#26314E;--sand:#2A3550;"+
+  "--gold:#F5B94B;--water:#26375C;--doorW:#141B30;--card:rgba(33,44,78,0.92)";
+const INK='var(--ink,#3A342B)', INK2='var(--ink2,#6B6154)', WALL='var(--wall,#F8F1DE)',
+  WALLSH='var(--wallSh,#E7DABE)', TOP='var(--top,#FBF6E9)', SHADOW='var(--shadow,rgba(58,48,36,0.16))',
+  SAND='var(--sand,#E7DBBB)', GOLD='var(--gold,#E3A93C)', OCHRE='var(--ochre,#B5673A)',
+  WATER='var(--water,#C8D8E4)', CARD='var(--card,rgba(250,245,232,0.92))';
+
+function story(cx, gy, a, H, o={}){
+  const wall=o.wall||WALL, sh=o.sh||WALLSH, top=o.top||TOP, st=o.st||INK, sw=o.sw??1.5;
+  const dash=o.dash?`stroke-dasharray="${o.dash}"`:'';
+  const L=`${cx-a},${gy-a/2-H} ${cx},${gy-H} ${cx},${gy} ${cx-a},${gy-a/2}`;
+  const R=`${cx+a},${gy-a/2-H} ${cx},${gy-H} ${cx},${gy} ${cx+a},${gy-a/2}`;
+  const T=`${cx},${gy-a-H} ${cx+a},${gy-a/2-H} ${cx},${gy-H} ${cx-a},${gy-a/2-H}`;
+  return `<polygon points="${L}" fill="${wall}" stroke="${st}" stroke-width="${sw}" ${dash}/>`+
+    `<polygon points="${R}" fill="${sh}" stroke="${st}" stroke-width="${sw}" ${dash}/>`+
+    `<polygon points="${T}" fill="${top}" stroke="${st}" stroke-width="${sw}" ${dash}/>`;
+}
+function shadow(cx, cy, rx, ry){ return `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${SHADOW}"/>`; }
+function mound(cx, cy, s, fill){
+  return `<g transform="translate(${cx},${cy}) scale(${s})"><path d="${MOUND}" fill="${fill}" stroke="${INK}" stroke-width="${(1.5/s).toFixed(2)}"/></g>`;
+}
+function seal(x,y,doi){
+  if(doi) return `<g transform="translate(${x},${y})"><circle r="8.5" fill="${OCHRE}" stroke="${INK}" stroke-width="1"/>`+
+    `<circle r="5" fill="none" stroke="${TOP}" stroke-width="1" opacity=".7"/>`+
+    `<text y="3.2" text-anchor="middle" font-size="8.5" fill="${TOP}" style="font-family:'Noto Serif SC',serif;font-weight:700">印</text></g>`;
+  return `<circle cx="${x}" cy="${y}" r="8.5" fill="none" stroke="${INK2}" stroke-width="1.3" stroke-dasharray="3 3"/>`;
+}
+function cap(cx, cyTop, a, dom, spectral){
+  const D=DOM[dom], cA=a*2.15, cH=cA*0.42;
+  const st = spectral?'var(--fi-ghost,#C9D7F2)':INK;
+  const fill = spectral?'rgba(201,215,242,0.16)':D.fill;
+  const canopy=`${cx},${cyTop-cH-6} ${cx+cA},${cyTop} ${cx},${cyTop+cH*0.55} ${cx-cA},${cyTop}`;
+  let s=`<polygon points="${cx-cA},${cyTop} ${cx},${cyTop+cH*0.55} ${cx+cA},${cyTop} ${cx},${cyTop+cH*0.55+7}" fill="rgba(58,48,36,0.18)"/>`;
+  s+=`<polygon points="${canopy}" fill="${fill}" stroke="${st}" stroke-width="${spectral?1.4:2.4}" ${spectral?'stroke-dasharray="4 3"':''}/>`;
+  if(!spectral){
+    s+=`<line x1="${cx-cA}" y1="${cyTop}" x2="${cx+cA}" y2="${cyTop}" stroke="${st}" stroke-width="1" opacity=".5"/>`;
+    s+=`<polygon points="${cx},${cyTop-cH-6} ${cx+cA*0.5},${cyTop-cH*0.5-3} ${cx},${cyTop-cH*0.5} ${cx-cA*0.5},${cyTop-cH*0.5-3}" fill="${D.ink}" stroke="${INK}" stroke-width="1.4"/>`;
+    s+=`<g class="halo"><circle cx="${cx}" cy="${cyTop-cH-30}" r="${cA*0.62}" fill="none" stroke="${GOLD}" stroke-width="2.2" stroke-dasharray="3 8" opacity=".7"/>`+
+       `<circle cx="${cx}" cy="${cyTop-cH-30}" r="4.5" fill="${GOLD}" stroke="${INK}" stroke-width="1"/></g>`;
+  }
+  return s;
+}
+function litWin(x,y){ return `<rect x="${x}" y="${y}" width="5" height="6" rx="1" fill="${GOLD}" class="tw"/>`; }
+/* variant A · slim stacked tower */
+function claimA(cx, gy, {floors=0, doi=false, dom='math', spectral=false, scale=1}={}){
+  const a=24*scale, H=19*scale, stories=floors+1;
+  const st = spectral?'var(--fi-ghost,#C9D7F2)':INK;
+  const wall = spectral?'rgba(201,215,242,0.14)':WALL, sh=spectral?'rgba(201,215,242,0.10)':WALLSH,
+        top=spectral?'rgba(201,215,242,0.20)':TOP;
+  const dash = spectral?'4 3':'';
+  let s = spectral?'':shadow(cx, gy+a/2+2, a*1.3, a*0.6);
+  for(let k=0;k<stories;k++){
+    const y = gy - k*H;
+    s += story(cx, y, a, H, {wall,sh,top,st,sw:spectral?1.3:1.5,dash});
+    if(!spectral) s += `<rect x="${cx-a*0.45}" y="${y-a*0.22-H*0.62}" width="6" height="7" rx="1" fill="${GOLD}" opacity=".85"/>`;
+  }
+  const yTop = gy - stories*H;
+  if(floors>=5) s += cap(cx, yTop, a, dom, spectral);
+  else s += `<polygon points="${cx},${yTop-a*0.5} ${cx+a},${yTop} ${cx},${yTop+a*0.5} ${cx-a},${yTop}" `+
+    (spectral?`fill="none" stroke="${st}" stroke-width="1.3" stroke-dasharray="${dash}"`
+             :`fill="${DOM[dom].fill}" stroke="${st}" stroke-width="1.5"`)+`/>`;
+  if(!spectral) s += seal(cx-a*0.5, gy-a*0.25-H*0.5, doi);
+  return s;
+}
+/* station (civic · wide roof, sits on ground) — for the vs panel */
+function station(cx, gy, dom, opts={}){
+  const a=opts.a||70, H=opts.H||36, D=DOM[dom];
+  let s = shadow(cx, gy+a/2+4, a*1.15, a*0.52);
+  s += story(cx, gy, a, H, {sw:1.5});
+  const ry=gy-H, rA=a*1.12, rH=rA*0.5;
+  s += `<polygon points="${cx},${ry-rH} ${cx+rA},${ry} ${cx},${ry+rH} ${cx-rA},${ry}" fill="${D.fill}" stroke="${INK}" stroke-width="1.5"/>`;
+  s += `<polygon points="${cx},${ry-rH} ${cx+rA},${ry} ${cx},${ry} ${cx},${ry-rH}" fill="rgba(58,48,36,0.10)"/>`;
+  s += `<circle cx="${cx-rA}" cy="${ry}" r="2.4" fill="${OCHRE}" stroke="${INK}" stroke-width="0.6"/>`;
+  s += `<circle cx="${cx+rA}" cy="${ry}" r="2.4" fill="${OCHRE}" stroke="${INK}" stroke-width="0.6"/>`;
+  const ly=ry-rH-16;
+  s += `<g transform="translate(${cx},${ly})"><rect x="-40" y="-11" width="80" height="21" rx="3" fill="${CARD}" stroke="${INK}" stroke-width="0.75"/>`+
+       `<circle cx="-30" cy="-0.5" r="2.5" fill="${D.ink}"/>`+
+       `<text x="4" y="4" text-anchor="middle" font-size="12" fill="var(--inkT,#2B2620)" style="font-family:'Noto Serif SC',serif;font-weight:600">${opts.name||'文献阁'}</text></g>`;
+  return s;
+}
+function whirlpool(cx,cy,s=1){
+  return `<g class="vortex" transform="translate(${cx},${cy}) scale(${s})">`+
+    `<circle r="52" fill="none" stroke="${OCHRE}" stroke-width="2.4" opacity=".26" stroke-dasharray="9 13"/>`+
+    `<path d="M0,-40 A40,40 0 0 1 35,20" fill="none" stroke="${OCHRE}" stroke-width="3.4" opacity=".55" stroke-linecap="round"/>`+
+    `<path d="M0,-26 A26,26 0 0 1 23,13" fill="none" stroke="${GOLD}" stroke-width="3.4" opacity=".8" stroke-linecap="round"/>`+
+    `<path d="M0,-12 A12,12 0 0 1 10,6" fill="none" stroke="${GOLD}" stroke-width="3.4" stroke-linecap="round"/></g>`;
+}
+function panelGrowth(){
+  const specs=[{floors:0,x:82},{floors:2,x:230},{floors:5,x:378}];
+  const gy=330, doms=['matter','math','life'];
+  let s = `<line x1="20" y1="352" x2="440" y2="352" stroke="rgba(58,48,36,0.12)" stroke-width="1"/>`;
+  specs.forEach((sp,i)=>{
+    const dom=doms[i];
+    s += mound(sp.x, gy+22, 1.15, DOM[dom].fill);
+    s += claimA(sp.x, gy, {floors:sp.floors, doi:i>0, dom});
+    s += `<text x="${sp.x}" y="392" text-anchor="middle" font-size="11" fill="${INK}" style="font-family:var(--fi-font-mono)">floors=${sp.floors}</text>`;
+    const lbl = sp.floors===0?'裸预印':sp.floors===2?'2× 复现':'5× · 共识';
+    s += `<text x="${sp.x}" y="406" text-anchor="middle" font-size="10" fill="${INK2}" style="font-family:var(--fi-font-mono)">${lbl}</text>`;
+  });
+  [[156,'+1'],[304,'+1']].forEach(([x,t])=>{
+    s+=`<path d="M ${x-18} 300 q 18 -16 36 0" fill="none" stroke="${OCHRE}" stroke-width="1.4" marker-end="url(#ar)"/>`;
+    s+=`<text x="${x}" y="288" text-anchor="middle" font-size="10" fill="${OCHRE}" style="font-family:var(--fi-font-mono)">${t} 复现</text>`;
+  });
+  return s;
+}
+function panelVs(){
+  let s = `<line x1="20" y1="366" x2="440" y2="366" stroke="rgba(58,48,36,0.12)" stroke-width="1"/>`;
+  s += mound(140, 372, 1.9, DOM.cross.fill);
+  s += station(140, 344, 'cross', {name:'文献阁'});
+  const cl=[{x:300,gy:352,floors:1,dom:'math'},{x:350,gy:340,floors:3,dom:'matter',doi:true},{x:398,gy:356,floors:0,dom:'life'},{x:346,gy:368,floors:2,dom:'cross'}];
+  s += mound(352, 380, 1.7, DOM.math.fill);
+  cl.sort((a,b)=>a.gy-b.gy).forEach(c=> s+=claimA(c.x,c.gy,{floors:c.floors,dom:c.dom,doi:c.doi}));
+  s += `<text x="140" y="410" text-anchor="middle" font-size="11" fill="${INK}" style="font-family:var(--fi-font-mono)">station · 职能设施</text>`;
+  s += `<text x="352" y="410" text-anchor="middle" font-size="11" fill="${INK}" style="font-family:var(--fi-font-mono)">claims · 主张聚落</text>`;
+  return s;
+}
+function panelNight(){
+  let s = `<rect x="0" y="0" width="460" height="440" fill="var(--fi-night-paper,#161F36)"/>`;
+  s += `<g style="${NIGHT}">`;
+  [[60,40],[180,28],[300,50],[420,34],[110,70],[380,80]].forEach(([x,y],i)=>{
+    s+=`<circle cx="${x}" cy="${y}" r="1.4" fill="#E8D9A8" class="tw" style="animation-delay:${i*0.6}s"/>`; });
+  s += `<circle cx="410" cy="52" r="16" fill="#E8D9A8" opacity=".85"/><circle cx="418" cy="48" r="14" fill="var(--fi-night-paper,#161F36)"/>`;
+  s += `<rect x="0" y="300" width="460" height="140" fill="${WATER}" opacity=".9"/>`;
+  s += whirlpool(150, 318, 1.05);
+  s += `<g class="ghostb">`+ claimA(150, 300, {floors:3, dom:'matter', spectral:true}) +`</g>`;
+  s += `<text x="150" y="400" text-anchor="middle" font-size="10.5" fill="var(--fi-ghost,#C9D7F2)" style="font-family:var(--fi-font-mono)">refuted · 魂影 · 永不删除</text>`;
+  s += mound(320, 356, 1.15, DOM.math.fill);
+  s += claimA(320, 336, {floors:2, dom:'math', doi:true});
+  s += litWin(316, 320);
+  s += mound(400, 360, 1.05, DOM.life.fill);
+  s += claimA(400, 342, {floors:1, dom:'life', doi:false});
+  s += `<text x="320" y="398" text-anchor="middle" font-size="10" fill="var(--fi-lantern,#F5B94B)" style="font-family:var(--fi-font-mono)">DOI · 已发表</text>`;
+  s += `<text x="400" y="398" text-anchor="middle" font-size="10" fill="#8B94B2" style="font-family:var(--fi-font-mono)">预印 · 开口</text>`;
+  s += `</g>`;
+  return s;
+}
+const DEFS = `<defs><marker id="ar" markerWidth="7" markerHeight="7" refX="5.5" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="${OCHRE}"/></marker></defs>`;
+document.querySelectorAll('svg.scene').forEach(svg=>{
+  const k=svg.dataset.kind;
+  const inner = k==='growth'?panelGrowth():k==='vs'?panelVs():panelNight();
+  svg.innerHTML = DEFS + inner;
+});
+</script>

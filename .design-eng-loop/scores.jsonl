@@ -1,0 +1,6 @@
+{"round":1,"tier1":"skipped","reason":"retro-backfill 2026-07-12: pull/enrich round, Tier-1 never run (pre-v3, skip-line discipline did not exist)"}
+{"round":"1b","tier1":"skipped","reason":"retro-backfill: honesty-correction round, gate-only"}
+{"round":2,"tier1":"skipped","reason":"retro-backfill: co-evolution R1, gates + manual verify only"}
+{"round":3,"tier1":"skipped","reason":"retro-backfill: co-evolution R2 semantic-bug round, 162 tests green, no Tier-1 panel"}
+{"round":4,"tier1":"skipped","reason":"retro-backfill: R3 + real Claude Design product run, gates only (product feedback in product-rounds.jsonl)"}
+{"round":5,"tier1":"skipped","reason":"backfill/recard round 2026-07-12, no code change so no Tier-1; next coevolve round should run the panel"}
