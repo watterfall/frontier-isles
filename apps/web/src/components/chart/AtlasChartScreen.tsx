@@ -48,7 +48,7 @@ export function AtlasChartScreen(props: ChartScreenProps) {
 }
 
 function AtlasChartScreenImpl(props: ChartScreenProps) {
-  const { islands, filter = '全部', onFilter, hover, onHover, onIsland, onBuild, onCollide } = props;
+  const { islands, harbor, filter = '全部', onFilter, hover, onHover, onIsland, onBuild, onCollide } = props;
   const { t, i18n } = useTranslation();
   const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
 
@@ -85,10 +85,10 @@ function AtlasChartScreenImpl(props: ChartScreenProps) {
           GeneratedIslandScreen's PixiScene: a brief blank paper background
           while the small atlas chunk loads, never a double chrome. */}
       <Suspense fallback={<div className="fi-atlas-loading" role="status"><i aria-hidden="true" /><span>{t('chart.tiers.loading')}</span></div>}>
-        <AtlasChartHost islands={islands} onPick={onIsland} onHoverIsland={handleHoverIsland} onWebglError={handleWebglError} onReady={setControls} onMetrics={setMetrics} />
+        <AtlasChartHost islands={islands} harbor={harbor} onPick={onIsland} onHoverIsland={handleHoverIsland} onWebglError={handleWebglError} onReady={setControls} onMetrics={setMetrics} />
       </Suspense>
 
-      <ChartChrome islands={islands} onPick={onIsland} onBuild={onBuild} onCollide={onCollide} filter={filter} onFilter={onFilter} controls={controls} metrics={metrics} />
+      <ChartChrome islands={islands} onPick={onIsland} onBuild={onBuild} onCollide={onCollide} filter={filter} onFilter={onFilter} controls={controls} metrics={metrics} onHome={harbor && harbor.islandSlugs.length > 0 ? () => controls?.home?.() : undefined} />
 
       {card && <IslandCard content={card.content} left={card.left} top={card.top} />}
     </div>

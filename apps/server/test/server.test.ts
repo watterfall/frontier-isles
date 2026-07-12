@@ -502,3 +502,31 @@ describe("auth", () => {
     expect(me2.actor).toBeNull();
   });
 });
+
+describe("my harbor (depth-plan-v1 §3(d))", () => {
+  it("is null when logged out — the atlas opens world-wide", async () => {
+    const { harbor } = await jsonOf(await app.request("/api/harbor"));
+    expect(harbor).toBeNull();
+  });
+
+  it("returns the session actor's membership footprint as slugs", async () => {
+    const login = await post("/api/auth/dev-login", { handle: "shen-kuo" });
+    const cookie = (login.headers.get("set-cookie") ?? "").split(";")[0] ?? "";
+    const { harbor } = await jsonOf(await app.request("/api/harbor", { headers: { cookie } }));
+    expect(harbor.actorId).toBe("github:shen-kuo");
+    expect(harbor.islandSlugs).toContain("machine-curiosity");
+  });
+
+  it("a brand-new actor has an empty harbor (honest absence, no fake anchor)", async () => {
+    const login = await post("/api/auth/dev-login", { handle: "first-visit" });
+    const cookie = (login.headers.get("set-cookie") ?? "").split(";")[0] ?? "";
+    const { harbor } = await jsonOf(await app.request("/api/harbor", { headers: { cookie } }));
+    expect(harbor.islandSlugs).toEqual([]);
+  });
+
+  it("a capability grant places the island in the agent's footprint", () => {
+    const row = store.getProblemRow("machine-curiosity")!;
+    store.addGrant(row.opId, "github:scout", "propose_subquestion", "github:shen-kuo", "h0");
+    expect(store.actorFootprint("github:scout")).toContain("machine-curiosity");
+  });
+});

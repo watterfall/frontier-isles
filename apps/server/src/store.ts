@@ -488,6 +488,23 @@ export class Store {
       .run(opId, agentId, capability, grantedBy, eventHash);
   }
 
+  /** Cross-island place-plane footprint (depth-plan-v1 §3(d) My Harbor):
+   * island SLUGS where the actor holds a membership or a capability grant.
+   * `core/harbor.ts` deliberately stays network/DB-free and asks its caller
+   * to assemble the footprint — this is that assembly, done where it is one
+   * indexed query instead of N `islandDetail` round-trips. */
+  actorFootprint(actorId: string): string[] {
+    const rows = this.db
+      .prepare(
+        `SELECT DISTINCT p.slug AS slug FROM problem_objects p
+         WHERE p.op_id IN (SELECT op_id FROM memberships WHERE actor_id = ?)
+            OR p.op_id IN (SELECT op_id FROM capability_grants WHERE agent_id = ?)
+         ORDER BY p.slug`,
+      )
+      .all(actorId, actorId) as Array<{ slug: string }>;
+    return rows.map((r) => r.slug);
+  }
+
   // --- capability gateway ---------------------------------------------------
 
   /**

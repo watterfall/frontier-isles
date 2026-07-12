@@ -12,6 +12,9 @@ export interface ChartChromeProps {
   onFilter?: (filter: string) => void;
   controls?: AtlasControls | null;
   metrics?: AtlasMetrics | null;
+  /** Sail back to My Harbor (depth-plan-v1 §3(d)). Provided only when the
+   * session actually has a harbor — absent, the button does not render. */
+  onHome?: () => void;
 }
 
 const DOMAIN_KEYS = [
@@ -26,7 +29,7 @@ const DOMAIN_KEYS = [
  * visible affordance is real: `/` focuses search, results sail through the
  * normal L0→L1 route, and all actions are semantic keyboard-reachable buttons.
  */
-export function ChartChrome({ islands, onPick, onBuild, onCollide, filter = '全部', onFilter, controls, metrics }: ChartChromeProps) {
+export function ChartChrome({ islands, onPick, onBuild, onCollide, filter = '全部', onFilter, controls, metrics, onHome }: ChartChromeProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -189,6 +192,7 @@ export function ChartChrome({ islands, onPick, onBuild, onCollide, filter = '全
         <button type="button" onClick={() => controls?.zoomIn()} disabled={!controls} aria-label={t('chart.zoomIn')}>＋</button>
         <button type="button" onClick={() => controls?.zoomOut()} disabled={!controls} aria-label={t('chart.zoomOut')}>−</button>
         <button type="button" className="fi-camera-reset" onClick={() => controls?.reset()} disabled={!controls} aria-label={t('chart.resetView')}><span aria-hidden="true">⌾</span><small>{t('chart.resetShort')}</small></button>
+        {onHome && <button type="button" className="fi-camera-reset" onClick={onHome} disabled={!controls} aria-label={t('chart.harborReturn')}><span aria-hidden="true">⚓</span><small>{t('chart.harborShort')}</small></button>}
       </nav>
     </header>
   );

@@ -33,6 +33,8 @@ export const zh = {
     zoomOut: '缩小海图',
     resetView: '回到全图',
     resetShort: '全图',
+    harborReturn: '回到我的港湾',
+    harborShort: '回港',
     navigationHint: '拖移海图 · 滚轮缩放 · 点击靠岸',
     detailHint: '靠近时，地区、岛屿与研究建筑逐层显现',
     legendOutlier: '离群 · 反常发光',

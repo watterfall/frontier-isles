@@ -294,6 +294,10 @@ interface IslandNode {
   /** Nested-disclosure alpha for THIS camera (anchors always 1; satellites from
    * satelliteDisclosure). Written once per applyTier, read by labels + routes. */
   reveal: number;
+  /** My Harbor fog dim ∈ (0,1] for THIS camera (1 = no harbor / no fog).
+   * Written once per applyTier alongside `reveal`; multiplied into sprite and
+   * label alphas — never into visibility or hit-testing (invariant 4). */
+  fogDim: number;
 }
 
 export class AtlasStage {
@@ -377,6 +381,13 @@ export class AtlasStage {
   private domainFocus: AtlasDomain | null = null;
   private altitudeFocus: AtlasAltitudeBand | null = null;
   private altitudeBySlug = new Map<string, AtlasAltitudeBand>();
+  /** My Harbor (depth-plan-v1 §3(d)): the actor's home set + per-island fog. */
+  private harborSlugs = new Set<string>();
+  private harborFog = new Map<string, number>();
+  /** The visitor has taken the camera somewhere themselves (drag / wheel /
+   * zoom buttons). A late-arriving harbor then only applies its fog — it
+   * never steals the camera back to the anchor mid-exploration. */
+  touched = false;
 
   // pointer / drag state
   private dragging = false;
@@ -569,7 +580,7 @@ export class AtlasStage {
     dot.eventMode = 'none';
     this.labelLayer.addChild(dot);
 
-    return { o, sprite, glow, labelGroup: group, labelText, labelSub, labelBg, dot, halfW: 0, halfH: 0, showingTier: '', band, reveal: (o.role ?? 'anchor') === 'satellite' ? 0 : 1 };
+    return { o, sprite, glow, labelGroup: group, labelText, labelSub, labelBg, dot, halfW: 0, halfH: 0, showingTier: '', band, reveal: (o.role ?? 'anchor') === 'satellite' ? 0 : 1, fogDim: 1 };
   }
 
   private buildClusters(): void {
@@ -1001,6 +1012,7 @@ export class AtlasStage {
 
   private onWheel(e: WheelEvent): void {
     e.preventDefault();
+    this.touched = true;
     const rect = this.canvasEl!.getBoundingClientRect();
     this.wheelPx = e.clientX - rect.left;
     this.wheelPy = e.clientY - rect.top;
@@ -1054,6 +1066,7 @@ export class AtlasStage {
   /** Public instrument controls used by the React chart chrome. */
   zoomBy(factor: number): void {
     if (!this.app) return;
+    this.touched = true;
     this.zoomAt(this.app.screen.width / 2, this.app.screen.height / 2, factor);
   }
 
@@ -1078,6 +1091,64 @@ export class AtlasStage {
     this.requestFrame(true);
   }
 
+  // ─── My Harbor 我的港湾 (depth-plan-v1 §3(d)) ────────────────────────────────
+
+  /** Set the actor's harbor: home slugs + per-island fog levels (computed by
+   * the host from core `fogLevel`). PURELY a focus dim — fog never hides an
+   * island and never leaves hit-testing ("a filter, not a wall" — invariant
+   * 4). `null` clears (logged out / no footprint → the plain world). */
+  setHarbor(harbor: { slugs: readonly string[]; fog: ReadonlyMap<string, number> } | null): void {
+    this.harborSlugs = new Set(harbor?.slugs ?? []);
+    this.harborFog = harbor ? new Map(harbor.fog) : new Map();
+    this.requestFrame(true);
+  }
+
+  /** World-space centroid of the harbor islands (projected plane), or null. */
+  private harborCenter(): { x: number; y: number } | null {
+    const nodes = this.islands.filter((node) => this.harborSlugs.has(node.o.slug));
+    if (nodes.length === 0) return null;
+    let x = 0;
+    let y = 0;
+    for (const node of nodes) {
+      x += node.o.x;
+      y += projectIslandY(node.o);
+    }
+    return { x: x / nodes.length, y: y / nodes.length };
+  }
+
+  /** A scale that reads as "home waters": solidly mid tier, so the harbor
+   * islands carry their names without collapsing to one isle's close-up.
+   * When home includes a SATELLITE, land past the anchor-first disclosure
+   * threshold instead — your own island must actually be visible on open. */
+  private harborScale(): number {
+    const hasSatellite = this.islands.some(
+      (node) => this.harborSlugs.has(node.o.slug) && (node.o.role ?? 'anchor') === 'satellite',
+    );
+    return Math.max(this.minScale, Math.min(MAX_SCALE, hasSatellite ? 2.3 : 1.15));
+  }
+
+  /** Compose the FIRST paint at the harbor instead of the whole ocean (§3(d)
+   * "you do not cold-open the 700-island ocean"). No flight — this is the
+   * opening composition, not a navigation. Empty harbor → keeps the world
+   * framing: you lose only the gentle entry, never any island (removal test). */
+  openAtHarbor(): void {
+    if (!this.app) return;
+    const center = this.harborCenter();
+    if (!center) return;
+    const scale = this.harborScale();
+    this.worldRoot.scale.set(scale);
+    this.worldRoot.x = this.app.screen.width / 2 - center.x * scale;
+    this.worldRoot.y = this.app.screen.height / 2 - center.y * scale;
+    this.requestFrame(true);
+  }
+
+  /** Sail home (chrome control): ease the camera back to the harbor. No-op
+   * without a harbor, so the control can be wired unconditionally. */
+  returnToHarbor(): void {
+    const center = this.harborCenter();
+    if (center) this.flyToPoint(center.x, center.y, this.harborScale());
+  }
+
   /** Current screen-space anchor for React hover cards and verification. */
   screenPoint(slug: string): { x: number; y: number } | null {
     const node = this.islands.find((candidate) => candidate.o.slug === slug);
@@ -1092,6 +1163,11 @@ export class AtlasStage {
     if (!this.app || width < 1 || height < 1) return;
     this.app.renderer.resize(width, height);
     this.resetView();
+    // Keep the harbor opening composition through the boot-time
+    // ResizeObserver tick (observe() fires once immediately) and honest
+    // window resizes alike — but never wrestle a camera the visitor has
+    // already taken over. No-op without a harbor.
+    if (!this.touched) this.openAtHarbor();
   }
 
   // ─── Camera continuity (W5 goal 1b + §5 wayfinding) ─────────────────────────
@@ -1176,6 +1252,7 @@ export class AtlasStage {
 
   private onPointerDown(e: PointerEvent): void {
     this.dragging = true;
+    this.touched = true;
     this.moved = false;
     this.dragStartX = e.clientX;
     this.dragStartY = e.clientY;
@@ -1338,6 +1415,13 @@ export class AtlasStage {
         ? (parent ? satelliteDisclosure(scale, parent.sx, parent.sy, view.width, view.height) : satelliteAlpha)
         : 1;
       nd.reveal = hierarchyAlpha;
+      // My Harbor fog (§3(d)): far-from-harbor islands read dimmer at the
+      // overview, and the fog lifts as you sail near (blend.near → 1) — the
+      // fog answers the overview question "where is home", never the close
+      // read. Dim floors at 0.45 and hit-testing is untouched: a focus
+      // filter, not a wall (invariant 4).
+      const harborFog = this.harborFog.get(o.slug) ?? 0;
+      nd.fogDim = 1 - harborFog * 0.55 * (1 - blend.near);
       const domainVisible = !this.domainFocus || o.domain === this.domainFocus;
       const altitudeVisible = !this.altitudeFocus || nd.band === this.altitudeFocus;
       const focusVisible = domainVisible && altitudeVisible;
@@ -1348,7 +1432,7 @@ export class AtlasStage {
       // Sprite culling: hide when off-screen or when the island layer is invisible (far tier).
       nd.sprite.visible = vis && focusVisible && hierarchyAlpha > 0.02 && this.islandLayer.alpha > 0.02;
       nd.sprite.eventMode = hierarchyAlpha > 0.24 ? 'static' : 'none';
-      nd.sprite.alpha = (o.dormant ? 0.68 : 1) * hierarchyAlpha;
+      nd.sprite.alpha = (o.dormant ? 0.68 : 1) * hierarchyAlpha * nd.fogDim;
       if (nd.glow) nd.glow.visible = vis && focusVisible && hierarchyAlpha > 0.02; // glow rides glowLayer alpha
       if (nd.glow) nd.glow.alpha = hierarchyAlpha;
       if (vis && focusVisible && hierarchyAlpha > 0.02 && this.islandLayer.alpha > 0.02) {
@@ -1402,8 +1486,8 @@ export class AtlasStage {
         nd.labelGroup.visible = onscreen && asLabel;
         nd.dot.visible = onscreen && !asLabel;
         const hierarchyAlpha = nd.reveal;
-        nd.labelGroup.alpha = Math.max(blend.mid, blend.near) * hierarchyAlpha;
-        nd.dot.alpha = Math.max(blend.mid, blend.near) * hierarchyAlpha;
+        nd.labelGroup.alpha = Math.max(blend.mid, blend.near) * hierarchyAlpha * nd.fogDim;
+        nd.dot.alpha = Math.max(blend.mid, blend.near) * hierarchyAlpha * nd.fogDim;
         if (asLabel) shown++;
       }
       this.lastLabelCount = shown;
@@ -1411,8 +1495,8 @@ export class AtlasStage {
       // cheap path: keep prior verdicts, just re-apply tier alpha
       for (const nd of this.islands) {
         const hierarchyAlpha = nd.reveal;
-        nd.labelGroup.alpha = Math.max(blend.mid, blend.near) * hierarchyAlpha;
-        nd.dot.alpha = Math.max(blend.mid, blend.near) * hierarchyAlpha;
+        nd.labelGroup.alpha = Math.max(blend.mid, blend.near) * hierarchyAlpha * nd.fogDim;
+        nd.dot.alpha = Math.max(blend.mid, blend.near) * hierarchyAlpha * nd.fogDim;
       }
     } else {
       this.lastLabelCount = 0;

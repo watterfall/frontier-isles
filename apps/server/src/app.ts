@@ -66,6 +66,17 @@ export function createApp(store: Store): Hono {
   // No new verb; reads are projections (§7-7). Best-effort on the client.
   app.get("/api/currents", (c) => c.json(store.seaData()));
 
+  // My Harbor (depth-plan-v1 §3(d)) — the session actor's cross-island
+  // place-plane footprint, as slugs. The web derives the camera anchor and
+  // fog from the SAME positions it renders (one coordinate space, no server
+  // duplicate). Logged out / server absent → `harbor: null` → the atlas
+  // opens world-wide, nothing else changes (the §3(d)④ removal test).
+  app.get("/api/harbor", (c) => {
+    const actor = actorOf(c);
+    if (!actor) return c.json({ harbor: null });
+    return c.json({ harbor: { actorId: actor.id, islandSlugs: store.actorFootprint(actor.id) } });
+  });
+
   app.post("/api/islands", async (c) => {
     const body = await c.req.json().catch(() => null);
     if (!body || typeof body !== "object") return c.json({ error: "invalid body" }, 400);
