@@ -43,6 +43,37 @@ export interface ApiHarbor {
   islandSlugs: string[];
 }
 
+/** A structure (GET /api/structures) — a cross-substrate regularity (§九). */
+export interface ApiStructure {
+  schema: string;
+  id: string;
+  title: { zh: string; en: string };
+  statement: { zh: string; en: string };
+  status: 'proposed' | 'active' | 'retired';
+  license: string;
+}
+
+/** One structure⇄island edge (a reduce over rebuild events). */
+export interface ApiStructureEdge {
+  structureId: string;
+  islandOp: string;
+  weight: number;
+  actors: string[];
+}
+
+/** Per-structure frontier: rebuilt islands + the near gaps (the visible frontier). */
+export interface ApiStructureFrontier {
+  structureId: string;
+  rebuilt: string[];
+  gaps: string[];
+}
+
+/** GET /api/structures/graph payload. */
+export interface ApiStructureGraph {
+  edges: ApiStructureEdge[];
+  frontier: ApiStructureFrontier[];
+}
+
 /** Sea-plane payload (GET /api/currents) — a projection over the whole ledger. */
 export interface ApiCurrent {
   from: string;
@@ -145,6 +176,13 @@ export const api = {
 
   /** Sea plane: currents + whirlpools + island coordinates. Best-effort. */
   currents: () => req<ApiSeaData>('/api/currents'),
+
+  /** Structures (执行纲要 §九) — the portable 结构 half of the bipartite graph. */
+  structures: () => req<{ structures: ApiStructure[] }>('/api/structures'),
+
+  /** The structure ⇄ 现象 graph: edges + per-structure frontier, reduced over
+   *  the whole ledger server-side. Best-effort (falls back to a static graph). */
+  structureGraph: () => req<ApiStructureGraph>('/api/structures/graph'),
 
   /** Server shape: `{actor: {id, kind} | null}`; expose the app's handle view. */
   me: async (): Promise<ApiMe | null> => {

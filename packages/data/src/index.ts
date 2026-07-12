@@ -14,4 +14,5 @@ export * from './frontiers';
 export * from './bridges';
 export * from './sea';
 export * from './regions';
+export * from './structures';
 export * from './interiors';

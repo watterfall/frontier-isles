@@ -125,6 +125,17 @@ export type { NightTimelineMarker, NightTimelineModel } from "./night-timeline";
 export { buildTransplant, TRANSPLANT_TARGETS } from "./transplant";
 export type { TransplantInput, TransplantBuild, BridgeArtifactContent } from "./transplant";
 
+// Structure ⇄ 现象 bipartite graph (执行纲要 §九 — 学科打通)
+export { MappingArtifactSchema } from "./mapping";
+export type { MappingArtifact } from "./mapping";
+export { reduceStructureGraph, structureFrontier, disciplineDistance } from "./structures";
+export type {
+  StructureEdge,
+  StructureIslandLike,
+  StructureFrontier,
+  DomainPairDistance,
+} from "./structures";
+
 // Synthetic scale corpus (atlas-world-plan.md §4 lane W4 — believable N=200/700
 // frontier data for stress-testing the world-map tiers; honestly flagged
 // `synthetic`/`syn-*`, never mixed into the curated fallback DATA)

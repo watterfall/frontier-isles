@@ -5,7 +5,7 @@ import { getCookie, setCookie, deleteCookie } from "hono/cookie";
 import { ZodError } from "zod";
 import type { Actor, FlowType, Phase } from "@frontier-isles/opp";
 import type { BridgeArtifactType, GatewayAction, StationKind } from "@frontier-isles/core";
-import { BRIDGE_ARTIFACT_TYPES, TRANSPLANT_TARGETS } from "@frontier-isles/core";
+import { BRIDGE_ARTIFACT_TYPES, TRANSPLANT_TARGETS, MappingArtifactSchema } from "@frontier-isles/core";
 import { Store, GatewayDenied, ChainError, EvidenceRequired, NotFound } from "./store.js";
 import type { RefKind } from "./refs.js";
 
@@ -26,6 +26,7 @@ const GATEWAY_ACTIONS = new Set<string>([
   "bridge_accept",
   "grant_capability",
   "night_digest",
+  "rebuild",
   "create_driftwood",
   "attach_data",
   "attach_hardware",
@@ -169,6 +170,58 @@ export function createApp(store: Store): Hono {
     const ref = store.getRef(decodeURIComponent(c.req.param("hash")));
     if (!ref) return c.json({ error: "not found" }, 404);
     return c.json(ref);
+  });
+
+  // --- structures (执行纲要 §九) --------------------------------------------
+  // The portable "结构" half of the 结构 ⇄ 现象 graph. Edges are NOT served here
+  // — they are a reduce over rebuild events on each island's ledger (inv 14/15).
+
+  app.get("/api/structures", (c) => c.json({ structures: store.listStructures() }));
+
+  // The bipartite graph (edges + per-structure frontier), reduced over the whole
+  // ledger. MUST be registered before `/:id` so "graph" is not read as a slug.
+  app.get("/api/structures/graph", (c) => c.json(store.structureGraph()));
+
+  // `:id` may be `<slug>` (JSON) or `<slug>.md` (the leavable markdown, §6).
+  app.get("/api/structures/:id", (c) => {
+    const id = c.req.param("id");
+    const md = id.endsWith(".md");
+    const slug = md ? id.slice(0, -3) : id;
+    const found = store.getStructure(slug);
+    if (!found) return md ? c.text("not found", 404) : c.json({ error: "not found" }, 404);
+    return md
+      ? c.body(found.md, 200, { "Content-Type": "text/markdown; charset=utf-8" })
+      : c.json(found.object);
+  });
+
+  // A human rebuilds a structure onto this island: the edge of the bipartite
+  // graph (§九). Routed through the SAME capability gateway as every push —
+  // rebuild requires station_write, so an ungranted AGENT's rebuild degrades to
+  // a dock proposal (§六.1: the mapping can only be human-authored). The mapping
+  // artifact is validated, then stored content-addressed as the event's ref.
+  app.post("/api/islands/:slug/rebuild", async (c) => {
+    const slug = c.req.param("slug");
+    const row = store.getProblemRow(slug);
+    if (!row) return c.json({ error: "not found" }, 404);
+    const body = await c.req.json().catch(() => null);
+    if (!body || typeof body !== "object") return c.json({ error: "invalid body" }, 400);
+    const actor: Actor | undefined = body.actor ?? actorOf(c);
+    if (!actor) return c.json({ error: "actor required" }, 401);
+    const parsed = MappingArtifactSchema.safeParse(body.mapping);
+    if (!parsed.success) return c.json({ error: "invalid mapping", detail: parsed.error.issues }, 400);
+    // The mapping must be about THIS island (no cross-island spoofing).
+    if (parsed.data.islandOp !== row.opId) return c.json({ error: "mapping.islandOp must match this island" }, 400);
+    try {
+      const result = store.gateway(row.opId, {
+        actor,
+        gatewayAction: "rebuild",
+        payload: parsed.data,
+        refKind: "mapping",
+      });
+      return c.json(result, 201);
+    } catch (e) {
+      return errorResponse(c, e);
+    }
   });
 
   // --- morning report (dock HITL) ------------------------------------------

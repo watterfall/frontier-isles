@@ -172,9 +172,13 @@ describe("projectArchipelagos — naming", () => {
 
 describe("projectArchipelagos — curated overlay is a PURE re-label (hybrid honesty, inv 14/15)", () => {
   // A tiny place-plane overlay keyed by real curated cluster codes (frontiers.ts).
+  // Codes chosen because they still dominate a real spatial region at N=128
+  // (C23 「AI数学·形式科学」 owns a clean cluster; C33 「基础物理」 leads another).
+  // The 78-island example (C01/C34) no longer dominates any region once the §九
+  // coverage expansion enlarged the 生命/交叉 areas — a data fact, not a bug.
   const CURATED = {
-    C01: { zh: "工程生命", en: "Engineered Life", caption: { zh: "可编程的生命", en: "programmable life" } },
-    C34: { zh: "无知测绘", en: "Mapping Ignorance" },
+    C23: { zh: "AI数学", en: "AI Mathematics", caption: { zh: "会证明的机器", en: "machines that prove" } },
+    C33: { zh: "实在探针", en: "Probing Reality" },
   } as const;
 
   it("does NOT change membership, ids, centers, radii or outliers — names/captions only", () => {
@@ -204,10 +208,10 @@ describe("projectArchipelagos — curated overlay is a PURE re-label (hybrid hon
       expect(a.islandSlugs).toEqual(p.islandSlugs); // membership frozen
       if (a.name.zh !== p.name.zh) renamed++;
     }
-    // The curated set covers C01 (合成生物·工程生命) which dominates a real region.
+    // The curated set covers C23 (AI数学·形式科学) which dominates a real region.
     expect(renamed).toBeGreaterThanOrEqual(1);
     // A curated caption surfaces on the matched region (and never on an unmatched one).
-    expect(curated.archipelagos.some((a) => a.caption?.zh === "可编程的生命")).toBe(true);
+    expect(curated.archipelagos.some((a) => a.caption?.zh === "会证明的机器")).toBe(true);
   });
 
   it("region 体温 (heat) is the mean member activity mapped to [0,1], not a size rank", () => {
@@ -229,7 +233,7 @@ describe("projectArchipelagos — curated overlay is a PURE re-label (hybrid hon
   });
 });
 
-describe("projectArchipelagos — 78-island real dataset (packages/data)", () => {
+describe("projectArchipelagos — 128-island real dataset (packages/data)", () => {
   const islands = realIslands();
   const { archipelagos, outliers } = projectArchipelagos(islands, []);
 

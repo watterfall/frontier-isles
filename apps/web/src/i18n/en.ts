@@ -74,6 +74,7 @@ export const en: Resources = {
       approaches: 'Approaches',
       barrier: 'The hard barrier',
       subQuestions: 'Open sub-questions',
+      literature: 'References',
     },
     interior: {
       kicker: 'L2 · Station interior',

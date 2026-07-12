@@ -20,11 +20,13 @@ describe('spaceIslands', () => {
   });
 
   it('separates every island to its scale-adjusted spacing floor', () => {
-    // 79 islands cannot reach the 150px default floor in the fixed fallback
-    // canvas (that density is what the zoomable Pixi atlas is for — despace is
-    // the pre-atlas stopgap, see the file header). 120px is feasible and still
-    // meaningfully spreads the densest pairs.
-    const minDist = 120;
+    // 129 islands (128 curated frontiers + the sample island) cannot reach the
+    // 150px default floor in the fixed fallback canvas — nor even the 120px that
+    // was feasible at 79. That density is exactly what the zoomable Pixi atlas is
+    // for (it clusters overlaps into anchor+satellite hierarchies); despace is the
+    // pre-atlas stopgap (see the file header). 90px is feasible at this N and
+    // still meaningfully spreads the densest pairs.
+    const minDist = 90;
     const placed = spaceIslands(DATA, { minDist });
     const minScale = Math.min(...DATA.map((d) => d.s));
     // every pair ends ≥ minDist × avg(scale) apart, so the global floor is minDist × minScale

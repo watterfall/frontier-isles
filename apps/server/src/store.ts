@@ -3,8 +3,11 @@ import {
   hashEvent,
   parseProblemObject,
   serializeProblemObject,
+  parseStructureObject,
+  serializeStructureObject,
   ProblemObjectSchema,
   verifyChain,
+  type StructureObject,
   type Actor,
   type ActionType,
   type FlowType,
@@ -35,10 +38,15 @@ import {
   projectWhirlpools,
   projectMorningReport,
   buildTransplant,
+  reduceStructureGraph,
+  structureFrontier,
   type BridgeArtifactType,
   type Current,
   type Whirlpool,
   type MorningReportEntry,
+  type MappingArtifact,
+  type StructureEdge,
+  type StructureFrontier,
 } from "@frontier-isles/core";
 import { domainToVec, type IslandInterior } from "@frontier-isles/data";
 import type { DB } from "./db.js";
@@ -74,6 +82,7 @@ const LEDGER_ACTION: Record<GatewayAction, ActionType> = {
   bridge_accept: "bridge_accept",
   grant_capability: "grant_capability",
   night_digest: "night_digest",
+  rebuild: "rebuild",
   // MCP write actions with no native ActionType record as a night digest / note.
   create_driftwood: "night_digest",
   attach_data: "night_digest",
@@ -91,6 +100,7 @@ const DEFAULT_PHASE: Record<GatewayAction, Phase> = {
   bridge_propose: "B",
   bridge_accept: "B",
   transplant: "B",
+  rebuild: "B",
   attach_data: "B",
   attach_hardware: "B",
   submit_claim: "D",
@@ -109,6 +119,7 @@ const DEFAULT_STATION: Partial<Record<GatewayAction, StationKind>> = {
   validate: "workshop",
   bridge_artifact: "dock",
   transplant: "dock",
+  rebuild: "dock",
   create_driftwood: "driftwood",
   return_to_driftwood: "driftwood",
   attach_data: "data",
@@ -187,6 +198,9 @@ export interface ProblemMeta {
     citation: { url: string; title: string; venue: string; year: number };
     brief: { zh: string; en: string };
     outlier?: boolean;
+    /** Full grounded evidence list (real citations) — feeds the island library +
+     *  problem.md 参考文献 (§九 Phase 1). From FrontierEntry.literature. */
+    literature?: { title: string; venue: string; year: number; url: string }[];
     /** Grounded deep content (overview/whyMatters/ifAnswered/approaches/barrier/
      *  subQuestions) — feeds the L1 detail dossier + problem.md body so opening
      *  an island is never empty. From @frontier-isles/data FrontierEntry.depth. */
@@ -355,6 +369,59 @@ export class Store {
         object.qfocus,
         JSON.stringify(meta),
       );
+  }
+
+  // --- structures (执行纲要 §九, knowledge plane) ----------------------------
+
+  /** Insert a structure object. md_source is authoritative + round-trips (§6).
+   *  Idempotent on id. slug is the last struct:// path segment. */
+  insertStructure(object: StructureObject): void {
+    const slug = structSlugOf(object.id);
+    this.db
+      .prepare(
+        `INSERT OR IGNORE INTO structure_objects (id, slug, md_source, status) VALUES (?, ?, ?, ?)`,
+      )
+      .run(object.id, slug, serializeStructureObject(object), object.status);
+  }
+
+  /** All structures (parsed from their authoritative md). */
+  listStructures(): StructureObject[] {
+    const rows = this.db
+      .prepare("SELECT md_source FROM structure_objects ORDER BY id")
+      .all() as { md_source: string }[];
+    return rows.map((r) => parseStructureObject(r.md_source));
+  }
+
+  /** One structure by slug — object + raw md (for the .md leavability route). */
+  getStructure(slug: string): { object: StructureObject; md: string } | undefined {
+    const row = this.db
+      .prepare("SELECT md_source FROM structure_objects WHERE slug = ?")
+      .get(slug) as { md_source: string } | undefined;
+    if (!row) return undefined;
+    return { object: parseStructureObject(row.md_source), md: row.md_source };
+  }
+
+  /**
+   * The 结构 ⇄ 现象 bipartite graph as a pure reduce over the WHOLE ledger
+   * (执行纲要 §九): rebuild events whose ref resolves to a mapping become edges;
+   * structureFrontier then derives each structure's rebuilt islands + near gaps.
+   * No edge is stored — this is `reduce`, not a relation table (inv 14/15).
+   */
+  structureGraph(): { edges: StructureEdge[]; frontier: StructureFrontier[] } {
+    const rows = this.listProblemRows();
+    const events: LedgerEvent[] = [];
+    for (const r of rows) events.push(...this.getEvents(r.opId));
+    const resolveRef = (ref: string): MappingArtifact | null => {
+      const r = this.getRef(ref);
+      return r && r.kind === "mapping" ? (r.content as MappingArtifact) : null;
+    };
+    const edges = reduceStructureGraph(events, resolveRef);
+    const islands = rows.map((r) => ({
+      op: r.opId,
+      domain: r.meta.domain,
+      cluster: r.meta.atlas?.cluster.code,
+    }));
+    return { edges, frontier: structureFrontier(edges, islands) };
   }
 
   // --- ledger ---------------------------------------------------------------
@@ -1058,6 +1125,12 @@ export class Store {
 export function slugOf(opId: string): string {
   const m = /\/prob\/([^/]+)$/.exec(opId);
   return m?.[1] ?? opId;
+}
+
+/** Last path segment of a `struct://<org>/<slug>` id. */
+export function structSlugOf(structId: string): string {
+  const m = /\/([^/]+)$/.exec(structId);
+  return m?.[1] ?? structId;
 }
 
 function randomToken(): string {

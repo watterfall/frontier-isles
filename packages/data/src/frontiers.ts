@@ -142,6 +142,11 @@ export interface FrontierEntry {
   scores: number[];
   citation: { url: string; title: string; venue: string; year: number };
   brief: { zh: string; en: string };
+  /** Full evidence list from the xfrontier atlas (evidence.json) — grounded,
+   * real citations. Distinct from the single headline `citation`; feeds the
+   * island library + the problem.md 参考文献 section (§6 leavability: it travels
+   * with the .md). Only the coverage-expansion islands (§九) carry it so far. */
+  literature?: { title: string; venue: string; year: number; url: string }[];
   /** Deep, grounded, bilingual detail — feeds the problem.md body (seed.ts)
    * and the island detail surface so "opening" an island is never empty. All
    * content is condensed from the xfrontier atlas cards/cluster-questions +
@@ -2400,6 +2405,5755 @@ export const FRONTIERS: FrontierEntry[] = [
     stage: 2, members: 9, activity: 62,
     chart: { x: 797, y: 663, scale: 1.02 },
   },
+  // ── §九 学科打通 · 全聚类覆盖扩充 (78→128, grounded from xfrontier atlas) ──
+  {
+    "id": 79,
+    "atlasN": 29,
+    "slug": "quantum-biological-hybrid-computing",
+    "title": {
+      "zh": "量子-生物混合计算",
+      "en": "Quantum-Biological Hybrid Computing"
+    },
+    "qfocus": {
+      "zh": "生物分子中的量子相干与隧穿效应，能否被驯服为一种真实可用的计算资源？",
+      "en": "Can quantum coherence and tunneling effects in biomolecules be tamed into a genuinely usable computational resource?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C02",
+      "zh": "生物计算·类器官智能",
+      "en": "Biocomputing · organoid intelligence"
+    },
+    "scores": [
+      5,
+      5,
+      2,
+      1,
+      2,
+      1,
+      1,
+      2,
+      4
+    ],
+    "citation": {
+      "url": "https://www.pnas.org/doi/10.1073/pnas.1005484107",
+      "title": "Long-lived quantum coherence in photosynthetic complexes at physiological temperature",
+      "venue": "PNAS",
+      "year": 2010
+    },
+    "brief": {
+      "zh": "探索生物分子（如光合反应中心、酶活性位点）中的量子相干与隧穿效应能否用于计算。这是量子物理、生物物理与计算科学高度交叉的探索性方向，目前理论远远领先于实验证据。",
+      "en": "Explores whether quantum coherence and tunneling effects in biomolecules such as photosynthetic reaction centers and enzyme active sites can be harnessed for computation. It sits at a highly cross-disciplinary, still-exploratory frontier where theory currently runs far ahead of experimental evidence."
+    },
+    "depth": {
+      "overview": {
+        "zh": "该方向研究光合反应中心的相干能量传递、酶活性位点的质子隧穿，以及鸟类指南针中隐花色素自由基对的磁感等现象，追问生物体内是否真的存在功能性量子效应。它处于量子物理、生物物理与计算科学的高度交叉地带，目标是判断这些效应能否被计算所利用，或反过来被计算所模拟。",
+        "en": "The field studies phenomena such as coherent energy transfer in photosynthetic reaction centers, proton tunneling at enzyme active sites, and radical-pair magnetoreception via cryptochrome in the avian compass, asking whether functional quantum effects genuinely operate inside living organisms. It sits at the intersection of quantum physics, biophysics, and computer science, aiming to determine whether such effects can be exploited by, or for, computation."
+      },
+      "whyMatters": {
+        "zh": "量子生物学至今尚未确认「生物体内是否存在功能性量子效应」这一最基础的问题，把它用于计算更是遥远的愿景。它的价值在于：一旦被证实并变得可控，可能颠覆我们对生命能量转换效率的理解；但当前理论远远领先于实验，概念被过度炒作的风险不可忽视。",
+        "en": "Quantum biology has not yet even confirmed the basic question of whether functional quantum effects exist within living organisms, making computational use an even more distant prospect. Its value lies here: if confirmed and made controllable, it could overturn our understanding of life's energy-conversion efficiency—but theory currently runs far ahead of experiment, and the concept carries a real risk of being overhyped."
+      },
+      "ifAnswered": {
+        "zh": "该领域仍处于探索期，但一旦出现理论突破——证实功能性量子效应确实存在且可被利用——可能颠覆性地重塑我们对计算与生命能量转换的理解。",
+        "en": "The field remains exploratory, but a theoretical breakthrough confirming that functional quantum effects genuinely exist and can be exploited could disruptively reshape our understanding of both computation and life's energy conversion."
+      },
+      "approaches": [
+        {
+          "zh": "在生理温度下用超快光谱学重复检验光合反应中心（如FMO复合物）里报告的长寿命量子相干，弄清它究竟是可观测的物理现象还是实验假象。",
+          "en": "Re-examine, with ultrafast spectroscopy at physiological temperature, the long-lived quantum coherence reported in photosynthetic reaction centers such as the FMO complex, to settle whether it is a genuine observable or an experimental artifact."
+        },
+        {
+          "zh": "把「储备池计算」的检验方法搬到量子生物候选系统上：区分一个观测到的效应究竟是生物特异性机制的产物，还是任何足够复杂系统都会呈现的通用非线性行为。",
+          "en": "Port the reservoir-computing diagnostic to candidate quantum-biological systems: separate whether an observed effect is the product of biology-specific mechanisms or just the generic nonlinear behavior any sufficiently complex system would show."
+        },
+        {
+          "zh": "以鸟类指南针中隐花色素的自由基对磁感为模型系统，测试能否在受控条件下把量子隧穿/自由基对动力学重新设计为一种可读出的计算或感知资源。",
+          "en": "Use radical-pair magnetoreception via cryptochrome in the avian compass as a model system to test whether quantum tunneling / radical-pair dynamics can be re-engineered under controlled conditions into a readable computational or sensing resource."
+        }
+      ],
+      "barrier": {
+        "zh": "最诚实的障碍是：量子生物学甚至还没确认生物体内是否存在功能性量子效应这一前提问题，理论远远跑在实验前面，任何「可用于计算」的宣称都可能只是概念被过度炒作。",
+        "en": "The most honest barrier: quantum biology has not even confirmed the prerequisite question of whether functional quantum effects exist in living organisms at all—theory runs far ahead of experiment, and any claim of computational usability risks being an overhyped concept."
+      },
+      "subQuestions": [
+        {
+          "zh": "一团离体培养的人脑类器官，要在哪个复杂度阈值上才会发生某种「内在经验」？我们到底有没有任何可操作的判据，能在它真正具备意识之前就把这条线画出来？",
+          "en": "At what threshold of complexity, if any, might a dish-grown human brain organoid begin to host some form of inner experience—and do we possess any operational criterion to draw that line before, rather than after, it is crossed?"
+        },
+        {
+          "zh": "脑类器官「储备池计算」之所以能算，靠的究竟是神经元的什么——是真正的生物可塑性学习，还是仅仅是任何足够复杂的非线性动力系统都有的「回声」？我们能否把这两者从根上区分开？",
+          "en": "When a brain-organoid reservoir computes, what is actually doing the work—genuine biological synaptic learning, or merely the generic echo that any sufficiently complex nonlinear dynamical system exhibits—and can we cleanly separate the two?"
+        },
+        {
+          "zh": "如果不再把脑类器官当作「待训练的硅芯片替代品」，而是问：一团神经组织要被嵌入什么样的身体与环境闭环里，才会自发长出目标、动机或「想要」？计算的边界，是否本就画错了地方？",
+          "en": "What if, instead of treating a brain organoid as a silicon chip to be trained, we ask: in what kind of embodied, sensorimotor closed loop must neural tissue be embedded before goals, motivation, or 'wanting' arise spontaneously—has the very boundary of 'computation' been drawn in the wrong place?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Long-lived quantum coherence in photosynthetic complexes at physiological temperature",
+        "venue": "PNAS",
+        "year": 2010,
+        "url": "https://www.pnas.org/doi/10.1073/pnas.1005484107"
+      },
+      {
+        "title": "Do photosynthetic complexes use quantum coherence to increase their efficiency? Probably not",
+        "venue": "Journal of Physical Chemistry Letters",
+        "year": 2021,
+        "url": "https://pubmed.ncbi.nlm.nih.gov/33597236/"
+      },
+      {
+        "title": "Quantum coherent dynamics in photosynthetic protein complexes",
+        "venue": "Chemical Society Reviews",
+        "year": 2026,
+        "url": "https://pubs.rsc.org/en/content/articlehtml/2026/cs/d5cs00948k"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 825,
+      "y": 195,
+      "scale": 0.88
+    }
+  },
+  {
+    "id": 80,
+    "atlasN": 1031,
+    "slug": "physics-constrained-scientific-foundation-models",
+    "title": {
+      "zh": "物理约束科学基础模型",
+      "en": "Physics-constrained scientific foundation models"
+    },
+    "qfocus": {
+      "zh": "能否把守恒律、边界条件和量纲关系嵌入科学基础模型，从根本上压低纯数据外推产生的幻觉？",
+      "en": "Can conservation laws, boundary conditions, and dimensional relationships be embedded into scientific foundation models to fundamentally curb the hallucinations of pure data-driven extrapolation?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C03",
+      "zh": "科学基础模型·AI4S",
+      "en": "Scientific foundation models · AI4S"
+    },
+    "scores": [
+      5,
+      5,
+      5,
+      3,
+      3,
+      2,
+      3,
+      4,
+      3
+    ],
+    "citation": {
+      "url": "https://doi.org/10.1038/s42254-021-00314-5",
+      "title": "Physics-informed machine learning",
+      "venue": "Nature Reviews Physics",
+      "year": 2021
+    },
+    "brief": {
+      "zh": "把守恒律、边界条件和量纲关系嵌入科学基础大模型，以降低纯数据外推时产生的幻觉；这类模型有望成为工程仿真、材料筛选与气候推断的共同底座。",
+      "en": "Embedding conservation laws, boundary conditions, and dimensional constraints into scientific foundation models to reduce the hallucinations of pure data-driven extrapolation; such models may become a shared substrate for engineering simulation, materials screening, and climate inference."
+    },
+    "depth": {
+      "overview": {
+        "zh": "该方向把守恒律、边界条件与量纲关系作为先验嵌入科学基础模型，目标是降低模型在纯数据外推时产生的幻觉。开放问题在于：能否把这一构想做成可测量、可复核、可迁移到新领域的实验对象，并说清楚它会在什么条件下失败。",
+        "en": "This direction embeds conservation laws, boundary conditions, and dimensional relationships as priors into scientific foundation models, aiming to reduce the hallucinations that arise from pure data-driven extrapolation. The open question is whether this idea can be turned into a testable, replicable, transferable experimental object with clearly defined failure conditions."
+      },
+      "whyMatters": {
+        "zh": "纯数据驱动的科学大模型容易在外推到训练分布之外时产生看似合理却违反物理规律的幻觉预测。把守恒律与边界条件作为硬约束嵌入模型，正是要在工程仿真、材料筛选和气候推断这些高风险场景里换来可信赖的外推能力——但这个构想能否被做成真正可测量、可复核、可迁移的实验对象，仍是开放问题。",
+        "en": "Purely data-driven scientific foundation models tend to produce plausible-looking but physics-violating hallucinated predictions when extrapolating beyond their training distribution. Embedding conservation laws and boundary conditions as hard constraints is meant to buy trustworthy extrapolation for high-stakes uses like engineering simulation, materials screening, and climate inference—but whether this idea can be turned into a genuinely measurable, replicable, transferable experimental object remains an open question."
+      },
+      "ifAnswered": {
+        "zh": "若这一构想成立，物理约束的科学基础模型有望成为工程仿真、材料筛选与气候推断共享的底座，让不同科学领域的预测建立在同一套可信的物理先验之上。",
+        "en": "If this works out, physics-constrained scientific foundation models could become a shared substrate for engineering simulation, materials screening, and climate inference, grounding predictions across different scientific domains in the same trustworthy physical priors."
+      },
+      "approaches": [
+        {
+          "zh": "针对具体的工程、材料或气候任务，把守恒律、边界条件与量纲分析显式编码为损失函数或架构约束，而不是寄望于模型从数据中自行「发现」物理规律。",
+          "en": "For concrete engineering, materials, or climate tasks, explicitly encode conservation laws, boundary conditions, and dimensional analysis as loss functions or architectural constraints, rather than hoping the model 'discovers' physics from data alone."
+        },
+        {
+          "zh": "检验是否存在跨领域可迁移的「科学基础模型」通用骨架——测试同一套物理约束架构能否像语言模型迁移到新句子那样，迁移到从未见过的物理现象。",
+          "en": "Test whether a transferable, cross-domain 'foundation model for science' skeleton exists—checking whether the same physics-constrained architecture can transfer to never-before-seen phenomena the way a language model transfers to new sentences."
+        },
+        {
+          "zh": "把可解释性研究嫁接到预测型模型上：尝试从像 AlphaFold 这类只给出正确答案却不解释机制的模型中，可靠地提取人类可理解的物理机制，检验预测力是否真能转化为理解力。",
+          "en": "Graft interpretability research onto predictive models: attempt to reliably extract human-understandable physical mechanisms from models like AlphaFold that give correct answers without explaining mechanism, testing whether predictive power can genuinely convert into understanding."
+        }
+      ],
+      "barrier": {
+        "zh": "最诚实的障碍是可测试性本身：目前这仍是一个概念性方向，还没有被做成可测量、可复核、可跨领域迁移的实验对象，也没有讲清楚在什么条件下它会失败。",
+        "en": "The most honest barrier is testability itself: this remains a conceptual direction that has not yet been turned into a measurable, replicable, cross-domain-transferable experimental object, nor has it been made clear under what conditions it would fail."
+      },
+      "subQuestions": [
+        {
+          "zh": "AI 能给出正确的科学预测，却给不出「为什么」。当一个模型解决了蛋白折叠，我们是真的理解了折叠，还是把无知外包给了一个我们同样不理解的系统？",
+          "en": "AI can produce correct scientific predictions without producing a 'why'. When a model solves protein folding, do we actually understand folding—or have we outsourced our ignorance to a system we equally don't understand?"
+        },
+        {
+          "zh": "存在「科学的基础模型」吗——一个在所有物理过程上预训练、能像语言模型迁移到新句子那样迁移到从未见过的现象的模型？还是说每门科学的归纳偏置本质上不可通约？",
+          "en": "Is there a 'foundation model for science'—one pretrained on all physical processes that transfers to never-seen phenomena the way a language model transfers to new sentences? Or are the inductive biases of each science fundamentally incommensurable?"
+        },
+        {
+          "zh": "当 AI 能独立提出假设、设计实验、解读结果时，人类科学家不可替代的内核到底是什么？我们是在把发现自动化，还是在把「理解的责任」自动化掉？",
+          "en": "When AI can independently propose hypotheses, design experiments, and interpret results, what is the irreplaceable human core of a scientist? Are we automating discovery—or automating away the responsibility to understand?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Physics-informed machine learning",
+        "venue": "Nature Reviews Physics",
+        "year": 2021,
+        "url": "https://doi.org/10.1038/s42254-021-00314-5"
+      },
+      {
+        "title": "Highly accurate protein structure prediction with AlphaFold",
+        "venue": "Nature",
+        "year": 2021,
+        "url": "https://doi.org/10.1038/s41586-021-03819-2"
+      },
+      {
+        "title": "On the Opportunities and Risks of Foundation Models",
+        "venue": "arXiv",
+        "year": 2021,
+        "url": "https://arxiv.org/abs/2108.07258"
+      },
+      {
+        "title": "Towards an AI co-scientist",
+        "venue": "arXiv",
+        "year": 2025,
+        "url": "https://arxiv.org/abs/2502.18864"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 960,
+      "y": 755,
+      "scale": 0.91
+    }
+  },
+  {
+    "id": 81,
+    "atlasN": 1380,
+    "slug": "metagenomic-foundation-models-reading-function",
+    "title": {
+      "zh": "宏基因组基础模型：从环境序列直接“读出”功能暗物质",
+      "en": "Metagenomic foundation models: reading function straight from environmental sequence"
+    },
+    "qfocus": {
+      "zh": "基因组语言模型能否在完全不比对已知参考库的情况下，从环境宏基因组序列里零样本地「读出」基因功能？",
+      "en": "Can genomic language models achieve zero-shot function prediction directly from environmental metagenomic sequence, without ever aligning to a known reference?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C05",
+      "zh": "环境组学·行星感知",
+      "en": "Environmental omics · planetary sensing"
+    },
+    "scores": [
+      5,
+      5,
+      5,
+      3,
+      2,
+      2,
+      4,
+      3,
+      2
+    ],
+    "citation": {
+      "url": "https://www.science.org/doi/10.1126/science.ado9336",
+      "title": "Sequence modeling and design from molecular to genome scale with Evo",
+      "venue": "Science",
+      "year": 2024
+    },
+    "brief": {
+      "zh": "全球环境测序里绝大多数基因功能未知——这片「功能暗物质」正被基因组语言模型（如 Evo、GenomeOcean）尝试直接从无参考序列中零样本读出，绕开必须比对已知数据库的老范式。",
+      "en": "Most genes revealed by global environmental sequencing have unknown function—this 'functional dark matter' is now being tackled by genomic language models (Evo, GenomeOcean, and others), which achieve zero-shot function prediction directly from reference-free sequence, bypassing the old paradigm of aligning to known databases."
+    },
+    "depth": {
+      "overview": {
+        "zh": "全球海洋测序发现约四千万个几乎全新的基因，其中绝大多数功能未知——我们正用一本看不懂的天书去预测气候反馈。基因组语言模型（Evo、GenomeOcean、REBEAN 等）试图在数千万条无参考序列上自监督预训练，直接学会「读出」这些基因的功能，绕开必须比对已知参考库的老范式。",
+        "en": "Global ocean sequencing has revealed roughly forty million almost entirely novel genes, the vast majority of unknown function—we are predicting climate feedbacks from a book we cannot read. Genomic language models (Evo, GenomeOcean, REBEAN) attempt to self-supervise on tens of millions of reference-free sequences, directly learning to 'read' these genes' functions and bypassing the old paradigm that requires alignment to a known reference database."
+      },
+      "whyMatters": {
+        "zh": "最硬的难点是可证伪性：模型能生成「看似合理」的功能标注，但环境暗物质本身缺乏真值可供核对，湿实验验证的速度远跟不上模型生成假设的速度；再加上这条路线高度依赖算力，它更像一个被命名、被追捧的热潮领域，而非被忽视的研究洼地。",
+        "en": "The hardest difficulty is falsifiability: the model can generate plausible-looking function annotations, but environmental dark matter has no ground truth to check against, and wet-lab validation runs far slower than the pace of hypothesis generation. Combined with its heavy dependence on compute, this is more a named, hyped hotspot than a neglected research gap."
+      },
+      "ifAnswered": {
+        "zh": "若序列到功能到生态过程的映射能被稳固建立，它有望被接入地球系统模型，让行星尺度的生物地球化学第一次拥有机制级、可生成的微生物模块。",
+        "en": "If the sequence-to-function-to-ecosystem-process map can be firmly established, it could be wired into Earth-system models, giving planetary biogeochemistry its first mechanistic, generative microbial modules."
+      },
+      "approaches": [
+        {
+          "zh": "用 Evo、GenomeOcean 这类在数千万条无参考序列上自监督预训练的基因组语言模型，对海洋宏基因组中的「暗物质基因」做零样本功能预测，并用 REMME/REBEAN 一类工具直接在宏基因组 reads 层面标注酶功能。",
+          "en": "Use genomic language models like Evo and GenomeOcean, self-supervised on tens of millions of reference-free sequences, to make zero-shot function predictions for 'dark matter' genes in ocean metagenomes, and use tools like REMME/REBEAN to annotate enzyme function directly at the metagenomic-read level."
+        },
+        {
+          "zh": "把预测出的基因功能接入行星尺度的碳氮循环模型，检验「从序列读出的生态功能」是否真能提升气候反馈预测的机制性，而不只是又一层拟合。",
+          "en": "Wire the predicted gene functions into planetary-scale carbon and nitrogen cycle models, testing whether 'ecological function read from sequence' genuinely improves the mechanistic grounding of climate-feedback prediction, rather than adding just another layer of curve-fitting."
+        },
+        {
+          "zh": "在环境 DNA、痕量气体、声学与遥感之外，探索能否把序列层面的功能预测整合进一张行星级、多模态的实时感知网络，用于在生态系统崩溃之前发出预警。",
+          "en": "Beyond environmental DNA, trace gases, acoustics, and remote sensing, explore whether sequence-level function prediction can be integrated into a planetary-scale, multimodal, real-time sensing network for early warning ahead of ecosystem collapse."
+        }
+      ],
+      "barrier": {
+        "zh": "最诚实的障碍是可证伪性：环境暗物质缺乏真值可供核对，模型生成「看似合理」标注的速度，远远超过湿实验能验证的速度。",
+        "en": "The most honest barrier is falsifiability: environmental dark matter has no ground truth to check against, and the model's rate of generating plausible-looking annotations far outpaces what wet-lab experiments can verify."
+      },
+      "subQuestions": [
+        {
+          "zh": "Tara 海洋计划在全球海洋微生物组里发现了超过四千万个几乎全新的基因，其中绝大多数功能未知——这片「暗物质基因」到底在调控行星尺度的碳氮循环上扮演什么角色？我们能否从序列读出生态功能？",
+          "en": "Tara Oceans found over forty million almost entirely novel genes in the global ocean microbiome, the vast majority of unknown function—what role does this 'genomic dark matter' play in regulating planetary carbon and nitrogen cycles, and can we read ecological function from sequence at all?"
+        },
+        {
+          "zh": "如果把整个行星本身当作一台可被持续读取的「仪器」——用环境 DNA、痕量气体、声学与遥感织成一张实时神经网——它能在生态崩溃发生之前向我们发出预警吗？地球有没有可被观测的「生命体征」？",
+          "en": "If we treat the whole planet as a single continuously readable instrument—an environmental-DNA, trace-gas, acoustic, and remote-sensing sensorium woven into one real-time nervous system—could it warn us before an ecological collapse, rather than after? Does Earth have observable 'vital signs'?"
+        },
+        {
+          "zh": "我们一直假设可以用少数「指示物种」或多样性指数来代表生态系统健康——但若生态功能的稳健性根本不取决于谁在场，而取决于难以观测的相互作用网络结构，那么我们整套环境监测的可观测量，是否从一开始就选错了？",
+          "en": "We assume a few 'indicator species' or diversity indices can stand in for ecosystem health—but if functional robustness depends not on who is present but on the structure of a hard-to-observe interaction network, have we been measuring the wrong observables for environmental monitoring all along?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Sequence modeling and design from molecular to genome scale with Evo",
+        "venue": "Science",
+        "year": 2024,
+        "url": "https://www.science.org/doi/10.1126/science.ado9336"
+      },
+      {
+        "title": "Uncovering the Genomic Manifold via Scalable Learning from the Global Microbiome (GenomeOcean)",
+        "venue": "bioRxiv",
+        "year": 2025,
+        "url": "https://doi.org/10.1101/2025.01.30.635558"
+      },
+      {
+        "title": "Deciphering enzymatic potential in metagenomic reads through DNA language models (REMME/REBEAN)",
+        "venue": "Nucleic Acids Research",
+        "year": 2025,
+        "url": "https://doi.org/10.1093/nar/gkaf836"
+      },
+      {
+        "title": "Structure and function of the global ocean microbiome",
+        "venue": "Science",
+        "year": 2015,
+        "url": "https://doi.org/10.1126/science.1261359"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 717,
+      "y": 368,
+      "scale": 0.74
+    }
+  },
+  {
+    "id": 82,
+    "atlasN": 69,
+    "slug": "airborne-edna-biodiversity-surveys",
+    "title": {
+      "zh": "空中 eDNA 生物多样性普查",
+      "en": "Airborne eDNA Biodiversity Surveys"
+    },
+    "qfocus": {
+      "zh": "从空气中漂浮的DNA碎片，能否可靠地推断出一个区域「真实存在」哪些物种——从「测到」到「在场」的推断链，能被量化吗？",
+      "en": "Can DNA fragments drifting in air reliably tell us which species truly are present in a region—and can the inferential chain from 'detected' to 'present' be quantified?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C05",
+      "zh": "环境组学·行星感知",
+      "en": "Environmental omics · planetary sensing"
+    },
+    "scores": [
+      4,
+      5,
+      4,
+      3,
+      3,
+      3,
+      3,
+      2,
+      4
+    ],
+    "citation": {
+      "url": "https://www.nature.com/articles/s41598-025-03650-z",
+      "title": "First national survey of terrestrial biodiversity using airborne eDNA",
+      "venue": "Scientific Reports",
+      "year": 2025
+    },
+    "brief": {
+      "zh": "空气中漂浮的DNA碎片可用于普查一片区域的物种构成，这种普查方式的可行性直到2025年前后才被实证确认，采样成本低到可全域铺开，但DNA的来源、扩散距离与降解动力学几乎空白。",
+      "en": "DNA fragments drifting in the air can be used to survey a region's species composition; this method's feasibility was only empirically confirmed around 2025. Sampling is cheap enough to deploy region-wide, but the source, dispersal distance, and degradation kinetics of airborne DNA remain nearly blank."
+    },
+    "depth": {
+      "overview": {
+        "zh": "空中eDNA生物多样性普查从空气中漂浮的DNA碎片——皮肤、孢子、花粉、毛发——中提取并测序，从而在不接触生物的情况下普查一片区域的物种构成。其可行性直到2025年前后才被实证确认，方法跨越基因组学、大气科学与生态学三个领域。",
+        "en": "Airborne eDNA biodiversity surveys extract and sequence DNA fragments drifting in the air—skin, spores, pollen, hair—to census a region's species composition without ever touching an organism. Its feasibility was only empirically confirmed around 2025, and the method spans genomics, atmospheric science, and ecology."
+      },
+      "whyMatters": {
+        "zh": "这几乎是科幻成真——空气本身成了生物多样性的记录介质，采样成本低到可以全域铺开。但DNA在空气中的来源、扩散距离和降解动力学几乎是一片空白，「测到某物种」到「它确实在这里」之间的推断链条极不可靠，定量化是最大的挑战。",
+        "en": "This is almost science fiction come true—the air itself becomes a recording medium for biodiversity, with sampling cheap enough to deploy area-wide. But the source, dispersal distance, and degradation kinetics of airborne DNA are nearly a blank slate, and the inferential chain from 'detected a species' to 'it really is here' is highly unreliable—quantification is the biggest challenge."
+      },
+      "ifAnswered": {
+        "zh": "若这条推断链能被可靠量化，空中eDNA普查有望成为全国范围的常规生物多样性监测手段。",
+        "en": "If this inferential chain can be reliably quantified, airborne eDNA surveys could become a routine tool for national-scale biodiversity monitoring."
+      },
+      "approaches": [
+        {
+          "zh": "系统测定空气中DNA碎片的来源强度、扩散距离与降解速率，建立「检测量」与「真实种群密度/距离」之间可量化的转换模型，而不只停留在有无检出。",
+          "en": "Systematically measure the source strength, dispersal distance, and decay rate of airborne DNA fragments, building a quantifiable conversion model from 'amount detected' to 'true population density/distance', rather than stopping at simple presence/absence."
+        },
+        {
+          "zh": "把空中eDNA采样网络与环境DNA、痕量气体、声学、遥感等其他行星感知手段并网，构建一张能在生态崩溃前发出预警的多模态实时感知系统。",
+          "en": "Network airborne eDNA sampling together with other planetary-sensing modalities—environmental DNA, trace gases, acoustics, remote sensing—to build a multimodal, real-time sensing system capable of warning ahead of ecosystem collapse."
+        },
+        {
+          "zh": "在物种清点之外，探索空中eDNA能否间接反映物种间相互作用网络的结构性变化，而不只是「谁在场」的名录。",
+          "en": "Beyond species inventories, explore whether airborne eDNA can indirectly reflect structural changes in the interaction network among species, rather than merely a roster of 'who is present'."
+        }
+      ],
+      "barrier": {
+        "zh": "最诚实的障碍是定量化：DNA在空气中的来源、扩散距离和降解动力学几乎是空白，「测到」和「在场」之间的推断链条目前极不可靠。",
+        "en": "The most honest barrier is quantification: the source, dispersal distance, and degradation kinetics of airborne DNA are nearly blank, and the inferential chain from 'detected' to 'present' is currently highly unreliable."
+      },
+      "subQuestions": [
+        {
+          "zh": "Tara 海洋计划在全球海洋微生物组里发现了超过四千万个几乎全新的基因，其中绝大多数功能未知——这片「暗物质基因」到底在调控行星尺度的碳氮循环上扮演什么角色？我们能否从序列读出生态功能？",
+          "en": "Tara Oceans found over forty million almost entirely novel genes in the global ocean microbiome, the vast majority of unknown function—what role does this 'genomic dark matter' play in regulating planetary carbon and nitrogen cycles, and can we read ecological function from sequence at all?"
+        },
+        {
+          "zh": "如果把整个行星本身当作一台可被持续读取的「仪器」——用环境 DNA、痕量气体、声学与遥感织成一张实时神经网——它能在生态崩溃发生之前向我们发出预警吗？地球有没有可被观测的「生命体征」？",
+          "en": "If we treat the whole planet as a single continuously readable instrument—an environmental-DNA, trace-gas, acoustic, and remote-sensing sensorium woven into one real-time nervous system—could it warn us before an ecological collapse, rather than after? Does Earth have observable 'vital signs'?"
+        },
+        {
+          "zh": "我们一直假设可以用少数「指示物种」或多样性指数来代表生态系统健康——但若生态功能的稳健性根本不取决于谁在场，而取决于难以观测的相互作用网络结构，那么我们整套环境监测的可观测量，是否从一开始就选错了？",
+          "en": "We assume a few 'indicator species' or diversity indices can stand in for ecosystem health—but if functional robustness depends not on who is present but on the structure of a hard-to-observe interaction network, have we been measuring the wrong observables for environmental monitoring all along?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Airborne environmental DNA captures terrestrial vertebrate diversity in nature",
+        "venue": "Molecular Ecology Resources",
+        "year": 2023,
+        "url": "https://onlinelibrary.wiley.com/doi/10.1111/1755-0998.13840"
+      },
+      {
+        "title": "First national survey of terrestrial biodiversity using airborne eDNA",
+        "venue": "Scientific Reports",
+        "year": 2025,
+        "url": "https://www.nature.com/articles/s41598-025-03650-z"
+      },
+      {
+        "title": "Airborne eDNA captures three decades of ecosystem biodiversity",
+        "venue": "bioRxiv (preprint)",
+        "year": 2023,
+        "url": "https://www.biorxiv.org/content/10.1101/2023.12.06.569882v1"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 602,
+      "y": 455,
+      "scale": 0.98
+    }
+  },
+  {
+    "id": 83,
+    "atlasN": 86,
+    "slug": "engineered-living-materials-elms",
+    "title": {
+      "zh": "工程活体材料（ELM）",
+      "en": "Engineered Living Materials (ELMs)"
+    },
+    "qfocus": {
+      "zh": "活体材料要保持「活着」才能自愈、自感、自生长，但「活着」就意味着会进化、变异、可能失控——能否设计出一种既保有代谢活性、又在进化上长期稳定可控的活体材料？",
+      "en": "Living materials must stay alive to self-heal, sense, and grow—but being alive means they evolve, mutate, and can escape control. Can a living material be designed that stays metabolically active yet remains evolutionarily stable and controllable?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C06",
+      "zh": "活体材料·生物制造",
+      "en": "Living materials · biomanufacturing"
+    },
+    "scores": [
+      4,
+      4,
+      3,
+      2,
+      3,
+      2,
+      2,
+      2,
+      3
+    ],
+    "citation": {
+      "url": "https://www.nature.com/articles/s41467-023-40265-2",
+      "title": "Phenotypically complex living materials containing engineered cyanobacteria",
+      "venue": "Nature Communications",
+      "year": 2023
+    },
+    "brief": {
+      "zh": "把活细胞嵌入水凝胶等材料基质，让材料具备生长、自愈、感知与响应环境的生命特性，模糊「材料」与「生物」的边界；自生长建材与活体器件是其诱人的应用前景。",
+      "en": "Living cells are embedded into material matrices such as hydrogels so that materials can grow, self-heal, sense, and respond to their environment, blurring the boundary between 'material' and 'organism'; self-growing building materials and living devices are its alluring near-term application."
+    },
+    "depth": {
+      "overview": {
+        "zh": "工程活体材料（ELM）把活细胞（常为工程菌或真菌）嵌入水凝胶等材料基质中，使材料具备生长、自愈、感知和响应环境的生命特性，模糊了「材料」与「生物」的边界。它综合了合成生物学、材料科学与工程设计三个领域。",
+        "en": "Engineered living materials (ELMs) embed living cells—often engineered bacteria or fungi—into a material matrix such as a hydrogel, giving materials the living properties of growth, self-healing, sensing, and environmental response, and blurring the boundary between 'material' and 'organism'. It integrates synthetic biology, materials science, and engineering design."
+      },
+      "whyMatters": {
+        "zh": "它代表材料观的一次范式转变——从惰性、静态到活性、可演化，自生长建材和活体器件是诱人的前景；但让活细胞在材料中长期存活、可控且安全是根本难题，加上需要防止工程细胞逃逸的生物安全围堵，从实验室走到现实部署还有很长的路。",
+        "en": "It represents a paradigm shift in how we view materials—from inert and static to living and evolvable—with self-growing building materials and living devices an enticing prospect; but keeping living cells alive, controllable, and safe in a material long-term is a fundamental challenge, and the biosafety containment needed to prevent engineered-cell escape leaves a long road from lab to real-world deployment."
+      },
+      "ifAnswered": {
+        "zh": "若长期存活、可控且安全的难题被解决，自生长建材与活体器件将从实验室演示走向真实世界的部署。",
+        "en": "If the challenge of long-term, controllable, safe cell survival is solved, self-growing building materials and living devices will move from lab demonstration into real-world deployment."
+      },
+      "approaches": [
+        {
+          "zh": "针对「活着就会进化失控」这一核心矛盾，尝试设计代谢活性与进化稳定性可以共存的基因回路，检验活体材料能否在保持自愈自感能力的同时被长期锁定在规格之内。",
+          "en": "Target the core tension that 'staying alive means evolving out of control' by designing genetic circuits where metabolic activity and evolutionary stability can coexist, testing whether living materials can be locked to specification long-term while retaining self-healing and sensing."
+        },
+        {
+          "zh": "探索能否把生物制造重定向去生产它从未进化出来过的物质类别（例如高强度无机-有机复合结构），从而摸清「可被生物合成」的物质边界到底由热力学、酶化学还是纯粹进化史决定。",
+          "en": "Explore whether biomanufacturing can be redirected to produce classes of matter it never evolved to make (e.g., high-strength inorganic–organic composites), to determine whether the boundary of what is biosynthesizable is set by thermodynamics, enzyme chemistry, or mere evolutionary history."
+        },
+        {
+          "zh": "沿着多菌株协作（multistrain collaboration）路线，测试能否用多个工程菌株的分工代替单一菌株的全能设计，来同时缓解存活、可控与安全三方面的压力。",
+          "en": "Follow the multistrain-collaboration route, testing whether dividing labor across several engineered strains—rather than demanding one all-purpose strain—can ease the pressures on survival, control, and safety simultaneously."
+        }
+      ],
+      "barrier": {
+        "zh": "最诚实的障碍是：让活细胞在材料中长期存活、可控且安全是根本性难题，再加上必须做好生物安全围堵以防工程细胞逃逸，从实验室到现实部署的路还很长。",
+        "en": "The most honest barrier: keeping living cells alive, controllable, and safe within a material over the long term is a fundamental challenge, compounded by the need for biosafety containment against engineered-cell escape—leaving a long road from lab to real-world deployment."
+      },
+      "subQuestions": [
+        {
+          "zh": "活体材料的核心矛盾是：它必须「活着」才能自愈、自感、自生长，但「活着」就意味着会进化、会变异、会失控。我们能否设计出一种既保持代谢活性、又在进化上长期稳定可控的活材料？生命与可工程性能否共存？",
+          "en": "The core tension of living materials is that they must stay alive to self-heal, sense, and grow—but being alive means they evolve, mutate, and can escape control. Can we design a living material that retains metabolic activity yet remains evolutionarily stable and controllable over its lifetime? Can being alive coexist with being engineerable?"
+        },
+        {
+          "zh": "生物制造至今几乎都靠水基、常温、缓慢的细胞工厂——但生命本身能否被重定向去生产它从未进化出来过的物质类别，比如高强度无机-有机复合结构？「可被生物合成」的物质边界，到底由什么决定？",
+          "en": "Biomanufacturing so far runs almost entirely on water-based, ambient-temperature, slow cell factories—but can life itself be redirected to make classes of matter it never evolved to produce, such as high-strength inorganic–organic composites? What actually sets the boundary of what is biosynthesizable?"
+        },
+        {
+          "zh": "我们一直把「材料」和「机器」当作两类东西——前者被动、后者主动。但一块能自感、自愈、自适应、自繁殖的活材料，是否已经消解了这条分界？「材料」这个概念本身，是不是已经过时？",
+          "en": "We have always treated 'material' and 'machine' as two kinds of thing—the former passive, the latter active. But does a living material that senses, heals, adapts, and reproduces itself already dissolve that boundary? Has the very concept of 'material' become obsolete?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Engineered Living Materials For Sustainability",
+        "venue": "Chemical Reviews",
+        "year": 2023,
+        "url": "https://pubs.acs.org/doi/abs/10.1021/acs.chemrev.2c00512"
+      },
+      {
+        "title": "Engineered Living Materials: Taxonomies and Emerging Trends",
+        "venue": "Trends in Biotechnology",
+        "year": 2020,
+        "url": "https://www.sciencedirect.com/science/article/abs/pii/S0167779920302730"
+      },
+      {
+        "title": "Phenotypically complex living materials containing engineered cyanobacteria",
+        "venue": "Nature Communications",
+        "year": 2023,
+        "url": "https://www.nature.com/articles/s41467-023-40265-2"
+      },
+      {
+        "title": "Strength in diversity: unlocking the full potential of engineered living materials with multistrain collaboration",
+        "venue": "FEMS Microbiology Reviews",
+        "year": 2025,
+        "url": "https://academic.oup.com/femsre/article/doi/10.1093/femsre/fuaf055/8316143"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 1230,
+      "y": 456,
+      "scale": 0.74
+    }
+  },
+  {
+    "id": 84,
+    "atlasN": 97,
+    "slug": "programmable-dna-hydrogels",
+    "title": {
+      "zh": "可编程DNA水凝胶",
+      "en": "Programmable DNA Hydrogels"
+    },
+    "qfocus": {
+      "zh": "能否让DNA水凝胶的响应速度、结构稳定性与低成本合成同时达标，跨越「可编程」概念验证与「可部署」软体器件/分子传感之间的鸿沟？",
+      "en": "Can programmable DNA hydrogels simultaneously achieve fast response, structural stability, and low-cost synthesis — closing the gap between 'programmable' proof-of-concept and 'deployable' soft devices and molecular sensors?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C06",
+      "zh": "活体材料·生物制造",
+      "en": "Living materials · biomanufacturing"
+    },
+    "scores": [
+      3,
+      4,
+      4,
+      2,
+      3,
+      2,
+      2,
+      3,
+      4
+    ],
+    "citation": {
+      "url": "https://pubs.acs.org/doi/10.1021/acsabm.1c01197",
+      "title": "Recent Advances in Stimuli-Responsive DNA-Based Hydrogels",
+      "venue": "ACS Applied Bio Materials",
+      "year": 2022
+    },
+    "brief": {
+      "zh": "可编程DNA水凝胶用DNA链的可编程碱基配对构建能感知特定分子、按指令变形甚至执行逻辑运算（链置换反应）的智能凝胶，把DNA从遗传信息载体重新定义为可编程的结构与计算基元。软体器件与分子传感前景诱人，但响应慢、稳定性差、合成成本高，目前多为概念验证。",
+      "en": "Programmable DNA hydrogels use DNA strands' programmable base pairing to build smart gels that sense specific molecules, deform on command, and even perform logic operations via strand-displacement reactions, redefining DNA from a genetic-information carrier into a programmable structural and computational primitive. Prospects for soft devices and molecular sensing are alluring, but the gels respond slowly, are unstable, and are costly to synthesize — mostly proof-of-concept for now."
+    },
+    "depth": {
+      "overview": {
+        "zh": "可编程DNA水凝胶用DNA链的可编程碱基配对构建能感知特定分子、按指令变形甚至执行逻辑运算的智能凝胶。它处在材料科学、化学与（分子）信息科学的交叉点，把DNA的碱基配对规则当作可编程的结构与计算基元，而非单纯的遗传信息载体。",
+        "en": "Programmable DNA hydrogels use the programmable base-pairing of DNA strands to build smart gels that can sense specific molecules, deform on command, and even perform logic operations. Sitting at the intersection of materials science, chemistry, and (molecular) information science, they treat DNA's base-pairing rules as a programmable structural and computational primitive rather than merely a carrier of genetic information."
+      },
+      "whyMatters": {
+        "zh": "它把DNA从遗传信息载体重新定义为可编程的结构与计算基元，软体器件和分子传感前景诱人；但DNA水凝胶响应慢、稳定性差、合成成本高，距离实用器件还很远，目前更多是概念验证——「可编程」的优雅与「可部署」的鲁棒之间存在巨大鸿沟。",
+        "en": "It redefines DNA from a carrier of genetic information into a programmable structural and computational primitive, with enticing prospects for soft devices and molecular sensing; but DNA hydrogels respond slowly, are unstable, and are costly to synthesize, far from practical devices and for now mostly proof-of-concept — a vast gulf separates the elegance of 'programmable' from the robustness of 'deployable.'"
+      },
+      "ifAnswered": {
+        "zh": "若可编程DNA水凝胶跨过响应速度、稳定性与成本的门槛，其感知特定分子、按指令变形并执行逻辑运算的能力将被用于软体器件与传感领域。",
+        "en": "If programmable DNA hydrogels clear the thresholds of response speed, stability, and cost, their ability to sense specific molecules, deform on command, and perform logic operations will be put to use for soft devices and sensing."
+      },
+      "approaches": [
+        {
+          "zh": "利用DNA链的可编程碱基配对设计能特异性识别目标分子的传感位点，把「感知特定分子」的能力嵌入凝胶网络本身。",
+          "en": "Use the programmable base-pairing of DNA strands to design sensing sites that specifically recognize target molecules, embedding molecule-sensing directly into the gel network."
+        },
+        {
+          "zh": "通过链置换反应赋予凝胶按指令变形与执行逻辑运算的能力，把「计算」与「材料形变」耦合在同一套DNA电路里。",
+          "en": "Use strand-displacement reactions to give the gel the ability to deform on command and perform logic operations, coupling 'computation' and 'material deformation' within the same DNA circuit."
+        },
+        {
+          "zh": "呼应活体材料领域对「进化稳定又可控」「材料即机器即有机体」的追问，探索如何让DNA凝胶的可编程性与长期稳定性、可控合成成本同步提升，而不是只停留在单次演示。",
+          "en": "Echo the living-materials field's questions about being 'evolutionarily stable yet controllable' and 'material-as-machine-as-organism,' exploring how to raise DNA-gel programmability alongside long-term stability and controllable synthesis cost, rather than stopping at single demonstrations."
+        }
+      ],
+      "barrier": {
+        "zh": "DNA水凝胶响应慢、稳定性差、合成成本高，距离实用器件还很远，目前更多是概念验证——「可编程」的优雅与「可部署」的鲁棒之间存在巨大鸿沟。",
+        "en": "DNA hydrogels respond slowly, are unstable, and are costly to synthesize, far from practical devices and for now mostly proof-of-concept — a vast gulf separates the elegance of 'programmable' from the robustness of 'deployable.'"
+      },
+      "subQuestions": [
+        {
+          "zh": "活体材料必须「活着」才能自愈、自感、自生长，但「活着」就意味着会进化、会变异、会失控——能否设计出一种既保持活性、又在进化上长期稳定可控的活材料？生命与可工程性能否共存？",
+          "en": "Living materials must stay alive to self-heal, sense, and grow — but being alive means they evolve, mutate, and can escape control. Can a living material retain activity yet remain evolutionarily stable and controllable over its lifetime? Can being alive coexist with being engineerable?"
+        },
+        {
+          "zh": "生物制造至今几乎都靠水基、常温、缓慢的细胞工厂——生命本身能否被重定向去生产它从未进化出来过的物质类别？「可被生物合成」的物质边界，到底由什么决定？",
+          "en": "Biomanufacturing so far runs almost entirely on water-based, ambient-temperature, slow cell factories — can life itself be redirected to make classes of matter it never evolved to produce? What actually sets the boundary of what is biosynthesizable?"
+        },
+        {
+          "zh": "一块能自感、自愈、自适应、自繁殖的活材料，是否已经消解了「材料」与「机器」的分界？「材料」这个概念本身，是不是已经过时？",
+          "en": "Does a living material that senses, heals, adapts, and reproduces itself already dissolve the boundary between 'material' and 'machine'? Has the very concept of 'material' become obsolete?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Recent Advances in Stimuli-Responsive DNA-Based Hydrogels",
+        "venue": "ACS Applied Bio Materials",
+        "year": 2022,
+        "url": "https://pubs.acs.org/doi/10.1021/acsabm.1c01197"
+      },
+      {
+        "title": "Design and application of stimuli-responsive DNA hydrogels: A review",
+        "venue": "Frontiers in Chemistry",
+        "year": 2022,
+        "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9493390/"
+      },
+      {
+        "title": "Advances in programmable DNA nanostructures enabling stimuli-responsive drug delivery and multimodal biosensing",
+        "venue": "Nanoscale Advances",
+        "year": 2025,
+        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12203123/"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 1142,
+      "y": 280,
+      "scale": 0.79
+    }
+  },
+  {
+    "id": 85,
+    "atlasN": 1392,
+    "slug": "anthrobots-self-assembling-biobots-from",
+    "title": {
+      "zh": "人源自组装生物机器人（Anthrobot）",
+      "en": "Anthrobots — Self-Assembling Biobots from Adult Human Cells"
+    },
+    "qfocus": {
+      "zh": "Anthrobot的形态与行为由细胞默认的形态发生规则涌现而来——我们该如何从「只能观察涌现」走到「可设计的形态空间」，去预先编程或精确控制它的运动与功能？",
+      "en": "An Anthrobot's shape and behavior emerge from cells' default morphogenetic rules — how do we move from merely observing emergence to a designable morphospace where its movement and function can be pre-programmed or precisely controlled?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C07",
+      "zh": "生物混合机器人·具身智能",
+      "en": "Biohybrid robotics · embodied intelligence"
+    },
+    "scores": [
+      5,
+      5,
+      4,
+      2,
+      4,
+      3,
+      3,
+      2,
+      4
+    ],
+    "citation": {
+      "url": "https://advanced.onlinelibrary.wiley.com/doi/10.1002/advs.202303575",
+      "title": "Motile Living Biobots Self-Construct from Adult Human Somatic Progenitor Seed Cells",
+      "venue": "Advanced Science",
+      "year": 2024
+    },
+    "brief": {
+      "zh": "Anthrobot 是用成人（乃至老年人）气道上皮细胞在体外自发组装成的会游动、有纤毛的多细胞「生物机器人」，无需基因改造或人工支架，成簇后还能促进划伤神经元层的再生。它把「机器人」从被制造的对象，变成细胞自组织涌现出的产物。",
+      "en": "Anthrobots are ciliated, motile multicellular \"biobots\" that adult (even elderly) human airway epithelial cells spontaneously self-assemble into in vitro — no genetic edits, no synthetic scaffold — and that, when clustered, bridge and heal wounded neuronal layers in a dish. They reframe a 'robot' from a manufactured object into an emergent product of cell self-organization."
+    },
+    "depth": {
+      "overview": {
+        "zh": "一小团来自成年人（甚至老年人）气管的细胞，放进培养基里，两周后自己长成一个会用纤毛游动、还能修补神经缺口的「活机器人」——没有一行基因代码，也没有一根人工骨架。它属于发育生物学、再生医学与机器人学的交叉，展示了细胞在无外部指令下的自组装能力。",
+        "en": "A small cluster of cells from an adult (even elderly) human's airway, placed in a culture medium, spontaneously grows over two weeks into a 'living robot' that swims with cilia and can even repair a neural gap — with no genetic code written and no artificial scaffold. It sits at the intersection of developmental biology, regenerative medicine, and robotics, demonstrating cells' capacity for self-assembly without external instruction."
+      },
+      "whyMatters": {
+        "zh": "最硬的张力：它的「行为」由细胞默认的形态发生规则涌现，人几乎无法预先编程或精确控制其运动与功能；如何从「观察涌现」走到「可设计的形态空间」仍是空白。",
+        "en": "The hardest tension: its 'behavior' emerges from cells' default morphogenetic rules, and humans can barely pre-program or precisely control its movement and function; how to move from 'observing emergence' to a 'designable morphospace' remains an open blank."
+      },
+      "ifAnswered": {
+        "zh": "患者自体细胞造出的个性化生物机器人有望成为免疫兼容的体内修复与递送载体。",
+        "en": "Patient-derived personalized biobots point toward immune-compatible in-body repair and delivery agents."
+      },
+      "approaches": [
+        {
+          "zh": "研究成体气道上皮细胞在培养基中约两周自组装成形的默认形态发生规则，尝试找出可调控纤毛驱动运动与聚簇行为的控制参数，从「观察涌现」迈向「可设计的形态空间」。",
+          "en": "Study the default morphogenetic rules by which adult airway epithelial cells self-assemble in culture over roughly two weeks, seeking controllable parameters for ciliary locomotion and clustering behavior, moving from 'observing emergence' toward a 'designable morphospace.'"
+        },
+        {
+          "zh": "沿着「超级机器人（superbot）」成簇后促进划伤神经元层再生的现象，探索其作为体内修复、递送载体的可控化路径，而不只是培养皿里的一次性演示。",
+          "en": "Follow up on the phenomenon that clustered 'superbots' promote regeneration of wounded neuronal layers, exploring a controllable path toward in-body repair and delivery agents rather than a one-off dish demonstration."
+        },
+        {
+          "zh": "借鉴同一集群关于设计-涌现边界与活体-机械持久接口的追问，建立评估自组装生物机器人可控性、以及患者自体细胞免疫兼容性的理论框架。",
+          "en": "Draw on the cluster's questions about the design-emergence boundary and durable living-mechanical interfaces to build a theoretical framework for assessing the controllability of self-assembling biobots and the immune compatibility of patient-derived cells."
+        }
+      ],
+      "barrier": {
+        "zh": "它的「行为」由细胞默认的形态发生规则涌现，人几乎无法预先编程或精确控制其运动与功能；如何从「观察涌现」走到「可设计的形态空间」仍是空白。",
+        "en": "Its 'behavior' emerges from cells' default morphogenetic rules, and humans can barely pre-program or precisely control its movement and function; how to move from 'observing emergence' to a 'designable morphospace' remains an open blank."
+      },
+      "subQuestions": [
+        {
+          "zh": "一个生物混合机器人的「行为」到底是被设计出来的，还是从活体材料里自发涌现的？设计者究竟控制了什么？",
+          "en": "Is a biohybrid robot's behavior designed, or does it emerge spontaneously from living matter? What does the designer actually control?"
+        },
+        {
+          "zh": "没有神经系统、仅靠形态与材料力学就能完成复杂适应行为的生物混合体，是否证明了「形态计算」是一种独立于神经计算的智能？身体能不能不靠脑就「思考」？",
+          "en": "Does a biohybrid that performs complex adaptive behavior with no nervous system, through morphology and material mechanics alone, prove that 'morphological computation' is a form of intelligence independent of neural computation? Can a body 'think' without a brain?"
+        },
+        {
+          "zh": "能否为「活体与机械的接口」建立一种通用、稳定、双向的能量与信息转换原理，让活组织与人造执行器在多年时间尺度上无排异、无退化地协同？",
+          "en": "Can we establish a universal, stable, bidirectional principle for the living-mechanical interface, letting living tissue and artificial actuators co-operate over years without rejection or degradation?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Motile Living Biobots Self-Construct from Adult Human Somatic Progenitor Seed Cells",
+        "venue": "Advanced Science",
+        "year": 2024,
+        "url": "https://advanced.onlinelibrary.wiley.com/doi/10.1002/advs.202303575"
+      },
+      {
+        "title": "With Living Robots, Scientists Unlock Cells' Power to Heal",
+        "venue": "Tufts Now",
+        "year": 2024,
+        "url": "https://now.tufts.edu/2024/03/22/living-robots-scientists-unlock-cells-power-heal"
+      },
+      {
+        "title": "Scientists build tiny biological robots from human cells",
+        "venue": "Wyss Institute, Harvard",
+        "year": 2023,
+        "url": "https://wyss.harvard.edu/news/scientists-build-tiny-biological-robots-from-human-cells/"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 788,
+      "y": 246,
+      "scale": 0.85
+    }
+  },
+  {
+    "id": 86,
+    "atlasN": 104,
+    "slug": "xenobots",
+    "title": {
+      "zh": "异种生物机器人（xenobots）",
+      "en": "Xenobots"
+    },
+    "qfocus": {
+      "zh": "「能自我复制的人造活体」在何处划开「生命」与「机器」的边界——而监管与公众接受度，是否会比技术本身更早成为这个领域的天花板？",
+      "en": "Where does a 'self-replicating artificial living thing' draw the line between 'life' and 'machine' — and will regulation and public acceptance become this field's ceiling sooner than the technology itself?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C07",
+      "zh": "生物混合机器人·具身智能",
+      "en": "Biohybrid robotics · embodied intelligence"
+    },
+    "scores": [
+      5,
+      5,
+      4,
+      2,
+      3,
+      2,
+      2,
+      2,
+      3
+    ],
+    "citation": {
+      "url": "https://www.science.org/doi/10.1126/scirobotics.abf1571",
+      "title": "A cellular platform for the development of synthetic living machines",
+      "venue": "Science Robotics",
+      "year": 2021
+    },
+    "brief": {
+      "zh": "从非洲爪蟾胚胎细胞出发，由进化算法设计、人工组装出能自主运动、自愈、甚至以「运动学复制」聚拢散细胞而增殖的细胞集合体，是被重编程的活体可编程物质。它既非传统生物也非传统机器，最大价值是逼问「什么算生命、什么算机器」的边界。正因「能自我复制的人造活体」触及伦理与生物安全红线，监管与公众接受度可能比技术本身更早成为天花板。",
+      "en": "Starting from Xenopus frog embryonic cells, evolutionary algorithms design and humans assemble cell clusters that move autonomously, self-heal, and even reproduce by 'kinematic replication' (gathering loose cells), forming reprogrammed living programmable matter. Neither traditional organism nor machine, its greatest value is forcing the question of what counts as 'life' versus 'machine.' Precisely because 'self-replicating artificial living things' touch ethical and biosafety red lines, regulation and public acceptance may become the ceiling sooner than the technology itself."
+    },
+    "depth": {
+      "overview": {
+        "zh": "从青蛙等细胞出发，由算法设计、人工组装出能自主运动、自愈甚至以「运动学复制」方式增殖的细胞集合体，属于合成生物学、机器人学与伦理学的交叉。它既不是传统生物也不是传统机器，而是被重新编程的活体可编程物质。",
+        "en": "Starting from cells of frogs and other organisms, algorithms design and humans assemble cell collectives that can move autonomously, self-heal, and even proliferate via 'kinematic replication', an intersection of synthetic biology, robotics, and ethics. It is neither a traditional organism nor a traditional machine, but reprogrammed living programmable matter."
+      },
+      "whyMatters": {
+        "zh": "它最大的价值是逼问「什么算生命、什么算机器」这一边界，但也正因为「能自我复制的人造活体」触及伦理与生物安全红线，监管与公众接受度可能比技术本身更早成为天花板。",
+        "en": "Its greatest value is forcing the question of where the boundary between 'life' and 'machine' lies, but precisely because 'self-replicating artificial living things' touch ethical and biosafety red lines, regulation and public acceptance may become the ceiling sooner than the technology itself."
+      },
+      "ifAnswered": {
+        "zh": "厘清生命与机器的边界，将重新定义「生命/机器」这一分类本身。",
+        "en": "Clarifying the boundary between life and machine will redefine the 'life/machine' distinction itself."
+      },
+      "approaches": [
+        {
+          "zh": "用进化算法在计算机里探索能自主运动、自愈、以运动学复制增殖的细胞构型设计空间，再交由人工用青蛙等细胞组装出来。",
+          "en": "Use evolutionary algorithms to explore, in silico, the design space of cell configurations that move autonomously, self-heal, and reproduce via kinematic replication, then have humans assemble them from frog and other cells."
+        },
+        {
+          "zh": "研究设计与涌现的可控边界：当细胞集合体的行为大量来自细胞自身的主动性而非设计者指令时，厘清设计者到底控制了什么。",
+          "en": "Study the controllable boundary between design and emergence: when a cell collective's behavior largely comes from the cells' own agency rather than the designer's instructions, clarify what the designer actually controls."
+        },
+        {
+          "zh": "探索形态计算作为独立于神经计算的智能形式——异种机器人没有神经系统却能协调运动，评估身体的物理结构本身能否承载适应性计算。",
+          "en": "Explore morphological computation as a form of intelligence independent of neural computation — xenobots have no nervous system yet show coordinated movement, so assess whether the body's physical structure can itself carry adaptive computation."
+        }
+      ],
+      "barrier": {
+        "zh": "「能自我复制的人造活体」触及伦理与生物安全红线，监管与公众接受度可能比技术本身更早成为天花板。",
+        "en": "'Self-replicating artificial living things' touch ethical and biosafety red lines, and regulation and public acceptance may become the ceiling sooner than the technology itself."
+      },
+      "subQuestions": [
+        {
+          "zh": "一个生物混合机器人的「行为」到底是被设计出来的，还是从活体材料里自发涌现的？设计者究竟控制了什么？",
+          "en": "Is a biohybrid robot's behavior designed, or does it emerge spontaneously from living matter? What does the designer actually control?"
+        },
+        {
+          "zh": "没有神经系统、仅靠形态与材料力学就能完成复杂适应行为的生物混合体，是否证明了「形态计算」是一种独立于神经计算的智能？身体能不能不靠脑就「思考」？",
+          "en": "Does a biohybrid that performs complex adaptive behavior with no nervous system, through morphology and material mechanics alone, prove that 'morphological computation' is a form of intelligence independent of neural computation? Can a body 'think' without a brain?"
+        },
+        {
+          "zh": "能否为「活体与机械的接口」建立一种通用、稳定、双向的能量与信息转换原理，让活组织与人造执行器在多年时间尺度上无排异、无退化地协同？",
+          "en": "Can we establish a universal, stable, bidirectional principle for the living-mechanical interface, letting living tissue and artificial actuators co-operate over years without rejection or degradation?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Kinematic self-replication in reconfigurable organisms",
+        "venue": "PNAS",
+        "year": 2021,
+        "url": "https://www.pnas.org/doi/10.1073/pnas.2112672118"
+      },
+      {
+        "title": "A cellular platform for the development of synthetic living machines",
+        "venue": "Science Robotics",
+        "year": 2021,
+        "url": "https://www.science.org/doi/10.1126/scirobotics.abf1571"
+      },
+      {
+        "title": "A scalable pipeline for designing reconfigurable organisms",
+        "venue": "PNAS",
+        "year": 2020,
+        "url": "https://doi.org/10.1073/pnas.1910837117"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 713,
+      "y": 289,
+      "scale": 0.95
+    }
+  },
+  {
+    "id": 87,
+    "atlasN": 137,
+    "slug": "cell-digital-twins-virtual-cells",
+    "title": {
+      "zh": "细胞数字孪生 / 虚拟细胞",
+      "en": "Cell Digital Twins / Virtual Cells"
+    },
+    "qfocus": {
+      "zh": "机理驱动与数据驱动这两条建模路线该如何融合，才能让「虚拟细胞」从局部模块的成功，扩展为能大规模替代湿实验筛选的完整细胞孪生？",
+      "en": "How should mechanistic and data-driven modeling routes be fused so that the 'virtual cell' can grow from success in local modules into a complete cell twin able to replace wet-lab screening at scale?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C09",
+      "zh": "数字孪生·虚拟科学",
+      "en": "Digital twins · virtual science"
+    },
+    "scores": [
+      5,
+      4,
+      5,
+      3,
+      4,
+      2,
+      2,
+      2,
+      2
+    ],
+    "citation": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12148494/",
+      "title": "How to build the virtual cell with artificial intelligence: Priorities and opportunities",
+      "venue": "Cell",
+      "year": 2024
+    },
+    "brief": {
+      "zh": "用数据与机理模型重建一个能模拟代谢、基因表达、信号转导的「会活的」虚拟细胞，把多组学数据整合进统一可运行的模型，被视为计算生物学的圣杯。一旦成真可大规模替代湿实验筛选，价值巨大，但细胞内过程跨越巨大时空尺度、参数高度不可观测，「虚拟细胞」更可能先在局部模块成立，整体仍是长期渐近目标。",
+      "en": "Using data and mechanistic models to reconstruct a 'living' virtual cell that simulates metabolism, gene expression, and signal transduction, integrating multi-omics data into a unified runnable model, is regarded as the holy grail of computational biology. Once realized it could replace wet-lab screening at scale, an enormous payoff, but intracellular processes span vast spatiotemporal scales with highly unobservable parameters — the 'virtual cell' is more likely to hold first for local modules, with the whole remaining a long-term asymptotic goal."
+    },
+    "depth": {
+      "overview": {
+        "zh": "用数据与机理模型重建一个能模拟代谢、基因表达、信号转导的「会活的」虚拟细胞，在计算机里复现细胞行为，被视为计算生物学的圣杯，融合系统生物学、人工智能与计算科学。它整合多组学数据于统一可运行的模型。",
+        "en": "Using data and mechanistic models to reconstruct a 'living' virtual cell that can simulate metabolism, gene expression, and signal transduction, reproducing cell behavior in silico, regarded as the holy grail of computational biology, fusing systems biology, AI, and computing science. It integrates multi-omics data into a unified runnable model."
+      },
+      "whyMatters": {
+        "zh": "一旦成真可大规模替代湿实验筛选，价值巨大；但细胞内过程跨越巨大时空尺度、参数高度不可观测，且机理与数据驱动两条路线如何融合尚无定论——「虚拟细胞」更可能先在局部模块成立，整体仍长期是渐近目标。",
+        "en": "Once realized it could replace wet-lab screening at scale, with enormous value; but intracellular processes span vast spatiotemporal scales, parameters are highly unobservable, and how to fuse the mechanistic and data-driven routes is still undecided. The 'virtual cell' is more likely to hold first in local modules, while the whole remains a long-term asymptotic goal."
+      },
+      "ifAnswered": {
+        "zh": "细胞数字孪生若能成熟，将部分替代湿实验筛选。",
+        "en": "A mature cell digital twin will partly replace wet-lab screening."
+      },
+      "approaches": [
+        {
+          "zh": "结合多组学数据与机理模型，先在局部模块（如支原体全细胞模型）验证可运行性，再逐步扩展尺度与覆盖范围。",
+          "en": "Combine multi-omics data with mechanistic models, first validating runnability in local modules (such as the Mycoplasma whole-cell model), then gradually expanding scale and coverage."
+        },
+        {
+          "zh": "为学出的模拟器建立可证明的可信域与失效检测机制，判定其在给定传感密度与计算资源下能可信预测多久。",
+          "en": "Build provable trust regions and failure-detection mechanisms for learned simulators, determining how long a given twin can be trusted to predict given sensing density and compute resources."
+        },
+        {
+          "zh": "厘清自主科学发现闭环中「预测准确」与「人类可理解解释」的边界，决定哪些细胞行为预测任务可交给AI自主完成、哪些必须保留人类解释。",
+          "en": "Clarify where 'predictive accuracy' and 'human-comprehensible explanation' diverge in autonomous discovery loops, deciding which cell-behavior prediction tasks can be handed to AI and which must retain human explanation."
+        }
+      ],
+      "barrier": {
+        "zh": "细胞内过程跨越巨大时空尺度、参数高度不可观测，且机理与数据驱动两条路线如何融合尚无定论——「虚拟细胞」更可能先在局部模块成立，整体仍长期是渐近目标。",
+        "en": "Intracellular processes span vast spatiotemporal scales, parameters are highly unobservable, and how to fuse the mechanistic and data-driven routes is still undecided. The 'virtual cell' is more likely to hold first in local modules, while the whole remains a long-term asymptotic goal."
+      },
+      "subQuestions": [
+        {
+          "zh": "一个高保真数字孪生在多长的预测时域内仍然「忠实」于真实系统？是否存在一条由信息论决定的「可同化性极限」，限制任何数字孪生能预测多远？",
+          "en": "Over what prediction horizon does a high-fidelity digital twin remain faithful to its physical original — and is there an information-theoretic 'assimilability limit' bounding how far any digital twin can ever forecast?"
+        },
+        {
+          "zh": "用大规模神经网络「学出」的代理模型驱动虚拟科学时，这些模型是在发现可外推的物理规律，还是只是在内插训练分布？能否判定一个学得的模拟器何时会在陌生状态空间里悄悄失效？",
+          "en": "When virtual science is driven by large neural surrogate models, are those models discovering extrapolable physical laws or merely interpolating the training distribution — and can we tell when a learned simulator will silently fail outside its training distribution?"
+        },
+        {
+          "zh": "如果把整个科学发现过程本身建成数字孪生，让AI自主提出假设、设计实验、解释结果——「理解」与「预测准确」在何处分道扬镳？一个能完美预测却无法向人类解释「为什么」的体系，还算不算科学？",
+          "en": "If the scientific discovery process itself is built as a digital twin, with AI autonomously proposing hypotheses, designing experiments, and interpreting results, where do 'understanding' and 'predictive accuracy' diverge? Does a system that predicts perfectly but cannot explain why to humans still count as science?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "How to build the virtual cell with artificial intelligence: Priorities and opportunities",
+        "venue": "Cell",
+        "year": 2024,
+        "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12148494/"
+      },
+      {
+        "title": "Towards multimodal foundation models in molecular cell biology",
+        "venue": "Nature",
+        "year": 2025,
+        "url": "https://www.nature.com/articles/s41586-025-08710-y"
+      },
+      {
+        "title": "Grow AI virtual cells: three data pillars and closed-loop learning",
+        "venue": "Cell Research",
+        "year": 2025,
+        "url": "https://www.nature.com/articles/s41422-025-01101-y"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 619,
+      "y": 755,
+      "scale": 0.81
+    }
+  },
+  {
+    "id": 88,
+    "atlasN": 167,
+    "slug": "environment-health-exposome-monitoring",
+    "title": {
+      "zh": "环境-健康暴露组监测",
+      "en": "Environment-Health Exposome Monitoring"
+    },
+    "qfocus": {
+      "zh": "暴露组维度极高、个体轨迹复杂——需要多大规模、多长期的队列，才能把「相关」的环境暴露真正推进到「致病」的因果结论？",
+      "en": "The exposome is extremely high-dimensional and individual trajectories are complex — how large and long-running a cohort is needed to move environmental exposure from 'correlation' to a real causal conclusion about disease?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C10",
+      "zh": "分布式生物传感·诊断",
+      "en": "Distributed biosensing · diagnostics"
+    },
+    "scores": [
+      4,
+      4,
+      3,
+      4,
+      3,
+      3,
+      3,
+      2,
+      4
+    ],
+    "citation": {
+      "url": "https://doi.org/10.1021/acs.est.3c02238",
+      "title": "AirPen: A Wearable Monitor for Characterizing Exposures to Particulate Matter and Volatile Organic Compounds",
+      "venue": "Environmental Science & Technology",
+      "year": 2023
+    },
+    "brief": {
+      "zh": "用可穿戴空气、化学、紫外传感配合环境数据，追踪个人一生累积接触的污染物、过敏原、化学物质，即「暴露组」，把流行病学长期忽视的环境暴露维度个体化、连续化。它补上基因之外影响慢病的另一半拼图，但暴露组维度极高、个体轨迹复杂，从「相关」到「致病」需要海量长期队列——数据采集只是开始，因果推断才是真正的硬骨头。",
+      "en": "Using wearable air, chemical, and UV sensors together with environmental data to track the pollutants, allergens, and chemicals an individual accumulates over a lifetime — the 'exposome' — individualizing and continualizing the environmental-exposure dimension long neglected by epidemiology. It supplies the other half of the chronic-disease puzzle beyond genes, but the exposome is extremely high-dimensional with complex individual trajectories, and moving from 'correlation' to 'causation' needs huge long-term cohorts — data collection is only the start, and causal inference is the real hard bone."
+    },
+    "depth": {
+      "overview": {
+        "zh": "环境-健康暴露组监测用可穿戴空气、化学、紫外传感配合环境数据，追踪个人一生中累积接触的污染物、过敏原、化学物质，即「暴露组」。它交叉健康、环境与数据科学，核心想法是把流行病学长期忽视的「环境暴露」维度个体化、连续化，补上基因之外影响慢病的另一半拼图。",
+        "en": "Environment-health exposome monitoring uses wearable air, chemical, and UV sensors together with environmental data to track the pollutants, allergens, and chemicals a person accumulates over a lifetime — the 'exposome.' It crosses health, environment, and data science, with the core idea of individualizing and making continuous the 'environmental exposure' dimension long neglected by epidemiology, filling in the other half of the puzzle beyond genes that influences chronic disease."
+      },
+      "whyMatters": {
+        "zh": "它要回答的是「环境如何塑造健康」这一慢病研究的根本缺口，配上基因组就构成完整因果图景。难点是暴露组维度极高、个体轨迹复杂，且从「相关」到「致病」需要海量长期队列——数据采集只是开始，因果推断才是真正的硬骨头。",
+        "en": "It addresses the fundamental gap in chronic-disease research — 'how the environment shapes health' — which, paired with the genome, forms a complete causal picture. The difficulty is that the exposome is extremely high-dimensional and individual trajectories are complex, and going from 'correlation' to 'causation' requires massive long-term cohorts — data collection is only the start, causal inference is the real hard bone."
+      },
+      "ifAnswered": {
+        "zh": "暴露组监测成熟后，将连接环境与慢病研究，把环境暴露的因果证据补进基因组之外的另一半拼图。",
+        "en": "A mature exposome-monitoring capability will link environment and chronic-disease research, supplying causal evidence for the half of the puzzle that lies beyond the genome."
+      },
+      "approaches": [
+        {
+          "zh": "用可穿戴空气、化学、紫外传感器持续采集个体暴露轨迹，把流行病学长期忽视的环境暴露维度变得可个体化、连续化。",
+          "en": "Use wearable air, chemical, and UV sensors to continuously capture an individual's exposure trajectory, making the environmental-exposure dimension long neglected by epidemiology individualized and continuous."
+        },
+        {
+          "zh": "研究单分子检测的物理极限——受热噪声、布朗输运还是信息论下界约束，判断哪些疾病的最早期信号原理上能被廉价、分布式地捕获。",
+          "en": "Study the physical limit of single-molecule detection — bounded by thermal noise, Brownian transport, or an information-theoretic floor — to determine which earliest disease signals can in principle be caught by cheap, distributed sensors."
+        },
+        {
+          "zh": "探索把大量廉价、低精度传感器联成网络后，群体层面能否「涌现」出超越单个高精度检测的早期预警能力，从而决定诊断投资该押注更灵敏的单点传感器，还是更密的传感网络与推断。",
+          "en": "Explore whether networking many cheap, low-precision sensors can make a population-level early-warning signal 'emerge' that outperforms any single high-precision test, deciding whether diagnostic investment should bet on more sensitive individual sensors or on denser sensor networks plus inference."
+        }
+      ],
+      "barrier": {
+        "zh": "暴露组维度极高、个体轨迹复杂，且从「相关」到「致病」需要海量长期队列——数据采集只是开始，因果推断才是真正的硬骨头。",
+        "en": "The exposome is extremely high-dimensional and individual trajectories are complex, and going from 'correlation' to 'causation' requires massive long-term cohorts — data collection is only the start, causal inference is the real hard bone."
+      },
+      "subQuestions": [
+        {
+          "zh": "单个分子的检测受什么根本物理极限约束——在复杂生物背景中无需扩增、无需标记地可靠识别仅几个拷贝的目标分子，是受限于热噪声、布朗输运，还是尚未被刻画的信息论下界？",
+          "en": "What fundamental physical limit governs single-molecule detection — is reliably identifying a target present in only a few copies, without amplification or labels, in a complex biological background bounded by thermal noise, Brownian transport, or a not-yet-characterized information-theoretic floor?"
+        },
+        {
+          "zh": "把数十亿个廉价、低精度的分布式生物传感器联成一张持续监测人群的网络，群体层面的诊断信号能否「涌现」出超越任何单个高精度检测的早期预警能力？",
+          "en": "If billions of cheap, low-precision distributed biosensors are networked into a continuous population-scale monitor, can a population-level diagnostic signal emerge that gives earlier warning than any single high-precision test?"
+        },
+        {
+          "zh": "活体细胞能否被工程化成可靠、可校准、可持续在人体内运行的「分布式诊断器件」，读取体内分子状态、计算、并在病变出现时输出可被外部读出的信号？",
+          "en": "Can living cells be engineered into reliable, calibratable, durable distributed diagnostic devices that sense the body's molecular state in situ, compute, and emit an externally readable signal when pathology appears?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Features and Practicability of the Next-Generation Sensors and Monitors for Exposure Assessment to Airborne Pollutants: A Systematic Review",
+        "venue": "Sensors",
+        "year": 2021,
+        "url": "https://doi.org/10.3390/s21134513"
+      },
+      {
+        "title": "AirPen: A Wearable Monitor for Characterizing Exposures to Particulate Matter and Volatile Organic Compounds",
+        "venue": "Environmental Science & Technology",
+        "year": 2023,
+        "url": "https://doi.org/10.1021/acs.est.3c02238"
+      },
+      {
+        "title": "An Assessment of Multipollutant Exposures Using Silicone Wristbands Among Bangladeshi Youth",
+        "venue": "International Journal of Environmental Research and Public Health",
+        "year": 2024,
+        "url": "https://doi.org/10.3390/ijerph21121691"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 789,
+      "y": 454,
+      "scale": 0.96
+    }
+  },
+  {
+    "id": 89,
+    "atlasN": 169,
+    "slug": "individual-differences-in-taste-and",
+    "title": {
+      "zh": "味嗅感知的个体差异",
+      "en": "Individual Differences in Taste and Smell Perception"
+    },
+    "qfocus": {
+      "zh": "为什么同一种物质——香菜、芦笋代谢物、苦味化合物——会让不同人产生截然不同的感知，这种差异有多少源自基因型、多少源自文化框定？",
+      "en": "Why does the same substance — cilantro, asparagus metabolites, bitter compounds — trigger starkly different perceptions across people, and how much of that variation is genotype versus cultural framing?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C10",
+      "zh": "分布式生物传感·诊断",
+      "en": "Distributed biosensing · diagnostics"
+    },
+    "scores": [
+      3,
+      4,
+      2,
+      5,
+      3,
+      4,
+      3,
+      3,
+      5
+    ],
+    "citation": {
+      "url": "https://doi.org/10.1093/chemse/bjt016",
+      "title": "Genetic, functional, and phenotypic diversity in TAS2R38-mediated bitter taste perception",
+      "venue": "Chemical Senses",
+      "year": 2013
+    },
+    "brief": {
+      "zh": "研究为何香菜、芦笋代谢物、PTC/PROP苦味等同一物质在不同人身上感知迥异，把基因型、文化背景与主观感知关联起来；门槛极低、易众包，是研究基因如何塑造「质性体验」的天然实验场。",
+      "en": "Studies why the same substance—cilantro, asparagus metabolites, PTC/PROP bitterness—is perceived so differently across people, linking genotype, cultural background and subjective perception; its low barrier and easy crowdsourcing make it a natural testbed for how genes shape 'qualitative experience'."
+    },
+    "depth": {
+      "overview": {
+        "zh": "味嗅感知的个体差异研究追问：为何同一物质在不同人身上感知截然不同（如香菜像肥皂、芦笋代谢物有无嗅感、PTC/PROP的苦味强弱）。它交叉感官科学、遗传学与数据科学，核心思路是利用这一现象门槛低、易众包的特点，做大规模基因型-环境-感知关联，把基因如何塑造主观体验变成可操作的研究模型。",
+        "en": "Research on individual differences in taste and smell perception asks why the same substance is perceived so differently across people — cilantro tasting like soap, detecting (or not) the asparagus-metabolite odor, PTC/PROP bitterness intensity. Crossing sensory science, genetics and data science, its core approach exploits this phenomenon's low barrier and easy crowdsourcing to run large-scale genotype-environment-perception association, turning how genes shape subjective experience into a tractable research model."
+      },
+      "whyMatters": {
+        "zh": "它是连接基因型与「质性体验」的罕见可量化窗口，且天然适合公众参与科学。但不显然的风险在于自报感知极不可靠、受语言和文化框定——把「觉得像肥皂」这种主观描述变成可做遗传关联的硬表型，本身就是尚未解决的方法学难题。",
+        "en": "It is a rare quantifiable window connecting genotype to 'qualitative experience', and is naturally suited to citizen science. The non-obvious risk is that self-reported perception is highly unreliable and shaped by language and culture — turning a subjective description like 'tastes like soap' into a hard phenotype usable for genetic association is itself an unresolved methodological problem."
+      },
+      "ifAnswered": {
+        "zh": "若能建立可靠的主观感知量化方法，味嗅感知研究将把基因、文化与感知连成一条可验证的因果链，为理解基因如何塑造主观体验提供范本。",
+        "en": "Establishing reliable ways to quantify subjective perception would let taste-and-smell research link genes, culture and perception into a verifiable causal chain, offering a template for understanding how genes shape subjective experience."
+      },
+      "approaches": [
+        {
+          "zh": "大规模众包基因型-表型关联：招募志愿者做嗅觉/味觉自评并测序目标基因（如OR6A2、TAS2R38），寻找与感知强弱相关的等位变异。",
+          "en": "Large-scale crowdsourced genotype-phenotype association: recruit volunteers for smell/taste self-report plus genotyping of target genes (e.g. OR6A2, TAS2R38) to find alleles correlated with perceived intensity."
+        },
+        {
+          "zh": "跨文化标定主观描述：在不同语言、饮食背景人群中比较同一化合物的描述词，检验「像肥皂」「苦」等表述是否是可迁移的硬表型。",
+          "en": "Cross-cultural calibration of subjective description: compare descriptive terms for the same compound across languages and dietary backgrounds, testing whether phrases like 'soapy' or 'bitter' are transferable hard phenotypes."
+        },
+        {
+          "zh": "把嗅觉/味觉受体当作天然化学传感器模型：借鉴分布式生物传感研究中「单分子检测物理极限」的框架，反推受体灵敏度与感知阈值之间的关系。",
+          "en": "Treat olfactory/taste receptors as natural chemical-sensor models: borrow the 'physical limits of single-molecule detection' framework from distributed biosensing research to work backward from receptor sensitivity to perceptual thresholds."
+        }
+      ],
+      "barrier": {
+        "zh": "自报感知极不可靠，且受语言和文化深度框定；把「觉得像肥皂」这样的主观描述转化为可用于遗传关联分析的硬表型，本身就是尚未解决的方法学难题。",
+        "en": "Self-reported perception is highly unreliable and deeply shaped by language and culture; converting a subjective description like 'tastes like soap' into a hard phenotype usable for genetic-association analysis is itself an unresolved methodological problem."
+      },
+      "subQuestions": [
+        {
+          "zh": "单个分子的检测，物理上究竟受什么根本极限约束？在复杂生物背景（血液、唾液）中无需扩增、无需标记地可靠识别出仅有几个拷贝的目标分子，是受限于热噪声、布朗输运，还是某种尚未被刻画的信息论下界？",
+          "en": "What fundamental physical limit governs single-molecule detection — is reliably identifying a target present in only a few copies, without amplification or labels, inside a complex biological background such as blood or saliva, bounded by thermal noise, by Brownian transport to the sensor, or by some not-yet-characterized information-theoretic floor?"
+        },
+        {
+          "zh": "如果把数十亿个廉价、低精度的分布式生物传感器联成一张持续监测人群的网络，群体层面的诊断信号能否「涌现」出超越任何单个高精度检测的早期预警能力？",
+          "en": "If billions of cheap, low-precision distributed biosensors are networked into a continuous population-scale monitor, can a population-level diagnostic signal emerge that gives earlier warning than any single high-precision test?"
+        },
+        {
+          "zh": "活体细胞能否被工程化成可靠、可校准、可持续在人体内运行的「分布式诊断器件」——它们读取体内的分子状态、计算、并在病变出现时输出可被外部读出的信号？",
+          "en": "Can living cells be engineered into reliable, calibratable, durable distributed diagnostic devices that sense the body's molecular state in situ, compute, and emit an externally readable signal when pathology appears?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Genetic variation in the human olfactory receptor OR5AN1 associates with the perception of musks",
+        "venue": "Chemical Senses",
+        "year": 2023,
+        "url": "https://doi.org/10.1093/chemse/bjac037"
+      },
+      {
+        "title": "Genetic, functional, and phenotypic diversity in TAS2R38-mediated bitter taste perception",
+        "venue": "Chemical Senses",
+        "year": 2013,
+        "url": "https://doi.org/10.1093/chemse/bjt016"
+      },
+      {
+        "title": "Differential Activation of TAS2R4 May Recover Ability to Taste Propylthiouracil for Some TAS2R38 AVI Homozygotes",
+        "venue": "Nutrients",
+        "year": 2024,
+        "url": "https://doi.org/10.3390/nu16091357"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 527,
+      "y": 376,
+      "scale": 0.79
+    }
+  },
+  {
+    "id": 90,
+    "atlasN": 178,
+    "slug": "cross-species-cognition-and-comparative",
+    "title": {
+      "zh": "跨物种认知与比较心智",
+      "en": "Cross-Species Cognition and Comparative Minds"
+    },
+    "qfocus": {
+      "zh": "当AI在某些认知维度超越动物甚至人类时，我们该用什么统一、物种中立的框架来比较人、动物与AI的学习与推理能力？",
+      "en": "As AI surpasses animals and even humans on some cognitive dimensions, what unified, species-neutral framework can compare learning and reasoning across humans, animals, and AI?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C11",
+      "zh": "神经技术·计算认知",
+      "en": "Neurotechnology · computational cognition"
+    },
+    "scores": [
+      5,
+      5,
+      3,
+      3,
+      5,
+      3,
+      2,
+      2,
+      4
+    ],
+    "citation": {
+      "url": "https://www.nature.com/articles/s44159-025-00456-8",
+      "title": "Bringing comparative cognition approaches to AI systems",
+      "venue": "Nature Reviews Psychology",
+      "year": 2025
+    },
+    "brief": {
+      "zh": "用统一计算框架比较人、动物与AI的学习、推理与心智能力，让AI既做研究工具（分析动物行为）又做比较对象（一种非生物智能），在更广的「心智空间」里重新定位人类智能。",
+      "en": "Uses a unified computational framework to compare learning, reasoning and mind across humans, animals and AI, with AI serving both as a research tool for analyzing animal behavior and as a comparison object—a non-biological intelligence—relocating human intelligence within a broader 'space of minds'."
+    },
+    "depth": {
+      "overview": {
+        "zh": "跨物种认知与比较心智试图用统一的计算框架，比较人类、动物乃至AI在学习、推理与心智能力上的共性与边界。它交叉认知科学、生物学与AI，核心思路是让AI同时扮演研究工具（分析动物行为数据）与比较对象（一种非生物智能）的双重角色。",
+        "en": "Cross-species cognition and comparative minds attempt to use a unified computational framework to compare the commonalities and boundaries of learning, reasoning and mental capacity across humans, animals and even AI. Crossing cognitive science, biology and AI, its core approach has AI play a dual role — a research tool for analyzing animal behavior data, and simultaneously an object of comparison as a non-biological intelligence."
+      },
+      "whyMatters": {
+        "zh": "它最深远的影响是逼我们重新定义「智能」——当AI在某些维度超过动物甚至人，原有的拟人化标尺就失效了。难点在于跨物种比较极易陷入拟人或拟机的双重偏见，设计真正物种中立、能力中立的认知测验本身就是巨大的方法学挑战。",
+        "en": "Its most far-reaching impact is forcing us to redefine 'intelligence' — once AI surpasses animals or even humans on some dimensions, the old anthropomorphic yardstick fails. The difficulty is that cross-species comparison easily falls into the twin biases of anthropomorphism and mechanomorphism; designing a genuinely species-neutral, capacity-neutral cognitive test is itself a huge methodological challenge."
+      },
+      "ifAnswered": {
+        "zh": "若能建立物种中立的比较框架，我们对「智能」的定义将被重塑——它会从以人类为唯一标尺的概念，变成一张容纳生物与非生物心智的连续谱系。",
+        "en": "Establishing a species-neutral comparative framework would reshape our definition of 'intelligence' — from a concept measured solely against the human yardstick into a continuous spectrum encompassing both biological and non-biological minds."
+      },
+      "approaches": [
+        {
+          "zh": "构建跨物种共用的行为学任务库（如虚拟实验环境），让人、动物与AI在同一套标准化认知测验中被评测，减少物种特异性偏差。",
+          "en": "Build a cross-species shared behavioral task library (e.g. virtual test environments) so humans, animals, and AI are all evaluated on the same standardized cognitive battery, reducing species-specific bias."
+        },
+        {
+          "zh": "把AI既当分析工具又当比较对象：用机器学习分析海量动物行为记录，同时把AI系统本身的学习曲线、泛化能力纳入同一比较心智空间。",
+          "en": "Treat AI as both analytical tool and comparison subject: use machine learning to analyze vast animal-behavior recordings while placing AI systems' own learning curves and generalization ability into the same comparative-mind space."
+        },
+        {
+          "zh": "针对拟人化/拟机化的双重偏见，设计能力中立的测验协议——不预设哪种智能形式是「标准」，而是从多个独立维度刻画心智的共性与边界。",
+          "en": "To counter the twin biases of anthropomorphism and mechanomorphism, design capacity-neutral test protocols that presuppose no single form of intelligence as the 'standard', instead characterizing the commonalities and boundaries of minds along multiple independent dimensions."
+        }
+      ],
+      "barrier": {
+        "zh": "跨物种比较极易陷入拟人化或拟机化的双重偏见；设计一套真正物种中立、能力中立的认知测验，本身就是尚未解决的巨大方法学挑战。",
+        "en": "Cross-species comparison easily falls into the twin biases of anthropomorphism and mechanomorphism; designing a genuinely species-neutral, capacity-neutral cognitive test is itself a huge, unresolved methodological challenge."
+      },
+      "subQuestions": [
+        {
+          "zh": "大脑用什么「码」来表征信息——是单个神经元的发放率、群体的几何结构、精确的脉冲时序，还是某种我们尚未识别的动力学变量？如果我们至今不知道神经活动如何编码意义，那么任何脑机接口的「读写」都是在猜测一种我们看不懂的语言吗？",
+          "en": "What code does the brain use to represent information — single-neuron firing rates, the geometry of population activity, precise spike timing, or some dynamical variable we have not yet identified — and if we still do not know how neural activity encodes meaning, is every brain–computer interface 'read' and 'write' merely guessing at a language we cannot read?"
+        },
+        {
+          "zh": "主观体验（意识）能否从物理或计算的第一性原理被解释——「为什么这些神经过程伴随着『感受』，而不是在黑暗中无声运行」？这个「难问题」是科学终将解答的，还是它揭示了我们关于物质与心智的概念框架本身有根本缺口？",
+          "en": "Can subjective experience — consciousness — be explained from physical or computational first principles, namely why these neural processes are accompanied by felt experience rather than running silently in the dark — and is this 'hard problem' something science will eventually answer, or does it reveal a fundamental gap in our very conceptual framework for matter and mind?"
+        },
+        {
+          "zh": "如果脑机接口能够长期、双向地把人脑与外部计算系统耦合，「自我」的边界会落在哪里？被持续读写的大脑所产生的意图、记忆与决策，还能在多大程度上被认定为「这个人自己的」——神经技术是否会迫使我们重新定义个人身份与能动性这一概念本身？",
+          "en": "If brain–computer interfaces can couple the human brain and external computation bidirectionally and long-term, where does the boundary of the self fall — to what extent can the intentions, memories, and decisions produced by a continuously read-and-written brain still be attributed to 'this person', and will neurotechnology force us to redefine the very concepts of personal identity and agency?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Bringing comparative cognition approaches to AI systems",
+        "venue": "Nature Reviews Psychology",
+        "year": 2025,
+        "url": "https://www.nature.com/articles/s44159-025-00456-8"
+      },
+      {
+        "title": "Bringing Comparative Cognition To Computers",
+        "venue": "arXiv",
+        "year": 2025,
+        "url": "https://arxiv.org/abs/2503.02882"
+      },
+      {
+        "title": "The Animal-AI Environment: A virtual laboratory for comparative cognition and artificial intelligence research",
+        "venue": "Behavior Research Methods",
+        "year": 2025,
+        "url": "https://link.springer.com/article/10.3758/s13428-025-02616-3"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 817,
+      "y": 297,
+      "scale": 0.95
+    }
+  },
+  {
+    "id": 91,
+    "atlasN": 213,
+    "slug": "solar-radiation-management-modeling-governance",
+    "title": {
+      "zh": "太阳辐射管理的建模与治理",
+      "en": "Solar Radiation Management Modeling & Governance"
+    },
+    "qfocus": {
+      "zh": "太阳辐射管理一旦启动就可能无法安全停止（「终止冲击」），我们能否在无法做全球实验的前提下，可靠地为这把「地球温控旋钮」的副作用建模，并设计出与其风险相称的治理机制？",
+      "en": "If solar radiation management cannot be safely stopped once started (termination shock), can we reliably model the side effects of this 'planetary thermostat' without a global experiment, and design governance commensurate with its risk?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C13",
+      "zh": "气候·地球生物工程",
+      "en": "Climate · planetary bioengineering"
+    },
+    "scores": [
+      4,
+      4,
+      3,
+      4,
+      4,
+      2,
+      2,
+      3,
+      3
+    ],
+    "citation": {
+      "url": "https://www.annualreviews.org/content/journals/10.1146/annurev-environ-112321-081911",
+      "title": "Solar Geoengineering: History, Methods, Governance, Prospects",
+      "venue": "Annual Review of Environment and Resources",
+      "year": 2024
+    },
+    "brief": {
+      "zh": "通过平流层气溶胶或增亮云层反射阳光来快速降温；本方向不做部署，只做严格的气候建模、风险评估与全球治理设计，核心是它一旦启动就可能不能停——终止冲击会让被压抑的升温报复性反弹，而最大风险其实是治理而非技术。",
+      "en": "Cools the planet quickly by reflecting sunlight via stratospheric aerosols or cloud brightening; this direction does not deploy but focuses on rigorous climate modeling, risk assessment, and global governance design. Its core issue: once started it may not be able to stop — termination shock would let suppressed warming rebound violently — and the biggest risk is actually governance, not technology."
+    },
+    "depth": {
+      "overview": {
+        "zh": "太阳辐射管理（SRM）通过向平流层注入气溶胶或增亮云层来反射阳光、快速降温。本方向不做部署，而专注严格的气候建模、风险评估与全球治理机制设计，横跨气候物理、统计与伦理治理，核心是在无法做全球实验的情况下，尽量摸清这把「地球温控旋钮」的副作用。",
+        "en": "Solar radiation management (SRM) rapidly cools the planet by injecting aerosols into the stratosphere or brightening clouds to reflect sunlight. This direction does not deploy but focuses on rigorous climate modeling, risk assessment, and global governance design, spanning climate physics, statistics, and ethical governance — probing the side effects of this 'planetary thermostat knob' as far as possible without being able to run a global experiment."
+      },
+      "whyMatters": {
+        "zh": "SRM的致命特征是「终止冲击」——一旦开始就不能停，否则被压抑的升温会报复性反弹。最大风险其实是治理而非技术：它便宜到一个国家甚至富豪就能单干，而后果是全人类共担。",
+        "en": "SRM's fatal feature is 'termination shock' — once started it cannot stop, or the suppressed warming will rebound with a vengeance. The biggest risk is actually governance rather than technology: it is cheap enough for a single nation or even a wealthy individual to go it alone, while the consequences are borne by all of humanity."
+      },
+      "ifAnswered": {
+        "zh": "若能建立严格可信的建模与治理框架，SRM将从「全球治理的高风险议题」变成一项有据可依、责任明确的应急工具，而不是任由单边行动者把全人类拖入不可逆的赌局。",
+        "en": "A rigorous, credible modeling and governance framework would turn SRM from a high-risk global-governance issue into a well-grounded, accountable emergency tool, rather than leaving a unilateral actor to drag all of humanity into an irreversible gamble."
+      },
+      "approaches": [
+        {
+          "zh": "严格气候建模：用地球系统模型模拟平流层气溶胶注入或云层增亮对区域降水、季风、生态系统的连锁影响，识别建模本身的不确定性边界。",
+          "en": "Rigorous climate modeling: use Earth-system models to simulate the cascading effects of stratospheric aerosol injection or cloud brightening on regional precipitation, monsoons, and ecosystems, identifying the uncertainty bounds of the models themselves."
+        },
+        {
+          "zh": "终止冲击的风险量化：专门建模「突然中止SRM」情形下升温反弹的速度与幅度，为治理设计设定明确的风险红线。",
+          "en": "Quantify termination-shock risk: specifically model the speed and magnitude of warming rebound under a sudden SRM halt, setting clear risk red lines for governance design."
+        },
+        {
+          "zh": "全球治理机制设计：研究能约束单边行动者（国家或个人）的国际协议、监测与问责框架，防止「谁先做谁定」的既成事实局面。",
+          "en": "Global governance design: study international agreements, monitoring, and accountability frameworks capable of constraining unilateral actors (states or individuals), preventing a 'whoever acts first decides' fait accompli."
+        }
+      ],
+      "barrier": {
+        "zh": "SRM的终止冲击意味着一旦开始就难以安全停止，被压抑的升温会报复性反弹；而这项技术足够廉价，使单边行动的门槛远低于其全球性后果所要求的治理成熟度。",
+        "en": "SRM's termination shock means that once started it is hard to stop safely, and suppressed warming rebounds with a vengeance; the technology is cheap enough that the threshold for unilateral action falls far below the governance maturity its global consequences demand."
+      },
+      "subQuestions": [
+        {
+          "zh": "地球气候系统是否存在一些一旦越过就不可逆的「临界点」（如冰盖崩塌、亚马逊枯萎、环流停摆），它们的触发阈值精确落在哪里，又是否会相互级联引发多米诺式失稳？我们能否在跨越之前就可靠地预测这些临界点，还是它们在原理上不可预报？",
+          "en": "Does the Earth's climate system contain tipping points — ice-sheet collapse, Amazon dieback, circulation shutdown — that once crossed are irreversible, where exactly do their thresholds lie, and can they cascade into one another in a domino-like destabilization; can we reliably predict these tipping points before crossing them, or are they in principle unforecastable?"
+        },
+        {
+          "zh": "如果人类蓄意地、大规模地改造地球系统来抵消变暖（如平流层气溶胶、海洋施肥、生物圈工程），我们能否在事前就可靠地预测整个耦合的地球-生物-社会系统的响应，还是这类干预本质上不可控、不可逆、且无法在唯一的真实地球上做对照实验？",
+          "en": "If humanity deliberately and at planetary scale re-engineers the Earth system to offset warming — stratospheric aerosols, ocean fertilization, biosphere engineering — can we reliably predict the response of the entire coupled Earth-biosphere-society system in advance, or is such intervention inherently uncontrollable, irreversible, and impossible to test against a control on our one real Earth?"
+        },
+        {
+          "zh": "我们能否反过来设计行星尺度的生物圈——刻意编排微生物、植物与生态网络，使地球（或其他行星）的碳、氮、气候循环朝可持续方向自我调节？「为整颗行星做生物工程」究竟是可被原理性设计的，还是生态系统的复杂性使任何有意的全局调控注定失控？",
+          "en": "Can we instead design a planetary-scale biosphere — deliberately orchestrating microbes, plants, and ecological networks so that a planet's carbon, nitrogen, and climate cycles self-regulate toward sustainability — and is bioengineering an entire planet something that can be designed from principles, or does ecological complexity doom any intentional global control to spin out of control?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Solar Geoengineering: History, Methods, Governance, Prospects",
+        "venue": "Annual Review of Environment and Resources",
+        "year": 2024,
+        "url": "https://www.annualreviews.org/content/journals/10.1146/annurev-environ-112321-081911"
+      },
+      {
+        "title": "The potential environmental and climate impacts of stratospheric aerosol injection: a review",
+        "venue": "Environmental Science: Atmospheres",
+        "year": 2024,
+        "url": "https://pubs.rsc.org/en/content/articlelanding/2024/ea/d3ea00134b"
+      },
+      {
+        "title": "The Risk of Termination Shock From Solar Geoengineering",
+        "venue": "Earth's Future",
+        "year": 2018,
+        "url": "https://agupubs.onlinelibrary.wiley.com/doi/10.1002/2017EF000735"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 740,
+      "y": 517,
+      "scale": 0.83
+    }
+  },
+  {
+    "id": 92,
+    "atlasN": 209,
+    "slug": "gene-drive-modeling-ethics",
+    "title": {
+      "zh": "基因驱动的建模与伦理",
+      "en": "Gene-Drive Modeling & Ethics"
+    },
+    "qfocus": {
+      "zh": "基因驱动能让特定基因以远超50%的比例扩散并可能永久改变整个野生种群，我们能否在释放前就可靠地为其扩散范围、抗性演化与可逆性建模，从而不让技术走在治理前面？",
+      "en": "Gene drives can spread a chosen gene at far above 50% and potentially permanently alter an entire wild population — can we reliably model spread range, resistance evolution, and reversibility before release, so the technology does not outrun governance?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C13",
+      "zh": "气候·地球生物工程",
+      "en": "Climate · planetary bioengineering"
+    },
+    "scores": [
+      4,
+      3,
+      3,
+      2,
+      4,
+      3,
+      3,
+      3,
+      3
+    ],
+    "citation": {
+      "url": "https://www.nature.com/articles/nbt.4245",
+      "title": "A CRISPR–Cas9 gene drive targeting doublesex causes complete population suppression in caged Anopheles gambiae mosquitoes",
+      "venue": "Nature Biotechnology",
+      "year": 2018
+    },
+    "brief": {
+      "zh": "用CRISPR等技术让特定基因以远超50%的「超孟德尔」比例传给后代，可在野外种群中快速扩散，用于压制传疟蚊虫或清除入侵物种；本方向聚焦种群动力学建模与伦理治理而非急于释放，核心是它一旦成功就无法撤回——演化没有Ctrl+Z。",
+      "en": "Uses tools like CRISPR to pass a chosen gene to offspring at a 'super-Mendelian' rate well above 50%, letting it spread rapidly through wild populations to suppress malaria-carrying mosquitoes or clear invasive species; this direction focuses on population-dynamics modeling and ethical governance rather than rushing to release, because once it succeeds it cannot be recalled — evolution has no Ctrl+Z."
+    },
+    "depth": {
+      "overview": {
+        "zh": "基因驱动让特定基因以超孟德尔比例传播，远超50%遗传给后代，可用于压制疟蚊、入侵物种等。本方向聚焦其种群动力学建模与伦理治理，研究释放后的扩散范围、抗性演化和可逆性，横跨遗传学、生态学与伦理/治理。",
+        "en": "Gene drives spread a specific gene at super-Mendelian rates — far above the 50% normally inherited by offspring — and can be used to suppress malaria mosquitoes, invasive species, and more. This direction focuses on population-dynamics modeling and ethical governance, studying post-release spread range, resistance evolution, and reversibility, spanning genetics, ecology, and ethics/governance."
+      },
+      "whyMatters": {
+        "zh": "它是少数「一次释放即可能改变整个物种」的技术，跨国扩散使任何单边决策都成全球问题。最不显然的风险不是技术失败，而是它成功后无法撤回——演化没有Ctrl+Z。",
+        "en": "It is one of the few technologies where 'a single release could alter an entire species', and cross-border spread turns any unilateral decision into a global issue. The least obvious risk is not technical failure but that, once successful, it cannot be recalled — evolution has no Ctrl+Z."
+      },
+      "ifAnswered": {
+        "zh": "若能建立可靠的建模与治理框架，基因驱动将能在严格治理下小范围试点，把一项威力与不可控性并存的技术，转变为可被问责、可被撤回设计约束的公共卫生与生态工具。",
+        "en": "A reliable modeling and governance framework would let gene drives be piloted at small scale under strict governance — turning a technology where power and uncontrollability coexist into an accountable public-health and ecological tool constrained by reversible design."
+      },
+      "approaches": [
+        {
+          "zh": "种群动力学建模：模拟基因驱动在野外种群中的扩散速度、范围与代际衰减，量化跨境扩散的现实概率。",
+          "en": "Population-dynamics modeling: simulate the spread speed, range, and generational decay of a gene drive in wild populations, quantifying the realistic probability of cross-border spread."
+        },
+        {
+          "zh": "抗性演化追踪：研究目标种群对驱动基因产生抗性突变的速率与机制，评估驱动效果随时间的衰减风险。",
+          "en": "Resistance-evolution tracking: study the rate and mechanism by which the target population develops resistance mutations against the drive gene, assessing the risk of the drive's effect decaying over time."
+        },
+        {
+          "zh": "可逆/自限设计验证：评估菊花链（daisy-chain）等低切割率、自限性设计能否在保留压制效果的同时提供真正的可撤回性。",
+          "en": "Verify reversible/self-limiting designs: assess whether low-cutting-rate, self-limiting designs like daisy-chains can retain suppression effectiveness while providing genuine recallability."
+        }
+      ],
+      "barrier": {
+        "zh": "它最不显然的风险不是技术失败，而是成功后无法撤回——演化没有Ctrl+Z，一旦基因驱动在野外扩散开，几乎不存在真正意义上的「撤销」。",
+        "en": "Its least obvious risk is not technical failure but the inability to recall it after success — evolution has no Ctrl+Z, and once a gene drive has spread in the wild there is almost no true 'undo'."
+      },
+      "subQuestions": [
+        {
+          "zh": "地球气候系统是否存在一些一旦越过就不可逆的「临界点」（如冰盖崩塌、亚马逊枯萎、环流停摆），它们的触发阈值精确落在哪里，又是否会相互级联引发多米诺式失稳？我们能否在跨越之前就可靠地预测这些临界点，还是它们在原理上不可预报？",
+          "en": "Does the Earth's climate system contain tipping points — ice-sheet collapse, Amazon dieback, circulation shutdown — that once crossed are irreversible, where exactly do their thresholds lie, and can they cascade into one another in a domino-like destabilization; can we reliably predict these tipping points before crossing them, or are they in principle unforecastable?"
+        },
+        {
+          "zh": "如果人类蓄意地、大规模地改造地球系统来抵消变暖（如平流层气溶胶、海洋施肥、生物圈工程），我们能否在事前就可靠地预测整个耦合的地球-生物-社会系统的响应，还是这类干预本质上不可控、不可逆、且无法在唯一的真实地球上做对照实验？",
+          "en": "If humanity deliberately and at planetary scale re-engineers the Earth system to offset warming — stratospheric aerosols, ocean fertilization, biosphere engineering — can we reliably predict the response of the entire coupled Earth-biosphere-society system in advance, or is such intervention inherently uncontrollable, irreversible, and impossible to test against a control on our one real Earth?"
+        },
+        {
+          "zh": "我们能否反过来设计行星尺度的生物圈——刻意编排微生物、植物与生态网络，使地球（或其他行星）的碳、氮、气候循环朝可持续方向自我调节？「为整颗行星做生物工程」究竟是可被原理性设计的，还是生态系统的复杂性使任何有意的全局调控注定失控？",
+          "en": "Can we instead design a planetary-scale biosphere — deliberately orchestrating microbes, plants, and ecological networks so that a planet's carbon, nitrogen, and climate cycles self-regulate toward sustainability — and is bioengineering an entire planet something that can be designed from principles, or does ecological complexity doom any intentional global control to spin out of control?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "A CRISPR–Cas9 gene drive targeting doublesex causes complete population suppression in caged Anopheles gambiae mosquitoes",
+        "venue": "Nature Biotechnology",
+        "year": 2018,
+        "url": "https://www.nature.com/articles/nbt.4245"
+      },
+      {
+        "title": "An Ethical Overview of the CRISPR-Based Elimination of Anopheles gambiae to Combat Malaria",
+        "venue": "AJOB Neuroscience / Yale Journal of Biology and Medicine",
+        "year": 2022,
+        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9463432/"
+      },
+      {
+        "title": "Daisy-chain gene drives: The role of low cut-rate, resistance mutations, and maternal deposition",
+        "venue": "PLOS Genetics",
+        "year": 2022,
+        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9521892/"
+      },
+      {
+        "title": "Gene drive-based population suppression in the malaria vector Anopheles stephensi",
+        "venue": "Nature Communications",
+        "year": 2025,
+        "url": "https://www.nature.com/articles/s41467-025-56290-2"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 1015,
+      "y": 744,
+      "scale": 0.84
+    }
+  },
+  {
+    "id": 93,
+    "atlasN": 273,
+    "slug": "engineering-pathways-to-fusion-energy",
+    "title": {
+      "zh": "聚变能的工程化路径",
+      "en": "Engineering Pathways to Fusion Energy"
+    },
+    "qfocus": {
+      "zh": "科学上的净能量增益（Q>1）已被证明可行，但从「一次点火」到「持续、经济、可并网发电」之间的工程鸿沟——中子辐照材料、氚自持、等离子体长期稳态——究竟能否被跨越？",
+      "en": "Net energy gain (Q>1) has been shown physically possible, but can the engineering chasm from a single ignition shot to sustained, economic, grid-ready generation — neutron-irradiated materials, tritium self-sufficiency, long-term steady-state plasma — actually be crossed?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C17",
+      "zh": "新能源范式",
+      "en": "New energy paradigms"
+    },
+    "scores": [
+      5,
+      4,
+      4,
+      1,
+      3,
+      1,
+      4,
+      3,
+      1
+    ],
+    "citation": {
+      "url": "https://www.nationalacademies.org/news/fusion-energy-seizing-our-opportunity-for-a-clean-energy-future",
+      "title": "Fusion Energy: Seizing Our Opportunity for a Clean Energy Future",
+      "venue": "National Academies of Sciences, Engineering, and Medicine",
+      "year": 2023
+    },
+    "brief": {
+      "zh": "把可控核聚变从物理验证推向可并网发电的装置，涵盖托卡马克、仿星器及私营公司的高温超导磁体、磁惯性、激光惯性约束等路线；高温超导磁体与私营资本让「永远50年」的玩笑首次出现裂缝，但科学增益远不等于工程与商业可行。",
+      "en": "Pushes controlled nuclear fusion from physics validation toward grid-connectable power plants, covering tokamaks, stellarators, and private companies' high-temperature superconducting magnets, magneto-inertial, and laser inertial confinement routes; HTS magnets and private capital have put the first crack in the 'always 50 years away' joke, but scientific gain is far from engineering or commercial viability."
+    },
+    "depth": {
+      "overview": {
+        "zh": "聚变能工程化指把可控核聚变从物理验证推向可并网发电的装置，涵盖托卡马克、仿星器及私营公司的高温超导磁体、磁惯性、激光惯性约束等多条路线。它交叉等离子体物理、能源与极限工程，核心挑战是同时实现净能量增益、稳态运行与材料耐受。",
+        "en": "Fusion-energy engineering means pushing controlled nuclear fusion from physics validation toward grid-connectable power plants, covering tokamaks, stellarators and private companies' high-temperature superconducting magnets, magneto-inertial and laser inertial confinement routes. Crossing plasma physics, energy and extreme engineering, its core challenge is achieving net energy gain, steady-state operation and material endurance all at once."
+      },
+      "whyMatters": {
+        "zh": "高温超导磁体和私营资本确实让「永远50年」的玩笑首次出现裂缝。但科学增益（Q>1）远不等于工程与商业可行：中子辐照下的第一壁材料、氚自持、等离子体长期稳态控制，每一项都可能成为压垮时间表的隐藏成本。",
+        "en": "High-temperature superconducting magnets and private capital have indeed put the first crack in the 'always 50 years away' joke. But scientific gain (Q>1) is far from engineering and commercial viability: first-wall materials under neutron irradiation, tritium self-sufficiency and long-term steady-state plasma control—each could become a hidden cost that crushes the timeline."
+      },
+      "ifAnswered": {
+        "zh": "若这些工程瓶颈被逐一攻克，聚变发电将从实验室点火走向真实并网示范，人类首次拥有近乎无限、低碳、燃料分布均匀的基荷能源。",
+        "en": "If these engineering bottlenecks are cracked one by one, fusion power would move from lab ignition to real grid-connected demonstration, giving humanity a nearly limitless, low-carbon, geographically even baseload energy source for the first time."
+      },
+      "approaches": [
+        {
+          "zh": "高温超导磁体路线：用更强磁场把装置小型化、缩短建造周期，验证私营公司（如Commonwealth Fusion Systems）的紧凑型托卡马克能否复现并超越点火增益。",
+          "en": "High-temperature superconducting magnet route: use stronger magnetic fields to shrink devices and shorten build cycles, testing whether private compact tokamaks (e.g. Commonwealth Fusion Systems) can reproduce and surpass ignition-level gain."
+        },
+        {
+          "zh": "第一壁材料与氚自持研究：在中子辐照环境下测试候选材料的寿命与氚增殖包层设计，解决持续运行而非单次点火的核心瓶颈。",
+          "en": "First-wall material and tritium self-sufficiency research: test candidate material lifetimes under neutron irradiation and tritium-breeding blanket designs, tackling the core bottleneck of sustained operation rather than a single ignition shot."
+        },
+        {
+          "zh": "多路线并行验证：托卡马克、仿星器与激光惯性约束（如NIF）各自独立推进稳态控制与能量增益，为工程可行性提供交叉验证的证据基础。",
+          "en": "Parallel validation across routes: tokamaks, stellarators and laser inertial confinement (e.g. NIF) each independently advance steady-state control and energy gain, providing cross-validated evidence for engineering feasibility."
+        }
+      ],
+      "barrier": {
+        "zh": "科学增益（Q>1）远不等于工程与商业可行：中子辐照下的第一壁材料寿命、氚自持循环、等离子体长期稳态控制，每一项都可能成为压垮时间表的隐藏成本。",
+        "en": "Scientific gain (Q>1) is far from engineering and commercial viability: first-wall material lifetime under neutron irradiation, the tritium self-sufficiency cycle, and long-term steady-state plasma control could each become a hidden cost that crushes the timeline."
+      },
+      "subQuestions": [
+        {
+          "zh": "受控核聚变能否真正成为可规模化、可持续净产能的电力来源——还是说等离子体湍流、材料耐受与能量增益（Q值）之间存在某种至今未被识破的根本性权衡，使「聚变发电」永远停在「再过三十年」？",
+          "en": "Can controlled nuclear fusion truly become a scalable, sustainable source of net energy — or is there an as-yet-unrecognized fundamental trade-off among plasma turbulence, material endurance, and energy gain (Q) that keeps fusion power perpetually 'thirty years away'?"
+        },
+        {
+          "zh": "高效储能的终极物理极限在哪里——是否存在某种我们尚未发现的电荷/离子存储机制，能在安全、成本、寿命与能量密度上同时突破当前锂离子电池所卡住的多目标权衡？",
+          "en": "Where is the ultimate physical limit of high-efficiency energy storage — does an undiscovered charge/ion-storage mechanism exist that can simultaneously break the multi-objective trade-off of safety, cost, lifetime, and energy density that currently pins lithium-ion batteries?"
+        },
+        {
+          "zh": "把阳光或电直接、廉价、规模化地变成可储存的化学燃料（「人工光合作用」），其效率与成本的根本极限是什么？我们究竟是缺一种催化剂，还是缺一整套对自然光合作用的全新理解？",
+          "en": "What are the fundamental efficiency and cost limits of turning sunlight or electricity directly, cheaply, and at scale into storable chemical fuel ('artificial photosynthesis') — are we missing one catalyst, or an entire new understanding of natural photosynthesis itself?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Commonwealth Fusion Systems HTS magnets technology",
+        "venue": "Commonwealth Fusion Systems (institutional)",
+        "year": 2024,
+        "url": "https://cfs.energy/technology/hts-magnets/"
+      },
+      {
+        "title": "Bringing Fusion Energy to the Grid: Challenges and Pathways",
+        "venue": "Kleinman Energy Center, University of Pennsylvania",
+        "year": 2023,
+        "url": "https://kleinmanenergy.upenn.edu/research/publications/bringing-fusion-energy-to-the-grid-challenges-and-pathways/"
+      },
+      {
+        "title": "Fusion Energy: Seizing Our Opportunity for a Clean Energy Future",
+        "venue": "National Academies of Sciences, Engineering, and Medicine",
+        "year": 2023,
+        "url": "https://www.nationalacademies.org/news/fusion-energy-seizing-our-opportunity-for-a-clean-energy-future"
+      },
+      {
+        "title": "Commonwealth Fusion Systems fusion engineering progress",
+        "venue": "Engineering",
+        "year": 2024,
+        "url": "https://www.engineering.org.cn/engi/EN/PDF/10.1016/j.eng.2024.12.002"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 1128,
+      "y": 377,
+      "scale": 0.72
+    }
+  },
+  {
+    "id": 94,
+    "atlasN": 300,
+    "slug": "astrobiology-and-the-origin-of",
+    "title": {
+      "zh": "天体生物学与生命起源",
+      "en": "Astrobiology and the Origin of Life"
+    },
+    "qfocus": {
+      "zh": "生命如何从非生命化学体系中涌现，这一过程在宇宙中是否普遍？",
+      "en": "How does life emerge from non-living chemistry, and is this process common throughout the universe?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C18",
+      "zh": "大众空间科学",
+      "en": "Citizen space science"
+    },
+    "scores": [
+      5,
+      5,
+      2,
+      3,
+      4,
+      2,
+      2,
+      2,
+      4
+    ],
+    "citation": {
+      "url": "https://www.nationalacademies.org/read/26522/chapter/16",
+      "title": "Origins, Worlds, and Life: A Decadal Strategy for Planetary Science and Astrobiology 2023-2032",
+      "venue": "National Academies Press",
+      "year": 2022
+    },
+    "brief": {
+      "zh": "天体生物学研究生命如何从非生命化学体系中涌现、这一过程在宇宙中是否普遍，涵盖前生命化学、RNA世界假说与极端环境生命，并指向欧罗巴/恩克拉多斯羽流、火星样本返回等可检验的地外生物标志物。真正的困难是「只有一个样本」——我们仅知地球生命，缺乏判断哪些特征必然、哪些偶然的参照系。",
+      "en": "Astrobiology studies how life emerges from non-living chemistry and whether this is common across the universe, spanning prebiotic chemistry, the RNA-world hypothesis, and extremophiles, and pointing toward testable biosignatures at the Europa/Enceladus plumes and in Mars sample return. The real difficulty is the 'sample of one' — we know only Earth life, leaving no baseline for judging which features are necessary versus contingent."
+    },
+    "depth": {
+      "overview": {
+        "zh": "天体生物学与生命起源研究生命如何从非生命的化学体系中涌现，以及这一过程在宇宙中是否普遍，涵盖前生命化学、RNA世界假说和极端环境生命。它交叉生物学、化学与天文学，核心是把「生命的定义与起源」作为可实验、可在地外检验的科学问题。",
+        "en": "Astrobiology and the origin of life study how life emerges from non-living chemical systems and whether this process is common across the universe, covering prebiotic chemistry, the RNA-world hypothesis, and life in extreme environments. Spanning biology, chemistry, and astronomy, its core is treating 'the definition and origin of life' as a scientific question that can be tested experimentally and beyond Earth."
+      },
+      "whyMatters": {
+        "zh": "它把「我们从何而来、是否孤独」这类哲学级大问题拉进实验室，连接合成生物学与深空探测——让原本思辨性的终极问题第一次具备可实验、可检验的路径。",
+        "en": "It pulls philosophical-scale questions like 'where do we come from, are we alone' into the lab, connecting synthetic biology with deep-space exploration — giving these once purely speculative ultimate questions an experimentally testable path for the first time."
+      },
+      "ifAnswered": {
+        "zh": "若能取得进展，天体生物学将真正把实验室化学与深空探测连成一体——地外生物标志物的判读将从假设性推测变为有可靠参照系支撑的检验。",
+        "en": "If progress is made, astrobiology would genuinely connect laboratory chemistry with deep-space exploration — turning the reading of extraterrestrial biosignatures from speculative guesswork into tests grounded in a reliable reference frame."
+      },
+      "approaches": [
+        {
+          "zh": "前生命化学实验路径（模拟米勒-尤里式合成、热泉假说）在实验室重建生命起源的化学步骤。",
+          "en": "Prebiotic-chemistry experimental paths (Miller-Urey-style synthesis, hydrothermal-vent hypotheses) reconstructing the chemical steps of life's origin in the lab."
+        },
+        {
+          "zh": "地外生物标志物探测（欧罗巴/恩克拉多斯羽流采样、火星样本返回）把假说搬到太阳系尺度直接检验。",
+          "en": "Extraterrestrial biosignature detection (Europa/Enceladus plume sampling, Mars sample return) taking the hypotheses to Solar-System scale for direct testing."
+        },
+        {
+          "zh": "借助分布式、大众参与的观测网络扩大对瞬变现象与候选信号的覆盖，弥补专业设备在覆盖、节奏与视角上的结构性盲区。",
+          "en": "Leveraging distributed, publicly-engaged observing networks to broaden coverage of transients and candidate signals, filling the structural coverage, cadence, and viewing-angle gaps of professional instruments."
+        }
+      ],
+      "barrier": {
+        "zh": "根本困难在于「只有一个样本」：我们仅知地球生命，既难判断哪些特征是生命的必然、哪些是偶然，也缺乏对「非地球式生命」的想象框架，这使任何地外生命的判定都缺乏可靠的对照基准。",
+        "en": "The fundamental difficulty is the 'sample of one': we know only Earth life, making it hard to judge which features are necessary versus contingent, and we lack any imaginative framework for genuinely non-Earth-like life — leaving any verdict on extraterrestrial life without a reliable control baseline."
+      },
+      "subQuestions": [
+        {
+          "zh": "分布式的业余天文/航天观测者网络，能否系统性地探测到专业巡天因覆盖、节奏或视角受限而结构性遗漏的瞬变与近地天体——也就是说，「人多眼杂」是否能在科学发现上做到专业设备做不到的事？",
+          "en": "Can distributed networks of amateur astronomy/spaceflight observers systematically detect transients and near-Earth objects that professional surveys structurally miss due to coverage, cadence, or viewing-angle limits — that is, can 'many eyes' achieve discoveries professional instruments cannot?"
+        },
+        {
+          "zh": "当数据规模超出任何专业团队的处理能力，而 AI 又会系统性遗漏「未被预期的异常」时，人类志愿者的认知到底提供了什么机器无法替代的东西？大众科学的真正价值，是劳动力、是多样视角，还是「发现未知未知」的能力？",
+          "en": "When data volume exceeds any professional team's capacity and AI systematically misses 'unexpected anomalies', what exactly does human volunteer cognition provide that machines cannot replace — is citizen science's real value labor, diverse perspective, or the capacity to discover unknown unknowns?"
+        },
+        {
+          "zh": "随着发射成本骤降、小卫星与开源地面站普及，太空探测是否能从国家与巨头垄断，转为真正由大众分布式拥有与运营的基础设施？「人人可及的太空」是工程必然，还是被轨道、频谱与法律结构性锁死的幻象？",
+          "en": "As launch costs plummet and small satellites and open-source ground stations proliferate, can space exploration shift from state and corporate monopoly to genuinely distributed, publicly owned-and-operated infrastructure — is 'space for everyone' an engineering inevitability or an illusion structurally locked out by orbits, spectrum, and law?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "The origin of life as a planetary phenomenon",
+        "venue": "Science Advances",
+        "year": 2020,
+        "url": "https://www.science.org/doi/10.1126/sciadv.aax3419"
+      },
+      {
+        "title": "Origins, Worlds, and Life: A Decadal Strategy for Planetary Science and Astrobiology 2023-2032",
+        "venue": "National Academies Press",
+        "year": 2022,
+        "url": "https://www.nationalacademies.org/read/26522/chapter/16"
+      },
+      {
+        "title": "A Review on Hypothesized Metabolic Pathways on Europa and Enceladus: Space-Flight Detection Considerations",
+        "venue": "Life",
+        "year": 2023,
+        "url": "https://www.mdpi.com/2075-1729/13/8/1726"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 980,
+      "y": 461,
+      "scale": 0.81
+    }
+  },
+  {
+    "id": 95,
+    "atlasN": 513,
+    "slug": "subsurface-oceans-of-icy-moons",
+    "title": {
+      "zh": "冰卫星地下海洋与地外宜居",
+      "en": "Subsurface Oceans of Icy Moons and Extraterrestrial Habitability"
+    },
+    "qfocus": {
+      "zh": "木卫二、土卫二冰壳下的海洋，是否具备液态水、能量与化学梯度支撑生命存在？",
+      "en": "Do the oceans beneath the ice shells of Europa and Enceladus have the liquid water, energy, and chemical disequilibrium needed to support life?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C18",
+      "zh": "大众空间科学",
+      "en": "Citizen space science"
+    },
+    "scores": [
+      5,
+      4,
+      3,
+      3,
+      2,
+      1,
+      3,
+      3,
+      4
+    ],
+    "citation": {
+      "url": "https://www.nature.com/articles/s41586-023-05987-9",
+      "title": "Detection of phosphates originating from Enceladus's ocean",
+      "venue": "Nature",
+      "year": 2023
+    },
+    "brief": {
+      "zh": "研究木卫二、土卫二等冰封天体的冰壳之下是否存在液态咸水海洋，及其热源（潮汐加热、热液喷口）、化学梯度与潜在宜居性——土卫二南极羽流已直接采到含盐与有机物样本。相比火星表面，冰下海洋因兼具液态水、能量与化学不平衡而更可能孕育生命，但探测窗口被欧罗巴快船、JUICE等任务的多年飞掠周期锁死，穿透数千米厚冰壳直接取样仍遥不可及。",
+      "en": "Studies whether liquid salty oceans exist beneath the ice shells of Europa and Enceladus, along with their heat sources (tidal heating, hydrothermal vents), chemical gradients and habitability — the plume at Enceladus's south pole has already yielded direct samples containing salts and organics. Subsurface oceans are more likely to harbor life than the Martian surface since they combine liquid water, energy and chemical disequilibrium, but the observation window is locked to the multi-year flyby cycles of missions like Europa Clipper and JUICE, and drilling through a kilometers-thick ice shell to sample directly remains out of engineering reach."
+    },
+    "depth": {
+      "overview": {
+        "zh": "冰卫星地下海洋研究木卫二、土卫二等冰封天体的冰壳之下是否存在液态咸水海洋，以及其热源、化学梯度与潜在宜居性。它结合天体生物学、海洋学与行星科学，是太阳系内寻找地外生命最现实的方向之一。",
+        "en": "Subsurface-ocean research on icy moons studies whether liquid salty oceans exist beneath the ice shells of frozen bodies such as Europa and Enceladus, along with their heat sources, chemical gradients, and potential habitability. Combining astrobiology, oceanography, and planetary science, it is one of the most realistic directions for finding extraterrestrial life within the Solar System."
+      },
+      "whyMatters": {
+        "zh": "相比火星表面，冰下海洋因兼具液态水、能量与化学不平衡而更可能孕育生命，是公众想象力的引爆点——它把「太阳系内是否存在第二个生命摇篮」变成一个有具体探测目标的问题。",
+        "en": "Compared with the Martian surface, subsurface oceans are more likely to harbor life because they combine liquid water, energy, and chemical disequilibrium — an ignition point for public imagination that turns 'is there a second cradle of life in the Solar System' into a question with concrete exploration targets."
+      },
+      "ifAnswered": {
+        "zh": "若能确认冰下海洋的宜居性，这一问题将随欧罗巴快船、JUICE等任务陆续抵达而成为科学界与公众关注的焦点，把地外生命探测从假说推进到可用实测数据检验的阶段。",
+        "en": "If the habitability of these subsurface oceans can be confirmed, this question will become a focal point as missions like Europa Clipper and JUICE arrive, advancing the search for extraterrestrial life from hypothesis to a stage testable with real observational data."
+      },
+      "approaches": [
+        {
+          "zh": "通过潮汐加热与热液喷口的物理建模，推断冰壳下海洋的能量供给是否足以支撑代谢化学。",
+          "en": "Physical modeling of tidal heating and hydrothermal vents to infer whether the sub-ice ocean's energy supply can sustain metabolic chemistry."
+        },
+        {
+          "zh": "利用羽流采样（如土卫二南极喷发物）直接分析盐分与有机物成分，把间接光谱推断换成实测证据。",
+          "en": "Direct plume sampling (e.g., Enceladus's south-polar eruptions) to analyze salt and organic composition, replacing indirect spectral inference with measured evidence."
+        },
+        {
+          "zh": "借助小卫星、开源地面站等日益普及的分布式太空基础设施，扩大对候选羽流事件与轨道任务数据的公众可及性与交叉验证。",
+          "en": "Leveraging increasingly accessible distributed space infrastructure — small satellites, open-source ground stations — to broaden public access to and cross-verification of candidate plume events and mission data."
+        }
+      ],
+      "barrier": {
+        "zh": "探测窗口被任务周期锁死——欧罗巴快船等任务一次飞掠数年才有数据，且穿透厚冰壳直接取样在工程上仍遥不可及，这使得对海洋宜居性的判断长期只能依赖间接、稀疏的观测证据。",
+        "en": "The observation window is locked to mission timelines — missions such as Europa Clipper take years per flyby to return data, and directly sampling through the thick ice shell remains engineering-wise out of reach, so judgments about ocean habitability must long rely on indirect, sparse observational evidence."
+      },
+      "subQuestions": [
+        {
+          "zh": "分布式的业余天文/航天观测者网络，能否系统性地探测到专业巡天因覆盖、节奏或视角受限而结构性遗漏的瞬变与近地天体——也就是说，「人多眼杂」是否能在科学发现上做到专业设备做不到的事？",
+          "en": "Can distributed networks of amateur astronomy/spaceflight observers systematically detect transients and near-Earth objects that professional surveys structurally miss due to coverage, cadence, or viewing-angle limits — that is, can 'many eyes' achieve discoveries professional instruments cannot?"
+        },
+        {
+          "zh": "当数据规模超出任何专业团队的处理能力，而 AI 又会系统性遗漏「未被预期的异常」时，人类志愿者的认知到底提供了什么机器无法替代的东西？大众科学的真正价值，是劳动力、是多样视角，还是「发现未知未知」的能力？",
+          "en": "When data volume exceeds any professional team's capacity and AI systematically misses 'unexpected anomalies', what exactly does human volunteer cognition provide that machines cannot replace — is citizen science's real value labor, diverse perspective, or the capacity to discover unknown unknowns?"
+        },
+        {
+          "zh": "随着发射成本骤降、小卫星与开源地面站普及，太空探测是否能从国家与巨头垄断，转为真正由大众分布式拥有与运营的基础设施？「人人可及的太空」是工程必然，还是被轨道、频谱与法律结构性锁死的幻象？",
+          "en": "As launch costs plummet and small satellites and open-source ground stations proliferate, can space exploration shift from state and corporate monopoly to genuinely distributed, publicly owned-and-operated infrastructure — is 'space for everyone' an engineering inevitability or an illusion structurally locked out by orbits, spectrum, and law?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Abundant phosphorus expected for possible life in Enceladus's ocean",
+        "venue": "PNAS",
+        "year": 2022,
+        "url": "https://www.pnas.org/doi/10.1073/pnas.2201388119"
+      },
+      {
+        "title": "Detection of phosphates originating from Enceladus's ocean",
+        "venue": "Nature",
+        "year": 2023,
+        "url": "https://www.nature.com/articles/s41586-023-05987-9"
+      },
+      {
+        "title": "A Review on Hypothesized Metabolic Pathways on Europa and Enceladus: Space-Flight Detection Considerations",
+        "venue": "Astrobiology",
+        "year": 2023,
+        "url": "https://www.researchgate.net/publication/373088825_A_Review_on_Hypothesized_Metabolic_Pathways_on_Europa_and_Enceladus_Space-Flight_Detection_Considerations"
+      },
+      {
+        "title": "Europa's ocean: potential for extraterrestrial chemoautotrophy",
+        "venue": "Frontiers in Astronomy and Space Sciences",
+        "year": 2025,
+        "url": "https://www.frontiersin.org/journals/astronomy-and-space-sciences/articles/10.3389/fspas.2025.1694079/full"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 695,
+      "y": 549,
+      "scale": 0.92
+    }
+  },
+  {
+    "id": 96,
+    "atlasN": 1431,
+    "slug": "sociogenomics",
+    "title": {
+      "zh": "社会基因组学",
+      "en": "Sociogenomics"
+    },
+    "qfocus": {
+      "zh": "把 GWAS 多基因指数（PGI）引入教育、收入等社会分层研究后，同胞内设计能在多大程度上把真正的遗传因果从环境混杂中剥离出来？",
+      "en": "Once polygenic indices (PGIs) from GWAS are brought into research on education and income stratification, how much can within-family designs truly strip genetic causation apart from environmental confounding?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C19",
+      "zh": "计算社会科学·数字人文",
+      "en": "Computational social science · digital humanities"
+    },
+    "scores": [
+      5,
+      5,
+      4,
+      2,
+      3,
+      2,
+      4,
+      2,
+      4
+    ],
+    "citation": {
+      "url": "https://doi.org/10.1038/s41588-022-01016-z",
+      "title": "Polygenic prediction of educational attainment within and between families from genome-wide association analyses in 3 million individuals",
+      "venue": "Nature Genetics",
+      "year": 2022
+    },
+    "brief": {
+      "zh": "社会基因组学用全基因组关联分析产出的多基因指数（PGI），把遗传信息接入教育、收入等社会分层研究，并用同胞内设计剥离环境混杂来检验「基因—社会地位」链条。它是解释力最强也最具争议的社会科学新工具之一——家庭内设计下预测力缩水、跨族群不可迁移，极易被误读为生物决定论。",
+      "en": "Sociogenomics feeds genome-wide association study (GWAS) polygenic indices (PGIs) into research on social stratification, education and income, using within-family designs to strip out environmental confounding and test the gene–social-status chain. It is among the most explanatory yet most contested new tools in social science — its predictive power shrinks under within-family designs, fails to transfer across ancestries, and is easily misread as biological determinism."
+    },
+    "depth": {
+      "overview": {
+        "zh": "社会基因组学（又称 social-science genomics / genoeconomics）把全基因组关联分析（GWAS）产出的多基因指数（PGI）引入社会分层、教育、收入等研究，用同胞内（within-family）设计剥离环境混杂，检验「基因—社会地位」链条。它把过去只能靠双生子研究推断的遗传力，变成可在个体层面直接度量的分子变量——当社会学开始用一串基因组数字预测受教育年限时，「先天与后天」的老争论被重写成一个可测量、也高度危险的分子问题。",
+        "en": "Sociogenomics (also called social-science genomics or genoeconomics) imports polygenic indices (PGIs) from genome-wide association studies (GWAS) into research on social stratification, education, and income, using within-family (sibling) designs to strip out environmental confounding and probe the gene–social-status chain. It turns heritability — once inferable only from twin studies — into a molecular variable measurable at the individual level. When sociology begins using a string of numbers derived from the genome to predict years of education, the old 'nature vs. nurture' debate is rewritten into a question that is measurable — and highly dangerous."
+      },
+      "whyMatters": {
+        "zh": "它既可能揭示社会不平等背后真实的基因-环境交互机制，也可能被误读、滥用为生物决定论——这使「基因是否决定社会地位」从纯思辨问题变成了有巨大政策与伦理后果的实证问题。",
+        "en": "It could either reveal the real gene–environment interaction mechanisms behind social inequality, or be misread and misused as biological determinism — turning 'does genetics determine social status' from a purely speculative question into an empirical one with major policy and ethical stakes."
+      },
+      "ifAnswered": {
+        "zh": "若能把 PGI 从单纯的预测工具确立为可信的因果因子，并在跨祖先人群与家庭内设计中验证其可迁移性，社会基因组学将为教育与收入不平等提供一套可检验的因果解释框架，同时也将直接决定这类分子证据在政策场景中能被如何负责任地使用。",
+        "en": "If PGIs can be established as credible causal factors rather than mere predictors, and their portability verified across ancestries and within-family designs, sociogenomics would offer a testable causal framework for education and income inequality — while also directly determining how responsibly such molecular evidence can be used in policy settings."
+      },
+      "approaches": [
+        {
+          "zh": "用同胞内（within-family）设计比较同一家庭中不同个体的 PGI 与结果，以剥离共享环境与人群分层带来的混杂。",
+          "en": "Using within-family designs to compare PGIs and outcomes among siblings in the same family, stripping out confounding from shared environment and population stratification."
+        },
+        {
+          "zh": "扩大 GWAS 样本量并跨祖先人群重复分析，检验 PGI 的预测力是否能跨群体迁移，而非局限于训练所用的单一人群。",
+          "en": "Expanding GWAS sample sizes and replicating analyses across ancestries to test whether PGI predictive power transfers across populations rather than being confined to the training population."
+        },
+        {
+          "zh": "把社会基因组学的方法论问题放回「量化能否捕捉社会意义」这一更大的计算社会科学/数字人文争议中审视，警惕把复杂的社会过程简化为单一分子指数。",
+          "en": "Situating sociogenomics' methodological problems within the broader computational-social-science/digital-humanities debate over whether quantification can capture social meaning, guarding against reducing complex social processes to a single molecular index."
+        }
+      ],
+      "barrier": {
+        "zh": "最硬的张力在于：族群内 PGI 的预测力在家庭内设计下明显缩水，且几乎无法把真正的生物因果与「基因—环境」相关剥离干净，这使得任何「基因预测地位」的结论都难以排除环境混杂的替代解释。",
+        "en": "The hardest tension is that a PGI's predictive power within an ancestry group shrinks markedly under within-family designs, and true biological causation can hardly be cleanly separated from gene–environment correlation — so any conclusion that 'genes predict status' struggles to rule out confounding environmental alternatives."
+      },
+      "subQuestions": [
+        {
+          "zh": "在被海量数字痕迹记录的人类社会中，集体行为是否存在类似物理定律那样可预测、可推广的规律？还是说社会系统的反身性（人会因预测而改变行为）从根本上排除了「社会物理学」的可能？",
+          "en": "In a human society logged by massive digital traces, do regularities of collective behavior exist that are predictable and generalizable like physical laws — or does the reflexivity of social systems (people changing behavior because of predictions) fundamentally preclude any 'social physics'?"
+        },
+        {
+          "zh": "当大语言模型能生成与人类无法区分的文本、并能模拟人类回答调查与实验时，社会科学赖以为基的「人类数据」是否正在被污染到不可信？我们还能否区分「真实人群的信号」与「模型反射回来的回声」？",
+          "en": "When large language models generate text indistinguishable from humans and can simulate human responses to surveys and experiments, is the 'human data' that social science rests on being polluted past trust — can we still separate the signal of real populations from the echo of models reflecting us back?"
+        },
+        {
+          "zh": "文化——意义、叙事、价值——能否被有意义地量化和建模，而不在量化过程中丢失其本质？数字人文把文本与艺术变成数据时，我们是在揭示文化的深层结构，还是在用度量遮蔽它？",
+          "en": "Can culture — meaning, narrative, value — be meaningfully quantified and modeled without losing its essence in the act of quantification? When digital humanities turns texts and art into data, are we revealing culture's deep structure or obscuring it with metrics?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Polygenic Indices (a.k.a. Polygenic Scores) in Social Science: A Guide for Interpretation and Evaluation",
+        "venue": "Sociological Methodology",
+        "year": 2024,
+        "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11293310/"
+      },
+      {
+        "title": "Social and Behavioral Genomics: On the Ethics of the Research and Its Downstream Applications",
+        "venue": "Annual Review of Genomics and Human Genetics",
+        "year": 2025,
+        "url": "https://www.annualreviews.org/content/journals/10.1146/annurev-genom-011224-015733"
+      },
+      {
+        "title": "Polygenic prediction of educational attainment within and between families from genome-wide association analyses in 3 million individuals",
+        "venue": "Nature Genetics",
+        "year": 2022,
+        "url": "https://doi.org/10.1038/s41588-022-01016-z"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 802,
+      "y": 716,
+      "scale": 0.95
+    }
+  },
+  {
+    "id": 97,
+    "atlasN": 1020,
+    "slug": "autonomous-ai-scientist-ai-reviewer",
+    "title": {
+      "zh": "AI科学家与AI评审的自治出版生态",
+      "en": "Autonomous AI-Scientist / AI-Reviewer Publishing Ecosystems"
+    },
+    "qfocus": {
+      "zh": "当 AI 智能体能自主提出假设、做实验、写论文并互评时，该为洪水般涌现的 AI 研究建立一套什么样可信的评议与发表基础设施？",
+      "en": "When AI agents can autonomously propose hypotheses, run experiments, write papers, and review each other, what kind of trustworthy review-and-publish infrastructure should be built for the flood of AI-generated research?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C20",
+      "zh": "去中心科学·开放科学机制",
+      "en": "Decentralized science · open science mechanisms"
+    },
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      3,
+      4,
+      2,
+      2,
+      3
+    ],
+    "citation": {
+      "url": "https://arxiv.org/abs/2508.15126",
+      "title": "aiXiv: A Next-Generation Open Access Ecosystem for Scientific Discovery Generated by AI Scientists",
+      "venue": "arXiv preprint 2508.15126",
+      "year": 2025
+    },
+    "brief": {
+      "zh": "当 AI 智能体能自主提出假设、跑实验、写论文并互评后，一类专为「人机共同作者」设计的开放获取平台开始出现：论文先由多个 LLM 评审智能体打分排序，顶部成果再交人类复核。锚点案例是 2025 年预印本 aiXiv、斯坦福与 Together AI 主办的 Agents4Science 会议，以及 Sakana AI Scientist-v2——其全 AI 生成稿件已有一篇以均分 6.33 通过 ICLR 工作坊评审。",
+      "en": "As AI agents can autonomously propose hypotheses, run experiments, write papers, and review one another, a new class of open-access platform designed for human-AI co-authorship is emerging: papers are first scored and ranked by multiple LLM reviewer agents before top results go to human review. Anchor cases include the 2025 aiXiv preprint, the Stanford/Together AI Agents4Science conference, and Sakana's AI Scientist-v2, one of whose fully AI-generated papers passed ICLR workshop review with an average score of 6.33."
+    },
+    "depth": {
+      "overview": {
+        "zh": "当 Sakana 的 AI Scientist-v2 已有论文匿名通过 ICLR 工作坊评审，问题不再是「AI 能否写论文」，而是「如何为洪水般的 AI 研究建一套可信的评议与发表基础设施」。aiXiv 与 Agents4Science 正是第一批答案：前者是面向人类与 AI 科学家的开放平台，提交后由多个 LLM 评审智能体自动打分排序、顶部成果再经人类复核；后者要求 AI 同时担任主要作者与评审。",
+        "en": "With Sakana's AI Scientist-v2 already having a paper pass ICLR workshop review anonymously, the question is no longer 'can AI write papers' but 'how to build a trustworthy review-and-publish infrastructure for the flood of AI-generated research'. aiXiv and Agents4Science are the first answers: the former is an open platform for human and AI scientists where submissions are automatically scored and ranked by multiple LLM reviewer agents before top results go to human review; the latter requires AI to serve as both primary author and reviewer."
+      },
+      "whyMatters": {
+        "zh": "当科研产出被 AI 加速到远超人类评审吞吐的地步时，评议是否可信直接决定这个自治出版生态能否成立——一旦「质量地板」被攻破，科学记录本身的可信度就会被侵蚀。",
+        "en": "When research output is accelerated by AI far beyond human review throughput, whether the review process can be trusted directly determines whether this autonomous publishing ecosystem can hold — if the 'quality floor' is breached, the credibility of the scientific record itself erodes."
+      },
+      "ifAnswered": {
+        "zh": "下一步是建立可审计的「AI 评审链路」与防同质化偏置机制；谁先建成可信的 AI-原生评议层，谁就将定义后人类科研的传播标准。",
+        "en": "The next step is building auditable AI-review pipelines and anti-homogenization safeguards; whoever first builds a trustworthy AI-native review layer will define the dissemination standard for post-human research."
+      },
+      "approaches": [
+        {
+          "zh": "用多个独立的 LLM 评审智能体对提交打分排序，作为第一层过滤，再把排名靠前的成果交人类复核，构成「机器初筛+人类终审」的两层评议架构（如 aiXiv）。",
+          "en": "Having multiple independent LLM reviewer agents score and rank submissions as a first filter, then escalating top-ranked results to human review — a two-tier 'machine triage + human final review' architecture (as in aiXiv)."
+        },
+        {
+          "zh": "要求 AI 同时担任论文的主要作者与评审者（如 Agents4Science），直接检验机器能否在生产与把关两端都达到可信标准。",
+          "en": "Requiring AI to serve as both primary author and reviewer of papers (as in Agents4Science), directly testing whether machines can meet trustworthy standards on both the production and gatekeeping sides."
+        },
+        {
+          "zh": "把去中心科学（DeSci）开放、可激励的质量控制机制引入评议流程，探索能否用博弈论式的激励设计替代传统的中心化把关人。",
+          "en": "Introducing decentralized-science (DeSci) open, incentivized quality-control mechanisms into the review process, exploring whether game-theoretic incentive design can replace traditional centralized gatekeepers."
+        }
+      ],
+      "barrier": {
+        "zh": "最硬的难点是评议可信度：多个 LLM 评审智能体彼此高度相关、共享盲点，「多智能体投票」未必降低偏置反而可能放大集体幻觉；而人类复核又重新成为吞吐瓶颈——自治生态的「质量地板」到底由谁、用什么基准托住，尚无定论。",
+        "en": "The hardest difficulty is review credibility: multiple LLM reviewer agents are highly correlated with one another and share blind spots, so 'multi-agent voting' may not reduce bias but instead amplify collective hallucination; meanwhile human review becomes a throughput bottleneck again — who holds up the autonomous ecosystem's 'quality floor', and by what benchmark, remains unsettled."
+      },
+      "subQuestions": [
+        {
+          "zh": "科学的质量控制能否在没有中心化「守门人」（期刊、机构、同行评审委员会）的情况下，靠去中心的、可验证的激励机制可靠地实现？还是说某种形式的可信权威，是把噪声与造假挡在科学之外的不可消除的成本？",
+          "en": "Can the quality control of science be reliably achieved through decentralized, verifiable incentive mechanisms without centralized 'gatekeepers' (journals, institutions, peer-review boards) — or is some form of trusted authority an irreducible cost of keeping noise and fraud out of science?"
+        },
+        {
+          "zh": "如果科学知识、数据与同行评审全部开放且可机器读取，那么什么样的激励结构才能让「贡献真相」而非「博取声誉」成为研究者的最优策略？开放科学要解决的，究竟是技术问题还是博弈论问题？",
+          "en": "If scientific knowledge, data, and peer review were all open and machine-readable, what incentive structure would make 'contributing truth' rather than 'gaming reputation' a researcher's optimal strategy — is open science fundamentally a technical problem or a game-theoretic one?"
+        },
+        {
+          "zh": "当 AI 能自主提出假设、设计并执行实验、撰写论文时，「科学共同体」的边界是否需要被重新定义？开放科学的下一步，是把机器纳入为平等的认知主体，还是会因此瓦解人类同行评审赖以建立的信任基础？",
+          "en": "When AI can autonomously propose hypotheses, design and run experiments, and write papers, must the boundary of the 'scientific community' be redefined — is the next step of open science to admit machines as equal epistemic agents, or does doing so dissolve the trust foundation on which human peer review rests?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "aiXiv: A Next-Generation Open Access Ecosystem for Scientific Discovery Generated by AI Scientists",
+        "venue": "arXiv preprint 2508.15126",
+        "year": 2025,
+        "url": "https://arxiv.org/abs/2508.15126"
+      },
+      {
+        "title": "Open Conference of AI Agents for Science (Agents4Science) — Paper Submissions",
+        "venue": "Stanford University / Together AI",
+        "year": 2025,
+        "url": "https://agents4science.stanford.edu/submissions.html"
+      },
+      {
+        "title": "The AI Scientist-v2: Workshop-Level Automated Scientific Discovery via Agentic Tree Search",
+        "venue": "Sakana AI (technical report)",
+        "year": 2025,
+        "url": "https://pub.sakana.ai/ai-scientist-v2/paper/paper.pdf"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 1055,
+      "y": 683,
+      "scale": 0.94
+    }
+  },
+  {
+    "id": 98,
+    "atlasN": 1016,
+    "slug": "zero-knowledge-verifiable-scientific-computation",
+    "title": {
+      "zh": "零知识证明的可验证科研计算",
+      "en": "Zero-Knowledge Verifiable Scientific Computation"
+    },
+    "qfocus": {
+      "zh": "能否用零知识证明，在不公开原始数据、模型权重或专有代码的前提下，密码学地证明某项科研计算结果确实来自声称的那段计算？",
+      "en": "Can zero-knowledge proofs cryptographically prove that a scientific computation result truly came from the claimed computation — without revealing the underlying data, model weights, or proprietary code?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C20",
+      "zh": "去中心科学·开放科学机制",
+      "en": "Decentralized science · open science mechanisms"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      3,
+      2,
+      3,
+      3,
+      3,
+      2
+    ],
+    "citation": {
+      "url": "https://ddkang.github.io/papers/2024/zkml-eurosys.pdf",
+      "title": "ZKML: An Optimizing System for ML Inference in Zero-Knowledge Proofs",
+      "venue": "EuroSys 2024",
+      "year": 2024
+    },
+    "brief": {
+      "zh": "零知识证明让「可验证」与「不公开」首次有望共存——证明某项训练/推理/分析结果确由声称的计算产生，却不泄露原始数据或模型权重。2025 年生产级 zkML 系统 DeepProve-1 已能为 GPT-2 完整推理生成密码学证明，但出证成本高、电路表达力有限（多数框架仅支持 ONNX 120+ 算子中的约 50 个），仍是通向「任意科研流水线一键出证」的硬约束。",
+      "en": "Zero-knowledge proofs make 'verifiable' and 'undisclosed' compatible for the first time — proving that a training/inference/analysis result truly came from the claimed computation without revealing the underlying data or model weights. In 2025, the production-grade zkML system DeepProve-1 could already generate a cryptographic proof for a full GPT-2 inference, but high proving costs and limited circuit expressiveness (most frameworks support only about 50 of ONNX's 120+ operators) remain hard constraints on the road to 'one-click proof for any scientific pipeline'."
+    },
+    "depth": {
+      "overview": {
+        "zh": "复现要求公开一切，但医学数据、专利模型又必须保密——这个两难看似无解。零知识证明给出第三条路：用密码学证明，在不公开原始数据、模型权重或专有代码的前提下，某个训练/推理/分析结果确由声称的那段计算产生，让「可验证」与「不公开」同时成立。",
+        "en": "Reproduction demands full disclosure, yet medical data and proprietary models must stay confidential — a dilemma that seems unsolvable. Zero-knowledge proofs offer a third path: cryptographically proving that a training/inference/analysis result really came from the claimed computation, without revealing the raw data, model weights, or proprietary code — letting 'verifiable' and 'undisclosed' hold at once."
+      },
+      "whyMatters": {
+        "zh": "它瞄准了科研可复现性的一个长期死结：复现要求公开一切，但医学数据、专利模型又必须保密。如果零知识证明能真正规模化，「可验证」与「不公开」将首次同时成立，从根本上化解可复现性与隐私/专利之间的长期两难。",
+        "en": "It targets a long-standing deadlock in scientific reproducibility: reproduction demands full disclosure, yet medical data and proprietary models must stay confidential. If zero-knowledge proofs can truly scale, 'verifiable' and 'undisclosed' would hold simultaneously for the first time, fundamentally dissolving the long-standing reproducibility-versus-privacy/patent dilemma."
+      },
+      "ifAnswered": {
+        "zh": "若工程瓶颈被突破，零知识证明将真正化解可复现性与隐私/专利保护之间的长期两难，让医学、金融等高敏感领域的科研结果也能被独立验证而无需公开原始数据。",
+        "en": "If the engineering bottlenecks are overcome, zero-knowledge proofs would truly dissolve the long-standing reproducibility-versus-privacy/patent dilemma, letting research results in highly sensitive fields like medicine and finance be independently verified without disclosing the underlying data."
+      },
+      "approaches": [
+        {
+          "zh": "为训练、测试、推理三类任务分别设计可验证电路（zkML），把「计算确实按声称方式执行」转化为可密码学核验的证明。",
+          "en": "Designing verifiable circuits (zkML) separately for training, testing, and inference tasks, turning 'the computation really ran as claimed' into a cryptographically checkable proof."
+        },
+        {
+          "zh": "扩大电路对算子的覆盖（如注意力机制从「勉强可行」到多框架支持），逐步逼近对真实科研流水线的完整覆盖。",
+          "en": "Expanding circuit coverage of operators (e.g., attention mechanisms moving from 'barely feasible' to multi-framework support), progressively approaching full coverage of real scientific pipelines."
+        },
+        {
+          "zh": "把可验证计算接入去中心科学的开放评议机制，让密码学证明成为替代或补充人类同行评审的可信凭证。",
+          "en": "Integrating verifiable computation into decentralized-science open review mechanisms, so cryptographic proofs become a trusted credential that can replace or supplement human peer review."
+        }
+      ],
+      "barrier": {
+        "zh": "最硬的瓶颈是工程可行性：出证成本极高、电路表达力有限（ONNX 有 120+ 算子，多数 zkML 框架只支持约 50 个），自定义层、异常归一化和动态控制流仍难入证，离「任意科研流水线一键出证」还很远。",
+        "en": "The hardest bottleneck is engineering feasibility: proving costs are extremely high, circuit expressiveness is limited (ONNX has 120+ operators, but most zkML frameworks support only around 50), and custom layers, unusual normalization, and dynamic control flow remain difficult to encode into proofs — 'one-click proof generation for any scientific pipeline' is still far off."
+      },
+      "subQuestions": [
+        {
+          "zh": "科学的质量控制能否在没有中心化「守门人」（期刊、机构、同行评审委员会）的情况下，靠去中心的、可验证的激励机制可靠地实现？还是说某种形式的可信权威，是把噪声与造假挡在科学之外的不可消除的成本？",
+          "en": "Can the quality control of science be reliably achieved through decentralized, verifiable incentive mechanisms without centralized 'gatekeepers' (journals, institutions, peer-review boards) — or is some form of trusted authority an irreducible cost of keeping noise and fraud out of science?"
+        },
+        {
+          "zh": "如果科学知识、数据与同行评审全部开放且可机器读取，那么什么样的激励结构才能让「贡献真相」而非「博取声誉」成为研究者的最优策略？开放科学要解决的，究竟是技术问题还是博弈论问题？",
+          "en": "If scientific knowledge, data, and peer review were all open and machine-readable, what incentive structure would make 'contributing truth' rather than 'gaming reputation' a researcher's optimal strategy — is open science fundamentally a technical problem or a game-theoretic one?"
+        },
+        {
+          "zh": "当 AI 能自主提出假设、设计并执行实验、撰写论文时，「科学共同体」的边界是否需要被重新定义？开放科学的下一步，是把机器纳入为平等的认知主体，还是会因此瓦解人类同行评审赖以建立的信任基础？",
+          "en": "When AI can autonomously propose hypotheses, design and run experiments, and write papers, must the boundary of the 'scientific community' be redefined — is the next step of open science to admit machines as equal epistemic agents, or does doing so dissolve the trust foundation on which human peer review rests?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "A Survey of Zero-Knowledge Proof Based Verifiable Machine Learning",
+        "venue": "arXiv / AI Review (Springer)",
+        "year": 2025,
+        "url": "https://arxiv.org/abs/2502.18535"
+      },
+      {
+        "title": "A Framework for Cryptographic Verifiability of End-to-End AI Pipelines",
+        "venue": "arXiv",
+        "year": 2025,
+        "url": "https://arxiv.org/pdf/2503.22573"
+      },
+      {
+        "title": "ZKML: An Optimizing System for ML Inference in Zero-Knowledge Proofs",
+        "venue": "EuroSys 2024",
+        "year": 2024,
+        "url": "https://ddkang.github.io/papers/2024/zkml-eurosys.pdf"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 914,
+      "y": 551,
+      "scale": 1
+    }
+  },
+  {
+    "id": 99,
+    "atlasN": 341,
+    "slug": "human-machine-collaborative-scientific-discovery",
+    "title": {
+      "zh": "人机协作的科学发现",
+      "en": "Human-Machine Collaborative Scientific Discovery"
+    },
+    "qfocus": {
+      "zh": "在人机协作的科学发现中，人机分工的边界应该划在哪里，才能既发挥AI的计算与生成能力，又不让科学家丧失独立判断？",
+      "en": "In human-machine collaborative scientific discovery, where should the human-AI division of labor be drawn so that AI's generative and computational power is harnessed without scientists losing independent judgment?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C21",
+      "zh": "人机协作·认知增强",
+      "en": "Human-AI collaboration · cognitive augmentation"
+    },
+    "scores": [
+      5,
+      4,
+      5,
+      3,
+      5,
+      3,
+      3,
+      2,
+      2
+    ],
+    "citation": {
+      "url": "https://www.nature.com/articles/s41586-023-06221-2",
+      "title": "Scientific discovery in the age of artificial intelligence",
+      "venue": "Nature",
+      "year": 2023
+    },
+    "brief": {
+      "zh": "人机协作的科学发现构建人负责提问、判断与设定目标，AI负责文献综合、假说生成与海量计算的共生科研模式，正走向成为默认的科研工作方式。真正的范式转变不是AI取代科学家，而是重新划分人机分工边界——最大风险是认知外包侵蚀科学家的独立判断。",
+      "en": "Human-AI collaborative scientific discovery builds a symbiotic mode in which humans handle questioning, judgment, and goal-setting while AI handles literature synthesis, hypothesis generation, and massive computation, and it is becoming the default way of doing research. The real paradigm shift is not AI replacing scientists but redrawing the human-machine division of labor — the biggest risk is that cognitive outsourcing erodes scientists' independent judgment."
+    },
+    "depth": {
+      "overview": {
+        "zh": "人机协作的科学发现是一种共生研究模式：人类负责提问、判断、设定目标与价值，AI负责文献综合、假说生成、实验设计与海量计算，二者形成互补的发现回路。它交叉AI、认知科学与科研方法学，正走向成为科研的默认工作方式。",
+        "en": "Human-machine collaborative scientific discovery is a symbiotic research mode: humans handle questioning, judgment, and the setting of goals and values, while AI handles literature synthesis, hypothesis generation, experimental design, and massive computation, forming a complementary discovery loop. Spanning AI, cognitive science, and research methodology, it is moving toward becoming the default mode of research work."
+      },
+      "whyMatters": {
+        "zh": "真正的范式转变不是AI替代科学家，而是重新划分「人擅长什么、机器擅长什么」的分工边界；最大风险是认知外包导致科学家逐渐丧失独立判断与直觉，沦为只会按AI建议执行的操作员，而判断力恰恰是科学最不能交出去的部分。",
+        "en": "The real paradigm shift is not AI replacing scientists but redrawing the division-of-labor boundary of 'what humans are good at, what machines are good at'; the biggest risk is that cognitive outsourcing gradually erodes scientists' independent judgment and intuition, reducing them to operators who merely execute AI's suggestions—yet judgment is precisely the part of science that can least be handed over."
+      },
+      "ifAnswered": {
+        "zh": "若这一协作模式持续发展，它将成为科研的默认工作方式——科学家与AI形成常态化的互补分工。",
+        "en": "If this collaborative mode continues to mature, it will become the default way of doing research — a normalized complementary division of labor between scientists and AI."
+      },
+      "approaches": [
+        {
+          "zh": "分工设计：先划定认知劳动在人机之间应如何分配，寻找一条可测量的「增强-退化」边界。",
+          "en": "Division-of-labor design: determine how cognitive labor should be split between humans and AI, seeking a measurable boundary between augmentation and atrophy."
+        },
+        {
+          "zh": "双向认知接口：探索脑机接口能否不止解码人类意图，也能把AI生成的抽象表征写回大脑。",
+          "en": "Bidirectional cognitive interfaces: explore whether brain-computer interfaces can not only decode human intent but also write AI-generated abstract representations back into the brain."
+        },
+        {
+          "zh": "合体智能的能力上限：刻画「人+AI」联合系统能否产生任何一方单独都不可能产生的新能力，及其边界。",
+          "en": "Ceiling of combined intelligence: characterize whether the joint human+AI system can produce capabilities neither could alone, and where its limits lie."
+        }
+      ],
+      "barrier": {
+        "zh": "最大风险是认知外包导致科学家逐渐丧失独立判断与直觉，沦为只会按AI建议执行的操作员——而判断力恰恰是科学最不能交出去的部分。",
+        "en": "The biggest risk is that cognitive outsourcing gradually erodes scientists' independent judgment and intuition, reducing them to operators who merely execute AI's suggestions — yet judgment is precisely the part of science that can least be handed over."
+      },
+      "subQuestions": [
+        {
+          "zh": "当人类与AI长期协作时，认知劳动究竟应该如何在两者之间分配，才能让人「越用越聪明」而非「越用越退化」？是否存在一条可测量的边界，越过它人类就把自己的判断力外包掉了？",
+          "en": "When humans and AI collaborate over the long run, how should cognitive labor be partitioned so that people grow sharper rather than atrophy — and is there a measurable line past which we have outsourced our own judgment?"
+        },
+        {
+          "zh": "人脑和AI之间能否建立一种「双向」的认知接口——不只是脑把意图发给机器，而是机器也能把抽象表征写回人脑，让人「直接知道」自己从未学过的东西？这种写入若可行，被增强的还是不是同一个「自我」？",
+          "en": "Can a genuinely two-way cognitive interface exist between brain and AI — not just decoding intent outward, but writing machine representations back into the brain so a person 'directly knows' something never learned — and if such write-in works, is the augmented mind still the same self?"
+        },
+        {
+          "zh": "如果我们不再问「AI能否独立超过人类」，而是问「人+AI 的联合系统能否产生任何一方单独都不可能产生的新认知能力」，那么这种「人机合体智能」是否有它自己的、不可还原为两者之和的能力上限？",
+          "en": "If we stop asking whether AI alone can surpass humans and instead ask whether the joint human+AI system can produce cognitive capabilities neither could alone, does this 'centaur' intelligence have its own ceiling that is irreducible to the sum of its parts?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Scientific discovery in the age of artificial intelligence",
+        "venue": "Nature",
+        "year": 2023,
+        "url": "https://www.nature.com/articles/s41586-023-06221-2"
+      },
+      {
+        "title": "Accelerating science with human-aware artificial intelligence",
+        "venue": "Nature Human Behaviour",
+        "year": 2023,
+        "url": "https://www.nature.com/articles/s41562-023-01648-z"
+      },
+      {
+        "title": "Human-machine collaboration for improving semiconductor process development",
+        "venue": "Nature",
+        "year": 2023,
+        "url": "https://www.nature.com/articles/s41586-023-05773-7"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 706,
+      "y": 755,
+      "scale": 0.89
+    }
+  },
+  {
+    "id": 100,
+    "atlasN": 544,
+    "slug": "the-empirical-science-of-human",
+    "title": {
+      "zh": "人机互补性的实证科学",
+      "en": "The Empirical Science of Human-AI Complementarity"
+    },
+    "qfocus": {
+      "zh": "「人+AI」团队究竟在什么条件下才能真正胜过人或AI单独工作，而不是像多数实验显示的那样反而更差？",
+      "en": "Under what conditions does a human-plus-AI team genuinely outperform either working alone, rather than underperforming as most experiments show?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C21",
+      "zh": "人机协作·认知增强",
+      "en": "Human-AI collaboration · cognitive augmentation"
+    },
+    "scores": [
+      4,
+      4,
+      3,
+      3,
+      5,
+      4,
+      3,
+      2,
+      4
+    ],
+    "citation": {
+      "url": "https://www.nature.com/articles/s41562-024-02024-1",
+      "title": "When combinations of humans and AI are useful: A systematic review and meta-analysis",
+      "venue": "Nature Human Behaviour",
+      "year": 2024
+    },
+    "brief": {
+      "zh": "人机互补性的实证科学用对照实验检验「人+AI」团队是否真优于二者中更强的一方。Vaccaro等2024年对上百项研究的元分析显示：平均而言人机组合反而不如更强的一方，仅创作类任务偶见增益。这把领域从「人机必然互补」的乐观假设推向如何工程化设计真正互补的问题。",
+      "en": "The empirical science of human-AI complementarity uses controlled experiments to test whether human-plus-AI teams truly beat the stronger party alone. Vaccaro et al.'s 2024 meta-analysis of over a hundred studies found that on average human-AI combinations underperformed the better party, with gains seen mainly in creative tasks. This shifts the field from assuming complementarity to engineering how to design it."
+    },
+    "depth": {
+      "overview": {
+        "zh": "人机互补性的实证科学系统检验「人+AI」团队是否真的优于人或AI单独工作，并设法识别互补成立的条件。其令人警醒的出发点是：迄今多数对照实验显示人机协作的表现反而不如二者中更强的一方。它结合认知科学、AI评测与决策科学。",
+        "en": "The empirical science of human-AI complementarity systematically tests whether 'human + AI' teams truly outperform humans or AI working alone, and seeks to identify the conditions under which complementarity holds. Its sobering premise: to date, most controlled experiments show that human-AI collaboration actually underperforms the stronger of the two. It combines cognitive science, AI evaluation, and decision science."
+      },
+      "whyMatters": {
+        "zh": "它把领域从乐观假设「人机必然互补」转向「如何工程化地设计出真正的互补」，这是一个被产业宣传长期掩盖的硬事实。核心难点是互补取决于任务分配、信任校准与AI不确定性沟通的精细设计，目前缺乏可推广的理论，多数正面结果难以跨任务复现。",
+        "en": "It moves the field from the optimistic assumption that 'humans and AI are necessarily complementary' to 'how to engineer genuine complementarity'—a hard fact long obscured by industry hype. The core difficulty is that complementarity depends on fine-grained design of task allocation, trust calibration, and communication of AI uncertainty; there is currently no generalizable theory, and most positive results are hard to reproduce across tasks."
+      },
+      "ifAnswered": {
+        "zh": "若能建立可推广的理论，这一领域将从「人机能否互补」的争论，转向「如何设计出真正互补」的工程科学——为任务分配、信任校准与不确定性沟通提供可复用的设计原则。",
+        "en": "If a generalizable theory can be built, the field will shift from debating whether humans and AI can complement each other to an engineering science of how to design real complementarity — with reusable principles for task allocation, trust calibration, and uncertainty communication."
+      },
+      "approaches": [
+        {
+          "zh": "复现元分析发现的「协同损失」模式，定位决策类任务中人机团队为何普遍不如更强一方。",
+          "en": "Replicate the meta-analysis's 'synergy loss' pattern and pinpoint why human-AI teams in decision tasks generally underperform the stronger party."
+        },
+        {
+          "zh": "校准信任与依赖：解决人们「AI对时不信、AI错时盲从」的错配依赖问题。",
+          "en": "Calibrate trust and reliance: address the mismatch where people distrust AI when it's right and over-rely on it when it's wrong."
+        },
+        {
+          "zh": "划定认知劳动的分配边界，寻找一条可测量的「增强-退化」界线，呼应C21集群的分工问题。",
+          "en": "Determine how cognitive labor should be divided, seeking a measurable augmentation-versus-atrophy boundary, echoing the C21 cluster's division-of-labor question."
+        }
+      ],
+      "barrier": {
+        "zh": "核心难点是互补取决于任务分配、信任校准与AI不确定性沟通的精细设计，目前缺乏可推广的理论，多数正面结果难以跨任务复现，且人往往在AI正确时不信、在AI错误时盲从。",
+        "en": "The core difficulty is that complementarity depends on fine-grained design of task allocation, trust calibration, and communication of AI uncertainty; there is currently no generalizable theory, most positive results are hard to reproduce across tasks, and people tend to distrust AI when it is right and over-rely on it when it is wrong."
+      },
+      "subQuestions": [
+        {
+          "zh": "当人类与AI长期协作时，认知劳动究竟应该如何在两者之间分配，才能让人「越用越聪明」而非「越用越退化」？是否存在一条可测量的边界，越过它人类就把自己的判断力外包掉了？",
+          "en": "When humans and AI collaborate over the long run, how should cognitive labor be partitioned so that people grow sharper rather than atrophy — and is there a measurable line past which we have outsourced our own judgment?"
+        },
+        {
+          "zh": "人脑和AI之间能否建立一种「双向」的认知接口——不只是脑把意图发给机器，而是机器也能把抽象表征写回人脑，让人「直接知道」自己从未学过的东西？这种写入若可行，被增强的还是不是同一个「自我」？",
+          "en": "Can a genuinely two-way cognitive interface exist between brain and AI — not just decoding intent outward, but writing machine representations back into the brain so a person 'directly knows' something never learned — and if such write-in works, is the augmented mind still the same self?"
+        },
+        {
+          "zh": "如果我们不再问「AI能否独立超过人类」，而是问「人+AI 的联合系统能否产生任何一方单独都不可能产生的新认知能力」，那么这种「人机合体智能」是否有它自己的、不可还原为两者之和的能力上限？",
+          "en": "If we stop asking whether AI alone can surpass humans and instead ask whether the joint human+AI system can produce cognitive capabilities neither could alone, does this 'centaur' intelligence have its own ceiling that is irreducible to the sum of its parts?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "When combinations of humans and AI are useful: A systematic review and meta-analysis",
+        "venue": "Nature Human Behaviour",
+        "year": 2024,
+        "url": "https://www.nature.com/articles/s41562-024-02024-1"
+      },
+      {
+        "title": "Does the Whole Exceed its Parts? The Effect of AI Explanations on Complementary Team Performance",
+        "venue": "ACM CHI",
+        "year": 2021,
+        "url": "https://aiweb.cs.washington.edu/ai/pubs/bansal-chi21.pdf"
+      },
+      {
+        "title": "Complementarity in Human-AI Collaboration: Concept, Sources, and Evidence",
+        "venue": "arXiv",
+        "year": 2024,
+        "url": "https://arxiv.org/html/2404.00029v2"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 985,
+      "y": 544,
+      "scale": 0.96
+    }
+  },
+  {
+    "id": 101,
+    "atlasN": 1434,
+    "slug": "ai-mediated-collective-deliberation",
+    "title": {
+      "zh": "AI 调解的集体审议",
+      "en": "AI-Mediated Collective Deliberation"
+    },
+    "qfocus": {
+      "zh": "能否训练一个AI调解人，在大规模审议中写出比人类调解人更被参与者认可的共识陈述，同时不牺牲规范正当性？",
+      "en": "Can an AI mediator be trained to draft consensus statements in large-scale deliberation that participants prefer over human mediators' — without sacrificing normative legitimacy?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C22",
+      "zh": "集体智能·知识基础设施",
+      "en": "Collective intelligence · knowledge infrastructure"
+    },
+    "scores": [
+      4,
+      5,
+      4,
+      4,
+      4,
+      4,
+      3,
+      4,
+      4
+    ],
+    "citation": {
+      "url": "https://www.science.org/doi/10.1126/science.adq2852",
+      "title": "AI can help humans find common ground in democratic deliberation",
+      "venue": "Science",
+      "year": 2024
+    },
+    "brief": {
+      "zh": "Google DeepMind 的 Habermas Machine（Tessler 等，2024，Science）由生成模型与个性化奖励模型组成，为6人小组撰写共识陈述。N=5734名参与者中，AI陈述被偏好的比例高于人类调解人（约56%），且在英国具代表性的「虚拟公民大会」中复现。",
+      "en": "Google DeepMind's Habermas Machine (Tessler et al., 2024, Science) pairs a generative model with a personalized reward model to draft consensus statements for 6-person groups. Among N=5,734 participants, AI statements were preferred over human mediators' about 56% of the time, and the result replicated in a demographically representative UK 'virtual citizens' assembly.'"
+    },
+    "depth": {
+      "overview": {
+        "zh": "一台以哲学家哈贝马斯命名的机器，学着不去说服、而去调解——它写出的共识陈述，多数参与者觉得比人类调解人写得更好。",
+        "en": "A machine named after the philosopher Habermas, learning not to persuade but to mediate — the consensus statements it writes are judged by most participants to be better than those written by human mediators."
+      },
+      "whyMatters": {
+        "zh": "最硬的问题是规范正当性：多数偏好高的陈述未必最公正，「讨人喜欢」与「该被接受」可能背离；模型还缺事实核查与守题能力，易被操纵或滑向多数暴政。",
+        "en": "The hardest problem is normative legitimacy: a statement preferred by the majority is not necessarily the most just — 'being well-liked' and 'being what ought to be accepted' can diverge; the model also lacks fact-checking and agenda-keeping ability, making it vulnerable to manipulation or a slide into tyranny of the majority."
+      },
+      "ifAnswered": {
+        "zh": "下一步是把它接入真实公民大会与在线审议平台，并补上事实核查、议题守控等现实调解能力。",
+        "en": "The next step is wiring it into real citizens' assemblies and online deliberation platforms, and adding the real-world mediation capacities of fact-checking and agenda-keeping."
+      },
+      "approaches": [
+        {
+          "zh": "训练生成模型+个性化奖励模型的「调解人」架构，迭代生成兼顾多数与异见的共识陈述。",
+          "en": "Train a mediator architecture combining a generative model with a personalized reward model that iteratively drafts consensus statements honoring both majority and dissenting views."
+        },
+        {
+          "zh": "追问人机混合群体是否存在类似个体IQ的「集体智能因子」，以及AI调解能否系统性抬升它。",
+          "en": "Investigate whether human-AI hybrid groups exhibit a collective-intelligence factor analogous to individual IQ, and whether AI mediation can systematically raise it."
+        },
+        {
+          "zh": "在把AI调解接入真实公民大会前，先补上事实核查与议题守控能力，防止操纵与「多数暴政」。",
+          "en": "Before wiring AI mediation into real citizens' assemblies, add fact-checking and agenda-keeping capacity to guard against manipulation and 'tyranny of the majority.'"
+        }
+      ],
+      "barrier": {
+        "zh": "多数偏好高的陈述未必最公正，「讨人喜欢」与「该被接受」可能背离；模型还缺事实核查与守题能力，易被操纵或滑向多数暴政，目前没有可问责机制界定AI调解人可以取舍哪些异见。",
+        "en": "A statement preferred by the majority is not necessarily the most just — being well-liked and being what ought to be accepted can diverge; the model still lacks fact-checking and agenda-keeping ability, making it vulnerable to manipulation or a slide into tyranny of the majority, with no accountability mechanism yet governing which dissent an AI mediator may set aside."
+      },
+      "subQuestions": [
+        {
+          "zh": "一群个体（人、或人加AI）在什么结构条件下会真正变得「比其中最聪明的成员更聪明」，又在什么条件下塌缩为群体盲从？是否存在一个可测量的「集体智能因子 c」，像个体IQ一样稳定地预测群体表现？",
+          "en": "Under what structural conditions does a group (of humans, or humans plus AI) become genuinely smarter than its smartest member, versus collapsing into herd folly — and is there a measurable collective-intelligence factor 'c' that predicts group performance as stably as individual IQ?"
+        },
+        {
+          "zh": "当人类的知识基础设施（搜索、百科、训练语料）越来越多地由AI生成、又反过来训练下一代AI时，这个自我循环会不会导致集体知识的「模型坍缩」——多样性、真实性与稀有事实被系统性抹去？我们能否在源头上保住人类知识的「不可被合成替代」的部分？",
+          "en": "As humanity's knowledge infrastructure — search, encyclopedias, training corpora — is increasingly generated by AI that then trains the next AI, does this self-loop drive a 'model collapse' of collective knowledge, systematically erasing diversity, truth, and rare facts — and can we protect the part of human knowledge that synthesis cannot replace?"
+        },
+        {
+          "zh": "是否可能为整个文明建立一个「活的、可机读、可被对抗验证」的共享知识基础设施——让每一条断言都带着可追溯的来源与独立佐证强度，使真伪不再靠权威而靠结构判定？这样的基础设施会消除虚假信息，还是只是把权力转移给定义「来源可信」的人？",
+          "en": "Could a civilization build a living, machine-readable, adversarially-verifiable shared knowledge infrastructure — where every assertion carries traceable provenance and independent-corroboration strength, so truth is settled by structure rather than authority — and would it dissolve misinformation, or merely shift power to whoever defines 'a trustworthy source'?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "AI can help humans find common ground in democratic deliberation",
+        "venue": "Science",
+        "year": 2024,
+        "url": "https://www.science.org/doi/10.1126/science.adq2852"
+      },
+      {
+        "title": "AI can help humans find common ground in democratic deliberation (publication page)",
+        "venue": "Google DeepMind",
+        "year": 2024,
+        "url": "https://deepmind.google/research/publications/65220/"
+      },
+      {
+        "title": "google-deepmind/habermas_machine — dataset & code",
+        "venue": "GitHub (official code)",
+        "year": 2024,
+        "url": "https://github.com/google-deepmind/habermas_machine"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 898,
+      "y": 755,
+      "scale": 0.81
+    }
+  },
+  {
+    "id": 102,
+    "atlasN": 1171,
+    "slug": "ai-mediated-deliberation-and-machine",
+    "title": {
+      "zh": "AI 中介审议与机器共识调解",
+      "en": "AI-Mediated Deliberation and Machine Consensus Facilitation"
+    },
+    "qfocus": {
+      "zh": "审议民主七十年来困于规模——AI调解人能否真正打破「好商议只能发生在几十人房间里」的死穴，同时不让「更受欢迎」偷换「更正当」？",
+      "en": "Deliberative democracy has been stuck on scale for seventy years — can an AI mediator truly break the constraint that 'good deliberation can only happen in a room of dozens,' without letting 'more popular' quietly substitute for 'more legitimate'?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C22",
+      "zh": "集体智能·知识基础设施",
+      "en": "Collective intelligence · knowledge infrastructure"
+    },
+    "scores": [
+      4,
+      5,
+      4,
+      4,
+      5,
+      4,
+      4,
+      4,
+      3
+    ],
+    "citation": {
+      "url": "https://www.science.org/doi/10.1126/science.adq2852",
+      "title": "AI can help humans find common ground in democratic deliberation",
+      "venue": "Science",
+      "year": 2024
+    },
+    "brief": {
+      "zh": "2024年10月，DeepMind团队在Science发表Habermas Machine：AI调解人基于参与者意见与批评迭代生成共识陈述，N=5734实验中参与者认为其比人类调解人更清晰、更不偏颇，并在英国代表性样本中复现。同期Google Jigsaw开源Sensemaking工具、AI Objectives Institute的Talk to the City已在工会、DAO与国家级咨询中落地，形成从「倾听」到「调解」的审议栈。",
+      "en": "In October 2024, DeepMind published the Habermas Machine in Science: an AI mediator iteratively drafts consensus statements from participants' opinions and critiques; in an N=5,734 experiment, participants judged it clearer and less biased than human mediators, replicating in a representative UK sample. Around the same time, Google Jigsaw open-sourced its Sensemaking tools and the AI Objectives Institute's Talk to the City was deployed in unions, DAOs, and national consultations, forming a scalable deliberation stack from 'listening' to 'mediating.'"
+    },
+    "depth": {
+      "overview": {
+        "zh": "审议民主七十年来的死穴是规模：好的商议只能发生在几十人的房间里。2024年Science上的Habermas Machine实验第一次给出反例——AI调解人写的共识陈述，比拿薪水的人类调解人更被五千多名参与者接受。",
+        "en": "Deliberative democracy's seventy-year Achilles' heel has been scale: good deliberation could only happen in rooms of a few dozen people. The 2024 Habermas Machine experiment in Science was the first counterexample — the consensus statements written by the AI mediator were accepted by more than five thousand participants more readily than those written by paid human mediators."
+      },
+      "whyMatters": {
+        "zh": "最硬的张力：共识陈述的「更受欢迎」不等于「更正当」。AI调解人以何种权利决定哪些异见被写进共识、哪些被平滑掉，目前没有任何可问责机制；而一旦政府采购这类系统，操纵审议的攻击面也随之打开。",
+        "en": "The hardest tension: a consensus statement being 'more popular' does not mean it is 'more legitimate.' There is currently no accountability mechanism governing by what right an AI mediator decides which dissenting views get written into the consensus and which get smoothed away; and once governments procure such systems, the attack surface for manipulating deliberation opens up as well."
+      },
+      "ifAnswered": {
+        "zh": "下一步是把一次性实验变成常设公民基础设施：接入真实公民大会与地方政策流程，同时建立针对「温和霸权」（AI悄悄抹平激进立场）的可审计防线。",
+        "en": "The next step is turning one-off experiments into standing civic infrastructure — plugging mediators into real citizens' assemblies and local policy processes while building auditable defenses against 'soft hegemony,' the risk of AI quietly sanding down radical positions."
+      },
+      "approaches": [
+        {
+          "zh": "把Habermas Machine从一次性实验（N=5734）推向常设公民基础设施：接入真实公民大会与地方政策流程。",
+          "en": "Move the Habermas Machine from a one-off experiment (N=5,734) toward standing civic infrastructure — plugging it into real citizens' assemblies and local policy processes."
+        },
+        {
+          "zh": "整合Google Jigsaw的Sensemaking与AI Objectives Institute的Talk to the City，形成从「倾听」到「调解」的完整审议栈。",
+          "en": "Integrate Google Jigsaw's Sensemaking tools with the AI Objectives Institute's Talk to the City to form a complete deliberation stack from 'listening' to 'mediating.'"
+        },
+        {
+          "zh": "建立针对「温和霸权」与操纵攻击的可审计防线，回应集体智能因子c能否在人机混合审议中被工程化的问题。",
+          "en": "Build auditable defenses against 'soft hegemony' and manipulation attacks, addressing whether a collective-intelligence factor c can be engineered into human-AI hybrid deliberation."
+        }
+      ],
+      "barrier": {
+        "zh": "共识陈述「更受欢迎」不等于「更正当」，AI调解人凭何取舍异见目前没有可问责机制；一旦此类系统被政府采购，操纵审议的攻击面也随之打开。",
+        "en": "A consensus statement being 'more popular' does not mean it is 'more legitimate'; there is no accountability mechanism governing by what right an AI mediator sets aside dissent, and once such systems are procured by governments, the attack surface for manipulating deliberation opens up as well."
+      },
+      "subQuestions": [
+        {
+          "zh": "一群个体（人、或人加AI）在什么结构条件下会真正变得「比其中最聪明的成员更聪明」，又在什么条件下塌缩为群体盲从？是否存在一个可测量的「集体智能因子 c」，像个体IQ一样稳定地预测群体表现？",
+          "en": "Under what structural conditions does a group (of humans, or humans plus AI) become genuinely smarter than its smartest member, versus collapsing into herd folly — and is there a measurable collective-intelligence factor 'c' that predicts group performance as stably as individual IQ?"
+        },
+        {
+          "zh": "当人类的知识基础设施（搜索、百科、训练语料）越来越多地由AI生成、又反过来训练下一代AI时，这个自我循环会不会导致集体知识的「模型坍缩」——多样性、真实性与稀有事实被系统性抹去？我们能否在源头上保住人类知识的「不可被合成替代」的部分？",
+          "en": "As humanity's knowledge infrastructure — search, encyclopedias, training corpora — is increasingly generated by AI that then trains the next AI, does this self-loop drive a 'model collapse' of collective knowledge, systematically erasing diversity, truth, and rare facts — and can we protect the part of human knowledge that synthesis cannot replace?"
+        },
+        {
+          "zh": "是否可能为整个文明建立一个「活的、可机读、可被对抗验证」的共享知识基础设施——让每一条断言都带着可追溯的来源与独立佐证强度，使真伪不再靠权威而靠结构判定？这样的基础设施会消除虚假信息，还是只是把权力转移给定义「来源可信」的人？",
+          "en": "Could a civilization build a living, machine-readable, adversarially-verifiable shared knowledge infrastructure — where every assertion carries traceable provenance and independent-corroboration strength, so truth is settled by structure rather than authority — and would it dissolve misinformation, or merely shift power to whoever defines 'a trustworthy source'?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "AI can help humans find common ground in democratic deliberation",
+        "venue": "Science",
+        "year": 2024,
+        "url": "https://www.science.org/doi/10.1126/science.adq2852"
+      },
+      {
+        "title": "Sensemaking by Jigsaw — open-source LLM tools for large-scale public input",
+        "venue": "Google Jigsaw (GitHub)",
+        "year": 2024,
+        "url": "https://github.com/Jigsaw-Code/sensemaking-tools"
+      },
+      {
+        "title": "Talk to the City — open-source LLM interface for collective deliberation",
+        "venue": "AI Objectives Institute",
+        "year": 2024,
+        "url": "https://ai.objectives.institute/talk-to-the-city-1"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 945,
+      "y": 504,
+      "scale": 0.72
+    }
+  },
+  {
+    "id": 103,
+    "atlasN": 1455,
+    "slug": "electro-agriculture-and-light-free",
+    "title": {
+      "zh": "电力农业与无光合食物合成",
+      "en": "Electro-Agriculture and Light-Free Food Synthesis"
+    },
+    "qfocus": {
+      "zh": "如果光合作用只有约1%的能量效率，能否用「电解CO2产醋酸盐+基因改造作物」彻底绕开光合作用，在黑暗中把太阳能转化为食物？",
+      "en": "If photosynthesis is only about 1% energy-efficient, can electrolyzing CO2 into acetate to feed genetically engineered crops bypass photosynthesis entirely, converting solar energy into food in the dark?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C24",
+      "zh": "未来食品·农业科学",
+      "en": "Future food · agricultural science"
+    },
+    "scores": [
+      5,
+      5,
+      4,
+      2,
+      3,
+      2,
+      2,
+      3,
+      5
+    ],
+    "citation": {
+      "url": "https://doi.org/10.1016/j.joule.2024.09.011",
+      "title": "Electro-agriculture: Revolutionizing farming for a sustainable future",
+      "venue": "Joule",
+      "year": 2024
+    },
+    "brief": {
+      "zh": "电力农业由UC Riverside的Robert Jinkerson与华盛顿大学的Feng Jiao在2024年《Joule》展望论文中正式命名：用太阳能电解CO2与水生成醋酸盐，喂给作物作为碳源与能源。其实验基础——2022年《Nature Food》的无机-生物混合系统——已证明藻类、酵母、蘑菇乃至作物幼苗可在完全无光下靠醋酸盐生长，生物量能效约为光合的4倍。",
+      "en": "Electro-agriculture was formally named by UC Riverside's Robert Jinkerson and University of Washington electrochemist Feng Jiao in a 2024 Joule perspective paper: solar power electrolyzes CO2 and water into acetate, fed to crops as a carbon and energy source. Its experimental basis — a 2022 Nature Food hybrid inorganic-biological system — already showed algae, yeast, mushrooms, and even crop seedlings can grow on acetate in complete darkness, with biomass efficiency about four times that of photosynthesis."
+    },
+    "depth": {
+      "overview": {
+        "zh": "如果光合作用只有约1%的能量效率，为什么不干脆换掉它？一群生物工程师正用「电+二氧化碳」在黑暗里种菜。",
+        "en": "If photosynthesis is only about 1% energy-efficient, why not simply replace it? A group of bioengineers are growing food in the dark using 'electricity plus carbon dioxide.'"
+      },
+      "whyMatters": {
+        "zh": "最硬的坎在把「能吃醋酸盐」从生菜番茄推到高热量主粮——需重启一条被关闭的乙醛酸循环并让整株植物脱离光照供能，目前仍是实验室早期，尚无上市食物。",
+        "en": "The hardest hurdle is pushing 'eating acetate' from lettuce and tomatoes to calorie-dense staple crops — which requires reactivating a shut-down glyoxylate cycle and freeing the entire plant from light-based energy supply; the work is still at an early lab stage, with no food on the market yet."
+      },
+      "ifAnswered": {
+        "zh": "下一步是把只靠醋酸盐供能的主粮作物（木薯、红薯、谷物）跑通，让整栋楼在暗处产粮。",
+        "en": "Next is engineering staple crops (cassava, sweet potato, grains) that live entirely on acetate, letting whole buildings grow calories in the dark."
+      },
+      "approaches": [
+        {
+          "zh": "把电解CO2产醋酸盐的路径从生菜、番茄等模式作物，推向木薯、红薯、谷物等高热量主粮。",
+          "en": "Extend the CO2-electrolysis-to-acetate pathway from model crops like lettuce and tomato to calorie-dense staples such as cassava, sweet potato, and grains."
+        },
+        {
+          "zh": "验证无光合食物合成能否让粮食生产脱离土地与气候约束，呼应「能否凭空合成营养完整食物」的集群问题。",
+          "en": "Test whether light-free food synthesis can decouple food production from land and climate constraints, echoing the cluster question of whether nutritionally complete food can be synthesized 'out of thin air.'"
+        },
+        {
+          "zh": "评估电力农业若规模化，是否会像现代主粮育种一样把粮食系统压缩到少数品种上，加剧遗传同质化风险。",
+          "en": "Assess whether scaled-up electro-agriculture would, like modern staple-crop breeding, funnel the food system onto a few varieties and worsen genetic-homogenization risk."
+        }
+      ],
+      "barrier": {
+        "zh": "核心难点是把「吃醋酸盐」的能力从叶菜类推广到高热量主粮，这需要重新激活植物体内已关闭的乙醛酸循环，并让整株作物完全脱离光照供能——目前仍处实验室早期阶段，尚无实际上市的食物产品。",
+        "en": "The core difficulty is extending the ability to 'eat acetate' from leafy greens to calorie-dense staples, which requires reactivating the plant's shut-down glyoxylate cycle and freeing the whole crop from light-based energy — the work remains at an early lab stage, with no commercial food product yet."
+      },
+      "subQuestions": [
+        {
+          "zh": "在不毁掉地球生命支持系统的前提下，地球到底能可持续养活多少人、以什么样的饮食？是否存在一组「行星边界内的安全饮食空间」，让营养充足与生态可持续同时成立——还是这两者在物理上根本无法兼得？",
+          "en": "Within the limits of Earth's life-support systems, how many people can the planet sustainably feed, and on what diet? Is there a 'safe operating space' of diets that is simultaneously nutritionally adequate and ecologically sustainable — or are the two physically irreconcilable?"
+        },
+        {
+          "zh": "我们能否绕开整株植物与整头牲畜，直接从二氧化碳、氢、电与微生物「凭空」合成出营养完整的食物，让粮食生产彻底脱离土地与气候？如果可行，把农业从光合作用中解放出来，对生态、地缘与人类与自然的关系意味着什么？",
+          "en": "Can we bypass whole crops and livestock entirely and synthesize nutritionally complete food essentially from CO2, hydrogen, electricity, and microbes — decoupling food production from land and climate altogether? If so, what would freeing agriculture from photosynthesis mean for ecology, geopolitics, and humanity's relationship with nature?"
+        },
+        {
+          "zh": "现代育种与农业把全球粮食日益压缩到极少数高产作物与品种上——这种遗传同质化是否在不知不觉中把人类文明绑在一个脆弱的单点上？我们能否在追求产量的同时，系统性地保住作物多样性这道抵御未知病害与气候冲击的「保险」？",
+          "en": "Modern breeding and agriculture increasingly funnel the world's food onto a tiny set of high-yield crops and varieties — is this genetic homogenization quietly binding civilization to a single fragile point of failure? Can we pursue yield while systematically preserving crop diversity as insurance against unknown pests and climate shocks?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Electro-agriculture: Revolutionizing farming for a sustainable future",
+        "venue": "Joule",
+        "year": 2024,
+        "url": "https://doi.org/10.1016/j.joule.2024.09.011"
+      },
+      {
+        "title": "A hybrid inorganic-biological artificial photosynthesis system for energy-efficient food production",
+        "venue": "Nature Food",
+        "year": 2022,
+        "url": "https://doi.org/10.1038/s43016-022-00530-x"
+      },
+      {
+        "title": "With 'electro-agriculture,' plants can produce food in the dark and with 94% less land, bioengineers say",
+        "venue": "Phys.org",
+        "year": 2024,
+        "url": "https://phys.org/news/2024-10-electro-agriculture-food-dark-bioengineers.html"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 707,
+      "y": 204,
+      "scale": 0.79
+    }
+  },
+  {
+    "id": 104,
+    "atlasN": 1459,
+    "slug": "animal-free-drug-safety-science",
+    "title": {
+      "zh": "无动物药物安全评估（新方法学 NAMs）",
+      "en": "Animal-Free Drug Safety Science (New Approach Methodologies)"
+    },
+    "qfocus": {
+      "zh": "能否用人源类器官、器官芯片、体外免疫原性测定与 in-silico/AI 毒性模型的组合，可靠地替代动物实验，预测药物在人体内的毒性与免疫原性？",
+      "en": "Can a stack of human organoids, organ-chips, in-vitro immunogenicity assays, and in-silico/AI toxicity models reliably replace animal experiments in predicting a drug's toxicity and immunogenicity in humans?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C25",
+      "zh": "开放精准健康·长寿",
+      "en": "Open precision health · longevity"
+    },
+    "scores": [
+      5,
+      5,
+      5,
+      2,
+      3,
+      2,
+      4,
+      3,
+      3
+    ],
+    "citation": {
+      "url": "https://www.fda.gov/news-events/press-announcements/fda-announces-plan-phase-out-animal-testing-requirement-monoclonal-antibodies-and-other-drugs",
+      "title": "FDA Announces Plan to Phase Out Animal Testing Requirement for Monoclonal Antibodies and Other Drugs",
+      "venue": "U.S. FDA press announcement",
+      "year": 2025
+    },
+    "brief": {
+      "zh": "新方法学（NAMs）用人源类器官、器官芯片、体外免疫原性测定与 in-silico/AI 毒性模型组合，替代动物实验来预测药物毒性与免疫原性，把\"用小鼠猜人\"改成\"用人体相关模型直接读人\"。若跨实验室验证与开放毒性数据库到位，3–5 年内动物实验将从\"默认\"退为\"例外\"。",
+      "en": "New Approach Methodologies (NAMs) replace animal experiments with a stack of human organoids, organ-chips, in-vitro immunogenicity assays, and in-silico/AI toxicity models to predict drug toxicity and immunogenicity — swapping 'guessing humans from mice' for reading human-relevant systems directly. If cross-lab validation and open toxicity databases mature, within 3–5 years animal studies could become the exception rather than the default."
+    },
+    "depth": {
+      "overview": {
+        "zh": "2025 年 4 月，FDA 发布路线图，宣布先从单克隆抗体开始、用新方法学（NAMs）逐步取代临床前动物毒理——这是几十年来药物安全范式的一次真实转向，而非又一个体外小工具。",
+        "en": "In April 2025, the FDA released a roadmap announcing it would start with monoclonal antibodies and progressively replace preclinical animal toxicology with New Approach Methodologies (NAMs) — a genuine turn in the decades-old drug-safety paradigm, not just another in-vitro gadget."
+      },
+      "whyMatters": {
+        "zh": "最硬的张力在\"验证\"：怎么证明一堆器官芯片+AI 模型合起来真比小鼠更能预测人体不良反应？缺乏跨实验室可复现的金标准基准，是它能否从政策口号落到审评实践的关键卡点。",
+        "en": "The hardest tension is validation: how do you prove that a stack of organ-chips plus AI models genuinely predicts human adverse reactions better than mice? The absence of a cross-lab-reproducible gold-standard benchmark is the key blocker standing between policy slogan and regulatory practice."
+      },
+      "ifAnswered": {
+        "zh": "若跨实验室验证与开放毒性数据库到位，3–5 年内动物实验将从\"默认\"退为\"例外\"。",
+        "en": "If cross-lab validation and open toxicity databases mature, within 3–5 years animal studies would become the exception rather than the default."
+      },
+      "approaches": [
+        {
+          "zh": "监管路径先行落地：FDA 2025 年路线图先在单克隆抗体上试点，鼓励在 IND 申报中提交 NAMs 数据，为逐步扩围铺路。",
+          "en": "Regulatory path leads the way: the FDA's 2025 roadmap pilots on monoclonal antibodies first and encourages submitting NAMs data in IND filings, paving the way for gradual expansion."
+        },
+        {
+          "zh": "技术栈组合：把人源类器官、器官芯片、体外免疫原性测定与 in-silico/AI 毒性模型拼成一条不依赖动物的评估链。",
+          "en": "Technology-stack combination: assembling human organoids, organ-chips, in-vitro immunogenicity assays, and in-silico/AI toxicity models into one animal-free assessment chain."
+        },
+        {
+          "zh": "从立法授权走向验证标准化：接续 2022 年 FDA Modernization Act 2.0 的授权，把重心从\"允许使用\"推向\"如何验证与标准化\"，2026 年 npj Digital Medicine 的论文进一步把数字孪生纳入 NAMs 生态。",
+          "en": "From legislative authorization to validation standardization: building on the 2022 FDA Modernization Act 2.0's authorization, shifting the focus from 'permission to use' toward 'how to validate and standardize' — a 2026 npj Digital Medicine paper further folds digital twins into the NAMs ecosystem."
+        }
+      ],
+      "barrier": {
+        "zh": "最硬的张力在\"验证\"：怎么证明一堆器官芯片+AI 模型合起来真比小鼠更能预测人体不良反应？缺乏跨实验室可复现的金标准基准，是它能否从政策口号落到审评实践的关键卡点。",
+        "en": "The hardest tension is validation: how do you prove that a stack of organ-chips plus AI models genuinely predicts human adverse reactions better than mice? The absence of a cross-lab-reproducible gold-standard benchmark is the key blocker standing between policy slogan and regulatory practice."
+      },
+      "subQuestions": [
+        {
+          "zh": "衰老本身是否是一种「可干预的根本过程」——存在一组共同的分子驱动因素（hallmarks），调控它们就能同时延缓多种年龄相关疾病？还是说衰老只是无数独立损耗的统计叠加，根本没有可被单点撬动的「总开关」？",
+          "en": "Is aging itself a single intervenable root process — a common set of molecular drivers (hallmarks) whose modulation could simultaneously delay many age-related diseases — or is it merely the statistical sum of countless independent forms of wear with no master switch to pull?"
+        },
+        {
+          "zh": "如果每个人的健康都被连续测量（多组学、可穿戴、个人病史）并开放给本人与研究，「精准健康」会让我们第一次能在症状出现前数年就预测并逆转个体的疾病轨迹吗？还是说人体复杂到，再多的个人数据也无法把健康变成可预测、可控制的工程问题？",
+          "en": "If each person's health is continuously measured (multi-omics, wearables, full personal history) and made open to themselves and research, will 'precision health' for the first time let us predict and reverse an individual's disease trajectory years before symptoms? Or is the human body so complex that no amount of personal data can turn health into a predictable, controllable engineering problem?"
+        },
+        {
+          "zh": "细胞重编程已能在体外把成体细胞「调回」年轻状态——那么衰老在多大程度上是可逆的？我们能否在不抹去细胞身份、不诱发癌症的前提下，在活体内部分回拨生物年龄？「衰老是一种可被重写的信息状态」这一假设到底成不成立？",
+          "en": "Cellular reprogramming can reset adult cells toward a younger state in vitro — so to what extent is aging reversible? Can we partially turn back biological age inside a living body without erasing cell identity or triggering cancer? Does the hypothesis that 'aging is a rewritable information state' actually hold?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "FDA Announces Plan to Phase Out Animal Testing Requirement for Monoclonal Antibodies and Other Drugs",
+        "venue": "U.S. FDA press announcement",
+        "year": 2025,
+        "url": "https://www.fda.gov/news-events/press-announcements/fda-announces-plan-phase-out-animal-testing-requirement-monoclonal-antibodies-and-other-drugs"
+      },
+      {
+        "title": "Advancing FDA New Approach Methodologies from animal models through digital twins",
+        "venue": "npj Digital Medicine",
+        "year": 2026,
+        "url": "https://www.nature.com/articles/s41746-026-02476-x"
+      },
+      {
+        "title": "New Approach Methodologies (NAMs)",
+        "venue": "U.S. FDA",
+        "year": 2025,
+        "url": "https://www.fda.gov/science-research/science-and-research-special-topics/new-approach-methodologies-nams"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 788,
+      "y": 367,
+      "scale": 0.87
+    }
+  },
+  {
+    "id": 105,
+    "atlasN": 405,
+    "slug": "aging-biology-and-longevity-science",
+    "title": {
+      "zh": "衰老生物学与长寿科学",
+      "en": "Aging Biology and Longevity Science"
+    },
+    "qfocus": {
+      "zh": "衰老是否是一个由细胞衰老、端粒损耗、表观遗传漂移、线粒体功能障碍等可识别「标志」驱动、因而可被药物干预的过程——而不是不可逆的自然宿命？",
+      "en": "Is aging a process driven by identifiable 'hallmarks' — cellular senescence, telomere attrition, epigenetic drift, mitochondrial dysfunction — and therefore open to drug intervention, rather than an irreversible natural fate?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C25",
+      "zh": "开放精准健康·长寿",
+      "en": "Open precision health · longevity"
+    },
+    "scores": [
+      5,
+      4,
+      4,
+      2,
+      4,
+      2,
+      2,
+      2,
+      2
+    ],
+    "citation": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12259695/",
+      "title": "Targeting the hallmarks of aging: mechanisms and therapeutic opportunities",
+      "venue": "Signal Transduction and Targeted Therapy",
+      "year": 2025
+    },
+    "brief": {
+      "zh": "衰老生物学把衰老当作由细胞衰老、端粒损耗、表观遗传漂移、线粒体功能障碍等可识别「衰老标志」驱动、因而可干预的过程，探索 senolytics 清除衰老细胞、雷帕霉素、二甲双胍（TAME 试验）等候选干预，目标是延长「健康寿命」而非单纯延长寿命。",
+      "en": "Aging biology treats aging as a process driven by identifiable hallmarks — cellular senescence, telomere attrition, epigenetic drift, mitochondrial dysfunction — and therefore interventable, exploring candidates such as senolytics that clear senescent cells, rapamycin, and metformin (the TAME trial), aiming to extend healthspan rather than merely lifespan."
+    },
+    "depth": {
+      "overview": {
+        "zh": "衰老生物学不再把衰老看作不可逆的自然结果，而是当作由细胞衰老、端粒损耗、表观遗传漂移、线粒体功能障碍等可识别「标志」驱动、因而可干预的生物过程。它融合分子生物学、医学与大数据，目标是延长健康寿命而非单纯延长寿命。",
+        "en": "Aging biology no longer sees aging as an irreversible natural outcome but as a biological process driven by identifiable 'hallmarks' — cellular senescence, telomere attrition, epigenetic drift, mitochondrial dysfunction — and therefore interventable. Merging molecular biology, medicine, and big data, its goal is to extend healthspan rather than merely lifespan."
+      },
+      "whyMatters": {
+        "zh": "领域最大风险是衰老缺乏被监管机构认可的「疾病」终点，导致延寿药难以做临床试验、难以审批；同时高调融资与名人加持已让这里成为科学与炒作高度混杂的地带。",
+        "en": "The field's biggest risk is that aging lacks a regulator-recognized 'disease' endpoint, making life-extension drugs hard to trial and approve; meanwhile, high-profile funding and celebrity endorsement have made this a zone where science and hype are heavily mixed."
+      },
+      "ifAnswered": {
+        "zh": "若衰老能被证明是可干预的共同过程并跨越监管终点障碍，可能出现首批真正意义上的延寿干预。",
+        "en": "If aging can be shown to be a shared intervenable process that clears the regulatory-endpoint barrier, the first genuine life-extending interventions may emerge."
+      },
+      "approaches": [
+        {
+          "zh": "靶向已识别的衰老标志：清除衰老细胞的 senolytics、雷帕霉素、二甲双胍（TAME 试验）等候选干预。",
+          "en": "Targeting identified hallmarks of aging: candidate interventions like senolytics that clear senescent cells, rapamycin, and metformin (the TAME trial)."
+        },
+        {
+          "zh": "追问是否存在统一可撬动的衰老「总开关」：部分动物实验（雷帕霉素、衰老细胞清除）支持存在共同分子驱动因素，但人类是否有一个可撬动的统一过程仍未定论。",
+          "en": "Asking whether a single liftable 'master switch' for aging exists: some animal studies (rapamycin, senolytic clearance) support shared molecular drivers, but whether humans have one unified, liftable process remains undetermined."
+        },
+        {
+          "zh": "结合精准健康的连续测量：多组学、可穿戴设备与个人病史的持续追踪，试图在症状出现前数年发现并干预衰老相关的疾病轨迹。",
+          "en": "Pairing with continuous precision-health measurement: multi-omics, wearables, and full personal history tracking to try to detect and intervene on aging-related disease trajectories years before symptoms."
+        }
+      ],
+      "barrier": {
+        "zh": "领域最大风险是衰老缺乏被监管机构认可的「疾病」终点，导致延寿药难以做临床试验、难以审批；同时高调融资与名人加持已让这里成为科学与炒作高度混杂的地带。",
+        "en": "The field's biggest risk is that aging lacks a regulator-recognized 'disease' endpoint, making life-extension drugs hard to trial and approve; meanwhile, high-profile funding and celebrity endorsement have made this a zone where science and hype are heavily mixed."
+      },
+      "subQuestions": [
+        {
+          "zh": "衰老本身是否是一种「可干预的根本过程」——存在一组共同的分子驱动因素（hallmarks），调控它们就能同时延缓多种年龄相关疾病？还是说衰老只是无数独立损耗的统计叠加，根本没有可被单点撬动的「总开关」？",
+          "en": "Is aging itself a single intervenable root process — a common set of molecular drivers (hallmarks) whose modulation could simultaneously delay many age-related diseases — or is it merely the statistical sum of countless independent forms of wear with no master switch to pull?"
+        },
+        {
+          "zh": "如果每个人的健康都被连续测量（多组学、可穿戴、个人病史）并开放给本人与研究，「精准健康」会让我们第一次能在症状出现前数年就预测并逆转个体的疾病轨迹吗？还是说人体复杂到，再多的个人数据也无法把健康变成可预测、可控制的工程问题？",
+          "en": "If each person's health is continuously measured (multi-omics, wearables, full personal history) and made open to themselves and research, will 'precision health' for the first time let us predict and reverse an individual's disease trajectory years before symptoms? Or is the human body so complex that no amount of personal data can turn health into a predictable, controllable engineering problem?"
+        },
+        {
+          "zh": "细胞重编程已能在体外把成体细胞「调回」年轻状态——那么衰老在多大程度上是可逆的？我们能否在不抹去细胞身份、不诱发癌症的前提下，在活体内部分回拨生物年龄？「衰老是一种可被重写的信息状态」这一假设到底成不成立？",
+          "en": "Cellular reprogramming can reset adult cells toward a younger state in vitro — so to what extent is aging reversible? Can we partially turn back biological age inside a living body without erasing cell identity or triggering cancer? Does the hypothesis that 'aging is a rewritable information state' actually hold?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Targeting the hallmarks of aging: mechanisms and therapeutic opportunities",
+        "venue": "Signal Transduction and Targeted Therapy",
+        "year": 2025,
+        "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12259695/"
+      },
+      {
+        "title": "Targeting ageing with rapamycin and its derivatives in humans: a systematic review",
+        "venue": "The Lancet Healthy Longevity",
+        "year": 2023,
+        "url": "https://www.thelancet.com/journals/lanhl/article/PIIS2666-7568(23)00258-1/fulltext"
+      },
+      {
+        "title": "Targeting Senescence: A Review of Senolytics and Senomorphics in Anti-Aging Interventions",
+        "venue": "Biomolecules (MDPI)",
+        "year": 2025,
+        "url": "https://www.mdpi.com/2218-273X/15/6/860"
+      },
+      {
+        "title": "A Critical Review of the Evidence That Metformin Is a Putative Anti-Aging Drug That Enhances Healthspan and Extends Lifespan",
+        "venue": "Frontiers in Endocrinology",
+        "year": 2021,
+        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8374068/"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 765,
+      "y": 293,
+      "scale": 0.9
+    }
+  },
+  {
+    "id": 106,
+    "atlasN": 1427,
+    "slug": "digitizing-olfaction-and-the-principal",
+    "title": {
+      "zh": "嗅觉数字化与主气味图谱",
+      "en": "Digitizing Olfaction and the Principal Odor Map"
+    },
+    "qfocus": {
+      "zh": "能否用图神经网络把分子结构直接映射到人类闻到的气味描述，建立一张连续、可计算的「主气味图谱」，让嗅觉像视觉听觉一样被数字化？",
+      "en": "Can graph neural networks map molecular structure directly onto the odor descriptions humans perceive, building a continuous, computable 'principal odor map' that digitizes smell the way vision and hearing already have been?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C26",
+      "zh": "感官界面·跨物种",
+      "en": "Sensory interfaces · cross-species"
+    },
+    "scores": [
+      5,
+      4,
+      4,
+      3,
+      4,
+      3,
+      4,
+      3,
+      4
+    ],
+    "citation": {
+      "url": "https://www.science.org/doi/10.1126/science.ade4401",
+      "title": "A principal odor map unifies diverse tasks in human olfactory perception",
+      "venue": "Science",
+      "year": 2023
+    },
+    "brief": {
+      "zh": "嗅觉数字化用图神经网络把分子结构直接映射到人类闻到的气味描述，建立一张连续的「主气味图谱」（POM），让机器在部分任务上比人更准地预测「这闻起来像什么」——嗅觉是最后一个尚未被数字化的感官。",
+      "en": "Digitizing olfaction uses graph neural networks to map molecular structure straight onto the odor words humans perceive, building a continuous 'principal odor map' (POM) on which machines outpredict people on some smell-labeling tasks — smell is the last human sense not yet digitized."
+    },
+    "depth": {
+      "overview": {
+        "zh": "视觉和听觉早已数字化，唯独嗅觉没有一张「色轮」。2023 年 Osmo 的《Science》主气味图谱第一次把分子结构和气味感知对齐，开启感官的数字化。",
+        "en": "Vision and hearing were digitized long ago; only smell has never had a 'color wheel'. Osmo's 2023 Science paper on the principal odor map first aligned molecular structure with odor perception, opening the door to digitizing this sense."
+      },
+      "whyMatters": {
+        "zh": "最硬的难点：嗅觉没有物理连续轴（不像波长/频率），基态真值依赖训练有素的人类嗅辨小组，数据稀缺且主观；分子—受体—感知之间的组合编码至今是黑箱。",
+        "en": "The hardest difficulty: smell has no physical continuous axis (unlike wavelength or frequency); ground truth depends on trained human panels, so data is scarce and subjective; the combinatorial code linking molecule, receptor, and perception remains a black box."
+      },
+      "ifAnswered": {
+        "zh": "走向「气味可搜索、可合成」：从分子反推目标气味、给跨受体组合编码建模，乃至「数字化传送」香气与嗅觉数字健康标志物。",
+        "en": "Heading toward searchable, synthesizable scent: designing molecules to hit a target odor, modeling combinatorial receptor codes, and eventually 'teleporting' aromas and using olfaction as a digital-health biomarker."
+      },
+      "approaches": [
+        {
+          "zh": "用图神经网络训练主气味图谱（POM），把分子结构对齐到人类气味描述，在描述任务上超过普通人类评审（2023 Science）。",
+          "en": "Training a principal odor map (POM) with graph neural networks that align molecular structure to human odor descriptions, outperforming ordinary human raters on labeling tasks (2023 Science)."
+        },
+        {
+          "zh": "扩大规模化多模态数据集：2025 年「New York Smells」数据集把这条线推向规模化，逼近感官数字化所需的数据量级。",
+          "en": "Scaling up multimodal datasets: the 2025 'New York Smells' dataset pushes this line toward the scale needed for full sensory digitization."
+        },
+        {
+          "zh": "借鉴跨感官/跨物种迁移的思路：类比感觉替代实验中大脑吸收新信息流的方式，探索机器能否读出、乃至合成人类尚未命名的气味维度。",
+          "en": "Drawing on cross-sense/cross-species transfer: by analogy with how the brain absorbs new information streams in sensory-substitution experiments, exploring whether machines can read out — or even synthesize — odor dimensions humans have never named."
+        }
+      ],
+      "barrier": {
+        "zh": "最硬的难点：嗅觉没有物理连续轴（不像波长/频率），基态真值依赖训练有素的人类嗅辨小组，数据稀缺且主观；分子—受体—感知之间的组合编码至今是黑箱。",
+        "en": "The hardest difficulty: smell has no physical continuous axis (unlike wavelength or frequency); ground truth depends on trained human panels, so data is scarce and subjective; the combinatorial code linking molecule, receptor, and perception remains a black box."
+      },
+      "subQuestions": [
+        {
+          "zh": "成年人脑能否真正学会一种全新的感官——比如直接「感觉到」磁场、红外、或地理方位——并让它像视觉听觉一样被无缝整合进意识体验？大脑对新感官的可塑性到底有没有上限，这个上限由什么决定？",
+          "en": "Can an adult human brain truly learn an entirely new sense — to directly 'feel' magnetic fields, infrared, or compass direction — and integrate it into conscious experience as seamlessly as sight or hearing? Is there a ceiling on the brain's plasticity for new senses, and what sets it?"
+        },
+        {
+          "zh": "其他动物（蝙蝠、章鱼、鸟类、蜜蜂）的主观感官世界——它们「像什么」——是否原则上可被人类部分进入或翻译，还是说每个物种的感官界面在本质上对外封闭，永远无法被跨越？",
+          "en": "Are the subjective sensory worlds of other animals — bats, octopuses, birds, bees — what it is like to be them — in principle partially enterable or translatable by humans, or is each species' sensory interface essentially closed, forever uncrossable?"
+        },
+        {
+          "zh": "我们能否解码并双向「翻译」另一物种的交流系统——比如真正与抹香鲸或灵长类对话，理解并被理解？动物的发声里到底有没有可与人类语言通约的「语义」与「语法」，还是我们只是在把人类的语言结构投射到本质不同的信号上？",
+          "en": "Can we decode and bidirectionally 'translate' another species' communication system — genuinely conversing with sperm whales or primates, understanding and being understood? Do animal vocalizations actually contain 'semantics' and 'grammar' commensurable with human language, or are we merely projecting human linguistic structure onto fundamentally different signals?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "A principal odor map unifies diverse tasks in human olfactory perception",
+        "venue": "Science",
+        "year": 2023,
+        "url": "https://www.science.org/doi/10.1126/science.ade4401"
+      },
+      {
+        "title": "A principal odor map unifies diverse tasks in human olfactory perception (full text)",
+        "venue": "PMC",
+        "year": 2023,
+        "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11898014/"
+      },
+      {
+        "title": "New York Smells: A Large Multimodal Dataset for Olfaction",
+        "venue": "arXiv",
+        "year": 2025,
+        "url": "https://arxiv.org/abs/2511.20544"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 794,
+      "y": 532,
+      "scale": 0.91
+    }
+  },
+  {
+    "id": 107,
+    "atlasN": 1334,
+    "slug": "interactive-molecular-dynamics-in-vr",
+    "title": {
+      "zh": "具身分子动力学：VR 中用手操控实时模拟",
+      "en": "Interactive Molecular Dynamics in VR: Hand-Steered Real-Time Simulation"
+    },
+    "qfocus": {
+      "zh": "研究者能否用双手在 VR 中直接操控活的分子动力学模拟，让空间直觉在统计意义上比自动采样更快找到有意义的构象——而不只是让科研「看起来好玩」？",
+      "en": "Can researchers, by physically grabbing a live molecular-dynamics simulation in VR, use spatial intuition to find meaningful conformations faster than automated sampling in a statistically real sense — not merely make science 'feel fun'?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C27",
+      "zh": "科学·艺术·设计融合",
+      "en": "Science · art · design fusion"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      3,
+      3,
+      2,
+      4,
+      4,
+      3
+    ],
+    "citation": {
+      "url": "https://www.science.org/doi/10.1126/sciadv.aat2731",
+      "title": "Sampling molecular conformations and dynamics in a multiuser virtual reality framework",
+      "venue": "Science Advances",
+      "year": 2018
+    },
+    "brief": {
+      "zh": "具身分子动力学（iMD-VR）让研究者戴上 VR 头显、用双手直接「抓住」正在运行的分子动力学模拟，实时施力、拉动、引导蛋白质折叠或配体入位，把分子科学从「离线跑批、事后看图」变成「在三维原生空间里协作操纵活的模拟」。",
+      "en": "Interactive molecular dynamics in VR (iMD-VR) lets researchers put on a headset and physically grab a live molecular-dynamics simulation with their hands — applying forces in real time to pull, fold, or dock molecules — turning molecular science from 'run offline, inspect plots later' into collaboratively steering a living simulation in its native 3-D space."
+    },
+    "depth": {
+      "overview": {
+        "zh": "蛋白质折叠不再是屏幕上一段渲染动画，而是你伸手就能拽住、和异地同事在同一个虚拟空间里较劲的活物。具身分子动力学让人用身体的空间直觉参与本来纯靠算力的模拟。",
+        "en": "Protein folding is no longer a rendered animation on a screen — it's something you can reach out and grab, contesting it with a remote colleague inside the same virtual space. Embodied molecular dynamics lets people bring the body's spatial intuition into simulations that used to run on pure computation alone."
+      },
+      "whyMatters": {
+        "zh": "最硬的难点：人手引导能否在统计意义上比自动采样更快找到有意义的构象，而不只是「好玩」？且它绑定 VR 头显与 GPU 算力，晕动症与设备门槛限制了大规模普及。",
+        "en": "The hardest difficulty: can hand-guidance statistically find meaningful conformations faster than automated sampling, rather than merely being 'fun'? It's also tied to VR headsets and GPU compute, and motion sickness plus equipment barriers limit large-scale adoption."
+      },
+      "ifAnswered": {
+        "zh": "随着开源 NanoVer 把多用户、分布式协作标准化，方向正走向「云端物理引擎 + 轻头显 + 机器学习势能面」的实时协作科研工作台。",
+        "en": "With open-source NanoVer standardizing multi-user, distributed collaboration, it is heading toward a real-time collaborative research bench: cloud physics engine plus lightweight headset plus machine-learned potential-energy surfaces."
+      },
+      "approaches": [
+        {
+          "zh": "2018 年 Science Advances 论文已验证可证伪价值：受试者用 VR 完成分子穿环、打结等任务比鼠标键盘更快。",
+          "en": "The 2018 Science Advances paper already validated its falsifiable value: subjects in VR completed molecular threading and knot-tying tasks faster than with mouse and keyboard."
+        },
+        {
+          "zh": "2025 年团队发表开源 NanoVer Server（Narupa 的继任者），把实时多用户、异地协作的 iMD-VR 标准化为 Python 包，应用覆盖蛋白-配体结合、反应网络发现、材料催化与教学。",
+          "en": "In 2025 the team published the open-source NanoVer Server (successor to Narupa), standardizing real-time, multi-user, remote-collaborative iMD-VR into a Python package, with applications spanning protein-ligand binding, reaction-network discovery, materials catalysis, and teaching."
+        },
+        {
+          "zh": "作为已落地、有基准、可复用的科研基础设施，它依赖头显与算力，方向正走向云端物理引擎 + 轻头显 + 机器学习势能面的协作工作台。",
+          "en": "As a deployed, benchmarked, reusable piece of research infrastructure, it depends on headsets and compute, and is heading toward a collaborative bench combining a cloud physics engine, lightweight headset, and machine-learned potential-energy surfaces."
+        }
+      ],
+      "barrier": {
+        "zh": "最硬的难点：人手引导能否在统计意义上比自动采样更快找到有意义的构象，而不只是「好玩」？且它绑定 VR 头显与 GPU 算力，晕动症与设备门槛限制了大规模普及。",
+        "en": "The hardest difficulty: can hand-guidance statistically find meaningful conformations faster than automated sampling, rather than merely being 'fun'? It's also tied to VR headsets and GPU compute, and motion sickness plus equipment barriers limit large-scale adoption."
+      },
+      "subQuestions": [
+        {
+          "zh": "为什么人类会对某些形式、声音和比例产生「美」的体验？审美偏好究竟是大脑信息处理效率的副产品，还是一种独立的、不能还原为认知或情绪的心智维度？",
+          "en": "Why do humans experience certain forms, sounds, and proportions as beautiful — is aesthetic preference a byproduct of the brain's processing efficiency, or an irreducible dimension of mind that cannot be reduced to cognition or emotion?"
+        },
+        {
+          "zh": "当生成式 AI 能在毫秒内产出无穷多张「合格」的图像与设计时，人类创作中那个不可外包的内核——如果存在的话——究竟是什么？「创造性」是否有一个机器原则上无法跨越的边界？",
+          "en": "When generative AI can produce infinitely many 'competent' images and designs in milliseconds, what — if anything — is the irreducible human core of creation that cannot be outsourced, and does 'creativity' have a boundary that machines cannot in principle cross?"
+        },
+        {
+          "zh": "数学家口中的「优雅」、物理学家追求的「美」，是否真的是通往真理的可靠向导？还是说，对简洁与对称的审美偏好，正在系统性地把整个理论物理引向歧途？",
+          "en": "Is the 'elegance' mathematicians invoke and the 'beauty' physicists chase actually a reliable guide to truth — or has aesthetic preference for simplicity and symmetry been systematically leading theoretical physics astray?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "NanoVer Server: A Python Package for Serving Real-Time Multi-User Interactive Molecular Dynamics in Virtual Reality",
+        "venue": "Journal of Open Source Software",
+        "year": 2025,
+        "url": "https://joss.theoj.org/papers/10.21105/joss.08118.pdf"
+      },
+      {
+        "title": "Sampling molecular conformations and dynamics in a multiuser virtual reality framework",
+        "venue": "Science Advances",
+        "year": 2018,
+        "url": "https://www.science.org/doi/10.1126/sciadv.aat2731"
+      },
+      {
+        "title": "nanover-server-py: Interactive Molecular Dynamics (iMD) in VR",
+        "venue": "GitHub (IRL2)",
+        "year": 2025,
+        "url": "https://github.com/IRL2/nanover-server-py"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 763,
+      "y": 755,
+      "scale": 0.91
+    }
+  },
+  {
+    "id": 108,
+    "atlasN": 1337,
+    "slug": "ai-mediated-deliberation-and-consensus",
+    "title": {
+      "zh": "AI居间协商与共识机器",
+      "en": "AI-Mediated Deliberation and Consensus Machines"
+    },
+    "qfocus": {
+      "zh": "训练出的 LLM 协商中介，能否把个体分歧观点迭代聚合成比人类调解人更受认可、且可测量地缩小群体分歧的共同立场声明？",
+      "en": "Can an LLM trained as a deliberation mediator iteratively aggregate individual, divergent opinions into a common-ground statement that is more widely endorsed than one written by human mediators, and measurably narrows group disagreement?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C27",
+      "zh": "科学·艺术·设计融合",
+      "en": "Science · art · design fusion"
+    },
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      2,
+      3,
+      3,
+      3,
+      3
+    ],
+    "citation": {
+      "url": "https://www.science.org/doi/10.1126/science.adq2852",
+      "title": "AI can help humans find common ground in democratic deliberation",
+      "venue": "Science",
+      "year": 2024
+    },
+    "brief": {
+      "zh": "AI 居间协商训练 LLM 充当协商中介：聚合个体观点与批评，迭代生成最大化群体认同的共同立场声明，用于气候、AI 治理等科学争议议题的公众协商——DeepMind 的「哈贝马斯机器」在《Science》给出首个大样本证据。",
+      "en": "AI-mediated deliberation trains LLMs as mediators that aggregate individual opinions and critiques into iteratively refined common-ground statements for public deliberation on contested science issues like climate and AI governance — DeepMind's 'Habermas Machine' delivered the first large-sample evidence in Science."
+    },
+    "depth": {
+      "overview": {
+        "zh": "在 5000 多名英国参与者的实验里，AI 撰写的群体共同立场声明比人类调解人写的更受各方认可，还让分歧群体的立场可测量地靠近——机器第一次在「找共识」这件事上超过了人。",
+        "en": "In an experiment with over 5,000 UK participants, the AI-written group common-ground statement was more endorsed by all sides than one written by human mediators, and measurably narrowed the positions of divided groups — the first time a machine has outperformed humans at 'finding consensus'."
+      },
+      "whyMatters": {
+        "zh": "最硬的争议：流畅折中的共识声明可能算法性地抹平少数派立场，且哈贝马斯机器优化的是「群体认同度」而非论证质量——一个可以被巧妙措辞游戏化的目标函数；把它接入真实科技政策还要过合法性这一关。",
+        "en": "The hardest controversy: a fluently compromised consensus statement may algorithmically flatten minority positions, and the Habermas Machine optimizes for 'group approval' rather than argument quality — an objective function that clever wording can game; wiring it into real science policy still has to clear the legitimacy test."
+      },
+      "ifAnswered": {
+        "zh": "走向科学争议议题的常设混合协商基础设施——AI 居间的市民评审团嵌入科技政策咨询流程，与 Deliberative Polling 传统合流。",
+        "en": "Heading toward standing hybrid deliberation infrastructure for contested science — AI-mediated citizen panels embedded in science-policy consultation, merging with the Deliberative Polling tradition."
+      },
+      "approaches": [
+        {
+          "zh": "DeepMind 的「哈贝马斯机器」：LLM 中介聚合个体意见与批评、迭代生成群体共同立场声明，2024 年在 Science 发表，数千名参与者实验中比人类调解人更受认可。",
+          "en": "DeepMind's 'Habermas Machine': an LLM mediator that aggregates individual opinions and critiques into iteratively generated common-ground statements, published in Science in 2024, more endorsed than human mediators in an experiment with thousands of participants."
+        },
+        {
+          "zh": "斯坦福 Deliberative Democracy Lab 把自动主持人部署进其在 32 个国家使用过的在线协商平台，支撑数千人级的小组同步协商。",
+          "en": "Stanford's Deliberative Democracy Lab has deployed an automated moderator into its online deliberation platform, used across 32 countries, supporting synchronous small-group deliberation at a scale of thousands of participants."
+        },
+        {
+          "zh": "定位为科学传播的第三条路：既非单向科普、也非放任的评论区，而是结构化的、AI 居间的公众-科学协商。",
+          "en": "Positioned as a third path for science communication: neither one-way popular-science broadcast nor an unmoderated comment section, but structured, AI-mediated public-science deliberation."
+        }
+      ],
+      "barrier": {
+        "zh": "最硬的争议：流畅折中的共识声明可能算法性地抹平少数派立场，且哈贝马斯机器优化的是「群体认同度」而非论证质量——一个可以被巧妙措辞游戏化的目标函数；把它接入真实科技政策还要过合法性这一关。",
+        "en": "The hardest controversy: a fluently compromised consensus statement may algorithmically flatten minority positions, and the Habermas Machine optimizes for 'group approval' rather than argument quality — an objective function that clever wording can game; wiring it into real science policy still has to clear the legitimacy test."
+      },
+      "subQuestions": [
+        {
+          "zh": "为什么人类会对某些形式、声音和比例产生「美」的体验？审美偏好究竟是大脑信息处理效率的副产品，还是一种独立的、不能还原为认知或情绪的心智维度？",
+          "en": "Why do humans experience certain forms, sounds, and proportions as beautiful — is aesthetic preference a byproduct of the brain's processing efficiency, or an irreducible dimension of mind that cannot be reduced to cognition or emotion?"
+        },
+        {
+          "zh": "当生成式 AI 能在毫秒内产出无穷多张「合格」的图像与设计时，人类创作中那个不可外包的内核——如果存在的话——究竟是什么？「创造性」是否有一个机器原则上无法跨越的边界？",
+          "en": "When generative AI can produce infinitely many 'competent' images and designs in milliseconds, what — if anything — is the irreducible human core of creation that cannot be outsourced, and does 'creativity' have a boundary that machines cannot in principle cross?"
+        },
+        {
+          "zh": "数学家口中的「优雅」、物理学家追求的「美」，是否真的是通往真理的可靠向导？还是说，对简洁与对称的审美偏好，正在系统性地把整个理论物理引向歧途？",
+          "en": "Is the 'elegance' mathematicians invoke and the 'beauty' physicists chase actually a reliable guide to truth — or has aesthetic preference for simplicity and symmetry been systematically leading theoretical physics astray?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "AI can help humans find common ground in democratic deliberation",
+        "venue": "Science",
+        "year": 2024,
+        "url": "https://www.science.org/doi/10.1126/science.adq2852"
+      },
+      {
+        "title": "Online Deliberation Platform — Deliberative Democracy Lab",
+        "venue": "Stanford University",
+        "year": 2025,
+        "url": "https://deliberation.stanford.edu/tools-resources/online-deliberation-platform"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 832,
+      "y": 491,
+      "scale": 0.86
+    }
+  },
+  {
+    "id": 109,
+    "atlasN": 640,
+    "slug": "a-quantitative-science-of-serendipity",
+    "title": {
+      "zh": "意外发现率的可量化科学",
+      "en": "A Quantitative Science of Serendipity Rates"
+    },
+    "qfocus": {
+      "zh": "能否把'运气'拆解为机遇、洞察与有准备的心智三要素，量化不同科研体制下意外发现的发生率，让它从玄学变成可测量、可设计的对象？",
+      "en": "Can 'luck' be decomposed into chance, sagacity, and the prepared mind so that the incidence of serendipitous discovery becomes measurable across research regimes — and cultivable by design, rather than merely awaited?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C28",
+      "zh": "元科学·科研治理",
+      "en": "Metascience · research governance"
+    },
+    "scores": [
+      5,
+      4,
+      4,
+      3,
+      4,
+      4,
+      1,
+      1,
+      4
+    ],
+    "citation": {
+      "url": "https://link.springer.com/article/10.1007/s11229-017-1544-3",
+      "title": "On serendipity in science: discovery at the intersection of chance and wisdom",
+      "venue": "Synthese",
+      "year": 2019
+    },
+    "brief": {
+      "zh": "把'运气'拆解为机遇、洞察与有准备的心智三要素，量化不同科研体制、资助方式与团队结构下意外发现的发生率与可培育条件，让偶然的科学发现从玄学变成可测量、可设计的对象。研究估计33%–50%的科学发现属于意外。",
+      "en": "Serendipity is decomposed into chance, sagacity, and the prepared mind, quantifying how the rate of accidental discovery and its cultivable conditions vary across research regimes, funding mechanisms, and team structures — turning serendipity from mysticism into something measurable and designable. Studies estimate that 33–50% of scientific discoveries are accidental."
+    },
+    "depth": {
+      "overview": {
+        "zh": "意外发现率的可量化科学把'serendipity'从玄学变成可测量、可设计的对象：研究估计33%–50%的科学发现是意外的，并把意外拆解为机遇、洞察（sagacity）与'有准备的心智'三要素。它结合科学计量学、认知科学与元科学，量化不同科研体制、资助方式、团队结构下意外发现的发生率与培育条件，并把意外分型（一域研究意外解了另一域、完全开放的搜寻撞上发现、为甲问题却经意外路径达解等）。",
+        "en": "A quantitative science of serendipity rates turns serendipity from mysticism into a measurable, designable object: studies estimate that 33%–50% of scientific discoveries are accidental, and decompose serendipity into three elements — chance, sagacity (insight), and the 'prepared mind'. Combining scientometrics, cognitive science, and metascience, it quantifies the incidence and cultivation conditions of serendipitous discovery across different research regimes, funding mechanisms, and team structures, and types serendipity into categories (research in one field accidentally solving another, a fully open search stumbling on a find, reaching a solution to problem A via an unexpected route, etc.)."
+      },
+      "whyMatters": {
+        "zh": "若意外占发现的近半，科研政策却几乎只优化'计划内'产出，等于系统性地忽视了一半的发现引擎；这把'幸运能否被设计'从修辞问题变成了一个可被政策回应的真实缺口。",
+        "en": "If accident accounts for nearly half of all discoveries, yet science policy optimizes almost exclusively for 'planned' output, the system is structurally neglecting half its engine of discovery — turning 'can luck be designed' from rhetoric into a real policy gap."
+      },
+      "ifAnswered": {
+        "zh": "若能确立培育条件，资助机构与实验室便可主动设计提高意外发现概率的环境——让幸运变得可被设计，而非只能被动等待。",
+        "en": "If the cultivating conditions can be established, funders and labs could deliberately design environments that raise the odds of serendipitous discovery — making good fortune something that can be designed, rather than merely awaited."
+      },
+      "approaches": [
+        {
+          "zh": "将意外发现分型——如'一域研究意外解了另一域'、'完全开放的搜寻撞上发现'、'为甲问题却经意外路径达解'——建立可比较的分类框架。",
+          "en": "Typing serendipitous discovery into comparable categories — e.g. research in one field accidentally solving another, a fully open-ended search stumbling on a find, or reaching a solution to problem A via an unexpected route."
+        },
+        {
+          "zh": "用科学计量学量化不同资助机制（自由探索 vs. 目标导向）、团队多样性与跨域流动下意外发现的发生率差异。",
+          "en": "Using scientometrics to quantify how serendipity rates vary across funding mechanisms (open-ended exploration vs. goal-directed), team diversity, and cross-domain mobility."
+        },
+        {
+          "zh": "结合认知科学刻画'有准备的心智'——识别意外所需的知识与判断（sagacity）——作为可训练、可评估的能力。",
+          "en": "Drawing on cognitive science to characterize the 'prepared mind' — the sagacity needed to recognize an accident as meaningful — as a trainable, assessable capacity."
+        }
+      ],
+      "barrier": {
+        "zh": "最硬的壁垒是事后偏倚：意外发现只有成功后才被追认为意外，分母（错过的意外）几乎不可观测；'有准备的心智'又难以前瞻量化，使因果性的政策结论难以确立。",
+        "en": "The hardest barrier is hindsight bias: a serendipitous find is only recognized as such after it succeeds, so the denominator (missed accidents) is nearly unobservable; and the 'prepared mind' resists prospective measurement, making causal policy conclusions hard to establish."
+      },
+      "subQuestions": [
+        {
+          "zh": "如果一个领域里大多数已发表的研究发现都是假的，那么科学作为一个自我纠错系统，其纠错机制本身在什么条件下会失效？我们能否事先识别出哪些领域正处在这种「系统性失真」状态？",
+          "en": "If most published research findings in a field are false, under what conditions does science's self-correction mechanism itself break down — and can we identify in advance which fields are in such a state of systematic distortion?"
+        },
+        {
+          "zh": "有没有可能为「科学进步」本身建立一门定量科学——用大规模数据预测哪些想法、团队配置和资助结构最可能催生突破？还是说创造性突破在原则上就不可预测？",
+          "en": "Can there be a quantitative science of scientific progress itself — predicting from large-scale data which ideas, team configurations and funding structures are most likely to yield breakthroughs — or are creative breakthroughs unpredictable in principle?"
+        },
+        {
+          "zh": "当科研产出的体量增长了几个数量级，颠覆性的发现却在相对衰减——这是不是说明现行的「论文+引用+同行评审」制度本身已经成为创新的瓶颈？我们需要怎样一种全新的知识生产架构？",
+          "en": "As the sheer volume of research output has grown by orders of magnitude while disruptive discoveries decline relative to it, has the 'paper + citation + peer review' regime itself become the bottleneck to innovation — and what entirely new architecture of knowledge production is needed?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "On serendipity in science: discovery at the intersection of chance and wisdom",
+        "venue": "Synthese",
+        "year": 2019,
+        "url": "https://link.springer.com/article/10.1007/s11229-017-1544-3"
+      },
+      {
+        "title": "Serendipity: The Unexpected in Science",
+        "venue": "MIT Press",
+        "year": 2024,
+        "url": "https://direct.mit.edu/books/book/5821/SerendipityThe-Unexpected-in-Science"
+      },
+      {
+        "title": "Role of chance in scientific discoveries",
+        "venue": "Wikipedia (overview)",
+        "year": 2024,
+        "url": "https://en.wikipedia.org/wiki/Role_of_chance_in_scientific_discoveries"
+      },
+      {
+        "title": "Predictable serendipity: how new tools turn serendipity into systematic breakthroughs",
+        "venue": "Scientometrics",
+        "year": 2026,
+        "url": "https://link.springer.com/article/10.1007/s11192-025-05503-y"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 729,
+      "y": 462,
+      "scale": 0.9
+    }
+  },
+  {
+    "id": 110,
+    "atlasN": 1177,
+    "slug": "retraction-epidemiology-and-knowledge-base",
+    "title": {
+      "zh": "撤稿流行病学与知识库污染",
+      "en": "Retraction Epidemiology and Knowledge-Base Contamination"
+    },
+    "qfocus": {
+      "zh": "被撤稿的科学为何仍能在引文网络与AI训练语料中持续传播、被大模型反复复述，而现有传播机制却无法阻断这种污染？",
+      "en": "Why does retracted science keep propagating through citation networks and AI training corpora — recycled repeatedly by large language models — when no mechanism exists to halt this contamination?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C28",
+      "zh": "元科学·科研治理",
+      "en": "Metascience · research governance"
+    },
+    "scores": [
+      4,
+      5,
+      4,
+      4,
+      2,
+      5,
+      4,
+      4,
+      4
+    ],
+    "citation": {
+      "url": "https://onlinelibrary.wiley.com/doi/10.1002/leap.2018",
+      "title": "Does ChatGPT Ignore Article Retractions and Other Reliability Concerns?",
+      "venue": "Learned Publishing",
+      "year": 2025
+    },
+    "brief": {
+      "zh": "2023年9月Crossref收购并开放Retraction Watch撤稿数据库后，撤稿的传播首次可全域追踪；但2025年研究发现GPT-4o-mini等主流大模型在6510份评估报告中对217篇被撤稿或存疑论文几乎零次提示其撤稿状态，被撤稿的科学正持续污染AI训练语料与生成内容。",
+      "en": "Since Crossref acquired and opened the Retraction Watch database in September 2023, the propagation of retractions can be tracked globally for the first time — yet 2025 research finds mainstream models like GPT-4o-mini flagged retraction status almost zero times across 217 retracted or disputed papers within 6,510 evaluation reports, so retracted science keeps contaminating AI training corpora and generated content."
+    },
+    "depth": {
+      "overview": {
+        "zh": "一篇论文被撤稿后并不会死——它活在引用里、活在数据库里，现在还活进了大模型的训练语料，被亿万次复述。2023年9月，Crossref收购并开放了Retraction Watch数据库（约5万条撤稿记录并入公共API），使撤稿的传播路径第一次可以全域追踪。",
+        "en": "A retracted paper does not die — it lives on in citations, in databases, and now in the training corpora of large language models, echoed across billions of generations. In September 2023, Crossref acquired and opened the Retraction Watch database (roughly 50,000 retraction records folded into a public API), making the propagation of retractions globally trackable for the first time."
+      },
+      "whyMatters": {
+        "zh": "撤稿元数据在出版商、聚合库与训练语料之间没有任何强制传播机制，意味着一篇论文即便被正式撤稿，也可能持续影响下游研究乃至被AI放大传播给海量用户，科研诚信与AI语料的可靠性因此同时承压。",
+        "en": "Retraction metadata has no mandatory propagation mechanism between publishers, aggregator databases, and training corpora, meaning a formally retracted paper can keep shaping downstream research and be amplified by AI to vast numbers of users — putting both research integrity and AI corpus reliability under strain."
+      },
+      "ifAnswered": {
+        "zh": "若能建立这套'卫生基础设施'，撤稿状态将实时传播——出版商、聚合库与AI训练管线共享同一份污染源清单，配合训练语料净化审计与LLM撤稿感知基准，被撤稿的错误结论就不会再被无限复述。",
+        "en": "If this hygiene infrastructure can be built, retraction status would propagate in real time — publishers, aggregator databases, and AI training pipelines sharing one list of contamination sources, backed by corpus-decontamination audits and retraction-awareness benchmarks for LLMs — so a retracted, erroneous conclusion would no longer be endlessly recycled."
+      },
+      "approaches": [
+        {
+          "zh": "把撤稿数据库（如Crossref开放的Retraction Watch）与引文网络、AI训练语料对齐，全域追踪一篇撤稿论文的'传播路径'。",
+          "en": "Aligning retraction databases (such as the Crossref-opened Retraction Watch) with citation networks and AI training corpora to globally trace a retracted paper's propagation path."
+        },
+        {
+          "zh": "对主流大模型做撤稿感知评测（如6510份评估报告中检验GPT-4o-mini能否提示217篇被撤稿或存疑论文），量化AI语料污染的规模。",
+          "en": "Benchmarking mainstream LLMs for retraction awareness (such as testing whether GPT-4o-mini flags 217 retracted or disputed papers across 6,510 evaluation reports) to quantify the scale of AI corpus contamination."
+        },
+        {
+          "zh": "借鉴元科学对'自我纠错机制何时失效'的形式化分析，把撤稿污染问题嵌入科研治理与训练语料治理的共同框架。",
+          "en": "Drawing on metascience's formal analysis of when self-correction breaks down, situating the retraction-contamination problem within a shared framework of research governance and training-corpus governance."
+        }
+      ],
+      "barrier": {
+        "zh": "最硬的张力：LLM一旦吸收了被撤稿论文的结论，事后'解毒'（从已训练模型中清除这些内容）在技术上仍然无解，撤稿状态又缺乏强制传播协议，污染只能不断被生成、难以被追溯清除。",
+        "en": "The hardest tension: once an LLM has absorbed a retracted paper's conclusions, post-hoc 'detoxification' — purging that content from an already-trained model — remains technically unsolved, and with no mandatory protocol propagating retraction status, the contamination keeps being regenerated and is hard to trace or remove."
+      },
+      "subQuestions": [
+        {
+          "zh": "如果一个领域里大多数已发表的研究发现都是假的，那么科学作为一个自我纠错系统，其纠错机制本身在什么条件下会失效？我们能否事先识别出哪些领域正处在这种「系统性失真」状态？",
+          "en": "If most published research findings in a field are false, under what conditions does science's self-correction mechanism itself break down — and can we identify in advance which fields are in such a state of systematic distortion?"
+        },
+        {
+          "zh": "有没有可能为「科学进步」本身建立一门定量科学——用大规模数据预测哪些想法、团队配置和资助结构最可能催生突破？还是说创造性突破在原则上就不可预测？",
+          "en": "Can there be a quantitative science of scientific progress itself — predicting from large-scale data which ideas, team configurations and funding structures are most likely to yield breakthroughs — or are creative breakthroughs unpredictable in principle?"
+        },
+        {
+          "zh": "当科研产出的体量增长了几个数量级，颠覆性的发现却在相对衰减——这是不是说明现行的「论文+引用+同行评审」制度本身已经成为创新的瓶颈？我们需要怎样一种全新的知识生产架构？",
+          "en": "As the sheer volume of research output has grown by orders of magnitude while disruptive discoveries decline relative to it, has the 'paper + citation + peer review' regime itself become the bottleneck to innovation — and what entirely new architecture of knowledge production is needed?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "News: Crossref and Retraction Watch — open retraction data for the scientific community",
+        "venue": "Crossref",
+        "year": 2023,
+        "url": "https://www.crossref.org/blog/news-crossref-and-retraction-watch"
+      },
+      {
+        "title": "Does ChatGPT Ignore Article Retractions and Other Reliability Concerns?",
+        "venue": "Learned Publishing",
+        "year": 2025,
+        "url": "https://onlinelibrary.wiley.com/doi/10.1002/leap.2018"
+      },
+      {
+        "title": "AI models are using material from retracted scientific papers",
+        "venue": "MIT Technology Review",
+        "year": 2025,
+        "url": "https://www.technologyreview.com/2025/09/23/1123897/ai-models-are-using-material-from-retracted-scientific-papers/"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 873,
+      "y": 448,
+      "scale": 0.98
+    }
+  },
+  {
+    "id": 111,
+    "atlasN": 492,
+    "slug": "microbial-dark-matter-and-uncultured",
+    "title": {
+      "zh": "微生物暗物质与未培养菌",
+      "en": "Microbial Dark Matter and Uncultured Microbes"
+    },
+    "qfocus": {
+      "zh": "能否绕过实验室培养瓶颈，仅凭环境DNA与AI蛋白结构、功能预测，把占微生物绝大多数的'暗物质'批量转化为可下游验证的新酶、新药候选？",
+      "en": "Can environmental DNA plus AI protein-structure and function prediction bypass the lab-culturing bottleneck and convert the vast 'dark matter' of uncultured microbes into downstream-verifiable candidates for new enzymes and drugs, in bulk?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C30",
+      "zh": "微生物组·生态工程",
+      "en": "Microbiome · ecological engineering"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      3,
+      3,
+      2,
+      3,
+      3,
+      4
+    ],
+    "citation": {
+      "url": "https://www.nature.com/articles/s41586-023-06583-7",
+      "title": "Unraveling the functional dark matter through global metagenomics",
+      "venue": "Nature",
+      "year": 2023
+    },
+    "brief": {
+      "zh": "大多数微生物无法在实验室培养，属于'暗物质'；宏基因组测序结合AI蛋白结构与功能预测，正把这些无法培养的暗物质转化为可下游验证的新酶、新药候选，绕过培养瓶颈直接点亮未知生命的功能版图。",
+      "en": "Most microbes cannot be cultured in the lab and remain 'dark matter'; metagenomic sequencing combined with AI protein-structure and function prediction is now converting this uncultured dark matter into downstream-verifiable candidates for new enzymes and drugs, bypassing the culturing bottleneck to illuminate the functional map of unknown life."
+    },
+    "depth": {
+      "overview": {
+        "zh": "微生物暗物质与未培养菌把宏基因组测序（结合单细胞基因组学、宏基因组组装基因组MAG）与AI预测结合，针对占微生物绝大多数、无法在实验室培养的'暗物质'预测其基因功能、代谢能力与潜在新药新酶。它横跨微生物学、基因组学与AI，核心是绕过培养瓶颈，直接从环境DNA中点亮未知生命的功能版图。",
+        "en": "Microbial dark matter and uncultured microbes combines metagenomic sequencing (with single-cell genomics and metagenome-assembled genomes, MAGs) with AI prediction to target the 'dark matter' that makes up the vast majority of microbes and cannot be cultured in the lab, predicting their gene functions, metabolic capabilities, and potential new drugs and enzymes. Spanning microbiology, genomics and AI, its core is bypassing the cultivation bottleneck to illuminate the functional map of unknown life directly from environmental DNA."
+      },
+      "whyMatters": {
+        "zh": "已知微生物只是冰山一角，暗物质蕴藏海量新酶、新抗生素与新代谢途径——只要能点亮它们，就打开了一个几乎未被开采的天然产物矿藏。",
+        "en": "Known microbes are only the tip of the iceberg; the dark matter holds a vast trove of new enzymes, antibiotics, and metabolic pathways — illuminating it opens up an almost unmined reserve of natural products."
+      },
+      "ifAnswered": {
+        "zh": "若AI能把'有序列无功能'的暗物质批量转化为可下游验证的候选，将引爆新一轮天然产物发现，批量发现新功能、新酶与新药。",
+        "en": "If AI can convert 'sequence without function' dark matter into downstream-verifiable candidates at scale, it could ignite a new wave of natural-product discovery — finding new functions, enzymes, and drugs at scale."
+      },
+      "approaches": [
+        {
+          "zh": "用宏基因组测序、单细胞基因组学与宏基因组组装基因组（MAG）直接从环境DNA中重建未培养微生物的基因组。",
+          "en": "Reconstructing uncultured microbes' genomes directly from environmental DNA using metagenomic sequencing, single-cell genomics, and metagenome-assembled genomes (MAGs)."
+        },
+        {
+          "zh": "用AI蛋白结构预测为'有序列无功能'的基因批量指派可下游验证的功能假设，绕过传统培养实验的瓶颈。",
+          "en": "Using AI protein-structure prediction to assign downstream-verifiable functional hypotheses in bulk to 'sequence without function' genes, bypassing the bottleneck of traditional culturing experiments."
+        },
+        {
+          "zh": "把微生物功能测绘与群落生态学的可预测性问题结合，探究能否从第一性原理预测群落组装与稳定状态。",
+          "en": "Linking microbial function mapping to the predictability of community ecology, asking whether community assembly and stable states can be predicted from first principles."
+        }
+      ],
+      "barrier": {
+        "zh": "难点是基因序列到真实功能的注释充满不确定——大量基因功能未知，'有序列无功能'的暗物质长期停留在无法验证的阶段。",
+        "en": "The difficulty is that annotating real function from gene sequence is full of uncertainty — a huge fraction of genes have unknown function, and 'sequence without function' dark matter has long remained stuck at an unverifiable stage."
+      },
+      "subQuestions": [
+        {
+          "zh": "宿主与其体内数以万亿计的微生物，是否应被看作一个不可分割的「全功能体」（holobiont）？自然选择究竟作用在单个生物体上，还是作用在宿主-微生物组这个整体上？",
+          "en": "Should a host and its trillions of resident microbes be understood as one inseparable 'holobiont' — and does natural selection act on the individual organism, or on the host-microbiome whole?"
+        },
+        {
+          "zh": "我们能否从第一性原理预测并设计一个微生物群落的组装与稳定状态——给定一组物种和环境，可靠地推出它会演化成什么、能抵抗什么入侵？还是说微生态系统在本质上就不可预测、不可控？",
+          "en": "Can we predict and design a microbial community's assembly and stable states from first principles — given a set of species and an environment, reliably derive what it will become and what invasions it resists — or are microbial ecosystems intrinsically unpredictable and uncontrollable?"
+        },
+        {
+          "zh": "肠道微生物组能通过「肠-脑轴」在多大程度上影响人类的情绪、认知乃至行为？这种影响是边缘性的调制，还是说我们的「自我」在某种深刻意义上是由体内微生物共同决定的？",
+          "en": "To what extent can the gut microbiome shape human mood, cognition and behavior via the gut-brain axis — is this a marginal modulation, or is our 'self' in some deep sense co-authored by the microbes inside us?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Unraveling the functional dark matter through global metagenomics",
+        "venue": "Nature",
+        "year": 2023,
+        "url": "https://www.nature.com/articles/s41586-023-06583-7"
+      },
+      {
+        "title": "Functional and evolutionary significance of unknown genes from uncultivated taxa",
+        "venue": "Nature",
+        "year": 2023,
+        "url": "https://www.nature.com/articles/s41586-023-06955-z"
+      },
+      {
+        "title": "Approaches for accelerating microbial gene function discovery using artificial intelligence",
+        "venue": "Nature Microbiology",
+        "year": 2026,
+        "url": "https://www.nature.com/articles/s41564-025-02214-1"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 617,
+      "y": 244,
+      "scale": 0.91
+    }
+  },
+  {
+    "id": 112,
+    "atlasN": 529,
+    "slug": "extremophiles-and-the-limits-of",
+    "title": {
+      "zh": "极端微生物与生命边界",
+      "en": "Extremophiles and the Limits of Life"
+    },
+    "qfocus": {
+      "zh": "生命在物理化学意义上的边界究竟在哪里——极端微生物的耐受极限能否指引地外生命的搜寻方向，并催生下一个'Taq'级别的产业级酶？",
+      "en": "Where exactly are the physicochemical limits of life — and can the tolerance limits of extremophiles guide where to search for extraterrestrial life, while yielding the next Taq-polymerase-scale industrial enzyme?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C30",
+      "zh": "微生物组·生态工程",
+      "en": "Microbiome · ecological engineering"
+    },
+    "scores": [
+      4,
+      4,
+      3,
+      4,
+      2,
+      3,
+      4,
+      4,
+      4
+    ],
+    "citation": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/31037068/",
+      "title": "Living at the Extremes: Extremophiles and the Limits of Life in a Planetary Context",
+      "venue": "Frontiers in Microbiology",
+      "year": 2019
+    },
+    "brief": {
+      "zh": "极端微生物在高温高压、强酸碱、强辐射或极端缺水下生存繁殖，探索生命的物理化学边界；它既外推'宜居'的定义、指引地外生命搜寻，也提供如PCR用Taq聚合酶般的耐极端工业酶，是基础研究催生大产业的经典案例。",
+      "en": "Extremophiles survive and reproduce under high temperature, high pressure, strong acidity/alkalinity, intense radiation, or extreme desiccation, probing the physicochemical boundaries of life; they both extend the definition of 'habitable' to guide the search for extraterrestrial life and supply extreme-tolerant industrial enzymes like the Taq polymerase behind PCR — a classic case of basic research spawning a major industry."
+    },
+    "depth": {
+      "overview": {
+        "zh": "极端微生物研究在高温、高压、强酸碱、强辐射或极端缺水等条件下生存繁殖的生命，探索生命的物理化学边界。它跨微生物学、生物化学与天体生物学，既启发地外生命搜寻，也提供耐极端的工业酶等生物技术资源。",
+        "en": "Extremophile research studies life that survives and reproduces under high temperature, high pressure, strong acidity or alkalinity, intense radiation, or extreme desiccation, exploring the physicochemical boundaries of life. Spanning microbiology, biochemistry, and astrobiology, it both inspires the search for extraterrestrial life and supplies biotechnology resources such as extremotolerant industrial enzymes."
+      },
+      "whyMatters": {
+        "zh": "它把'宜居'的定义不断外推，直接影响我们该往地外何处寻找生命；同时耐极端酶（如PCR用的Taq酶）已是数十亿美元产业的基石，是基础研究意外催生大产业的经典案例。",
+        "en": "It keeps pushing the definition of 'habitable' outward, directly shaping where we should look for life beyond Earth; meanwhile extreme-tolerant enzymes (such as the Taq polymerase behind PCR) are already the cornerstone of a multibillion-dollar industry — a classic case of basic research unexpectedly spawning a major industry."
+      },
+      "ifAnswered": {
+        "zh": "若能持续刻画生命的物理化学边界，将同时启发地外生命搜寻策略（该去哪找）与新一代耐极端生物技术（下一个Taq）的开发。",
+        "en": "Continuing to map the physicochemical limits of life would simultaneously inform strategies for the search for extraterrestrial life (where to look) and the development of next-generation extreme-tolerant biotechnology (the next Taq)."
+      },
+      "approaches": [
+        {
+          "zh": "系统测绘微生物在高温、高压、强酸碱、强辐射（如耐辐射的Deinococcus）与极端缺水条件下的生存极限，划定生命的物理化学边界。",
+          "en": "Systematically mapping microbial survival limits under high temperature, high pressure, strong acidity/alkalinity, intense radiation (such as radiation-resistant Deinococcus), and extreme desiccation to delineate the physicochemical boundaries of life."
+        },
+        {
+          "zh": "把地球极端环境的生存数据用作地外环境模拟实验与天体生物学搜寻策略的参照系。",
+          "en": "Using survival data from Earth's extreme environments as a reference frame for extraterrestrial-environment-simulated experiments and astrobiology search strategies."
+        },
+        {
+          "zh": "从极端微生物中挖掘耐极端工业酶（如Taq聚合酶的后继者），作为生物技术开发的持续勘探目标。",
+          "en": "Mining extremophiles for extreme-tolerant industrial enzymes (successors to Taq polymerase) as an ongoing biotechnology-prospecting target."
+        }
+      ],
+      "barrier": {
+        "zh": "'下一个Taq可能就藏在某个极端环境里'这句话本身道出了难点：哪个极端环境会催生下一个产业级发现，事前几乎不可预测，只能靠持续、广泛的勘探去撞见。",
+        "en": "The claim that 'the next Taq may be hiding in some extreme environment' points to the difficulty itself: which extreme environment will yield the next industry-defining enzyme cannot be predicted in advance — only sustained, broad prospecting can find out."
+      },
+      "subQuestions": [
+        {
+          "zh": "宿主与其体内数以万亿计的微生物，是否应被看作一个不可分割的「全功能体」（holobiont）？自然选择究竟作用在单个生物体上，还是作用在宿主-微生物组这个整体上？",
+          "en": "Should a host and its trillions of resident microbes be understood as one inseparable 'holobiont' — and does natural selection act on the individual organism, or on the host-microbiome whole?"
+        },
+        {
+          "zh": "我们能否从第一性原理预测并设计一个微生物群落的组装与稳定状态——给定一组物种和环境，可靠地推出它会演化成什么、能抵抗什么入侵？还是说微生态系统在本质上就不可预测、不可控？",
+          "en": "Can we predict and design a microbial community's assembly and stable states from first principles — given a set of species and an environment, reliably derive what it will become and what invasions it resists — or are microbial ecosystems intrinsically unpredictable and uncontrollable?"
+        },
+        {
+          "zh": "肠道微生物组能通过「肠-脑轴」在多大程度上影响人类的情绪、认知乃至行为？这种影响是边缘性的调制，还是说我们的「自我」在某种深刻意义上是由体内微生物共同决定的？",
+          "en": "To what extent can the gut microbiome shape human mood, cognition and behavior via the gut-brain axis — is this a marginal modulation, or is our 'self' in some deep sense co-authored by the microbes inside us?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Living at the Extremes: Extremophiles and the Limits of Life in a Planetary Context",
+        "venue": "Frontiers in Microbiology",
+        "year": 2019,
+        "url": "https://pubmed.ncbi.nlm.nih.gov/31037068/"
+      },
+      {
+        "title": "Relevance of Earth-Bound Extremophiles in the Search for Extraterrestrial Life",
+        "venue": "Life (MDPI)",
+        "year": 2022,
+        "url": "https://pubmed.ncbi.nlm.nih.gov/35108099/"
+      },
+      {
+        "title": "Mini-Review: Probing the limits of extremophilic life in extraterrestrial environment-simulated experiments",
+        "venue": "International Journal of Astrobiology",
+        "year": 2022,
+        "url": "https://www.cambridge.org/core/journals/international-journal-of-astrobiology/article/abs/minireview-probing-the-limits-of-extremophilic-life-in-extraterrestrial-environmentsimulated-experiments/0D5470821055110450CB64AD2A3CCBB2"
+      },
+      {
+        "title": "Navigating life in the extremes: a bibliometric exploration of extremophiles and astrobiology",
+        "venue": "International Journal of Astrobiology",
+        "year": 2023,
+        "url": "https://www.cambridge.org/core/journals/international-journal-of-astrobiology/article/navigating-life-in-the-extremes-a-bibliometric-exploration-of-extremophiles-and-astrobiology/D50EAEA3D9366BA14492E8A9ACBA8F85"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 661,
+      "y": 279,
+      "scale": 0.76
+    }
+  },
+  {
+    "id": 113,
+    "atlasN": 605,
+    "slug": "an-early-warning-science-for",
+    "title": {
+      "zh": "未知未知的预警学",
+      "en": "An Early-Warning Science for Unknown Unknowns"
+    },
+    "qfocus": {
+      "zh": "当冲击属于'连不知道要防什么'的未知未知时，系统能否仍留下与具体威胁无关的通用前兆，从而设计出面向不可预见冲击的早期预警与韧性原理？",
+      "en": "When a shock belongs to the unknown unknowns — where a system doesn't even know what to guard against — can it still leave threat-agnostic generic precursors, enabling early-warning and resilience principles for the unforeseeable?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C34",
+      "zh": "无知测绘·盲区科学",
+      "en": "Mapping ignorance & blind spots"
+    },
+    "scores": [
+      5,
+      5,
+      4,
+      3,
+      4,
+      4,
+      3,
+      3,
+      4
+    ],
+    "citation": {
+      "url": "https://www.nature.com/articles/nature08227",
+      "title": "Early-warning signals for critical transitions",
+      "venue": "Nature",
+      "year": 2009
+    },
+    "brief": {
+      "zh": "复杂系统存在与具体机制无关的通用预警信号（临界慢化、方差与自相关上升），已在生态、气候、生理多领域验证；未知未知的预警学不预测具体冲击内容，而是监测系统-环境耦合中的失稳前兆，把'对未知未知的韧性'设计为可实现目标。",
+      "en": "Complex systems emit generic, mechanism-agnostic early-warning signals (critical slowing down, rising variance and autocorrelation) validated across ecology, climate, and physiology; the early-warning science of unknown unknowns doesn't predict any specific shock but instead monitors destabilization precursors in the system-environment coupling, making 'resilience to unknown unknowns' a designable goal."
+    },
+    "depth": {
+      "overview": {
+        "zh": "未知未知的预警学研究一个看似悖论的问题：当冲击属于'连不知道要防什么'的未知未知时，系统还能否留下可被察觉的前兆？它寻找与具体威胁无关的通用早期信号（如临界慢化、耦合环境的上截断跳变），并据此设计面向不可预见冲击的韧性原理。横跨复杂系统、风险科学与认知科学。",
+        "en": "An early-warning science for unknown unknowns tackles a seemingly paradoxical question: when a shock belongs to the unknown unknowns—where you don't even know what to defend against—can a system still leave perceptible precursors? It searches for generic early signals independent of any specific threat (such as critical slowing down, or upper-cutoff jumps in coupled environments) and uses them to design resilience principles for unforeseeable shocks. It spans complex systems, risk science, and cognitive science."
+      },
+      "whyMatters": {
+        "zh": "传统风险管理只能防'已识别风险'，对未知未知束手无策；若能找到与威胁内容无关的通用前兆，就能为想不到的冲击做准备。",
+        "en": "Conventional risk management can only guard against 'identified risks' and is helpless before unknown unknowns; if threat-agnostic generic precursors can be found, we could prepare for shocks we cannot even imagine."
+      },
+      "ifAnswered": {
+        "zh": "若通用前兆信号能被确立并去伪存真，社会与生态系统就能在'连要防什么都不知道'的情况下，依然为想不到的冲击提前建立冗余、多样性与可逆性韧性。",
+        "en": "If generic precursor signals can be established and separated from false positives, societies and ecosystems could build redundancy, diversity, and reversibility in advance — preparing for shocks you can't even imagine, even without knowing what to guard against."
+      },
+      "approaches": [
+        {
+          "zh": "监测临界慢化、方差与自相关上升等与具体机制无关的通用信号，捕捉相变与崩溃的前兆（已在生态、气候、生理领域验证）。",
+          "en": "Monitoring mechanism-agnostic generic signals — critical slowing down, rising variance and autocorrelation — to catch precursors of phase transitions and collapse (already validated in ecology, climate, and physiology)."
+        },
+        {
+          "zh": "不只看系统自身数据，而是纳入其耦合环境，追踪'上截断'（dragon-king式）跳变以提前预警黑天鹅。",
+          "en": "Looking beyond a system's own data to its coupled environment, tracking 'upper-truncation' (dragon-king-style) jumps to give advance warning of black swans."
+        },
+        {
+          "zh": "把'对未知未知的韧性'设计为可实现目标——通过冗余、多样性、可逆性与模块化，即使无法预测具体冲击内容也能降低冲击损害。",
+          "en": "Designing 'resilience to unknown unknowns' as an achievable goal — using redundancy, diversity, reversibility, and modularity to reduce damage even when the specific shock cannot be predicted."
+        }
+      ],
+      "barrier": {
+        "zh": "最硬的张力是原理性的——真正的未知未知按定义不可由系统自身历史预测，任何'通用预警'都游走在'真信号'与'事后合理化'之间，证伪极难。",
+        "en": "The hardest tension is foundational: a genuine unknown unknown is, by definition, unpredictable from a system's own history, so any 'generic early warning' walks the line between a real signal and post-hoc rationalization, making falsification extremely difficult."
+      },
+      "subQuestions": [
+        {
+          "zh": "我们能不能为「科学的已知盲区」画一张地图——一个系统化、可量化的「未知地形图」，让一个领域知道自己「还不知道哪些问题」，而不是只在偶然撞上反常时才发现？",
+          "en": "Can we build a systematic, quantifiable map of science's known blind spots—an atlas of ignorance that tells a field which questions it does not yet know to ask, rather than discovering them only by accidentally tripping over an anomaly?"
+        },
+        {
+          "zh": "一个领域的「集体盲区」有多少是由它的方法和仪器本身造成的——也就是说，我们看不见某些现象，仅仅是因为现有工具在原理上无法测量它们？怎样才能侦测出这种「仪器性盲」？",
+          "en": "How much of a field's collective blindness is manufactured by its own methods and instruments—i.e., we cannot see certain phenomena simply because existing tools are in principle incapable of measuring them—and how could we detect such instrument-induced blindness?"
+        },
+        {
+          "zh": "「无知」本身能不能成为一门可教、可继承的科学方法论——我们能否把「如何系统地培养和利用不知道」写成与「如何获取知识」同样严谨的训练，而不是把它当作要被消灭的缺陷？",
+          "en": "Can ignorance itself be turned into a teachable, transmissible scientific methodology—can we make 'how to systematically cultivate and exploit not-knowing' as rigorous a training as 'how to acquire knowledge', instead of treating it as a defect to be eliminated?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Early-warning signals for critical transitions",
+        "venue": "Nature",
+        "year": 2009,
+        "url": "https://www.nature.com/articles/nature08227"
+      },
+      {
+        "title": "Quantifying the Unexpected: a scientific approach to Black Swans",
+        "venue": "Physical Review Research",
+        "year": 2022,
+        "url": "https://journals.aps.org/prresearch/abstract/10.1103/PhysRevResearch.4.033079"
+      },
+      {
+        "title": "Quantifying the Unexpected: a scientific approach to Black Swans (preprint)",
+        "venue": "arXiv",
+        "year": 2022,
+        "url": "https://arxiv.org/abs/2201.12042"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 955,
+      "y": 648,
+      "scale": 0.88
+    }
+  },
+  {
+    "id": 114,
+    "atlasN": 606,
+    "slug": "a-computable-expansion-law-for",
+    "title": {
+      "zh": "邻接可能的可计算扩张律",
+      "en": "A Computable Expansion Law for the Adjacent Possible"
+    },
+    "qfocus": {
+      "zh": "能否用一个可解的动力学方程，刻画'每个新颖物催生更多新颖物'的组合式创新，并预测可能性空间为何长期平台后突然爆发式发散？",
+      "en": "Can a solvable dynamical equation capture the combinatorial innovation where 'every novelty begets more novelty', and predict why the possibility space explodes into divergence after a long plateau?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C35",
+      "zh": "开放式探索·好奇驱动",
+      "en": "Open-Endedness & Curiosity-Driven Discovery"
+    },
+    "scores": [
+      5,
+      5,
+      3,
+      2,
+      4,
+      4,
+      1,
+      2,
+      4
+    ],
+    "citation": {
+      "url": "https://www.sciencedirect.com/science/article/pii/S0014292125001941",
+      "title": "The TAP equation: Evaluating combinatorial innovation",
+      "venue": "European Economic Review",
+      "year": 2025
+    },
+    "brief": {
+      "zh": "TAP方程用'每个新颖物催生更多新颖物'的组合式创新刻画可能性空间的扩张，预测其典型行为是长期平台后突然爆发式发散，为创新的爆发提供了可计算的动力学方程。",
+      "en": "The TAP equation captures combinatorial innovation—where every novelty begets more novelty—predicting that the possibility space typically plateaus for a long time before exploding into divergence, offering a computable dynamical equation for the explosion of innovation."
+    },
+    "depth": {
+      "overview": {
+        "zh": "邻接可能（adjacent possible）指系统每实现一个新颖物，就打开更多此前不可达的新可能。TAP方程（Theory of the Adjacent Possible）把这种'组合式创新'写成可解的动力学：新事物数随现有事物的组合而增长。它横跨理论生物学、复杂系统、创新研究乃至宇宙学，试图为'未知如何源源不断地涌现'给出第一性原理。",
+        "en": "The adjacent possible refers to a system opening up more previously unreachable possibilities each time it realizes a novelty. The TAP equation (Theory of the Adjacent Possible) casts this 'combinatorial innovation' as solvable dynamics: the number of new things grows with the combinations of existing things. Spanning theoretical biology, complex systems, innovation research, and even cosmology, it seeks a first-principles account of how the unknown keeps emerging without end."
+      },
+      "whyMatters": {
+        "zh": "它主张可能性空间本身在膨胀、且不可预先列举（非遍历性），这直接挑战'所有可能状态可先验枚举'的物理学默认前提。",
+        "en": "It argues the possibility space is itself expanding and cannot be enumerated in advance (non-ergodicity), directly challenging physics' default premise that all possible states can be enumerated a priori."
+      },
+      "ifAnswered": {
+        "zh": "若能验证TAP方程刻画的扩张律，创新的爆发将拥有一套可计算的动力学方程，为'从长期平台到突然发散'提供第一性原理的预测工具。",
+        "en": "If the TAP expansion law holds, the explosion of innovation would gain a computable dynamical equation—a first-principles predictive tool for the transition from a long plateau to sudden divergence."
+      },
+      "approaches": [
+        {
+          "zh": "把新事物的产生刻画为现存事物组合的小概率事件，用可解的动力学方程（TAP equation）追踪可能性空间随时间的膨胀。",
+          "en": "Model the emergence of new things as a small-probability event arising from combinations of existing things, tracking the possibility space's expansion over time via the solvable TAP dynamical equation."
+        },
+        {
+          "zh": "参照新颖性搜索的经验——放弃预设目标、只追踪新颖性本身——为TAP刻画的组合式创新提供可检验的类比：新颖性也许应被当作独立于'目标'的度量来观察其增长动态。",
+          "en": "Draw on novelty-search experience—abandoning preset goals to pursue novelty alone—as a testable analogy for TAP's combinatorial innovation: novelty itself, independent of any goal, may be the quantity whose growth dynamics should be tracked."
+        },
+        {
+          "zh": "把TAP的'长平台后爆发式发散'当作检验'开放式系统'判据的一个具体案例，用其解析近似去衡量系统是否真正满足永不收敛的充分条件。",
+          "en": "Treat TAP's 'long plateau followed by explosive divergence' as a concrete test case for criteria of 'open-endedness', using its analytic approximation to gauge whether a system truly satisfies the sufficient conditions for never converging."
+        }
+      ],
+      "barrier": {
+        "zh": "最硬张力是TAP解的典型行为是长平台后突然爆炸式发散，参数敏感、难以与真实创新数据稳健对接，且其本体论主张极具争议。",
+        "en": "The hardest tension is that the typical TAP solution explodes divergently after a long plateau—parameter-sensitive and hard to robustly match to real innovation data—while its ontological claims remain deeply contested."
+      },
+      "subQuestions": [
+        {
+          "zh": "一个没有任何外部目标、只追求「新颖性」本身的搜索过程，为什么常常比直接奔向目标更快找到目标？「目标即障碍」这个反直觉现象，揭示了关于发现的什么根本规律？",
+          "en": "Why does a search process that pursues novelty for its own sake—with no external objective at all—so often reach hard goals faster than one aimed directly at them? What fundamental law of discovery does this counterintuitive 'objectives can be obstacles' phenomenon reveal?"
+        },
+        {
+          "zh": "我们能不能造出一个真正「永不收敛」的开放式系统——一个像生物演化那样能无限生成新颖且不断变难的问题、永远不会停在某个局部最优的发现引擎？开放式的真正判据是什么？",
+          "en": "Can we build a genuinely never-converging open-ended system—a discovery engine that, like biological evolution, endlessly generates novel and ever-harder problems and never settles into a local optimum? What is the true criterion for open-endedness?"
+        },
+        {
+          "zh": "「好奇心」是否存在一个可形式化、可植入机器的内在驱动信号——一种与外部奖励无关、纯粹由「学习进展」或「可压缩性提升」定义的内生动机？纯好奇能否单独支撑起开放式发现？",
+          "en": "Is there a formalizable, machine-implantable intrinsic drive underlying curiosity—an internal motivation defined purely by 'learning progress' or 'compression gain', independent of any external reward? Can pure curiosity alone sustain open-ended discovery?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "The TAP equation: evaluating combinatorial innovation in Biocosmology",
+        "venue": "arXiv",
+        "year": 2025,
+        "url": "https://arxiv.org/abs/2204.14115"
+      },
+      {
+        "title": "The TAP equation: Evaluating combinatorial innovation",
+        "venue": "European Economic Review",
+        "year": 2025,
+        "url": "https://www.sciencedirect.com/science/article/pii/S0014292125001941"
+      },
+      {
+        "title": "Autocatalytic Sets Arising in a Combinatorial Model of Chemical Evolution",
+        "venue": "Life (MDPI)",
+        "year": 2022,
+        "url": "https://doi.org/10.3390/life12111703"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 871,
+      "y": 707,
+      "scale": 0.78
+    }
+  },
+  {
+    "id": 115,
+    "atlasN": 1499,
+    "slug": "cultural-accumulation-in-reinforcement-learning",
+    "title": {
+      "zh": "强化学习中的文化累积:人工\"世代智能\"",
+      "en": "Cultural Accumulation in Reinforcement Learning: Artificial Generational Intelligence"
+    },
+    "qfocus": {
+      "zh": "能否把人类文明'代际累积'的棘轮搬进强化学习——让智能体既独立探索又向上一代传承信息，使跨代累积的智能体在相同经验预算下超越只活一世的个体？",
+      "en": "Can the ratchet of human cultural accumulation be ported into reinforcement learning—agents that both explore independently and inherit information from prior generations—so that cross-generational learners outperform single-lifetime agents given the same experience budget?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C35",
+      "zh": "开放式探索·好奇驱动",
+      "en": "Open-Endedness & Curiosity-Driven Discovery"
+    },
+    "scores": [
+      5,
+      5,
+      4,
+      2,
+      3,
+      3,
+      3,
+      4,
+      4
+    ],
+    "citation": {
+      "url": "https://proceedings.neurips.cc/paper_files/paper/2024/hash/6df3a719d99bd2479c04114d357003d0-Abstract-Conference.html",
+      "title": "Artificial Generational Intelligence: Cultural Accumulation in Reinforcement Learning",
+      "venue": "NeurIPS 2024",
+      "year": 2024
+    },
+    "brief": {
+      "zh": "把人类文明的代际累积搬进强化学习：智能体既独立探索又向上一代传承信息，分'情境内传承'（知识）与'权重内传承'（技能）两种世代，在相同经验预算下击败只活一世的个体。",
+      "en": "Ports human civilization's cross-generational accumulation into reinforcement learning: agents both explore independently and inherit information from prior generations across 'in-context' (knowledge) and 'in-weights' (skill) generations, outperforming single-lifetime agents given the same experience budget."
+    },
+    "depth": {
+      "overview": {
+        "zh": "人类远超其他动物,不是单个大脑更强,而是知识能一代代累积。这项工作第一次让强化学习智能体也长出这条'文化棘轮'。",
+        "en": "Humans surpass other animals not because any single brain is stronger, but because knowledge can accumulate generation after generation. This work is the first to give reinforcement-learning agents this same 'cultural ratchet.'"
+      },
+      "whyMatters": {
+        "zh": "这个方向能否成立，关键取决于社会学习与独立探索能否被精细平衡——这道平衡本身正是文化能否真正积累（而非退化为模仿或失忆）的枢纽。",
+        "en": "Whether this direction can hold depends on finely balancing social learning against independent exploration—this balance is itself the hinge on which genuine cultural accumulation turns, rather than collapsing into imitation or amnesia."
+      },
+      "ifAnswered": {
+        "zh": "若累积棘轮可跨任务稳定运转，开放式学习或将不再依赖单个巨模型，而是依靠一条不断传承的智能体世系持续演进。",
+        "en": "If the accumulation ratchet holds stably across tasks, open-ended learning may come not from one giant model but from a continually inheriting lineage of agents that keeps evolving."
+      },
+      "approaches": [
+        {
+          "zh": "把智能体训练拆成'情境内世代'（靠in-context learning在同一权重内累积知识）与'权重内世代'（靠in-weights learning把技能固化进参数）两条互补路径，让两者的平衡自发涌现出文化累积。",
+          "en": "Split agent training into 'in-context generations' (accumulating knowledge via in-context learning within fixed weights) and 'in-weights generations' (consolidating skill into parameters via in-weights learning), letting the balance between the two spontaneously give rise to cultural accumulation."
+        },
+        {
+          "zh": "参照'纯好奇能否单独支撑开放式发现'的追问，检验智能体的独立探索部分是否可换成一个不依赖外部奖励的内生好奇信号，以避免社会学习退化为盲目模仿。",
+          "en": "Following the question of whether pure curiosity alone can sustain open-ended discovery, test whether the agent's independent-exploration component can be replaced by an intrinsic curiosity signal free of external reward, to keep social learning from degenerating into blind imitation."
+        },
+        {
+          "zh": "借用'开放式系统真正判据'的追问，检验跨代累积出的能力是否满足'不断生成新颖且变难的问题、永不收敛'的开放式标准，而非只是对前代经验的压缩重述。",
+          "en": "Borrow the question of the true criterion for open-endedness to test whether cross-generational accumulated capability meets the open-ended standard of endlessly generating novel and ever-harder problems without converging, rather than merely compressing and restating prior generations' experience."
+        }
+      ],
+      "barrier": {
+        "zh": "最硬的难点是这种平衡极难拿捏，偏一点就退化成盲目模仿或彻底失忆；'文化'能否累积出真正新颖（而非只是压缩前代）的能力，至今仍是悬而未决的开放问题。",
+        "en": "The hardest difficulty is that this balance is extremely delicate—tilt either way and it degenerates into blind imitation or total amnesia; whether 'culture' can accumulate genuinely novel capability, rather than merely compressing prior generations, remains an unresolved open question."
+      },
+      "subQuestions": [
+        {
+          "zh": "一个没有任何外部目标、只追求「新颖性」本身的搜索过程，为什么常常比直接奔向目标更快找到目标？「目标即障碍」这个反直觉现象，揭示了关于发现的什么根本规律？",
+          "en": "Why does a search process that pursues novelty for its own sake—with no external objective at all—so often reach hard goals faster than one aimed directly at them? What fundamental law of discovery does this counterintuitive 'objectives can be obstacles' phenomenon reveal?"
+        },
+        {
+          "zh": "我们能不能造出一个真正「永不收敛」的开放式系统——一个像生物演化那样能无限生成新颖且不断变难的问题、永远不会停在某个局部最优的发现引擎？开放式的真正判据是什么？",
+          "en": "Can we build a genuinely never-converging open-ended system—a discovery engine that, like biological evolution, endlessly generates novel and ever-harder problems and never settles into a local optimum? What is the true criterion for open-endedness?"
+        },
+        {
+          "zh": "「好奇心」是否存在一个可形式化、可植入机器的内在驱动信号——一种与外部奖励无关、纯粹由「学习进展」或「可压缩性提升」定义的内生动机？纯好奇能否单独支撑起开放式发现？",
+          "en": "Is there a formalizable, machine-implantable intrinsic drive underlying curiosity—an internal motivation defined purely by 'learning progress' or 'compression gain', independent of any external reward? Can pure curiosity alone sustain open-ended discovery?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Artificial Generational Intelligence: Cultural Accumulation in Reinforcement Learning",
+        "venue": "NeurIPS 2024",
+        "year": 2024,
+        "url": "https://proceedings.neurips.cc/paper_files/paper/2024/hash/6df3a719d99bd2479c04114d357003d0-Abstract-Conference.html"
+      },
+      {
+        "title": "Artificial Generational Intelligence (arXiv preprint)",
+        "venue": "arXiv",
+        "year": 2024,
+        "url": "https://arxiv.org/abs/2406.00392"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 902,
+      "y": 659,
+      "scale": 0.91
+    }
+  },
+  {
+    "id": 116,
+    "atlasN": 624,
+    "slug": "quantum-simulators-probing-unknown-phases",
+    "title": {
+      "zh": "量子模拟器探未知物相",
+      "en": "Quantum Simulators Probing Unknown Phases of Matter"
+    },
+    "qfocus": {
+      "zh": "能否用可编程量子模拟器制备经典无法计算的多体态，从而实验性地发现理论尚未预言的新物质相与动力学？",
+      "en": "Can programmable quantum simulators prepare classically incomputable many-body states to experimentally discover new phases of matter and dynamics that theory has not yet predicted?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C36",
+      "zh": "异常驱动·新现象发现",
+      "en": "Anomaly-Driven Discovery of New Phenomena"
+    },
+    "scores": [
+      5,
+      4,
+      4,
+      2,
+      3,
+      1,
+      3,
+      3,
+      3
+    ],
+    "citation": {
+      "url": "https://www.science.org/doi/10.1126/science.abi8794",
+      "title": "Probing topological spin liquids on a programmable quantum simulator",
+      "venue": "Science",
+      "year": 2021
+    },
+    "brief": {
+      "zh": "用可编程量子模拟器（冷原子、囚禁离子、超导阵列）直接制备并测量经典不可解的多体量子态，把量子硬件当作发现新物质相与非平衡动力学的实验望远镜。",
+      "en": "Uses programmable quantum simulators (cold atoms, trapped ions, superconducting arrays) to directly prepare and measure classically unsolvable many-body quantum states, treating quantum hardware as an experimental telescope for discovering new phases of matter and nonequilibrium dynamics."
+    },
+    "depth": {
+      "overview": {
+        "zh": "强关联多体系统的相图大片未知，经典计算因指数墙无法到达。本方向用可编程量子模拟器（冷原子、囚禁离子、超导阵列）直接制备并测量这些经典不可解的量子态，把量子硬件当作发现新物质相与非平衡动力学的实验望远镜。它跨越量子模拟、凝聚态物理与基础物理。",
+        "en": "Large swaths of the phase diagrams of strongly correlated many-body systems are unknown, unreachable by classical computation because of the exponential wall. This direction uses programmable quantum simulators (cold atoms, trapped ions, superconducting arrays) to directly prepare and measure these classically intractable quantum states, treating quantum hardware as an experimental telescope for discovering new phases of matter and non-equilibrium dynamics. It spans quantum simulation, condensed-matter physics, and fundamental physics."
+      },
+      "whyMatters": {
+        "zh": "它把量子计算机从'算已知'转向'探未知'——在没有理论预言的参数区直接看会涌现什么相，这是量子模拟范式的根本转向。",
+        "en": "It turns the quantum computer from 'computing the known' to 'probing the unknown'—directly seeing what phases emerge in parameter regimes with no theoretical prediction, a fundamental shift in the paradigm of quantum simulation."
+      },
+      "ifAnswered": {
+        "zh": "若这条路径成立，量子硬件将从'计算已知'升级为'发现新物相'的实验工具，让实验先于理论抵达未知的物质状态。",
+        "en": "If this path succeeds, quantum hardware would be upgraded from 'computing the known' to an experimental tool for discovering new phases of matter, letting experiment reach unknown states of matter ahead of theory."
+      },
+      "approaches": [
+        {
+          "zh": "在冷原子光晶格、囚禁离子、里德堡阵列、超导量子比特阵列上制备可调哈密顿量，扫描参数空间、测量序参量与关联，直接观察经典不可计算区涌现的新相（如奇异自旋液体、受限动力学、量子多体疤痕、测量诱导相变）。",
+          "en": "Prepare tunable Hamiltonians on cold-atom optical lattices, trapped ions, Rydberg arrays, and superconducting qubit arrays; scan parameter space and measure order parameters and correlations to directly observe new phases emerging in the classically intractable regime (exotic spin liquids, constrained dynamics, quantum many-body scars, measurement-induced phase transitions)."
+        },
+        {
+          "zh": "参照'机器能否发现未知的未知'的追问，探索能否让检测算法在不依赖已知相图先验的情况下，自动标记参数扫描中偏离所有已知模型的候选新相。",
+          "en": "Drawing on the question of whether machines can discover unknown unknowns, explore whether detection algorithms can, without relying on a prior known phase diagram, automatically flag candidate new phases in parameter scans that deviate from every existing model."
+        },
+        {
+          "zh": "借用'如何判断异常是新物理还是系统误差'的追问，用交叉验证、可证伪的标度律与有限尺寸分析，区分观测到的新相是真物理还是退相干/器件噪声假象。",
+          "en": "Borrow the question of how to judge whether an anomaly is new physics or a systematic error, using cross-validation, falsifiable scaling laws, and finite-size analysis to distinguish whether an observed new phase is genuine physics or a decoherence/device-noise artifact."
+        }
+      ],
+      "barrier": {
+        "zh": "最硬壁垒是无金标准的验证：当模拟进入经典不可解区，如何确认观测到的新相是真物理而非器件噪声或退相干假象，是发现学与计量学的双重难题。",
+        "en": "The hardest barrier is verification without a gold standard: once simulation enters the classically intractable regime, confirming that an observed new phase is real physics rather than an artifact of device noise or decoherence is a dual challenge for both discovery and metrology."
+      },
+      "subQuestions": [
+        {
+          "zh": "当一个反常观测出现时，我们如何在原理上区分「它是新物理的信号」还是「它只是未被建模的系统误差」？在确认之前，到底有没有可靠的判据来判断一个异常值得不值得追？",
+          "en": "When an anomalous observation appears, how can we tell in principle whether it is a signal of new physics or merely an unmodeled systematic error? Before confirmation, is there any reliable criterion for whether an anomaly is worth chasing at all?"
+        },
+        {
+          "zh": "我们能不能造出一台「异常探测器」——一个能在海量数据中自动认出「此前任何模型都没预测到的新现象」的系统，而不是只会找到我们事先告诉它要找的东西？机器能发现「未知的未知」吗？",
+          "en": "Can we build an 'anomaly detector' that autonomously recognizes phenomena no prior model predicted—genuinely new things—rather than only finding what we told it in advance to look for? Can a machine discover the unknown unknowns?"
+        },
+        {
+          "zh": "为什么有些异常被忽视几十年后才被重新发现为重大突破？是否存在一种系统性的「认知抑制」机制，让一个领域在心理与社会层面对不符合范式的观测视而不见？",
+          "en": "Why are some anomalies ignored for decades before being rediscovered as major breakthroughs? Is there a systematic mechanism of 'cognitive suppression' by which a field, psychologically and socially, renders itself blind to observations that don't fit its paradigm?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Probing topological spin liquids on a programmable quantum simulator",
+        "venue": "Science",
+        "year": 2021,
+        "url": "https://www.science.org/doi/10.1126/science.abi8794"
+      },
+      {
+        "title": "Probing Topological Spin Liquids on a Programmable Quantum Simulator",
+        "venue": "arXiv",
+        "year": 2021,
+        "url": "https://arxiv.org/abs/2104.04119"
+      },
+      {
+        "title": "The Coming Decades of Quantum Simulation",
+        "venue": "arXiv",
+        "year": 2022,
+        "url": "https://arxiv.org/abs/2204.08905"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 653,
+      "y": 637,
+      "scale": 0.84
+    }
+  },
+  {
+    "id": 117,
+    "atlasN": 629,
+    "slug": "anomaly-as-signal-cross-domain",
+    "title": {
+      "zh": "异常即信号的跨域发现科学",
+      "en": "Anomaly-as-Signal: Cross-Domain Discovery Science"
+    },
+    "qfocus": {
+      "zh": "能否把'不符合已知规律的离群点'系统化为'规则不完整'的指示器，建立跨天文、基因组、极地科学可复用的异常发现基准与方法？",
+      "en": "Can outliers that violate known rules be systematized as indicators that 'the rules are incomplete', building reusable anomaly-discovery benchmarks and methods across astronomy, genomics, and polar science?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C36",
+      "zh": "异常驱动·新现象发现",
+      "en": "Anomaly-Driven Discovery of New Phenomena"
+    },
+    "scores": [
+      4,
+      5,
+      4,
+      3,
+      3,
+      3,
+      2,
+      3,
+      4
+    ],
+    "citation": {
+      "url": "https://www.aanda.org/articles/aa/full_html/2025/11/aa56339-25/aa56339-25.html",
+      "title": "Interpreting the detection of anomalies in SDSS spectra",
+      "venue": "Astronomy & Astrophysics",
+      "year": 2025
+    },
+    "brief": {
+      "zh": "把不符合已知规律的离群点当作'规则不完整'的指示器，建立跨天文、基因组、极地科学的可复用异常发现基准与方法，在巡天洪流中守候未知。",
+      "en": "Treats outliers that violate known rules as indicators that 'the rules are incomplete', building reusable cross-domain anomaly-discovery benchmarks and methods across astronomy, genomics, and polar science—standing watch for the unknown amid the survey deluge."
+    },
+    "depth": {
+      "overview": {
+        "zh": "异常即信号科学把'不符合已知规律的离群'重新定位为科学发现的核心机制：异常往往意味着主导数据的规则不完整，需要新东西来解释。它正在把天体物理、基因组学、极地科学等迥异领域的异常发现统一为可复用、FAIR化的机器学习挑战与基准，横跨可解释ML与多个实验科学。",
+        "en": "Anomaly-as-signal science recasts 'outliers that violate known rules' as a central engine of scientific discovery: an anomaly often means the rules governing the data are incomplete and something new is needed to explain it. It is unifying anomaly discovery across wildly different fields—astrophysics, genomics, polar science—into reusable, FAIR-ified machine-learning challenges and benchmarks, spanning interpretable ML and multiple experimental sciences."
+      },
+      "whyMatters": {
+        "zh": "在Rubin天文台、平方公里阵列等即将产出数十亿源、远超人工检视能力的时代，自动发现'未知的未知'已成为刚需。",
+        "en": "In an era when facilities like the Rubin Observatory and the Square Kilometre Array will produce billions of sources, far beyond human inspection capacity, automatically discovering the 'unknown unknowns' has become an urgent necessity."
+      },
+      "ifAnswered": {
+        "zh": "若这套跨域异常发现基准得以建立，天文、基因组、极地科学的巡天洪流将不再淹没未知信号，人类得以在数十亿源级别的数据流中持续守候真正的新现象。",
+        "en": "If this cross-domain anomaly-discovery framework can be established, the deluges of astronomical, genomic, and polar-science survey data would no longer drown out unknown signals, letting humanity keep watch for genuinely new phenomena amid billions of sources."
+      },
+      "approaches": [
+        {
+          "zh": "建立横跨天体物理、基因组、极地科学的统一数据集与FAIR化方案，让异常发现方法可以跨域迁移、可大规模算力化。",
+          "en": "Build a unified dataset and FAIR-ification scheme spanning astrophysics, genomics, and polar science so anomaly-discovery methods become transferable across domains and scalable on large compute."
+        },
+        {
+          "zh": "用可解释光谱异常检测与Fink中的'发现—跟进—分类'流水线，针对Rubin天文台、平方公里阵列级别的数据流寻找罕见与未知的瞬变源。",
+          "en": "Use interpretable spectral anomaly detection and Fink's discover-followup-classify pipeline to search Rubin Observatory- and Square-Kilometre-Array-scale data streams for rare and unknown transient sources."
+        },
+        {
+          "zh": "参照'机器能否发现未知的未知'的追问，让模型既完美编码已知科学行为、又能投影识别偏离所有已知模型的候选异常，而不仅是依赖'正常'的先验定义。",
+          "en": "Drawing on the question of whether a machine can discover unknown unknowns, have the model both fully encode known scientific behavior and project to identify candidate anomalies that deviate from every existing model, rather than relying solely on a prior definition of 'normal.'"
+        }
+      ],
+      "barrier": {
+        "zh": "最硬的壁垒是异常检测要求模型既完美理解已知科学行为、又能识别自身知识范围之外——而且大量被标记的离群点至今无法解释、淹没了后续跟进能力。",
+        "en": "The hardest barrier is that anomaly detection requires a model both to perfectly understand known scientific behavior and to recognize what lies beyond its own knowledge—and vast numbers of flagged outliers still defy explanation, swamping the capacity for follow-up."
+      },
+      "subQuestions": [
+        {
+          "zh": "当一个反常观测出现时，我们如何在原理上区分「它是新物理的信号」还是「它只是未被建模的系统误差」？在确认之前，到底有没有可靠的判据来判断一个异常值得不值得追？",
+          "en": "When an anomalous observation appears, how can we tell in principle whether it is a signal of new physics or merely an unmodeled systematic error? Before confirmation, is there any reliable criterion for whether an anomaly is worth chasing at all?"
+        },
+        {
+          "zh": "我们能不能造出一台「异常探测器」——一个能在海量数据中自动认出「此前任何模型都没预测到的新现象」的系统，而不是只会找到我们事先告诉它要找的东西？机器能发现「未知的未知」吗？",
+          "en": "Can we build an 'anomaly detector' that autonomously recognizes phenomena no prior model predicted—genuinely new things—rather than only finding what we told it in advance to look for? Can a machine discover the unknown unknowns?"
+        },
+        {
+          "zh": "为什么有些异常被忽视几十年后才被重新发现为重大突破？是否存在一种系统性的「认知抑制」机制，让一个领域在心理与社会层面对不符合范式的观测视而不见？",
+          "en": "Why are some anomalies ignored for decades before being rediscovered as major breakthroughs? Is there a systematic mechanism of 'cognitive suppression' by which a field, psychologically and socially, renders itself blind to observations that don't fit its paradigm?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Building Machine Learning Challenges for Anomaly Detection in Science",
+        "venue": "arXiv",
+        "year": 2025,
+        "url": "https://arxiv.org/abs/2503.02112"
+      },
+      {
+        "title": "Anomaly detection in Fink. I. Discovery, follow-up, and classification of unusual sources",
+        "venue": "arXiv",
+        "year": 2026,
+        "url": "https://arxiv.org/abs/2603.29511"
+      },
+      {
+        "title": "Interpreting the detection of anomalies in SDSS spectra",
+        "venue": "Astronomy & Astrophysics",
+        "year": 2025,
+        "url": "https://www.aanda.org/articles/aa/full_html/2025/11/aa56339-25/aa56339-25.html"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 847,
+      "y": 658,
+      "scale": 0.81
+    }
+  },
+  {
+    "id": 118,
+    "atlasN": 663,
+    "slug": "mining-disciplinary-fissures-atlas-of",
+    "title": {
+      "zh": "学科裂缝采矿（孤岛桥接图谱）",
+      "en": "Mining Disciplinary Fissures (Atlas of Bridgeable Silos)"
+    },
+    "qfocus": {
+      "zh": "能否用引文与共词网络系统定位学科之间几乎无连接的'结构洞'，把这些裂缝本身绘制成一份可勘探的跨界机会图谱？",
+      "en": "Can citation and co-word networks systematically locate the near-unconnected 'structural holes' between disciplines, mapping those fissures themselves into a prospectable atlas of cross-boundary opportunity?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C38",
+      "zh": "文献潜知·跨域桥接",
+      "en": "Literature-based discovery & cross-domain bridging"
+    },
+    "scores": [
+      4,
+      5,
+      4,
+      4,
+      4,
+      4,
+      2,
+      2,
+      4
+    ],
+    "citation": {
+      "url": "https://www.science.org/doi/10.1126/science.1240474",
+      "title": "Atypical Combinations and Scientific Impact",
+      "venue": "Science",
+      "year": 2013
+    },
+    "brief": {
+      "zh": "用引文与共词网络定位学科间几乎无连接的结构洞，把这些裂缝本身做成可勘探的跨界机会图谱，引导研究者去填补跨界空白——在知识网络的洞里找机会。",
+      "en": "Uses citation and co-word networks to locate near-unconnected structural holes between disciplines, turning those fissures into a prospectable atlas of cross-boundary opportunity that guides researchers to fill cross-border gaps—finding opportunity in the holes of the knowledge network."
+    },
+    "depth": {
+      "overview": {
+        "zh": "学科裂缝采矿用引文与共词网络识别学科间几乎没有连接的'结构洞'，把这些裂缝本身绘成可勘探的机会图谱，引导研究者去填补跨界空白。它横跨科学计量学、网络科学与知识图谱，把'哪里没人连'当作发现信号，而非只看'哪里最热'。",
+        "en": "Mining disciplinary fissures uses citation and co-word networks to identify the \"structural holes\" where disciplines are almost unconnected, then maps those fissures into a prospectable atlas of opportunity to guide researchers toward filling cross-boundary blanks. It spans scientometrics, network science, and knowledge graphs, treating \"where no one has connected\" as a discovery signal rather than chasing \"where it's hottest.\""
+      },
+      "whyMatters": {
+        "zh": "其重要性在于：突破常源于跨远域的非典型组合，而这些组合恰恰落在网络的结构洞里、被专业化掩盖。",
+        "en": "Its significance lies in the fact that breakthroughs often arise from atypical combinations across distant domains—and those combinations fall precisely in the network's structural holes, obscured by specialization."
+      },
+      "ifAnswered": {
+        "zh": "若学科裂缝真能被系统采矿，科研资助与个人选题就能从'追逐热点'转向'主动勘探结构洞'，把学科边界从屏障变成可开采的发现前沿。",
+        "en": "If disciplinary fissures can genuinely be systematically mined, research funding and topic selection could shift from chasing hot spots to actively prospecting structural holes, turning disciplinary boundaries from barriers into a minable discovery frontier."
+      },
+      "approaches": [
+        {
+          "zh": "在共引/共词网络上量化领域对之间的结构洞与嵌入距离，标注'几乎无连接却语义可桥接'的裂缝，生成一份供社区认领勘探的跨界机会图谱。",
+          "en": "Quantify structural holes and embedding distances between field pairs on co-citation/co-word networks, flag fissures that are 'almost unconnected yet semantically bridgeable', and generate a cross-border opportunity atlas for the community to claim and explore."
+        },
+        {
+          "zh": "参照Swanson式的'文献潜知'发现路径——仅靠连接两片互不引用的文献推断新知——把裂缝采矿的产出对接到具体的A–B、B–C桥接假说上，让宏观地形图与微观假说互为表里。",
+          "en": "Draw on Swanson-style literature-based discovery—inferring new knowledge merely by connecting two non-citing literatures—linking fissure-mining output to concrete A–B and B–C bridging hypotheses, so the macro terrain and micro hypotheses complement each other."
+        },
+        {
+          "zh": "探索能否用大语言模型对'结构洞是否值得跨越'做初筛，用语义与因果先验区分有意义的可桥接洞与理应空着的洞，减少图谱沦为噪声地图的风险。",
+          "en": "Explore whether large language models can perform an initial screen of 'whether a structural hole is worth crossing', using semantic and causal priors to distinguish meaningful bridgeable holes from holes that should stay empty, reducing the risk that the atlas becomes a map of noise."
+        }
+      ],
+      "barrier": {
+        "zh": "最硬的张力是结构洞的海量与真伪——绝大多数空白是因为本就无关，区分'有意义的可桥接洞'与'理应空着的洞'需要语义与因果先验，否则图谱只是一张噪声地图。",
+        "en": "The sharpest tension is the sheer number of structural holes and their authenticity—most blanks exist because the fields are genuinely unrelated, so telling 'meaningful, bridgeable holes' from 'holes that should stay empty' requires semantic and causal priors, or the atlas is just a map of noise."
+      },
+      "subQuestions": [
+        {
+          "zh": "在已经发表却彼此从未引用的文献之间，到底潜藏着多少可被逻辑推出、却无人发现的「现成知识」？我们能否系统地把这些散落的 A–B 与 B–C 桥接成无人提出过的 A–C 发现？",
+          "en": "Across already-published literatures that never cite one another, how much logically derivable yet undiscovered 'ready-made knowledge' lies hidden? Can we systematically bridge these scattered A–B and B–C links into A–C discoveries no one has ever proposed?"
+        },
+        {
+          "zh": "科学知识为何会碎裂成互不沟通的「专业孤岛」？这种学科分割本身是不是当代最大的、被系统性低估的发现障碍——我们能否量化「跨域桥接」所损失的发现总量？",
+          "en": "Why does scientific knowledge fracture into mutually uncommunicating 'specialty silos'? Is this disciplinary fragmentation itself the largest, most systematically underestimated obstacle to discovery today—and can we quantify the total discovery lost to missing cross-domain bridges?"
+        },
+        {
+          "zh": "大语言模型能不能成为一台真正的「发现引擎」——不是检索或总结已知，而是在它压缩进权重的整个人类文献中，自主推出此前无人提出、且经得起实验检验的全新假设？",
+          "en": "Can large language models become genuine 'discovery engines'—not retrieving or summarizing the known, but autonomously deriving, from the entire human literature compressed into their weights, novel hypotheses no one has proposed that survive experimental test?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Atypical Combinations and Scientific Impact",
+        "venue": "Science",
+        "year": 2013,
+        "url": "https://www.science.org/doi/10.1126/science.1240474"
+      },
+      {
+        "title": "Does the use of unusual combinations of datasets contribute to greater scientific impact?",
+        "venue": "PNAS",
+        "year": 2024,
+        "url": "https://www.pnas.org/doi/10.1073/pnas.2402802121"
+      },
+      {
+        "title": "Does the use of unusual combinations of datasets contribute to greater scientific impact?",
+        "venue": "PNAS (PMC)",
+        "year": 2024,
+        "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11474085/"
+      },
+      {
+        "title": "Delayed Recognition: A Co-Citation Perspective",
+        "venue": "PMC",
+        "year": 2021,
+        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8028384/"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 889,
+      "y": 501,
+      "scale": 0.91
+    }
+  },
+  {
+    "id": 119,
+    "atlasN": 1185,
+    "slug": "generic-early-warning-signals-for",
+    "title": {
+      "zh": "临界转变的通用预警信号",
+      "en": "Generic Early-Warning Signals for Critical Transitions"
+    },
+    "qfocus": {
+      "zh": "能否把「临界慢化」这套普适前兆变成一套可运行的跨领域临界雷达，从判断「是否会翻越」走向定量预报「何时翻越」？",
+      "en": "Can critical slowing down's universal precursors be turned into an operational cross-domain tipping-point radar that moves from judging whether a system will tip to forecasting when?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C39",
+      "zh": "缺席·负空间科学",
+      "en": "Absence & negative-space science"
+    },
+    "scores": [
+      5,
+      5,
+      5,
+      3,
+      2,
+      3,
+      4,
+      3,
+      2
+    ],
+    "citation": {
+      "url": "https://www.pnas.org/doi/10.1073/pnas.2106140118",
+      "title": "Deep learning for early warning signals of tipping points",
+      "venue": "PNAS",
+      "year": 2021
+    },
+    "brief": {
+      "zh": "通用预警信号基于「临界慢化」——系统在崩溃前恢复变慢、方差与自相关升高——这套普适前兆已被证实横跨气候、生态与人类系统；基于正规形标度律训练的深度学习探测器已能对从未见过的系统给出预警，方向正从「是否翻越」走向「何时翻越」的定量预报。",
+      "en": "Generic early-warning signals rest on critical slowing down — recovery from perturbation grows sluggish while variance and autocorrelation rise before a system tips — a precursor confirmed across climate, ecological and human systems; deep-learning detectors trained on normal-form scaling laws now generalize warnings to systems they have never seen, and the frontier is shifting from forecasting whether a system tips to when."
+    },
+    "depth": {
+      "overview": {
+        "zh": "复杂系统在崩溃前往往先「变慢」：扰动后恢复得越来越吃力，方差与自相关悄悄抬头。通用预警信号试图把这套普适前兆，变成跨领域的临界雷达。",
+        "en": "Complex systems tend to 'slow down' before they collapse: recovery from perturbation grows harder and harder, while variance and autocorrelation quietly creep up. Generic early-warning signals aim to turn this universal precursor into a cross-domain tipping-point radar."
+      },
+      "whyMatters": {
+        "zh": "这套预警信号横跨气候、生态、流行病、金融与大脑等高风险领域，一旦能可靠预报「何时」临界翻越，将为提前干预争取宝贵时间；但只要虚警与提前量的问题未解，再普适的探测器也难以被真正信赖用于决策。",
+        "en": "These precursors span high-stakes domains — climate, ecosystems, epidemics, finance, and the brain — so reliably forecasting 'when' a critical transition will occur could buy precious lead time for intervention; but until the false-alarm and lead-time problem is solved, even a universal detector cannot be fully trusted for real decisions."
+      },
+      "ifAnswered": {
+        "zh": "方向正从「是否会翻越」走向定量预报「何时翻越」，直指 AMOC、亚马逊与疾病暴发等具体目标。",
+        "en": "Heading from 'whether' a system will tip toward quantitatively forecasting 'when', for targets like the AMOC, the Amazon, and disease outbreaks."
+      },
+      "approaches": [
+        {
+          "zh": "用正规形与标度律训练深度学习分类器，使其对结构上从未见过的动力系统仍能给出预警（Bury 等，2021，PNAS）。",
+          "en": "Train deep-learning classifiers on normal-form dynamics and scaling laws so warnings generalize to structurally unseen dynamical systems (Bury et al., 2021, PNAS)."
+        },
+        {
+          "zh": "把方法从缓变分岔扩展到速率诱导临界（rate-induced tipping），覆盖更贴近真实强迫轨迹的翻越模式（Nature Machine Intelligence，2024）。",
+          "en": "Extend the approach from slow bifurcations to rate-induced tipping, covering tipping modes closer to real forcing trajectories (Nature Machine Intelligence, 2024)."
+        },
+        {
+          "zh": "系统综述气候、生态与人类系统中的临界点探测与预警案例，盘点跨领域可复用的信号与失败模式（Earth System Dynamics，2024）。",
+          "en": "Systematically review tipping-point detection and early-warning cases across climate, ecological, and human systems to catalog reusable signals and failure modes (Earth System Dynamics, 2024)."
+        }
+      ],
+      "barrier": {
+        "zh": "最硬的张力是虚警与提前量：临界慢化在很多真实、噪声大的系统里信号微弱、易生假阳性；深度学习虽能泛化到未见系统，却难保证报出「何时」翻越而非仅「是否」。",
+        "en": "The hardest tension is false alarms versus lead time: in many real, noisy systems the critical-slowing-down signal is weak and prone to false positives; while deep learning generalizes to unseen systems, it struggles to guarantee reporting 'when' a system tips rather than merely 'whether'."
+      },
+      "subQuestions": [
+        {
+          "zh": "科学几乎全部建立在「观测到的存在」之上——但「系统性的缺席」本身能不能成为一等证据？我们能否发展一门「负空间科学」，从「本该有却没有」中读出和从「有」中同样多的信息？",
+          "en": "Science is built almost entirely on observed presence—but can systematic absence itself be first-class evidence? Can we develop a 'negative-space science' that reads as much from 'what should be there but isn't' as from what is?"
+        },
+        {
+          "zh": "在所有「化学上可能、物理上不违法、却在自然界从未出现」的结构里，藏着什么信息？这片巨大的「未被占据的可能性空间」——负空间——是被某种隐藏约束禁止，还是仅仅尚未被探索？",
+          "en": "What information hides in the set of all structures that are chemically possible and physically permitted yet never appear in nature? Is this vast 'unoccupied possibility space'—the negative space—forbidden by some hidden constraint, or merely as-yet unexplored?"
+        },
+        {
+          "zh": "整个科学文献中存在系统性的「沉默」——做了却因不显著而从未发表的实验、无人报告的阴性结果。我们能不能重建这片「未发表的负空间」，让它和已发表的正空间一样可被分析？",
+          "en": "The scientific literature contains a systematic silence—experiments done but never published because they were null, negative results no one reported. Can we reconstruct this 'unpublished negative space' and make it as analyzable as the published positive space?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Deep learning for early warning signals of tipping points",
+        "venue": "PNAS",
+        "year": 2021,
+        "url": "https://www.pnas.org/doi/10.1073/pnas.2106140118"
+      },
+      {
+        "title": "Tipping point detection and early warnings in climate, ecological, and human systems",
+        "venue": "Earth System Dynamics",
+        "year": 2024,
+        "url": "https://esd.copernicus.org/articles/15/1117/2024/"
+      },
+      {
+        "title": "Deep learning for predicting rate-induced tipping",
+        "venue": "Nature Machine Intelligence",
+        "year": 2024,
+        "url": "https://www.nature.com/articles/s42256-024-00937-0"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 841,
+      "y": 755,
+      "scale": 0.82
+    }
+  },
+  {
+    "id": 120,
+    "atlasN": 697,
+    "slug": "the-detection-science-of-the",
+    "title": {
+      "zh": "影子生物圈的探测学",
+      "en": "The Detection Science of the Shadow Biosphere"
+    },
+    "qfocus": {
+      "zh": "地球上是否存在因用不同生化而被常规检测系统性遗漏的「影子生物圈」？我们能否设计出不预设标准生化的方法，在深地、荒漠等隔离环境中把它找出来？",
+      "en": "Does Earth harbor a 'shadow biosphere' — life running on different biochemistry that conventional detection systematically misses? Can we design biochemistry-agnostic methods to find it in deep-subsurface and hyperarid isolated environments?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C40",
+      "zh": "无关化学·生命探测",
+      "en": "Agnostic Life Detection & Assembly Theory"
+    },
+    "scores": [
+      5,
+      5,
+      4,
+      2,
+      4,
+      2,
+      1,
+      2,
+      5
+    ],
+    "citation": {
+      "url": "https://www.liebertpub.com/doi/10.1089/ast.2008.0251",
+      "title": "Signatures of a Shadow Biosphere",
+      "venue": "Astrobiology",
+      "year": 2009
+    },
+    "brief": {
+      "zh": "影子生物圈的探测学针对一个激进假说：地球生命可能不止起源一次，存在用不同生化、因而被常规检测系统性遗漏的影子生命。2024年研究在阿塔卡马荒漠地下约4米发现与地表完全隔离的微生物群落，深部地壳与含水层被视为潜在庇护所；最硬的张力是检测的循环依赖——仪器按已知生命标定，对真正异源的生命可能毫无响应。",
+      "en": "Detection science of the shadow biosphere tests a radical hypothesis: life may have arisen on Earth more than once, leaving 'shadow' life whose different biochemistry conventional assays systematically miss. A 2024 study found microbial communities fully isolated from the surface about four meters underground in Chile's Atacama, with the deep crust and aquifers seen as potential refugia; the hardest tension is detection's circularity — instruments calibrated to known life may give no response at all to a truly alien biochemistry."
+    },
+    "depth": {
+      "overview": {
+        "zh": "影子生物圈的探测学针对一个激进假说：地球生命可能不止起源一次，存在用不同生化、因而被常规检测系统性遗漏的'影子'生命。它发展专门的探测方法——非标准手性、异常元素利用、培养无关的活性信号——在阿塔卡马深层、深部岩石圈等极隔离环境搜寻。它桥接极端微生物学、替代生物化学与检测/计量方法学。",
+        "en": "The Detection Science of the Shadow Biosphere addresses a radical hypothesis: life on Earth may have originated more than once, with a \"shadow\" biota running on different biochemistry and therefore systematically missed by conventional assays. It develops dedicated detection methods—non-standard chirality, anomalous elemental usage, culture-independent activity signals—to search ultra-isolated settings such as the deep Atacama and the deep rock biosphere. It bridges extremophile microbiology, alternative biochemistry, and detection/metrology methodology."
+      },
+      "whyMatters": {
+        "zh": "它是地球版的「未知生命」：所有现有探针都默认标准生化，若影子生命存在就永远在我们的盲区。设计「看见未知生化」的方法意义根本。",
+        "en": "It is the terrestrial version of \"unknown life\": every existing probe assumes standard biochemistry, so if shadow life exists it stays permanently in our blind spot—designing methods to \"see unknown biochemistry\" is fundamental."
+      },
+      "ifAnswered": {
+        "zh": "若能确认影子生物圈存在，将证明地球生命并非只起源一次，为「在地球上找到另一种起源的生命」这一目标提供实证。",
+        "en": "Confirming a shadow biosphere would show that life on Earth did not arise only once — delivering on the goal of finding a second, independently originated instance of life right here on Earth."
+      },
+      "approaches": [
+        {
+          "zh": "用不预设标准生化的探针——非标准手性、异常同位素与元素利用、培养无关的活性信号——在低生物量、强隔离环境中搜寻（如阿塔卡马地下、深部岩石圈）。",
+          "en": "Deploy probes that assume no standard biochemistry — non-standard chirality, anomalous isotope and elemental usage, culture-independent activity signals — searching low-biomass, strongly isolated settings such as the Atacama subsurface and the deep rock biosphere."
+        },
+        {
+          "zh": "借助组装理论提出的「组装指数」作为不依赖具体生化的复杂度判据，尝试判断某分子是否只能由类演化的选择过程产生（Q-C40-1）。",
+          "en": "Draw on assembly theory's 'assembly index' as a biochemistry-agnostic complexity criterion for judging whether a molecule could only arise through an evolution-like selection process (Q-C40-1)."
+        },
+        {
+          "zh": "反思「地球只有一个生命样本」对探测器设计的系统性偏见，尝试分离生命的普遍特征与地球的偶然特征（Q-C40-2）。",
+          "en": "Interrogate how having 'only one sample of life (Earth)' systematically biases detector design, trying to separate life's universal features from Earth's contingent accidents (Q-C40-2)."
+        }
+      ],
+      "barrier": {
+        "zh": "最硬的壁垒是检测循环——我们的工具按已知生命标定，对真正异源的生命可能毫无响应，且极易被污染与已知极端微生物混淆。",
+        "en": "The hardest barrier is the detection loop: our tools are calibrated to known life and may give no response at all to truly novel biochemistry, while contamination and confusion with known extremophiles are ever-present risks."
+      },
+      "subQuestions": [
+        {
+          "zh": "在不预设任何特定生物化学（不假设 DNA、蛋白质、甚至碳基）的前提下，我们能不能定义一个普适的「生命/非生命」判据——单凭一个分子的复杂度，就判断它是否只能由某种选择与演化过程产生？",
+          "en": "Without presupposing any particular biochemistry—not DNA, not proteins, not even carbon—can we define a universal criterion for life versus non-life, judging from a molecule's complexity alone whether it could only have arisen through some process of selection and evolution?"
+        },
+        {
+          "zh": "我们对「生命」的认知会不会被「只有一个样本（地球）」根本性地扭曲？在不知道生命还能以什么形式存在的情况下，我们设计的探测器是否注定只会找到我们已经认识的那种生命？",
+          "en": "Is our conception of life fundamentally distorted by having a sample size of one (Earth)? Not knowing in what other forms life could exist, are the detectors we design doomed to find only the kind of life we already recognize?"
+        },
+        {
+          "zh": "「复杂度」能否成为独立于物理与化学之外的第三种基本量——一个可以在分子、矿物、技术制品乃至外星物质上统一测量、用以判定「某物是否承载历史与选择」的普适标尺？",
+          "en": "Can complexity become a third fundamental quantity beyond physics and chemistry—a universal yardstick, measurable alike on molecules, minerals, artifacts, and alien matter, for deciding whether something carries a history of selection?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Signatures of a Shadow Biosphere",
+        "venue": "Astrobiology",
+        "year": 2009,
+        "url": "https://www.liebertpub.com/doi/10.1089/ast.2008.0251"
+      },
+      {
+        "title": "Persistent microbial communities in hyperarid subsurface habitats of the Atacama Desert: Insights from intracellular DNA analysis",
+        "venue": "PNAS Nexus",
+        "year": 2024,
+        "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11037274/"
+      },
+      {
+        "title": "Life as We Don't Know It (alternative biochemistries and shadow life)",
+        "venue": "Astrobiology",
+        "year": 2024,
+        "url": "https://www.liebertpub.com/doi/full/10.1089/ast.2021.0103"
+      },
+      {
+        "title": "Subsurface Life on Earth as a Key to Unlock Extraterrestrial Mysteries",
+        "venue": "Life",
+        "year": 2024,
+        "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12712870/"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 745,
+      "y": 583,
+      "scale": 0.83
+    }
+  },
+  {
+    "id": 121,
+    "atlasN": 698,
+    "slug": "the-habitability-boundaries-of-alien",
+    "title": {
+      "zh": "异类化学的可栖性边界",
+      "en": "The Habitability Boundaries of Alien Chemistry"
+    },
+    "qfocus": {
+      "zh": "碳-水生化是生命的必然选择，还是地球的偶然特例？我们能否系统枚举非水溶剂、替代元素骨架等「另类生化」，画出生命所需化学的真实边界？",
+      "en": "Is carbon-water biochemistry a necessity for life, or just Earth's contingent special case? Can we systematically enumerate non-aqueous solvents and alternative elemental scaffolds to chart the true chemical boundary of what life requires?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C40",
+      "zh": "无关化学·生命探测",
+      "en": "Agnostic Life Detection & Assembly Theory"
+    },
+    "scores": [
+      5,
+      5,
+      3,
+      2,
+      4,
+      2,
+      1,
+      2,
+      5
+    ],
+    "citation": {
+      "url": "https://www.pnas.org/doi/10.1073/pnas.2318905121",
+      "title": "Solvent constraints for biopolymer folding and evolution in extraterrestrial environments",
+      "venue": "PNAS",
+      "year": 2024
+    },
+    "brief": {
+      "zh": "异类化学的可栖性边界系统探索非水溶剂（如氨、超临界CO₂）、替代元素骨架与非标准信息载体，标定生命所需化学的真实边界，而非把地球碳-水生化误当唯一解；核心问题是碳-水生化究竟是必然还是偶然。最硬的张力是实验可达性极低，理论枚举与可证伪实验之间存在巨大鸿沟。",
+      "en": "Habitability boundaries of alien chemistry systematically explore non-aqueous solvents (ammonia, supercritical CO₂), alternative elemental scaffolds, and non-standard information carriers to chart the true chemical boundary life requires, rather than mistaking Earth's carbon-water biochemistry for the only solution; the core question is whether carbon-water biochemistry is necessary or merely contingent. The hardest tension is very low experimental reach, leaving a wide gulf between theoretical enumeration and falsifiable experiment."
+    },
+    "depth": {
+      "overview": {
+        "zh": "异类化学的可栖性边界系统探索'另一种生化'的可能性：非水溶剂（如氨、超临界CO₂）、替代元素骨架、非标准信息载体，目的是标定'生命所需化学'的真实边界，而非把地球碳水生化误当唯一解。它横跨化学、天体生物学与材料/复杂系统，是对'生命可能是什么'的硬核枚举。",
+        "en": "The Habitability Boundaries of Alien Chemistry systematically explores the possibilities of \"another biochemistry\": non-aqueous solvents (such as ammonia or supercritical CO₂), alternative elemental scaffolds, and non-standard information carriers, aiming to chart the true boundary of \"the chemistry life requires\" rather than mistaking Earth's carbon-water biochemistry for the only solution. Spanning chemistry, astrobiology, and materials/complex systems, it is a hardcore enumeration of \"what life could be.\""
+      },
+      "whyMatters": {
+        "zh": "重要性在于：宜居带、生物标记、地外探测全建在地球生化假设上；不划清边界，我们其实是在用一个样本定义整个可能性空间。",
+        "en": "It matters because habitable zones, biosignatures, and the search for extraterrestrial life are all built on Earth-biochemistry assumptions; without drawing the boundary clearly, we are effectively defining the entire space of possibilities from a single sample."
+      },
+      "ifAnswered": {
+        "zh": "划出生命可用化学的真边界，让宜居带判断、生物标记设计与地外探测不再默认地球碳-水生化是唯一解。",
+        "en": "Drawing the true boundary of life-capable chemistry, so that habitable-zone judgments, biosignature design, and the search for extraterrestrial life no longer default to assuming Earth's carbon-water biochemistry is the only solution."
+      },
+      "approaches": [
+        {
+          "zh": "从溶剂物性（极性、温度窗、对大分子稳定性）、元素可替代性与信息聚合物的化学约束出发，枚举生命可用化学的候选空间。",
+          "en": "Enumerate the candidate space of life-usable chemistry starting from solvent properties (polarity, temperature window, macromolecule stability), elemental substitutability, and the chemical constraints on information polymers."
+        },
+        {
+          "zh": "把这些化学约束转译为可观测的可栖性判据，反哺地外探测与生物标记设计（与'不可知生物标记'互补：一个问如何探测，一个问可能存在什么）。",
+          "en": "Translate these chemical constraints into observable habitability criteria that feed back into exoplanet detection and biosignature design (complementary to agnostic biosignatures: one asks how to detect, this asks what could exist)."
+        },
+        {
+          "zh": "借助组装理论的「组装指数」作为不依赖特定生化的复杂度判据，探讨是否存在独立于载体的生命判据（Q-C40-1）。",
+          "en": "Draw on assembly theory's 'assembly index' as a biochemistry-independent complexity criterion, exploring whether a substrate-independent criterion for life exists (Q-C40-1)."
+        }
+      ],
+      "barrier": {
+        "zh": "最硬的张力是实验可达性极低——多数另类生化条件难在地球实验室稳定实现，理论枚举与可证伪实验之间存在巨大鸿沟，易流于思辨。",
+        "en": "The hardest tension is extremely low experimental accessibility—most alien-biochemistry conditions are hard to stabilize in terrestrial labs, leaving a vast gulf between theoretical enumeration and falsifiable experiment, and a temptation to drift into speculation."
+      },
+      "subQuestions": [
+        {
+          "zh": "在不预设任何特定生物化学（不假设 DNA、蛋白质、甚至碳基）的前提下，我们能不能定义一个普适的「生命/非生命」判据——单凭一个分子的复杂度，就判断它是否只能由某种选择与演化过程产生？",
+          "en": "Without presupposing any particular biochemistry—not DNA, not proteins, not even carbon—can we define a universal criterion for life versus non-life, judging from a molecule's complexity alone whether it could only have arisen through some process of selection and evolution?"
+        },
+        {
+          "zh": "我们对「生命」的认知会不会被「只有一个样本（地球）」根本性地扭曲？在不知道生命还能以什么形式存在的情况下，我们设计的探测器是否注定只会找到我们已经认识的那种生命？",
+          "en": "Is our conception of life fundamentally distorted by having a sample size of one (Earth)? Not knowing in what other forms life could exist, are the detectors we design doomed to find only the kind of life we already recognize?"
+        },
+        {
+          "zh": "「复杂度」能否成为独立于物理与化学之外的第三种基本量——一个可以在分子、矿物、技术制品乃至外星物质上统一测量、用以判定「某物是否承载历史与选择」的普适标尺？",
+          "en": "Can complexity become a third fundamental quantity beyond physics and chemistry—a universal yardstick, measurable alike on molecules, minerals, artifacts, and alien matter, for deciding whether something carries a history of selection?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Solvent constraints for biopolymer folding and evolution in extraterrestrial environments",
+        "venue": "PNAS",
+        "year": 2024,
+        "url": "https://www.pnas.org/doi/10.1073/pnas.2318905121"
+      },
+      {
+        "title": "Life as We Don't Know It",
+        "venue": "Astrobiology",
+        "year": 2024,
+        "url": "https://www.liebertpub.com/doi/full/10.1089/ast.2021.0103"
+      },
+      {
+        "title": "The Astrobiology Primer v2.0 (alternative solvents and biochemistries)",
+        "venue": "Astrobiology",
+        "year": 2016,
+        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4683543/"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 982,
+      "y": 698,
+      "scale": 0.79
+    }
+  },
+  {
+    "id": 122,
+    "atlasN": 716,
+    "slug": "collider-anomaly-detection-transplanted-to",
+    "title": {
+      "zh": "对撞机异常检测移植生态盲发现",
+      "en": "Collider Anomaly Detection Transplanted to Blind Ecological Discovery"
+    },
+    "qfocus": {
+      "zh": "能否把大型强子对撞机「不预设新物理假设、直接从数据找偏离」的无监督异常检测，移植到生态告警流与巡天暂现源，造出一套能捕捉「未知的未知」的通用探针？",
+      "en": "Can the LHC's unsupervised anomaly detection — searching data for deviations without presupposing a specific new-physics hypothesis — be transplanted into ecological alert streams and astronomical transient surveys to build a general-purpose probe for the 'unknown unknowns'?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C41",
+      "zh": "跨域方法移植",
+      "en": "Cross-Domain Method Transplant"
+    },
+    "scores": [
+      5,
+      5,
+      4,
+      2,
+      4,
+      3,
+      2,
+      2,
+      4
+    ],
+    "citation": {
+      "url": "https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.132.081801",
+      "title": "Search for New Phenomena in Two-Body Invariant Mass Distributions Using Unsupervised Machine Learning for Anomaly Detection at √s=13 TeV with the ATLAS Detector",
+      "venue": "Physical Review Letters",
+      "year": 2024
+    },
+    "brief": {
+      "zh": "把大型强子对撞机不预设超出标准模型假设、直接在数据里搜偏离的无监督异常检测，移植到生态告警流与巡天暂现源。2024年ATLAS已将「发现新粒子」重述为对平滑背景的偏离假设检验；天文侧的MCIF方法在ZTF模拟流中追踪约2000条候选即召回约75%稀有暂现。最硬的张力在去相关与虚警控制——异常分数极易被采样偏差、季节性与仪器漂移污染。",
+      "en": "Transplants the LHC's unsupervised anomaly detection — searching data for deviations without assuming a specific beyond-Standard-Model signal — into ecological alert streams and astronomical transient surveys. In 2024 ATLAS recast 'discovering a new particle' as testing for deviations from a smooth background; on the astronomy side, MCIF recovers about 75% of rare transients while flagging only ~2000 candidates in simulated ZTF streams. The hardest tension is decorrelation and false-alarm control — anomaly scores are easily polluted by sampling bias, seasonality, and instrument drift."
+    },
+    "depth": {
+      "overview": {
+        "zh": "把大型强子对撞机'不预设超出标准模型假设、直接在数据里找偏离'的无监督/去相关异常检测，移植到生态告警流、巡天暂现源与环境组学数据，把'分类器即异常探测器'转成发现未知物种、未知暂现天体、未知群落状态的通用探针。它横跨高能物理、生态学/天文学与机器学习三个遥远学科。",
+        "en": "Transplants the LHC's unsupervised, decorrelated anomaly detection (which searches data for departures without assuming a specific beyond-Standard-Model hypothesis) to ecological alert streams, transient sky surveys, and environmental omics data, turning the principle of 'a classifier is an anomaly detector' into a general-purpose probe for discovering unknown species, unknown astrophysical transients, and unknown community states. It spans three distant disciplines: high-energy physics, ecology/astronomy, and machine learning."
+      },
+      "whyMatters": {
+        "zh": "重要性在于'未知的未知'最难——你无法为没想到的现象写模型；对撞机社区已把异常检测做成'每次搜索都附带找异常'的范式，正可解生态与巡天的盲发现难题。",
+        "en": "Its importance lies in the fact that the unknown unknowns are the hardest target: you cannot write a model for a phenomenon you never imagined. The collider community has already made anomaly detection a paradigm in which every search comes with a built-in anomaly hunt, which is exactly what blind discovery in ecology and sky surveys needs."
+      },
+      "ifAnswered": {
+        "zh": "为生态、天文与其他领域的'未知的未知'打造一套通用探针，让发现新物种、新暂现天体或新群落状态不再依赖先猜到它们的样子。",
+        "en": "Delivering a general-purpose probe for the 'unknown unknowns' in ecology, astronomy, and beyond — so that discovering new species, new transients, or new community states no longer depends on guessing their shape in advance."
+      },
+      "approaches": [
+        {
+          "zh": "把监督分类器直接改造成'分类器即异常探测器'，用多背景表示学习与去相关方法（如DisCo）控制系统性偏差，泛化到不同背景假设（如ATLAS 2024）。",
+          "en": "Turn supervised classifiers directly into anomaly detectors ('a classifier is an anomaly detector'), using multi-background representation learning and decorrelation methods (like DisCo) to control systematic bias across background hypotheses (as in ATLAS 2024)."
+        },
+        {
+          "zh": "在天文暂现源里，用分类器潜空间训练逐类隔离森林（MCIF），在低虚警下高召回稀有暂现（千新星、对不稳定超新星）。",
+          "en": "In astronomical transients, train per-class isolation forests in a classifier's latent space (MCIF) to recover rare transients (kilonovae, pair-instability supernovae) at a low false-alarm rate."
+        },
+        {
+          "zh": "追问'方法移植'能否系统化而非只靠天才偶遇——绘制一张跨学科的'方法同构图'，预测哪些方法该被搬到哪些问题上（Q-C41-1）。",
+          "en": "Ask whether method-transplant itself can be systematized rather than left to chance — mapping a cross-disciplinary 'graph of method isomorphisms' that predicts which methods should move to which problems (Q-C41-1)."
+        }
+      ],
+      "barrier": {
+        "zh": "最硬的张力是去相关/鲁棒性：异常分数极易被采样偏差、季节性与仪器漂移污染，把背景涨落误报成新现象。",
+        "en": "The sharpest tension is decorrelation and robustness: anomaly scores are easily contaminated by sampling bias, seasonality, and instrumental drift, flagging background fluctuations as spurious new phenomena."
+      },
+      "subQuestions": [
+        {
+          "zh": "为什么科学史上最大的突破常常来自把一个领域的方法整体移植到另一个领域（如把统计力学搬进信息论、把演化搬进算法）？这种「方法移植」能否被系统化，而不是只靠天才偶遇？",
+          "en": "Why do the biggest breakthroughs in the history of science so often come from wholesale transplanting one field's method into another (statistical mechanics into information theory, evolution into algorithms)? Can such method-transplant be systematized rather than left to the chance meetings of geniuses?"
+        },
+        {
+          "zh": "不同学科里反复出现的「同一个数学结构」（幂律、相变、网络、重整化），究竟是自然界的深层统一，还是我们认知模式的投影？我们能否分辨一个跨域类比是真同构，还是误导性的表面相似？",
+          "en": "When the same mathematical structure recurs across disciplines (power laws, phase transitions, networks, renormalization), is it a deep unity of nature or a projection of our own cognitive patterns? Can we distinguish a true cross-domain isomorphism from a misleading surface resemblance?"
+        },
+        {
+          "zh": "我们能不能建造一台「类比引擎」——一个能在所有学科之间自动搜寻深层结构对应、主动提议「把 A 领域的解法搬到 B 领域的难题」的系统，从而把跨域移植规模化、自动化？",
+          "en": "Can we build an 'analogy engine'—a system that automatically searches for deep structural correspondences across all disciplines and proactively proposes 'transplant field A's solution to field B's open problem'—thereby scaling and automating cross-domain transplant?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Search for New Phenomena in Two-Body Invariant Mass Distributions Using Unsupervised Machine Learning for Anomaly Detection at √s=13 TeV with the ATLAS Detector",
+        "venue": "Physical Review Letters",
+        "year": 2024,
+        "url": "https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.132.081801"
+      },
+      {
+        "title": "A Classifier-Based Approach to Multi-Class Anomaly Detection for Astronomical Transients",
+        "venue": "RAS Techniques and Instruments",
+        "year": 2024,
+        "url": "https://academic.oup.com/rasti/article/doi/10.1093/rasti/rzae054/7914338"
+      },
+      {
+        "title": "Robust Anomaly Detection for Particle Physics Using Multi-Background Representation Learning",
+        "venue": "Machine Learning: Science and Technology",
+        "year": 2024,
+        "url": "https://iopscience.iop.org/article/10.1088/2632-2153/ad780c/meta"
+      },
+      {
+        "title": "DisCo Fever: Robust Networks Through Distance Correlation",
+        "venue": "arXiv (hep-ph) / JHEP",
+        "year": 2020,
+        "url": "https://arxiv.org/abs/2001.05310"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 652,
+      "y": 710,
+      "scale": 0.81
+    }
+  },
+  {
+    "id": 123,
+    "atlasN": 1193,
+    "slug": "functorial-cross-domain-structure-transport",
+    "title": {
+      "zh": "函子式跨域结构移植（应用范畴论迁移方法论）",
+      "en": "Functorial Cross-Domain Structure Transport (Applied Category Theory as Transfer Methodology)"
+    },
+    "qfocus": {
+      "zh": "当两个领域「讲的是同一个故事」时，能不能不靠比喻、而靠函子等范畴论工具给出可证明保结构的形式映射，让跨域移植的保真性像类型检查一样可自动验证？",
+      "en": "When two domains 'tell the same story', can we skip the metaphor and use categorical tools like functors to provide a provably structure-preserving formal mapping — making a cross-domain transplant's fidelity as auto-checkable as a type system?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C41",
+      "zh": "跨域方法移植",
+      "en": "Cross-Domain Method Transplant"
+    },
+    "scores": [
+      5,
+      5,
+      4,
+      3,
+      4,
+      5,
+      3,
+      3,
+      4
+    ],
+    "citation": {
+      "url": "https://arxiv.org/abs/2402.15332",
+      "title": "Position: Categorical Deep Learning is an Algebraic Theory of All Architectures",
+      "venue": "ICML 2024 (PMLR 235)",
+      "year": 2024
+    },
+    "brief": {
+      "zh": "应用范畴论把跨域方法移植重新定义为函子——一种保运算结构的映射，让'两个领域是同一个数学对象'从修辞变成可检验的命题。2024年Gavranović等在ICML的立场论文主张用2-范畴中的参数化映射统一几乎所有神经网络架构，是该方向的标志性里程碑。",
+      "en": "Applied category theory redefines cross-domain method transplant as a functor — a structure-preserving mapping — turning the claim that 'two domains are the same mathematical object' from rhetoric into a testable proposition. In 2024, Gavranović et al.'s ICML position paper argued for unifying nearly all neural network architectures via parametrized maps in a 2-category, a landmark for this direction."
+    },
+    "depth": {
+      "overview": {
+        "zh": "当两个领域「讲的是同一个故事」时，能不能不靠比喻、而靠数学证明把方法搬过去？应用范畴论正把这种「同构驱动的迁移」变成可组合、可验证的形式工程。",
+        "en": "When two domains 'tell the same story', can the method be carried across by mathematical proof rather than metaphor? Applied category theory is turning this 'isomorphism-driven transfer' into composable, verifiable formal engineering."
+      },
+      "whyMatters": {
+        "zh": "它的意义在于把跨域方法移植的保真性问题——搬过去的结构是否真的等价——从难以核实的类比，升级为可用函子、伴随与弦图形式化检验的数学命题，让「同构驱动的迁移」从直觉变成可组合、可验证的方法论。",
+        "en": "Its importance lies in upgrading the fidelity question of cross-domain method transplant — whether the carried-over structure is truly equivalent — from an analogy that resists verification into a mathematical proposition checkable via functors, adjunctions, and string diagrams, turning isomorphism-driven transfer from intuition into a composable, verifiable methodology."
+      },
+      "ifAnswered": {
+        "zh": "从「每个架构各自论证正确性」走向统一的范畴语义，让跨域移植的保真性像类型检查一样可自动验证。",
+        "en": "Heading toward a unified categorical semantics where a cross-domain transplant's fidelity is auto-checkable like a type system, rather than argued case by case."
+      },
+      "approaches": [
+        {
+          "zh": "用函子与伴随把一个领域已验证的结构映射到另一个领域，并用弦图使映射过程可视化、可组合。",
+          "en": "Use functors and adjunctions to map an already-validated structure from one domain into another, with string diagrams making the mapping process visual and composable."
+        },
+        {
+          "zh": "以2-范畴中的参数化映射，尝试一次性统一几乎所有神经网络架构的约束与实现（Gavranović 等，ICML 2024 立场论文）。",
+          "en": "Use parametrized maps in a 2-category to try to unify the constraints and implementations of nearly all neural network architectures at once (Gavranović et al., ICML 2024 position paper)."
+        },
+        {
+          "zh": "追问不同学科反复出现的同一数学结构（幂律、相变、网络、重整化）究竟是自然界的深层统一还是认知投影，为判断「真同构还是表面相似」寻找判据（Q-C41-2）。",
+          "en": "Probe whether recurring mathematical structures across disciplines (power laws, phase transitions, networks, renormalization) reflect a deep unity of nature or merely a projection of our cognition, seeking a criterion for 'true isomorphism vs. surface resemblance' (Q-C41-2)."
+        }
+      ],
+      "barrier": {
+        "zh": "最硬的张力：范畴框架抽象层级极高，能优雅「重述」已知结构，却很难产出该领域尚不知道的新预测；「保结构」是否等于「保有用性」仍缺可证伪判据。",
+        "en": "The hardest tension: the categorical framework operates at such a high level of abstraction that it can elegantly 'restate' already-known structure, yet rarely produces new predictions the field doesn't already know; whether 'structure-preserving' equals 'usefulness-preserving' still lacks a falsifiable criterion."
+      },
+      "subQuestions": [
+        {
+          "zh": "为什么科学史上最大的突破常常来自把一个领域的方法整体移植到另一个领域（如把统计力学搬进信息论、把演化搬进算法）？这种「方法移植」能否被系统化，而不是只靠天才偶遇？",
+          "en": "Why do the biggest breakthroughs in the history of science so often come from wholesale transplanting one field's method into another (statistical mechanics into information theory, evolution into algorithms)? Can such method-transplant be systematized rather than left to the chance meetings of geniuses?"
+        },
+        {
+          "zh": "不同学科里反复出现的「同一个数学结构」（幂律、相变、网络、重整化），究竟是自然界的深层统一，还是我们认知模式的投影？我们能否分辨一个跨域类比是真同构，还是误导性的表面相似？",
+          "en": "When the same mathematical structure recurs across disciplines (power laws, phase transitions, networks, renormalization), is it a deep unity of nature or a projection of our own cognitive patterns? Can we distinguish a true cross-domain isomorphism from a misleading surface resemblance?"
+        },
+        {
+          "zh": "我们能不能建造一台「类比引擎」——一个能在所有学科之间自动搜寻深层结构对应、主动提议「把 A 领域的解法搬到 B 领域的难题」的系统，从而把跨域移植规模化、自动化？",
+          "en": "Can we build an 'analogy engine'—a system that automatically searches for deep structural correspondences across all disciplines and proactively proposes 'transplant field A's solution to field B's open problem'—thereby scaling and automating cross-domain transplant?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Position: Categorical Deep Learning is an Algebraic Theory of All Architectures",
+        "venue": "ICML 2024 (PMLR 235)",
+        "year": 2024,
+        "url": "https://arxiv.org/abs/2402.15332"
+      },
+      {
+        "title": "Category-Theoretical and Topos-Theoretical Frameworks in Machine Learning: A Survey",
+        "venue": "Axioms (MDPI)",
+        "year": 2025,
+        "url": "https://www.mdpi.com/2075-1680/14/3/204"
+      },
+      {
+        "title": "Towards a Categorical Foundation of Deep Learning: A Survey",
+        "venue": "arXiv",
+        "year": 2024,
+        "url": "https://arxiv.org/abs/2410.05353"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 830,
+      "y": 576,
+      "scale": 0.75
+    }
+  },
+  {
+    "id": 124,
+    "atlasN": 1280,
+    "slug": "observation-native-forecasting-end-to",
+    "title": {
+      "zh": "观测直达预报：跳过资料同化的端到端天气 AI",
+      "en": "Observation-native forecasting: end-to-end weather AI that bypasses data assimilation"
+    },
+    "qfocus": {
+      "zh": "能否用单个神经网络直接从原始卫星辐射与常规观测学习并初始化全球预报，从而绕开数值天气预报赖以生存数十年的资料同化与再分析管线？",
+      "en": "Can a single neural network learn to initialize global forecasts directly from raw satellite radiances and routine observations, bypassing the data-assimilation and reanalysis pipeline NWP has relied on for decades?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C45",
+      "zh": "地理空间AI·数字地球",
+      "en": "Geospatial AI · Digital Earth"
+    },
+    "scores": [
+      5,
+      4,
+      4,
+      1,
+      2,
+      3,
+      4,
+      3,
+      3
+    ],
+    "citation": {
+      "url": "https://www.nature.com/articles/s41586-025-08897-0",
+      "title": "End-to-end data-driven weather prediction (Aardvark Weather)",
+      "venue": "Nature",
+      "year": 2025
+    },
+    "brief": {
+      "zh": "传统数值预报依赖资料同化把观测翻译成网格初值，这条管线占据业务中心数十年。2024–2025 年，Aardvark Weather（Nature 2025）与 ECMWF 的 GraphDOP 各自独立证明，单个神经网络可以直接从卫星亮温和常规观测学习并初始化预报，且用远少于传统方法的输入数据与算力在多变量上跑赢 GFS。",
+      "en": "Traditional NWP depends on data assimilation to translate observations into gridded initial states, a pipeline that has anchored operational forecasting for decades. In 2024-2025, Aardvark Weather (Nature 2025) and ECMWF's GraphDOP independently showed that a single neural network can learn and initialize forecasts directly from satellite brightness temperatures and routine observations, beating GFS on multiple variables with far less input data and compute."
+    },
+    "depth": {
+      "overview": {
+        "zh": "上一波天气 AI 仍以 ERA5 再分析为拐杖；这条新路线直接吃原始观测——卫星亮温、站点报文——单个网络一步产出全球预报。",
+        "en": "The previous wave of weather AI still leaned on ERA5 reanalysis as a crutch; this new route ingests raw observations directly — satellite brightness temperatures, station reports — and a single network produces a global forecast in one step."
+      },
+      "whyMatters": {
+        "zh": "最硬的难点是校验——没有再分析做真值，如何确认模型内部学到的「大气状态」不是幻觉；这直接决定观测直达路线能否被信任为业务预报的基座。",
+        "en": "The hardest difficulty is validation — without reanalysis as ground truth, how to confirm the \"atmospheric state\" the model has internally learned is not a hallucination; this directly decides whether the observation-native route can be trusted as an operational forecasting foundation."
+      },
+      "ifAnswered": {
+        "zh": "未来 3–5 年，观测直达系统可能把再分析从预报链条的必需品变为可选品，重塑对地观测数据的价值链。",
+        "en": "Within 3-5 years, observation-native systems could demote reanalysis from a necessity to an option, reshaping the value chain of Earth observations."
+      },
+      "approaches": [
+        {
+          "zh": "用可微分神经网络端到端学习「观测→预报」映射，跳过显式资料同化步骤（如 Aardvark Weather、GraphDOP）。",
+          "en": "Train a differentiable neural network end-to-end on the \"observation-to-forecast\" mapping, skipping the explicit data-assimilation step (as in Aardvark Weather and GraphDOP)."
+        },
+        {
+          "zh": "把该路线纳入现有业务 AI 预报系统的演进路径（如 ECMWF 的 AIFS-DOP），让端到端观测学习从概念验证走向准业务实验。",
+          "en": "Fold the route into the evolution path of existing operational AI forecasting systems (e.g. ECMWF's AIFS-DOP), moving end-to-end observation learning from proof-of-concept toward quasi-operational trials."
+        },
+        {
+          "zh": "针对灰天鹅式尾部极端事件，检验模型是在外推物理还是内插训练分布，为观测直达预报建立可外推区的事前判据。",
+          "en": "For gray-swan tail events, test whether the model is extrapolating physics or merely interpolating the training distribution, establishing an a-priori criterion for the extrapolable regime of observation-native forecasting."
+        }
+      ],
+      "barrier": {
+        "zh": "没有再分析做真值，如何校验模型内部学到的「大气状态」不是幻觉；且观测系统一旦变化（卫星退役、新仪器上线），端到端模型的再训练成本与稳定性仍是未知数。",
+        "en": "With no reanalysis serving as ground truth, it is unclear how to verify that the \"atmospheric state\" the model has learned internally is not a hallucination; and once the observing system changes (satellites retired, new instruments coming online), the retraining cost and stability of the end-to-end model remain unknown."
+      },
+      "subQuestions": [
+        {
+          "zh": "当一次极端事件强到、罕到训练集里根本没有先例时（灰天鹅），数据驱动的 AI 地球与天气模型究竟是在从已知物理外推、还是只能内插已见过的样本——我们如何在事前就判断一次预报落在了模型的可外推区还是幻觉区？",
+          "en": "When an extreme event is so rare and so intense that nothing like it exists in the training set (a gray swan), are data-driven AI weather and Earth models genuinely extrapolating from physics or merely interpolating seen samples — and how can we tell, before the fact, whether a given forecast lies inside the model's extrapolable regime or its hallucination regime?"
+        },
+        {
+          "zh": "如果换一套基准、下游任务和微调协议就能改变地理空间基础模型的排名、甚至让简单监督基线反超，那「哪个对地观测基础模型更强」这一问法本身是否良定义——我们到底是在度量模型，还是在度量评测的选择？",
+          "en": "If swapping the benchmark, the downstream tasks, or the fine-tuning protocol can reshuffle the ranking of geospatial foundation models — sometimes letting a plain supervised baseline win — is the question \"which Earth-observation foundation model is better\" even well-posed, and are we measuring the models or the choices of the evaluation?"
+        },
+        {
+          "zh": "当一个生成模型补全缺失的卫星波段、把 100 公里场超分到公里级、或把再分析与模拟「装进同一个瓶子」时，它产出的像素究竟该被当作观测、还是当作有先验约束的猜测——在什么可检验的条件下，一次生成的对地观测可以承担真实测量的认知地位？",
+          "en": "When a generative model fills in a missing satellite band, super-resolves a 100-km field to kilometer scale, or puts reanalysis and simulation \"in the same bottle\", should its output pixels count as observations or as prior-constrained guesses — and under what testable conditions may a generated Earth observation carry the epistemic standing of a real measurement?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "End-to-end data-driven weather prediction (Aardvark Weather)",
+        "venue": "Nature",
+        "year": 2025,
+        "url": "https://www.nature.com/articles/s41586-025-08897-0"
+      },
+      {
+        "title": "GraphDOP: Towards skilful data-driven medium-range weather forecasts learnt and initialised directly from observations",
+        "venue": "arXiv",
+        "year": 2024,
+        "url": "https://arxiv.org/abs/2412.15687"
+      },
+      {
+        "title": "An update on AI-DOP: skilful weather forecasts produced directly from observations",
+        "venue": "ECMWF Newsletter",
+        "year": 2025,
+        "url": "https://www.ecmwf.int/en/newsletter/182/earth-system-science/update-ai-dop-skilful-weather-forecasts-produced-directly"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 927,
+      "y": 709,
+      "scale": 0.87
+    }
+  },
+  {
+    "id": 125,
+    "atlasN": 1286,
+    "slug": "ai-adjoint-sensitivity-backpropagating-through",
+    "title": {
+      "zh": "AI 伴随敏感性：反向传播穿透预报模式的可预报性实验",
+      "en": "AI-adjoint sensitivity: backpropagating through forecast models to probe predictability limits"
+    },
+    "qfocus": {
+      "zh": "能否把可微分 AI 天气模式当作「免费伴随模式」，用反向传播直接求出预报对初值的非线性敏感性，从而把经典伴随法约 3 天的线性化适用极限推向 10–23 天？",
+      "en": "Can differentiable AI weather models serve as \"free adjoint models,\" using backpropagation to compute fully nonlinear forecast sensitivities to initial conditions, extending the ~3-day linearization limit of classical adjoint methods out to 10-23 days?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C45",
+      "zh": "地理空间AI·数字地球",
+      "en": "Geospatial AI · Digital Earth"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      3,
+      4,
+      4,
+      3,
+      5,
+      5
+    ],
+    "citation": {
+      "url": "https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2024GL110651",
+      "title": "Predictability Limit of the 2021 Pacific Northwest Heatwave From Deep-Learning Sensitivity Analysis",
+      "venue": "Geophysical Research Letters",
+      "year": 2024
+    },
+    "brief": {
+      "zh": "伴随模式的开发需要数年人力，且线性化假设把适用范围压在约 3 天内。Vonich 与 Hakim（GRL 2024）把 GraphCast 当作可微分模拟器，对 2021 年太平洋西北热浪反传梯度寻找最优初值，10 天预报误差下降约 94%，并在 Pangu-Weather 上交叉验证；2025 年后续工作把大气可预报性极限的实证估计推向约 23 天。",
+      "en": "Building an adjoint model traditionally takes years of human effort, and the linearization assumption caps its validity at about 3 days. Vonich and Hakim (GRL 2024) treated GraphCast as a differentiable simulator, backpropagating gradients through the 2021 Pacific Northwest heatwave to find optimal initial conditions, cutting 10-day forecast error by about 94% and cross-validating on Pangu-Weather; 2025 follow-up work pushed the empirical estimate of the atmospheric predictability limit to about 23 days."
+    },
+    "depth": {
+      "overview": {
+        "zh": "数值预报中心花数年人力开发的伴随模式，如今一行 loss.backward() 就能替代——而且不受线性化假设束缚。",
+        "en": "The adjoint models that numerical forecasting centers spent years of human effort to develop can now be replaced by a single line of loss.backward() — and without being bound by the linearization assumption."
+      },
+      "whyMatters": {
+        "zh": "张力在于：优化出的初值扰动可能只是在利用模型误差而非真实大气动力（对抗样本问题），这决定了这些敏感性结果能否被当作真实的物理洞见而非模型漏洞。",
+        "en": "The tension is that the optimized initial-condition perturbation may merely be exploiting the model's own errors rather than real atmospheric dynamics (an adversarial-example problem), which decides whether these sensitivity results can be trusted as genuine physical insight rather than a model artifact."
+      },
+      "ifAnswered": {
+        "zh": "正走向业务化的观测靶向（该往哪里加探空）与极端事件最优初值复盘，甚至对 Lorenz 可预报性极限的重新实测。",
+        "en": "Heading toward operational observation targeting (where to add soundings) and optimal-initial-condition reconstructions of extreme events - and an empirical re-measurement of the Lorenz predictability limit."
+      },
+      "approaches": [
+        {
+          "zh": "把可微分 AI 天气模式（如 GraphCast）当作伴随模拟器，通过反向传播直接求非线性敏感性梯度，替代传统伴随模式数年的人力开发。",
+          "en": "Treat a differentiable AI weather model (e.g. GraphCast) as an adjoint simulator, using backpropagation to compute nonlinear sensitivity gradients directly, replacing years of manual adjoint-model development."
+        },
+        {
+          "zh": "对具体极端事件（如 2021 年太平洋西北热浪）反传梯度寻找最优初值扰动，并在多个模型（GraphCast、Pangu-Weather）间交叉验证结果的稳健性。",
+          "en": "Backpropagate gradients through specific extreme events (e.g. the 2021 Pacific Northwest heatwave) to find optimal initial-condition perturbations, cross-validating robustness across multiple models (GraphCast, Pangu-Weather)."
+        },
+        {
+          "zh": "用该方法系统性地重新实测大气可预报性极限，把估计值从经典的约 3 天推向 10–23 天。",
+          "en": "Use the method to systematically re-measure the atmospheric predictability limit, pushing the estimate from the classical ~3 days out to 10-23 days."
+        }
+      ],
+      "barrier": {
+        "zh": "优化出的初值扰动可能在利用模型误差而非真实大气动力（对抗样本问题），如何区分「物理敏感性」与「模型漏洞」尚无公认判据。",
+        "en": "The optimized initial-condition perturbation may be exploiting the model's own errors rather than real atmospheric dynamics (an adversarial-example problem), and there is no agreed-upon criterion yet for distinguishing \"physical sensitivity\" from \"model artifact.\""
+      },
+      "subQuestions": [
+        {
+          "zh": "当一次极端事件强到、罕到训练集里根本没有先例时（灰天鹅），数据驱动的 AI 地球与天气模型究竟是在从已知物理外推、还是只能内插已见过的样本——我们如何在事前就判断一次预报落在了模型的可外推区还是幻觉区？",
+          "en": "When an extreme event is so rare and so intense that nothing like it exists in the training set (a gray swan), are data-driven AI weather and Earth models genuinely extrapolating from physics or merely interpolating seen samples — and how can we tell, before the fact, whether a given forecast lies inside the model's extrapolable regime or its hallucination regime?"
+        },
+        {
+          "zh": "如果换一套基准、下游任务和微调协议就能改变地理空间基础模型的排名、甚至让简单监督基线反超，那「哪个对地观测基础模型更强」这一问法本身是否良定义——我们到底是在度量模型，还是在度量评测的选择？",
+          "en": "If swapping the benchmark, the downstream tasks, or the fine-tuning protocol can reshuffle the ranking of geospatial foundation models — sometimes letting a plain supervised baseline win — is the question \"which Earth-observation foundation model is better\" even well-posed, and are we measuring the models or the choices of the evaluation?"
+        },
+        {
+          "zh": "当一个生成模型补全缺失的卫星波段、把 100 公里场超分到公里级、或把再分析与模拟「装进同一个瓶子」时，它产出的像素究竟该被当作观测、还是当作有先验约束的猜测——在什么可检验的条件下，一次生成的对地观测可以承担真实测量的认知地位？",
+          "en": "When a generative model fills in a missing satellite band, super-resolves a 100-km field to kilometer scale, or puts reanalysis and simulation \"in the same bottle\", should its output pixels count as observations or as prior-constrained guesses — and under what testable conditions may a generated Earth observation carry the epistemic standing of a real measurement?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Predictability Limit of the 2021 Pacific Northwest Heatwave From Deep-Learning Sensitivity Analysis",
+        "venue": "Geophysical Research Letters",
+        "year": 2024,
+        "url": "https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2024GL110651"
+      },
+      {
+        "title": "Testing the Limit of Atmospheric Predictability with a Machine Learning Weather Model",
+        "venue": "arXiv",
+        "year": 2025,
+        "url": "https://arxiv.org/abs/2504.20238"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 745,
+      "y": 702,
+      "scale": 0.99
+    }
+  },
+  {
+    "id": 126,
+    "atlasN": 807,
+    "slug": "threshold-and-multiparty-fhe-shattering",
+    "title": {
+      "zh": "门限与多方全同态加密:把解密密钥拆碎分布",
+      "en": "Threshold and Multiparty FHE: Shattering the Decryption Key Across Parties"
+    },
+    "qfocus": {
+      "zh": "能否让全局解密密钥永远不在任何单点完整存在，而是通过门限方案让 FHE 解密必须由足量诚实方协作完成，从而消除「谁持有解密钥」的单点信任与单点失败？",
+      "en": "Can the global decryption key be made to never exist whole at any single point, so that FHE decryption requires cooperation from a quorum of honest parties via a threshold scheme — eliminating the single-point trust and single-point failure of \"who holds the key\"?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C47",
+      "zh": "后量子·隐私计算工程",
+      "en": "Post-quantum · privacy computation"
+    },
+    "scores": [
+      4,
+      5,
+      4,
+      4,
+      3,
+      4,
+      4,
+      3,
+      4
+    ],
+    "citation": {
+      "url": "https://dl.acm.org/doi/pdf/10.1145/3658644.3690861",
+      "title": "Toward Practical Threshold FHE: Low Communication, Computation and Interaction",
+      "venue": "ACM CCS 2024",
+      "year": 2024
+    },
+    "brief": {
+      "zh": "门限 FHE（ThFHE）把「谁能解密」这一 FHE 的阿喀琉斯之踵改造为分布式信任:全局密钥是各方本地密钥之和,从不在单点重建。这是机密智能合约的密码基座——Zama 的 MPC 密钥管理系统(KMS)即用门限密钥生成与门限解密支撑其 fhEVM。2024 年 CCS 出现首个仅需一次广播完成密钥生成的鲁棒门限 BFV 方案,2025 年 IACR ePrint 进一步给出高效异步解密。",
+      "en": "Threshold FHE (ThFHE) turns \"who can decrypt\" — FHE's Achilles' heel — into distributed trust: the global key is the sum of each party's local key share and is never reconstructed at a single point. It is the cryptographic substrate for confidential smart contracts — Zama's MPC key-management system (KMS) uses threshold key generation and threshold decryption to underpin its fhEVM. A 2024 CCS paper delivered the first robust threshold BFV scheme requiring only one broadcast for key generation, and a 2025 IACR ePrint paper further gives efficient asynchronous decryption."
+    },
+    "depth": {
+      "overview": {
+        "zh": "FHE 能算密文,但总得有人能解密——那把钥匙交给谁?门限 FHE 的答案是:谁也不单独拥有它,要够多诚实方一起才能解开。",
+        "en": "FHE can compute on ciphertext, but someone still has to be able to decrypt it — so who gets the key? Threshold FHE's answer: no one holds it alone; enough honest parties must cooperate to unlock it."
+      },
+      "whyMatters": {
+        "zh": "最硬的张力是门限解密必须注入噪声以防分片泄露,这与 FHE 本就紧张的噪声预算直接冲突——这决定了门限 FHE 能否在保持安全的同时仍留出足够的计算深度可用。",
+        "en": "The hardest tension is that threshold decryption must inject noise to prevent share leakage, which directly collides with FHE's already-tight noise budget — this decides whether threshold FHE can stay secure while still leaving enough computational depth usable."
+      },
+      "ifAnswered": {
+        "zh": "它是机密区块链/链上隐私(如 fhEVM)与去信任多方分析的密码基座,正向异步、鲁棒、低通信的门限解密演进。",
+        "en": "It is the cryptographic substrate for confidential blockchains / on-chain privacy (e.g. fhEVM) and trustless multiparty analytics, evolving toward asynchronous, robust, low-communication threshold decryption."
+      },
+      "approaches": [
+        {
+          "zh": "通过分布式密钥生成(DKG)让各方共建公钥,全局私钥从不在单点重建,仅以本地分片形式存在。",
+          "en": "Use distributed key generation (DKG) so parties jointly build the public key while the global private key is never reconstructed at a single point, existing only as local shares."
+        },
+        {
+          "zh": "用噪声泛洪(noise flooding)掩盖门限解密过程中分片信息的泄露,同时压低通信轮数与计算开销(如 2024 年 CCS 仅需一次广播的鲁棒门限 BFV 方案)。",
+          "en": "Use noise flooding to mask share-information leakage during threshold decryption, while cutting communication rounds and computational cost (e.g. the 2024 CCS robust threshold BFV scheme requiring only one broadcast)."
+        },
+        {
+          "zh": "在拜占庭与异步网络假设下推进高效异步门限解密,支撑 fhEVM 等机密智能合约的实际部署。",
+          "en": "Advance efficient asynchronous threshold decryption under Byzantine and asynchronous network assumptions, supporting real deployments of confidential smart contracts like fhEVM."
+        }
+      ],
+      "barrier": {
+        "zh": "门限解密必须注入噪声以防分片泄露,这与 FHE 本就紧张的噪声预算直接冲突;在拜占庭与异步网络下同时做到鲁棒、低通信轮数与可证安全,仍是 2024–2025 年活跃且未收敛的难题。",
+        "en": "Threshold decryption must inject noise to prevent share leakage, directly colliding with FHE's already-tight noise budget; achieving robustness, low communication rounds, and provable security simultaneously under Byzantine and asynchronous networks remains an active, unresolved problem in 2024-2025."
+      },
+      "subQuestions": [
+        {
+          "zh": "当全同态加密被搬到商用 AI 加速器（GPU/TPU）上跑时，自举（bootstrapping）该放在深度网络的哪些位置、又能否真正复用为稠密浮点张量运算设计的硬件——还是说密文算术的访存与精度结构注定与这些芯片错配？",
+          "en": "When fully homomorphic encryption is run on commodity AI accelerators (GPU/TPU), where in a deep network should bootstrapping be placed, and can hardware built for dense floating-point tensor math ever be genuinely reused for it — or is ciphertext arithmetic's memory and precision structure fundamentally mismatched to those chips?"
+        },
+        {
+          "zh": "当一条机密 AI 的远程证明链把 CPU TEE 与 GPU TEE 拼接起来时，在固件闭源、确定性内存加密又持续被密文侧信道撕开缺口的现实下，这条证明链到底证明了什么、又把哪些信任无声地外包给了硬件厂商？",
+          "en": "When a confidential-AI remote-attestation chain stitches a CPU TEE to a GPU TEE, what does that chain actually prove — and what trust does it silently outsource to the hardware vendor — given closed firmware and deterministic memory encryption that ciphertext side channels keep prying open?"
+        },
+        {
+          "zh": "对大模型推理逐算子生成零知识证明，证明开销却比明文推理高出千倍乃至更多——「为整条 LLM 前向过程出具 zk 证明」究竟是正确的可信目标，还是说该把问题重构为「只证明少数关键不变量」或转向更廉价的可信原语？",
+          "en": "Generating a zero-knowledge proof operator-by-operator for large-model inference costs thousands of times more than plaintext inference — is 'prove the entire LLM forward pass in zk' even the right trust goal, or should the problem be reframed as proving only a few critical invariants, or shifting to cheaper trust primitives?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Toward Practical Threshold FHE: Low Communication, Computation and Interaction",
+        "venue": "ACM CCS 2024",
+        "year": 2024,
+        "url": "https://dl.acm.org/doi/pdf/10.1145/3658644.3690861"
+      },
+      {
+        "title": "Threshold FHE with Efficient Asynchronous Decryption",
+        "venue": "IACR ePrint",
+        "year": 2025,
+        "url": "https://eprint.iacr.org/2025/712"
+      },
+      {
+        "title": "Robust Multiparty Computation from Threshold Encryption Based on RLWE",
+        "venue": "IACR ePrint",
+        "year": 2024,
+        "url": "https://eprint.iacr.org/2024/1285"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 1012,
+      "y": 648,
+      "scale": 0.92
+    }
+  },
+  {
+    "id": 127,
+    "atlasN": 1224,
+    "slug": "positive-tipping-cascades-engineering-self",
+    "title": {
+      "zh": "正向临界点级联：设计能自我放大的良性转变",
+      "en": "Positive Tipping Cascades: Engineering Self-Amplifying Beneficial Transitions"
+    },
+    "qfocus": {
+      "zh": "能否在一个子系统里找到「超级杠杆」干预点，主动触发跨社会-技术-生态-政治系统的自我强化良性级联，把临界点从风险转变为可操控的工具？",
+      "en": "Can a \"super-leverage\" intervention in one subsystem be identified to deliberately trigger a self-reinforcing beneficial cascade across socio-technical, ecological, and political systems — turning tipping points from a risk into an operable tool?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C49",
+      "zh": "计算可持续·韧性科学",
+      "en": "Computational Sustainability · Resilience Science"
+    },
+    "scores": [
+      5,
+      5,
+      3,
+      5,
+      5,
+      4,
+      3,
+      3,
+      2
+    ],
+    "citation": {
+      "url": "https://esd.copernicus.org/articles/15/789/2024/",
+      "title": "Cross-system interactions for positive tipping cascades",
+      "venue": "Earth System Dynamics",
+      "year": 2024
+    },
+    "brief": {
+      "zh": "锚点是 Eker、Lenton 等 2024 年《Earth System Dynamics》的「Cross-system interactions for positive tipping cascades」，系统梳理了社会-技术、社会-生态、社会-政治三类系统间如何互相点火良性级联、并主张多中心治理。配合 2023 年《Global Tipping Points》报告与 2025 年《Sustainability Science》的可操作方法论文，这一支正把「正向临界点」从口号做成可操作方法。",
+      "en": "The anchor is Eker, Lenton et al.'s 2024 Earth System Dynamics paper \"Cross-system interactions for positive tipping cascades,\" which maps how socio-technical, socio-ecological, and socio-political systems can ignite beneficial cascades in one another and argues for polycentric governance. Together with the 2023 Global Tipping Points report and a 2025 Sustainability Science paper on operational methods, this line of work is turning \"positive tipping points\" from a slogan into an operable method."
+    },
+    "depth": {
+      "overview": {
+        "zh": "我们习惯把「临界级联」当灾难，但同一套自我放大动力学也能反向利用——一次精准的政策或补贴，可能像多米诺一样点燃跨部门的良性转变。这就是「正向临界点」这门新学问在问的事。",
+        "en": "We are used to treating \"tipping cascades\" as disaster, but the same self-amplifying dynamics can be turned around — a single precisely targeted policy or subsidy could ignite a beneficial cross-sector transition like a domino chain. That is what the new field of \"positive tipping points\" is asking."
+      },
+      "whyMatters": {
+        "zh": "最硬的悬念是可证伪性与反噬——社会临界阈值极难事前定位、事后又容易被「我们早知道」叙事收编；而同一条动力学既能点燃良性级联，也能触发不公与锁定，这决定了正向临界点工程能否真正区别于事后诸葛亮式的叙事。",
+        "en": "The hardest open question is falsifiability and backfire — social tipping thresholds are extremely hard to locate in advance and easily co-opted after the fact into a \"we knew it all along\" narrative; the same dynamics that ignite a beneficial cascade can also trigger injustice and lock-in, which decides whether positive-tipping engineering can truly be distinguished from hindsight storytelling."
+      },
+      "ifAnswered": {
+        "zh": "方向是从「事后叙事」走向可操作的「正向临界点工程」：识别跨系统超级杠杆、排序干预时序，并为公平转型加约束。",
+        "en": "The trajectory runs from after-the-fact narrative toward operational \"positive-tipping engineering\": identifying cross-system super-leverage points, sequencing interventions, and constraining for just transitions."
+      },
+      "approaches": [
+        {
+          "zh": "系统梳理社会-技术、社会-生态、社会-政治三类系统间的相互点火机制（如光伏与电动车 S 曲线互相加速），识别跨系统的「超级杠杆」干预点。",
+          "en": "Systematically map the mutual-ignition mechanisms among socio-technical, socio-ecological, and socio-political systems (e.g. solar-PV and EV S-curves accelerating each other) to identify cross-system \"super-leverage\" intervention points."
+        },
+        {
+          "zh": "开发可操作的方法论，识别加速低碳转型的正向临界点、并设计触发它们的具体行动（如 2025 年《Sustainability Science》方法论文）。",
+          "en": "Develop operational methods to identify positive tipping points that accelerate low-carbon transitions and design concrete actions to trigger them (as in the 2025 Sustainability Science methods paper)."
+        },
+        {
+          "zh": "引入多中心治理框架，为超级杠杆干预排序时序并加入公平转型约束，防止良性级联反噬为新的锁定或不公。",
+          "en": "Introduce polycentric governance frameworks to sequence super-leverage interventions and add just-transition constraints, guarding against a beneficial cascade backfiring into new lock-in or injustice."
+        }
+      ],
+      "barrier": {
+        "zh": "社会临界阈值极难事前定位、事后又容易被「我们早知道」叙事收编；且同一条动力学既能点燃良性级联，也能触发不公与锁定，正负级联常常共用一套机制。",
+        "en": "Social tipping thresholds are extremely hard to locate in advance and are easily co-opted after the fact into a \"we knew it all along\" narrative; the same dynamics that ignite a beneficial cascade can also trigger injustice and lock-in, since positive and negative cascades often share the same underlying mechanism."
+      },
+      "subQuestions": [
+        {
+          "zh": "用合成数据宇宙训练出的深度学习临界预警，迁移到真实、有噪声、非平稳的生态/电网崩溃时，它探测到的究竟是普适的临界减速，还是数据预处理与训练分布残留的伪信号——我们能否给出一个让真实漏报率与误报率都可被独立审计的迁移有效性判据？",
+          "en": "When a deep-learning early-warning model trained on a synthetic universe of bifurcations is transferred to real, noisy, non-stationary ecosystem or grid collapses, is it detecting universal critical slowing-down or artefacts of preprocessing and the training distribution — and can we state a transfer-validity criterion under which both real-world miss-rate and false-positive-rate are independently auditable?"
+        },
+        {
+          "zh": "生态声景里那条被当作「韧性/临界减速」读数的声学指标，反映的是真实的恢复力流失，还是在用相似声音掩盖了完全不同的声源与采样偏差——我们能否把声景韧性指数做成一个可证伪、能区分「生物多样性下降」与「指标本身漂移」的基准？",
+          "en": "Does the acoustic index read off a soundscape as a 'resilience / critical slowing-down' signal actually track loss of recovery capacity, or does similar-sounding output mask entirely different sources and sampling bias — and can a soundscape-resilience index be made falsifiable enough to separate genuine biodiversity decline from drift in the metric itself?"
+        },
+        {
+          "zh": "把相互耦合、会级联触发的生态—社会—基础设施体制转变建成网络后，结构可控性原理能否真正给出一个可落到真实耦合数据上的「最小干预集」——即需要操控哪些节点、按什么顺序，才能阻断多米诺式级联或把系统拉回，而不是只在理论网络上成立？",
+          "en": "Once coupled ecological-social-infrastructure regime shifts that cascade are modelled as a network, can structural-controllability principles actually deliver a 'minimum intervention set' that lands on real coupled data — which nodes to steer, in what sequence, to halt a domino cascade or pull the system back — rather than holding only on toy networks?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Cross-system interactions for positive tipping cascades",
+        "venue": "Earth System Dynamics 15(3), 789",
+        "year": 2024,
+        "url": "https://esd.copernicus.org/articles/15/789/2024/"
+      },
+      {
+        "title": "A method to identify positive tipping points to accelerate low-carbon transitions and actions to trigger them",
+        "venue": "Sustainability Science",
+        "year": 2025,
+        "url": "https://link.springer.com/article/10.1007/s11625-025-01704-9"
+      },
+      {
+        "title": "Pathways for prevention of cascading tipping points",
+        "venue": "Communications Earth & Environment",
+        "year": 2025,
+        "url": "https://www.nature.com/articles/s43247-025-02662-x"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 206,
+      "y": 363,
+      "scale": 0.87
+    }
+  },
+  {
+    "id": 128,
+    "atlasN": 1227,
+    "slug": "computable-criteria-for-rate-induced",
+    "title": {
+      "zh": "速率诱导临界点的可计算判据",
+      "en": "Computable Criteria for Rate-Induced Tipping"
+    },
+    "qfocus": {
+      "zh": "系统的崩溃能否不是因为跨过某个阈值，而是因为外力变化的速率本身太快——我们能否给出可计算的判据，把「变化速度」本身纳入可持续性风险的度量？",
+      "en": "Can a system tip not because it crosses a threshold but because the rate of forcing change is itself too fast — and can we derive computable criteria that fold the speed of change itself into a measure of sustainability risk?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C49",
+      "zh": "计算可持续·韧性科学",
+      "en": "Computational Sustainability · Resilience Science"
+    },
+    "scores": [
+      5,
+      4,
+      4,
+      2,
+      4,
+      4,
+      4,
+      3,
+      4
+    ],
+    "citation": {
+      "url": "https://www.nature.com/articles/s42256-024-00937-0",
+      "title": "Deep learning for predicting rate-induced tipping",
+      "venue": "Nature Machine Intelligence",
+      "year": 2024
+    },
+    "brief": {
+      "zh": "经典临界点理论假设系统在准静态强迫下越过分岔点。但 Ashwin、Wieczorek 等人发展的速率诱导临界点表明:即便终态仍在安全域内,只要参数变化速率超过临界速度,系统就会「跟不上」而崩溃。2024 年 Huang、Bathiany、Ashwin、Boers 在 Nature Machine Intelligence 首次给出预测 R-tipping 转移概率的深度学习框架,把可持续性问题从「别越线」改写为「别变得太快」。",
+      "en": "Classical tipping-point theory assumes a system crosses a bifurcation under quasi-static forcing. But rate-induced tipping, developed by Ashwin, Wieczorek and others, shows that even if the final state remains within the safe domain, the system can still \"fail to keep up\" and collapse once the rate of parameter change exceeds a critical speed. In 2024, Huang, Bathiany, Ashwin, and Boers gave the first deep-learning framework for predicting R-tipping transition probability in Nature Machine Intelligence, rewriting the sustainability question from \"don't cross the line\" to \"don't change too fast.\""
+    },
+    "depth": {
+      "overview": {
+        "zh": "传统临界点研究盯着「阈值有没有被跨过」;R-tipping 指出即便阈值未破,只要外力变得够快,系统也会脱轨。",
+        "en": "Traditional tipping-point research focuses on whether a threshold has been crossed; R-tipping points out that even without breaching a threshold, a system can derail once the forcing changes fast enough."
+      },
+      "whyMatters": {
+        "zh": "最硬难点是 R-tipping 依赖对未来强迫路径的了解,而现实中强迫本身充满不确定——这决定了可计算判据能否走出理想化模型、真正应用到无法预知未来强迫的真实系统。",
+        "en": "The hardest difficulty is that R-tipping depends on knowing the future forcing path, while real-world forcing itself is deeply uncertain — this decides whether computable criteria can move beyond idealized models and actually apply to real systems whose future forcing cannot be foreseen."
+      },
+      "ifAnswered": {
+        "zh": "未来走向:把 R-tipping 判据嵌入耦合冰盖—洋流等真实地球系统,评估「减排速度」而非仅「减排幅度」的安全边界。",
+        "en": "Where it is heading: embedding R-tipping criteria into coupled real Earth systems (ice sheet-ocean circulation) to bound the safe rate of change, not only its magnitude."
+      },
+      "approaches": [
+        {
+          "zh": "发展生存盆地、Melnikov 型准则等可计算判据,刻画系统在特定强迫速率下是否会脱离安全域。",
+          "en": "Develop computable criteria such as survival basins and Melnikov-type conditions to characterize whether a system will leave its safe domain under a given forcing rate."
+        },
+        {
+          "zh": "用深度学习框架预测 R-tipping 的转移概率,把「变化速度」本身纳入可计算的可持续性风险度量(如 2024 年 Nature Machine Intelligence 的工作)。",
+          "en": "Use deep-learning frameworks to predict R-tipping transition probability, folding the speed of change itself into a computable sustainability-risk metric (as in the 2024 Nature Machine Intelligence work)."
+        },
+        {
+          "zh": "把 R-tipping 判据嵌入耦合冰盖—洋流等真实地球系统模型,评估「减排速度」而非仅「减排幅度」的安全边界。",
+          "en": "Embed R-tipping criteria into coupled real Earth-system models (ice sheet-ocean circulation) to bound the safe rate of change, not only its magnitude."
+        }
+      ],
+      "barrier": {
+        "zh": "R-tipping 依赖对未来强迫路径的了解,而现实中强迫本身充满不确定;可计算判据在高维耦合网络里往往退化,深度学习预测又受制于训练分布外泛化。",
+        "en": "R-tipping depends on knowing the future forcing path, while real-world forcing is itself deeply uncertain; computable criteria tend to degenerate in high-dimensional coupled networks, and deep-learning predictors are limited by out-of-distribution generalization."
+      },
+      "subQuestions": [
+        {
+          "zh": "用合成数据宇宙训练出的深度学习临界预警，迁移到真实、有噪声、非平稳的生态/电网崩溃时，它探测到的究竟是普适的临界减速，还是数据预处理与训练分布残留的伪信号——我们能否给出一个让真实漏报率与误报率都可被独立审计的迁移有效性判据？",
+          "en": "When a deep-learning early-warning model trained on a synthetic universe of bifurcations is transferred to real, noisy, non-stationary ecosystem or grid collapses, is it detecting universal critical slowing-down or artefacts of preprocessing and the training distribution — and can we state a transfer-validity criterion under which both real-world miss-rate and false-positive-rate are independently auditable?"
+        },
+        {
+          "zh": "生态声景里那条被当作「韧性/临界减速」读数的声学指标，反映的是真实的恢复力流失，还是在用相似声音掩盖了完全不同的声源与采样偏差——我们能否把声景韧性指数做成一个可证伪、能区分「生物多样性下降」与「指标本身漂移」的基准？",
+          "en": "Does the acoustic index read off a soundscape as a 'resilience / critical slowing-down' signal actually track loss of recovery capacity, or does similar-sounding output mask entirely different sources and sampling bias — and can a soundscape-resilience index be made falsifiable enough to separate genuine biodiversity decline from drift in the metric itself?"
+        },
+        {
+          "zh": "把相互耦合、会级联触发的生态—社会—基础设施体制转变建成网络后，结构可控性原理能否真正给出一个可落到真实耦合数据上的「最小干预集」——即需要操控哪些节点、按什么顺序，才能阻断多米诺式级联或把系统拉回，而不是只在理论网络上成立？",
+          "en": "Once coupled ecological-social-infrastructure regime shifts that cascade are modelled as a network, can structural-controllability principles actually deliver a 'minimum intervention set' that lands on real coupled data — which nodes to steer, in what sequence, to halt a domino cascade or pull the system back — rather than holding only on toy networks?"
+        }
+      ]
+    },
+    "literature": [
+      {
+        "title": "Deep learning for predicting rate-induced tipping",
+        "venue": "Nature Machine Intelligence",
+        "year": 2024,
+        "url": "https://www.nature.com/articles/s42256-024-00937-0"
+      },
+      {
+        "title": "Rate-induced tipping in ecosystems and climate: the role of unstable states, basin boundaries and transient dynamics",
+        "venue": "Nonlinear Processes in Geophysics",
+        "year": 2023,
+        "url": "https://npg.copernicus.org/articles/30/481/2023/"
+      }
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 30,
+    "chart": {
+      "x": 336,
+      "y": 459,
+      "scale": 0.95
+    }
+  }
 ];
 
 export const FRONTIERS_BY_SLUG: Record<string, FrontierEntry> = Object.fromEntries(

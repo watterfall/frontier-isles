@@ -5,6 +5,7 @@ import {
   parseProblemObject,
   serializeProblemObject,
   ProblemObjectSchema,
+  StructureObjectSchema,
   hashEvent,
   type Actor,
   type LedgerEvent,
@@ -12,8 +13,14 @@ import {
   type ProblemObjectInput,
   type Status,
 } from "@frontier-isles/opp";
-import type { StationKind } from "@frontier-isles/core";
-import { FRONTIERS, SEA_SEED_RELATIONS, type FrontierEntry, type SeaVerb } from "@frontier-isles/data";
+import type { StationKind, MappingArtifact } from "@frontier-isles/core";
+import {
+  FRONTIERS,
+  SEA_SEED_RELATIONS,
+  SEED_STRUCTURES,
+  type FrontierEntry,
+  type SeaVerb,
+} from "@frontier-isles/data";
 import { Store, opIdFor, type ProblemMeta } from "./store.js";
 import { refHash } from "./refs.js";
 import { openDb } from "./db.js";
@@ -294,10 +301,17 @@ function seedSampleIsland(store: Store): void {
  *  sub-questions are the leavable artifact, §6). Editorial zh only, per
  *  architecture invariant 9. Islands without curated depth keep the lean
  *  qfocus-only stub. */
-function buildIslandBody(c: Chart, atlas?: FrontierEntry): string {
+export function buildIslandBody(c: Chart, atlas?: FrontierEntry): string {
   const d = atlas?.depth;
   if (!d) return `## Open sub-questions\n\n- ${c.q}\n`;
   const bullets = (arr: { zh: string }[]): string => arr.map((x) => `- ${x.zh}`).join("\n");
+  // Grounded literature (§九 Phase 1) → a 参考文献 section on the leavable
+  // problem.md (§6): the island's real citations travel with the .md.
+  const lit = atlas?.literature ?? [];
+  const litSection =
+    lit.length > 0
+      ? ["## 参考文献", lit.map((l) => `- ${l.title} — ${l.venue} (${l.year}). ${l.url}`).join("\n")]
+      : [];
   return (
     [
       "## 概览", d.overview.zh,
@@ -306,6 +320,7 @@ function buildIslandBody(c: Chart, atlas?: FrontierEntry): string {
       "## 主要路径", bullets(d.approaches),
       "## 硬骨头", d.barrier.zh,
       "## Open sub-questions", bullets(d.subQuestions),
+      ...litSection,
     ].join("\n\n") + "\n"
   );
 }
@@ -340,6 +355,7 @@ function seedMinimalIsland(store: Store, c: Chart): void {
           citation: atlas.citation,
           brief: atlas.brief,
           outlier: atlas.outlier,
+          literature: atlas.literature,
           depth: atlas.depth,
           interior: atlas.interior,
         }
@@ -435,6 +451,52 @@ function seedCrossIslandRelations(store: Store): void {
   }
 }
 
+/**
+ * Seed the structure ⇄ 现象 bipartite graph (执行纲要 §九): insert each structure
+ * object (knowledge plane), then bridge every human-authored mapping onto its
+ * island as a real `rebuild` event (the edge, inv 14/15). The curator shen-kuo
+ * (a human master) authors the mappings — §六.1: the mapping is never AI's.
+ * 标度 carries zero mappings on purpose — a pure frontier (§九).
+ */
+function seedStructures(store: Store): void {
+  const curator: Actor = { id: "github:shen-kuo", kind: "human" };
+  for (const s of SEED_STRUCTURES) {
+    const object = StructureObjectSchema.parse({
+      schema: "opp/0.3",
+      id: s.id,
+      title: s.title,
+      statement: s.statement,
+      status: s.status,
+    });
+    store.insertStructure(object);
+    s.mappings.forEach((m, i) => {
+      const opId = opIdFor(m.slug);
+      const mapping: MappingArtifact = {
+        structureId: s.id,
+        islandOp: opId,
+        correspondences: m.correspondences,
+        ...(m.prediction ? { prediction: m.prediction } : {}),
+      };
+      const ref = store.putRef("mapping", mapping);
+      const ev = store.appendRaw(opId, {
+        ts: day(70 + i),
+        op: opId as ProblemObject["id"],
+        actor: curator,
+        credit: ["credit:human/conceptualization"],
+        phase: "B",
+        action: "rebuild",
+        ref,
+      });
+      store.addPlacement(opId, "dock", ref, {
+        action: "rebuild",
+        actorId: curator.id,
+        structureId: s.id,
+        hash: hashEvent(ev),
+      });
+    });
+  }
+}
+
 /** Idempotent: seeds only when the DB has no islands. Returns the count seeded. */
 export function seed(store: Store): number {
   if (store.hasIslands()) return 0;
@@ -446,6 +508,8 @@ export function seed(store: Store): number {
     }
     // After every island exists, wire real cross-island relations (the sea plane).
     seedCrossIslandRelations(store);
+    // …then the structure ⇄ 现象 graph: rebuild edges onto the islands (§九).
+    seedStructures(store);
   });
   tx();
   return DATA.length + 1;

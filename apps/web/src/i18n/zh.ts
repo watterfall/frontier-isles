@@ -73,6 +73,7 @@ export const zh = {
       approaches: '主要路径',
       barrier: '硬骨头',
       subQuestions: '开放子问题',
+      literature: '参考文献',
     },
     interior: {
       kicker: 'L2 · 站点内景',
