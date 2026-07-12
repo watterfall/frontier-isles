@@ -16,7 +16,8 @@ import { useEffect, useMemo, useRef } from 'react';
 import { AtlasStage } from '@frontier-isles/renderer/pixi';
 import { buildAtlasScene } from './atlasData';
 import { buildHarborView } from './harbor';
-import type { ApiHarbor } from '../api/client';
+import { toAtlasLens } from './structureLens';
+import type { ApiHarbor, ApiStructureGraph } from '../api/client';
 import type { IslandDatum } from '../api/fallback';
 import type { AtlasControls, AtlasMetrics } from './atlasControls';
 
@@ -28,6 +29,9 @@ export interface AtlasChartHostProps {
    * `api.harbor`. Present → the atlas opens at the harbor and far islands
    * carry fog; `null`/absent → the plain world-wide open (removal test). */
   harbor?: ApiHarbor | null;
+  /** Structure lens (执行纲要 §九): the selected `struct://` id + the bipartite
+   * graph (live API or `structureFallback`). `null`/absent → the plain world. */
+  lens?: { structureId: string; graph: ApiStructureGraph } | null;
   /** A tap/click on an island — mirrors the SVG chart's `onClick` → sails
    * into L1 (the same `onIsland` handler `App.tsx` already wires). */
   onPick: (d: IslandDatum) => void;
@@ -41,7 +45,7 @@ export interface AtlasChartHostProps {
   onMetrics?: (metrics: AtlasMetrics) => void;
 }
 
-export default function AtlasChartHost({ islands, harbor, onPick, onHoverIsland, onWebglError, onReady, onMetrics }: AtlasChartHostProps) {
+export default function AtlasChartHost({ islands, harbor, lens, onPick, onHoverIsland, onWebglError, onReady, onMetrics }: AtlasChartHostProps) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const stageRef = useRef<AtlasStage | null>(null);
   // Latest callbacks in a ref so the boot effect (keyed only on `islands`,
@@ -55,6 +59,14 @@ export default function AtlasChartHost({ islands, harbor, onPick, onHoverIsland,
   const scene = useMemo(() => buildAtlasScene(islands), [islands]);
   const harborRef = useRef(harbor ?? null);
   harborRef.current = harbor ?? null;
+  const lensRef = useRef(lens ?? null);
+  lensRef.current = lens ?? null;
+  // Cluster provenance (xfrontier code) per stage slug — feeds the lens'
+  // near/far gap gradient (same-cluster vs same-domain-only).
+  const clusterBySlug = useMemo(
+    () => new Map(islands.map((d) => [d.slug ?? `id-${d.id}`, d.cluster?.code])),
+    [islands],
+  );
 
   useEffect(() => {
     const host = hostRef.current;
@@ -100,6 +112,9 @@ export default function AtlasChartHost({ islands, harbor, onPick, onHoverIsland,
           stage.setHarbor(view);
           stage.openAtHarbor();
         }
+        // A lens selected before the Pixi chunk finished booting applies now.
+        const l = lensRef.current;
+        if (l) stage.setStructureLens(toAtlasLens(l.structureId, l.graph.edges, l.graph.frontier, scene.islands, clusterBySlug));
         stageRef.current = stage;
         cbRef.current.onReady?.({
           zoomIn: () => stage.zoomBy(1.24),
@@ -143,6 +158,15 @@ export default function AtlasChartHost({ islands, harbor, onPick, onHoverIsland,
     stage.setHarbor(view);
     if (!stage.touched) stage.openAtHarbor();
   }, [harbor, scene]);
+
+  // Structure lens (§九): enter/leave the modal lens on selection change. The
+  // lens is computed over the SAME scene islands the stage renders, so marks
+  // land exactly on the despaced positions.
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    stage.setStructureLens(lens ? toAtlasLens(lens.structureId, lens.graph.edges, lens.graph.frontier, scene.islands, clusterBySlug) : null);
+  }, [lens, scene, clusterBySlug]);
 
   return <div ref={hostRef} style={{ position: 'absolute', inset: 0 }} />;
 }

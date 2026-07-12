@@ -103,3 +103,62 @@ export function buildStructureLens(
 
   return { structureId, rebuilt, gaps, dimmed, arcs };
 }
+
+/** The stage-facing lens shape (slug space — the stage owns positions). */
+export interface AtlasLensSlugs {
+  structureId: string;
+  rebuiltSlugs: string[];
+  /** Near gaps: same cluster as a rebuilt island (full dash). */
+  gapSlugs: string[];
+  /** Far gaps: same domain, different cluster (fainter dash, lighter dim). */
+  farGapSlugs: string[];
+  arcs: Array<{ fromSlug: string; toSlug: string }>;
+}
+
+const slugOfOp = (op: string): string => op.split('/').at(-1) ?? op;
+
+/**
+ * Adapt the op-keyed graph to the slug-keyed stage input: build the lens over
+ * the islands ACTUALLY on stage (the despaced atlas scene), then hand the
+ * stage bare slugs — it projects positions itself, so the lens marks always
+ * sit exactly where the engine drew each island.
+ *
+ * `clusterBySlug` (optional) splits the frontier's gaps into a near/far
+ * gradient: a gap in the SAME CLUSTER as a rebuilt island is near (full
+ * dash), the rest — same domain only — are far (fainter). No cluster
+ * knowledge → every gap is near, the flat v1 reading.
+ */
+export function toAtlasLens(
+  structureId: string,
+  edges: readonly LensEdgeLike[],
+  frontier: readonly LensFrontierLike[],
+  stageIslands: ReadonlyArray<{ slug: string; x: number; y: number; domain: string }>,
+  clusterBySlug?: ReadonlyMap<string, string | undefined>,
+): AtlasLensSlugs {
+  const islands: LensIslandLike[] = stageIslands.map((i) => ({
+    op: `op://frontier-isles/prob/${i.slug}`,
+    x: i.x,
+    y: i.y,
+    domain: i.domain,
+  }));
+  const lens = buildStructureLens(structureId, edges, frontier, islands);
+  const rebuiltSlugs = lens.rebuilt.map((n) => slugOfOp(n.op));
+  const rebuiltClusters = new Set(
+    rebuiltSlugs.map((slug) => clusterBySlug?.get(slug)).filter((c): c is string => !!c),
+  );
+  const gapSlugs: string[] = [];
+  const farGapSlugs: string[] = [];
+  for (const n of lens.gaps) {
+    const slug = slugOfOp(n.op);
+    const cluster = clusterBySlug?.get(slug);
+    if (!clusterBySlug || (cluster && rebuiltClusters.has(cluster))) gapSlugs.push(slug);
+    else farGapSlugs.push(slug);
+  }
+  return {
+    structureId,
+    rebuiltSlugs,
+    gapSlugs,
+    farGapSlugs,
+    arcs: lens.arcs.map((a) => ({ fromSlug: slugOfOp(a.fromOp), toSlug: slugOfOp(a.toOp) })),
+  };
+}

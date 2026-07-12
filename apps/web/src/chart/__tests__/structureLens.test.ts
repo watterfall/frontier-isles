@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { buildStructureLens } from '../structureLens';
+import { buildStructureLens, toAtlasLens } from '../structureLens';
+import { fallbackStructures, fallbackStructureGraph } from '../../api/structureFallback';
+import { SEED_STRUCTURES } from '@frontier-isles/data';
 
 describe('buildStructureLens', () => {
   const islands = [
@@ -39,5 +41,74 @@ describe('buildStructureLens', () => {
     expect(lens.arcs).toHaveLength(1);
     expect(lens.arcs[0]!.fromOp).toBe('op://x/prob/firefly');
     expect(lens.arcs[0]!.toOp).toBe('op://x/prob/heart');
+  });
+});
+
+describe('toAtlasLens (op graph → slug-keyed stage input)', () => {
+  const stageIslands = [
+    { slug: 'firefly', x: 100, y: 100, domain: '生命' },
+    { slug: 'heart', x: 200, y: 120, domain: '生命' },
+    { slug: 'quark', x: 900, y: 400, domain: '数理' },
+  ];
+  const frontier = [
+    {
+      structureId: 'struct://x/k',
+      rebuilt: ['op://frontier-isles/prob/firefly', 'op://frontier-isles/prob/heart'],
+      gaps: ['op://frontier-isles/prob/quark'],
+    },
+  ];
+
+  it('maps rebuilt/gaps/arcs to bare slugs the stage can look up', () => {
+    const lens = toAtlasLens('struct://x/k', [], frontier, stageIslands);
+    expect(lens.rebuiltSlugs).toEqual(['firefly', 'heart']);
+    expect(lens.gapSlugs).toEqual(['quark']);
+    expect(lens.farGapSlugs).toEqual([]); // no cluster knowledge → every gap is near
+    expect(lens.arcs).toEqual([{ fromSlug: 'firefly', toSlug: 'heart' }]);
+  });
+
+  it('splits gaps into near (same cluster) and far (same domain only)', () => {
+    const wideFrontier = [
+      {
+        structureId: 'struct://x/k',
+        rebuilt: ['op://frontier-isles/prob/firefly'],
+        gaps: ['op://frontier-isles/prob/heart', 'op://frontier-isles/prob/quark'],
+      },
+    ];
+    const clusters = new Map<string, string | undefined>([
+      ['firefly', 'C10'],
+      ['heart', 'C10'], // same cluster as the rebuilt island → near
+      ['quark', 'C33'], // different cluster → far
+    ]);
+    const lens = toAtlasLens('struct://x/k', [], wideFrontier, stageIslands, clusters);
+    expect(lens.gapSlugs).toEqual(['heart']);
+    expect(lens.farGapSlugs).toEqual(['quark']);
+  });
+});
+
+describe('structureFallback (offline twin of /api/structures*)', () => {
+  it('serves the 3 seed structures in the API object shape', () => {
+    const s = fallbackStructures();
+    expect(s.map((x) => x.id)).toEqual(SEED_STRUCTURES.map((x) => x.id));
+    expect(s.every((x) => x.schema === 'opp/0.3' && x.title.zh && x.statement.en)).toBe(true);
+  });
+
+  it('graph edges mirror the seed mappings 1:1 (no edge without an event — inv 14)', () => {
+    const g = fallbackStructureGraph();
+    const mappingCount = SEED_STRUCTURES.reduce((n, s) => n + s.mappings.length, 0);
+    expect(g.edges).toHaveLength(mappingCount);
+    expect(g.edges.every((e) => e.weight === 1 && e.actors.includes('github:shen-kuo'))).toBe(true);
+  });
+
+  it('synchronization lights self-learning-matter and exposes honest near gaps', () => {
+    const g = fallbackStructureGraph();
+    const f = g.frontier.find((x) => x.structureId === 'struct://xfrontier/synchronization');
+    expect(f?.rebuilt).toContain('op://frontier-isles/prob/self-learning-matter');
+    expect(f && f.gaps.length).toBeGreaterThan(0);
+  });
+
+  it('标度 (0 mappings) has NO frontier entry — a pure frontier, nothing invented', () => {
+    const g = fallbackStructureGraph();
+    expect(g.frontier.find((x) => x.structureId === 'struct://xfrontier/scaling')).toBeUndefined();
+    expect(g.edges.some((e) => e.structureId === 'struct://xfrontier/scaling')).toBe(false);
   });
 });

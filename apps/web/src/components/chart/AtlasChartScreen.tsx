@@ -24,13 +24,16 @@
  * the Pixi zoom into the sail's start position). Full camera-continuity
  * (T0→T2 atlas zoom bleeding into the T2→T3 sail) is W5's scope, not W1's.
  */
-import { Component, lazy, Suspense, useCallback, useEffect, useState, type ReactNode } from 'react';
+import { Component, lazy, Suspense, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChartScreen, type ChartScreenProps } from './ChartScreen';
 import { ChartChrome } from './ChartChrome';
 import { IslandCard } from './IslandCard';
+import { StructureLensPanel } from './StructureLensPanel';
 import { computeCardContent, cardBoxPos } from './cardContent';
 import { hasWebGL } from '../../chart/webgl';
+import { api, type ApiStructure, type ApiStructureGraph } from '../../api/client';
+import { fallbackStructures, fallbackStructureGraph, slugOfOp } from '../../api/structureFallback';
 import type { IslandDatum } from '../../api/fallback';
 import type { AtlasControls, AtlasMetrics } from '../../chart/atlasControls';
 
@@ -59,6 +62,84 @@ function AtlasChartScreenImpl(props: ChartScreenProps) {
   const [hoverPos, setHoverPos] = useState<{ x: number; y: number } | null>(null);
   const [controls, setControls] = useState<AtlasControls | null>(null);
   const [metrics, setMetrics] = useState<AtlasMetrics | null>(null);
+  // Structure lens (执行纲要 §九): objects + bipartite graph, best-effort from
+  // the live API with the offline fallback (same seed, same reduce — the lens
+  // renders identically with the server absent).
+  const [structures, setStructures] = useState<ApiStructure[]>([]);
+  const [structureGraph, setStructureGraph] = useState<ApiStructureGraph | null>(null);
+  const [lensId, setLensId] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    void (async () => {
+      const [s, g] = await Promise.all([api.structures(), api.structureGraph()]);
+      if (!alive) return;
+      // req is best-effort (null on any failure) — either half missing means
+      // the pair comes from the fallback, so objects and graph never mix eras.
+      if (s && g) {
+        setStructures(s.structures);
+        setStructureGraph(g);
+      } else {
+        setStructures(fallbackStructures());
+        setStructureGraph(fallbackStructureGraph());
+      }
+    })();
+    return () => { alive = false; };
+  }, []);
+
+  // Stable lens identity: the host keys an effect on this object, and metrics
+  // updates re-render this screen every camera settle — an inline literal here
+  // would re-fire setStructureLens (and its camera flight) forever.
+  const lens = useMemo(
+    () => (lensId && structureGraph ? { structureId: lensId, graph: structureGraph } : null),
+    [lensId, structureGraph],
+  );
+
+  // The list twin's rows, resolved from the frontier's op ids to chart
+  // islands. Rebuilt rows carry the edge's real weight + actors (a reduce
+  // over rebuild events); gaps split into the same near/far gradient the map
+  // draws (same cluster vs same domain only).
+  const twin = useMemo(() => {
+    const empty = {
+      rebuilt: [] as Array<{ d: IslandDatum; weight: number; actors: string[] }>,
+      nearGaps: [] as IslandDatum[],
+      farGaps: [] as IslandDatum[],
+    };
+    if (!lensId || !structureGraph) return empty;
+    const bySlug = new Map(islands.filter((d) => d.slug).map((d) => [d.slug!, d] as const));
+    const f = structureGraph.frontier.find((x) => x.structureId === lensId);
+    const edgeBySlug = new Map(
+      structureGraph.edges.filter((e) => e.structureId === lensId).map((e) => [slugOfOp(e.islandOp), e] as const),
+    );
+    const rebuilt = (f?.rebuilt ?? []).flatMap((op) => {
+      const d = bySlug.get(slugOfOp(op));
+      if (!d) return [];
+      const e = edgeBySlug.get(slugOfOp(op));
+      return [{ d, weight: e?.weight ?? 1, actors: e?.actors ?? [] }];
+    });
+    const rebuiltClusters = new Set(rebuilt.map((r) => r.d.cluster?.code).filter((c): c is string => !!c));
+    const nearGaps: IslandDatum[] = [];
+    const farGaps: IslandDatum[] = [];
+    for (const op of f?.gaps ?? []) {
+      const d = bySlug.get(slugOfOp(op));
+      if (!d) continue;
+      if (d.cluster?.code && rebuiltClusters.has(d.cluster.code)) nearGaps.push(d);
+      else farGaps.push(d);
+    }
+    return { rebuilt, nearGaps, farGaps };
+  }, [lensId, structureGraph, islands]);
+
+  // ESC leaves the lens (the search box's own Escape handling wins while
+  // an input is focused).
+  useEffect(() => {
+    if (!lensId) return;
+    const onKey = (event: KeyboardEvent) => {
+      const tag = (event.target as HTMLElement | null)?.tagName;
+      if (event.key === 'Escape' && tag !== 'INPUT' && tag !== 'TEXTAREA') setLensId(null);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [lensId]);
 
   const handleHoverIsland = useCallback(
     (d: IslandDatum | null, pos: { x: number; y: number } | null) => {
@@ -77,7 +158,21 @@ function AtlasChartScreenImpl(props: ChartScreenProps) {
   if (noGpu) return <ChartScreen {...props} />;
 
   const hd = hover != null ? islands.find((d) => d.id === hover) ?? null : null;
-  const card = hd && hoverPos ? { content: computeCardContent(hd, lang, t), ...cardBoxPos(hoverPos.x, hoverPos.y) } : null;
+  // While a lens is on, the hover card states this island's relation to the
+  // structure: rebuilt (who walked the bridge, from the real edge) or an
+  // honest gap line — bare fact only, never a suggested mapping (§九).
+  let lensNote: { kind: 'rebuilt' | 'gap'; text: string } | undefined;
+  if (hd?.slug && lensId && structureGraph) {
+    const slug = hd.slug;
+    const edge = structureGraph.edges.find((e) => e.structureId === lensId && slugOfOp(e.islandOp) === slug);
+    if (edge) {
+      const who = edge.actors.map((a) => `@${a.split(':').at(-1) ?? a}`).join(' ');
+      lensNote = { kind: 'rebuilt', text: t('chart.card.lensRebuilt', { n: edge.weight, who }) };
+    } else if (twin.nearGaps.some((d) => d.slug === slug) || twin.farGaps.some((d) => d.slug === slug)) {
+      lensNote = { kind: 'gap', text: t('chart.card.lensGap') };
+    }
+  }
+  const card = hd && hoverPos ? { content: computeCardContent(hd, lang, t, lensNote), ...cardBoxPos(hoverPos.x, hoverPos.y) } : null;
 
   return (
     <div data-screen-label="L0 图集海图" style={{ position: 'absolute', inset: 0, background: '#F2EAD8' }}>
@@ -85,10 +180,20 @@ function AtlasChartScreenImpl(props: ChartScreenProps) {
           GeneratedIslandScreen's PixiScene: a brief blank paper background
           while the small atlas chunk loads, never a double chrome. */}
       <Suspense fallback={<div className="fi-atlas-loading" role="status"><i aria-hidden="true" /><span>{t('chart.tiers.loading')}</span></div>}>
-        <AtlasChartHost islands={islands} harbor={harbor} onPick={onIsland} onHoverIsland={handleHoverIsland} onWebglError={handleWebglError} onReady={setControls} onMetrics={setMetrics} />
+        <AtlasChartHost islands={islands} harbor={harbor} lens={lens} onPick={onIsland} onHoverIsland={handleHoverIsland} onWebglError={handleWebglError} onReady={setControls} onMetrics={setMetrics} />
       </Suspense>
 
       <ChartChrome islands={islands} onPick={onIsland} onBuild={onBuild} onCollide={onCollide} filter={filter} onFilter={onFilter} controls={controls} metrics={metrics} onHome={harbor && harbor.islandSlugs.length > 0 ? () => controls?.home?.() : undefined} />
+
+      <StructureLensPanel
+        structures={structures}
+        selected={lensId}
+        onSelect={setLensId}
+        rebuilt={twin.rebuilt}
+        nearGaps={twin.nearGaps}
+        farGaps={twin.farGaps}
+        onEnter={(d) => { if (controls && d.slug) controls.enter(d.slug); else onIsland(d); }}
+      />
 
       {card && <IslandCard content={card.content} left={card.left} top={card.top} />}
     </div>

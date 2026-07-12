@@ -246,6 +246,54 @@ function drawAtlasUnderside(g: Graphics, r: number, depth: number, domain: Atlas
   }
 }
 
+/**
+ * Structure-lens input (执行纲要 §九) — the 结构 ⇄ 现象 bipartite graph reduced
+ * to slug sets by the host (`chart/structureLens.ts`). The stage draws it as a
+ * MODAL focus layer built ENTIRELY from existing vocabulary (§5.1, no new
+ * geometry): rebuilt islands carry the outlier double-ring glow, gaps carry a
+ * dashed halo (the sea-current dash `7 5` at the proposed opacity 0.5), arcs
+ * between rebuilt islands reuse the air-route bow + wind gates, and everything
+ * else dims through the same fog channel My Harbor uses — a filter, never a
+ * wall (invariant 4): hit-testing is untouched.
+ */
+export interface AtlasStructureLensInput {
+  structureId: string;
+  /** Islands where this structure was rebuilt — lit solid. */
+  rebuiltSlugs: string[];
+  /** Honest dashed gaps ("此结构尚无人带来") — position only, NEVER a
+   * suggested mapping (§九 red-line). These are the NEAR gaps: islands in the
+   * same cluster as a rebuilt island. */
+  gapSlugs: string[];
+  /** The farther honest gaps — same domain, different cluster. Fainter dash,
+   * lighter dim: the neighbourhood has a real gradient and the lens
+   * transcribes it instead of flattening it. Optional (defaults to none). */
+  farGapSlugs?: string[];
+  /** Arcs between rebuilt islands (air-route vocabulary, chord order). */
+  arcs: Array<{ fromSlug: string; toSlug: string }>;
+}
+
+/** Lens palette: arcs/dashes in 赭石 ochre — the BRIDGE current tint (a rebuild
+ * is a human bridging act, same family as `bridge`/`transplant` currents);
+ * rebuilt glow in the outlier amber (`0xe3a93c`) verbatim. Both are frozen
+ * prototype colours already used on this stage — no new colour invented. */
+const LENS_ARC_TINT = 0xb5673a; // --fi-ochre (bridge current)
+const LENS_GLOW_TINT = 0xe3a93c; // outlier glow amber
+/** Fog-channel dim for islands outside the lens (matches My Harbor's 0.45 floor). */
+const LENS_DIM_FLOOR = 0.45;
+
+/** Trace a dashed circle with the sea-current dash rhythm (`7 5` world px) —
+ * Pixi has no strokeDasharray, so the dash is drawn as arc segments. */
+function traceDashedCircle(g: Graphics, cx: number, cy: number, r: number, dash = 7, gap = 5): void {
+  const circumference = 2 * Math.PI * r;
+  const n = Math.max(6, Math.round(circumference / (dash + gap)));
+  const step = (Math.PI * 2) / n;
+  const dashAngle = step * (dash / (dash + gap));
+  for (let i = 0; i < n; i++) {
+    const a0 = i * step;
+    g.moveTo(cx + Math.cos(a0) * r, cy + Math.sin(a0) * r).arc(cx, cy, r, a0, a0 + dashAngle);
+  }
+}
+
 /** Options for {@link AtlasStage.init}; mirrors {@link SceneStageOptions}. */
 export interface AtlasStageOptions {
   width?: number;
@@ -321,6 +369,10 @@ export class AtlasStage {
   readonly cloudBackLayer = new Container();
   /** Outlier variance-select glow (world space, all tiers). */
   readonly glowLayer = new Container();
+  /** Structure-lens marks (§九): rebuilt glows + dashed gap halos + bridge arcs.
+   * World space, above the glow layer so lens marks read over the base glows,
+   * below the islands so coastlines stay crisp. */
+  readonly lensLayer = new Container();
   /** Island coastlines (world space, mid/near). */
   readonly islandLayer = new Container();
   readonly cloudFrontLayer = new Container();
@@ -384,6 +436,22 @@ export class AtlasStage {
   /** My Harbor (depth-plan-v1 §3(d)): the actor's home set + per-island fog. */
   private harborSlugs = new Set<string>();
   private harborFog = new Map<string, number>();
+  /** Structure lens (§九): null = plain world. Slug sets cached for applyTier. */
+  private structureLens: AtlasStructureLensInput | null = null;
+  private lensRebuilt = new Set<string>();
+  private lensGaps = new Set<string>();
+  private lensFarGaps = new Set<string>();
+  /** Lens marks (halos) and arcs live in separate Graphics children of
+   * `lensLayer`: the enter animation redraws ONLY the arcs (progressive
+   * draw-on); halos ride the layer fade. */
+  private lensArcGfx?: Graphics;
+  /** Arc geometry cached by buildLensLayer for the draw-on animation. */
+  private lensArcGeom: Array<{ ax: number; ay: number; mx: number; my: number; bx: number; by: number; climb: number }> = [];
+  /** Enter-animation state: one-shot rAF (never a ticker — §7 on-demand
+   * render discipline). `lensReveal` multiplies into the layer alpha so the
+   * animation composes with applyTier's tier blend instead of fighting it. */
+  private lensReveal = 1;
+  private lensAnimRaf: number | null = null;
   /** The visitor has taken the camera somewhere themselves (drag / wheel /
    * zoom buttons). A late-arriving harbor then only applies its fog — it
    * never steals the camera back to the anchor mid-exploration. */
@@ -409,6 +477,7 @@ export class AtlasStage {
     this.clusterLayer.label = 'clusters';
     this.routeLayer.label = 'air-routes';
     this.localRouteLayer.label = 'local-air-routes';
+    this.lensLayer.label = 'structure-lens';
     this.cloudBackLayer.label = 'clouds-behind';
     this.glowLayer.label = 'glow';
     this.islandLayer.label = 'islands';
@@ -421,7 +490,7 @@ export class AtlasStage {
     // paint order within world: climate washes (back) → cluster blobs → glow →
     // islands (front). The continent layer is lane W2's and sits BELOW clusters.
     this.islandLayer.sortableChildren = true;
-    this.worldRoot.addChild(this.terrainLayer, this.continentLayer, this.clusterLayer, this.routeLayer, this.localRouteLayer, this.glowLayer, this.cloudBackLayer, this.islandLayer, this.cloudFrontLayer);
+    this.worldRoot.addChild(this.terrainLayer, this.continentLayer, this.clusterLayer, this.routeLayer, this.localRouteLayer, this.glowLayer, this.lensLayer, this.cloudBackLayer, this.islandLayer, this.cloudFrontLayer);
   }
 
   async init(target: HTMLCanvasElement | HTMLElement, opts: AtlasStageOptions = {}): Promise<void> {
@@ -469,6 +538,9 @@ export class AtlasStage {
     this.altitudeBySlug = new Map(islands.map((island) => [island.slug, altitudeOf(island)]));
     this.buildClusters();
     for (const o of islands) this.islands.push(this.buildIsland(o));
+    // A lens set before/across a dataset swap re-marks the NEW nodes (the lens
+    // is a reduce over slugs, so it survives reconciliation unchanged).
+    this.buildLensLayer();
     this.fitToContent(islands);
     // setIslands + setClimate + ResizeObserver arrive in one boot turn. Never
     // synchronously render each step: Pixi v8's batcher can be re-entered before
@@ -1149,6 +1221,201 @@ export class AtlasStage {
     if (center) this.flyToPoint(center.x, center.y, this.harborScale());
   }
 
+  // ─── Structure lens 结构透镜 (执行纲要 §九) ──────────────────────────────────
+
+  /**
+   * Enter/leave the structure lens — a MODAL focus over the same world: islands
+   * where the selected structure was rebuilt light up (outlier-glow vocabulary)
+   * with bridge-tint arcs between them; the near gaps carry an honest dashed
+   * halo (sea-current dash, proposed opacity — "此结构尚无人带来", never a
+   * suggested mapping); everything else dims through the fog channel. Air
+   * routes hide while the lens is on so the bridge arcs are the only spans in
+   * view. `null` restores the plain world exactly.
+   */
+  setStructureLens(lens: AtlasStructureLensInput | null): void {
+    this.structureLens = lens;
+    this.lensRebuilt = new Set(lens?.rebuiltSlugs ?? []);
+    this.lensGaps = new Set(lens?.gapSlugs ?? []);
+    this.lensFarGaps = new Set(lens?.farGapSlugs ?? []);
+    this.buildLensLayer();
+    // Enter animation: the layer fades in while the bridge arcs draw
+    // themselves island-to-island — the §九 story ("a bridge is walked, not
+    // drawn") made literal, once, then static. Leaving the lens is immediate.
+    if (lens) this.animateLensIn();
+    else this.lensReveal = 1;
+    this.requestFrame(true);
+    // Frame the lens: selecting a structure flies the camera to its REBUILT
+    // islands (the lens' headline) — same ease vocabulary as a region tap.
+    // A pure frontier (0 rebuilt) moves nothing: there is nothing to frame,
+    // the dimmed whole-sea IS the honest picture.
+    if (lens) this.flyToLensMembers();
+  }
+
+  /** Ease the camera to frame the rebuilt islands of the active lens. One
+   * island lands at the harbor's mid-tier scale; several fit their bbox. */
+  private flyToLensMembers(): void {
+    if (!this.app) return;
+    const nodes = this.islands.filter((node) => this.lensRebuilt.has(node.o.slug));
+    if (nodes.length === 0) return;
+    // Switching lenses mid-flight retargets instead of silently skipping.
+    if (this.flightRaf != null) { cancelAnimationFrame(this.flightRaf); this.flightRaf = null; }
+    this.flying = false;
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const node of nodes) {
+      const y = projectIslandY(node.o);
+      minX = Math.min(minX, node.o.x); maxX = Math.max(maxX, node.o.x);
+      minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+    }
+    const cx = (minX + maxX) / 2;
+    const cy = (minY + maxY) / 2;
+    const pad = 170;
+    const fit = Math.min(
+      this.app.screen.width / (maxX - minX + pad * 2),
+      this.app.screen.height / (maxY - minY + pad * 2),
+    );
+    // One island reads at the harbor's "home waters" scale; a spread fits its
+    // bbox but never lands closer than mid tier or further than the world floor.
+    const scale = nodes.length === 1 ? Math.max(this.minScale, Math.min(MAX_SCALE, 1.15)) : Math.max(this.minScale, Math.min(1.4, fit));
+    this.flyToPoint(cx, cy, scale);
+  }
+
+  /** Rebuild the lens marks from the CURRENT island nodes (world space). All
+   * geometry is existing vocabulary: outlier double-ring glow for rebuilt,
+   * dashed halo for gaps (near = same cluster, far = same domain, fainter),
+   * air-route bow + wind gates for arcs. */
+  private buildLensLayer(): void {
+    if (this.lensAnimRaf != null) { cancelAnimationFrame(this.lensAnimRaf); this.lensAnimRaf = null; }
+    this.lensLayer.removeChildren().forEach((c) => c.destroy());
+    this.lensArcGfx = undefined;
+    this.lensArcGeom = [];
+    const lens = this.structureLens;
+    if (!lens) return;
+    const bySlug = new Map(this.islands.map((node) => [node.o.slug, node] as const));
+
+    // Bridge arcs between rebuilt islands — the SAME bow as `buildLocalRoutes`,
+    // in the bridge/ochre tint (a rebuild is a human bridging act). Geometry is
+    // cached; `drawLensArcs` paints it (partially, during the enter animation).
+    // Every arc is backed by rebuild events (inv 14).
+    for (const arc of lens.arcs) {
+      const from = bySlug.get(arc.fromSlug);
+      const to = bySlug.get(arc.toSlug);
+      if (!from || !to) continue;
+      const ax = from.o.x;
+      const ay = projectIslandY(from.o);
+      const bx = to.o.x;
+      const by = projectIslandY(to.o);
+      const dx = bx - ax;
+      const dy = by - ay;
+      const len = Math.hypot(dx, dy) || 1;
+      const nx = -dy / len;
+      const ny = dx / len;
+      const climb = Math.abs(altitudeZOf(to.o) - altitudeZOf(from.o));
+      const bow = Math.min(120, len * 0.18) + climb * 54;
+      const mx = (ax + bx) / 2 + nx * bow;
+      const my = (ay + by) / 2 + ny * bow - 20 - climb * 34;
+      this.lensArcGeom.push({ ax, ay, mx, my, bx, by, climb });
+    }
+
+    const halos = new Graphics();
+    for (const node of this.islands) {
+      const o = node.o;
+      const r = ATLAS_STAGE_RADIUS[Math.max(0, Math.min(3, o.stage)) as 0 | 1 | 2 | 3];
+      const x = o.x;
+      const y = projectIslandY(o);
+      if (this.lensRebuilt.has(o.slug)) {
+        // rebuilt → the outlier double-ring glow, verbatim proportions.
+        halos.circle(x, y, r + 22).fill({ color: LENS_GLOW_TINT, alpha: 0.1 });
+        halos.circle(x, y, r + 10).fill({ color: LENS_GLOW_TINT, alpha: 0.14 });
+      } else if (this.lensGaps.has(o.slug)) {
+        // near gap (same cluster) → dashed halo, sea-current dash `7 5` at the
+        // proposed opacity 0.5. Position only — the halo states "no edge
+        // here", nothing more (§九).
+        traceDashedCircle(halos, x, y, r + 14);
+        halos.stroke({ color: LENS_ARC_TINT, width: 1.4, alpha: 0.5 });
+      } else if (this.lensFarGaps.has(o.slug)) {
+        // far gap (same domain, different cluster) → the same dash, fainter:
+        // the frontier has a real gradient and the ink transcribes it.
+        traceDashedCircle(halos, x, y, r + 12);
+        halos.stroke({ color: LENS_ARC_TINT, width: 1.05, alpha: 0.3 });
+      }
+    }
+    const arcs = new Graphics();
+    this.lensArcGfx = arcs;
+    this.lensLayer.addChild(halos, arcs);
+    this.drawLensArcs(1);
+  }
+
+  /** Paint the bridge arcs up to `t` ∈ [0,1] of their length (de Casteljau
+   * split of the quadratic). Gates and endpoint dots appear only at t = 1 —
+   * while drawing, the line is a pen travelling island to island. */
+  private drawLensArcs(t: number): void {
+    const g = this.lensArcGfx;
+    if (!g) return;
+    g.clear();
+    const lerp = (a: number, b: number, k: number): number => a + (b - a) * k;
+    let drawn = false;
+    for (const a of this.lensArcGeom) {
+      // Partial quadratic [0,t]: de Casteljau split control points.
+      const p1x = lerp(a.ax, a.mx, t);
+      const p1y = lerp(a.ay, a.my, t);
+      const q1x = lerp(a.mx, a.bx, t);
+      const q1y = lerp(a.my, a.by, t);
+      const endX = lerp(p1x, q1x, t);
+      const endY = lerp(p1y, q1y, t);
+      g.moveTo(a.ax, a.ay).quadraticCurveTo(p1x, p1y, endX, endY)
+        .stroke({ color: 0xf8f1de, width: 5.6, alpha: 0.58, cap: 'round', join: 'round' });
+      g.moveTo(a.ax, a.ay).quadraticCurveTo(p1x, p1y, endX, endY)
+        .stroke({ color: LENS_ARC_TINT, width: 2.4, alpha: 0.85, cap: 'round', join: 'round' });
+      drawn = true;
+      if (t >= 1) {
+        for (let gate = 1; gate <= 3; gate++) {
+          const s = gate / 4;
+          const u = 1 - s;
+          const gx = u * u * a.ax + 2 * u * s * a.mx + s * s * a.bx;
+          const gy = u * u * a.ay + 2 * u * s * a.my + s * s * a.by;
+          const tx = 2 * u * (a.mx - a.ax) + 2 * s * (a.bx - a.mx);
+          const ty = 2 * u * (a.my - a.ay) + 2 * s * (a.by - a.my);
+          const tl = Math.hypot(tx, ty) || 1;
+          const half = 3.5 + a.climb * 2.5;
+          g.moveTo(gx - (-ty / tl) * half, gy - (tx / tl) * half)
+            .lineTo(gx + (-ty / tl) * half, gy + (tx / tl) * half)
+            .stroke({ color: LENS_ARC_TINT, width: 0.9, alpha: 0.72 });
+        }
+        g.circle(a.ax, a.ay, 3.2).fill({ color: 0xf8f1de, alpha: 0.9 }).stroke({ color: LENS_ARC_TINT, width: 1, alpha: 0.8 });
+        g.circle(a.bx, a.by, 3.2).fill({ color: LENS_ARC_TINT, alpha: 0.76 });
+      }
+    }
+    // Keep the Graphics non-empty at t=0 (same null-batcher discipline as
+    // `redrawFog`) — an empty Graphics trips Pixi v8's batcher on render.
+    if (!drawn) g.circle(0, 0, 1).fill({ color: LENS_ARC_TINT, alpha: 0 });
+  }
+
+  /** One-shot lens enter animation (fade + arc draw-on). Never a ticker — a
+   * bounded rAF loop that settles static, same discipline as `flyToPoint`.
+   * Reduced-motion collapses it to the final frame immediately. */
+  private animateLensIn(): void {
+    if (this.lensAnimRaf != null) { cancelAnimationFrame(this.lensAnimRaf); this.lensAnimRaf = null; }
+    const reduced = typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced || !this.app) {
+      this.lensReveal = 1;
+      this.drawLensArcs(1);
+      return;
+    }
+    const duration = 520;
+    this.lensReveal = 0;
+    this.drawLensArcs(0);
+    const t0 = performance.now();
+    const step = (now: number): void => {
+      const t = Math.min(1, (now - t0) / duration);
+      const e = 1 - Math.pow(1 - t, 3); // easeOutCubic — same curve as flyToPoint
+      this.lensReveal = e;
+      this.drawLensArcs(e);
+      this.requestFrame(false);
+      this.lensAnimRaf = t < 1 ? requestAnimationFrame(step) : null;
+    };
+    this.lensAnimRaf = requestAnimationFrame(step);
+  }
+
   /** Current screen-space anchor for React hover cards and verification. */
   screenPoint(slug: string): { x: number; y: number } | null {
     const node = this.islands.find((candidate) => candidate.o.slug === slug);
@@ -1342,15 +1609,26 @@ export class AtlasStage {
     // stray pen stroke over the overview. Keep them a faint ambient hint at far
     // and let them gain body at mid/near, where enough are in frame that they
     // mean "sail between these" instead of floating alone.
-    this.routeLayer.alpha = Math.max(blend.far * 0.28, blend.mid * 0.34);
-    this.localRouteLayer.alpha = Math.max(blend.far * 0.06, blend.mid * 0.44, blend.near * 0.58);
+    // Structure lens (§九): while a lens is on, the ordinary air routes hide so
+    // the bridge arcs are the only spans in view, the lens layer carries its
+    // marks at every tier, and the island layer keeps a floor so lit/dashed
+    // islands stay readable even at the world tier (their dimmed neighbours
+    // recede through the fog channel below).
+    const lensActive = this.structureLens !== null;
+    this.lensLayer.visible = lensActive;
+    // `lensReveal` is the one-shot enter animation's fade (1 once settled).
+    this.lensLayer.alpha = lensActive ? Math.max(blend.far * 0.85, blend.mid, blend.near) * this.lensReveal : 0;
+    this.routeLayer.alpha = lensActive ? 0 : Math.max(blend.far * 0.28, blend.mid * 0.34);
+    this.localRouteLayer.alpha = lensActive ? 0 : Math.max(blend.far * 0.06, blend.mid * 0.44, blend.near * 0.58);
     this.cloudBackLayer.alpha = Math.max(blend.far * 0.82, blend.mid * 0.46, blend.near * 0.18);
     this.cloudFrontLayer.alpha = Math.max(blend.far * 0.54, blend.mid * 0.3, blend.near * 0.08);
     // Territory NAMES fade faster than their washes (crisp only at true far zoom).
-    this.continentLabelLayer.alpha = blend.far * blend.far;
+    // With a lens on, name chips recede too (same fog discipline as the isles):
+    // the lens marks are the figure, the geography stays a quiet ground.
+    this.continentLabelLayer.alpha = blend.far * blend.far * (lensActive ? 0.4 : 1);
     this.clusterLayer.alpha = blend.far;
-    this.clusterLabelLayer.alpha = blend.far;
-    this.islandLayer.alpha = Math.max(blend.mid, blend.near);
+    this.clusterLabelLayer.alpha = blend.far * (lensActive ? 0.35 : 1);
+    this.islandLayer.alpha = lensActive ? Math.max(blend.mid, blend.near, 0.9) : Math.max(blend.mid, blend.near);
     // outlier glow floats at every tier, but strongest at far (it IS the overview signal).
     this.glowLayer.alpha = Math.max(0.55, blend.far);
 
@@ -1411,9 +1689,22 @@ export class AtlasStage {
     for (const nd of this.islands) {
       const o = nd.o;
       const parent = (o.role ?? 'anchor') === 'satellite' && o.parentSlug ? anchorScreen.get(o.parentSlug) : undefined;
-      const hierarchyAlpha = (o.role ?? 'anchor') === 'satellite'
-        ? (parent ? satelliteDisclosure(scale, parent.sx, parent.sy, view.width, view.height) : satelliteAlpha)
-        : 1;
+      // Lens members are the lens' whole point — every marked island (rebuilt,
+      // near gap, far gap) stays disclosed at every camera, satellites
+      // included, while the lens is on: a dashed halo must never ring empty
+      // sea, and a marked island must always answer hover.
+      const lensRole = !lensActive
+        ? null
+        : this.lensRebuilt.has(o.slug) || this.lensGaps.has(o.slug)
+          ? 'member'
+          : this.lensFarGaps.has(o.slug)
+            ? 'far'
+            : 'out';
+      const hierarchyAlpha = lensRole === 'member' || lensRole === 'far'
+        ? 1
+        : (o.role ?? 'anchor') === 'satellite'
+          ? (parent ? satelliteDisclosure(scale, parent.sx, parent.sy, view.width, view.height) : satelliteAlpha)
+          : 1;
       nd.reveal = hierarchyAlpha;
       // My Harbor fog (§3(d)): far-from-harbor islands read dimmer at the
       // overview, and the fog lifts as you sail near (blend.near → 1) — the
@@ -1422,6 +1713,17 @@ export class AtlasStage {
       // filter, not a wall (invariant 4).
       const harborFog = this.harborFog.get(o.slug) ?? 0;
       nd.fogDim = 1 - harborFog * 0.55 * (1 - blend.near);
+      // Structure lens dim rides the SAME fog channel (a filter, not a wall —
+      // invariant 4): islands outside the lens recede toward the harbor-fog
+      // floor, hit-testing untouched. While the lens is on it OWNS the fog
+      // channel: members hold full ink (harbor fog would otherwise dim the
+      // very islands the lens lights — the lens question "where does this
+      // structure live" outranks the overview question "where is home"), and
+      // far gaps (same domain, different cluster) hold a middle register —
+      // the same honest near/far gradient their fainter dash already draws.
+      if (lensActive) {
+        nd.fogDim = lensRole === 'member' ? 1 : lensRole === 'far' ? 0.75 : nd.fogDim * LENS_DIM_FLOOR;
+      }
       const domainVisible = !this.domainFocus || o.domain === this.domainFocus;
       const altitudeVisible = !this.altitudeFocus || nd.band === this.altitudeFocus;
       const focusVisible = domainVisible && altitudeVisible;
@@ -1554,6 +1856,10 @@ export class AtlasStage {
       nd.dot.destroy();
     }
     this.islands = [];
+    if (this.lensAnimRaf != null) { cancelAnimationFrame(this.lensAnimRaf); this.lensAnimRaf = null; }
+    this.lensLayer.removeChildren().forEach((c) => c.destroy());
+    this.lensArcGfx = undefined;
+    this.lensArcGeom = [];
     this.clusterLayer.removeChildren().forEach((c) => c.destroy());
     this.routeLayer.removeChildren().forEach((c) => c.destroy());
     this.localRouteLayer.removeChildren().forEach((c) => c.destroy());
