@@ -21,6 +21,6 @@ describe("rebuild action (执行纲要 §九 — the edge of the structure⇄isl
     chain = appendEvent(chain, { ...base, action: "validate" });
     chain = appendEvent(chain, { ...base, action: "fork" });
     expect(verifyChain(chain).ok).toBe(true);
-    expect(chain[0].action).toBe("rebuild");
+    expect(chain[0]!.action).toBe("rebuild");
   });
 });

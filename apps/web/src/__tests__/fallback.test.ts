@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { DATA, QUESTIONS, STN, RITQ, DRIFT, BRIEF, AUTHQ } from '../api/fallback';
 
 describe('fallback data matches the curated atlas', () => {
-  it('has 79 chart islands (78 curated frontiers + 1 bespoke sample)', () => {
-    expect(DATA).toHaveLength(79);
+  it('has 129 chart islands (128 curated frontiers + 1 bespoke sample)', () => {
+    expect(DATA).toHaveLength(129);
   });
 
   it('has 7 Question-Wall questions', () => {

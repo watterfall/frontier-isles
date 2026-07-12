@@ -3,13 +3,12 @@ import { DATA } from '../../../api/fallback';
 import { buildMobileHierarchy } from '../MobileShell';
 
 describe('buildMobileHierarchy — compact nested atlas projection', () => {
-  it('reduces the 79-island phone overview to eight geometry anchors', () => {
+  it('reduces the 129-island phone overview to eight geometry anchors', () => {
     const hierarchy = buildMobileHierarchy(DATA);
     expect([...hierarchy.values()].filter((item) => item.role === 'anchor')).toHaveLength(8);
-    // 79 islands = 8 anchors + 71 satellites. The old expectation of 70 was
-    // baked around a duplicate-id bug (sample island reused frontier id 27),
-    // which silently collapsed two islands into one Map entry.
-    expect([...hierarchy.values()].filter((item) => item.role === 'satellite')).toHaveLength(71);
+    // 129 islands (128 curated + sample) = 8 anchors + 121 satellites. The anchor
+    // cap is fixed at 8 regardless of N (CLAUDE.md: ≤8 anchors on the phone).
+    expect([...hierarchy.values()].filter((item) => item.role === 'satellite')).toHaveLength(121);
   });
 
   it('gives every satellite a real anchor parent', () => {
