@@ -26,6 +26,7 @@ import { GeneratedSceneView } from '../../scene/GeneratedScene';
 import type { LayoutInput } from '../../scene/layout';
 import { replayToNight, type NightReplayState } from '../../scene/nightReplay';
 import { dueRituals, extractRitualEvents, loadWatermark, saveWatermark, type RitualEvent } from '../../scene/rituals';
+import { contentionFromRefuted } from '../../scene/undertow';
 
 // Ritual moments (depth-plan-v1 §6/§9 Batch 1): how often the live L1 re-polls
 // the ledger so a publish/transplant fired by someone else while you're
@@ -209,7 +210,7 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
         validates: events.filter((e) => e.action === 'validate').length,
         refutes: events.filter((e) => e.action === 'refute').length,
         bridges: events.filter((e) => e.action.startsWith('bridge')).length,
-        contention: Math.min(1, refuted * 0.5),
+        contention: contentionFromRefuted(refuted),
       });
       // Ritual moments — the "just landed" catch-up (recent publish/transplant
       // within the window still fire; older history silently advances the

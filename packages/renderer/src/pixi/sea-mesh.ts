@@ -154,9 +154,15 @@ void main() {
   col *= (1.0 - uDepth);
 
   // Undertow: a dark, slow-swirling patch for disputed seas (contention magnitude).
+  // Recalibrated at real fbm magnitude (R6 Lever 2): the 4-octave fbm here peaks
+  // near ~0.86, so the old upper edge 0.92 was unreachable — swirl never hit 1.0
+  // and the patch read far too faintly. The band 0.50->0.82 (0.82 ~ fbm p99) and
+  // the darker 0.50 floor make disputed seas legible. The uUndertow > 0.001 guard
+  // AND the (swirl * uUndertow) factor both keep a calm sea pixel-identical to
+  // no-undertow (u = 0 => zero contribution): a calm sea never swirls.
   if (uUndertow > 0.001) {
-    float swirl = smoothstep(0.55, 0.92, fbm(w * 0.018 - vec2(uTime * 0.12, uTime * 0.08)));
-    col = mix(col, col * 0.62, swirl * uUndertow * (1.0 - here));
+    float swirl = smoothstep(0.50, 0.82, fbm(w * 0.018 - vec2(uTime * 0.12, uTime * 0.08)));
+    col = mix(col, col * 0.50, swirl * uUndertow * (1.0 - here));
   }
 
   finalColor = vec4(col, 1.0);
