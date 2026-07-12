@@ -91,8 +91,9 @@ export interface PixiSceneProps {
   activeStations?: ReadonlySet<StationKind>;
   /** Domain abstractness (frontier.substrate, 0..1) → sea darkness (海即数据, depth-plan-v2 §4). */
   substrate?: number;
-  /** Disputed-sea undertow: a boolean (demo toggle) or 0..1 contention magnitude (海即数据). */
-  undertow?: boolean | number;
+  /** Disputed-sea agitation (R7 Dim 2): a boolean (demo toggle) or 0..1 contention
+   *  magnitude (海即数据). Data = contention; agitation is its surface-chop visual. */
+  agitation?: boolean | number;
   /** Tapping a station calls back with its kind so the parent opens that station. */
   onStation?: (kind: StationKind) => void;
   /** Tapping a claim tower calls back with its ledger-projected {@link ClaimState}
@@ -123,9 +124,9 @@ export interface PixiSceneProps {
 
 /**
  * The embeddable Pixi scene. Re-boots on `input`/`claims` change (once per island
- * open); `t`/`undertow` apply live without a re-boot.
+ * open); `t`/`agitation` apply live without a re-boot.
  */
-export default function PixiScene({ input, claims, t, lang = 'zh', activeStations, substrate, undertow = false, onStation, onClaim, rituals, onRitualTap, reducedMotion = false, onWebglError, onMetrics }: PixiSceneProps) {
+export default function PixiScene({ input, claims, t, lang = 'zh', activeStations, substrate, agitation = false, onStation, onClaim, rituals, onRitualTap, reducedMotion = false, onWebglError, onMetrics }: PixiSceneProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<SceneStage | null>(null);
   const cam = useRef({ ...worldToScreen(8, 8), zoom: 0.75 }); // island centre (tile 8,8)
@@ -353,10 +354,10 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
     stageRef.current?.tweenDayNight(t);
   }, [t]);
 
-  // Disputed-sea undertow toggle (M2).
+  // Disputed-sea agitation (R7 Dim 2 — contention as surface chop).
   useEffect(() => {
-    stageRef.current?.setUndertow(undertow);
-  }, [undertow]);
+    stageRef.current?.setAgitation(agitation);
+  }, [agitation]);
 
   // prefers-reduced-motion → freeze/thaw the WebGL sea + micro-dynamics (a11y, R7
   // ride-along C). CSS's reduced-motion kill switch never reaches the Pixi ticker.

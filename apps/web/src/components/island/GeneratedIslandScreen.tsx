@@ -97,7 +97,7 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
   // M8 micro-dynamics second batch: which stations had recent ledger activity
   // (chimney smoke / flag wave read this — never a decorative always-on loop).
   const [activeStations, setActiveStations] = useState<Set<StationKind> | undefined>(undefined);
-  // 海即数据 (depth-plan-v2): substrate → sea darkness, refuted claims → undertow
+  // 海即数据 (depth-plan-v2): substrate → sea darkness, refuted claims → agitation
   // contention, relation counts → the text decoder (invariant 6: honest encoding).
   const [seaStats, setSeaStats] = useState<{ substrate?: number; validates: number; refutes: number; refuted: number; bridges: number; contention: number } | null>(null);
   const [failed, setFailed] = useState(false);
@@ -201,11 +201,11 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
       setScrubNight(tl.nights);
       setReplay(null);
       // 海即数据 readouts: contention = ever-refuted magnitude (a refute is one-way;
-      // no resolution verb exists yet — see R7 semantic issue) (→ undertow);
+      // no resolution verb exists yet — see R7 semantic issue) (→ agitation);
       // relation counts decode the sea for the reader (list-twin, not a painted key).
       const events = ledger ?? [];
       setActiveStations(ledger ? projectActiveStations(ledger, { now: Date.now() }) : undefined);
-      // Single source (R7 Dim 1): the refuted-CLAIM count drives BOTH the undertow
+      // Single source (R7 Dim 1): the refuted-CLAIM count drives BOTH the agitation
       // (contention) and its decoder readout below, so the two can never diverge.
       const refuted = refutedClaimCount(projected);
       setSeaStats({
@@ -316,12 +316,12 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
   };
   const domain = detail.domain as '数理' | '物质' | '生命' | '交叉';
   // 海即数据 decoder (invariant 6): abstractness tier for the sea-depth readout +
-  // the relation counts that make the current/undertow legible as text (list-twin).
+  // the relation counts that make the current/agitation legible as text (list-twin).
   const abstractKey = (s: number): string => (s >= 0.66 ? 'island.seaData.abstract.hi' : s >= 0.33 ? 'island.seaData.abstract.mid' : 'island.seaData.abstract.lo');
   const relParts: string[] = [];
   if (seaStats) {
     if (seaStats.validates) relParts.push(`${seaStats.validates} ${t('island.seaData.validate')}`);
-    // The undertow reads refuted CLAIMS (ghosts) — decode the sea with that exact
+    // The agitation reads refuted CLAIMS (ghosts) — decode the sea with that exact
     // quantity (R7 Dim 1). Refute EVENTS are a different axis, labelled distinctly
     // so neither number silently stands in for the other.
     if (seaStats.refuted) relParts.push(`${seaStats.refuted} ${t('island.seaData.refutedClaims')}`);
@@ -361,7 +361,7 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
             lang={lang}
             activeStations={effActive}
             substrate={seaStats?.substrate}
-            undertow={seaStats?.contention ?? 0}
+            agitation={seaStats?.contention ?? 0}
             onStation={handleStation}
             onClaim={setClaimPanel}
             onWebglError={() => setNoGpu(true)}
@@ -407,7 +407,7 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
             {brief && <p className="fi-island-brief">{brief}</p>}
             <div className="fi-island-evidence-row">
               {citation && <a href={citation.url} target="_blank" rel="noopener noreferrer">↗ {citation.venue} · {citation.year}</a>}
-            {/* 海即数据 decoder: sea darkness = abstractness, undertow = contention;
+            {/* 海即数据 decoder: sea darkness = abstractness, agitation = contention;
                 stated as text so the sea's data channels are always decodable. */}
               {seaStats?.substrate != null && <span>≈ {t('island.seaData.depth')} {seaStats.substrate.toFixed(2)} · {t(abstractKey(seaStats.substrate))}</span>}
               {relParts.length > 0 && <span>⇄ {relParts.join(' · ')}</span>}

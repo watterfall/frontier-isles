@@ -96,3 +96,17 @@ describe('SceneStage reduced-motion plumbing (R7 ride-along C)', () => {
     expect(read()).toBe(false);
   });
 });
+
+describe('SceneStage agitation channel rename (R7 Dim 2)', () => {
+  it('exposes setAgitation and no longer setUndertow', () => {
+    const s = new SceneStage() as unknown as Record<string, unknown>;
+    expect(typeof s.setAgitation).toBe('function');
+    expect(s.setUndertow).toBeUndefined();
+  });
+
+  it('setAgitation is a safe no-op before the sea shader exists (headless)', () => {
+    const s = new SceneStage();
+    expect(() => s.setAgitation(0.6)).not.toThrow();
+    expect(() => s.setAgitation(true)).not.toThrow();
+  });
+});

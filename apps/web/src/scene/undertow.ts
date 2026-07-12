@@ -1,8 +1,9 @@
 /**
- * Undertow contention curve (海即数据, R6 Lever 2).
+ * Contention curve for the sea's agitation channel (海即数据, R6 Lever 2; the sea
+ * VISUAL became `agitation` in R7 Dim 2, but the DATA name stays `contention`).
  *
  * Maps the count of ever-refuted claims (`ghost === 'refuted'`) to the sea-shader
- * `uUndertow` magnitude in [0, 1]. NOTE: `refuted` is a one-way flag — a single
+ * `uAgitation` magnitude in [0, 1]. NOTE: `refuted` is a one-way flag — a single
  * `refute` event sets it permanently and no ledger action resolves it (no
  * resolution verb exists yet; whether to add one is an R7 semantic question), so
  * this reads "ever-refuted", not "currently-disputed". Kept a pure function so the
@@ -26,9 +27,9 @@ export function contentionFromRefuted(refuted: number): number {
 }
 
 /**
- * The SINGLE source for undertow magnitude (R7 Dim 1): the number of refuted
+ * The SINGLE source for agitation magnitude (R7 Dim 1): the number of refuted
  * (ghost) CLAIMS — `ghost === 'refuted'`. This is deliberately NOT the count of
- * `refute` ledger EVENTS: the undertow reads refuted claims, so the sea's decoder
+ * `refute` ledger EVENTS: the agitation reads refuted claims, so the sea's decoder
  * legend must read this exact quantity too. Both the shader input
  * (`contentionFromRefuted(refutedClaimCount(...))`) and the on-screen readout are
  * fed from here, so decoder and sea can never silently diverge (H1+H5 near-lie).

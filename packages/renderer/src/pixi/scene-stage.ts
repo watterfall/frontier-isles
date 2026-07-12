@@ -1047,15 +1047,15 @@ export class SceneStage {
   }
 
   /**
-   * Set the disputed-sea undertow. Accepts a boolean (M2 dev toggle) OR a 0..1
-   * contention magnitude (海即数据: this island's ever-refuted intensity — a refute
-   * is one-way, no resolution verb exists yet, see R7; depth-plan-v2 §3 whirlpool,
-   * data-bound not decorative).
+   * Set the disputed-sea agitation (R7 Dim 2 — was setUndertow). Accepts a boolean
+   * (dev toggle) OR a 0..1 contention magnitude (海即数据: this island's ever-refuted
+   * intensity — a refute is one-way, no resolution verb exists yet, see R7). The
+   * DATA is still "contention"; `agitation` is its surface-chop VISUAL.
    */
-  setUndertow(on: boolean | number): void {
+  setAgitation(on: boolean | number): void {
     const v = typeof on === 'number' ? Math.max(0, Math.min(1, on)) : on ? 1 : 0;
-    const u = this.seaShader?.resources.waveUniforms?.uniforms as { uUndertow: number } | undefined;
-    if (u) u.uUndertow = v;
+    const u = this.seaShader?.resources.waveUniforms?.uniforms as { uAgitation: number } | undefined;
+    if (u) u.uAgitation = v;
   }
 
   /** Advance the wave clock each frame; app.start() auto-renders after. */

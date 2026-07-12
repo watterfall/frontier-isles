@@ -6,7 +6,7 @@
 import { describe, expect, it } from 'vitest';
 import { contentionFromRefuted, refutedClaimCount } from '../scene/undertow';
 
-describe('contentionFromRefuted (R6 Lever 2 undertow curve)', () => {
+describe('contentionFromRefuted (R6 Lever 2 contention→agitation curve)', () => {
   it('maps refute count to the recalibrated contention magnitude', () => {
     expect(contentionFromRefuted(0)).toBe(0);
     expect(contentionFromRefuted(1)).toBe(0.6);
@@ -37,7 +37,7 @@ describe('contentionFromRefuted (R6 Lever 2 undertow curve)', () => {
   });
 });
 
-describe('refutedClaimCount — undertow single source (R7 Dim 1)', () => {
+describe('refutedClaimCount — agitation single source (R7 Dim 1)', () => {
   const claims = [
     { ref: 'a', ghost: 'refuted' },
     { ref: 'b', ghost: 'refuted' },

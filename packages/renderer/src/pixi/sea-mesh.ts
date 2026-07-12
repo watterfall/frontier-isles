@@ -8,8 +8,9 @@
  *  - shore foam: a coastline mask texture (land = alpha 1) is ring-sampled; a
  *    sea pixel adjacent to land gets an animated foam band (the §5 binding:
  *    foam = coastline geometry, a reduction over terrain, no new verb).
- *  - undertow: a toggleable dark turbulent patch for "disputed seas" (M2 makes it
- *    a switchable uniform; M6/whirlpool data drives it later).
+ *  - agitation: contention as a zero-mean surface chop weave for "disputed seas"
+ *    (R7 Dim 2; uAgitation uniform, driven by claim contention). Reads off the
+ *    lightness axis — it perturbs the surface, never the mean luminance.
  *
  * Engine-agnostic seam: geometry is in world-screen coords (same space as
  * iso.worldToScreen), so the layout/camera own placement; the shader owns paint.
@@ -76,7 +77,7 @@ out vec4 finalColor;
 
 uniform float uTime;
 uniform vec4 uMaskRect;      // x, y, w, h (world-screen)
-uniform float uUndertow;     // 0 = calm, 1..N = disputed-sea contention magnitude
+uniform float uAgitation;    // 0 = calm, >0 = disputed-sea contention as surface chop
 uniform float uDepth;        // sea darkness = domain abstractness (depth-plan-v2 §4); 0..~0.42
 uniform float uTide;         // tide N = A − D, normalised 0..1: shore-ripple amplitude/density
 uniform vec3 uSeaColor;
@@ -153,19 +154,25 @@ void main() {
   // never a new hue, and independent of the domain-hue channel above.
   col *= (1.0 - uDepth);
 
-  // Undertow: a dark, slow-swirling patch for disputed seas (contention magnitude).
-  // Recalibrated (R6 Lever 2): the old band 0.55,0.92 set its upper edge above the
-  // 4-octave fbm's usable range here — the high tail runs out well below 0.92
-  // (p99 ~ 0.73; observed peak ~0.86-0.89, sample-dependent), so the swirl mask
-  // barely opened and the patch read too faintly. The new band 0.50,0.82 puts the
-  // upper edge inside that high tail and the darker 0.50 floor deepens the patch.
-  // A real WebGL2 A/B (R6 verifier) measured the recalibrated undertow at ~4x the
-  // open-sea luma delta of the old parameters at u=0.60. Zero-preservation: the
-  // uUndertow > 0.001 guard AND the (swirl * uUndertow) factor both make u=0
-  // pixel-identical to no-undertow: a calm sea never swirls.
-  if (uUndertow > 0.001) {
-    float swirl = smoothstep(0.50, 0.82, fbm(w * 0.018 - vec2(uTime * 0.12, uTime * 0.08)));
-    col = mix(col, col * 0.50, swirl * uUndertow * (1.0 - here));
+  // Agitation: contention as SURFACE CHOP, not a darkening (R7 Dim 2). Disputed
+  // seas get a zero-mean cross-hatched chop weave that rides the water's own
+  // shallow-to-deep colour swing, so it reads as "agitated water" WITHOUT shifting
+  // the mean luminance — the old undertow wrote lightness (mix toward col*0.5); that
+  // is retired. Two crossed sine trains (different frequencies/drifts) make an
+  // anisotropic +/-45deg weave; a low-frequency noise breaks up the regularity; an
+  // fbm zone mask concentrates it in patches whose lower edge opens with uAgitation.
+  // shoreExcl (Gen-D) hard-excludes the coastal band so shore foam stays clean; open
+  // keeps it off land. Zero-preservation (AC5): the uAgitation > 0.001 guard AND the
+  // (3.0 * uAgitation) factor both make u=0 pixel-identical to no agitation.
+  // NB: patch is a GLSL ES 3.0 reserved word — never name a variable that.
+  if (uAgitation > 0.001) {
+    float open = 1.0 - here;
+    float shoreExcl = 1.0 - smoothstep(0.05, 0.30, coast); // coastal band → agitation 0
+    float zone = smoothstep(0.50 - 0.05 * uAgitation, 0.80, fbm(w * 0.018 - vec2(uTime * 0.12, uTime * 0.08)));
+    float chopA = sin((w.x + w.y) * 0.095 - uTime * 1.15);
+    float chopB = sin((w.x - w.y) * 0.078 + uTime * 0.95);
+    float chop = chopA * chopB * (0.6 + 0.4 * noise(w * 0.03));
+    col += (uSeaColor - uDeepColor) * chop * (3.0 * uAgitation) * zone * shoreExcl * open;
   }
 
   finalColor = vec4(col, 1.0);
@@ -192,7 +199,7 @@ export function createSeaMesh(opts: SeaMeshOptions): SeaMesh {
       waveUniforms: {
         uTime: { value: 0, type: 'f32' },
         uMaskRect: { value: new Float32Array(maskRect), type: 'vec4<f32>' },
-        uUndertow: { value: 0, type: 'f32' },
+        uAgitation: { value: 0, type: 'f32' },
         uDepth: { value: depthAlpha, type: 'f32' },
         uTide: { value: Math.max(0, Math.min(1, tide)), type: 'f32' },
         uSeaColor: { value: new Float32Array(seaColor), type: 'vec3<f32>' },
