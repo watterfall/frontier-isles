@@ -1,0 +1,302 @@
+<!-- @dsCard group="V2" -->
+<!doctype html><meta charset="utf-8"><title>海即数据 Sea as Data · V2 NEW</title>
+<!--
+  Card 24 · 海即数据 Sea as Data (V2) — TRANSCRIPTION-FIRST (Round 6, 2026-07-12).
+  This card is a FAITHFUL TRANSCRIPTION of shipped sea code, not a re-imagining.
+  Sources (verbatim, dated):
+    · packages/renderer/src/sea.ts              — SEA_DEPTH_MAX_ALPHA (L88), seaDepthAt() (L107-111)
+    · packages/renderer/src/pixi/sea-mesh.ts    — uDepth/uUndertow uniforms (L79-80,187), offshore
+                                                   mix (L116,L129), depth darken `col*=(1.0-uDepth)`
+                                                   (L154), undertow swirl (L157-159)
+    · packages/renderer/src/pixi/scene-stage.ts — setUndertow(boolean|number) (L1013-1016)
+    · apps/web/src/components/island/GeneratedIslandScreen.tsx
+        — seaStats + contention (~L206-214), abstractKey (L315), relParts (L316-321),
+          decoder render (L403-404)
+    · apps/web/src/i18n/{zh,en}.ts              — island.seaData.* (zh L96-102 / en L97-103)
+    · packages/assets/src/tokens.css            — --fi-* verbatim (L15-80)
+
+  ROUND-6 REVISION (co-evolved THIS round with engineering — PENDING MERGE, gate re-verifies):
+    The undertow channel constants are being revised this round. Pre-round SHIPPED values were
+    swirl smoothstep(0.55,0.92), darken col*0.62, transfer contention=min(1, refuted*0.5).
+    Round-6 target (this card transcribes the target, flagged NOT-YET-MERGED):
+        swirl  = smoothstep(0.50, 0.82, fbm(...))
+        darken = col * 0.50
+        transfer(refuted) = refuted===0 ? 0 : min(1, 0.6 + (refuted-1)*0.2)   // 0,1,2,3 → 0,0.60,0.80,1.0
+    ⚠ Orchestrator gate MUST re-check this card against the MERGED sea-mesh.ts / GeneratedIslandScreen.tsx
+      before it enters design-system/. If engineering lands different numbers, the card is stale.
+
+  TRANSCRIPTION NOTES (brief ≠ code — code wins):
+    (1) Brief wrote "🌊 水深 …". Shipped render prefixes the depth line with `≈` and the relation
+        line with `⇄`, as TWO separate <span>s — NOT one 🌊 line. Transcribed as `≈ / ⇄` (§Ch.3).
+    (2) Two different "refute" counts, do NOT conflate: undertow contention reads `refuted` =
+        claims whose ghost==='refuted'; the decoder 驳斥/"refuted" text reads `refutes` =
+        ledger events action==='refute'. Different sources; may differ on screen. (Demo sets them
+        equal per cell for clarity, and says so.)
+    (3) uSeaColor/uDeepColor/uFoamColor are `SeaColors` passed by the app layer at runtime
+        (scene-stage buildSea L977/993) — NOT frozen renderer constants. The canvas demo uses
+        --fi-water for uSeaColor (per sea.ts L97) and --fi-azurite-deep as a LABELED APPROX of
+        uDeepColor. Marked NOT-TRANSCRIBED.
+-->
+<style>
+:root{
+  /* --fi-* tokens · verbatim from packages/assets/src/tokens.css (2026-07-12) */
+  --fi-paper:#F2EAD8; --fi-night-paper:#161F36; --fi-paper-raised:#FAF5E8; --fi-night-raised:#212C4E;
+  --fi-ink:#2B2620; --fi-ink-2:#6B6154; --fi-night-ink:#C9D0E4; --fi-night-ink-2:#8B94B2;
+  --fi-azurite:#2E5E8C; --fi-azurite-deep:#1E4266; --fi-ochre:#B5673A; --fi-malachite:#3E9B7E;
+  --fi-gamboge:#E3A93C; --fi-lantern:#F5B94B; --fi-water:#C8D8E4; --fi-ghost:#C9D7F2;
+  --fi-sand:#E7DBBB; --fi-stone:#DCCFAB;
+  --fi-domain-math-fill:#C9D8E6; --fi-domain-math-ink:#2E5E8C;
+  --fi-domain-matter-fill:#E8CFAE; --fi-domain-matter-ink:#B5673A;
+  --fi-domain-life-fill:#C6DECC; --fi-domain-life-ink:#2B7A5F;
+  --fi-domain-cross-fill:#ECDFB4; --fi-domain-cross-ink:#A08428;
+  --fi-font-display:'Noto Serif SC','Songti SC',serif;
+  --fi-font-body:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',system-ui,sans-serif;
+  --fi-font-mono:'JetBrains Mono',ui-monospace,monospace;
+  --fi-radius-panel:10px; --fi-radius-card:6px; --fi-radius-pill:999px;
+  --fi-space-2:8px; --fi-space-3:12px; --fi-space-4:16px; --fi-space-5:24px;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:26px 30px;background:var(--fi-paper);color:var(--fi-ink);font-family:var(--fi-font-body)}
+.hbadge{font-family:var(--fi-font-mono);font-size:11px;color:var(--fi-ochre);letter-spacing:.05em}
+h1{font-family:var(--fi-font-display);font-size:26px;font-weight:700;margin:8px 0 6px}
+.lede{font-size:13px;line-height:1.7;color:var(--fi-ink-2);max-width:1000px;margin:0 0 4px}
+.lede b{color:var(--fi-ink)} .lede code,.k{font-family:var(--fi-font-mono);font-size:12px;color:var(--fi-azurite);background:rgba(46,94,140,.08);border-radius:3px;padding:0 4px}
+h2{font-family:var(--fi-font-display);font-size:16px;margin:26px 0 3px;display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+h2 .ch{font-family:var(--fi-font-mono);font-size:10.5px;color:#fff;background:var(--fi-azurite);border-radius:var(--fi-radius-pill);padding:1px 9px;letter-spacing:.04em}
+h2 .en{font-family:var(--fi-font-mono);font-size:11px;color:var(--fi-ink-2);font-weight:400}
+.note{font-size:12px;line-height:1.7;color:var(--fi-ink-2);max-width:1000px;margin:6px 0}
+.note b{color:var(--fi-ink)}
+.inv{border-left:2px solid var(--fi-malachite);padding:4px 0 4px 12px;margin:10px 0;font-size:12px;line-height:1.65;color:var(--fi-ink-2);max-width:1000px}
+.inv b{color:var(--fi-malachite);font-family:var(--fi-font-mono);font-size:11px}
+pre{font-family:var(--fi-font-mono);font-size:11.5px;line-height:1.55;background:var(--fi-night-paper);color:#C9D0E4;border-radius:var(--fi-radius-card);padding:11px 14px;overflow-x:auto;max-width:1000px;margin:8px 0}
+pre .cm{color:#8B94B2} pre .fn{color:#E3A93C} pre .lit{color:#7FB0D8} pre .rev{color:#F5B94B}
+.strip{display:grid;gap:10px;margin:12px 0 2px}
+#depthDemo{grid-template-columns:1fr 1fr;max-width:520px}
+#undertowDemo{grid-template-columns:repeat(4,1fr);max-width:840px}
+.tile{position:relative;background:var(--fi-paper-raised);border:1px solid rgba(0,0,0,.08);border-radius:var(--fi-radius-panel);padding:8px 8px 9px;display:flex;flex-direction:column;gap:5px}
+.tile.primary{outline:2px solid var(--fi-gamboge);outline-offset:1px}
+.tile canvas{width:100%;height:auto;display:block;border-radius:var(--fi-radius-card)}
+.tile .badge{position:absolute;top:-8px;right:8px;font-family:var(--fi-font-mono);font-size:8.5px;letter-spacing:.03em;padding:2px 7px;border-radius:var(--fi-radius-pill);z-index:2}
+.badge.primary{background:var(--fi-gamboge);color:#2B2620;font-weight:700}
+.badge.endpoint{background:var(--fi-paper);border:1px solid var(--fi-ink-2);color:var(--fi-ink-2)}
+.tcap{font-family:var(--fi-font-mono);font-size:10px;color:var(--fi-ink);text-align:center;line-height:1.3}
+.tcap b{color:var(--fi-ochre)}
+.uni{font-family:var(--fi-font-mono);font-size:9.5px;color:var(--fi-ink-2);display:flex;justify-content:space-between;gap:6px}
+.uni b{color:var(--fi-azurite)}
+.dec{font-family:var(--fi-font-mono);font-size:10.5px;line-height:1.5;color:var(--fi-ink)}
+.dec .p{color:var(--fi-ochre)} .dec .en{color:var(--fi-ink-2);font-size:9.5px;display:block}
+.axhelp{font-family:var(--fi-font-mono);font-size:10px;color:var(--fi-ink-2);max-width:840px;margin:4px 0 0}
+table.i18n{border-collapse:collapse;font-size:11.5px;margin:8px 0;max-width:760px}
+table.i18n th,table.i18n td{border:1px solid rgba(0,0,0,.12);padding:4px 10px;text-align:left}
+table.i18n th{font-family:var(--fi-font-mono);font-size:10px;color:var(--fi-ink-2);font-weight:500;background:rgba(0,0,0,.03)}
+table.i18n td.k{font-family:var(--fi-font-mono);color:var(--fi-azurite);background:none}
+.reserved{margin-top:14px;border:1px dashed var(--fi-ink-2);border-radius:var(--fi-radius-panel);padding:11px 14px;max-width:1000px;font-size:12px;line-height:1.7;color:var(--fi-ink-2)}
+.reserved b{color:var(--fi-ink)} .reserved .cbadge{font-family:var(--fi-font-mono);font-size:10px;color:var(--fi-ink-2);border:1px solid var(--fi-ink-2);border-radius:var(--fi-radius-pill);padding:1px 8px;margin-right:6px}
+.ship{margin-top:14px;font-size:11.5px;line-height:1.7;color:var(--fi-ink-2);border:1px dashed var(--fi-ochre);border-radius:var(--fi-radius-panel);padding:11px 14px;max-width:1000px}
+.ship b{color:var(--fi-ochre)} .ship .no{color:var(--fi-ink)}
+.prov{margin-top:14px;font-family:var(--fi-font-mono);font-size:10px;line-height:1.7;color:var(--fi-ink-2);max-width:1000px}
+@media (max-width:640px){#undertowDemo{grid-template-columns:1fr 1fr}}
+</style>
+
+<span class="hbadge">frontier-isles · v2 · 海即数据 sea-as-data · TRANSCRIPTION-FIRST · Round 6 · 草稿(未进 design-system)</span>
+<h1>海即数据 — 海不是背景，是三条读得出的数据通道</h1>
+<p class="lede">岛浮在海上，海面每一处暗度/漩涡/岸边读数都<b>直接转录自账本与 substrate 分</b>，没有一处是装饰。三条通道彼此正交：<b>①深度暗化</b>＝领域抽象度（<span class="k">substrate</span>→<span class="k">uDepth</span>，<code>col *= (1.0 - uDepth)</code>），<b>②undertow 漩涡</b>＝争议度（未化解的驳斥→<span class="k">uUndertow</span>，<b>以真实量级 1-refute 为主展品</b>，非满量程），<b>③文字解码器</b>＝把海重新写成一行可读文字（list-twin）。关键不变量：<b>深≠色</b>——下面 Ch.1 两格岛身色相恒定（数理），变的只有海，证明 depth 与 domain-hue 是两根轴（<code>sea.ts:100–106</code>）。</p>
+
+<!-- ============ Ch.1 深度暗化 ============ -->
+<h2><span class="ch">Ch.1</span> 深度暗化 <span class="en">sea depth = domain abstractness</span></h2>
+<p class="note">substrate 抽象度 ∈ [0,1]（0 = 浅滩/偏应用，1 = 深水/偏形式）经 <span class="k">seaDepthAt()</span> 变成一个<b>只加暗、不加色</b>的 alpha。海面着色器把它当乘法暗化因子；离岸越远沉得越暗，且下沉<b>速度</b>随 uDepth 增大（抽象岛更快跌进暗海）。下面两格<b>同为平静海(0 驳斥)</b>，只有 substrate 不同：</p>
+<pre><span class="cm">// packages/renderer/src/sea.ts</span>
+export const <span class="fn">SEA_DEPTH_MAX_ALPHA</span> = <span class="lit">0.42</span>;        <span class="cm">// L88 · 最深水的最大暗化 alpha</span>
+export function <span class="fn">seaDepthAt</span>(substrate) {          <span class="cm">// L107–111</span>
+  if (substrate == null || Number.isNaN(substrate))
+    return { depth: <span class="lit">null</span>, overlayAlpha: <span class="lit">0</span> };  <span class="cm">// 无分 → 不暗化(诚实缺席)</span>
+  const depth = clamp01(substrate);
+  return { depth, overlayAlpha: depth * <span class="fn">SEA_DEPTH_MAX_ALPHA</span> };
+}
+<span class="cm">// sea-mesh.ts · uDepth = seaDepthAt(substrate).overlayAlpha ∈ 0..~0.42</span>
+col = mix(col, uDeepColor, smoothstep(<span class="lit">0.0</span>,<span class="lit">1.0</span>,radial)*(<span class="lit">0.28</span>+<span class="lit">0.55</span>*uDepth)*(<span class="lit">1.0</span>-here)); <span class="cm">// L129 离岸渐变，reach∝uDepth</span>
+col *= (<span class="lit">1.0</span> - uDepth);                        <span class="cm">// L154 · 就是这一乘：深＝暗，never a new hue</span></pre>
+<div class="inv"><b>INVARIANT · 深≠色</b> depth 读的是真实 substrate 分，<b>刻意不是</b> domain-hue 向量——独立的一根轴，永不是"旋转过的色相副本"（sea.ts:100–106）。substrate 为 <span class="k">null/NaN</span> 时 <span class="k">overlayAlpha=0</span>，宁可不画暗度也不编假深浅（honest absence beats decoration）。</div>
+<div class="strip" id="depthDemo">
+  <div class="tile" data-mode="depth" data-sub="0.18" data-refute="0" data-dom="math"
+       data-dec-zh="≈ 水深 0.18 · 偏应用||⇄ 5 验证 · 1 桥接" data-dec-en="≈ sea depth 0.18 · applied||⇄ 5 validated · 1 bridges"></div>
+  <div class="tile" data-mode="depth" data-sub="0.92" data-refute="0" data-dom="math"
+       data-dec-zh="≈ 水深 0.92 · 偏理论||⇄ 3 验证" data-dec-en="≈ sea depth 0.92 · theoretical||⇄ 3 validated"></div>
+</div>
+<p class="axhelp">岛身色相恒定 #C9D8E6（数理）；左浅滩 uDepth 0.076、右深水 uDepth 0.386 —— 同一色相、不同暗度，就是 depth ⊥ hue。</p>
+
+<!-- ============ Ch.2 undertow 漩涡 ============ -->
+<h2><span class="ch">Ch.2</span> undertow 漩涡 <span class="en">disputed-sea = contention magnitude · 1-refute primary</span></h2>
+<p class="note">争议度＝<b>未化解的驳斥</b>数。岛屏先数出被驳的 claim（<span class="k">ghost==='refuted'</span>），过传递曲线成 <span class="k">contention</span>，驱动着色器的 <span class="k">uUndertow</span>——一块缓慢自转、把水压暗到 <b>50%</b> 的暗涡。<b>主展品是真实量级 1-refute（u=0.60）</b>：日常一条被驳，海面就该起这么大的涡，不是满量程。下面 <b>0/1/2/3-refute 四格条带</b>与生产 shader 同参、<b>深度恒定</b>（substrate 0.45），变的只有争议；<b>u=1.0 仅作 3+ refutes 端点</b>。</p>
+<pre><span class="cm">// apps/web/.../GeneratedIslandScreen.tsx (~L206–214)</span>
+const refuted = projected?.filter(c =&gt; c.ghost === <span class="lit">'refuted'</span>).length ?? <span class="lit">0</span>;
+setSeaStats({ substrate: det.object.frontier?.substrate,
+  validates: events.filter(e =&gt; e.action===<span class="lit">'validate'</span>).length,
+  refutes:   events.filter(e =&gt; e.action===<span class="lit">'refute'</span>).length,   <span class="cm">// ← 事件计数，供解码器"驳斥"文字</span>
+  bridges:   events.filter(e =&gt; e.action.startsWith(<span class="lit">'bridge'</span>)).length,
+  contention: <span class="rev">refuted === 0 ? 0 : Math.min(1, 0.6 + (refuted-1)*0.2)</span> });  <span class="rev">// ★ Round 6 修订曲线</span>
+<span class="cm">// packages/renderer/src/pixi/sea-mesh.ts (L157–159) · uUndertow: 0=calm, 1..N=contention</span>
+if (uUndertow &gt; <span class="lit">0.001</span>) {
+  float swirl = smoothstep(<span class="rev">0.50</span>,<span class="rev">0.82</span>, fbm(w*<span class="lit">0.018</span> - vec2(uTime*<span class="lit">0.12</span>, uTime*<span class="lit">0.08</span>)));  <span class="rev">// ★ R6</span>
+  col = mix(col, col*<span class="rev">0.50</span>, swirl * uUndertow * (<span class="lit">1.0</span>-here)); }               <span class="rev">// ★ R6 (was 0.62)</span>
+<span class="cm">// scene-stage.ts (L1013–1016) setUndertow(on: boolean|number) → uUndertow = v</span></pre>
+<div class="inv"><b>TRANSFER · Round 6 修订(待合并)</b> <code>contention = refuted===0 ? 0 : min(1, 0.6 + (refuted-1)×0.2)</code>：0→0(平静·诚实零点)，<b>1→0.60(主展品)</b>，2→0.80，3→1.0(封顶)。旧 shipped 曲线是 <code>min(1, refuted×0.5)</code>——本卡转录的是<b>本轮工程目标值</b>，orchestrator gate 须对合并后代码复核。<br><b>DON'T CONFLATE</b> undertow 强度读 <span class="k">refuted</span>（claim 幽灵数），解码器"驳斥/refuted"文字读 <span class="k">refutes</span>（账本事件数）——两个来源，屏上可能不同数（下面演示里我把它们设成相等，仅为对齐讲解）。</div>
+<div class="strip" id="undertowDemo">
+  <div class="tile" data-mode="undertow" data-sub="0.45" data-refute="0" data-dom="math"
+       data-dec-zh="≈ 水深 0.45 · 居中||⇄ 4 验证" data-dec-en="≈ sea depth 0.45 · mixed||⇄ 4 validated"></div>
+  <div class="tile primary" data-mode="undertow" data-sub="0.45" data-refute="1" data-dom="math" data-badge="primary"
+       data-dec-zh="≈ 水深 0.45 · 居中||⇄ 3 验证 · 1 驳斥" data-dec-en="≈ sea depth 0.45 · mixed||⇄ 3 validated · 1 refuted"></div>
+  <div class="tile" data-mode="undertow" data-sub="0.45" data-refute="2" data-dom="math"
+       data-dec-zh="≈ 水深 0.45 · 居中||⇄ 2 验证 · 2 驳斥" data-dec-en="≈ sea depth 0.45 · mixed||⇄ 2 validated · 2 refuted"></div>
+  <div class="tile" data-mode="undertow" data-sub="0.45" data-refute="3" data-dom="math" data-badge="endpoint"
+       data-dec-zh="≈ 水深 0.45 · 居中||⇄ 1 验证 · 3 驳斥" data-dec-en="≈ sea depth 0.45 · mixed||⇄ 1 validated · 3 refuted"></div>
+</div>
+<p class="axhelp">深度全格恒定 substrate 0.45（uDepth 0.189）；uUndertow 随驳斥数 0 → 0.60 → 0.80 → 1.0。<b>金框 = 1-refute 主展品</b>（日常量级）；最右 3-refute = 满量程端点，仅标注不主打。</p>
+
+<!-- ============ Ch.3 文字解码器 (list-twin) ============ -->
+<h2><span class="ch">Ch.3</span> 文字解码器 <span class="en">the sea, rewritten as one readable line (list-twin)</span></h2>
+<p class="note">海的每条视觉通道都配一份<b>纯文字孪生</b>（list-twin）：不靠让读者认色、认涡，而是把 substrate 与关系计数直接写成一行。<b>逐字转录</b>下面两个 <span class="k">&lt;span&gt;</span>（GeneratedIslandScreen.tsx L403–404）——注意实际前缀是 <span class="k">≈</span> 与 <span class="k">⇄</span>，不是 brief 里写的 🌊：</p>
+<pre><span class="cm">// L403 — 深度行：substrate 保留两位小数 + 抽象度档位</span>
+{seaStats?.substrate != null &amp;&amp; &lt;span&gt;<span class="lit">≈</span> {t(<span class="lit">'island.seaData.depth'</span>)} {seaStats.substrate.toFixed(<span class="lit">2</span>)} · {t(abstractKey(seaStats.substrate))}&lt;/span&gt;}
+<span class="cm">// L404 — 关系行：仅非零的关系入列，' · ' 连接（0 值不出现，honest）</span>
+{relParts.length &gt; <span class="lit">0</span> &amp;&amp; &lt;span&gt;<span class="lit">⇄</span> {relParts.join(<span class="lit">' · '</span>)}&lt;/span&gt;}
+<span class="cm">// L315 abstractKey 档位阈值</span>
+abstractKey = s =&gt; s &gt;= <span class="lit">0.66</span> ? '…abstract.hi' : s &gt;= <span class="lit">0.33</span> ? '…abstract.mid' : '…abstract.lo';</pre>
+<table class="i18n">
+  <tr><th>island.seaData.*</th><th>zh (zh.ts L96–102)</th><th>en (en.ts L97–103)</th></tr>
+  <tr><td class="k">depth</td><td>水深</td><td>sea depth</td></tr>
+  <tr><td class="k">abstract.hi</td><td>偏理论 <span style="color:#6B6154">(s ≥ 0.66)</span></td><td>theoretical</td></tr>
+  <tr><td class="k">abstract.mid</td><td>居中 <span style="color:#6B6154">(0.33 ≤ s &lt; 0.66)</span></td><td>mixed</td></tr>
+  <tr><td class="k">abstract.lo</td><td>偏应用 <span style="color:#6B6154">(s &lt; 0.33)</span></td><td>applied</td></tr>
+  <tr><td class="k">validate</td><td>验证</td><td>validated</td></tr>
+  <tr><td class="k">refute</td><td>驳斥</td><td>refuted</td></tr>
+  <tr><td class="k">bridge</td><td>桥接</td><td>bridges</td></tr>
+</table>
+<p class="axhelp">上方每格 tile 下的读数就是这两个 span 的真实产物（示例数据）。Ch.2 条带里深度行恒为 <b>≈ 水深 0.45 · 居中</b>，只有 <b>⇄ … 驳斥</b> 数随格递增——文字孪生和漩涡同步变化。</p>
+
+<!-- ============ RESERVED channel ============ -->
+<div class="reserved"><span class="cbadge">RESERVED · not shipped</span><b>relation / flowline 通道 — 归 Round 7 设计回合认领。</b><br>
+海里已有洋流几何（<span class="k">sea.ts</span> 的 <span class="k">CURRENT_LOD</span>／<span class="k">CurrentLike</span>／<span class="k">domainHueAt</span> 样条），但"把 relation 绑成海面 flowline 视觉"这条通道<b>本卡不主张、不演示</b>——它属于 <b>卡 06</b>（currents/relation-as-flowline）。此处仅占位一根 RESERVED 通道，避免与已 ship 的 depth/undertow 混为一谈。设计权与工程需求在 Round 7 开。</div>
+
+<!-- ============ SHIPPED / NOT-SHIPPED honest block ============ -->
+<div class="ship"><b>SHIPPED（已在代码里，本卡逐字转录）：</b>
+① <span class="k">seaDepthAt()</span> + <code>col *= (1.0 - uDepth)</code> 深度暗化，SEA_DEPTH_MAX_ALPHA=0.42，null→不暗化；
+② <span class="k">uUndertow</span> 争议漩涡（swirl→压暗）；
+③ 文字解码器双 span（≈ 深度行 / ⇄ 关系行），i18n zh/en 全量在库。
+<br><b class="no" style="color:var(--fi-ink)">ROUND-6 修订 / 待合并（本卡转录目标值，gate 须复核）：</b>
+<span class="no">·</span> undertow 常数 swirl <b>smoothstep(0.50,0.82)</b>、压暗 <b>col*0.50</b>（旧 0.55/0.92、0.62）；
+<span class="no">·</span> 传递曲线 <b>refuted===0?0:min(1,0.6+(refuted-1)*0.2)</b>（旧 min(1,refuted*0.5)）——1-refute→0.60 为主展品量级。
+<br><b class="no" style="color:var(--fi-ink)">NOT SHIPPED / 诚实偏差：</b>
+<span class="no">·</span> uSeaColor/uDeepColor/uFoamColor 由 app 层运行时经 <span class="k">SeaColors</span> 传入（buildSea L977/993），<b>非 renderer 常量</b>——canvas 用 --fi-water 作 uSeaColor、--fi-azurite-deep 近似 uDeepColor，<b>仅演示、未转录真值</b>；
+<span class="no">·</span> tide/foam/coast 岸浪通道（uTide, uFoamColor）本卡<b>未画</b>，属另一通道；
+<span class="no">·</span> relation→flowline 见 RESERVED（Round 7）。</div>
+
+<div class="prov">provenance · 2026-07-12 · Round 6 · transcription-first Generator A ·
+sources: sea.ts L88/107–111 · sea-mesh.ts L79–80/116/129/154/157–159/187 · scene-stage.ts L1013–1016 ·
+GeneratedIslandScreen.tsx L206–214/315/316–321/403–404 · i18n zh.ts L96–102 · en.ts L97–103 · tokens.css L15–80 ·
+undertow 常数与传递曲线 = Round-6 修订(待合并) · ⚠ gate 须对合并后代码复核后方可进 design-system/</div>
+
+<script>
+/* Sea shader — JS transcription of packages/renderer/src/pixi/sea-mesh.ts (FRAG).
+   Scope: depth darkening (L154) + offshore mix (L129) + undertow swirl (L157-159, ROUND-6 constants).
+   OUT OF SCOPE (not this card's channel): tide/foam/coast. `here` = island mask.
+   Colors: uSeaColor = --fi-water #C8D8E4 (per sea.ts L97). uDeepColor = --fi-azurite-deep #1E4266 —
+   a LABELED APPROX of the runtime SeaColors.deepColor (not transcribed). */
+const SEA=[200,216,228], DEEP=[30,66,102];            // #C8D8E4 / #1E4266
+const DOM_MATH=[201,216,230], INK=[43,38,32];         // #C9D8E6 island / #2B2620 ink
+const SEA_DEPTH_MAX_ALPHA=0.42;                        // sea.ts L88 (verbatim)
+const clamp01=n=>n<0?0:n>1?1:n;
+const seaDepthAt=s=>(s==null||Number.isNaN(s))?0:clamp01(s)*SEA_DEPTH_MAX_ALPHA; // sea.ts L107-111
+// Round-6 transfer curve (GeneratedIslandScreen.tsx contention, PENDING MERGE):
+//   0 refutes → 0 (calm) · 1 → 0.60 (primary) · 2 → 0.80 · 3+ → 1.0 (endpoint)
+const contention=r=>r===0?0:Math.min(1, 0.6 + (r-1)*0.2);
+const mix=(a,b,t)=>a+(b-a)*t;
+const smoothstep=(e0,e1,x)=>{const t=clamp01((x-e0)/(e1-e0));return t*t*(3-2*t);};
+function hash(x,y){const n=Math.sin(x*127.1+y*311.7)*43758.5453;return n-Math.floor(n);}
+function vnoise(x,y){const xi=Math.floor(x),yi=Math.floor(y),xf=x-xi,yf=y-yi;
+  const tl=hash(xi,yi),tr=hash(xi+1,yi),bl=hash(xi,yi+1),br=hash(xi+1,yi+1);
+  const u=xf*xf*(3-2*xf),v=yf*yf*(3-2*yf);
+  return mix(mix(tl,tr,u),mix(bl,br,u),v);}
+function fbm(x,y){let s=0,a=0.5,f=1;for(let i=0;i<4;i++){s+=a*vnoise(x*f,y*f);f*=2;a*=0.5;}return s;} // sea-mesh L157 fbm
+
+const W=132,H=96;
+const reduced=matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+function renderTile(canvas, sub, und, t){
+  const uDepth=seaDepthAt(sub);          // sea-mesh L154 factor
+  const uUndertow=und;                   // 0=calm | 0.60=1-refute primary | 1.0=3+ endpoint
+  const ctx=canvas._ctx, img=canvas._img, d=img.data;
+  const cx=0.5, cy=0.52, irx=0.20, iry=0.13;   // soft island mask → `here`
+  for(let py=0;py<H;py++){
+    for(let px=0;px<W;px++){
+      const u=px/W, v=py/H;
+      const dx=(u-cx)/irx, dy=(v-cy)/iry, ed=Math.sqrt(dx*dx+dy*dy);
+      const here=1-smoothstep(0.9,1.7,ed);          // 1 inside island, 0 open sea
+      const i=(py*W+px)*4;
+      if(here>0.985){                                // island body — hue held CONSTANT
+        d[i]=DOM_MATH[0];d[i+1]=DOM_MATH[1];d[i+2]=DOM_MATH[2];d[i+3]=255;continue;
+      }
+      let col=[SEA[0],SEA[1],SEA[2]];
+      // offshore radial (L129): reach ∝ uDepth; here suppresses near coast (bright shelf)
+      const rad=clamp01(Math.hypot(u-cx,v-cy)/0.62);
+      const off=smoothstep(0,1,rad)*(0.28+0.55*uDepth)*(1-here);
+      for(let c=0;c<3;c++) col[c]=mix(col[c],DEEP[c],off);
+      // depth darkening (L154): the one multiply — deep = dark, never a new hue
+      for(let c=0;c<3;c++) col[c]*=(1-uDepth);
+      // undertow (L157-159, ROUND-6): dark slow swirl to 50%, gated by (1-here)
+      if(uUndertow>0.001){
+        const swirl=smoothstep(0.50,0.82, fbm(u*7.2-t*0.35, v*7.2-t*0.24)); // R6 smoothstep(0.50,0.82)
+        for(let c=0;c<3;c++) col[c]=mix(col[c], col[c]*0.50, swirl*uUndertow*(1-here)); // R6 col*0.50
+      }
+      // faint ink coastline where mask edge sits (geometry, not a new channel)
+      const edge=smoothstep(0.985,1.02,here)*(1-smoothstep(1.02,1.10,here));
+      for(let c=0;c<3;c++) col[c]=mix(col[c],INK[c],edge*0.7);
+      d[i]=col[0];d[i+1]=col[1];d[i+2]=col[2];d[i+3]=255;
+    }
+  }
+  ctx.putImageData(img,0,0);
+}
+
+function buildTile(tile){
+  const sub=parseFloat(tile.dataset.sub);
+  const refute=parseInt(tile.dataset.refute,10);
+  const und=contention(refute);
+  if(tile.dataset.badge){
+    const b=document.createElement('div');b.className='badge '+tile.dataset.badge;
+    b.textContent=tile.dataset.badge==='primary'?'主展品 · 1-refute':'3+ 端点 endpoint';
+    tile.appendChild(b);
+  }
+  const cap=document.createElement('div');cap.className='tcap';
+  cap.innerHTML = tile.dataset.mode==='depth'
+    ? `substrate <b>${sub.toFixed(2)}</b>`
+    : `${refute} refute${refute===1?'':'s'} → u=<b>${und.toFixed(2)}</b>`;
+  tile.appendChild(cap);
+  const cv=document.createElement('canvas');cv.width=W;cv.height=H;
+  cv._ctx=cv.getContext('2d');cv._img=cv._ctx.createImageData(W,H);
+  tile.appendChild(cv);
+  const uni=document.createElement('div');uni.className='uni';
+  uni.innerHTML=`<span>uDepth <b>${seaDepthAt(sub).toFixed(3)}</b></span><span>uUndertow <b>${und.toFixed(2)}</b></span>`;
+  tile.appendChild(uni);
+  const [z1,z2]=tile.dataset.decZh.split('||'), [e1,e2]=tile.dataset.decEn.split('||');
+  const dec=document.createElement('div');dec.className='dec';
+  let html=`<div><span class="p">${z1[0]}</span>${z1.slice(1)}<span class="en">${e1}</span></div>`;
+  if(z2) html+=`<div><span class="p">${z2[0]}</span>${z2.slice(1)}<span class="en">${e2}</span></div>`;
+  dec.innerHTML=html;
+  tile.appendChild(dec);
+  tile._sub=sub;tile._und=und;tile._cv=cv;
+  renderTile(cv,sub,und,0);
+}
+document.querySelectorAll('.tile').forEach(buildTile);
+
+if(!reduced){
+  let t0=performance.now();
+  function loop(now){
+    const t=(now-t0)/1000;
+    document.querySelectorAll('.tile').forEach(tile=>{
+      if(tile._und>0.001) renderTile(tile._cv, tile._sub, tile._und, t); // only disputed seas animate
+    });
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+}
+</script>

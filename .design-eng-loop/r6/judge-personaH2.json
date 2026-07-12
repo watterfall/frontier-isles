@@ -1,0 +1,12 @@
+{
+  "judge": "personaH2",
+  "scores": { "H1": 4, "H2": 4, "H3": 5, "H4": 3.5, "H5": 4.5 },
+  "worstFinding": "life sentence mislabeled as remand: ghost='refuted' is permanent (claims.ts:151-153, group.some(refute), no ledger action resolves it, later validate never clears) yet undertow.ts docs + GeneratedIslandScreen comment + card 24 all call it 'unresolved-refute' — a refuted-then-vindicated researcher has no path back to calm sea; data semantics (ever-refuted) vs contract wording (unresolved) misalignment",
+  "keyEvidence": {
+    "H1": "publish chain verified honest end-to-end with golden both ways; BUT synth fallback paints fabricated floors/roof indistinguishable from real ledger towers, no synthetic marker on canvas",
+    "H2": "seal and panel structurally same-source (same ClaimState array); card 23 L7 header contradicted L110 (FIXED by orchestrator in-round)",
+    "H3": "cleanest discipline on the board: depth only darkens, undertow gated by (1-here), domain hue untouched, DON'T-CONFLATE clause for the two refute counts",
+    "H4": "honest zero + Gen-B evidence back the 0.6 floor, not defamation; but 0-to-1 jump (0.6) bigger than all of 1-to-3 range (0.4), and absolute counts not proportional — 1-of-20 claims refuted paints same as 1-of-1",
+    "H5": "zh/en key-parity verified and idiomatic; en 'refuted' doubles as event-count label and ghost-state word"
+  }
+}

@@ -1,0 +1,361 @@
+<!-- @dsCard group="V2" -->
+<!doctype html><meta charset="utf-8"><title>海即数据 Sea as Data · V2</title>
+<!--
+  Card 24 · 海即数据 Sea as Data (V2) — TRANSCRIPTION-FIRST.
+  A FAITHFUL TRANSCRIPTION of shipped sea code, not a re-imagining.
+  R7 UPDATE (2026-07-12, branch feat/r7-sea-grammar @ acb4911): the Ch.2 disputed-sea channel
+  changed FORM — the R6 "undertow" darkening (mix toward col*0.5, wrote the lightness axis) is
+  RETIRED; R7 Dim 2 replaces it with a zero-mean surface AGITATION (cross-hatched chop weave that
+  redistributes along the uSeaColor↔uDeepColor contrast axis WITHOUT shifting mean luminance).
+  Rename: uUndertow→uAgitation, setUndertow→setAgitation, PixiScene prop agitation. DATA name is
+  unchanged: contention / contentionFromRefuted (undertow.ts kept its filename).
+
+  Sources (verbatim, dated 2026-07-12):
+    · packages/renderer/src/sea.ts              — SEA_DEPTH_MAX_ALPHA (L88), seaDepthAt() (L107-111)
+    · packages/renderer/src/pixi/sea-mesh.ts    — uDepth/uAgitation uniforms (L80,205), offshore mix
+                                                   (L130), depth darken col*=(1-uDepth) (L154),
+                                                   AGITATION chop weave (L171-178, AC-tuned @ acb4911)
+    · packages/renderer/src/pixi/scene-stage.ts — setAgitation(boolean|number) (L1055-1058)
+    · apps/web/src/scene/undertow.ts            — contentionFromRefuted (L24-27), refutedClaimCount (L37-40)
+    · apps/web/src/components/island/GeneratedIslandScreen.tsx
+        — seaStats (L211-220), agitation prop (L364), abstractKey (L320), relParts (L321-330),
+          decoder render (L412-413)
+    · apps/web/src/i18n/{zh,en}.ts              — island.seaData.* (zh L96-104 / en L97-105)
+    · packages/assets/src/tokens.css            — --fi-* verbatim (L15-80)
+    · AC1–AC9 acceptance harness              — .design-eng-loop/r7/agitation-ac-harness.html
+
+  TRANSCRIPTION NOTES (brief ≠ code — code wins):
+    (1) Decoder prefixes are `≈` (depth line) and `⇄` (relation line), TWO separate <span>s — not 🌊.
+    (2) R7 Dim 1 = SINGLE SOURCE: agitation magnitude reads refuted CLAIMS (ghost==='refuted', via
+        refutedClaimCount); the decoder reads that SAME quantity, labelled `被驳斥主张 / refuted claims`.
+        Refute EVENTS are a distinct axis, labelled `驳斥事件 / refute events` — no longer conflatable
+        (this closes the R6 "DON'T CONFLATE" gap: source unified, labels split).
+    (3) Sea colours are now FROZEN as tokens (ride-along B, commit 9cb3109): tokens.css L90-93
+        `--fi-water-{math,matter,life,cross}-{sea,deep,foam}` are the frozen transcription of the
+        runtime SEA_COLORS fed to uSeaColor/uDeepColor/uFoamColor (kept in lock-step). The canvas
+        uses the 数理 palette VERBATIM: uSeaColor=--fi-water-math-sea #BCCEDC, uDeepColor=
+        --fi-water-math-deep #A6BED0. (R6 flagged this gap; R7 ride-along B closed it — no more approx.)
+-->
+<style>
+:root{
+  /* --fi-* tokens · verbatim from packages/assets/src/tokens.css (2026-07-12) */
+  --fi-paper:#F2EAD8; --fi-night-paper:#161F36; --fi-paper-raised:#FAF5E8; --fi-night-raised:#212C4E;
+  --fi-ink:#2B2620; --fi-ink-2:#6B6154; --fi-night-ink:#C9D0E4; --fi-night-ink-2:#8B94B2;
+  --fi-azurite:#2E5E8C; --fi-azurite-deep:#1E4266; --fi-ochre:#B5673A; --fi-malachite:#3E9B7E;
+  --fi-gamboge:#E3A93C; --fi-lantern:#F5B94B; --fi-water:#C8D8E4; --fi-ghost:#C9D7F2;
+  --fi-sand:#E7DBBB; --fi-stone:#DCCFAB;
+  --fi-domain-math-fill:#C9D8E6; --fi-domain-math-ink:#2E5E8C;
+  --fi-domain-matter-fill:#E8CFAE; --fi-domain-matter-ink:#B5673A;
+  --fi-domain-life-fill:#C6DECC; --fi-domain-life-ink:#2B7A5F;
+  --fi-domain-cross-fill:#ECDFB4; --fi-domain-cross-ink:#A08428;
+  /* sea colours · verbatim from tokens.css L90-93 (frozen transcription of runtime SEA_COLORS, ride-along B 9cb3109) */
+  --fi-water-math-sea:#BCCEDC;   --fi-water-math-deep:#A6BED0;   --fi-water-math-foam:#F0EAD8;
+  --fi-water-matter-sea:#C8D8CC; --fi-water-matter-deep:#B2C6B8; --fi-water-matter-foam:#F0EAD8;
+  --fi-water-life-sea:#B8D4C4;   --fi-water-life-deep:#A0C2B0;   --fi-water-life-foam:#EEF0DC;
+  --fi-water-cross-sea:#CCC8D8;  --fi-water-cross-deep:#B6B2CC;  --fi-water-cross-foam:#F0EAD8;
+  --fi-font-display:'Noto Serif SC','Songti SC',serif;
+  --fi-font-body:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',system-ui,sans-serif;
+  --fi-font-mono:'JetBrains Mono',ui-monospace,monospace;
+  --fi-radius-panel:10px; --fi-radius-card:6px; --fi-radius-pill:999px;
+  --fi-space-2:8px; --fi-space-3:12px; --fi-space-4:16px; --fi-space-5:24px;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:26px 30px;background:var(--fi-paper);color:var(--fi-ink);font-family:var(--fi-font-body)}
+.hbadge{font-family:var(--fi-font-mono);font-size:11px;color:var(--fi-ochre);letter-spacing:.05em}
+h1{font-family:var(--fi-font-display);font-size:26px;font-weight:700;margin:8px 0 6px}
+.lede{font-size:13px;line-height:1.7;color:var(--fi-ink-2);max-width:1000px;margin:0 0 4px}
+.lede b{color:var(--fi-ink)} .lede code,.k{font-family:var(--fi-font-mono);font-size:12px;color:var(--fi-azurite);background:rgba(46,94,140,.08);border-radius:3px;padding:0 4px}
+.grammar{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 2px;max-width:1000px}
+.gch{font-family:var(--fi-font-mono);font-size:11px;line-height:1.4;border:1px solid rgba(0,0,0,.12);border-radius:var(--fi-radius-card);padding:5px 10px;background:var(--fi-paper-raised)}
+.gch b{color:var(--fi-ink)} .gch .ax{color:var(--fi-ink-2)} .gch.res{border-style:dashed;color:var(--fi-ink-2)}
+h2{font-family:var(--fi-font-display);font-size:16px;margin:26px 0 3px;display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+h2 .ch{font-family:var(--fi-font-mono);font-size:10.5px;color:#fff;background:var(--fi-azurite);border-radius:var(--fi-radius-pill);padding:1px 9px;letter-spacing:.04em}
+h2 .en{font-family:var(--fi-font-mono);font-size:11px;color:var(--fi-ink-2);font-weight:400}
+.note{font-size:12px;line-height:1.7;color:var(--fi-ink-2);max-width:1000px;margin:6px 0}
+.note b{color:var(--fi-ink)}
+.inv{border-left:2px solid var(--fi-malachite);padding:4px 0 4px 12px;margin:10px 0;font-size:12px;line-height:1.65;color:var(--fi-ink-2);max-width:1000px}
+.inv b{color:var(--fi-malachite);font-family:var(--fi-font-mono);font-size:11px}
+.hist{border-left:2px solid var(--fi-ochre)} .hist b{color:var(--fi-ochre)}
+pre{font-family:var(--fi-font-mono);font-size:11.5px;line-height:1.55;background:var(--fi-night-paper);color:#C9D0E4;border-radius:var(--fi-radius-card);padding:11px 14px;overflow-x:auto;max-width:1000px;margin:8px 0}
+pre .cm{color:#8B94B2} pre .fn{color:#E3A93C} pre .lit{color:#7FB0D8} pre .rev{color:#F5B94B}
+.strip{display:grid;gap:10px;margin:12px 0 2px}
+#depthDemo{grid-template-columns:1fr 1fr;max-width:520px}
+#agitationDemo{grid-template-columns:repeat(4,1fr);max-width:840px}
+.tile{position:relative;background:var(--fi-paper-raised);border:1px solid rgba(0,0,0,.08);border-radius:var(--fi-radius-panel);padding:8px 8px 9px;display:flex;flex-direction:column;gap:5px}
+.tile.primary{outline:2px solid var(--fi-gamboge);outline-offset:1px}
+.tile canvas{width:100%;height:auto;display:block;border-radius:var(--fi-radius-card)}
+.tile .badge{position:absolute;top:-8px;right:8px;font-family:var(--fi-font-mono);font-size:8.5px;letter-spacing:.03em;padding:2px 7px;border-radius:var(--fi-radius-pill);z-index:2}
+.badge.primary{background:var(--fi-gamboge);color:#2B2620;font-weight:700}
+.badge.endpoint{background:var(--fi-paper);border:1px solid var(--fi-ink-2);color:var(--fi-ink-2)}
+.tcap{font-family:var(--fi-font-mono);font-size:10px;color:var(--fi-ink);text-align:center;line-height:1.3}
+.tcap b{color:var(--fi-ochre)}
+.uni{font-family:var(--fi-font-mono);font-size:9.5px;color:var(--fi-ink-2);display:flex;justify-content:space-between;gap:6px}
+.uni b{color:var(--fi-azurite)}
+.squint{display:flex;align-items:center;gap:5px;font-family:var(--fi-font-mono);font-size:9px;color:var(--fi-ink-2)}
+.squint .sw{width:24px;height:12px;border-radius:2px;border:1px solid rgba(0,0,0,.2);flex:none}
+.dec{font-family:var(--fi-font-mono);font-size:10.5px;line-height:1.5;color:var(--fi-ink)}
+.dec .p{color:var(--fi-ochre)} .dec .en{color:var(--fi-ink-2);font-size:9.5px;display:block}
+.axhelp{font-family:var(--fi-font-mono);font-size:10px;color:var(--fi-ink-2);max-width:840px;margin:4px 0 0}
+table.i18n{border-collapse:collapse;font-size:11.5px;margin:8px 0;max-width:760px}
+table.i18n th,table.i18n td{border:1px solid rgba(0,0,0,.12);padding:4px 10px;text-align:left}
+table.i18n th{font-family:var(--fi-font-mono);font-size:10px;color:var(--fi-ink-2);font-weight:500;background:rgba(0,0,0,.03)}
+table.i18n td.k{font-family:var(--fi-font-mono);color:var(--fi-azurite);background:none}
+.reserved{margin-top:14px;border:1px dashed var(--fi-ink-2);border-radius:var(--fi-radius-panel);padding:11px 14px;max-width:1000px;font-size:12px;line-height:1.7;color:var(--fi-ink-2)}
+.reserved b{color:var(--fi-ink)} .reserved .cbadge{font-family:var(--fi-font-mono);font-size:10px;color:var(--fi-ink-2);border:1px solid var(--fi-ink-2);border-radius:var(--fi-radius-pill);padding:1px 8px;margin-right:6px}
+.ship{margin-top:14px;font-size:11.5px;line-height:1.7;color:var(--fi-ink-2);border:1px dashed var(--fi-ochre);border-radius:var(--fi-radius-panel);padding:11px 14px;max-width:1000px}
+.ship b{color:var(--fi-ochre)} .ship .no{color:var(--fi-ink)}
+.prov{margin-top:14px;font-family:var(--fi-font-mono);font-size:10px;line-height:1.7;color:var(--fi-ink-2);max-width:1000px}
+@media (max-width:640px){#agitationDemo{grid-template-columns:1fr 1fr}}
+</style>
+
+<span class="hbadge">frontier-isles · v2 · 海即数据 sea-as-data · TRANSCRIPTION-FIRST · Round 7 · SHIPPED (feat/r7-sea-grammar @ acb4911)</span>
+<h1>海即数据 — 海不是背景，是四条读得出的数据通道</h1>
+<p class="lede">岛浮在海上，海面每一处读数都<b>直接转录自账本与 substrate 分</b>，没有一处是装饰。R7 起海面文法定为四通道，彼此正交：</p>
+<div class="grammar">
+  <div class="gch"><b>暗度 = 深度</b><br><span class="ax">substrate · DC/均值轴 · <code style="font-size:10px">col*=(1-uDepth)</code></span></div>
+  <div class="gch"><b>色调 = 昼夜</b><br><span class="ax">全局 veil <code style="font-size:10px">0x0A1428</code> · α=t×0.66 · 载明度轴但<b>全局作用</b>(海无昼夜 uniform)</span></div>
+  <div class="gch"><b>躁动 = 争议</b><br><span class="ax">被驳斥主张 · AC/纹理轴 · 零均值 chop 织纹</span></div>
+  <div class="gch res"><b>[RESERVED] flowline = 关系</b><br><span class="ax">未 ship · 卡 06 · 后续设计回合</span></div>
+</div>
+<p class="lede"><b>频域正交是本卡的核心不变量</b>：深度写<b>均值(DC)</b>——把整片水压暗；躁动写<b>纹理(AC)</b>——零均值高频织纹，眯眼看平均色调不变（AC1）。二者同格叠加互不串色（<b>昼夜是独立的第三机制</b>：全局 tone veil <code>0x0A1428</code>·α=t×0.66，也写明度但作用于<b>整场景</b>，靠<b>作用域</b>而非频率与深度区分，非第四根正交轴——海 shader 无昼夜 uniform，scene-stage.ts buildToneOverlay/applyToneAndLights L811–814/887）。另一条老不变量仍在：<b>深≠色</b>，depth 独立于 domain-hue（<code>sea.ts:100–106</code>）。</p>
+
+<!-- ============ Ch.1 深度暗化 ============ -->
+<h2><span class="ch">Ch.1</span> 深度暗化 <span class="en">sea depth = domain abstractness · DC / mean axis</span></h2>
+<p class="note">substrate 抽象度 ∈ [0,1]（0 = 浅滩/偏应用，1 = 深水/偏形式）经 <span class="k">seaDepthAt()</span> 变成一个<b>只加暗、不加色</b>的 alpha。海面着色器把它当乘法暗化因子；离岸越远沉得越暗，且下沉<b>速度</b>随 uDepth 增大（抽象岛更快跌进暗海）。下面两格<b>同为平静海(0 被驳斥主张)</b>，只有 substrate 不同：</p>
+<pre><span class="cm">// packages/renderer/src/sea.ts</span>
+export const <span class="fn">SEA_DEPTH_MAX_ALPHA</span> = <span class="lit">0.42</span>;        <span class="cm">// L88 · 最深水的最大暗化 alpha</span>
+export function <span class="fn">seaDepthAt</span>(substrate) {          <span class="cm">// L107–111</span>
+  if (substrate == null || Number.isNaN(substrate))
+    return { depth: <span class="lit">null</span>, overlayAlpha: <span class="lit">0</span> };  <span class="cm">// 无分 → 不暗化(诚实缺席)</span>
+  const depth = clamp01(substrate);
+  return { depth, overlayAlpha: depth * <span class="fn">SEA_DEPTH_MAX_ALPHA</span> };
+}
+<span class="cm">// sea-mesh.ts · uDepth = seaDepthAt(substrate).overlayAlpha ∈ 0..~0.42</span>
+col = mix(col, uDeepColor, smoothstep(<span class="lit">0.0</span>,<span class="lit">1.0</span>,radial)*(<span class="lit">0.28</span>+<span class="lit">0.55</span>*uDepth)*(<span class="lit">1.0</span>-here)); <span class="cm">// L129 离岸渐变，reach∝uDepth</span>
+col *= (<span class="lit">1.0</span> - uDepth);                        <span class="cm">// L154 · 就是这一乘：深＝暗，never a new hue</span></pre>
+<div class="inv"><b>INVARIANT · 深≠色</b> depth 读的是真实 substrate 分，<b>刻意不是</b> domain-hue 向量——独立的一根轴，永不是"旋转过的色相副本"（sea.ts:100–106）。substrate 为 <span class="k">null/NaN</span> 时 <span class="k">overlayAlpha=0</span>，宁可不画暗度也不编假深浅（honest absence beats decoration）。</div>
+<div class="strip" id="depthDemo">
+  <div class="tile" data-mode="depth" data-sub="0.18" data-refute="0" data-dom="math"
+       data-dec-zh="≈ 水深 0.18 · 偏应用||⇄ 5 验证 · 1 桥接" data-dec-en="≈ sea depth 0.18 · applied||⇄ 5 validated · 1 bridges"></div>
+  <div class="tile" data-mode="depth" data-sub="0.92" data-refute="0" data-dom="math"
+       data-dec-zh="≈ 水深 0.92 · 偏理论||⇄ 3 验证" data-dec-en="≈ sea depth 0.92 · theoretical||⇄ 3 validated"></div>
+</div>
+<p class="axhelp">岛身色相恒定 #C9D8E6（数理）；左浅滩 uDepth 0.076、右深水 uDepth 0.386 —— 同一色相、不同暗度，就是 depth ⊥ hue。</p>
+
+<!-- ============ Ch.2 躁动 agitation (R7 Dim 2) ============ -->
+<h2><span class="ch">Ch.2</span> 躁动 agitation <span class="en">contention = refuted-claim count · zero-mean chop weave · AC / texture axis</span></h2>
+<p class="note"><b>躁动 agitation = contention(被驳斥主张数)</b>。争议不再压暗海面（那会跟深度抢明度轴），而是给水面加一层<b>零均值网巾纹碎浪</b>：两列<b>逆向 ±45° 交叉 sin 织纹</b>沿 <span class="k">uSeaColor↔uDeepColor</span> 对比轴一加一减地重分布，<b>不改平均明度</b>——眯眼看色调不变（AC1），但纹理清晰起波。fbm zone 场把它聚成斑块、岸区 <span class="k">shoreExcl</span> 硬排除（岸浪 foam 保持干净）、离岸 open 挡住陆地。<b>被驳斥</b>是 ever-refuted（账本无化解动词，一次 refute 即永久；是否加化解动词 advisor 已裁定属 scene 循环范围外、归<b>未来 core 轮</b>）。下面 <b>0/1/2/3-被驳斥主张 四格条带</b>与生产 shader 同参、深度恒定（substrate 0.45），变的只有织纹密度；<b>1-refute(u=0.60)是金框主展品</b>，u=1.0 仅作 3+ 端点。</p>
+<pre><span class="cm">// apps/web/src/scene/undertow.ts — 文件名保留；DATA 名仍是 contention（R7 只改了 VISUAL 名）</span>
+export function <span class="fn">contentionFromRefuted</span>(refuted) {   <span class="cm">// L24–27 · 0→0, 1→0.60, 2→0.80, 3+→1.0</span>
+  if (refuted &lt;= <span class="lit">0</span>) return <span class="lit">0</span>;
+  return Math.min(<span class="lit">1</span>, <span class="lit">0.6</span> + (refuted - <span class="lit">1</span>) * <span class="lit">0.2</span>); }
+export function <span class="fn">refutedClaimCount</span>(claims) {         <span class="cm">// L37–40 · R7 Dim 1 单源：ghost==='refuted' 的 claim 数</span>
+  return claims.filter(c =&gt; c.ghost === <span class="lit">'refuted'</span>).length; }
+<span class="cm">// GeneratedIslandScreen.tsx · contention: contentionFromRefuted(refutedClaimCount(projected))  (L216–217)</span>
+<span class="cm">//                            &lt;PixiScene agitation={seaStats?.contention ?? 0} /&gt;                (L364)</span>
+<span class="cm">// scene-stage.ts L1055 · setAgitation(on: boolean|number) → uAgitation = v   (R7 Dim 2, was setUndertow)</span>
+
+<span class="cm">// packages/renderer/src/pixi/sea-mesh.ts (L168–175) · 争议 = 表面 CHOP（零均值），不是压暗</span>
+if (uAgitation &gt; <span class="lit">0.001</span>) {                                   <span class="cm">// 零保持门(AC5)</span>
+  float open      = <span class="lit">1.0</span> - here;
+  float shoreExcl = <span class="lit">1.0</span> - smoothstep(<span class="lit">0.05</span>, <span class="lit">0.30</span>, coast);        <span class="cm">// Gen-D · 岸带硬排除(AC6)</span>
+  float zone      = smoothstep(<span class="lit">0.46</span> - <span class="lit">0.08</span>*uAgitation, <span class="lit">0.74</span>, fbm(w*<span class="lit">0.006</span> - vec2(uTime*<span class="lit">0.045</span>, uTime*<span class="lit">0.03</span>)));  <span class="cm">// R7 tip: 更大斑块</span>
+  float chopA     = sin((w.x + w.y) * <span class="lit">0.095</span> - uTime * <span class="lit">1.15</span>);        <span class="cm">// +45° 列</span>
+  float chopB     = sin((w.x - w.y) * <span class="lit">0.078</span> + uTime * <span class="lit">0.95</span>);        <span class="cm">// −45° 逆向列</span>
+  float chop      = chopA * chopB * (<span class="lit">0.68</span> + <span class="lit">0.32</span> * noise(vec2((w.x+w.y)*<span class="lit">0.05</span>, (w.x-w.y)*<span class="lit">0.0055</span>)));  <span class="cm">// 各向异性噪声 ~9:1 沿织纹拉伸:调幅不散方向</span>
+  col += (uSeaColor - uDeepColor) * chop * (<span class="lit">3.5</span>*uAgitation) * zone * shoreExcl * open; <span class="cm">// 沿对比轴重分布，不写明度均值</span>
+}</pre>
+<div class="inv"><b>INVARIANT · 零均值 / 频域正交</b> chop 是两列 ±45° sin 的<b>积</b> × 各向异性噪声，<b>sRGB 帧缓冲值零均值</b>（sRGB gamma 凸性带来的线性亮度漂移 ≤0.6%，sub-JND）；沿 <code>(uSeaColor − uDeepColor)</code> 对比轴一加一减，眯眼看平均色调不变（AC1）。躁动是 <b>AC（纹理/高频）</b>，深度是 <b>DC（均值/暗度）</b>——频域正交，可同格叠加互不串。<b>零保持(AC5)</b>：<code>uAgitation&gt;0.001</code> 门 + <code>(3.5*uAgitation)</code> 因子 → u=0 与无躁动逐字节相同。<b>岸区(AC6)</b>：shoreExcl 硬排除岸带。</div>
+<div class="inv hist"><b>HISTORY · R6→R7</b> R6 此通道曾是<b>压暗漩涡</b>（<code>col = mix(col, col*0.5, swirl)</code>，写<b>明度轴</b>）。R7 因 <b>H3「明度轴超载」</b>（深度也在明度轴，争议一压暗就与深度串味、眯眼分不清）裁定改为<b>零均值躁动</b>，把争议挪到<b>纹理轴</b>与深度频域正交。传递曲线 <code>contentionFromRefuted</code> 未变（R6 Lever 2 标定值沿用）。</div>
+<div class="strip" id="agitationDemo">
+  <div class="tile" data-mode="agitation" data-sub="0.45" data-refute="0" data-dom="math"
+       data-dec-zh="≈ 水深 0.45 · 居中||⇄ 4 验证" data-dec-en="≈ sea depth 0.45 · mixed||⇄ 4 validated"></div>
+  <div class="tile primary" data-mode="agitation" data-sub="0.45" data-refute="1" data-dom="math" data-badge="primary"
+       data-dec-zh="≈ 水深 0.45 · 居中||⇄ 3 验证 · 1 被驳斥主张" data-dec-en="≈ sea depth 0.45 · mixed||⇄ 3 validated · 1 refuted claims"></div>
+  <div class="tile" data-mode="agitation" data-sub="0.45" data-refute="2" data-dom="math"
+       data-dec-zh="≈ 水深 0.45 · 居中||⇄ 2 验证 · 2 被驳斥主张" data-dec-en="≈ sea depth 0.45 · mixed||⇄ 2 validated · 2 refuted claims"></div>
+  <div class="tile" data-mode="agitation" data-sub="0.45" data-refute="3" data-dom="math" data-badge="endpoint"
+       data-dec-zh="≈ 水深 0.45 · 居中||⇄ 1 验证 · 3 被驳斥主张" data-dec-en="≈ sea depth 0.45 · mixed||⇄ 1 validated · 3 refuted claims"></div>
+</div>
+<p class="axhelp">深度全格恒定 substrate 0.45（uDepth 0.189）；uAgitation 随被驳斥主张 0 → 0.60 → 0.80 → 1.0，织纹密度(coverage)随之升。每格「眯眼 squint →」色块是该格开阔海<b>平均色调</b>：四块几乎同色 = 明度中性(AC1)。<b>金框 = 1-refute 主展品</b>；最右 3-refute = 满量程端点。reduced-motion 下取静帧——<b>织纹是空间签名</b>，冻结仍读得出躁动(AC8)。</p>
+
+<!-- ============ Ch.3 文字解码器 (list-twin) ============ -->
+<h2><span class="ch">Ch.3</span> 文字解码器 <span class="en">the sea, rewritten as one readable line (list-twin)</span></h2>
+<p class="note">海的每条视觉通道都配一份<b>纯文字孪生</b>（list-twin）：不靠让读者认色、认纹，而是把 substrate 与关系计数直接写成一行。<b>逐字转录</b>下面两个 <span class="k">&lt;span&gt;</span>（GeneratedIslandScreen.tsx L412–413）——实际前缀是 <span class="k">≈</span> 与 <span class="k">⇄</span>：</p>
+<pre><span class="cm">// L412 — 深度行：substrate 保留两位小数 + 抽象度档位</span>
+{seaStats?.substrate != null &amp;&amp; &lt;span&gt;<span class="lit">≈</span> {t(<span class="lit">'island.seaData.depth'</span>)} {seaStats.substrate.toFixed(<span class="lit">2</span>)} · {t(abstractKey(seaStats.substrate))}&lt;/span&gt;}
+<span class="cm">// L413 — 关系行：仅非零的关系入列，' · ' 连接（0 值不出现，honest）</span>
+{relParts.length &gt; <span class="lit">0</span> &amp;&amp; &lt;span&gt;<span class="lit">⇄</span> {relParts.join(<span class="lit">' · '</span>)}&lt;/span&gt;}
+<span class="cm">// L321–330 relParts · R7 Dim 1：agitation 读『被驳斥主张』，解码器读同一个量；『驳斥事件』是另一根轴，分开标</span>
+if (validates) relParts.push(`${validates} ${t('island.seaData.validate')}`);
+if (refuted)   relParts.push(`${refuted} ${t('island.seaData.<span class="rev">refutedClaims</span>')}`);   <span class="cm">// ← 驱动躁动的同一个数</span>
+if (refutes)   relParts.push(`${refutes} ${t('island.seaData.<span class="rev">refuteEvents</span>')}`);    <span class="cm">// ← 事件轴，分标不混</span>
+if (bridges)   relParts.push(`${bridges} ${t('island.seaData.bridge')}`);</pre>
+<table class="i18n">
+  <tr><th>island.seaData.*</th><th>zh (zh.ts L96–104)</th><th>en (en.ts L97–105)</th></tr>
+  <tr><td class="k">depth</td><td>水深</td><td>sea depth</td></tr>
+  <tr><td class="k">abstract.hi</td><td>偏理论 <span style="color:#6B6154">(s ≥ 0.66)</span></td><td>theoretical</td></tr>
+  <tr><td class="k">abstract.mid</td><td>居中 <span style="color:#6B6154">(0.33 ≤ s &lt; 0.66)</span></td><td>mixed</td></tr>
+  <tr><td class="k">abstract.lo</td><td>偏应用 <span style="color:#6B6154">(s &lt; 0.33)</span></td><td>applied</td></tr>
+  <tr><td class="k">validate</td><td>验证</td><td>validated</td></tr>
+  <tr><td class="k">refutedClaims</td><td>被驳斥主张 <span style="color:#6B6154">(→ 躁动)</span></td><td>refuted claims</td></tr>
+  <tr><td class="k">refuteEvents</td><td>驳斥事件 <span style="color:#6B6154">(事件轴)</span></td><td>refute events</td></tr>
+  <tr><td class="k">bridge</td><td>桥接</td><td>bridges</td></tr>
+</table>
+<p class="axhelp">上方每格 tile 下的读数就是这两个 span 的真实产物。Ch.2 条带里深度行恒为 <b>≈ 水深 0.45 · 居中</b>，只有 <b>⇄ … 被驳斥主张</b> 数随格递增——文字孪生和躁动<b>读同一个量</b>（R7 Dim 1，永不背离）。</p>
+
+<!-- ============ RESERVED channel ============ -->
+<div class="reserved"><span class="cbadge">RESERVED · not shipped</span><b>relation / flowline 通道 — 归后续设计回合认领。</b><br>
+海里已有洋流几何（<span class="k">sea.ts</span> 的 <span class="k">CURRENT_LOD</span>／<span class="k">CurrentLike</span>／<span class="k">domainHueAt</span> 样条），但"把 relation 绑成海面 flowline 视觉"这条通道<b>本卡不主张、不演示</b>——它属于 <b>卡 06</b>（currents/relation-as-flowline）。R7 落地的是躁动(Dim 2)，flowline 仍未 ship；此处占位一根 RESERVED 通道，避免与已 ship 的 depth/agitation 混为一谈。</div>
+
+<!-- ============ SHIPPED / NOT-SHIPPED honest block ============ -->
+<div class="ship"><b>SHIPPED（已在代码里，本卡逐字转录 · feat/r7-sea-grammar @ acb4911）：</b>
+① <span class="k">seaDepthAt()</span> + <code>col *= (1.0 - uDepth)</code> 深度暗化，SEA_DEPTH_MAX_ALPHA=0.42，null→不暗化；
+② <span class="k">uAgitation</span> 零均值躁动 chop 织纹（sea-mesh L168–175），传递曲线 <span class="k">contentionFromRefuted</span> 0/1/2/3→0/.6/.8/1.0，单源 <span class="k">refutedClaimCount</span>，<span class="k">setAgitation</span> / PixiScene <code>agitation</code> prop；
+③ 文字解码器双 span（≈ 深度行 / ⇄ 关系行），R7 Dim 1 把『被驳斥主张』与『驳斥事件』分标，i18n zh/en 全量在库；
+④ 海色板冻成 token（<span class="k">--fi-water-{math,matter,life,cross}-{sea,deep,foam}</span> 12 条，tokens.css L90–93，ride-along B 9cb3109），是运行时 SEA_COLORS 的冻结转录（锁步同步）——本卡 canvas 已引 <span class="k">--fi-water-math-sea/deep</span> 真值。
+<br><b class="no" style="color:var(--fi-ink)">RETIRED（R7 移除，勿再引）：</b>
+<span class="no">·</span> R6 undertow 压暗漩涡 <code>mix(col, col*0.5, swirl)</code> —— 写明度轴、与深度串味，H3 裁定退役，改为零均值躁动。
+<br><b class="no" style="color:var(--fi-ink)">NOT SHIPPED / 诚实偏差：</b>
+<span class="no">·</span> tide/foam/coast 岸浪通道（uTide, uFoamColor）本卡<b>未画</b>，属另一通道（foam token <span class="k">--fi-water-*-foam</span> 已在库，仅未演示）；
+<span class="no">·</span> canvas 世界坐标按 demo 缩放（W_SCALE），shader 频率 0.095/0.078/0.006 + 各向异性噪声 0.05:0.0055 逐字转录；岛/岸 mask 为演示几何；
+<span class="no">·</span> flowline→relation 见 RESERVED；驳斥<b>化解/平反机制</b>（resolution verb）advisor 裁定出 scene 循环范围，<b>归未来 core 轮</b>；
+<span class="no">·</span> <b>[NEW—需回流] i18n 无复数规则</b>：relParts 用固定复数模板 <code>${n} ${t(key)}</code>，n=1 也输出 '1 refuted claims' / '1 bridges'（英文语法瑕疵）。TRANSCRIPTION-FIRST 照抄 app 真实输出（含瑕疵，见 Ch.1/Ch.2 演示读数），proper pluralization 待回流。</div>
+
+<div class="prov">provenance · 2026-07-12 · Round 7 Dim 2 · transcription-first Generator A · branch feat/r7-sea-grammar @ acb4911 ·
+advisor 仲裁合成 = Gen-C chop weave + Gen-D 岸区排除(shoreExcl) · AC1–AC9 harness 见 .design-eng-loop/r7/agitation-ac-harness.html ·
+sources: sea.ts L88/107–111 · sea-mesh.ts L80/130/154/171–178/205 · scene-stage.ts L1055–1058 · undertow.ts L24–27/37–40 ·
+GeneratedIslandScreen.tsx L211–220/320/321–330/364/412–413 · i18n zh.ts L96–104 · en.ts L97–105 · tokens.css L15–80/90–93 ·
+海色 token 回流需求：R6 提出 → R7 ride-along B (9cb3109) 冻结 tokens.css L90–93 关闭 ·
+R7 面板修正 2026-07-12：昼夜诚实化（全局 veil 0x0A1428·α=t×0.66，非换 palette，scene-stage L811–814/887）· 英文复数照抄 app 固定复数模板真实输出 · DOI 印章专属墨见卡 23 ·
+R7 fix loop（tip acb4911）：AC2 修复（coverage 8.4%→~20%，zone fbm 0.018→0.006 + 边 0.46-0.08u/0.74 + 幅度 3.0→3.5 + 各向异性噪声 ~9:1）· AC3 spec-correction（方向能量度量对双向网格失配，谱结构度量归 R8）</div>
+
+<script>
+/* Sea shader — JS transcription of packages/renderer/src/pixi/sea-mesh.ts (FRAG).
+   Scope: depth darkening (L154) + offshore mix (L129) + R7 AGITATION chop weave (L168-175).
+   `here` = island mask; `coast`/`near` = coastline proximity; `open` = 1-here.
+   Colors: uSeaColor/uDeepColor = --fi-water-math-{sea,deep} #BCCEDC/#A6BED0, VERBATIM from tokens.css
+   L90 (frozen transcription of runtime SEA_COLORS, ride-along B 9cb3109 — no longer an approximation).
+   NB the real sea↔deep contrast is small ([22,16,12]); the shader's (3.5*uAgitation) factor is what
+   makes the zero-mean chop visible. World coords demo-scaled (W_SCALE); freqs (0.095/0.078/0.006, aniso 0.05:0.0055) verbatim. */
+const SEA=[188,206,220], DEEP=[166,190,208];          // --fi-water-math-sea #BCCEDC / -deep #A6BED0 (tokens.css L90)
+const DOM_MATH=[201,216,230], INK=[43,38,32];         // --fi-domain-math-fill #C9D8E6 island / --fi-ink #2B2620
+const DIFF=[SEA[0]-DEEP[0],SEA[1]-DEEP[1],SEA[2]-DEEP[2]];  // (uSeaColor - uDeepColor) = [22,16,12]
+const LDIFF=0.299*DIFF[0]+0.587*DIFF[1]+0.114*DIFF[2];     // luma of (SEA-DEEP), for coverage metric
+const SEA_DEPTH_MAX_ALPHA=0.42;                        // sea.ts L88 (verbatim)
+const clamp01=n=>n<0?0:n>1?1:n;
+const clamp255=n=>n<0?0:n>255?255:n;
+const seaDepthAt=s=>(s==null||Number.isNaN(s))?0:clamp01(s)*SEA_DEPTH_MAX_ALPHA; // sea.ts L107-111
+// R7 transfer curve (undertow.ts contentionFromRefuted, verbatim):
+//   0→0 (calm) · 1→0.60 (primary) · 2→0.80 · 3+→1.0 (endpoint)
+const contention=r=>r<=0?0:Math.min(1, 0.6 + (r-1)*0.2);
+const mix=(a,b,t)=>a+(b-a)*t;
+const smoothstep=(e0,e1,x)=>{const t=clamp01((x-e0)/(e1-e0));return t*t*(3-2*t);};
+function hash(x,y){const n=Math.sin(x*127.1+y*311.7)*43758.5453;return n-Math.floor(n);}
+function vnoise(x,y){const xi=Math.floor(x),yi=Math.floor(y),xf=x-xi,yf=y-yi;   // sea-mesh noise(vec2)
+  const tl=hash(xi,yi),tr=hash(xi+1,yi),bl=hash(xi,yi+1),br=hash(xi+1,yi+1);
+  const u=xf*xf*(3-2*xf),v=yf*yf*(3-2*yf);
+  return mix(mix(tl,tr,u),mix(bl,br,u),v);}
+function fbm(x,y){let s=0,a=0.5,f=1;for(let i=0;i<4;i++){s+=a*vnoise(x*f,y*f);f*=2;a*=0.5;}return s;} // sea-mesh fbm
+
+const W=132,H=96,W_SCALE=2.1;   // demo world-px scale (freqs verbatim; only the coord mapping is scaled)
+const reduced=matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+function renderTile(canvas, sub, agit, t){
+  const uDepth=seaDepthAt(sub);          // sea-mesh L154 factor
+  const uAgitation=agit;                 // 0=calm | 0.60=1-refute primary | 1.0=3+ endpoint
+  const ctx=canvas._ctx, img=canvas._img, d=img.data;
+  const cx=0.5, cy=0.52, irx=0.20, iry=0.13;   // soft island mask → here / near / coast
+  let mR=0,mG=0,mB=0,openN=0,cover=0;
+  for(let py=0;py<H;py++){
+    for(let px=0;px<W;px++){
+      const u=px/W, v=py/H;
+      const dx=(u-cx)/irx, dy=(v-cy)/iry, ed=Math.sqrt(dx*dx+dy*dy);
+      const here=1-smoothstep(0.9,1.7,ed);          // 1 inside island, 0 open sea
+      const near=1-smoothstep(1.0,2.4,ed);          // land proximity band
+      const i=(py*W+px)*4;
+      if(here>0.985){                                // island body — hue held CONSTANT
+        d[i]=DOM_MATH[0];d[i+1]=DOM_MATH[1];d[i+2]=DOM_MATH[2];d[i+3]=255;continue;
+      }
+      let col=[SEA[0],SEA[1],SEA[2]];
+      // offshore radial (L129): reach ∝ uDepth; here suppresses near coast (bright shelf)
+      const rad=clamp01(Math.hypot(u-cx,v-cy)/0.62);
+      const off=smoothstep(0,1,rad)*(0.28+0.55*uDepth)*(1-here);
+      for(let c=0;c<3;c++) col[c]=mix(col[c],DEEP[c],off);
+      // depth darkening (L154): the one multiply — deep = dark, never a new hue (DC axis)
+      for(let c=0;c<3;c++) col[c]*=(1-uDepth);
+      // R7 AGITATION chop weave (L168-175): zero-mean, along (SEA-DEEP), NOT a darkening (AC axis)
+      if(uAgitation>0.001){
+        const open=1-here;
+        const coast=near*(1-here);
+        const shoreExcl=1-smoothstep(0.05,0.30,coast);          // Gen-D 岸带硬排除 (AC6)
+        const wx=px*W_SCALE, wy=py*W_SCALE;
+        const zone=smoothstep(0.46-0.08*uAgitation, 0.74, fbm(wx*0.006 - t*0.045, wy*0.006 - t*0.03)); // R7 tip: bigger patches
+        const chopA=Math.sin((wx+wy)*0.095 - t*1.15);           // +45°
+        const chopB=Math.sin((wx-wy)*0.078 + t*0.95);           // −45°
+        const chop=chopA*chopB*(0.68+0.32*vnoise((wx+wy)*0.05, (wx-wy)*0.0055)); // anisotropic noise ~9:1 along weave
+        const amp=chop*(3.5*uAgitation)*zone*shoreExcl*open;    // zero-mean; gated to patches, off shore/land
+        for(let c=0;c<3;c++) col[c]=clamp255(col[c] + DIFF[c]*amp);
+        if(here<0.02 && Math.abs(amp)*LDIFF>3) cover++;         // coverage: pixels with |Δluma|>3 (AC2)
+      }
+      // faint ink coastline where mask edge sits (geometry, not a new channel)
+      const edge=smoothstep(0.985,1.02,here)*(1-smoothstep(1.02,1.10,here));
+      for(let c=0;c<3;c++) col[c]=mix(col[c],INK[c],edge*0.7);
+      d[i]=col[0];d[i+1]=col[1];d[i+2]=col[2];d[i+3]=255;
+      if(here<0.02){ mR+=col[0]; mG+=col[1]; mB+=col[2]; openN++; }  // open-sea mean (squint / AC1)
+    }
+  }
+  ctx.putImageData(img,0,0);
+  return openN? {mR:Math.round(mR/openN),mG:Math.round(mG/openN),mB:Math.round(mB/openN),cover:cover/openN} : null;
+}
+
+function buildTile(tile){
+  const sub=parseFloat(tile.dataset.sub);
+  const refute=parseInt(tile.dataset.refute,10);
+  const agit=contention(refute);
+  if(tile.dataset.badge){
+    const b=document.createElement('div');b.className='badge '+tile.dataset.badge;
+    b.textContent=tile.dataset.badge==='primary'?'主展品 · 1-refute':'3+ 端点 endpoint';
+    tile.appendChild(b);
+  }
+  const cap=document.createElement('div');cap.className='tcap';
+  cap.innerHTML = tile.dataset.mode==='depth'
+    ? `substrate <b>${sub.toFixed(2)}</b>`
+    : `${refute} 被驳斥主张 → u=<b>${agit.toFixed(2)}</b>`;
+  tile.appendChild(cap);
+  const cv=document.createElement('canvas');cv.width=W;cv.height=H;
+  cv._ctx=cv.getContext('2d');cv._img=cv._ctx.createImageData(W,H);
+  tile.appendChild(cv);
+  const uni=document.createElement('div');uni.className='uni';
+  uni.innerHTML=`<span>uDepth <b>${seaDepthAt(sub).toFixed(3)}</b></span><span>uAgitation <b>${agit.toFixed(2)}</b></span>`;
+  tile.appendChild(uni);
+  // static reference frame at t=0 → squint mean tone (AC1) + coverage (AC2)
+  const stat=renderTile(cv,sub,agit,0);
+  if(tile.dataset.mode==='agitation' && stat){
+    const sq=document.createElement('div');sq.className='squint';
+    sq.innerHTML=`眯眼 squint →<span class="sw" style="background:rgb(${stat.mR},${stat.mG},${stat.mB})"></span>coverage ${(stat.cover*100).toFixed(0)}%`;
+    tile.appendChild(sq);
+  }
+  const [z1,z2]=tile.dataset.decZh.split('||'), [e1,e2]=tile.dataset.decEn.split('||');
+  const dec=document.createElement('div');dec.className='dec';
+  let html=`<div><span class="p">${z1[0]}</span>${z1.slice(1)}<span class="en">${e1}</span></div>`;
+  if(z2) html+=`<div><span class="p">${z2[0]}</span>${z2.slice(1)}<span class="en">${e2}</span></div>`;
+  dec.innerHTML=html;
+  tile.appendChild(dec);
+  tile._sub=sub;tile._agit=agit;tile._cv=cv;
+}
+document.querySelectorAll('.tile').forEach(buildTile);
+
+// reduced-motion → static t=0 frame (texture is a SPATIAL signature — still readable, AC8)
+if(!reduced){
+  let t0=performance.now();
+  function loop(now){
+    const t=(now-t0)/1000;
+    document.querySelectorAll('.tile').forEach(tile=>{
+      if(tile._agit>0.001) renderTile(tile._cv, tile._sub, tile._agit, t); // only disputed seas animate
+    });
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+}
+</script>

@@ -1,0 +1,13 @@
+{
+  "judge": "r7auditA2",
+  "scores": { "accessibility": 1, "performance": 3, "theming": 2, "responsive": 3, "anti-patterns": 2, "interaction": 2 },
+  "worstFinding": "reduced-motion gate drops DATA-BOUND STATE not just motion: day/night lever silent no-op (tweenDayNight arms tween the gated ticker refuses to drive, no instant-apply fallback) AND disputed-sea agitation never appears (setAgitation writes uniform, never renders the promised static frame) - shipped a11y test only checks boolean stores, CI structurally blind to both",
+  "keyEvidence": {
+    "zero_mean": "SUBSTANTIALLY TRUE - independent 285k-sample Monte Carlo JS port: E[chop*zone]=-1.7e-4, framebuffer drift 0.01 LSB at u=1; only real drift is sRGB-decode convexity +0.1-0.6% linear luminance (sub-JND); comment should say zero-mean in framebuffer values not luminance",
+    "rename": "uUndertow 0 refs BUT PixiScene.tsx:6 doc still says undertow prop; scene-stage.ts:1012 comment ADDED THIS BRANCH says undertow; concept now has 3 names (file undertow.ts / data contention / visual agitation)",
+    "boot_race": "no agitationRef, no boot-time setAgitation replay - same finding as r7auditA1",
+    "seal_ink": "45.06 RGB distance exact and honest; caveat dE76~14 same burnt-sienna family, perceptually adjacent at seal size; test only pins !== 0xb5673a so distance-1 regression passes CI",
+    "test_gaps": "single-source test is tautology (computes both sides from same function in-test, cannot catch GIS wiring divergence); zero-mean + uAgitation shader channel zero coverage; reduced-motion test blind to bugs A/B",
+    "theming": "domain palette TRIPLICATED (assets/palettes.ts strings, scene-stage.ts hex, atlas-lod.ts) contradicting palette.ts single-source doctrine; SEA_COLORS still hardcoded in PixiScene outside token system (tokens.css is doc-level freeze only)"
+  }
+}

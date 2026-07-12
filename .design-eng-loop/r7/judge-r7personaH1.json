@@ -1,0 +1,12 @@
+{
+  "judge": "r7personaH1",
+  "scores": { "H1": 4, "H2": 3, "H3": 4, "H4": 4, "H5": 3 },
+  "worstFinding": "the golden primary specimen betrays the round: 'zero-mean weave' reads as blurred cloud-shadow blobs, not weave; dark patches locally impersonate the depth/lightness axis R7 fled; 1-2-3 refutes visually saturated (19/23/26% coverage indistinguishable) - the channel is effectively a boolean to the eye, contention QUANTITY lives only in the text decoder",
+  "keyEvidence": {
+    "H1": "Ch.1 vs Ch.2 side-by-side genuinely distinguishable (whole-tile darker vs mottled same-tone); squint blocks nearly same color = texture doesn't steal lightness; dock: dark patches locally read as deeper water",
+    "H2": "first instinct: cloud shadows or shoals, not weave (sin wavelengths ~66/80 world-px too coarse for 185x134 canvas then CSS-blurred); emotional direction right (unease), semantic (contention) only via text",
+    "H3": "0 vs 1 refute jump reads at a glance, shore stays clean; but 1/2/3 indistinguishable to the eye - text decoder is the fallback",
+    "H4": "en subtitles on all chapters + bilingual tile readouts + full zh/en table = real improvement; body reasoning still Chinese-only (CJK 1329 vs en 556); transcription bugs: card says '1 bridges'/'1 refuted claim' but app template is fixed-plural '${n} refuted claims'",
+    "H5": "bare prefixes ~ / <-> worked around not fixed (self-evident words after them); NEW first-glance confusion: '2 refuted claims' next to '3 refute events' unexplained in-app - answer only in the design card"
+  }
+}
