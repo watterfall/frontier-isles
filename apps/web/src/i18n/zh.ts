@@ -47,6 +47,16 @@ export const zh = {
     satelliteStatus: '近景显现 {{visible}} / {{total}} 座伴岛',
     routeLegend: '实线空路来自真实账本关系',
     anchorHint: '点主岛展开伴岛，再次点击靠岸',
+    structures: {
+      legend: '结构透镜',
+      off: '关闭透镜',
+      proposed: '拟议',
+      rebuilt: '已重建',
+      gaps: '缺口',
+      gapHint: '虚线为诚实缺口——此结构尚无人带来',
+      pureFrontier: '尚无岛屿重建此结构——整片海都是前沿',
+      note: '每条边来自真实 rebuild 事件，透镜不添一笔',
+    },
     card: {
       activity: '活跃度',
       members: '居民 {{n}} 人',

@@ -103,3 +103,40 @@ export function buildStructureLens(
 
   return { structureId, rebuilt, gaps, dimmed, arcs };
 }
+
+/** The stage-facing lens shape (slug space — the stage owns positions). */
+export interface AtlasLensSlugs {
+  structureId: string;
+  rebuiltSlugs: string[];
+  gapSlugs: string[];
+  arcs: Array<{ fromSlug: string; toSlug: string }>;
+}
+
+const slugOfOp = (op: string): string => op.split('/').at(-1) ?? op;
+
+/**
+ * Adapt the op-keyed graph to the slug-keyed stage input: build the lens over
+ * the islands ACTUALLY on stage (the despaced atlas scene), then hand the
+ * stage bare slugs — it projects positions itself, so the lens marks always
+ * sit exactly where the engine drew each island.
+ */
+export function toAtlasLens(
+  structureId: string,
+  edges: readonly LensEdgeLike[],
+  frontier: readonly LensFrontierLike[],
+  stageIslands: ReadonlyArray<{ slug: string; x: number; y: number; domain: string }>,
+): AtlasLensSlugs {
+  const islands: LensIslandLike[] = stageIslands.map((i) => ({
+    op: `op://frontier-isles/prob/${i.slug}`,
+    x: i.x,
+    y: i.y,
+    domain: i.domain,
+  }));
+  const lens = buildStructureLens(structureId, edges, frontier, islands);
+  return {
+    structureId,
+    rebuiltSlugs: lens.rebuilt.map((n) => slugOfOp(n.op)),
+    gapSlugs: lens.gaps.map((n) => slugOfOp(n.op)),
+    arcs: lens.arcs.map((a) => ({ fromSlug: slugOfOp(a.fromOp), toSlug: slugOfOp(a.toOp) })),
+  };
+}

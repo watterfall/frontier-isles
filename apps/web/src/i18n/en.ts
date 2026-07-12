@@ -48,6 +48,16 @@ export const en: Resources = {
     satelliteStatus: '{{visible}} / {{total}} satellites disclosed nearby',
     routeLegend: 'Solid airways come from real ledger relations',
     anchorHint: 'Tap an anchor to disclose satellites; tap again to land',
+    structures: {
+      legend: 'Structure lens',
+      off: 'Lens off',
+      proposed: 'proposed',
+      rebuilt: 'Rebuilt',
+      gaps: 'Gaps',
+      gapHint: 'Dashed = honest gaps — no one has brought this structure here yet',
+      pureFrontier: 'No island has rebuilt this structure yet — the whole sea is frontier',
+      note: 'Every edge comes from a real rebuild event; the lens adds nothing',
+    },
     card: {
       activity: 'Activity',
       members: '{{n}} residents',

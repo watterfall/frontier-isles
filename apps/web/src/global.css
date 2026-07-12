@@ -437,6 +437,33 @@ button {
 .fi-hierarchy-key small { display: block; margin-top: 5px; font-family: var(--fi-font-mono); font-size: 8px; text-align: right; }
 .fi-hierarchy-key em { display: block; margin-top: 2px; font-family: var(--fi-font-display); font-size: 7.5px; font-style: normal; text-align: right; opacity: .67; }
 
+/* ── Structure lens 结构透镜 (执行纲要 §九) — chrome-family paper card.
+   The legend glyph is a dashed halo (the lens' own gap mark); rebuilt rows
+   carry a solid amber dot, gap rows a dashed ochre ring — the SAME two marks
+   the map draws, so the twin and the lens read as one instrument. */
+.fi-structure-key { position: absolute; left: 30px; bottom: 96px; z-index: 30; width: 246px; color: var(--fi-ink-2); pointer-events: auto; }
+.fi-structure-key > span { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; font-family: var(--fi-font-display); font-size: 10px; font-weight: 700; }
+.fi-structure-key > span i { width: 13px; height: 13px; box-sizing: border-box; border: 1.2px dashed var(--fi-ochre); border-radius: 50%; opacity: .85; }
+.fi-structure-options { display: grid; grid-template-columns: 1fr; border: .75px solid rgba(58,52,43,.36); background: rgba(250,245,232,.78); backdrop-filter: blur(6px); }
+.fi-structure-options button { display: flex; align-items: center; justify-content: space-between; gap: 6px; min-height: 26px; padding: 3px 8px; border: 0; border-bottom: .75px solid rgba(58,52,43,.18); background: transparent; color: inherit; font: inherit; font-size: 10px; text-align: left; cursor: pointer; transition: background 150ms ease, color 150ms ease; }
+.fi-structure-options button:last-child { border-bottom: 0; }
+.fi-structure-options button:hover { background: rgba(58,52,43,.06); }
+.fi-structure-options button.is-active { background: var(--fi-ink); color: var(--fi-paper); }
+.fi-structure-options button em { flex: none; padding: 1px 4px; border: .75px solid currentColor; font-size: 7.5px; font-style: normal; opacity: .72; }
+.fi-structure-twin { margin-top: 5px; padding: 7px 8px 6px; border: .75px solid rgba(58,52,43,.36); background: rgba(250,245,232,.86); backdrop-filter: blur(6px); }
+.fi-structure-statement { margin: 0 0 6px; font-size: 9px; line-height: 1.45; opacity: .82; }
+.fi-structure-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.fi-structure-columns b { display: block; margin-bottom: 3px; font-family: var(--fi-font-display); font-size: 8.5px; font-weight: 700; }
+.fi-structure-columns ul { max-height: 132px; margin: 0; padding: 0; overflow-y: auto; list-style: none; }
+.fi-structure-columns li button { position: relative; display: block; width: 100%; padding: 2px 2px 2px 13px; border: 0; background: transparent; color: inherit; font: inherit; font-size: 9px; text-align: left; cursor: pointer; }
+.fi-structure-columns li button:hover { background: rgba(58,52,43,.06); }
+.fi-structure-columns li button::before { content: ''; position: absolute; top: 50%; left: 2px; width: 6px; height: 6px; box-sizing: border-box; border-radius: 50%; transform: translateY(-50%); background: var(--fi-gamboge); box-shadow: 0 0 0 2.5px color-mix(in srgb, var(--fi-gamboge) 22%, transparent); }
+.fi-structure-columns section[data-kind='gap'] li button::before { background: transparent; box-shadow: none; border: 1px dashed var(--fi-ochre); opacity: .8; }
+.fi-structure-frontier { margin: 6px 0 0; font-size: 8.5px; line-height: 1.4; color: var(--fi-ochre); }
+.fi-structure-twin > small { display: block; margin-top: 5px; font-size: 8px; opacity: .7; }
+.fi-structure-note { display: block; margin-top: 4px; font-family: var(--fi-font-mono); font-size: 7.5px; opacity: .62; }
+@media (max-width: 900px) { .fi-structure-key { display: none; } }
+
 .fi-atlas-camera { position: absolute; right: 30px; top: 50%; display: grid; grid-template-columns: 42px 42px; gap: 6px; pointer-events: auto; transform: translateY(-50%); }
 .fi-atlas-camera button { display: grid; min-width: 42px; min-height: 42px; place-items: center; border: 1px solid rgba(58,52,43,.58); background: rgba(250,245,232,.86); color: var(--fi-ink); font-family: var(--fi-font-mono); font-size: 19px; cursor: pointer; box-shadow: 2px 3px 0 rgba(58,48,36,.1); backdrop-filter: blur(6px); transition: transform 160ms var(--fi-ease), background 160ms ease; }
 .fi-atlas-camera button:hover:not(:disabled) { transform: translateY(-2px); background: var(--fi-paper-raised); }

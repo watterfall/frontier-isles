@@ -24,13 +24,16 @@
  * the Pixi zoom into the sail's start position). Full camera-continuity
  * (T0→T2 atlas zoom bleeding into the T2→T3 sail) is W5's scope, not W1's.
  */
-import { Component, lazy, Suspense, useCallback, useEffect, useState, type ReactNode } from 'react';
+import { Component, lazy, Suspense, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChartScreen, type ChartScreenProps } from './ChartScreen';
 import { ChartChrome } from './ChartChrome';
 import { IslandCard } from './IslandCard';
+import { StructureLensPanel } from './StructureLensPanel';
 import { computeCardContent, cardBoxPos } from './cardContent';
 import { hasWebGL } from '../../chart/webgl';
+import { api, type ApiStructure, type ApiStructureGraph } from '../../api/client';
+import { fallbackStructures, fallbackStructureGraph, slugOfOp } from '../../api/structureFallback';
 import type { IslandDatum } from '../../api/fallback';
 import type { AtlasControls, AtlasMetrics } from '../../chart/atlasControls';
 
@@ -59,6 +62,47 @@ function AtlasChartScreenImpl(props: ChartScreenProps) {
   const [hoverPos, setHoverPos] = useState<{ x: number; y: number } | null>(null);
   const [controls, setControls] = useState<AtlasControls | null>(null);
   const [metrics, setMetrics] = useState<AtlasMetrics | null>(null);
+  // Structure lens (执行纲要 §九): objects + bipartite graph, best-effort from
+  // the live API with the offline fallback (same seed, same reduce — the lens
+  // renders identically with the server absent).
+  const [structures, setStructures] = useState<ApiStructure[]>([]);
+  const [structureGraph, setStructureGraph] = useState<ApiStructureGraph | null>(null);
+  const [lensId, setLensId] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    void (async () => {
+      const [s, g] = await Promise.all([api.structures(), api.structureGraph()]);
+      if (!alive) return;
+      // req is best-effort (null on any failure) — either half missing means
+      // the pair comes from the fallback, so objects and graph never mix eras.
+      if (s && g) {
+        setStructures(s.structures);
+        setStructureGraph(g);
+      } else {
+        setStructures(fallbackStructures());
+        setStructureGraph(fallbackStructureGraph());
+      }
+    })();
+    return () => { alive = false; };
+  }, []);
+
+  // Stable lens identity: the host keys an effect on this object, and metrics
+  // updates re-render this screen every camera settle — an inline literal here
+  // would re-fire setStructureLens (and its camera flight) forever.
+  const lens = useMemo(
+    () => (lensId && structureGraph ? { structureId: lensId, graph: structureGraph } : null),
+    [lensId, structureGraph],
+  );
+
+  // The list twin's rows, resolved from the frontier's op ids to chart islands.
+  const twin = useMemo(() => {
+    if (!lensId || !structureGraph) return { rebuilt: [] as IslandDatum[], gaps: [] as IslandDatum[] };
+    const bySlug = new Map(islands.filter((d) => d.slug).map((d) => [d.slug!, d] as const));
+    const f = structureGraph.frontier.find((x) => x.structureId === lensId);
+    const resolve = (ops: string[]) => ops.map((op) => bySlug.get(slugOfOp(op))).filter((d): d is IslandDatum => !!d);
+    return { rebuilt: resolve(f?.rebuilt ?? []), gaps: resolve(f?.gaps ?? []) };
+  }, [lensId, structureGraph, islands]);
 
   const handleHoverIsland = useCallback(
     (d: IslandDatum | null, pos: { x: number; y: number } | null) => {
@@ -85,10 +129,19 @@ function AtlasChartScreenImpl(props: ChartScreenProps) {
           GeneratedIslandScreen's PixiScene: a brief blank paper background
           while the small atlas chunk loads, never a double chrome. */}
       <Suspense fallback={<div className="fi-atlas-loading" role="status"><i aria-hidden="true" /><span>{t('chart.tiers.loading')}</span></div>}>
-        <AtlasChartHost islands={islands} harbor={harbor} onPick={onIsland} onHoverIsland={handleHoverIsland} onWebglError={handleWebglError} onReady={setControls} onMetrics={setMetrics} />
+        <AtlasChartHost islands={islands} harbor={harbor} lens={lens} onPick={onIsland} onHoverIsland={handleHoverIsland} onWebglError={handleWebglError} onReady={setControls} onMetrics={setMetrics} />
       </Suspense>
 
       <ChartChrome islands={islands} onPick={onIsland} onBuild={onBuild} onCollide={onCollide} filter={filter} onFilter={onFilter} controls={controls} metrics={metrics} onHome={harbor && harbor.islandSlugs.length > 0 ? () => controls?.home?.() : undefined} />
+
+      <StructureLensPanel
+        structures={structures}
+        selected={lensId}
+        onSelect={setLensId}
+        rebuilt={twin.rebuilt}
+        gaps={twin.gaps}
+        onEnter={(d) => { if (controls && d.slug) controls.enter(d.slug); else onIsland(d); }}
+      />
 
       {card && <IslandCard content={card.content} left={card.left} top={card.top} />}
     </div>
