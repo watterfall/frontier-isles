@@ -28,6 +28,9 @@ export function IslandCard({ content: card, left, top }: IslandCardProps) {
       {card.citation && (
         <div className="fi-card-source"><span>{t('chart.card.source')}</span>{card.citation.venue} ({card.citation.year})</div>
       )}
+      {card.lensNote && (
+        <div className="fi-card-lens" data-kind={card.lensNote.kind}><i aria-hidden="true" />{card.lensNote.text}</div>
+      )}
       <div className="fi-card-enter"><span>{t('chart.card.hintEnter')}</span><i aria-hidden="true">↗</i></div>
     </aside>
   );

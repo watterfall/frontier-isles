@@ -61,6 +61,12 @@ export default function AtlasChartHost({ islands, harbor, lens, onPick, onHoverI
   harborRef.current = harbor ?? null;
   const lensRef = useRef(lens ?? null);
   lensRef.current = lens ?? null;
+  // Cluster provenance (xfrontier code) per stage slug — feeds the lens'
+  // near/far gap gradient (same-cluster vs same-domain-only).
+  const clusterBySlug = useMemo(
+    () => new Map(islands.map((d) => [d.slug ?? `id-${d.id}`, d.cluster?.code])),
+    [islands],
+  );
 
   useEffect(() => {
     const host = hostRef.current;
@@ -108,7 +114,7 @@ export default function AtlasChartHost({ islands, harbor, lens, onPick, onHoverI
         }
         // A lens selected before the Pixi chunk finished booting applies now.
         const l = lensRef.current;
-        if (l) stage.setStructureLens(toAtlasLens(l.structureId, l.graph.edges, l.graph.frontier, scene.islands));
+        if (l) stage.setStructureLens(toAtlasLens(l.structureId, l.graph.edges, l.graph.frontier, scene.islands, clusterBySlug));
         stageRef.current = stage;
         cbRef.current.onReady?.({
           zoomIn: () => stage.zoomBy(1.24),
@@ -159,8 +165,8 @@ export default function AtlasChartHost({ islands, harbor, lens, onPick, onHoverI
   useEffect(() => {
     const stage = stageRef.current;
     if (!stage) return;
-    stage.setStructureLens(lens ? toAtlasLens(lens.structureId, lens.graph.edges, lens.graph.frontier, scene.islands) : null);
-  }, [lens, scene]);
+    stage.setStructureLens(lens ? toAtlasLens(lens.structureId, lens.graph.edges, lens.graph.frontier, scene.islands, clusterBySlug) : null);
+  }, [lens, scene, clusterBySlug]);
 
   return <div ref={hostRef} style={{ position: 'absolute', inset: 0 }} />;
 }

@@ -457,9 +457,21 @@ button {
 .fi-structure-columns ul { max-height: 132px; margin: 0; padding: 0; overflow-y: auto; list-style: none; }
 .fi-structure-columns li button { position: relative; display: block; width: 100%; padding: 2px 2px 2px 13px; border: 0; background: transparent; color: inherit; font: inherit; font-size: 9px; text-align: left; cursor: pointer; }
 .fi-structure-columns li button:hover { background: rgba(58,52,43,.06); }
-.fi-structure-columns li button::before { content: ''; position: absolute; top: 50%; left: 2px; width: 6px; height: 6px; box-sizing: border-box; border-radius: 50%; transform: translateY(-50%); background: var(--fi-gamboge); box-shadow: 0 0 0 2.5px color-mix(in srgb, var(--fi-gamboge) 22%, transparent); }
+.fi-structure-columns li button::before { content: ''; position: absolute; top: 8px; left: 2px; width: 6px; height: 6px; box-sizing: border-box; border-radius: 50%; background: var(--fi-gamboge); box-shadow: 0 0 0 2.5px color-mix(in srgb, var(--fi-gamboge) 22%, transparent); }
+.fi-structure-columns li button small { display: block; margin-top: 1px; font-family: var(--fi-font-mono); font-size: 7.5px; opacity: .66; }
 .fi-structure-columns section[data-kind='gap'] li button::before { background: transparent; box-shadow: none; border: 1px dashed var(--fi-ochre); opacity: .8; }
+.fi-structure-sub { display: block; margin: 4px 0 1px; font-family: var(--fi-font-display); font-size: 7.5px; font-style: normal; letter-spacing: .06em; opacity: .6; }
+/* far gaps (same domain, different cluster) — the twin mirrors the map's fainter dash */
+.fi-structure-columns ul[data-far='true'] li button { opacity: .68; }
+.fi-structure-columns ul[data-far='true'] li button::before { opacity: .45; }
 .fi-structure-frontier { margin: 6px 0 0; font-size: 8.5px; line-height: 1.4; color: var(--fi-ochre); }
+/* Structure-lens line on the hover field note: amber solid dot = rebuilt,
+   dashed ochre ring = gap — the SAME two marks the map draws. */
+.fi-card-lens { display: flex; align-items: center; gap: 6px; margin-top: 7px; padding-top: 6px; border-top: .75px dashed rgba(58,52,43,.3); font-size: 10px; color: var(--fi-ink-2); }
+.fi-card-lens i { flex: none; width: 7px; height: 7px; box-sizing: border-box; border-radius: 50%; }
+.fi-card-lens[data-kind='rebuilt'] i { background: var(--fi-gamboge); box-shadow: 0 0 0 3px color-mix(in srgb, var(--fi-gamboge) 22%, transparent); }
+.fi-card-lens[data-kind='gap'] i { border: 1.2px dashed var(--fi-ochre); }
+.fi-card-lens[data-kind='gap'] { color: var(--fi-ochre); }
 .fi-structure-twin > small { display: block; margin-top: 5px; font-size: 8px; opacity: .7; }
 .fi-structure-note { display: block; margin-top: 4px; font-family: var(--fi-font-mono); font-size: 7.5px; opacity: .62; }
 @media (max-width: 900px) { .fi-structure-key { display: none; } }

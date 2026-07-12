@@ -19,14 +19,20 @@ export interface StructureLensPanelProps {
   /** The selected `struct://` id, or null (lens off). */
   selected: string | null;
   onSelect: (id: string | null) => void;
-  /** The list twin, resolved to chart islands by the screen. */
-  rebuilt: IslandDatum[];
-  gaps: IslandDatum[];
+  /** The list twin, resolved to chart islands by the screen. Rebuilt rows
+   * carry the edge's real weight + actors (a reduce over rebuild events). */
+  rebuilt: Array<{ d: IslandDatum; weight: number; actors: string[] }>;
+  /** Near gaps: same cluster as a rebuilt island. */
+  nearGaps: IslandDatum[];
+  /** Far gaps: same domain, different cluster (fainter — the map's gradient). */
+  farGaps: IslandDatum[];
   /** Sail to an island (controls.enter → the normal L0→L1 route). */
   onEnter: (d: IslandDatum) => void;
 }
 
-export function StructureLensPanel({ structures, selected, onSelect, rebuilt, gaps, onEnter }: StructureLensPanelProps) {
+const handleOf = (actor: string): string => `@${actor.split(':').at(-1) ?? actor}`;
+
+export function StructureLensPanel({ structures, selected, onSelect, rebuilt, nearGaps, farGaps, onEnter }: StructureLensPanelProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
   if (structures.length === 0) return null;
@@ -54,22 +60,42 @@ export function StructureLensPanel({ structures, selected, onSelect, rebuilt, ga
             <section>
               <b>{t('chart.structures.rebuilt')} · {rebuilt.length}</b>
               <ul>
-                {rebuilt.map((d) => (
+                {rebuilt.map(({ d, weight, actors }) => (
                   <li key={d.slug ?? d.id}>
-                    <button type="button" onClick={() => onEnter(d)}>{d.n[lang]}</button>
+                    <button type="button" onClick={() => onEnter(d)}>
+                      {d.n[lang]}
+                      <small>{weight > 1 ? `×${weight} · ` : ''}{actors.map(handleOf).join(' ')}</small>
+                    </button>
                   </li>
                 ))}
               </ul>
             </section>
             <section data-kind="gap">
-              <b>{t('chart.structures.gaps')} · {gaps.length}</b>
-              <ul>
-                {gaps.map((d) => (
-                  <li key={d.slug ?? d.id}>
-                    <button type="button" onClick={() => onEnter(d)}>{d.n[lang]}</button>
-                  </li>
-                ))}
-              </ul>
+              <b>{t('chart.structures.gaps')} · {nearGaps.length + farGaps.length}</b>
+              {nearGaps.length > 0 && (
+                <>
+                  <em className="fi-structure-sub">{t('chart.structures.nearGaps')}</em>
+                  <ul>
+                    {nearGaps.map((d) => (
+                      <li key={d.slug ?? d.id}>
+                        <button type="button" onClick={() => onEnter(d)}>{d.n[lang]}</button>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+              {farGaps.length > 0 && (
+                <>
+                  <em className="fi-structure-sub">{t('chart.structures.domainGaps')}</em>
+                  <ul data-far="true">
+                    {farGaps.map((d) => (
+                      <li key={d.slug ?? d.id}>
+                        <button type="button" onClick={() => onEnter(d)}>{d.n[lang]}</button>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
             </section>
           </div>
           {rebuilt.length === 0 && <p className="fi-structure-frontier">{t('chart.structures.pureFrontier')}</p>}

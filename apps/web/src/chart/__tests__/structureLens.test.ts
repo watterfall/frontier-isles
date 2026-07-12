@@ -62,7 +62,26 @@ describe('toAtlasLens (op graph → slug-keyed stage input)', () => {
     const lens = toAtlasLens('struct://x/k', [], frontier, stageIslands);
     expect(lens.rebuiltSlugs).toEqual(['firefly', 'heart']);
     expect(lens.gapSlugs).toEqual(['quark']);
+    expect(lens.farGapSlugs).toEqual([]); // no cluster knowledge → every gap is near
     expect(lens.arcs).toEqual([{ fromSlug: 'firefly', toSlug: 'heart' }]);
+  });
+
+  it('splits gaps into near (same cluster) and far (same domain only)', () => {
+    const wideFrontier = [
+      {
+        structureId: 'struct://x/k',
+        rebuilt: ['op://frontier-isles/prob/firefly'],
+        gaps: ['op://frontier-isles/prob/heart', 'op://frontier-isles/prob/quark'],
+      },
+    ];
+    const clusters = new Map<string, string | undefined>([
+      ['firefly', 'C10'],
+      ['heart', 'C10'], // same cluster as the rebuilt island → near
+      ['quark', 'C33'], // different cluster → far
+    ]);
+    const lens = toAtlasLens('struct://x/k', [], wideFrontier, stageIslands, clusters);
+    expect(lens.gapSlugs).toEqual(['heart']);
+    expect(lens.farGapSlugs).toEqual(['quark']);
   });
 });
 

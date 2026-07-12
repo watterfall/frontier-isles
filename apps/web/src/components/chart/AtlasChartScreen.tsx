@@ -95,14 +95,51 @@ function AtlasChartScreenImpl(props: ChartScreenProps) {
     [lensId, structureGraph],
   );
 
-  // The list twin's rows, resolved from the frontier's op ids to chart islands.
+  // The list twin's rows, resolved from the frontier's op ids to chart
+  // islands. Rebuilt rows carry the edge's real weight + actors (a reduce
+  // over rebuild events); gaps split into the same near/far gradient the map
+  // draws (same cluster vs same domain only).
   const twin = useMemo(() => {
-    if (!lensId || !structureGraph) return { rebuilt: [] as IslandDatum[], gaps: [] as IslandDatum[] };
+    const empty = {
+      rebuilt: [] as Array<{ d: IslandDatum; weight: number; actors: string[] }>,
+      nearGaps: [] as IslandDatum[],
+      farGaps: [] as IslandDatum[],
+    };
+    if (!lensId || !structureGraph) return empty;
     const bySlug = new Map(islands.filter((d) => d.slug).map((d) => [d.slug!, d] as const));
     const f = structureGraph.frontier.find((x) => x.structureId === lensId);
-    const resolve = (ops: string[]) => ops.map((op) => bySlug.get(slugOfOp(op))).filter((d): d is IslandDatum => !!d);
-    return { rebuilt: resolve(f?.rebuilt ?? []), gaps: resolve(f?.gaps ?? []) };
+    const edgeBySlug = new Map(
+      structureGraph.edges.filter((e) => e.structureId === lensId).map((e) => [slugOfOp(e.islandOp), e] as const),
+    );
+    const rebuilt = (f?.rebuilt ?? []).flatMap((op) => {
+      const d = bySlug.get(slugOfOp(op));
+      if (!d) return [];
+      const e = edgeBySlug.get(slugOfOp(op));
+      return [{ d, weight: e?.weight ?? 1, actors: e?.actors ?? [] }];
+    });
+    const rebuiltClusters = new Set(rebuilt.map((r) => r.d.cluster?.code).filter((c): c is string => !!c));
+    const nearGaps: IslandDatum[] = [];
+    const farGaps: IslandDatum[] = [];
+    for (const op of f?.gaps ?? []) {
+      const d = bySlug.get(slugOfOp(op));
+      if (!d) continue;
+      if (d.cluster?.code && rebuiltClusters.has(d.cluster.code)) nearGaps.push(d);
+      else farGaps.push(d);
+    }
+    return { rebuilt, nearGaps, farGaps };
   }, [lensId, structureGraph, islands]);
+
+  // ESC leaves the lens (the search box's own Escape handling wins while
+  // an input is focused).
+  useEffect(() => {
+    if (!lensId) return;
+    const onKey = (event: KeyboardEvent) => {
+      const tag = (event.target as HTMLElement | null)?.tagName;
+      if (event.key === 'Escape' && tag !== 'INPUT' && tag !== 'TEXTAREA') setLensId(null);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [lensId]);
 
   const handleHoverIsland = useCallback(
     (d: IslandDatum | null, pos: { x: number; y: number } | null) => {
@@ -121,7 +158,21 @@ function AtlasChartScreenImpl(props: ChartScreenProps) {
   if (noGpu) return <ChartScreen {...props} />;
 
   const hd = hover != null ? islands.find((d) => d.id === hover) ?? null : null;
-  const card = hd && hoverPos ? { content: computeCardContent(hd, lang, t), ...cardBoxPos(hoverPos.x, hoverPos.y) } : null;
+  // While a lens is on, the hover card states this island's relation to the
+  // structure: rebuilt (who walked the bridge, from the real edge) or an
+  // honest gap line — bare fact only, never a suggested mapping (§九).
+  let lensNote: { kind: 'rebuilt' | 'gap'; text: string } | undefined;
+  if (hd?.slug && lensId && structureGraph) {
+    const slug = hd.slug;
+    const edge = structureGraph.edges.find((e) => e.structureId === lensId && slugOfOp(e.islandOp) === slug);
+    if (edge) {
+      const who = edge.actors.map((a) => `@${a.split(':').at(-1) ?? a}`).join(' ');
+      lensNote = { kind: 'rebuilt', text: t('chart.card.lensRebuilt', { n: edge.weight, who }) };
+    } else if (twin.nearGaps.some((d) => d.slug === slug) || twin.farGaps.some((d) => d.slug === slug)) {
+      lensNote = { kind: 'gap', text: t('chart.card.lensGap') };
+    }
+  }
+  const card = hd && hoverPos ? { content: computeCardContent(hd, lang, t, lensNote), ...cardBoxPos(hoverPos.x, hoverPos.y) } : null;
 
   return (
     <div data-screen-label="L0 图集海图" style={{ position: 'absolute', inset: 0, background: '#F2EAD8' }}>
@@ -139,7 +190,8 @@ function AtlasChartScreenImpl(props: ChartScreenProps) {
         selected={lensId}
         onSelect={setLensId}
         rebuilt={twin.rebuilt}
-        gaps={twin.gaps}
+        nearGaps={twin.nearGaps}
+        farGaps={twin.farGaps}
         onEnter={(d) => { if (controls && d.slug) controls.enter(d.slug); else onIsland(d); }}
       />
 

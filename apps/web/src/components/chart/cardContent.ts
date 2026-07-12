@@ -21,13 +21,23 @@ export interface ChartCardContent {
   m: number;
   hint: string;
   hintCol: string;
+  /** Structure-lens context (§九), present only while a lens is on: this
+   * island's relation to the selected structure. A gap line states the bare
+   * fact "no one has brought it here" — never a suggested mapping. */
+  lensNote?: { kind: 'rebuilt' | 'gap'; text: string };
 }
 
 /** A minimal translate function shape (`i18next`'s `t` satisfies this). */
 export type Translate = (key: string, opts?: Record<string, unknown>) => string;
 
-export function computeCardContent(hd: IslandDatum, lang: 'zh' | 'en', t: Translate): ChartCardContent {
+export function computeCardContent(
+  hd: IslandDatum,
+  lang: 'zh' | 'en',
+  t: Translate,
+  lensNote?: ChartCardContent['lensNote'],
+): ChartCardContent {
   return {
+    ...(lensNote ? { lensNote } : {}),
     id: String(hd.id).padStart(2, '0'),
     domCol: hd.out ? '#8A6A1E' : DOMAIN_META[hd.d].col,
     stage: `${t(`chart.stages.${STAGE_LABELS[hd.st]}`)}${hd.dor ? ` · ${t('chart.card.dormant')}` : ''}${hd.out ? ` · ${t('chart.card.outlier')}` : ''}`,

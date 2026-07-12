@@ -261,8 +261,13 @@ export interface AtlasStructureLensInput {
   /** Islands where this structure was rebuilt — lit solid. */
   rebuiltSlugs: string[];
   /** Honest dashed gaps ("此结构尚无人带来") — position only, NEVER a
-   * suggested mapping (§九 red-line). */
+   * suggested mapping (§九 red-line). These are the NEAR gaps: islands in the
+   * same cluster as a rebuilt island. */
   gapSlugs: string[];
+  /** The farther honest gaps — same domain, different cluster. Fainter dash,
+   * lighter dim: the neighbourhood has a real gradient and the lens
+   * transcribes it instead of flattening it. Optional (defaults to none). */
+  farGapSlugs?: string[];
   /** Arcs between rebuilt islands (air-route vocabulary, chord order). */
   arcs: Array<{ fromSlug: string; toSlug: string }>;
 }
@@ -435,6 +440,18 @@ export class AtlasStage {
   private structureLens: AtlasStructureLensInput | null = null;
   private lensRebuilt = new Set<string>();
   private lensGaps = new Set<string>();
+  private lensFarGaps = new Set<string>();
+  /** Lens marks (halos) and arcs live in separate Graphics children of
+   * `lensLayer`: the enter animation redraws ONLY the arcs (progressive
+   * draw-on); halos ride the layer fade. */
+  private lensArcGfx?: Graphics;
+  /** Arc geometry cached by buildLensLayer for the draw-on animation. */
+  private lensArcGeom: Array<{ ax: number; ay: number; mx: number; my: number; bx: number; by: number; climb: number }> = [];
+  /** Enter-animation state: one-shot rAF (never a ticker — §7 on-demand
+   * render discipline). `lensReveal` multiplies into the layer alpha so the
+   * animation composes with applyTier's tier blend instead of fighting it. */
+  private lensReveal = 1;
+  private lensAnimRaf: number | null = null;
   /** The visitor has taken the camera somewhere themselves (drag / wheel /
    * zoom buttons). A late-arriving harbor then only applies its fog — it
    * never steals the camera back to the anchor mid-exploration. */
@@ -1219,7 +1236,13 @@ export class AtlasStage {
     this.structureLens = lens;
     this.lensRebuilt = new Set(lens?.rebuiltSlugs ?? []);
     this.lensGaps = new Set(lens?.gapSlugs ?? []);
+    this.lensFarGaps = new Set(lens?.farGapSlugs ?? []);
     this.buildLensLayer();
+    // Enter animation: the layer fades in while the bridge arcs draw
+    // themselves island-to-island — the §九 story ("a bridge is walked, not
+    // drawn") made literal, once, then static. Leaving the lens is immediate.
+    if (lens) this.animateLensIn();
+    else this.lensReveal = 1;
     this.requestFrame(true);
     // Frame the lens: selecting a structure flies the camera to its REBUILT
     // islands (the lens' headline) — same ease vocabulary as a region tap.
@@ -1258,17 +1281,21 @@ export class AtlasStage {
 
   /** Rebuild the lens marks from the CURRENT island nodes (world space). All
    * geometry is existing vocabulary: outlier double-ring glow for rebuilt,
-   * dashed halo for gaps, air-route bow + wind gates for arcs. */
+   * dashed halo for gaps (near = same cluster, far = same domain, fainter),
+   * air-route bow + wind gates for arcs. */
   private buildLensLayer(): void {
+    if (this.lensAnimRaf != null) { cancelAnimationFrame(this.lensAnimRaf); this.lensAnimRaf = null; }
     this.lensLayer.removeChildren().forEach((c) => c.destroy());
+    this.lensArcGfx = undefined;
+    this.lensArcGeom = [];
     const lens = this.structureLens;
     if (!lens) return;
     const bySlug = new Map(this.islands.map((node) => [node.o.slug, node] as const));
-    const g = new Graphics();
 
-    // Bridge arcs between rebuilt islands — the SAME bow + paper casing + wind
-    // gates as `buildLocalRoutes`, in the bridge/ochre tint (a rebuild is a
-    // human bridging act). Every arc is backed by rebuild events (inv 14).
+    // Bridge arcs between rebuilt islands — the SAME bow as `buildLocalRoutes`,
+    // in the bridge/ochre tint (a rebuild is a human bridging act). Geometry is
+    // cached; `drawLensArcs` paints it (partially, during the enter animation).
+    // Every arc is backed by rebuild events (inv 14).
     for (const arc of lens.arcs) {
       const from = bySlug.get(arc.fromSlug);
       const to = bySlug.get(arc.toSlug);
@@ -1286,27 +1313,10 @@ export class AtlasStage {
       const bow = Math.min(120, len * 0.18) + climb * 54;
       const mx = (ax + bx) / 2 + nx * bow;
       const my = (ay + by) / 2 + ny * bow - 20 - climb * 34;
-      g.moveTo(ax, ay).quadraticCurveTo(mx, my, bx, by)
-        .stroke({ color: 0xf8f1de, width: 5.6, alpha: 0.58, cap: 'round', join: 'round' });
-      g.moveTo(ax, ay).quadraticCurveTo(mx, my, bx, by)
-        .stroke({ color: LENS_ARC_TINT, width: 2.4, alpha: 0.85, cap: 'round', join: 'round' });
-      for (let gate = 1; gate <= 3; gate++) {
-        const t = gate / 4;
-        const u = 1 - t;
-        const gx = u * u * ax + 2 * u * t * mx + t * t * bx;
-        const gy = u * u * ay + 2 * u * t * my + t * t * by;
-        const tx = 2 * u * (mx - ax) + 2 * t * (bx - mx);
-        const ty = 2 * u * (my - ay) + 2 * t * (by - my);
-        const tl = Math.hypot(tx, ty) || 1;
-        const half = 3.5 + climb * 2.5;
-        g.moveTo(gx - (-ty / tl) * half, gy - (tx / tl) * half)
-          .lineTo(gx + (-ty / tl) * half, gy + (tx / tl) * half)
-          .stroke({ color: LENS_ARC_TINT, width: 0.9, alpha: 0.72 });
-      }
-      g.circle(ax, ay, 3.2).fill({ color: 0xf8f1de, alpha: 0.9 }).stroke({ color: LENS_ARC_TINT, width: 1, alpha: 0.8 });
-      g.circle(bx, by, 3.2).fill({ color: LENS_ARC_TINT, alpha: 0.76 });
+      this.lensArcGeom.push({ ax, ay, mx, my, bx, by, climb });
     }
 
+    const halos = new Graphics();
     for (const node of this.islands) {
       const o = node.o;
       const r = ATLAS_STAGE_RADIUS[Math.max(0, Math.min(3, o.stage)) as 0 | 1 | 2 | 3];
@@ -1314,16 +1324,96 @@ export class AtlasStage {
       const y = projectIslandY(o);
       if (this.lensRebuilt.has(o.slug)) {
         // rebuilt → the outlier double-ring glow, verbatim proportions.
-        g.circle(x, y, r + 22).fill({ color: LENS_GLOW_TINT, alpha: 0.1 });
-        g.circle(x, y, r + 10).fill({ color: LENS_GLOW_TINT, alpha: 0.14 });
+        halos.circle(x, y, r + 22).fill({ color: LENS_GLOW_TINT, alpha: 0.1 });
+        halos.circle(x, y, r + 10).fill({ color: LENS_GLOW_TINT, alpha: 0.14 });
       } else if (this.lensGaps.has(o.slug)) {
-        // gap → dashed halo (sea-current dash `7 5`, proposed opacity 0.5).
-        // Position only — the halo states "no edge here", nothing more (§九).
-        traceDashedCircle(g, x, y, r + 14);
-        g.stroke({ color: LENS_ARC_TINT, width: 1.4, alpha: 0.5 });
+        // near gap (same cluster) → dashed halo, sea-current dash `7 5` at the
+        // proposed opacity 0.5. Position only — the halo states "no edge
+        // here", nothing more (§九).
+        traceDashedCircle(halos, x, y, r + 14);
+        halos.stroke({ color: LENS_ARC_TINT, width: 1.4, alpha: 0.5 });
+      } else if (this.lensFarGaps.has(o.slug)) {
+        // far gap (same domain, different cluster) → the same dash, fainter:
+        // the frontier has a real gradient and the ink transcribes it.
+        traceDashedCircle(halos, x, y, r + 12);
+        halos.stroke({ color: LENS_ARC_TINT, width: 1.05, alpha: 0.3 });
       }
     }
-    this.lensLayer.addChild(g);
+    const arcs = new Graphics();
+    this.lensArcGfx = arcs;
+    this.lensLayer.addChild(halos, arcs);
+    this.drawLensArcs(1);
+  }
+
+  /** Paint the bridge arcs up to `t` ∈ [0,1] of their length (de Casteljau
+   * split of the quadratic). Gates and endpoint dots appear only at t = 1 —
+   * while drawing, the line is a pen travelling island to island. */
+  private drawLensArcs(t: number): void {
+    const g = this.lensArcGfx;
+    if (!g) return;
+    g.clear();
+    const lerp = (a: number, b: number, k: number): number => a + (b - a) * k;
+    let drawn = false;
+    for (const a of this.lensArcGeom) {
+      // Partial quadratic [0,t]: de Casteljau split control points.
+      const p1x = lerp(a.ax, a.mx, t);
+      const p1y = lerp(a.ay, a.my, t);
+      const q1x = lerp(a.mx, a.bx, t);
+      const q1y = lerp(a.my, a.by, t);
+      const endX = lerp(p1x, q1x, t);
+      const endY = lerp(p1y, q1y, t);
+      g.moveTo(a.ax, a.ay).quadraticCurveTo(p1x, p1y, endX, endY)
+        .stroke({ color: 0xf8f1de, width: 5.6, alpha: 0.58, cap: 'round', join: 'round' });
+      g.moveTo(a.ax, a.ay).quadraticCurveTo(p1x, p1y, endX, endY)
+        .stroke({ color: LENS_ARC_TINT, width: 2.4, alpha: 0.85, cap: 'round', join: 'round' });
+      drawn = true;
+      if (t >= 1) {
+        for (let gate = 1; gate <= 3; gate++) {
+          const s = gate / 4;
+          const u = 1 - s;
+          const gx = u * u * a.ax + 2 * u * s * a.mx + s * s * a.bx;
+          const gy = u * u * a.ay + 2 * u * s * a.my + s * s * a.by;
+          const tx = 2 * u * (a.mx - a.ax) + 2 * s * (a.bx - a.mx);
+          const ty = 2 * u * (a.my - a.ay) + 2 * s * (a.by - a.my);
+          const tl = Math.hypot(tx, ty) || 1;
+          const half = 3.5 + a.climb * 2.5;
+          g.moveTo(gx - (-ty / tl) * half, gy - (tx / tl) * half)
+            .lineTo(gx + (-ty / tl) * half, gy + (tx / tl) * half)
+            .stroke({ color: LENS_ARC_TINT, width: 0.9, alpha: 0.72 });
+        }
+        g.circle(a.ax, a.ay, 3.2).fill({ color: 0xf8f1de, alpha: 0.9 }).stroke({ color: LENS_ARC_TINT, width: 1, alpha: 0.8 });
+        g.circle(a.bx, a.by, 3.2).fill({ color: LENS_ARC_TINT, alpha: 0.76 });
+      }
+    }
+    // Keep the Graphics non-empty at t=0 (same null-batcher discipline as
+    // `redrawFog`) — an empty Graphics trips Pixi v8's batcher on render.
+    if (!drawn) g.circle(0, 0, 1).fill({ color: LENS_ARC_TINT, alpha: 0 });
+  }
+
+  /** One-shot lens enter animation (fade + arc draw-on). Never a ticker — a
+   * bounded rAF loop that settles static, same discipline as `flyToPoint`.
+   * Reduced-motion collapses it to the final frame immediately. */
+  private animateLensIn(): void {
+    if (this.lensAnimRaf != null) { cancelAnimationFrame(this.lensAnimRaf); this.lensAnimRaf = null; }
+    const reduced = typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced || !this.app) {
+      this.lensReveal = 1;
+      this.drawLensArcs(1);
+      return;
+    }
+    const duration = 520;
+    this.lensReveal = 0;
+    this.drawLensArcs(0);
+    const t0 = performance.now();
+    const step = (now: number): void => {
+      const t = Math.min(1, (now - t0) / duration);
+      const e = 1 - Math.pow(1 - t, 3); // easeOutCubic — same curve as flyToPoint
+      this.lensReveal = e;
+      this.drawLensArcs(e);
+      this.requestFrame(false);
+      this.lensAnimRaf = t < 1 ? requestAnimationFrame(step) : null;
+    };
+    this.lensAnimRaf = requestAnimationFrame(step);
   }
 
   /** Current screen-space anchor for React hover cards and verification. */
@@ -1526,7 +1616,8 @@ export class AtlasStage {
     // recede through the fog channel below).
     const lensActive = this.structureLens !== null;
     this.lensLayer.visible = lensActive;
-    this.lensLayer.alpha = lensActive ? Math.max(blend.far * 0.85, blend.mid, blend.near) : 0;
+    // `lensReveal` is the one-shot enter animation's fade (1 once settled).
+    this.lensLayer.alpha = lensActive ? Math.max(blend.far * 0.85, blend.mid, blend.near) * this.lensReveal : 0;
     this.routeLayer.alpha = lensActive ? 0 : Math.max(blend.far * 0.28, blend.mid * 0.34);
     this.localRouteLayer.alpha = lensActive ? 0 : Math.max(blend.far * 0.06, blend.mid * 0.44, blend.near * 0.58);
     this.cloudBackLayer.alpha = Math.max(blend.far * 0.82, blend.mid * 0.46, blend.near * 0.18);
@@ -1598,10 +1689,18 @@ export class AtlasStage {
     for (const nd of this.islands) {
       const o = nd.o;
       const parent = (o.role ?? 'anchor') === 'satellite' && o.parentSlug ? anchorScreen.get(o.parentSlug) : undefined;
-      // Lens members (rebuilt or gap) are the lens' whole point — they stay
-      // disclosed at every camera, satellites included, while the lens is on.
-      const lensMember = lensActive && (this.lensRebuilt.has(o.slug) || this.lensGaps.has(o.slug));
-      const hierarchyAlpha = lensMember
+      // Lens members are the lens' whole point — every marked island (rebuilt,
+      // near gap, far gap) stays disclosed at every camera, satellites
+      // included, while the lens is on: a dashed halo must never ring empty
+      // sea, and a marked island must always answer hover.
+      const lensRole = !lensActive
+        ? null
+        : this.lensRebuilt.has(o.slug) || this.lensGaps.has(o.slug)
+          ? 'member'
+          : this.lensFarGaps.has(o.slug)
+            ? 'far'
+            : 'out';
+      const hierarchyAlpha = lensRole === 'member' || lensRole === 'far'
         ? 1
         : (o.role ?? 'anchor') === 'satellite'
           ? (parent ? satelliteDisclosure(scale, parent.sx, parent.sy, view.width, view.height) : satelliteAlpha)
@@ -1615,9 +1714,16 @@ export class AtlasStage {
       const harborFog = this.harborFog.get(o.slug) ?? 0;
       nd.fogDim = 1 - harborFog * 0.55 * (1 - blend.near);
       // Structure lens dim rides the SAME fog channel (a filter, not a wall —
-      // invariant 4): islands outside the lens recede to the harbor-fog floor,
-      // hit-testing untouched. Lens members stay at full ink.
-      if (lensActive && !lensMember) nd.fogDim *= LENS_DIM_FLOOR;
+      // invariant 4): islands outside the lens recede toward the harbor-fog
+      // floor, hit-testing untouched. While the lens is on it OWNS the fog
+      // channel: members hold full ink (harbor fog would otherwise dim the
+      // very islands the lens lights — the lens question "where does this
+      // structure live" outranks the overview question "where is home"), and
+      // far gaps (same domain, different cluster) hold a middle register —
+      // the same honest near/far gradient their fainter dash already draws.
+      if (lensActive) {
+        nd.fogDim = lensRole === 'member' ? 1 : lensRole === 'far' ? 0.75 : nd.fogDim * LENS_DIM_FLOOR;
+      }
       const domainVisible = !this.domainFocus || o.domain === this.domainFocus;
       const altitudeVisible = !this.altitudeFocus || nd.band === this.altitudeFocus;
       const focusVisible = domainVisible && altitudeVisible;
@@ -1750,7 +1856,10 @@ export class AtlasStage {
       nd.dot.destroy();
     }
     this.islands = [];
+    if (this.lensAnimRaf != null) { cancelAnimationFrame(this.lensAnimRaf); this.lensAnimRaf = null; }
     this.lensLayer.removeChildren().forEach((c) => c.destroy());
+    this.lensArcGfx = undefined;
+    this.lensArcGeom = [];
     this.clusterLayer.removeChildren().forEach((c) => c.destroy());
     this.routeLayer.removeChildren().forEach((c) => c.destroy());
     this.localRouteLayer.removeChildren().forEach((c) => c.destroy());
