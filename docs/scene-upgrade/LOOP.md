@@ -130,3 +130,10 @@ Move:     (1) **L1 名牌 LOD**——9 座 station 加 `showLabel`(默认 true:S
 Verify:   ✅ 目视(global-playwright,真岛 compositional-modeling):默认缩放 **9 座名牌全清晰全名**(散木园/茶寮/问题墙/展厅/实验坊/白板厅/文献阁/数据台/渡口,vs 旧糊,lbl-default.png);拉远仍清晰恒定字号(lbl-farout.png);拉近**不糊**(矢量 Text 非位图,lbl-zoomin.png);零 pageerror。assets 38/renderer 54/web 55 全绿 + 三包 typecheck 净。规划文档 + ROADMAP 指针写入。
 Decision: **L1 名牌缺陷修复 ✅ + 众岛信息层级规划 ✅**(写进 plan,§3.11 回填)。众岛 L0 LOD 实现属 Phase C(当前 L1 升级后),规划已就绪待排期。→ 提交。
 Deferred(Iter17→后续): L0 众岛 LOD 实现(C1 相机地基 / C2 语义 LOD+去碰撞名牌 / C3 群岛聚类+My Harbor+雾化);名牌**去碰撞**(L1 单岛 9 座暂不重叠,L0 密集时必需);label i18n(现 zh,`STATION_META` 有 en,加 `lang` prop 即可);近景第三层信息(near 加站点状态/工件数);L1 丰富度 M4.4 Landmark/M4.5 密度环带/M8 粒子。
+
+## Iter 18 — 2026-07-12（design-eng-loop R6-R7：海的诚实与通道文法）
+Orient:   /design-eng-loop coevolve 两轮（v3 协议全量：warm advisor + 对抗 generators + engineer + 独立 verifier + 双轴面板 + AC 人眼门）。
+Move:     R6=hasDoi 印章端到端（advisor 读真码抓 drawSeal 硬编码 false 与面板互相矛盾——178 测全绿也没抓到）+ undertow 真实量级重标定（Gen-B 逐像素仿真证伪 advisor 初步曲线，shader band 0.50/0.82+col*0.50+阶梯曲线）。R7=解码器单源（refutedClaimCount 同喂海与图例，zh/en 分标"被驳斥主张/驳斥事件"）+ 争议度搬离明度轴（零均值网巾纹 chop，advisor 仲裁 Gen-C 形态+Gen-D 岸排除合成；AC1 实测 ≤0.07%）+ ride-alongs（--fi-seal-doi 杀物质墨伪装/12 条 --fi-water-* token/reduced-motion 真冻结+离散变化一次性重绘/spectral 印章/boot agitation 回放/core 快照 locale 根治）。卡 23/24/06 同步+register，昼夜 veil 伪转录修正。
+Verify:   门禁全绿（orchestrator/verifier 独立复核，真退出码，renderer 111/web 164/core 148）。AC1-AC8 逐字 FRAG+真 WebGL2 实测过；AC3 按 spec-correction 记账（方向度量对双向网格数学封顶 1.99，平滑锚归一 1.07；升级路径实测证伪）；**AC9 人眼 FAIL**（读作装饰网纹而非"不平静的水"）——门禁绿+度量诚实仍被人眼门拦下，这正是它存在的意义。
+Decision: **accepted checkpoint, not converged**（advisor 终判）。R6×3+R7×4+docs 合入 main。R8 已定：强制重开面板 + 争议纹改非周期零均值湍流（读得出"扰动"情绪）+ 夜 uniform + 谱结构 AC3 + SEA_COLORS/域调色板 token 化；flowline 押 R9（海文法干净后才开第四通道）。
+Deferred(Iter18→R8/R9): coevo.jsonl round7 open_gaps 六项；产品轮外审（examBeforeSignoff）随收敛签字触发。

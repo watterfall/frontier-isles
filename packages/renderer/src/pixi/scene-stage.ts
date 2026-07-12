@@ -28,6 +28,7 @@ import {
   type Ticker,
 } from 'pixi.js';
 import { ELEV_STEP, diamondPoints, worldToScreen, worldToScreenElevated, type ScreenPoint } from '../iso';
+import { DOI_SEAL_INK } from './palette';
 import { visibilityAt, type SceneGraph, type SceneLayer, type SceneObject } from '../scene';
 import { ChunkIndex, cull, type Viewport } from '../chunks';
 import { createSeaMesh, type Rect } from './sea-mesh';
@@ -136,6 +137,12 @@ export class SceneStage {
   private seaShader?: Shader;
   private seaMask?: RenderTexture;
   private seaAnimating = false;
+  /** prefers-reduced-motion for the WebGL surface (R7 ride-along C). Gates the
+   *  continuous sea + micro-dynamics tickers; the host sets it via setReducedMotion. */
+  private reducedMotion = false;
+  /** Current agitation magnitude (R7 Dim 2). Persisted so a sea REBUILD (boot,
+   *  replay) restores it — buildSea seeds uAgitation from here, not a hardcoded 0. */
+  private agitation = 0;
 
   // ── M5 micro-dynamics: one ticker drives every subtle motion. Each binds to
   //    data (P1): ghost bob ← refuted/returned, halo breathe ← consensus, window
@@ -529,7 +536,12 @@ export class SceneStage {
       g.poly([cx - a, yTop + 1, cx, yTop - 6, cx + a, yTop + 1])
         .stroke({ color: ink, width: 1.3, alpha: 0.8 });
     }
-    if (!spectral) drawSeal(g, cx - a * 0.92, gy - baseH - 2, false);
+    const hasDoi = o.growth?.hasDoi === true;
+    if (!spectral) drawSeal(g, cx - a * 0.92, gy - baseH - 2, hasDoi);
+    // Published-then-refuted ghost: keep a spectral DOI seal so the faded tower
+    // still matches the panel's DOI status (R7 ride-along D). A never-published
+    // ghost draws no seal — nothing to transcribe.
+    else if (hasDoi) drawSeal(g, cx - a * 0.92, gy - baseH - 2, true, true);
     const c = new Container();
     c.addChild(g);
     if (halo) c.addChild(halo);
@@ -912,6 +924,15 @@ export class SceneStage {
       this.applyDayNight(this.targetT);
       return;
     }
+    // Reduced-motion gates only CONTINUOUS animation; a DISCRETE lever change must
+    // still apply. The dynamics ticker that eases the tween is disabled here, so
+    // curT would never advance and the day↔night flip would silently no-op (BUG A).
+    // Snap to the target and paint one frame.
+    if (this.reducedMotion) {
+      this.applyDayNight(this.targetT);
+      this.app.render();
+      return;
+    }
     this.tweeningT = true;
     this.ensureDynamicsTicker();
   }
@@ -997,8 +1018,18 @@ export class SceneStage {
     this.seaLayer.addChild(mesh);
     this.seaShader = shader;
     this.seaMask = mask;
+    // Persist agitation across sea rebuilds (boot/replay): the fresh shader inits
+    // uAgitation to 0, so re-seed it from the stored magnitude — otherwise a
+    // preloaded disputed island renders calm while the panel reports N refuted (BUG).
+    const au = shader.resources.waveUniforms?.uniforms as { uAgitation: number } | undefined;
+    if (au) au.uAgitation = this.agitation;
 
-    if (!this.seaAnimating) {
+    if (this.reducedMotion) {
+      // a11y (R7 ride-along C): no continuous wave ticker — paint ONE static frame
+      // so the sea (and a static, still-readable agitation at uTime 0) shows without
+      // animating. prefers-reduced-motion must reach the canvas, not just CSS.
+      this.app.render();
+    } else if (!this.seaAnimating) {
       this.app.ticker.add(this.tickSea);
       this.app.start(); // resume the render loop (init used autoStart:false)
       this.seaAnimating = true;
@@ -1006,14 +1037,53 @@ export class SceneStage {
   }
 
   /**
-   * Set the disputed-sea undertow. Accepts a boolean (M2 dev toggle) OR a 0..1
-   * contention magnitude (海即数据: this island's unresolved-refute intensity —
-   * depth-plan-v2 §3 whirlpool, data-bound not decorative).
+   * prefers-reduced-motion for the WebGL surface (R7 ride-along C). CSS's
+   * reduced-motion kill switch never reaches the Pixi ticker, so the host wires
+   * this. ON drops the continuous sea/dynamics tickers and paints one static,
+   * still-readable frame; OFF re-arms the sea wave. Idempotent.
    */
-  setUndertow(on: boolean | number): void {
-    const v = typeof on === 'number' ? Math.max(0, Math.min(1, on)) : on ? 1 : 0;
-    const u = this.seaShader?.resources.waveUniforms?.uniforms as { uUndertow: number } | undefined;
-    if (u) u.uUndertow = v;
+  setReducedMotion(on: boolean): void {
+    if (this.reducedMotion === on) return;
+    this.reducedMotion = on;
+    if (!this.app) return;
+    if (on) {
+      if (this.seaAnimating) {
+        this.app.ticker.remove(this.tickSea);
+        this.seaAnimating = false;
+      }
+      if (this.dynAnimating) {
+        this.app.ticker.remove(this.tickDynamics);
+        this.dynAnimating = false;
+      }
+      this.app.render(); // one static frame in the frozen state
+    } else {
+      // Thaw SYMMETRICALLY: re-arm BOTH the sea wave and the micro-dynamics ticker.
+      // Freezing removed both; restoring only the sea left dynamics dead until the
+      // next rebuild. ensureDynamicsTicker re-adds tickDynamics (reducedMotion is
+      // now false) and resumes the loop.
+      if (this.seaShader && !this.seaAnimating) {
+        this.app.ticker.add(this.tickSea);
+        this.seaAnimating = true;
+      }
+      this.ensureDynamicsTicker();
+      this.app.start();
+    }
+  }
+
+  /**
+   * Set the disputed-sea agitation (R7 Dim 2). Accepts a boolean (dev toggle) OR a
+   * 0..1 contention magnitude (海即数据: this island's ever-refuted intensity — a
+   * refute is one-way, no resolution verb exists yet, see R7). The DATA is still
+   * "contention"; `agitation` is its surface-chop VISUAL. The value is stored so a
+   * later sea rebuild (buildSea) restores it.
+   */
+  setAgitation(on: boolean | number): void {
+    this.agitation = typeof on === 'number' ? Math.max(0, Math.min(1, on)) : on ? 1 : 0;
+    const u = this.seaShader?.resources.waveUniforms?.uniforms as { uAgitation: number } | undefined;
+    if (u) u.uAgitation = this.agitation;
+    // Discrete state change under reduced-motion: no continuous ticker is running,
+    // so paint one frame or the disputed sea would never update (BUG B).
+    if (this.reducedMotion) this.app?.render();
   }
 
   /** Advance the wave clock each frame; app.start() auto-renders after. */
@@ -1025,6 +1095,10 @@ export class SceneStage {
   /** Register the M5 micro-dynamics ticker once (and resume the render loop). */
   private ensureDynamicsTicker(): void {
     if (this.dynAnimating || !this.app) return;
+    // a11y (R7 ride-along C): under prefers-reduced-motion the micro-dynamics stay
+    // frozen at their rest frame (already painted by the scene render) — never add
+    // the per-frame ticker.
+    if (this.reducedMotion) return;
     this.app.ticker.add(this.tickDynamics);
     this.app.start(); // init used autoStart:false; the ticker drives frames now
     this.dynAnimating = true;
@@ -1385,10 +1459,22 @@ function makeHalo(cA: number): Graphics {
   return g;
 }
 
-/** DOI seal (published) vs preprint open-mark. Ported from the design's `seal()`. */
-function drawSeal(g: Graphics, x: number, y: number, doi: boolean): void {
+/**
+ * DOI seal (published) vs preprint open-mark. Ported from the design's `seal()`.
+ * `spectral` renders the ghost-tower variant (R7 ride-along D): a published-then-
+ * refuted claim keeps a faded, stroke-only seal so the mark still agrees with the
+ * detail panel's DOI status (seal↔panel parity) instead of silently dropping it.
+ */
+function drawSeal(g: Graphics, x: number, y: number, doi: boolean, spectral = false): void {
+  if (spectral) {
+    // Ghost aesthetic: no solid fill, spectral-blue strokes at low alpha. A DOI
+    // ghost gets the double ring (published), a preprint ghost a single ring.
+    g.circle(x, y, 8.5).stroke({ color: 0xc9d7f2, width: 1.2, alpha: doi ? 0.6 : 0.45 });
+    if (doi) g.circle(x, y, 5).stroke({ color: 0xc9d7f2, width: 1, alpha: 0.42 });
+    return;
+  }
   if (doi) {
-    g.circle(x, y, 8.5).fill({ color: 0xb5673a }).stroke({ color: 0x3a342b, width: 1 });
+    g.circle(x, y, 8.5).fill({ color: DOI_SEAL_INK }).stroke({ color: 0x3a342b, width: 1 });
     g.circle(x, y, 5).stroke({ color: 0xfbf6e9, width: 1, alpha: 0.7 });
   } else {
     g.circle(x, y, 8.5).stroke({ color: 0x6b6154, width: 1.3, alpha: 0.8 });

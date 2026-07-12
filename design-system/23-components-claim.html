@@ -4,9 +4,10 @@
   Design source: Claude Design project a3f16e64 / claim-as-building.html (2026-07-10, canvas A-track).
   3 variants generated (A 体量对比细塔 / B 材质脚手架 / C 基座语言); user chose A · slim tower cluster.
   Shipped: scene-stage.ts makeClaimMark (b8e3435, Iter 13) — this card documents variant A AS SHIPPED.
-  Honest deviations (LOOP.md Iter13 Deferred): hasDoi not yet threaded to SceneObject (seals render
-  as preprint open-marks in product); ghost whirlpool + float animation deferred to M5; micro-dynamics
-  (lit-window twinkle / halo breathe) deferred. Pixi world units differ from this card's SVG space —
+  Honest deviations (updated Round 6, 2026-07-12): hasDoi WIRED end-to-end (claims.ts → layout.ts →
+  Growth → drawSeal; seal transcribes published state, seal↔panel agreement is a stated invariant);
+  M5 micro-dynamics SHIPPED (lit-window twinkle / halo breathe / ghost bob, Iter 15 tickDynamics).
+  Still open: ghost whirlpool (sea layer, Round 7). Pixi world units differ from this card's SVG space —
   the binding invariant is proportional: claim footprint stays smaller than every civic station.
 -->
 <style>
@@ -15,7 +16,7 @@
   --fi-paper:#F2EAD8; --fi-night-paper:#161F36; --fi-paper-raised:#FAF5E8; --fi-night-raised:#212C4E;
   --fi-ink:#2B2620; --fi-ink-2:#6B6154; --fi-azurite:#2E5E8C; --fi-ochre:#B5673A;
   --fi-malachite:#3E9B7E; --fi-gamboge:#E3A93C; --fi-lantern:#F5B94B; --fi-water:#C8D8E4;
-  --fi-ghost:#C9D7F2; --fi-sand:#E7DBBB; --fi-stone:#DCCFAB;
+  --fi-ghost:#C9D7F2; --fi-sand:#E7DBBB; --fi-stone:#DCCFAB; --fi-seal-doi:#A8481C;
   --fi-domain-math-fill:#C9D8E6; --fi-domain-math-ink:#2E5E8C;
   --fi-domain-matter-fill:#E8CFAE; --fi-domain-matter-ink:#B5673A;
   --fi-domain-life-fill:#C6DECC; --fi-domain-life-ink:#2B7A5F;
@@ -65,7 +66,7 @@ h1{font-family:var(--fi-font-display);font-size:26px;font-weight:700;margin:8px 
 
 <span class="hbadge">frontier-isles · components · claim-as-building · 变体 A（用户选定，已 ship：makeClaimMark）</span>
 <h1>主张即建筑 — 一条 claim = 岛上一栋会成长的细塔</h1>
-<p class="lede">形态<b>只由账本验证态驱动</b>（无数据源即砍 · invariant 6/14）。不混淆策略（vs station）：claim 比 station <b>小一号、更瘦、层层叠高</b>，数座环绕 station 聚成村落——station 是<b>宽体大屋顶</b>的孤立职能设施，claim 是<b>密集细塔群</b>，靠尺度 + 聚集一眼分层。等距 2:1、墨线笔触、MOUND_PATH、Day/Night 只换调色板——全部沿用 <code style="font-family:var(--fi-font-mono);font-size:12px">14-components-stations</code> 语汇，<b>未新增色相</b>。</p>
+<p class="lede">形态<b>只由账本验证态驱动</b>（无数据源即砍 · invariant 6/14）。不混淆策略（vs station）：claim 比 station <b>小一号、更瘦、层层叠高</b>，数座环绕 station 聚成村落——station 是<b>宽体大屋顶</b>的孤立职能设施，claim 是<b>密集细塔群</b>，靠尺度 + 聚集一眼分层。等距 2:1、墨线笔触、MOUND_PATH——全部沿用 <code style="font-family:var(--fi-font-mono);font-size:12px">14-components-stations</code> 语汇，<b>未新增色相</b>。<b>Day/Night 诚实说明</b>：本卡 SVG 演示走 <code>NIGHT_SCENE_VARS</code> 调色板替换（DOM/SVG fallback 确是换色板），但 <b>shipped Pixi 场景不是纯换色板</b>——是逐对象 alpha 淡入淡出 + <b>全局 tone veil</b>（<code>0x0A1428</code>·α=t×0.66，覆盖岛+海、写全局明度）+ 窗灯淡入（scene-stage.ts buildToneOverlay / applyToneAndLights L811–814/887）。</p>
 
 <div class="dims">
   <div class="legcol">
@@ -77,7 +78,7 @@ h1{font-family:var(--fi-font-display);font-size:26px;font-weight:700;margin:8px 
   <div class="legcol">
     <h4>&nbsp;</h4>
     <div class="dim"><code>ghost</code><span><b>魂影</b> refute / return_to_driftwood · 夜间可见 · 永不删除 · 对漩涡</span></div>
-    <div class="dim"><code>hasDoi</code><span><b>发表态</b> 赭石印章 vs 预印虚开口</span></div>
+    <div class="dim"><code>hasDoi</code><span><b>发表态</b> DOI 专属印泥色 <code>#A8481C</code> 实印 vs 预印虚开口（R7 起与物质墨 #B5673A 区分）</span></div>
     <div class="dim"><code>activity</code><span>事件密度（可选微动态 · 灯窗/呼吸）</span></div>
   </div>
   <div class="legcol">
@@ -103,15 +104,16 @@ h1{font-family:var(--fi-font-display);font-size:26px;font-weight:700;margin:8px 
   <div class="panel night">
     <div class="phdr"><b>鬼影 + 发表态</b><span>夜 · night vars</span></div>
     <svg class="scene" viewBox="0 0 460 440" data-kind="night"></svg>
-    <p class="pcap"><b>被驳 = 虚线魂影细塔浮于漩涡上</b>（永不删除）。右：赭石印章 = 已发表(DOI)，虚开口 = 仅预印。</p>
+    <p class="pcap"><b>被驳 = 虚线魂影细塔浮于漩涡上</b>（永不删除）。右：专属印泥 #A8481C 实印 = 已发表(DOI)，虚开口 = 仅预印。</p>
   </div>
 </div>
 
-<div class="shipped"><b>SHIPPED 现实（诚实偏差，非理想原型）：</b>变体 A 已移植 Pixi（scene-stage.ts makeClaimMark，b8e3435，178 测绿，render 0.2ms）——drawStory 等距三面棱柱、逐复现叠层+灯窗、floors≥5 drawCap 宽檐顶盖+光环、pre-consensus 域色 hip lid、spectral 魂影、claimDomain 域色查表。<b>尚未落地</b>：hasDoi 未穿到 SceneObject（产品里印章暂全为预印开口）；魂影缺漩涡+浮动动画（M5/海层）；灯窗 twinkle / 光环 breathe 微动态（M5）。变体 B（脚手架）/ C（基座）落选未 ship，完整探索稿存 Claude Design 项目 a3f16e64 / claim-as-building.html。</div>
+<div class="shipped"><b>SHIPPED 现实（诚实偏差，非理想原型）：</b>变体 A 已移植 Pixi（scene-stage.ts makeClaimMark，b8e3435，178 测绿，render 0.2ms）——drawStory 等距三面棱柱、逐复现叠层+灯窗、floors≥5 drawCap 宽檐顶盖+光环、pre-consensus 域色 hip lid、spectral 魂影、claimDomain 域色查表。<b>hasDoi 已接线（Round 6）：seal 现在转录 hasDoi</b>——发表(DOI)=<b>DOI 专属印泥色 #A8481C</b> 实心印章「印」（R7 ride-along A：<code>--fi-seal-doi</code> / renderer <code>DOI_SEAL_INK=0xA8481C</code>，深赭区别于物质域墨 #B5673A，防发表信号在物质塔上被读成域装饰），预印=虚线开口环；印章形态 ↔ interior 面板发表态成为 <b>stated invariant</b>（seal 与面板同读一个 hasDoi，永不各说各话）。M5 微动态亦已落地（Iter 15 tickDynamics）：灯窗 twinkle、共识光环 breathe、魂影 bob。<b>尚未落地</b>：魂影缺漩涡（海层，归 Round 7 flowline/海词汇回合）。变体 B（脚手架）/ C（基座）落选未 ship，完整探索稿存 Claude Design 项目 a3f16e64 / claim-as-building.html。</div>
 
 <script>
 /* Variant A parametric renderer — extracted from the chosen design source (claim-as-building.html),
-   trimmed to variant A. Iso 2:1, ink strokes, MOUND_PATH, night = palette swap only. */
+   trimmed to variant A. Iso 2:1, ink strokes, MOUND_PATH. NB night in THIS SVG demo = palette swap;
+   shipped Pixi night = per-object alpha + global tone veil (0x0A1428, α=t×0.66) + lit windows. */
 const MOUND = "M -58 10 C -50 -8 -26 -20 2 -21 C 30 -20 50 -9 58 8 C 46 16 30 20 0 20 C -30 20 -48 16 -58 10 Z";
 const DOM = {
   math:  {fill:'#C9D8E6', ink:'#2E5E8C'},
@@ -125,7 +127,8 @@ const NIGHT = "--wall:#2B3658;--wallSh:#232E4E;--top:#33406A;--ink:#8E99BE;--ink
 const INK='var(--ink,#3A342B)', INK2='var(--ink2,#6B6154)', WALL='var(--wall,#F8F1DE)',
   WALLSH='var(--wallSh,#E7DABE)', TOP='var(--top,#FBF6E9)', SHADOW='var(--shadow,rgba(58,48,36,0.16))',
   SAND='var(--sand,#E7DBBB)', GOLD='var(--gold,#E3A93C)', OCHRE='var(--ochre,#B5673A)',
-  WATER='var(--water,#C8D8E4)', CARD='var(--card,rgba(250,245,232,0.92))';
+  WATER='var(--water,#C8D8E4)', CARD='var(--card,rgba(250,245,232,0.92))',
+  SEALDOI='var(--fi-seal-doi,#A8481C)'; /* DOI 专属印泥 · palette.ts DOI_SEAL_INK=0xA8481C · R7 ride-along A */
 
 function story(cx, gy, a, H, o={}){
   const wall=o.wall||WALL, sh=o.sh||WALLSH, top=o.top||TOP, st=o.st||INK, sw=o.sw??1.5;
@@ -142,7 +145,7 @@ function mound(cx, cy, s, fill){
   return `<g transform="translate(${cx},${cy}) scale(${s})"><path d="${MOUND}" fill="${fill}" stroke="${INK}" stroke-width="${(1.5/s).toFixed(2)}"/></g>`;
 }
 function seal(x,y,doi){
-  if(doi) return `<g transform="translate(${x},${y})"><circle r="8.5" fill="${OCHRE}" stroke="${INK}" stroke-width="1"/>`+
+  if(doi) return `<g transform="translate(${x},${y})"><circle r="8.5" fill="${SEALDOI}" stroke="${INK}" stroke-width="1"/>`+
     `<circle r="5" fill="none" stroke="${TOP}" stroke-width="1" opacity=".7"/>`+
     `<text y="3.2" text-anchor="middle" font-size="8.5" fill="${TOP}" style="font-family:'Noto Serif SC',serif;font-weight:700">印</text></g>`;
   return `<circle cx="${x}" cy="${y}" r="8.5" fill="none" stroke="${INK2}" stroke-width="1.3" stroke-dasharray="3 3"/>`;

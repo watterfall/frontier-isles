@@ -203,6 +203,9 @@ export interface Growth {
   floors: number;
   /** Domain consensus reached → roofed. */
   roof: boolean;
+  /** Published with a DOI (ledger `publish`) → the seal is a solid DOI stamp,
+   *  not a preprint open-mark. Optional/false = preprint (honest default). */
+  hasDoi?: boolean;
 }
 
 /**

@@ -1,0 +1,248 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>R7 Dim2 — agitation AC1–9 harness</title>
+<style>
+  body { margin: 16px; background: #10141c; color: #cfd6e6; font: 13px/1.5 ui-monospace, monospace; }
+  h1 { font-size: 15px; } h2 { font-size: 13px; margin-top: 20px; }
+  .panes { display: flex; gap: 10px; flex-wrap: wrap; }
+  .pane { border: 1px solid #2a3550; } .cap { padding: 4px 6px; font-size: 11px; }
+  table { border-collapse: collapse; margin-top: 8px; } td, th { border: 1px solid #2a3550; padding: 3px 8px; }
+  .pass { color: #6ee7a8; font-weight: 700; } .fail { color: #ff7a7a; font-weight: 700; }
+  .manual { color: #e3c76e; font-weight: 700; }
+  .note { color: #8b94b2; max-width: 900px; }
+</style>
+
+<h1>R7 Dim 2 — 躁动 (surface agitation) 感知验收 AC1–9</h1>
+<p class="note">
+  这是 verifier 独立跑的 harness。它复用 Gen-D 工件的 readPixels/anisotropy rig，把待测的
+  <b>生产 chop 块逐字转录自 <code>packages/renderer/src/pixi/sea-mesh.ts</code> 的 agitation 分支</b>
+  （见下方 FRAG 中 "PRODUCTION agitation block (verbatim)" 段）。⚠️ 若 sea-mesh.ts 的该块改动，本文件必须同步；
+  verifier 应先 diff 两处 GLSL 再采信指标。坐标尺度沿用 Gen-D 约定（gl_FragCoord 世界屏幕单位 ×2），
+  绝对频率随尺度而变；AC 的比值判据（中性/各向异性/单调/零保持）尺度不敏感。窗口内四档 pane 供 AC9 人眼门肉眼判读。
+  结果写入 <code>window.__metrics</code>（rows + AC1–9 pass/fail）。
+</p>
+
+<div class="panes" id="panes"></div>
+<h2>AC1–AC9（实测，开阔海裁片）</h2>
+<div id="metrics">measuring…</div>
+
+<script>
+const FRAG = `#version 300 es
+precision highp float;
+uniform float uTime, uU, uDepth, uTide, uDebug;
+uniform vec2 uRes;
+out vec4 o;
+const vec3 SEA  = vec3(0.737, 0.808, 0.863);   // 数理 sea (PixiScene SEA_COLORS)
+const vec3 DEEP = vec3(0.651, 0.745, 0.816);   // 数理 deep
+const vec3 FOAM = vec3(0.941, 0.918, 0.847);
+const vec2 ISL  = vec2(-200.0, -150.0);
+
+float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float noise(vec2 p) {
+  vec2 i = floor(p), f = fract(p);
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x),
+             mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x), u.y);
+}
+float fbm(vec2 p) {
+  float v = 0.0, a = 0.5;
+  for (int i = 0; i < 4; i++) { v += a * noise(p); p *= 2.0; a *= 0.5; }
+  return v;
+}
+// demo stand-in for the shore-mask texture: a procedural island blob (Gen-D rig)
+float landAt(vec2 w) {
+  float r = length(w - ISL);
+  float edge = 78.0 + 26.0 * fbm(w * 0.02);
+  return 1.0 - smoothstep(edge - 6.0, edge + 6.0, r);
+}
+void main() {
+  vec2 w = (gl_FragCoord.xy - 0.5 * uRes) * 2.0;   // world-screen units (Gen-D convention)
+  float here = landAt(w);
+
+  // ---- calm sea base: verbatim structure of the shipped FRAG ----
+  float body = fbm(w * 0.006 + vec2(uTime * 0.015, uTime * 0.01));
+  vec3 col = mix(SEA, DEEP, smoothstep(0.42, 0.66, body) * 0.5);
+  float grain = noise(w * 0.9);
+  col += (grain - 0.5) * 0.015;
+
+  float radial = clamp(distance(w, ISL) / 380.0, 0.0, 1.0);
+  col = mix(col, DEEP, smoothstep(0.0, 1.0, radial) * (0.28 + 0.55 * uDepth) * (1.0 - here));
+
+  float nearL = 0.0;
+  for (int i = 0; i < 8; i++) {
+    float a = float(i) / 8.0 * 6.2831;
+    nearL = max(nearL, landAt(w + vec2(cos(a), sin(a)) * 14.0));
+  }
+  float coast = nearL * (1.0 - here);
+  float band = smoothstep(0.15, 0.6, coast);
+  float lap = 0.78 + (0.14 + 0.16 * uTide) * sin(uTime * 0.8 + (w.x + w.y) * 0.04);
+  float foamStrength = 0.24 + 0.20 * uTide;
+  col = mix(col, FOAM, band * lap * foamStrength);
+  float ripple = smoothstep(0.25, 0.7, coast) * (0.5 + 0.5 * sin((w.x + w.y) * 0.09 - uTime * 1.4));
+  col = mix(col, FOAM, ripple * band * 0.14 * uTide);
+  col *= (1.0 - uDepth);
+
+  // ==== PRODUCTION agitation block (verbatim from sea-mesh.ts; uAgitation -> uU,
+  //      uSeaColor/uDeepColor -> SEA/DEEP consts). Under test. ====
+  float agit = 0.0;
+  if (uU > 0.001) {
+    float open = 1.0 - here;
+    float shoreExcl = 1.0 - smoothstep(0.05, 0.30, coast);
+    float zone = smoothstep(0.46 - 0.08 * uU, 0.74, fbm(w * 0.006 - vec2(uTime * 0.045, uTime * 0.03)));
+    float chopA = sin((w.x + w.y) * 0.095 - uTime * 1.15);
+    float chopB = sin((w.x - w.y) * 0.078 + uTime * 0.95);
+    float chop = chopA * chopB * (0.68 + 0.32 * noise(vec2((w.x + w.y) * 0.05, (w.x - w.y) * 0.0055)));
+    col += (SEA - DEEP) * chop * (3.5 * uU) * zone * shoreExcl * open;
+    agit = abs(chop) * (3.5 * uU) * zone * shoreExcl * open;   // magnitude, for the AC rig
+  }
+
+  if (uDebug > 0.5) { o = vec4(here, band, agit, 1.0); return; }
+  o = vec4(col, 1.0);
+}`;
+
+const VERT = `#version 300 es
+in vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }`;
+
+const W = 300, H = 300, T_METRIC = 1.7;
+const LEVELS = [
+  { u: 0.00, label: "0 refutes · u=0（零保持）" },
+  { u: 0.60, label: "1 refute · u=0.60" },
+  { u: 0.80, label: "2 refutes · u=0.80" },
+  { u: 1.00, label: "3+ refutes · u=1.00（封顶）" },
+];
+
+function makePane(u, label) {
+  const div = document.createElement("div"); div.className = "pane";
+  const cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+  const cap = document.createElement("div"); cap.className = "cap"; cap.textContent = label;
+  div.append(cv, cap); document.getElementById("panes").append(div);
+  const gl = cv.getContext("webgl2", { preserveDrawingBuffer: true, antialias: false });
+  const prog = gl.createProgram();
+  for (const [type, src] of [[gl.VERTEX_SHADER, VERT], [gl.FRAGMENT_SHADER, FRAG]]) {
+    const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+    gl.attachShader(prog, s);
+  }
+  gl.linkProgram(prog); gl.useProgram(prog);
+  const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(prog, "p");
+  gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  const U = n => gl.getUniformLocation(prog, n);
+  gl.uniform2f(U("uRes"), W, H); gl.uniform1f(U("uTide"), 0.25);
+  const draw = (t, debug, depth) => {
+    gl.uniform1f(U("uTime"), t); gl.uniform1f(U("uU"), u);
+    gl.uniform1f(U("uDebug"), debug); gl.uniform1f(U("uDepth"), depth);
+    gl.viewport(0, 0, W, H); gl.drawArrays(gl.TRIANGLES, 0, 3);
+  };
+  const read = () => { const px = new Uint8Array(W * H * 4); gl.readPixels(0, 0, W, H, gl.RGBA, gl.UNSIGNED_BYTE, px); return px; };
+  return { u, draw, read };
+}
+
+const panes = LEVELS.map(l => makePane(l.u, l.label));
+const luma = (px, i) => (0.2126 * px[i] + 0.7152 * px[i + 1] + 0.0722 * px[i + 2]) / 255;
+
+// One measurement pass at a given depth + time. Returns per-level metrics on the
+// OPEN-SEA crop (here<0.02 && band<0.05), computed against the u=0 baseline.
+function measure(depth, t) {
+  panes[0].draw(t, 0, depth); const base = panes[0].read();
+  const rows = [];
+  for (const p of panes) {
+    p.draw(t, 0, depth); const img = p.read();
+    p.draw(t, 1, depth); const dbg = p.read();
+    const openIdx = [];
+    let n = 0, sumL = 0, sumL0 = 0, cover = 0, maxAbsD = 0, shoreContam = 0;
+    let sumL2 = 0, sumL0_2 = 0, sumBaseL = 0, sumBaseL2 = 0, nb = 0;
+    const Lfield = new Float32Array(W * H), Dfield = new Float32Array(W * H), openMask = new Uint8Array(W * H);
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const i = (y * W + x) * 4, k = y * W + x;
+      const here = dbg[i] / 255, band = dbg[i + 1] / 255, agit = dbg[i + 2] / 255;
+      const L = luma(img, i), L0 = luma(base, i), d = L - L0;
+      maxAbsD = Math.max(maxAbsD, Math.abs(d));
+      if (band > 0.4) shoreContam = Math.max(shoreContam, agit);       // AC6
+      if (here < 0.02 && band < 0.05) {                                // open-sea crop
+        n++; sumL += L; sumL0 += L0; sumL2 += L * L; sumL0_2 += L0 * L0;
+        Lfield[k] = L; Dfield[k] = d; openMask[k] = 1; openIdx.push(k);
+        if (Math.abs(d) > 0.02) cover++;                               // AC2 coverage
+      }
+    }
+    const meanL = sumL / n, meanL0 = sumL0 / n;
+    const rmsField = Math.sqrt(Math.max(0, sumL2 / n - meanL * meanL));       // spatial std @ this u
+    const rmsField0 = Math.sqrt(Math.max(0, sumL0_2 / n - meanL0 * meanL0));  // spatial std @ calm baseline
+    // AC3: directional gradient energy — ±45° diagonals vs axis-aligned, on the open-sea delta field.
+    let eDiag = 0, eAxis = 0, ng = 0;
+    for (const k of openIdx) {
+      const x = k % W, y = (k / W) | 0;
+      if (x < 2 || x >= W - 2 || y < 2 || y >= H - 2) continue;
+      const g = (dx, dy) => (openMask[k + dy * W + dx] ? Dfield[k + dy * W + dx] : Dfield[k]);
+      const dPP = g(1, 1) - g(-1, -1);   // +45°
+      const dPM = g(1, -1) - g(-1, 1);   // -45°
+      const dH = g(1, 0) - g(-1, 0);
+      const dV = g(0, 1) - g(0, -1);
+      eDiag += dPP * dPP + dPM * dPM; eAxis += dH * dH + dV * dV; ng++;
+    }
+    // R7 spec-correction: ÷2 removes the √2-span geometric bias (diagonal diff spans
+    // 2√2, axis 2). Isotropic smooth fbm then reads ~0.9-1.0. The anchor-normalized
+    // ratio (grid ÷ isotropic-fbm ≈ 1.09, consult ≥1.20) lives in metric-norm.mjs.
+    const aniso = (eDiag / 2) / Math.max(1e-9, eAxis);
+    rows.push({
+      // meanShiftPct divides by the baseline open-sea luma; at depth→1 the water is
+      // darkened toward black (meanL0→0) so the ratio explodes. Guard it: below a
+      // floor the relative shift is undefined — report 0 and rely on coverage/aniso.
+      u: p.u, coverage: 100 * cover / n, meanShiftPct: meanL0 > 1e-3 ? 100 * (meanL - meanL0) / meanL0 : 0,
+      maxAbsDelta: maxAbsD, shoreContam, rmsField, rmsRatio: rmsField / Math.max(1e-6, rmsField0), aniso,
+    });
+  }
+  return rows;
+}
+
+function render() {
+  const rows = measure(0.5, T_METRIC);                 // primary: mid depth, running frame
+  const rowsD0 = measure(0.0, T_METRIC), rowsD1 = measure(1.0, T_METRIC);   // AC7 depth sweep
+  const rowsFrozen = measure(0.5, 0.0);                // AC8 reduced-motion (frozen uTime)
+  const at = (rs, u) => rs.find(r => Math.abs(r.u - u) < 1e-6);
+  const cov = rows.map(r => r.coverage), rms = rows.map(r => r.rmsRatio);
+  const r06 = at(rows, 0.6), r10 = at(rows, 1.0), rf06 = at(rowsFrozen, 0.6), rf10 = at(rowsFrozen, 1.0);
+
+  const checks = [
+    ["AC1 中性: |Δmean-luma| ≤ 1% @ u=0.6 且 u=1.0",
+      Math.abs(r06.meanShiftPct) <= 1 && Math.abs(r10.meanShiftPct) <= 1,
+      `Δ@.6=${r06.meanShiftPct.toFixed(2)}% Δ@1=${r10.meanShiftPct.toFixed(2)}%`],
+    ["AC2 一瞥可读: u=0.6 RMS ≥ 1.5× 平静 且 coverage ≥ 15%",
+      r06.rmsRatio >= 1.5 && r06.coverage >= 15,
+      `rmsRatio@.6=${r06.rmsRatio.toFixed(2)} cov@.6=${r06.coverage.toFixed(1)}%`],
+    ["AC3 结构非噪 (spec-corrected): 归一后各向同性≈1.0; 咨询线 = anchor-ratio (grid÷isotropic-fbm) ≥1.20 — 见 metric-norm.mjs (≈1.09, FAIL); AC9 人眼仲裁",
+      null, `归一 aniso@1=${r10.aniso.toFixed(2)} (÷2 geom); 真判据在 metric-norm.mjs`],
+    ["AC4 单调: RMS 与 coverage 随 0→.6→.8→1 严格递增",
+      strictInc(rms) && strictInc(cov),
+      `rms=${rms.map(v=>v.toFixed(2)).join("/")} cov=${cov.map(v=>v.toFixed(1)).join("/")}`],
+    ["AC5 零保持: u=0 与无躁动逐字节相同 (maxΔ=0)",
+      rows[0].maxAbsDelta === 0, `maxΔ@0=${rows[0].maxAbsDelta.toFixed(4)}`],
+    ["AC6 岸区零污染: band>0.4 区 agit ≡ 0",
+      rows.every(r => r.shoreContam === 0), `maxContam=${Math.max(...rows.map(r=>r.shoreContam)).toFixed(3)}`],
+    ["AC7 深度正交: coverage/aniso 随 uDepth 0↔1 容差内不变(meanShift 在 depth→1 除零,改测这两项)",
+      Math.abs(at(rowsD0,0.6).coverage - at(rowsD1,0.6).coverage) <= 6 &&
+      Math.abs(at(rowsD0,1.0).aniso - at(rowsD1,1.0).aniso) <= 0.3,
+      `Δcov@.6=${Math.abs(at(rowsD0,0.6).coverage-at(rowsD1,0.6).coverage).toFixed(2)} Δaniso@1=${Math.abs(at(rowsD0,1.0).aniso-at(rowsD1,1.0).aniso).toFixed(2)}`],
+    ["AC8 reduced-motion 等价: 冻结帧 (t=0) 仍过 AC2 (AC3 结构性走 metric-norm.mjs + AC9)",
+      rf06.rmsRatio >= 1.5 && rf06.coverage >= 15,
+      `frozen rms@.6=${rf06.rmsRatio.toFixed(2)} cov@.6=${rf06.coverage.toFixed(1)}% 归一aniso@1=${rf10.aniso.toFixed(2)}`],
+    ["AC9 人眼门: 1-refute 一瞥读作『躁动的水』, 夜色 (t=1) 仍可辨 — 人判",
+      null, "见 panes 截图 → orchestrator/advisor 肉眼判"],
+  ];
+
+  let html = "<table><tr><th>u</th><th>coverage%</th><th>meanΔluma%</th><th>rmsRatio</th><th>shoreContam</th><th>aniso</th></tr>";
+  for (const r of rows) html += `<tr><td>${r.u.toFixed(2)}</td><td>${r.coverage.toFixed(2)}</td><td>${r.meanShiftPct.toFixed(2)}</td><td>${r.rmsRatio.toFixed(2)}</td><td>${r.shoreContam.toFixed(3)}</td><td>${r.aniso.toFixed(2)}</td></tr>`;
+  html += "</table><table><tr><th>判据</th><th>结果</th><th>实测</th></tr>";
+  for (const [name, ok, val] of checks) {
+    const cls = ok === null ? "manual" : ok ? "pass" : "fail";
+    const label = ok === null ? "MANUAL" : ok ? "PASS" : "FAIL";
+    html += `<tr><td style="text-align:left">${name}</td><td class="${cls}">${label}</td><td>${val}</td></tr>`;
+  }
+  html += "</table>";
+  document.getElementById("metrics").innerHTML = html;
+  window.__metrics = { rows, checks: checks.map(([n, ok, v]) => ({ n, ok, v })) };
+}
+function strictInc(a) { for (let i = 1; i < a.length; i++) if (!(a[i] > a[i - 1])) return false; return true; }
+render();
+</script>

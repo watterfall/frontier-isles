@@ -1,0 +1,12 @@
+{
+  "judge": "r7personaH5",
+  "scores": { "H1": 4, "H2": 2, "H3": 3, "H4": 4, "H5": 4 },
+  "worstFinding": "grammar line 3 is pseudo-transcription: cards 23/24 say tone=day/night palette-only, but sea shader has NO day/night uniform - night is 0x0A1428 veil alpha=t*0.66 OVER the sea (scene-stage.ts:811-814,887), a global mean-lightness write on the axis the grammar returned to depth; AC9 night half certified without instrument (harness has no veil compositing); own arithmetic says weave likely survives night (Michelson 13-21% vs day 18-27%) - picture may be fine, evidence chain lied",
+  "keyEvidence": {
+    "H1": "single-source real; zero-preserve double-guarded; water tokens exact; dock: commit msg 'off the lightness axis' oversells (chop increment is still lightness modulation - truthful claim is zero-mean)",
+    "H2": "card 23 seal STILL fill=var(--ochre,#B5673A) + text says ochre-seal=published while code ships DOI_SEAL_INK 0xA8481C - claimed-fixed, still-old in the component card that owns seals; card 06 CONCEPT banner cross-links fine",
+    "H3": "DC/AC separation real and measured; but at t=1 lightness carries depth AND night; secondary: chop added after col*=(1-uDepth) without depth scaling - Weber contrast in deep water 1.6-1.7x shallow, agitation perceptual magnitude polluted by depth, AC7 rmsRatio<=0.4 tolerance too loose",
+    "H4": "1-refute golden specimen holds real-magnitude lesson; night arithmetic (judge's own): weave attenuated but above threshold",
+    "H5": "R6 dual-axis en word fixed in both languages; residual: en refute:'refuted' dead key; card 23 body nearly pure Chinese"
+  }
+}

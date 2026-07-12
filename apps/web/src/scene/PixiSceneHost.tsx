@@ -2,7 +2,7 @@
  * PixiSceneHost — the `?scene=pixi` DEV DEMO wrapper (see main.tsx).
  *
  * A thin full-window host around the controlled {@link PixiScene}: it owns the
- * demo chrome (day↔night slider, undertow toggle, render-metrics HUD) and feeds
+ * demo chrome (day↔night slider, agitation toggle, render-metrics HUD) and feeds
  * a mock island + a mock-ledger-derived claim projection. The live L1 uses the
  * SAME {@link PixiScene} component (see GeneratedIslandScreen) fed by real data —
  * this file exists only so the scene can be inspected in isolation.
@@ -64,7 +64,7 @@ let demoRitualSeq = 0;
 
 export default function PixiSceneHost({ input = DEMO }: { input?: LayoutInput }) {
   const [t, setT] = useState(0);
-  const [undertow, setUndertow] = useState(false);
+  const [agitation, setAgitation] = useState(false);
   const [stat, setStat] = useState<PixiSceneMetrics>({ renderMs: 0, sorted: 0, objects: 0 });
   const [claimPanel, setClaimPanel] = useState<ClaimState | null>(null);
   // Ritual moments demo (Batch 1 — 河灯/移栽之路, depth-plan-v1 §6/§9). DEMO-PAGE
@@ -87,7 +87,7 @@ export default function PixiSceneHost({ input = DEMO }: { input?: LayoutInput })
         t={t}
         activeStations={DEMO_ACTIVE}
         substrate={0.7}
-        undertow={undertow}
+        agitation={agitation}
         onClaim={setClaimPanel}
         onMetrics={setStat}
         rituals={demoRituals}
@@ -102,10 +102,10 @@ export default function PixiSceneHost({ input = DEMO }: { input?: LayoutInput })
         <div>drag = pan · wheel = zoom · tap station</div>
         <button
           type="button"
-          onClick={() => setUndertow((v) => !v)}
-          style={{ marginTop: 5, font: '11px ui-monospace, monospace', color: '#cfd6e6', background: undertow ? 'rgba(120,60,90,.7)' : 'rgba(255,255,255,.12)', border: '1px solid rgba(255,255,255,.2)', borderRadius: 5, padding: '3px 7px', cursor: 'pointer' }}
+          onClick={() => setAgitation((v) => !v)}
+          style={{ marginTop: 5, font: '11px ui-monospace, monospace', color: '#cfd6e6', background: agitation ? 'rgba(120,60,90,.7)' : 'rgba(255,255,255,.12)', border: '1px solid rgba(255,255,255,.2)', borderRadius: 5, padding: '3px 7px', cursor: 'pointer' }}
         >
-          undertow {undertow ? 'ON' : 'off'}
+          agitation {agitation ? 'ON' : 'off'}
         </button>
       </div>
 

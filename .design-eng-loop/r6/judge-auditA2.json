@@ -1,0 +1,21 @@
+{
+  "judge": "auditA2",
+  "scores": {
+    "accessibility": 3,
+    "performance": 4,
+    "theming": 3,
+    "responsive": 3,
+    "anti-patterns": 3,
+    "interaction": 3
+  },
+  "worstFinding": "shader comment calibration numbers do not reproduce: independent 1.44M-sample float64 port gives fbm max~0.891 p99~0.729, so 0.82 edge is ~p99.95 (near-unreachable, ~0.05% pixels saturate) — recalibration directionally justified (mean swirl 0.033->0.089, active pixels 26%->40%, ~4x legibility at 1 refute) but cited justification numbers embellished beyond the math, in a round themed honesty",
+  "keyEvidence": {
+    "accessibility": "DOI shape+fill redundant not color-only; refute counts have text twin; but 4x-more-visible undertow still animates under prefers-reduced-motion (sea ticker unconditional)",
+    "performance": "constants inside pre-existing u>0.001 guarded branch; calm path pixel-identical; O(1) pure curve",
+    "theming": "seal inks reuse verbatim palette BUT 0xb5673a exactly collides with wuzhi domain ink - on a wuzhi tower the published channel can read as domain decoration; magic constant duplicated in source+test",
+    "responsive": "world-space fbm resolution-independent; 8.5px seal no LOD-aware fallback at distant zoom",
+    "anti-patterns": "required ClaimSpec.hasDoi forces compile-time propagation; old curve fully replaced (single call site); docked: golden reaches pixi private internals via as-unknown-as; non-reproducible numbers in shader comment",
+    "interaction": "repairs real contradiction; 1/2/3 now distinct; docked: published-then-refuted claim's DOI vanishes entirely (spectral guard drops seal), panel is only decode"
+  },
+  "auditMethod": "mutation testing: scene-stage.ts:532 revert -> golden fails; layout.ts:272 hasDoi:false -> layout test fails; both packages tsc exit 0; synth path verified unable to mis-render real published claims"
+}

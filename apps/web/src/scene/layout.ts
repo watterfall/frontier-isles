@@ -209,6 +209,8 @@ interface ClaimSpec {
   floors: number;
   roof: boolean;
   ghost?: ClaimState['ghost'];
+  /** Published-with-DOI (ledger `publish`) → the seal reads as a real DOI stamp. */
+  hasDoi: boolean;
 }
 
 /**
@@ -267,10 +269,11 @@ export function buildSceneGraph(
   // Claim buildings: from the ledger (projectClaimState, M4.3) if given, else synth.
   const claimSpecs: ClaimSpec[] =
     claims && claims.length > 0
-      ? claims.slice(0, CLAIM_TILES.length).map((c) => ({ floors: c.floors, roof: c.roof, ghost: c.ghost }))
+      ? claims.slice(0, CLAIM_TILES.length).map((c) => ({ floors: c.floors, roof: c.roof, ghost: c.ghost, hasDoi: c.hasDoi }))
       : Array.from({ length: Math.min(CLAIM_TILES.length, Math.floor((input.eventCount ?? 0) / 4)) }, (_, i) => {
           const f = Math.floor(variantSeed(`claim:${input.slug}:${i}`) * 4);
-          return { floors: f, roof: f >= 3 };
+          // Synth has no ledger → no DOI evidence. Honest default: preprint, not published.
+          return { floors: f, roof: f >= 3, hasDoi: false };
         });
 
   // Building/scenery tiles are forced to land so nothing floats on the noisy coast.
@@ -346,7 +349,7 @@ export function buildSceneGraph(
   // clustered before Gallery, preserving the first-class-artifact semantics.
   claimSpecs.forEach((spec, i) => {
     const tile = CLAIM_TILES[i]!;
-    const growth: Growth = { foundation: true, floors: spec.floors, roof: spec.roof };
+    const growth: Growth = { foundation: true, floors: spec.floors, roof: spec.roof, hasDoi: spec.hasDoi };
     const height = 16 + spec.floors * 12; // base + one inscription row per reproduction (P1)
     const night = spec.ghost ? { dayVisibility: 0, nightVisibility: 1 } : {};
     push(`claim:${i}`, 'claim', tile.gx, tile.gy, 'world', { growth, height, elevation: elev(tile.gx, tile.gy), ...night });

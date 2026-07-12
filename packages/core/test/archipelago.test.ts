@@ -249,7 +249,16 @@ describe("projectArchipelagos — 78-island real dataset (packages/data)", () =>
   it("full roster snapshot (archipelago name → member slugs)", () => {
     const roster = archipelagos
       .map((a) => ({ name: a.name.zh, members: a.islandSlugs }))
-      .sort((x, y) => x.name.localeCompare(y.name));
+      // Sort by the ASCII member signature, NOT name.localeCompare: locale-sensitive
+      // collation of the Chinese names ordered clusters by pinyin in the recording
+      // environment and by code point elsewhere, so the snapshot drifted on a pure
+      // reorder (identical name→members mapping, 0 content diff). Member slugs are
+      // ASCII → the ordering is environment-stable.
+      .sort((x, y) => {
+        const sx = x.members.join(',');
+        const sy = y.members.join(',');
+        return sx < sy ? -1 : sx > sy ? 1 : 0;
+      });
     expect(roster).toMatchSnapshot();
   });
 });

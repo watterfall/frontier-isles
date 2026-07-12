@@ -1,0 +1,12 @@
+{
+  "judge": "r7auditA1",
+  "scores": { "accessibility": 3, "performance": 3, "theming": 3, "responsive": 3, "anti-patterns": 3, "interaction": 2 },
+  "worstFinding": "agitation deterministically lost at boot: setAgitation writes uniform only (scene-stage.ts:1055-1059, no persistence), buildSea inits uAgitation=0 (sea-mesh.ts:202), PixiScene only calls setAgitation in [agitation] change effect (no-op at first mount), boot never replays - island preloaded with refuted claims shows CALM sea while decoder says N refuted claims; the exact divergence Dim 1 claimed dead, alive in render layer. Fix: persist this.agitation, buildSea inits from it.",
+  "keyEvidence": {
+    "accessibility": "R6 pains truly fixed (matchMedia chain to setReducedMotion, tickers detached, single static frame); dock: unfreeze asymmetric - setReducedMotion(false) re-adds tickSea only, tickDynamics stays frozen until rebuild/tween",
+    "theming": "0xb5673a camouflage killed (DOI_SEAL_INK 0xa8481c single module + test pins != domain ink); 12 water tokens exactly match SEA_COLORS; dock: lock-step is comment-only, no test bridges renderer constants <-> CSS tokens",
+    "anti-patterns": "dual-source killed with single-source pin test; ASCII sort in claims.ts; claim-seal test now semantic not snapshot; residual: seaData.refute dead key",
+    "interaction": "spectral seal closes seal-panel edge; but boot-lost agitation = live decoder-sea divergence",
+    "performance": "reduced-motion truly stops all tickers; chop fully inside uniform guard branch"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "judge": "auditA1",
+  "scores": {
+    "accessibility": 2,
+    "performance": 4,
+    "theming": 2,
+    "responsive": 3,
+    "anti-patterns": 2,
+    "interaction": 3
+  },
+  "worstFinding": "text decoder decodes the wrong variable: sea driven by unresolved-refuted CLAIM count (contentionFromRefuted(refuted)) while text shows refute EVENT count (refutes) — identical decoder text can accompany visibly different seas; amplified undertow has no faithful non-visual channel; sea shader ignores prefers-reduced-motion (scene-stage.ts L1021-1022)",
+  "keyEvidence": {
+    "accessibility": "reduced-motion detected (GeneratedIslandScreen L139-149) but never reaches sea ticker (scene-stage L1021-1022); decoder shows refutes not contention",
+    "theming": "0xb5673a raw literal in 4 sites (scene-stage L1391/L1346, atlas-lod L49, atlas-stage L172), token identity only a comment; no night variant for seal colors; golden pins day only",
+    "anti-patterns": "refuted (ghost claim count, L207/213) vs refutes (event count, L211/320) double source; claim-seal.test reaches into Pixi private internals via as-unknown-as cast",
+    "interaction": "seal-panel contradiction closed at 3 layers, but hasDoi is boolean-only — no DOI string retained anywhere, cannot actually follow the DOI",
+    "performance": "constants-only shader edit, short-circuit retained, pure O(1) curve per ledger poll",
+    "responsive": "world-space sampling makes legibility zoom-independent by construction; seal 8.5px fixed radius unverified at mobile"
+  }
+}

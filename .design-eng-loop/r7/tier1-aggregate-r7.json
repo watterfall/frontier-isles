@@ -1,0 +1,35 @@
+{
+  "round": 7,
+  "date": "2026-07-12",
+  "note": "panel run pre-tuning-fix: findings feed the in-flight fix batch",
+  "axisA_min": {
+    "accessibility": 1,
+    "performance": 3,
+    "theming": 2,
+    "responsive": 3,
+    "anti-patterns": 2,
+    "interaction": 2
+  },
+  "axisB_min": {
+    "H1": 4,
+    "H2": 2,
+    "H3": 3,
+    "H4": 4,
+    "H5": 3
+  },
+  "minA": 1,
+  "minB": 2,
+  "tEng": 3,
+  "tTaste": 4,
+  "axisA_pass": false,
+  "axisB_pass": false,
+  "divergent": [
+    "axisA accessibility: spread 2 (3,1)"
+  ],
+  "weakestA": [
+    "accessibility"
+  ],
+  "weakestB": [
+    "H2"
+  ]
+}

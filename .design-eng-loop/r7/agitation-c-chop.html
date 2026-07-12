@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>R7 Gen-C — 碎浪湍流 (counter-directional chop) agitation</title>
+<style>
+  :root { color-scheme: light; }
+  body { font: 14px/1.5 -apple-system, "PingFang SC", sans-serif; margin: 24px; background: #f6f1e7; color: #3a3226; }
+  h1 { font-size: 18px; margin: 0 0 4px; }
+  .sub { color: #7a6f5c; margin: 0 0 16px; font-size: 13px; }
+  .row { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
+  canvas { border: 1px solid #cdbfa5; border-radius: 6px; background: #dde7ea; }
+  .panel { width: 380px; }
+  .grp { margin-bottom: 14px; }
+  .grp b { display: block; margin-bottom: 6px; font-size: 13px; }
+  button { font: inherit; padding: 5px 12px; margin: 0 6px 6px 0; border: 1px solid #b8a88a; background: #fffdf7; border-radius: 5px; cursor: pointer; }
+  button.on { background: #4a6b74; color: #fff; border-color: #4a6b74; }
+  button#check { background: #7a4a2e; color: #fff; border-color: #7a4a2e; }
+  label { display: inline-flex; align-items: center; gap: 6px; }
+  input[type=range] { width: 160px; vertical-align: middle; }
+  table { border-collapse: collapse; font-size: 12.5px; width: 100%; margin-top: 8px; }
+  th, td { border: 1px solid #d5c8ac; padding: 4px 6px; text-align: left; }
+  th { background: #efe6d2; }
+  .pass { color: #2c6e3f; font-weight: 600; }
+  .fail { color: #a83232; font-weight: 600; }
+  .note { font-size: 12px; color: #7a6f5c; margin-top: 10px; }
+  code { background: #efe6d2; padding: 1px 4px; border-radius: 3px; font-size: 12px; }
+</style>
+</head>
+<body>
+<h1>R7 · Agitation-C · 碎浪湍流（逆向交叉浪列）</h1>
+<p class="sub">争议度搬离明度轴 → 海面躁动。零均值 crest/trough 织纹沿 shallow↔deep 调色板轴重分布对比，crop 平均明度不变。暗=深度 · 躁动=争议。数理盘调色板，仿 sea-mesh.ts FRAG。</p>
+<div class="row">
+  <canvas id="gl" width="720" height="450"></canvas>
+  <div class="panel">
+    <div class="grp"><b>refutes（contentionFromRefuted: 0/0.60/0.80/1.00）</b>
+      <button data-r="0" class="on">0 平静</button><button data-r="1">1 日常</button><button data-r="2">2</button><button data-r="3">3+ 封顶</button>
+    </div>
+    <div class="grp"><b>通道独立性演示</b>
+      <label>uDepth（深度暗化，独立轴）<input id="depth" type="range" min="0" max="0.42" step="0.01" value="0.12"></label>
+    </div>
+    <div class="grp"><b>reduced-motion 静态降级</b>
+      <label><input id="motion" type="checkbox"> 冻结 uTime（织纹应仍空间可读）</label>
+    </div>
+    <div class="grp">
+      <button id="check">运行像素级验收检查 (A1–A4)</button>
+      <div id="results"></div>
+    </div>
+    <p class="note">检查方法：右侧 256×256 开阔海裁片（避开岛与岸沫环），同一冻结 uTime 下渲染 u=0 基线与各档 u，逐像素比对。A3 用 Sobel 梯度方向直方图找 ±45° 双对角浪列签名。</p>
+  </div>
+</div>
+<script>
+'use strict';
+const canvas = document.getElementById('gl');
+const gl = canvas.getContext('webgl2', { preserveDrawingBuffer: false });
+const VSH = `#version 300 es
+in vec2 aPos; void main(){ gl_Position = vec4(aPos,0.,1.); }`;
+const FSH = `#version 300 es
+precision highp float;
+out vec4 o;
+uniform float uTime, uU, uDepth;
+uniform vec2 uRes;
+const vec3 SEA  = vec3(0.737,0.808,0.863);
+const vec3 DEEP = vec3(0.651,0.745,0.816);
+const vec3 FOAM = vec3(0.941,0.918,0.847);
+const vec3 LAND = vec3(0.878,0.816,0.694);
+float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453); }
+float noise(vec2 p){
+  vec2 i=floor(p), f=fract(p); vec2 u=f*f*(3.-2.*f);
+  return mix(mix(hash(i),hash(i+vec2(1,0)),u.x), mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),u.x), u.y);
+}
+float fbm(vec2 p){ float v=0.,a=.5; for(int i=0;i<4;i++){ v+=a*noise(p); p*=2.; a*=.5; } return v; }
+void main(){
+  vec2 w = vec2(gl_FragCoord.x, uRes.y - gl_FragCoord.y);
+  vec2 center = vec2(uRes.x*0.30, uRes.y*0.52);
+  float d = distance(w, center);
+  float islR = 88.0;
+  float here = 1.0 - smoothstep(islR-3.0, islR+3.0, d);
+  // -- calm body (verbatim structure from sea-mesh.ts) --
+  float body = fbm(w*0.006 + vec2(uTime*0.015, uTime*0.01));
+  vec3 col = mix(SEA, DEEP, smoothstep(0.42,0.66,body)*0.5);
+  float grain = noise(w*0.9);
+  col += (grain-0.5)*0.015;
+  // -- radial depth gradient --
+  float radial = clamp(d / (islR*4.2), 0.0, 1.0);
+  col = mix(col, DEEP, smoothstep(0.0,1.0,radial)*(0.28+0.55*uDepth)*(1.0-here));
+  // -- shore halo (simplified ring; foam stays coastline-only, section-5 binding) --
+  float coast = (1.0-here) * smoothstep(islR+26.0, islR+4.0, d);
+  float band = smoothstep(0.15,0.6,coast);
+  float lap = 0.78 + 0.20*sin(uTime*0.8 + (w.x+w.y)*0.04);
+  col = mix(col, FOAM, band*lap*0.30);
+  // -- depth darkening axis (untouched by agitation) --
+  col *= (1.0 - uDepth);
+  // ==== R7 AGITATION BLOCK (the proposal, verbatim math) ====
+  if (uU > 0.001) {
+    float open = 1.0 - here;
+    // NB: "patch" is a reserved word in GLSL ES 3.0 -> "zone"
+    float zone = smoothstep(0.50 - 0.05*uU, 0.80, fbm(w*0.018 - vec2(uTime*0.12, uTime*0.08)));
+    float chopA = sin((w.x + w.y) * 0.095 - uTime * 1.15);
+    float chopB = sin((w.x - w.y) * 0.078 + uTime * 0.95);
+    float chop = chopA * chopB * (0.6 + 0.4*noise(w*0.03));
+    col += (SEA - DEEP) * chop * (3.0 * uU) * zone * open;
+  }
+  // ==========================================================
+  col = mix(col, LAND, here);
+  o = vec4(col, 1.0);
+}`;
+function sh(type, src){ const s=gl.createShader(type); gl.shaderSource(s,src); gl.compileShader(s);
+  if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; }
+const prog = gl.createProgram();
+gl.attachShader(prog, sh(gl.VERTEX_SHADER, VSH));
+gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FSH));
+gl.linkProgram(prog);
+if(!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+gl.useProgram(prog);
+const buf = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+const locPos = gl.getAttribLocation(prog,'aPos');
+gl.enableVertexAttribArray(locPos);
+gl.vertexAttribPointer(locPos, 2, gl.FLOAT, false, 0, 0);
+const U = { t: gl.getUniformLocation(prog,'uTime'), u: gl.getUniformLocation(prog,'uU'),
+            d: gl.getUniformLocation(prog,'uDepth'), r: gl.getUniformLocation(prog,'uRes') };
+gl.uniform2f(U.r, canvas.width, canvas.height);
+
+// contentionFromRefuted — replicated verbatim from apps/web/src/scene/undertow.ts
+const contention = (n) => n <= 0 ? 0 : Math.min(1, 0.6 + (n - 1) * 0.2);
+
+let time = 20.0, uVal = 0, depth = 0.12, frozen = false, last = performance.now();
+function draw(t, u, d){
+  gl.uniform1f(U.t, t); gl.uniform1f(U.u, u); gl.uniform1f(U.d, d);
+  gl.viewport(0,0,canvas.width,canvas.height);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+}
+function frame(now){
+  if(!frozen) time += 0.02 * Math.min(3, (now - last) / 16.667); // matches prod tickSea rate
+  last = now;
+  draw(time, uVal, depth);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+document.querySelectorAll('button[data-r]').forEach(b => b.onclick = () => {
+  document.querySelectorAll('button[data-r]').forEach(x => x.classList.remove('on'));
+  b.classList.add('on');
+  uVal = contention(+b.dataset.r);
+});
+document.getElementById('depth').oninput = e => depth = +e.target.value;
+document.getElementById('motion').onchange = e => frozen = e.target.checked;
+
+// ---------- acceptance harness ----------
+const CROP = { x: 420, y: 97, w: 256, h: 256 }; // right-side open sea, clear of island+foam ring
+function readCrop(){
+  const px = new Uint8Array(CROP.w * CROP.h * 4);
+  // readPixels origin is bottom-left; crop is symmetric enough that consistency is all we need
+  gl.readPixels(CROP.x, CROP.y, CROP.w, CROP.h, gl.RGBA, gl.UNSIGNED_BYTE, px);
+  const luma = new Float32Array(CROP.w * CROP.h);
+  for(let i=0;i<luma.length;i++) luma[i] = 0.2126*px[i*4] + 0.7152*px[i*4+1] + 0.0722*px[i*4+2];
+  return luma;
+}
+const mean = a => a.reduce((s,v)=>s+v,0)/a.length;
+function meanAbsDiff(a,b){ let s=0; for(let i=0;i<a.length;i++) s+=Math.abs(a[i]-b[i]); return s/a.length; }
+function rmsContrast(a){ const m=mean(a); let s=0; for(const v of a) s+=(v-m)*(v-m); return Math.sqrt(s/a.length); }
+function orientHist(diff){ // Sobel orientation histogram on the delta image, 18 bins over [0,180)
+  const W=CROP.w, H=CROP.h, bins=new Float32Array(18);
+  for(let y=1;y<H-1;y++) for(let x=1;x<W-1;x++){
+    const i=y*W+x;
+    const gx = diff[i-W+1]+2*diff[i+1]+diff[i+W+1] - diff[i-W-1]-2*diff[i-1]-diff[i+W-1];
+    const gy = diff[i+W-1]+2*diff[i+W]+diff[i+W+1] - diff[i-W-1]-2*diff[i-W]-diff[i-W+1];
+    const mag = Math.hypot(gx,gy);
+    if(mag < 6) continue;
+    let ang = Math.atan2(gy,gx) * 180/Math.PI; if(ang<0) ang+=180; if(ang>=180) ang-=180;
+    bins[Math.min(17, Math.floor(ang/10))] += mag;
+  }
+  return bins;
+}
+// on-demand still-frame hook (verifier/automation: set data-snap-args="t,u,depth" on body, dispatch 'x-snap')
+document.body.addEventListener('x-snap', () => {
+  const [t,u,d] = (document.body.dataset.snapArgs || '25,1,0.12').split(',').map(Number);
+  draw(t, u, d);
+  document.body.dataset.snapResult = canvas.toDataURL('image/png');
+});
+document.getElementById('check').onclick = () => {
+  const T = time; // freeze the clock for all comparative renders
+  draw(T, 0, depth);              const base = readCrop();
+  const stats = {};
+  for(const u of [0.6, 0.8, 1.0]){
+    draw(T, u, depth);            const cur = readCrop();
+    stats[u] = { dMeanPct: Math.abs(mean(cur)-mean(base))/mean(base)*100,
+                 mad: meanAbsDiff(cur, base), rms: rmsContrast(cur),
+                 diff: u===1.0 ? cur.map((v,i)=>v-base[i]) : null };
+  }
+  stats.baseRms = rmsContrast(base);
+  draw(T, 0.6, depth);            const f1 = readCrop();
+  draw(T+0.6, 0.6, depth);        const f2 = readCrop(); // ~0.5 s of wall clock at prod tick rate
+  const twoFrame = meanAbsDiff(f1, f2);
+  const bins = orientHist(Float32Array.from(stats[1.0].diff));
+  const meanBin = mean(bins);
+  // stripe normals: gradients of (x+y)- and (x-y)-oriented stripes sit near 45 deg and 135 deg
+  const diag = bins[4]+bins[13], diagRatio = diag/(2*Math.max(1e-6,meanBin));
+  const A1 = stats[0.6].dMeanPct <= 2 && stats[1.0].dMeanPct <= 2;
+  const A2 = stats[0.6].mad >= 1.0 && stats[0.6].mad < stats[0.8].mad && stats[0.8].mad < stats[1.0].mad
+             && stats.baseRms < stats[0.6].rms && stats[0.6].rms < stats[1.0].rms;
+  const A3 = diagRatio >= 2.0;
+  const A4 = twoFrame > 1.0 && stats[0.6].mad >= 1.0; // frozen-T renders ARE the static form
+  const P = ok => `<span class="${ok?'pass':'fail'}">${ok?'PASS':'FAIL'}</span>`;
+  const f = (v,n=2) => v.toFixed(n);
+  document.getElementById('results').innerHTML = `<table>
+    <tr><th>判据</th><th>测得</th><th>门槛</th><th></th></tr>
+    <tr><td>A1 明度中性 |Δmean|</td><td>u=.6: ${f(stats[0.6].dMeanPct)}% · u=1: ${f(stats[1.0].dMeanPct)}%</td><td>≤ 2%</td><td>${P(A1)}</td></tr>
+    <tr><td>A2 躁动单调 mean|Δ|/255</td><td>${f(stats[0.6].mad)} → ${f(stats[0.8].mad)} → ${f(stats[1.0].mad)}<br>RMS ${f(stats.baseRms)} → ${f(stats[0.6].rms)} → ${f(stats[1.0].rms)}</td><td>≥1.0 @u=.6，严格递增</td><td>${P(A2)}</td></tr>
+    <tr><td>A3 ±45° 双对角签名</td><td>diag/mean = ${f(diagRatio)}×</td><td>≥ 2.0×</td><td>${P(A3)}</td></tr>
+    <tr><td>A4 两帧活性 + 静态可读</td><td>两帧 mean|Δ| = ${f(twoFrame)}；冻结帧 mad(u=.6) = ${f(stats[0.6].mad)}</td><td>&gt;1.0 / ≥1.0</td><td>${P(A4)}</td></tr>
+  </table>
+  <p class="note">u=0 零保持由 shader 结构保证（<code>if(uU&gt;0.001)</code> 整块跳过，逐像素恒等）。</p>`;
+};
+</script>
+</body>
+</html>

@@ -4,65 +4,6 @@ exports[`projectArchipelagos — 78-island real dataset (packages/data) > full r
 [
   {
     "members": [
-      "adversarial-falsification-benchmark-science",
-      "minimal-genome",
-      "perennial-grain-crops",
-    ],
-    "name": "单细胞群岛",
-  },
-  {
-    "members": [
-      "code-dark-matter",
-      "deep-biosphere-extreme-life",
-      "ice-sheet-basal-ecology-subglacial",
-      "in-tissue-spatial-functional-genomics",
-      "vivo-hematopoietic-stem-cell-editing",
-    ],
-    "name": "地球群岛",
-  },
-  {
-    "members": [
-      "analog-solver",
-      "cable-bacteria-conductive-nanoribbons",
-      "chemical-vision",
-      "clonal-hematopoiesis-chip-personalized",
-      "end-to-end-advantage-accounting-reckoning",
-      "hyperuniformity-hidden-order-disorder",
-      "info-chemistry",
-      "soft-gradients-through-hard",
-    ],
-    "name": "分子机器群岛",
-  },
-  {
-    "members": [
-      "falsifiable-consciousness-metrology-organoids",
-      "genetically-encoded-rna-origami-cellular-hardware",
-      "miyake-anchors",
-    ],
-    "name": "合成生物群岛",
-  },
-  {
-    "members": [
-      "ai-assisted-theorem-proving",
-      "gravitational-coupling-milligram-source",
-      "proximal-causal-inference-negative-control",
-      "tabletop-quantum-gravity",
-    ],
-    "name": "基础物理群岛",
-  },
-  {
-    "members": [
-      "erasure-conversion-qubits-turning-loss",
-      "magic-state-cultivation-cheap",
-      "neural-reconstruction-real-to-sim-policy-evaluation",
-      "self-learning-matter",
-      "self-supervised-latent-world-models",
-      "stochastic-memristors-turning-device",
-    ],
-    "name": "具身基础模型群岛",
-  },
-  {
-    "members": [
       "3d-synthesizable-co-generation-joint",
       "active-inference",
       "adar-sensors",
@@ -75,13 +16,20 @@ exports[`projectArchipelagos — 78-island real dataset (packages/data) > full r
   },
   {
     "members": [
-      "artificial-photosynthesis",
-      "ferroelectric-in-memory-ising-annealer",
-      "living-wires",
-      "magnetic-levitational-bioassembly-label-",
-      "photonic-time-crystals-space-time",
+      "adversarial-falsification-benchmark-science",
+      "minimal-genome",
+      "perennial-grain-crops",
     ],
-    "name": "生物电子群岛",
+    "name": "单细胞群岛",
+  },
+  {
+    "members": [
+      "ai-assisted-theorem-proving",
+      "gravitational-coupling-milligram-source",
+      "proximal-causal-inference-negative-control",
+      "tabletop-quantum-gravity",
+    ],
+    "name": "基础物理群岛",
   },
   {
     "members": [
@@ -101,6 +49,29 @@ exports[`projectArchipelagos — 78-island real dataset (packages/data) > full r
   },
   {
     "members": [
+      "analog-solver",
+      "cable-bacteria-conductive-nanoribbons",
+      "chemical-vision",
+      "clonal-hematopoiesis-chip-personalized",
+      "end-to-end-advantage-accounting-reckoning",
+      "hyperuniformity-hidden-order-disorder",
+      "info-chemistry",
+      "soft-gradients-through-hard",
+    ],
+    "name": "分子机器群岛",
+  },
+  {
+    "members": [
+      "artificial-photosynthesis",
+      "ferroelectric-in-memory-ising-annealer",
+      "living-wires",
+      "magnetic-levitational-bioassembly-label-",
+      "photonic-time-crystals-space-time",
+    ],
+    "name": "生物电子群岛",
+  },
+  {
+    "members": [
       "bio-compute-thermo",
       "causal-rep-learning",
       "cosmological-origin-arrow-time",
@@ -108,17 +79,6 @@ exports[`projectArchipelagos — 78-island real dataset (packages/data) > full r
       "proximal-causal-identification-negative",
     ],
     "name": "因果科学群岛",
-  },
-  {
-    "members": [
-      "developmental-interpretability-singular-learning",
-      "differentiable-manufacturing-simulation-gradient-based",
-      "epistemic-boundaries-autonomous-science",
-      "structural-enforcement-statistical-rigor",
-      "verifiable-reward-discovery-agents-pushing",
-      "verified-pqc",
-    ],
-    "name": "自主科学发现群岛",
   },
   {
     "members": [
@@ -133,6 +93,46 @@ exports[`projectArchipelagos — 78-island real dataset (packages/data) > full r
       "triadic-percolation-connectivity-dynamical",
     ],
     "name": "AI数学群岛",
+  },
+  {
+    "members": [
+      "code-dark-matter",
+      "deep-biosphere-extreme-life",
+      "ice-sheet-basal-ecology-subglacial",
+      "in-tissue-spatial-functional-genomics",
+      "vivo-hematopoietic-stem-cell-editing",
+    ],
+    "name": "地球群岛",
+  },
+  {
+    "members": [
+      "developmental-interpretability-singular-learning",
+      "differentiable-manufacturing-simulation-gradient-based",
+      "epistemic-boundaries-autonomous-science",
+      "structural-enforcement-statistical-rigor",
+      "verifiable-reward-discovery-agents-pushing",
+      "verified-pqc",
+    ],
+    "name": "自主科学发现群岛",
+  },
+  {
+    "members": [
+      "erasure-conversion-qubits-turning-loss",
+      "magic-state-cultivation-cheap",
+      "neural-reconstruction-real-to-sim-policy-evaluation",
+      "self-learning-matter",
+      "self-supervised-latent-world-models",
+      "stochastic-memristors-turning-device",
+    ],
+    "name": "具身基础模型群岛",
+  },
+  {
+    "members": [
+      "falsifiable-consciousness-metrology-organoids",
+      "genetically-encoded-rna-origami-cellular-hardware",
+      "miyake-anchors",
+    ],
+    "name": "合成生物群岛",
   },
 ]
 `;

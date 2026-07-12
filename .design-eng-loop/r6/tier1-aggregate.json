@@ -1,0 +1,45 @@
+{
+  "round": 6,
+  "date": "2026-07-12",
+  "axisA_perDim_min": {
+    "accessibility": 2,
+    "performance": 4,
+    "theming": 2,
+    "responsive": 3,
+    "anti-patterns": 2,
+    "interaction": 3
+  },
+  "axisB_perDim_median": {
+    "H1": 4,
+    "H2": 4,
+    "H3": 3,
+    "H4": 4,
+    "H5": 3
+  },
+  "axisB_perDim_min": {
+    "H1": 4,
+    "H2": 4,
+    "H3": 3,
+    "H4": 3.5,
+    "H5": 3
+  },
+  "minA": 2,
+  "tEng": 3,
+  "axisA_pass": false,
+  "minB_median": 3,
+  "tTaste": 4,
+  "axisB_pass": false,
+  "divergentDims": [
+    "axisB H3: spread 2 (3,5,3) — expose, do not average",
+    "axisB H5: spread 1.5 (3,4.5,3) — expose, do not average"
+  ],
+  "weakestA": [
+    "accessibility",
+    "theming",
+    "anti-patterns"
+  ],
+  "weakestB": [
+    "H3",
+    "H5"
+  ]
+}
