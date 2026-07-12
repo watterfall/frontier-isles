@@ -30,7 +30,7 @@ export default function App() {
   const lang = i18n.language === 'en' ? 'en' : 'zh';
   const isMobile = useIsMobile();
   const scale = useStageScale();
-  const { islands, actor } = useAppData();
+  const { islands, actor, harbor } = useAppData();
 
   // ── screen / transition ──────────────────────────────────────────────
   const [wipe, dispatchWipe] = useReducer(wipeReducer, initialWipe('chart'));
@@ -342,6 +342,7 @@ export default function App() {
           {wipe.view === 'chart' && (
             <AtlasChartScreen
               islands={chartIslands}
+              harbor={harbor}
               filter={filter}
               onFilter={setFilter}
               hover={hover}

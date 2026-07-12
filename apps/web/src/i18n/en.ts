@@ -34,6 +34,8 @@ export const en: Resources = {
     zoomOut: 'Zoom out',
     resetView: 'Return to world view',
     resetShort: 'World',
+    harborReturn: 'Return to my harbor',
+    harborShort: 'Harbor',
     navigationHint: 'Drag to chart · wheel to zoom · tap to land',
     detailHint: 'Regions, isles, and research architecture emerge as you approach',
     legendOutlier: 'Outlier · anomaly glow',

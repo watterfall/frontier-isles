@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { api, type ApiIsland } from './client';
+import { api, type ApiHarbor, type ApiIsland } from './client';
 import { DATA, type IslandDatum } from './fallback';
 
 export type DataSource = 'loading' | 'api' | 'fallback';
@@ -11,6 +11,9 @@ export interface AppData {
   source: DataSource;
   /** Ledger actor id for POSTed events (dev fallback when no auth). */
   actor: string;
+  /** My Harbor (depth-plan-v1 §3(d)) — the session actor's footprint, or
+   *  `null` (logged out / offline): the atlas then opens world-wide. */
+  harbor: ApiHarbor | null;
 }
 
 /** Server growth stages are names (core GrowthStage); the chart layout indexes them. */
@@ -39,7 +42,7 @@ function reconcile(list: ApiIsland[]): IslandDatum[] {
  * the static fallback and the UI is identical (build-spec resilience rule).
  */
 export function useAppData(): AppData {
-  const [state, setState] = useState<AppData>({ islands: DATA, source: 'loading', actor: 'github:demo' });
+  const [state, setState] = useState<AppData>({ islands: DATA, source: 'loading', actor: 'github:demo', harbor: null });
 
   useEffect(() => {
     let alive = true;
@@ -51,10 +54,13 @@ export function useAppData(): AppData {
       const session = me ?? (list ? await api.devLogin('shen-kuo') : null);
       if (!alive) return;
       const actor = session?.handle ?? 'github:demo';
+      // My Harbor needs the session cookie the lines above just established.
+      const harbor = session ? await api.harbor() : null;
+      if (!alive) return;
       if (list && list.length > 0) {
-        setState({ islands: reconcile(list), source: 'api', actor });
+        setState({ islands: reconcile(list), source: 'api', actor, harbor });
       } else {
-        setState({ islands: DATA, source: 'fallback', actor });
+        setState({ islands: DATA, source: 'fallback', actor, harbor });
       }
     })();
     return () => {

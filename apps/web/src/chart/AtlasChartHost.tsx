@@ -12,9 +12,11 @@
  * (`chart/webgl.ts`) AND this component actually mounts, mirroring the
  * GeneratedIslandScreen → PixiScene lazy-load discipline exactly.
  */
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { AtlasStage } from '@frontier-isles/renderer/pixi';
 import { buildAtlasScene } from './atlasData';
+import { buildHarborView } from './harbor';
+import type { ApiHarbor } from '../api/client';
 import type { IslandDatum } from '../api/fallback';
 import type { AtlasControls, AtlasMetrics } from './atlasControls';
 
@@ -22,6 +24,10 @@ export interface AtlasChartHostProps {
   /** The app's current chart islands (fallback DATA reconciled with the live
    * API, plus any just-founded island) — same source `ChartScreen` renders. */
   islands: IslandDatum[];
+  /** My Harbor (depth-plan-v1 §3(d)) — the session actor's footprint from
+   * `api.harbor`. Present → the atlas opens at the harbor and far islands
+   * carry fog; `null`/absent → the plain world-wide open (removal test). */
+  harbor?: ApiHarbor | null;
   /** A tap/click on an island — mirrors the SVG chart's `onClick` → sails
    * into L1 (the same `onIsland` handler `App.tsx` already wires). */
   onPick: (d: IslandDatum) => void;
@@ -35,7 +41,7 @@ export interface AtlasChartHostProps {
   onMetrics?: (metrics: AtlasMetrics) => void;
 }
 
-export default function AtlasChartHost({ islands, onPick, onHoverIsland, onWebglError, onReady, onMetrics }: AtlasChartHostProps) {
+export default function AtlasChartHost({ islands, harbor, onPick, onHoverIsland, onWebglError, onReady, onMetrics }: AtlasChartHostProps) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const stageRef = useRef<AtlasStage | null>(null);
   // Latest callbacks in a ref so the boot effect (keyed only on `islands`,
@@ -43,6 +49,12 @@ export default function AtlasChartHost({ islands, onPick, onHoverIsland, onWebgl
   // never re-runs just because a parent re-render passed new closures.
   const cbRef = useRef({ onPick, onHoverIsland, onWebglError, onReady, onMetrics });
   cbRef.current = { onPick, onHoverIsland, onWebglError, onReady, onMetrics };
+  // One scene per island list — the boot effect AND the harbor effect below
+  // read the same object, so fog is always computed over the world actually
+  // on stage (never a re-derived twin that could drift).
+  const scene = useMemo(() => buildAtlasScene(islands), [islands]);
+  const harborRef = useRef(harbor ?? null);
+  harborRef.current = harbor ?? null;
 
   useEffect(() => {
     const host = hostRef.current;
@@ -77,9 +89,17 @@ export default function AtlasChartHost({ islands, onPick, onHoverIsland, onWebgl
           stage.destroy();
           return;
         }
-        const { islands: atlasIslands, clusters, continents, fog, flows, currents } = buildAtlasScene(islands);
-        stage.setIslands(atlasIslands, clusters);
-        stage.setClimate(continents, fog, flows, currents);
+        stage.setIslands(scene.islands, scene.clusters);
+        stage.setClimate(scene.continents, scene.fog, scene.flows, scene.currents);
+        // My Harbor (§3(d)): fog the far ocean and open AT the harbor — the
+        // gentle entry. When the footprint resolves later than the Pixi
+        // chunk, the effect below applies it instead.
+        const h = harborRef.current;
+        const view = h ? buildHarborView(scene, h.actorId, h.islandSlugs) : null;
+        if (view) {
+          stage.setHarbor(view);
+          stage.openAtHarbor();
+        }
         stageRef.current = stage;
         cbRef.current.onReady?.({
           zoomIn: () => stage.zoomBy(1.24),
@@ -88,6 +108,7 @@ export default function AtlasChartHost({ islands, onPick, onHoverIsland, onWebgl
           enter: (slug) => stage.enter(slug),
           focusDomain: (domain) => stage.focusDomain(domain),
           focusAltitude: (band) => stage.focusAltitude(band),
+          home: () => stage.returnToHarbor(),
         });
         resizeObserver = new ResizeObserver(([entry]) => {
           if (!entry || disposed) return;
@@ -110,6 +131,18 @@ export default function AtlasChartHost({ islands, onPick, onHoverIsland, onWebgl
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [islands]);
+
+  // The harbor fetch races the lazy Pixi chunk; when it loses, apply the fog
+  // here — and re-anchor the opening composition only if the visitor hasn't
+  // already sailed the camera somewhere themselves (`stage.touched`).
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage || !harbor) return;
+    const view = buildHarborView(scene, harbor.actorId, harbor.islandSlugs);
+    if (!view) return;
+    stage.setHarbor(view);
+    if (!stage.touched) stage.openAtHarbor();
+  }, [harbor, scene]);
 
   return <div ref={hostRef} style={{ position: 'absolute', inset: 0 }} />;
 }

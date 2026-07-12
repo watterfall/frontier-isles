@@ -36,6 +36,13 @@ export interface ApiMe {
   kind: 'human' | 'agent' | 'pair';
 }
 
+/** My Harbor (GET /api/harbor, depth-plan-v1 §3(d)) — the session actor's
+ * cross-island place-plane footprint (memberships + capability grants). */
+export interface ApiHarbor {
+  actorId: string;
+  islandSlugs: string[];
+}
+
 /** Sea-plane payload (GET /api/currents) — a projection over the whole ledger. */
 export interface ApiCurrent {
   from: string;
@@ -154,6 +161,14 @@ export const api = {
   },
 
   logout: () => req<{ ok: boolean }>('/api/auth/logout', { method: 'POST' }),
+
+  /** My Harbor (depth-plan-v1 §3(d)): the session actor's footprint. `null`
+   * when logged out or the server is absent — the atlas then opens
+   * world-wide, exactly as without a harbor (removal test §3(d)④). */
+  harbor: async (): Promise<ApiHarbor | null> => {
+    const res = await req<{ harbor: ApiHarbor | null }>('/api/harbor');
+    return res?.harbor ?? null;
+  },
 
   island: (slug: string) => req<unknown>(`/api/islands/${slug}`),
 

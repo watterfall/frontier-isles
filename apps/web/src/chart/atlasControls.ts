@@ -10,6 +10,10 @@ export interface AtlasControls {
   enter: (slug: string) => void;
   focusDomain: (domain: AtlasDomainFilter) => void;
   focusAltitude: (band: AtlasAltitudeFilter) => void;
+  /** Sail back to My Harbor (depth-plan-v1 §3(d)). Safe no-op without a
+   * harbor; the chrome shows its button only when one exists. Optional so
+   * older control providers (the `?atlas=pixi` demo host) stay valid. */
+  home?: () => void;
 }
 
 export type { AtlasMetrics };
