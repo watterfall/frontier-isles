@@ -96,7 +96,7 @@ _Immediately-actionable P1 work is **deploy** + **presence names**. The whiteboa
 5. Agent identity registry: keep `github:` prefixes vs `did:` for AI residents.
 6. Ratify `depth-plan-v2.md` invariants 14–16 into `architecture.md` once the sea-plane proves out (in its reworked on-demand form, §3.10) — and, once adopted, fold `depth-plan-v1.md` (invariants 10–13 + 17) and the nested-vertical-world contract in the same way (§3.12).
 7. **Who owns island altitude?** The atlas contract makes altitude pure cartography (`altitudeZ` = folded place-plane position, never meaning); `depth-plan-v1.md` §1 wanted sky/sea/seabed = epistemic groundedness. Options: (a) altitude stays cartographic, groundedness moves to a different channel (sea *depth* is already abstractness per v2 — the symmetric answer); (b) altitude becomes groundedness and cartography re-folds; (c) split by LOD. Must be decided before v1 ratification.
-8. Mobile write path: the mobile shell is deliberately read-only — a product decision is needed before founding / station work / ledger writes move to mobile (`ui-interaction-pass-2026-07-11.md` debt 2).
+8. ~~Mobile write path~~ — **resolved 2026-07-12** (`DECISIONS.md` #10): the mobile shell stays a read-only browse companion, frozen — no Pixi atlas, L1, or ledger writes on mobile; breakpoint raised 640 → 900 so the desktop stage only renders where it is legible. Reopen only if real mobile-writing demand appears (`ui-interaction-pass-2026-07-11.md` debt 2).
 
 ## 6 · Session log
 - **Slice 1** — monorepo, protocol, domain, renderer, assets, server, web, OAuth (`6915d23…431601c`).
