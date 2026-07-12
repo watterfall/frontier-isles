@@ -26,7 +26,7 @@ import { GeneratedSceneView } from '../../scene/GeneratedScene';
 import type { LayoutInput } from '../../scene/layout';
 import { replayToNight, type NightReplayState } from '../../scene/nightReplay';
 import { dueRituals, extractRitualEvents, loadWatermark, saveWatermark, type RitualEvent } from '../../scene/rituals';
-import { contentionFromRefuted } from '../../scene/undertow';
+import { contentionFromRefuted, refutedClaimCount } from '../../scene/undertow';
 
 // Ritual moments (depth-plan-v1 §6/§9 Batch 1): how often the live L1 re-polls
 // the ledger so a publish/transplant fired by someone else while you're
@@ -99,7 +99,7 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
   const [activeStations, setActiveStations] = useState<Set<StationKind> | undefined>(undefined);
   // 海即数据 (depth-plan-v2): substrate → sea darkness, refuted claims → undertow
   // contention, relation counts → the text decoder (invariant 6: honest encoding).
-  const [seaStats, setSeaStats] = useState<{ substrate?: number; validates: number; refutes: number; bridges: number; contention: number } | null>(null);
+  const [seaStats, setSeaStats] = useState<{ substrate?: number; validates: number; refutes: number; refuted: number; bridges: number; contention: number } | null>(null);
   const [failed, setFailed] = useState(false);
   const [noGpu, setNoGpu] = useState(false); // WebGL absent → fall back to the SVG scene
   // Claim-tower tap → detail panel (scene-upgrade OUTSTANDING P1). Local state,
@@ -205,11 +205,14 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
       // relation counts decode the sea for the reader (list-twin, not a painted key).
       const events = ledger ?? [];
       setActiveStations(ledger ? projectActiveStations(ledger, { now: Date.now() }) : undefined);
-      const refuted = projected?.filter((c) => c.ghost === 'refuted').length ?? 0;
+      // Single source (R7 Dim 1): the refuted-CLAIM count drives BOTH the undertow
+      // (contention) and its decoder readout below, so the two can never diverge.
+      const refuted = refutedClaimCount(projected);
       setSeaStats({
         substrate: det.object.frontier?.substrate,
         validates: events.filter((e) => e.action === 'validate').length,
         refutes: events.filter((e) => e.action === 'refute').length,
+        refuted,
         bridges: events.filter((e) => e.action.startsWith('bridge')).length,
         contention: contentionFromRefuted(refuted),
       });
@@ -318,7 +321,11 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
   const relParts: string[] = [];
   if (seaStats) {
     if (seaStats.validates) relParts.push(`${seaStats.validates} ${t('island.seaData.validate')}`);
-    if (seaStats.refutes) relParts.push(`${seaStats.refutes} ${t('island.seaData.refute')}`);
+    // The undertow reads refuted CLAIMS (ghosts) — decode the sea with that exact
+    // quantity (R7 Dim 1). Refute EVENTS are a different axis, labelled distinctly
+    // so neither number silently stands in for the other.
+    if (seaStats.refuted) relParts.push(`${seaStats.refuted} ${t('island.seaData.refutedClaims')}`);
+    if (seaStats.refutes) relParts.push(`${seaStats.refutes} ${t('island.seaData.refuteEvents')}`);
     if (seaStats.bridges) relParts.push(`${seaStats.bridges} ${t('island.seaData.bridge')}`);
   }
   // Cascade: day defaults ← domain tint ← night override (§1: palette only, never shape).

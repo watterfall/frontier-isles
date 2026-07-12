@@ -98,6 +98,8 @@ export const zh = {
       abstract: { hi: '偏理论', mid: '居中', lo: '偏应用' },
       validate: '验证',
       refute: '驳斥',
+      refutedClaims: '被驳斥主张',
+      refuteEvents: '驳斥事件',
       bridge: '桥接',
     },
     academy: '书院',

@@ -1,26 +1,29 @@
 /**
- * R6 Lever 1 golden — the claim seal must transcribe the ledger's published
- * state, not a hardcoded default. Before the fix `makeClaimMark` always fed
- * `drawSeal(…, false)`, so every claim rendered a preprint open-mark even when
- * `ClaimState.hasDoi` was true (the detail panel showed the real DOI → the seal
- * contradicted it). This pins the wire: `growth.hasDoi === true` ⇒ a solid DOI
- * stamp (fill 0xb5673a); false ⇒ no such fill.
+ * Claim-seal goldens.
+ *
+ * R6 Lever 1: the seal transcribes the ledger's published state, not a hardcoded
+ * default — `growth.hasDoi === true` ⇒ a solid DOI stamp; false ⇒ no such fill.
+ * R7 ride-along A: the DOI stamp uses the dedicated DOI_SEAL_INK token, distinct
+ * from the 物质 domain ink it used to collide with.
+ * R7 ride-along D: a published-then-refuted GHOST tower still draws a (spectral)
+ * seal, so the faded mark keeps agreeing with the detail panel's DOI status.
+ * R7 ride-along C: prefers-reduced-motion reaches the stage.
  */
 import { describe, expect, it } from 'vitest';
 import { Container, Graphics } from 'pixi.js';
 import { SceneStage } from '../src/pixi/scene-stage';
+import { DOI_SEAL_INK } from '../src/pixi/palette';
 import type { SceneObject } from '../src/scene';
 
-/** The published DOI seal's solid fill (drawSeal). */
-const DOI_FILL = 0xb5673a;
+type Instruction = { action: string; data: { style?: { color?: number } } };
 
 /**
- * A minimal non-spectral claim object. biome '数理' has palette
- * { fill: 0xc9d8e6, ink: 0x2e5e8c } — neither is DOI_FILL, and makeClaimMark
- * never uses dom.ink as a fill, so a DOI_FILL *fill* can only originate from
- * drawSeal's published stamp. dayVisibility 1 ⇒ not spectral ⇒ the seal draws.
+ * A claim object. biome '数理' has palette { fill: 0xc9d8e6, ink: 0x2e5e8c } —
+ * neither is DOI_SEAL_INK, and makeClaimMark never uses dom.ink as a fill, so a
+ * DOI_SEAL_INK *fill* can only come from drawSeal's published stamp. dayVisibility
+ * 1 ⇒ not spectral; 0 ⇒ spectral (night-only ghost tower).
  */
-const claim = (hasDoi: boolean): SceneObject => ({
+const claim = (hasDoi: boolean, spectral = false): SceneObject => ({
   id: 'claim:0',
   kind: 'claim',
   gx: 4,
@@ -28,7 +31,7 @@ const claim = (hasDoi: boolean): SceneObject => ({
   layer: 'world',
   elevation: 0,
   depthKey: 0,
-  dayVisibility: 1,
+  dayVisibility: spectral ? 0 : 1,
   nightVisibility: 1,
   lodLevel: 'Z2',
   biome: '数理',
@@ -37,30 +40,59 @@ const claim = (hasDoi: boolean): SceneObject => ({
   growth: { foundation: true, floors: 2, roof: false, hasDoi },
 });
 
-/** Count solid fills of the DOI seal colour across the mark's Graphics children. */
-function doiFillCount(mark: Container): number {
-  let n = 0;
+const instructions = (mark: Container): Instruction[] => {
+  const out: Instruction[] = [];
   for (const child of mark.children) {
     if (!(child instanceof Graphics)) continue;
-    const ctx = (child as unknown as {
-      context: { instructions: Array<{ action: string; data: { style?: { color?: number } } }> };
-    }).context;
-    for (const ins of ctx.instructions) {
-      if (ins.action === 'fill' && ins.data.style?.color === DOI_FILL) n++;
-    }
+    const ctx = (child as unknown as { context: { instructions: Instruction[] } }).context;
+    out.push(...ctx.instructions);
   }
-  return n;
-}
+  return out;
+};
+
+/** Count solid fills of the DOI seal colour across the mark's Graphics children. */
+const doiFillCount = (mark: Container): number =>
+  instructions(mark).filter((ins) => ins.action === 'fill' && ins.data.style?.color === DOI_SEAL_INK).length;
 
 const makeMark = (o: SceneObject): Container =>
   (new SceneStage() as unknown as { makeClaimMark(x: SceneObject): Container }).makeClaimMark(o);
 
-describe('makeClaimMark DOI seal (R6 Lever 1 golden)', () => {
-  it('stamps a solid DOI fill (0xb5673a) when growth.hasDoi is true', () => {
+describe('makeClaimMark DOI seal (R6 Lever 1 + R7 ride-along A)', () => {
+  it('stamps a solid DOI fill in the dedicated DOI_SEAL_INK when growth.hasDoi is true', () => {
     expect(doiFillCount(makeMark(claim(true)))).toBeGreaterThanOrEqual(1);
   });
 
   it('draws no DOI fill when growth.hasDoi is false (honest preprint open-mark)', () => {
     expect(doiFillCount(makeMark(claim(false)))).toBe(0);
+  });
+
+  it('uses an ink distinct from the 物质 domain ink 0xb5673a (collision killed)', () => {
+    expect(DOI_SEAL_INK).not.toBe(0xb5673a);
+  });
+});
+
+describe('makeClaimMark spectral seal (R7 ride-along D — seal↔panel parity for ghosts)', () => {
+  it('a published-then-refuted ghost still draws a seal (more geometry than a preprint ghost)', () => {
+    const publishedGhost = instructions(makeMark(claim(true, true))).length;
+    const preprintGhost = instructions(makeMark(claim(false, true))).length;
+    // The ONLY hasDoi-dependent geometry in a spectral tower is the seal, so the
+    // published ghost carries the extra spectral seal strokes the preprint lacks.
+    expect(publishedGhost).toBeGreaterThan(preprintGhost);
+  });
+
+  it('the spectral seal is stroke-only — never the solid DOI fill (stays translucent)', () => {
+    expect(doiFillCount(makeMark(claim(true, true)))).toBe(0);
+  });
+});
+
+describe('SceneStage reduced-motion plumbing (R7 ride-along C)', () => {
+  it('accepts and stores prefers-reduced-motion (the a11y pipe reaches the stage)', () => {
+    const s = new SceneStage();
+    const read = () => (s as unknown as { reducedMotion: boolean }).reducedMotion;
+    expect(read()).toBe(false);
+    s.setReducedMotion(true);
+    expect(read()).toBe(true);
+    s.setReducedMotion(false);
+    expect(read()).toBe(false);
   });
 });

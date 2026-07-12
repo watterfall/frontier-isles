@@ -23,7 +23,8 @@
   --fi-azurite: #2E5E8C;         /* 石青 · 主行动/链接/数理 */
   --fi-azurite-deep: #1E4266;    /* 石青深 · 屋瓦/按压态 */
   --fi-malachite: #3E9B7E;       /* 石绿 · 生长/成功/生命 */
-  --fi-ochre: #B5673A;           /* 赭石 · 次行动/桥/印章/物质 */
+  --fi-ochre: #B5673A;           /* 赭石 · 次行动/桥/物质 */
+  --fi-seal-doi: #A8481C;        /* DOI 印章专属墨 · 深赭,区别于四个域墨(尤其物质 #B5673A) — R7 ride-along A; 对应 renderer DOI_SEAL_INK */
   --fi-gamboge: #E3A93C;         /* 藤黄 · 点睛/聚焦/离群发光 */
   --fi-lantern: #F5B94B;         /* 灯笼暖光 · 夜晚点亮 */
   --fi-water: #C8D8E4;           /* 水 · 海面/池 */
@@ -78,6 +79,18 @@
   --fi-domain-life-ink: #2B7A5F;
   --fi-domain-cross-fill: #ECDFB4;  /* 交叉 */
   --fi-domain-cross-ink: #A08428;
+}
+
+/* 海色 · per-domain water (海即数据) — R7 ride-along B / GenA #8.
+   Runtime source of truth: apps/web/src/scene/PixiScene.tsx SEA_COLORS (0..1 rgb,
+   fed to sea-mesh uSeaColor/uDeepColor/uFoamColor). These hex are the frozen
+   transcription of those values so the design system renders the sea faithfully —
+   keep in lock-step with SEA_COLORS if it changes. */
+:root {
+  --fi-water-math-sea: #BCCEDC;   --fi-water-math-deep: #A6BED0;   --fi-water-math-foam: #F0EAD8;   /* 数理 */
+  --fi-water-matter-sea: #C8D8CC; --fi-water-matter-deep: #B2C6B8; --fi-water-matter-foam: #F0EAD8; /* 物质 */
+  --fi-water-life-sea: #B8D4C4;   --fi-water-life-deep: #A0C2B0;   --fi-water-life-foam: #EEF0DC;   /* 生命 */
+  --fi-water-cross-sea: #CCC8D8;  --fi-water-cross-deep: #B6B2CC;  --fi-water-cross-foam: #F0EAD8;  /* 交叉 */
 }
 
 @keyframes breathe {

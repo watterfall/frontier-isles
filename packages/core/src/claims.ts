@@ -163,5 +163,9 @@ export function projectClaimState(events: readonly LedgerEvent[]): ClaimState[] 
       activity: group.length,
     });
   }
-  return out.sort((a, b) => a.ref.localeCompare(b.ref));
+  // ASCII code-point order, NOT localeCompare: `ref` is a `sha256:hex` string, so
+  // a locale-sensitive collation would order it differently across environments
+  // (same class of drift the archipelago roster snapshot hit, R6). Low-risk here
+  // (hex is ASCII) but kept consistent with that fix.
+  return out.sort((a, b) => (a.ref < b.ref ? -1 : a.ref > b.ref ? 1 : 0));
 }

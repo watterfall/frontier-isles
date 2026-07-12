@@ -4,7 +4,7 @@
  * properties the sea depends on: an explicit calm-sea zero, and monotonicity.
  */
 import { describe, expect, it } from 'vitest';
-import { contentionFromRefuted } from '../scene/undertow';
+import { contentionFromRefuted, refutedClaimCount } from '../scene/undertow';
 
 describe('contentionFromRefuted (R6 Lever 2 undertow curve)', () => {
   it('maps refute count to the recalibrated contention magnitude', () => {
@@ -34,5 +34,35 @@ describe('contentionFromRefuted (R6 Lever 2 undertow curve)', () => {
     // The old curve saturated at 2 refutes (2 → 1.0), so 2 and 3 were identical.
     const vals = [contentionFromRefuted(1), contentionFromRefuted(2), contentionFromRefuted(3)];
     expect(new Set(vals).size).toBe(3);
+  });
+});
+
+describe('refutedClaimCount — undertow single source (R7 Dim 1)', () => {
+  const claims = [
+    { ref: 'a', ghost: 'refuted' },
+    { ref: 'b', ghost: 'refuted' },
+    { ref: 'c', ghost: 'returned' }, // NOT a refuted claim
+    { ref: 'd' }, // healthy claim
+  ];
+
+  it('counts refuted (ghost) CLAIMS only — not returned, not healthy', () => {
+    expect(refutedClaimCount(claims)).toBe(2);
+    expect(refutedClaimCount([])).toBe(0);
+    expect(refutedClaimCount(null)).toBe(0);
+    expect(refutedClaimCount(undefined)).toBe(0);
+  });
+
+  it('is the SINGLE source: the decoder readout and the undertow read the same value', () => {
+    // The component shows `refutedClaimCount(claims)` in the decoder AND feeds the
+    // very same number into contentionFromRefuted for the sea. Pin that they are
+    // one quantity, so the legend can never drift from what drives the swirl.
+    const decoderReadout = refutedClaimCount(claims);
+    const seaMagnitude = contentionFromRefuted(refutedClaimCount(claims));
+    expect(decoderReadout).toBe(2);
+    expect(seaMagnitude).toBe(contentionFromRefuted(decoderReadout));
+    // And it is NOT the count of refute EVENTS (a distinct, larger axis): a claim
+    // refuted by 3 events is still one refuted claim.
+    const eventCount = 3;
+    expect(decoderReadout).not.toBe(eventCount);
   });
 });

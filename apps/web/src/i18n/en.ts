@@ -99,6 +99,8 @@ export const en: Resources = {
       abstract: { hi: 'theoretical', mid: 'mixed', lo: 'applied' },
       validate: 'validated',
       refute: 'refuted',
+      refutedClaims: 'refuted claims',
+      refuteEvents: 'refute events',
       bridge: 'bridges',
     },
     academy: 'Academy',

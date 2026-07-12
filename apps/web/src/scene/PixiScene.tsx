@@ -196,6 +196,9 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
         // Pass the host DIV (not a shared canvas): Pixi creates its own canvas so
         // StrictMode's double-mount can't tear one canvas out from under the other.
         await s.init(el, { width: Math.max(1, el.clientWidth), height: Math.max(1, el.clientHeight), background: 0xf2ecd9, backgroundAlpha: 1 }); // warm paper (design base)
+        // a11y (R7 ride-along C): set BEFORE render()/buildSea so the sea + micro-
+        // dynamics tickers are gated from the first frame, not just via CSS.
+        s.setReducedMotion(reducedMotionRef.current);
       } catch (e) {
         if (!disposed) cbRef.current.onWebglError?.(String(e));
         return;
@@ -354,6 +357,12 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
   useEffect(() => {
     stageRef.current?.setUndertow(undertow);
   }, [undertow]);
+
+  // prefers-reduced-motion → freeze/thaw the WebGL sea + micro-dynamics (a11y, R7
+  // ride-along C). CSS's reduced-motion kill switch never reaches the Pixi ticker.
+  useEffect(() => {
+    stageRef.current?.setReducedMotion(reducedMotion);
+  }, [reducedMotion]);
 
   // Render-cost sampler for the dev HUD (no-op if the parent passed no onMetrics).
   useEffect(() => {
