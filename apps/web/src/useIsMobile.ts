@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 
-/** Mobile breakpoint per the build spec: viewport width < 640 renders the
- *  read-only mobile shell (artboard 3b). */
+/** Compact breakpoint (DECISIONS.md #10): viewport width < 900 renders the
+ *  read-only mobile shell (artboard 3b). Below 900 the fixed 1440×900 desktop
+ *  stage would scale under ~60% and stop being legible, so the shell only
+ *  appears where it can actually carry the atlas; everything narrower gets
+ *  the browse companion instead. */
 export function useIsMobile(): boolean {
-  const [mobile, setMobile] = useState(() => (typeof window === 'undefined' ? false : window.innerWidth < 640));
+  const [mobile, setMobile] = useState(() => (typeof window === 'undefined' ? false : window.innerWidth < 900));
   useEffect(() => {
-    const on = () => setMobile(window.innerWidth < 640);
+    const on = () => setMobile(window.innerWidth < 900);
     window.addEventListener('resize', on);
     return () => window.removeEventListener('resize', on);
   }, []);
