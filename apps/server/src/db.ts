@@ -45,6 +45,17 @@ CREATE TABLE IF NOT EXISTS refs (
   json TEXT NOT NULL
 );
 
+-- Structures (执行纲要 §九): the portable "结构" half of the 结构 ⇄ 现象 bipartite
+-- graph. Knowledge plane, like problem_objects: md_source is authoritative and
+-- round-trips through opp's parser (§6 leavability). Edges are NOT stored here —
+-- they are a reduce over rebuild ledger events (inv 14/15).
+CREATE TABLE IF NOT EXISTS structure_objects (
+  id         TEXT PRIMARY KEY,
+  slug       TEXT UNIQUE NOT NULL,
+  md_source  TEXT NOT NULL,
+  status     TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS stations (
   op_id TEXT NOT NULL,
   kind  TEXT NOT NULL,

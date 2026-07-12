@@ -22,6 +22,7 @@ export type RefKind =
   | "data_ref"
   | "hardware_ref"
   | "canvas_snapshot"
+  | "mapping"
   | "note";
 
 /** `sha256:<64 hex>` over the canonical JSON of `content`. */

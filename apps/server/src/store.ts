@@ -3,8 +3,11 @@ import {
   hashEvent,
   parseProblemObject,
   serializeProblemObject,
+  parseStructureObject,
+  serializeStructureObject,
   ProblemObjectSchema,
   verifyChain,
+  type StructureObject,
   type Actor,
   type ActionType,
   type FlowType,
@@ -361,6 +364,36 @@ export class Store {
         object.qfocus,
         JSON.stringify(meta),
       );
+  }
+
+  // --- structures (执行纲要 §九, knowledge plane) ----------------------------
+
+  /** Insert a structure object. md_source is authoritative + round-trips (§6).
+   *  Idempotent on id. slug is the last struct:// path segment. */
+  insertStructure(object: StructureObject): void {
+    const slug = structSlugOf(object.id);
+    this.db
+      .prepare(
+        `INSERT OR IGNORE INTO structure_objects (id, slug, md_source, status) VALUES (?, ?, ?, ?)`,
+      )
+      .run(object.id, slug, serializeStructureObject(object), object.status);
+  }
+
+  /** All structures (parsed from their authoritative md). */
+  listStructures(): StructureObject[] {
+    const rows = this.db
+      .prepare("SELECT md_source FROM structure_objects ORDER BY id")
+      .all() as { md_source: string }[];
+    return rows.map((r) => parseStructureObject(r.md_source));
+  }
+
+  /** One structure by slug — object + raw md (for the .md leavability route). */
+  getStructure(slug: string): { object: StructureObject; md: string } | undefined {
+    const row = this.db
+      .prepare("SELECT md_source FROM structure_objects WHERE slug = ?")
+      .get(slug) as { md_source: string } | undefined;
+    if (!row) return undefined;
+    return { object: parseStructureObject(row.md_source), md: row.md_source };
   }
 
   // --- ledger ---------------------------------------------------------------
@@ -1064,6 +1097,12 @@ export class Store {
 export function slugOf(opId: string): string {
   const m = /\/prob\/([^/]+)$/.exec(opId);
   return m?.[1] ?? opId;
+}
+
+/** Last path segment of a `struct://<org>/<slug>` id. */
+export function structSlugOf(structId: string): string {
+  const m = /\/([^/]+)$/.exec(structId);
+  return m?.[1] ?? structId;
 }
 
 function randomToken(): string {
