@@ -87,17 +87,44 @@ describe('flagship island interiors (rich station content)', () => {
     // 交叉
     'animal-ai-decode', 'verified-pqc', 'ai-theory-discovery',
   ];
+  // Batch-2 interior expansion (2026-07): 36 more islands, 9 per domain, same
+  // schema and quality bar as the 12 flagships. Assembled in packages/data
+  // interiors-2.ts; see docs/interiors-batch-plan.md.
+  const BATCH2 = [
+    // 数理
+    'bio-compute-thermo', 'triadic-percolation-connectivity-dynamical', 'ai-assisted-theorem-proving',
+    'coarse-graining-free-causal-emergence-dynamical', 'compositional-modeling', 'category-theory-algebraic-theory',
+    'gravitational-coupling-milligram-source', 'emergent-conventions-collective-bias-tipping',
+    'category-theoretic-compositional-scientific-modeling',
+    // 物质
+    'rock-battery', 'photonic-time-crystals-space-time', 'ferroelectric-in-memory-ising-annealer',
+    'magnetic-levitational-bioassembly-label-', 'neural-reconstruction-real-to-sim-policy-evaluation',
+    'erasure-conversion-qubits-turning-loss', 'soft-gradients-through-hard', 'hyperuniformity-hidden-order-disorder',
+    'self-supervised-latent-world-models',
+    // 生命
+    'miyake-anchors', 'code-dark-matter', 'vivo-hematopoietic-stem-cell-editing', 'adar-sensors',
+    'ancient-dna-paleoproteomics', '3d-synthesizable-co-generation-joint',
+    'genetically-encoded-rna-origami-cellular-hardware', 'adversarial-falsification-benchmark-science',
+    'perennial-grain-crops',
+    // 交叉
+    'calibration-problem-artificial-consciousness', 'epistemic-boundaries-autonomous-science',
+    'idiographic-dynamic-network-psychology', 'verifiable-reward-discovery-agents-pushing',
+    'stimulated-raman-activated-cell-ejection', 'complexity-consciousness-proxy-brain',
+    'complexity-theoretic-debate-provable-protocols', 'invertebrate-sentience',
+    'biological-computationalism-substrate-inseparability-criterion',
+  ];
+  const ALL_INTERIOR = [...FLAGSHIPS, ...BATCH2];
   const bilingual = (o: unknown): boolean =>
     !!o && typeof (o as { zh?: unknown }).zh === 'string' && typeof (o as { en?: unknown }).en === 'string'
     && !!(o as { zh: string }).zh && !!(o as { en: string }).en;
 
-  it('exactly the 12 curated flagships carry an interior', () => {
+  it('exactly the 48 curated islands carry an interior (12 flagships + 36 batch-2)', () => {
     const withInterior = DATA.filter((d) => d.interior).map((d) => d.slug).sort();
-    expect(withInterior).toEqual([...FLAGSHIPS].sort());
+    expect(withInterior).toEqual([...ALL_INTERIOR].sort());
   });
 
-  it('every flagship interior is well-formed and bilingual, with real citations', () => {
-    for (const slug of FLAGSHIPS) {
+  it('every interior is well-formed and bilingual, with real citations', () => {
+    for (const slug of ALL_INTERIOR) {
       const d = DATA.find((x) => x.slug === slug)!;
       expect(d, `${slug} present`).toBeTruthy();
       // A rich island reads as an academy/school — never empty/hut.
