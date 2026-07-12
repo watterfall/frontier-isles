@@ -33,6 +33,9 @@ export const ActionTypeSchema = z.enum([
   "bridge_accept",
   "grant_capability",
   "night_digest",
+  // A human rebuilds a cross-substrate structure on this island — the edge of
+  // the 结构 ⇄ 现象 bipartite graph (执行纲要 §九). `ref` → the mapping artifact.
+  "rebuild",
 ]);
 export type ActionType = z.infer<typeof ActionTypeSchema>;
 

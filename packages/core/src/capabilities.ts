@@ -60,6 +60,10 @@ export const ACTION_CAPABILITY: Record<GatewayAction, Capability> = {
   transplant: "station_write",
   fork: "station_write",
   merge_back: "station_write",
+  // rebuild = a human maps a structure onto this island (执行纲要 §九). It is a
+  // station-write push, so an ungranted AGENT's rebuild degrades to a dock
+  // proposal — the mapping (§六.1) can only ever be authored by a human.
+  rebuild: "station_write",
   validate: "validate",
   publish: "publish",
   // bridges / governance

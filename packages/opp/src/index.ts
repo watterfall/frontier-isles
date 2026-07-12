@@ -48,6 +48,21 @@ export {
 } from "./markdown";
 export type { ProblemBody, ParsedProblemObject } from "./markdown";
 
+// Structure object (结构 ⇄ 现象 bipartite graph — 执行纲要 §九)
+export {
+  StructureObjectSchema,
+  StructureStatusSchema,
+  StructId,
+  STRUCT_ID_RE,
+  serializeStructureObject,
+  parseStructureObject,
+} from "./structure-object";
+export type {
+  StructureObject,
+  StructureObjectInput,
+  StructureStatus,
+} from "./structure-object";
+
 // Ledger
 export {
   LedgerEventSchema,

@@ -26,6 +26,7 @@ const GATEWAY_ACTIONS = new Set<string>([
   "bridge_accept",
   "grant_capability",
   "night_digest",
+  "rebuild",
   "create_driftwood",
   "attach_data",
   "attach_hardware",

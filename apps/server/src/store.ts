@@ -74,6 +74,7 @@ const LEDGER_ACTION: Record<GatewayAction, ActionType> = {
   bridge_accept: "bridge_accept",
   grant_capability: "grant_capability",
   night_digest: "night_digest",
+  rebuild: "rebuild",
   // MCP write actions with no native ActionType record as a night digest / note.
   create_driftwood: "night_digest",
   attach_data: "night_digest",
@@ -91,6 +92,7 @@ const DEFAULT_PHASE: Record<GatewayAction, Phase> = {
   bridge_propose: "B",
   bridge_accept: "B",
   transplant: "B",
+  rebuild: "B",
   attach_data: "B",
   attach_hardware: "B",
   submit_claim: "D",
@@ -109,6 +111,7 @@ const DEFAULT_STATION: Partial<Record<GatewayAction, StationKind>> = {
   validate: "workshop",
   bridge_artifact: "dock",
   transplant: "dock",
+  rebuild: "dock",
   create_driftwood: "driftwood",
   return_to_driftwood: "driftwood",
   attach_data: "data",
