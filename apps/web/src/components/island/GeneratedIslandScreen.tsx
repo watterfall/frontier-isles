@@ -200,7 +200,8 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
       setTimeline(tl);
       setScrubNight(tl.nights);
       setReplay(null);
-      // 海即数据 readouts: contention = unresolved-refute magnitude (→ undertow);
+      // 海即数据 readouts: contention = ever-refuted magnitude (a refute is one-way;
+      // no resolution verb exists yet — see R7 semantic issue) (→ undertow);
       // relation counts decode the sea for the reader (list-twin, not a painted key).
       const events = ledger ?? [];
       setActiveStations(ledger ? projectActiveStations(ledger, { now: Date.now() }) : undefined);

@@ -1007,8 +1007,9 @@ export class SceneStage {
 
   /**
    * Set the disputed-sea undertow. Accepts a boolean (M2 dev toggle) OR a 0..1
-   * contention magnitude (海即数据: this island's unresolved-refute intensity —
-   * depth-plan-v2 §3 whirlpool, data-bound not decorative).
+   * contention magnitude (海即数据: this island's ever-refuted intensity — a refute
+   * is one-way, no resolution verb exists yet, see R7; depth-plan-v2 §3 whirlpool,
+   * data-bound not decorative).
    */
   setUndertow(on: boolean | number): void {
     const v = typeof on === 'number' ? Math.max(0, Math.min(1, on)) : on ? 1 : 0;
