@@ -57,6 +57,19 @@ describe("structures API (执行纲要 §九)", () => {
     const led = await ledgerText("self-learning-matter"); // a synchronization island, not scaling
     expect(led).toContain('"action":"rebuild"');
   });
+
+  it("GET /api/structures/graph reduces real edges + frontier from the ledger", async () => {
+    const g = await jsonOf(await app.request("/api/structures/graph"));
+    // network-cascade has 3 seeded edges; synchronization 1; scaling 0.
+    const cascadeEdges = g.edges.filter((e: { structureId: string }) => e.structureId.endsWith("network-cascade"));
+    expect(cascadeEdges.length).toBe(3);
+    const scaling = g.frontier.find((f: { structureId: string }) => f.structureId.endsWith("scaling"));
+    // scaling is unmapped → absent from the frontier (no edges → no entry).
+    expect(scaling).toBeUndefined();
+    const cascade = g.frontier.find((f: { structureId: string }) => f.structureId.endsWith("network-cascade"));
+    expect(cascade.rebuilt.length).toBe(3);
+    expect(Array.isArray(cascade.gaps)).toBe(true);
+  });
 });
 
 describe("rebuild gateway red-line (§六.1: only humans author mappings)", () => {

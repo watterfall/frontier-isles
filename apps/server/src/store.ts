@@ -38,10 +38,15 @@ import {
   projectWhirlpools,
   projectMorningReport,
   buildTransplant,
+  reduceStructureGraph,
+  structureFrontier,
   type BridgeArtifactType,
   type Current,
   type Whirlpool,
   type MorningReportEntry,
+  type MappingArtifact,
+  type StructureEdge,
+  type StructureFrontier,
 } from "@frontier-isles/core";
 import { domainToVec, type IslandInterior } from "@frontier-isles/data";
 import type { DB } from "./db.js";
@@ -394,6 +399,29 @@ export class Store {
       .get(slug) as { md_source: string } | undefined;
     if (!row) return undefined;
     return { object: parseStructureObject(row.md_source), md: row.md_source };
+  }
+
+  /**
+   * The 结构 ⇄ 现象 bipartite graph as a pure reduce over the WHOLE ledger
+   * (执行纲要 §九): rebuild events whose ref resolves to a mapping become edges;
+   * structureFrontier then derives each structure's rebuilt islands + near gaps.
+   * No edge is stored — this is `reduce`, not a relation table (inv 14/15).
+   */
+  structureGraph(): { edges: StructureEdge[]; frontier: StructureFrontier[] } {
+    const rows = this.listProblemRows();
+    const events: LedgerEvent[] = [];
+    for (const r of rows) events.push(...this.getEvents(r.opId));
+    const resolveRef = (ref: string): MappingArtifact | null => {
+      const r = this.getRef(ref);
+      return r && r.kind === "mapping" ? (r.content as MappingArtifact) : null;
+    };
+    const edges = reduceStructureGraph(events, resolveRef);
+    const islands = rows.map((r) => ({
+      op: r.opId,
+      domain: r.meta.domain,
+      cluster: r.meta.atlas?.cluster.code,
+    }));
+    return { edges, frontier: structureFrontier(edges, islands) };
   }
 
   // --- ledger ---------------------------------------------------------------

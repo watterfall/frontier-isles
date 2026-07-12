@@ -178,6 +178,10 @@ export function createApp(store: Store): Hono {
 
   app.get("/api/structures", (c) => c.json({ structures: store.listStructures() }));
 
+  // The bipartite graph (edges + per-structure frontier), reduced over the whole
+  // ledger. MUST be registered before `/:id` so "graph" is not read as a slug.
+  app.get("/api/structures/graph", (c) => c.json(store.structureGraph()));
+
   // `:id` may be `<slug>` (JSON) or `<slug>.md` (the leavable markdown, §6).
   app.get("/api/structures/:id", (c) => {
     const id = c.req.param("id");
