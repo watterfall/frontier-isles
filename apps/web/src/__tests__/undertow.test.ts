@@ -4,7 +4,7 @@
  * properties the sea depends on: an explicit calm-sea zero, and monotonicity.
  */
 import { describe, expect, it } from 'vitest';
-import { contentionFromRefuted, refutedClaimCount } from '../scene/undertow';
+import { agitationChannel, contentionFromRefuted, refutedClaimCount } from '../scene/undertow';
 
 describe('contentionFromRefuted (R6 Lever 2 contention→agitation curve)', () => {
   it('maps refute count to the recalibrated contention magnitude', () => {
@@ -52,17 +52,16 @@ describe('refutedClaimCount — agitation single source (R7 Dim 1)', () => {
     expect(refutedClaimCount(undefined)).toBe(0);
   });
 
-  it('is the SINGLE source: the decoder readout and the undertow read the same value', () => {
-    // The component shows `refutedClaimCount(claims)` in the decoder AND feeds the
-    // very same number into contentionFromRefuted for the sea. Pin that they are
-    // one quantity, so the legend can never drift from what drives the swirl.
-    const decoderReadout = refutedClaimCount(claims);
-    const seaMagnitude = contentionFromRefuted(refutedClaimCount(claims));
-    expect(decoderReadout).toBe(2);
-    expect(seaMagnitude).toBe(contentionFromRefuted(decoderReadout));
-    // And it is NOT the count of refute EVENTS (a distinct, larger axis): a claim
-    // refuted by 3 events is still one refuted claim.
-    const eventCount = 3;
-    expect(decoderReadout).not.toBe(eventCount);
+  it('is the SINGLE source: agitationChannel yields decoder count + sea magnitude from ONE call', () => {
+    // The component destructures agitationChannel(projected): the SAME object's
+    // .refuted feeds the decoder legend and .contention feeds uAgitation. Pin that
+    // .contention is exactly contentionFromRefuted(.refuted) — they cannot be
+    // derived from divergent quantities (the H1+H5 near-lie this closes).
+    const ch = agitationChannel(claims);
+    expect(ch.refuted).toBe(2); // what the decoder renders
+    expect(ch.contention).toBe(contentionFromRefuted(ch.refuted)); // what drives the swirl
+    // .refuted is refuted-CLAIMS, never refute-EVENTS: a claim refuted by 3 events
+    // is still one refuted claim → the decoder must not show the event count.
+    expect(ch.refuted).not.toBe(3);
   });
 });

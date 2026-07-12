@@ -98,7 +98,6 @@ export const en: Resources = {
       depth: 'sea depth',
       abstract: { hi: 'theoretical', mid: 'mixed', lo: 'applied' },
       validate: 'validated',
-      refute: 'refuted',
       refutedClaims: 'refuted claims',
       refuteEvents: 'refute events',
       bridge: 'bridges',

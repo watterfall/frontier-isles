@@ -155,15 +155,18 @@ void main() {
   col *= (1.0 - uDepth);
 
   // Agitation: contention as SURFACE CHOP, not a darkening (R7 Dim 2). Disputed
-  // seas get a zero-mean cross-hatched chop weave that rides the water's own
-  // shallow-to-deep colour swing, so it reads as "agitated water" WITHOUT shifting
-  // the mean luminance — the old undertow wrote lightness (mix toward col*0.5); that
-  // is retired. Two crossed sine trains (different frequencies/drifts) make an
-  // anisotropic +/-45deg weave; a low-frequency noise breaks up the regularity; an
-  // fbm zone mask concentrates it in patches whose lower edge opens with uAgitation.
-  // shoreExcl (Gen-D) hard-excludes the coastal band so shore foam stays clean; open
-  // keeps it off land. Zero-preservation (AC5): the uAgitation > 0.001 guard AND the
-  // (3.0 * uAgitation) factor both make u=0 pixel-identical to no agitation.
+  // seas get a cross-hatched chop weave that rides the water's own shallow-to-deep
+  // colour swing, so it reads as "agitated water" off the lightness axis: it is
+  // zero-mean in framebuffer (sRGB) values; the linear-luminance drift from sRGB
+  // convexity is <= 0.6% (sub-JND). The retired darkening wrote lightness directly
+  // (mix toward col*0.5). Two crossed sine trains (incommensurable frequencies,
+  // opposed drifts) make an anisotropic +/-45deg weave; an anisotropic noise
+  // (stretched ~9:1 ALONG the weave) modulates amplitude without scattering the
+  // direction; an fbm zone mask concentrates it in patches whose lower edge opens
+  // with uAgitation. shoreExcl (Gen-D) hard-excludes the coastal band so shore foam
+  // stays clean; open keeps it off land. Zero-preservation (AC5): the
+  // uAgitation > 0.001 guard AND the (3.5 * uAgitation) factor both make u=0
+  // pixel-identical to no agitation.
   // NB: patch is a GLSL ES 3.0 reserved word — never name a variable that.
   if (uAgitation > 0.001) {
     float open = 1.0 - here;
@@ -171,7 +174,7 @@ void main() {
     float zone = smoothstep(0.46 - 0.08 * uAgitation, 0.74, fbm(w * 0.006 - vec2(uTime * 0.045, uTime * 0.03)));
     float chopA = sin((w.x + w.y) * 0.095 - uTime * 1.15);
     float chopB = sin((w.x - w.y) * 0.078 + uTime * 0.95);
-    float chop = chopA * chopB * (0.85 + 0.15 * noise(w * 0.03));
+    float chop = chopA * chopB * (0.68 + 0.32 * noise(vec2((w.x + w.y) * 0.05, (w.x - w.y) * 0.0055)));
     col += (uSeaColor - uDeepColor) * chop * (3.5 * uAgitation) * zone * shoreExcl * open;
   }
 

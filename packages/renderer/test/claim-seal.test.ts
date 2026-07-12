@@ -66,8 +66,14 @@ describe('makeClaimMark DOI seal (R6 Lever 1 + R7 ride-along A)', () => {
     expect(doiFillCount(makeMark(claim(false)))).toBe(0);
   });
 
-  it('uses an ink distinct from the 物质 domain ink 0xb5673a (collision killed)', () => {
-    expect(DOI_SEAL_INK).not.toBe(0xb5673a);
+  it('DOI_SEAL_INK is euclidean-distant (>40) from EVERY domain ink, not just != (collision killed)', () => {
+    const rgb = (h: number) => [(h >> 16) & 255, (h >> 8) & 255, h & 255];
+    const dist = (a: number, b: number) => Math.hypot(...rgb(a).map((v, i) => v - rgb(b)[i]!));
+    // math / matter / life / cross domain inks (scene-stage claimDomain). >40 closes
+    // the "a distance-1 regression still passes `!== 0xb5673a`" hole.
+    for (const ink of [0x2e5e8c, 0xb5673a, 0x2b7a5f, 0xa08428]) {
+      expect(dist(DOI_SEAL_INK, ink)).toBeGreaterThan(40);
+    }
   });
 });
 
@@ -108,5 +114,41 @@ describe('SceneStage agitation channel rename (R7 Dim 2)', () => {
     const s = new SceneStage();
     expect(() => s.setAgitation(0.6)).not.toThrow();
     expect(() => s.setAgitation(true)).not.toThrow();
+  });
+
+  it('persists agitation before the sea shader exists so boot/rebuild restores it (R7 Dim 2 BUG)', () => {
+    const s = new SceneStage() as unknown as {
+      agitation: number;
+      setAgitation(v: number): void;
+      seaShader?: { resources: { waveUniforms: { uniforms: { uAgitation: number } } } };
+    };
+    expect(s.agitation).toBe(0);
+    s.setAgitation(0.6); // boot order: set BEFORE buildSea — must NOT be dropped
+    expect(s.agitation).toBe(0.6);
+    // buildSea seeds a FRESH uniform (starts at 0) from this field; prove the seed.
+    const uniforms = { uAgitation: 0 };
+    s.seaShader = { resources: { waveUniforms: { uniforms } } };
+    s.setAgitation(s.agitation);
+    expect(uniforms.uAgitation).toBe(0.6);
+  });
+
+  it('reduced-motion: a discrete setAgitation / day↔night change paints one frame (BUG A/B)', () => {
+    const s = new SceneStage() as unknown as {
+      app: unknown;
+      seaShader: unknown;
+      reducedMotion: boolean;
+      applyToneAndLights(t: number): void;
+      setAgitation(v: number): void;
+      tweenDayNight(t: number): void;
+    };
+    let renders = 0;
+    s.app = { render: () => { renders++; }, ticker: { add() {}, remove() {} }, start() {} };
+    s.seaShader = { resources: { waveUniforms: { uniforms: { uAgitation: 0, uTime: 0 } } } };
+    s.applyToneAndLights = () => {}; // isolate from tone/lights internals
+    s.reducedMotion = true;
+    s.setAgitation(0.6);
+    expect(renders).toBe(1); // BUG B: the disputed sea would otherwise never update
+    s.tweenDayNight(1);
+    expect(renders).toBe(2); // BUG A: the day↔night lever would otherwise silently no-op
   });
 });

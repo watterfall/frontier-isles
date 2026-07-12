@@ -140,6 +140,9 @@ export class SceneStage {
   /** prefers-reduced-motion for the WebGL surface (R7 ride-along C). Gates the
    *  continuous sea + micro-dynamics tickers; the host sets it via setReducedMotion. */
   private reducedMotion = false;
+  /** Current agitation magnitude (R7 Dim 2). Persisted so a sea REBUILD (boot,
+   *  replay) restores it — buildSea seeds uAgitation from here, not a hardcoded 0. */
+  private agitation = 0;
 
   // ── M5 micro-dynamics: one ticker drives every subtle motion. Each binds to
   //    data (P1): ghost bob ← refuted/returned, halo breathe ← consensus, window
@@ -921,6 +924,15 @@ export class SceneStage {
       this.applyDayNight(this.targetT);
       return;
     }
+    // Reduced-motion gates only CONTINUOUS animation; a DISCRETE lever change must
+    // still apply. The dynamics ticker that eases the tween is disabled here, so
+    // curT would never advance and the day↔night flip would silently no-op (BUG A).
+    // Snap to the target and paint one frame.
+    if (this.reducedMotion) {
+      this.applyDayNight(this.targetT);
+      this.app.render();
+      return;
+    }
     this.tweeningT = true;
     this.ensureDynamicsTicker();
   }
@@ -1006,10 +1018,15 @@ export class SceneStage {
     this.seaLayer.addChild(mesh);
     this.seaShader = shader;
     this.seaMask = mask;
+    // Persist agitation across sea rebuilds (boot/replay): the fresh shader inits
+    // uAgitation to 0, so re-seed it from the stored magnitude — otherwise a
+    // preloaded disputed island renders calm while the panel reports N refuted (BUG).
+    const au = shader.resources.waveUniforms?.uniforms as { uAgitation: number } | undefined;
+    if (au) au.uAgitation = this.agitation;
 
     if (this.reducedMotion) {
       // a11y (R7 ride-along C): no continuous wave ticker — paint ONE static frame
-      // so the sea (and a static, still-readable undertow at uTime 0) shows without
+      // so the sea (and a static, still-readable agitation at uTime 0) shows without
       // animating. prefers-reduced-motion must reach the canvas, not just CSS.
       this.app.render();
     } else if (!this.seaAnimating) {
@@ -1039,23 +1056,34 @@ export class SceneStage {
         this.dynAnimating = false;
       }
       this.app.render(); // one static frame in the frozen state
-    } else if (this.seaShader && !this.seaAnimating) {
-      this.app.ticker.add(this.tickSea);
+    } else {
+      // Thaw SYMMETRICALLY: re-arm BOTH the sea wave and the micro-dynamics ticker.
+      // Freezing removed both; restoring only the sea left dynamics dead until the
+      // next rebuild. ensureDynamicsTicker re-adds tickDynamics (reducedMotion is
+      // now false) and resumes the loop.
+      if (this.seaShader && !this.seaAnimating) {
+        this.app.ticker.add(this.tickSea);
+        this.seaAnimating = true;
+      }
+      this.ensureDynamicsTicker();
       this.app.start();
-      this.seaAnimating = true;
     }
   }
 
   /**
-   * Set the disputed-sea agitation (R7 Dim 2 — was setUndertow). Accepts a boolean
-   * (dev toggle) OR a 0..1 contention magnitude (海即数据: this island's ever-refuted
-   * intensity — a refute is one-way, no resolution verb exists yet, see R7). The
-   * DATA is still "contention"; `agitation` is its surface-chop VISUAL.
+   * Set the disputed-sea agitation (R7 Dim 2). Accepts a boolean (dev toggle) OR a
+   * 0..1 contention magnitude (海即数据: this island's ever-refuted intensity — a
+   * refute is one-way, no resolution verb exists yet, see R7). The DATA is still
+   * "contention"; `agitation` is its surface-chop VISUAL. The value is stored so a
+   * later sea rebuild (buildSea) restores it.
    */
   setAgitation(on: boolean | number): void {
-    const v = typeof on === 'number' ? Math.max(0, Math.min(1, on)) : on ? 1 : 0;
+    this.agitation = typeof on === 'number' ? Math.max(0, Math.min(1, on)) : on ? 1 : 0;
     const u = this.seaShader?.resources.waveUniforms?.uniforms as { uAgitation: number } | undefined;
-    if (u) u.uAgitation = v;
+    if (u) u.uAgitation = this.agitation;
+    // Discrete state change under reduced-motion: no continuous ticker is running,
+    // so paint one frame or the disputed sea would never update (BUG B).
+    if (this.reducedMotion) this.app?.render();
   }
 
   /** Advance the wave clock each frame; app.start() auto-renders after. */

@@ -26,7 +26,7 @@ import { GeneratedSceneView } from '../../scene/GeneratedScene';
 import type { LayoutInput } from '../../scene/layout';
 import { replayToNight, type NightReplayState } from '../../scene/nightReplay';
 import { dueRituals, extractRitualEvents, loadWatermark, saveWatermark, type RitualEvent } from '../../scene/rituals';
-import { contentionFromRefuted, refutedClaimCount } from '../../scene/undertow';
+import { agitationChannel } from '../../scene/undertow';
 
 // Ritual moments (depth-plan-v1 §6/§9 Batch 1): how often the live L1 re-polls
 // the ledger so a publish/transplant fired by someone else while you're
@@ -205,16 +205,17 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
       // relation counts decode the sea for the reader (list-twin, not a painted key).
       const events = ledger ?? [];
       setActiveStations(ledger ? projectActiveStations(ledger, { now: Date.now() }) : undefined);
-      // Single source (R7 Dim 1): the refuted-CLAIM count drives BOTH the agitation
-      // (contention) and its decoder readout below, so the two can never diverge.
-      const refuted = refutedClaimCount(projected);
+      // Single source (R7 Dim 1): agitationChannel returns BOTH the decoder readout
+      // (refuted) and the sea magnitude (contention) from ONE refuted-claim count,
+      // so the number on screen and the swirl can never diverge.
+      const { refuted, contention } = agitationChannel(projected);
       setSeaStats({
         substrate: det.object.frontier?.substrate,
         validates: events.filter((e) => e.action === 'validate').length,
         refutes: events.filter((e) => e.action === 'refute').length,
         refuted,
         bridges: events.filter((e) => e.action.startsWith('bridge')).length,
-        contention: contentionFromRefuted(refuted),
+        contention,
       });
       // Ritual moments — the "just landed" catch-up (recent publish/transplant
       // within the window still fire; older history silently advances the

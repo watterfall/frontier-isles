@@ -3,7 +3,7 @@
  *
  * Extracted from PixiSceneHost so the SAME layered Pixi scene can be the live L1
  * (fed a real island's ledger-driven {@link ClaimState}s) AND the `?scene=pixi`
- * demo. Fully controlled: day↔night `t`, `claims`, and `undertow` are props; the
+ * demo. Fully controlled: day↔night `t`, `claims`, and `agitation` are props; the
  * component owns only the GPU boot, camera pan/zoom, station texture bake, and
  * hit-testing → `onStation`. It fills its parent (`position:absolute; inset:0`),
  * so it lives INSIDE the app's `.fi-stage` frame under overlays — never a
@@ -139,6 +139,8 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
   substrateRef.current = substrate;
   const reducedMotionRef = useRef(reducedMotion);
   reducedMotionRef.current = reducedMotion;
+  const agitationRef = useRef(agitation);
+  agitationRef.current = agitation;
   const ritualsPropRef = useRef(rituals);
   ritualsPropRef.current = rituals;
   const cbRef = useRef({ onStation, onClaim, onWebglError, onMetrics, onRitualTap });
@@ -200,6 +202,10 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
         // a11y (R7 ride-along C): set BEFORE render()/buildSea so the sea + micro-
         // dynamics tickers are gated from the first frame, not just via CSS.
         s.setReducedMotion(reducedMotionRef.current);
+        // Replay agitation at boot (R7 Dim 2 fix): buildSea seeds uAgitation from
+        // the stored magnitude, so a preloaded disputed island renders agitated on
+        // the FIRST frame instead of calm-until-the-prop-next-changes.
+        s.setAgitation(agitationRef.current);
       } catch (e) {
         if (!disposed) cbRef.current.onWebglError?.(String(e));
         return;

@@ -38,3 +38,17 @@ export function refutedClaimCount(claims: readonly { readonly ghost?: string }[]
   if (!claims) return 0;
   return claims.filter((c) => c.ghost === 'refuted').length;
 }
+
+/**
+ * The agitation channel's two coupled outputs, computed from ONE refuted-claim
+ * count (R7 Dim 1). `refuted` is the number the decoder legend renders; `contention`
+ * is the uAgitation magnitude the sea reads. Returning both from a single call is
+ * the single-source guarantee — the component destructures this, so the on-screen
+ * count and the swirl can never be derived from divergent quantities.
+ */
+export function agitationChannel(
+  claims: readonly { readonly ghost?: string }[] | null | undefined,
+): { refuted: number; contention: number } {
+  const refuted = refutedClaimCount(claims);
+  return { refuted, contention: contentionFromRefuted(refuted) };
+}
