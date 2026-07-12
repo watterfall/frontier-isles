@@ -168,11 +168,11 @@ void main() {
   if (uAgitation > 0.001) {
     float open = 1.0 - here;
     float shoreExcl = 1.0 - smoothstep(0.05, 0.30, coast); // coastal band → agitation 0
-    float zone = smoothstep(0.50 - 0.05 * uAgitation, 0.80, fbm(w * 0.018 - vec2(uTime * 0.12, uTime * 0.08)));
+    float zone = smoothstep(0.46 - 0.08 * uAgitation, 0.74, fbm(w * 0.006 - vec2(uTime * 0.045, uTime * 0.03)));
     float chopA = sin((w.x + w.y) * 0.095 - uTime * 1.15);
     float chopB = sin((w.x - w.y) * 0.078 + uTime * 0.95);
-    float chop = chopA * chopB * (0.6 + 0.4 * noise(w * 0.03));
-    col += (uSeaColor - uDeepColor) * chop * (3.0 * uAgitation) * zone * shoreExcl * open;
+    float chop = chopA * chopB * (0.85 + 0.15 * noise(w * 0.03));
+    col += (uSeaColor - uDeepColor) * chop * (3.5 * uAgitation) * zone * shoreExcl * open;
   }
 
   finalColor = vec4(col, 1.0);
