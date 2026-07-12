@@ -190,6 +190,9 @@ export interface ProblemMeta {
     citation: { url: string; title: string; venue: string; year: number };
     brief: { zh: string; en: string };
     outlier?: boolean;
+    /** Full grounded evidence list (real citations) — feeds the island library +
+     *  problem.md 参考文献 (§九 Phase 1). From FrontierEntry.literature. */
+    literature?: { title: string; venue: string; year: number; url: string }[];
     /** Grounded deep content (overview/whyMatters/ifAnswered/approaches/barrier/
      *  subQuestions) — feeds the L1 detail dossier + problem.md body so opening
      *  an island is never empty. From @frontier-isles/data FrontierEntry.depth. */

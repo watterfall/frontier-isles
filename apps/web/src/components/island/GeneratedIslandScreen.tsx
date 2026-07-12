@@ -55,6 +55,7 @@ interface IslandDetail {
     citation: { url: string; title: string; venue: string; year: number };
     brief: { zh: string; en: string };
     outlier?: boolean;
+    literature?: { title: string; venue: string; year: number; url: string }[];
     depth?: {
       overview: { zh: string; en: string };
       whyMatters: { zh: string; en: string };
@@ -306,6 +307,7 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
   const citation = detail.atlas?.citation;
   const cluster = detail.atlas?.cluster[lang];
   const depth = detail.atlas?.depth;
+  const literature = detail.atlas?.literature ?? [];
   // Server interior first; fall back to the offline atlas when the server omits
   // it (pre-interior DB seed, or server absent) so the drawers still open.
   const interior = detail.atlas?.interior ?? fallbackInterior(slug);
@@ -431,6 +433,19 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
                   <ul style={{ margin: 0, paddingLeft: 18 }}>
                     {depth.subQuestions.map((q, i) => <li key={i}>{q[lang]}</li>)}
                   </ul>
+                  {literature.length > 0 && (
+                    <>
+                      <p style={{ margin: 0 }}><b>{t('island.depth.literature')}</b></p>
+                      <ul style={{ margin: 0, paddingLeft: 18 }}>
+                        {literature.map((l, i) => (
+                          <li key={i}>
+                            <a href={l.url} target="_blank" rel="noopener noreferrer">{l.title}</a>
+                            {' '}· {l.venue} ({l.year})
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
                 </div>
               </details>
             )}

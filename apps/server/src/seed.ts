@@ -294,10 +294,17 @@ function seedSampleIsland(store: Store): void {
  *  sub-questions are the leavable artifact, §6). Editorial zh only, per
  *  architecture invariant 9. Islands without curated depth keep the lean
  *  qfocus-only stub. */
-function buildIslandBody(c: Chart, atlas?: FrontierEntry): string {
+export function buildIslandBody(c: Chart, atlas?: FrontierEntry): string {
   const d = atlas?.depth;
   if (!d) return `## Open sub-questions\n\n- ${c.q}\n`;
   const bullets = (arr: { zh: string }[]): string => arr.map((x) => `- ${x.zh}`).join("\n");
+  // Grounded literature (§九 Phase 1) → a 参考文献 section on the leavable
+  // problem.md (§6): the island's real citations travel with the .md.
+  const lit = atlas?.literature ?? [];
+  const litSection =
+    lit.length > 0
+      ? ["## 参考文献", lit.map((l) => `- ${l.title} — ${l.venue} (${l.year}). ${l.url}`).join("\n")]
+      : [];
   return (
     [
       "## 概览", d.overview.zh,
@@ -306,6 +313,7 @@ function buildIslandBody(c: Chart, atlas?: FrontierEntry): string {
       "## 主要路径", bullets(d.approaches),
       "## 硬骨头", d.barrier.zh,
       "## Open sub-questions", bullets(d.subQuestions),
+      ...litSection,
     ].join("\n\n") + "\n"
   );
 }
@@ -340,6 +348,7 @@ function seedMinimalIsland(store: Store, c: Chart): void {
           citation: atlas.citation,
           brief: atlas.brief,
           outlier: atlas.outlier,
+          literature: atlas.literature,
           depth: atlas.depth,
           interior: atlas.interior,
         }
