@@ -85,6 +85,26 @@ describe('buildSceneGraph', () => {
     expect(byId(2)).toMatchObject({ dayVisibility: 0, nightVisibility: 1 });
   });
 
+  it('transcribes published DOI state end-to-end: growth.hasDoi mirrors ClaimState.hasDoi (R6 Lever 1)', () => {
+    const claims = [
+      { ref: 'sha256:pub', island: 'op://x', foundation: true, floors: 3, roof: false, hasDoi: true, activity: 4 },
+      { ref: 'sha256:pre', island: 'op://x', foundation: true, floors: 2, roof: false, hasDoi: false, activity: 3 },
+    ];
+    const g = buildSceneGraph(base, 0, claims);
+    const byId = (i: number) => g.objects.find((o) => o.id === `claim:${i}`)!;
+    // Published claim (ledger `publish`) → the seal must read as a real DOI stamp.
+    expect(byId(0).growth?.hasDoi).toBe(true);
+    // Preprint-only claim → honest preprint open-mark, never a fabricated DOI.
+    expect(byId(1).growth?.hasDoi).toBe(false);
+  });
+
+  it('defaults synthesised claims (no ledger) to hasDoi:false — no DOI is invented (R6 Lever 1)', () => {
+    const g = buildSceneGraph(base); // no claims arg → deterministic synth path
+    const cs = g.objects.filter((o) => o.kind === 'claim');
+    expect(cs.length).toBeGreaterThan(0);
+    expect(cs.every((o) => o.growth?.hasDoi === false)).toBe(true);
+  });
+
   it('carries the day↔night slider t through unchanged', () => {
     expect(buildSceneGraph(base, 0).t).toBe(0);
     expect(buildSceneGraph(base, 0.5).t).toBe(0.5);

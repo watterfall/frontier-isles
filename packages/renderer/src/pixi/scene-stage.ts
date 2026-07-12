@@ -529,7 +529,7 @@ export class SceneStage {
       g.poly([cx - a, yTop + 1, cx, yTop - 6, cx + a, yTop + 1])
         .stroke({ color: ink, width: 1.3, alpha: 0.8 });
     }
-    if (!spectral) drawSeal(g, cx - a * 0.92, gy - baseH - 2, false);
+    if (!spectral) drawSeal(g, cx - a * 0.92, gy - baseH - 2, o.growth?.hasDoi === true);
     const c = new Container();
     c.addChild(g);
     if (halo) c.addChild(halo);
