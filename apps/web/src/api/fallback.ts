@@ -56,31 +56,17 @@ export interface IslandDatum {
   cluster?: { code: string; zh: string; en: string };
   /** Citation provenance (real DOI/URL). */
   citation?: { url: string; title: string; venue: string; year: number };
-  /** Grounded deep content (overview/whyMatters/ifAnswered/approaches/barrier/
-   *  subQuestions) — the same block the server serves via meta.atlas.depth. */
-  depth?: {
-    overview: Bilingual;
-    whyMatters: Bilingual;
-    ifAnswered: Bilingual;
-    approaches: Bilingual[];
-    barrier: Bilingual;
-    subQuestions: Bilingual[];
-  };
-  /** Rich station interior for flagship islands (Question Wall / library /
-   *  whiteboard / data desk / driftwood / residents) — the same block the
-   *  server serves via meta.atlas.interior. */
-  interior?: IslandInterior;
 }
 
-/** The chart islands — derived from the curated xfrontier frontiers
- *  (@frontier-isles/data, single source of truth shared with the server seed)
+/** The chart islands — derived from the generated, browser-safe L0 projection
+ *  (@frontier-isles/data/atlas, checked against the server's full source)
  *  plus the bespoke sample island. When the server is unreachable the chart
  *  renders exactly these entries; useAppData.reconcile overlays live server
  *  values (members/activity/stage/slug) by title. */
-import { FRONTIERS, type IslandInterior } from '@frontier-isles/data';
+import { FRONTIER_ATLAS } from '@frontier-isles/data/atlas';
 
 export const DATA: IslandDatum[] = [
-  ...FRONTIERS.map((f) => ({
+  ...FRONTIER_ATLAS.map((f) => ({
     id: f.id,
     n: f.title,
     q: f.qfocus,
@@ -98,8 +84,6 @@ export const DATA: IslandDatum[] = [
     brief: f.brief,
     cluster: f.cluster,
     citation: f.citation,
-    depth: f.depth,
-    interior: f.interior,
   })),
   // The bespoke sample island (full L1 scene + rich ledger) — not in FRONTIERS.
   // id sits OUTSIDE the frontier range: the 26→78 atlas expansion re-used 27,

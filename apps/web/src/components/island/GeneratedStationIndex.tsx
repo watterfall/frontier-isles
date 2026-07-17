@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { StationKind } from '@frontier-isles/core';
-import type { IslandInterior } from '@frontier-isles/data';
+import type { IslandInterior } from '@frontier-isles/data/frontiers';
 
 /**
  * DOM station index (list twin) for a curated island's L1 — invariant 5: every
@@ -15,6 +16,9 @@ export interface GeneratedStationIndexProps {
   interior: IslandInterior;
   sel: StationKind | null;
   onStation: (key: StationKind) => void;
+  /** Test/embedded surfaces may opt into the expanded list. L1 starts folded so
+   * the spatial buildings remain the primary, efficient navigation. */
+  defaultOpen?: boolean;
 }
 
 interface Row {
@@ -25,8 +29,9 @@ interface Row {
   count: number;
 }
 
-export function GeneratedStationIndex({ interior, sel, onStation }: GeneratedStationIndexProps) {
+export function GeneratedStationIndex({ interior, sel, onStation, defaultOpen = false }: GeneratedStationIndexProps) {
   const { t } = useTranslation();
+  const [open, setOpen] = useState(defaultOpen);
 
   // Nine buildings, in the island's walking order; count is drawn from the
   // station's own interior section so each row advertises how much is inside.
@@ -43,28 +48,35 @@ export function GeneratedStationIndex({ interior, sel, onStation }: GeneratedSta
   ];
 
   return (
-    <div
-      data-testid="generated-station-index"
-      style={{ position: 'absolute', left: 20, top: 232, zIndex: 6, width: 216, background: 'var(--card,rgba(250,245,232,0.94))', border: '1.5px solid var(--ink,#3A342B)', borderRadius: 8, backdropFilter: 'blur(8px)', overflow: 'hidden', transition: 'background .7s', boxShadow: '0 8px 24px rgba(24,20,14,0.14)' }}
-    >
-      <div style={{ padding: '10px 14px 8px', borderBottom: '0.75px solid var(--ink2,#6B6154)', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-        <span style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 700, fontSize: 13, color: 'var(--inkT,#2B2620)' }}>{t('island.interior.index.title')}</span>
-        <span style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 9.5, color: 'var(--ink2,#6B6154)' }}>{t('island.interior.index.motto')}</span>
-      </div>
-      {rows.map((r) => (
-        <button
-          type="button"
-          key={r.kind}
-          data-station-row={r.kind}
-          onClick={() => onStation(r.kind)}
-          style={{ display: 'flex', width: '100%', alignItems: 'center', gap: 8, padding: '7.5px 14px', border: 0, cursor: 'pointer', background: sel === r.kind ? 'rgba(227,169,60,0.18)' : 'transparent', textAlign: 'left', transition: 'background .3s' }}
-        >
-          <span style={{ width: 20, height: 20, borderRadius: 3, background: r.bg, color: '#F6F2E6', fontSize: 11, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Noto Serif SC',serif", flex: 'none' }}>{r.glyph}</span>
-          <span style={{ flex: 1, fontSize: 13, color: 'var(--inkT,#2B2620)' }}>{t(r.titleKey)}</span>
-          <span style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 10.5, color: 'var(--ink2,#6B6154)' }}>{r.count}</span>
-        </button>
-      ))}
-      <div style={{ padding: '8px 14px', borderTop: '0.75px solid var(--ink2,#6B6154)', fontSize: 10, color: 'var(--ink2,#6B6154)', fontFamily: "'JetBrains Mono',ui-monospace,monospace" }}>{t('island.interior.index.hint')}</div>
+    <div className="fi-generated-station-index" data-testid="generated-station-index" data-open={open || undefined}>
+      <button
+        type="button"
+        className="fi-generated-station-index-toggle"
+        aria-expanded={open}
+        onClick={() => setOpen((value) => !value)}
+      >
+        <span aria-hidden="true">筑</span>
+        <span><strong>{t('island.interior.index.title')}</strong><small>{t('island.interior.index.motto')}</small></span>
+        <b aria-hidden="true">{open ? '收' : '展'}</b>
+      </button>
+      {open && (
+        <div className="fi-generated-station-index-sheet">
+          {rows.map((r) => (
+            <button
+              type="button"
+              key={r.kind}
+              data-station-row={r.kind}
+              data-selected={sel === r.kind || undefined}
+              onClick={() => { onStation(r.kind); setOpen(false); }}
+            >
+              <span style={{ background: r.bg }}>{r.glyph}</span>
+              <span>{t(r.titleKey)}</span>
+              <small>{r.count}</small>
+            </button>
+          ))}
+          <div>{t('island.interior.index.hint')}</div>
+        </div>
+      )}
     </div>
   );
 }

@@ -43,6 +43,19 @@ describe('buildSceneGraph', () => {
     expect(emptyStations.map((o) => o.kind).sort()).toEqual(['station:dock', 'station:questions']);
   });
 
+  it('offers a stable courtyard grammar for a minority of flagship islands', () => {
+    const organic = buildSceneGraph(base);
+    const courtyard = buildSceneGraph({ ...base, layoutVariant: 'courtyard' });
+    const stationSignature = (graph: typeof organic) => graph.objects
+      .filter((object) => object.kind.startsWith('station:'))
+      .map((object) => `${object.id}@${object.gx},${object.gy}`);
+    expect(stationSignature(courtyard)).not.toEqual(stationSignature(organic));
+
+    const courtGround = courtyard.objects.filter((object) => object.layer === 'terrain');
+    expect(courtGround.some((object) => object.gx === 8 && object.gy === 8 && object.elevation === 2)).toBe(true);
+    expect(courtGround.filter((object) => object.elevation === 2).length).toBeGreaterThan(8);
+  });
+
   it('binds claim count to eventCount (reproductions → floors)', () => {
     const few = buildSceneGraph({ ...base, eventCount: 0 }).objects.filter((o) => o.kind === 'claim');
     const many = buildSceneGraph({ ...base, eventCount: 24 }).objects.filter((o) => o.kind === 'claim');

@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
+import { FRONTIER_ATLAS } from '@frontier-isles/data/atlas';
+import { FRONTIERS } from '@frontier-isles/data/frontiers';
+import { INTERIORS } from '@frontier-isles/data/interiors';
+import { INTERIORS_2 } from '@frontier-isles/data/interiors-2';
 import { DATA, QUESTIONS, STN, RITQ, DRIFT, BRIEF, AUTHQ } from '../api/fallback';
+
+const ALL_INTERIORS = { ...INTERIORS, ...INTERIORS_2 };
 
 describe('fallback data matches the curated atlas', () => {
   it('has 129 chart islands (128 curated frontiers + 1 bespoke sample)', () => {
@@ -48,15 +54,23 @@ describe('fallback data matches the curated atlas', () => {
     }
   });
 
-  it('every curated frontier carries grounded depth (opening an island is never empty)', () => {
-    for (const d of DATA) {
-      if (d.sample) continue; // the bespoke sample carries a full L1 scene instead
-      const dp = d.depth;
-      expect(dp, `island #${d.id} (${d.n.zh}) missing depth`).toBeTruthy();
-      expect(dp!.overview.zh && dp!.overview.en, `#${d.id} overview`).toBeTruthy();
-      expect(dp!.whyMatters.zh && dp!.ifAnswered.zh && dp!.barrier.zh, `#${d.id} depth text`).toBeTruthy();
-      expect(dp!.approaches.length, `#${d.id} approaches`).toBeGreaterThanOrEqual(2);
-      expect(dp!.subQuestions.length, `#${d.id} subQuestions`).toBeGreaterThanOrEqual(2);
+  it('every full frontier carries grounded depth (opening an island is never empty)', () => {
+    for (const frontier of FRONTIERS) {
+      const dp = frontier.depth;
+      expect(dp, `island #${frontier.id} (${frontier.title.zh}) missing depth`).toBeTruthy();
+      expect(dp!.overview.zh && dp!.overview.en, `#${frontier.id} overview`).toBeTruthy();
+      expect(dp!.whyMatters.zh && dp!.ifAnswered.zh && dp!.barrier.zh, `#${frontier.id} depth text`).toBeTruthy();
+      expect(dp!.approaches.length, `#${frontier.id} approaches`).toBeGreaterThanOrEqual(2);
+      expect(dp!.subQuestions.length, `#${frontier.id} subQuestions`).toBeGreaterThanOrEqual(2);
+    }
+  });
+
+  it('keeps L0 summaries free of L1 depth, literature, and interior payloads', () => {
+    expect(FRONTIER_ATLAS).toHaveLength(128);
+    for (const frontier of FRONTIER_ATLAS) {
+      expect('depth' in frontier, `${frontier.slug} leaked depth into L0`).toBe(false);
+      expect('literature' in frontier, `${frontier.slug} leaked literature into L0`).toBe(false);
+      expect('interior' in frontier, `${frontier.slug} leaked interior into L0`).toBe(false);
     }
   });
 
@@ -119,17 +133,17 @@ describe('flagship island interiors (rich station content)', () => {
     && !!(o as { zh: string }).zh && !!(o as { en: string }).en;
 
   it('exactly the 48 curated islands carry an interior (12 flagships + 36 batch-2)', () => {
-    const withInterior = DATA.filter((d) => d.interior).map((d) => d.slug).sort();
+    const withInterior = FRONTIER_ATLAS.filter((d) => d.hasInterior).map((d) => d.slug).sort();
     expect(withInterior).toEqual([...ALL_INTERIOR].sort());
   });
 
   it('every interior is well-formed and bilingual, with real citations', () => {
     for (const slug of ALL_INTERIOR) {
-      const d = DATA.find((x) => x.slug === slug)!;
+      const d = FRONTIER_ATLAS.find((x) => x.slug === slug)!;
       expect(d, `${slug} present`).toBeTruthy();
       // A rich island reads as an academy/school — never empty/hut.
-      expect(d.st, `${slug} stage ≥ 2`).toBeGreaterThanOrEqual(2);
-      const it = d.interior!;
+      expect(d.stage, `${slug} stage ≥ 2`).toBeGreaterThanOrEqual(2);
+      const it = ALL_INTERIORS[slug]!;
       // Every one of the nine stations must open with its own content (the bar:
       // "点进去后每个模块都有充足内容", matching the sample island).
       expect(it.questions.length, `${slug} questions`).toBeGreaterThanOrEqual(5);
@@ -173,7 +187,7 @@ describe('flagship island interiors (rich station content)', () => {
   });
 
   it('at least one flagship per domain (数理/物质/生命/交叉)', () => {
-    const domains = new Set(DATA.filter((d) => d.interior).map((d) => d.d));
+    const domains = new Set(FRONTIER_ATLAS.filter((d) => d.hasInterior).map((d) => d.domain));
     expect(domains).toEqual(new Set(['数理', '物质', '生命', '交叉']));
   });
 });

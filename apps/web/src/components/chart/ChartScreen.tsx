@@ -41,6 +41,8 @@ export interface ChartScreenProps {
   onIsland: (d: IslandDatum) => void;
   onBuild: () => void;
   onCollide: () => void;
+  /** Leave the atlas desk and enter the continuous low-altitude world field. */
+  onExplore?: () => void;
   /** Kept for API compatibility; bridge arcs are currently hidden. */
   onBridge?: (b: { fromPos: { x: number; y: number }; toPos: { x: number; y: number }; arc: { cx: number; cy: number }; toSlug: string; toX: number; toY: number }) => void;
 }
@@ -152,7 +154,7 @@ function Buildings({ d }: { d: IslandDatum }) {
   );
 }
 
-export function ChartScreen({ islands, hover, onHover, onIsland, onBuild, onCollide }: ChartScreenProps) {
+export function ChartScreen({ islands, hover, onHover, onIsland, onBuild, onCollide, onExplore }: ChartScreenProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
 
@@ -247,7 +249,7 @@ export function ChartScreen({ islands, hover, onHover, onIsland, onBuild, onColl
       </svg>
 
       {/* L0 顶部 chrome */}
-      <ChartChrome islands={islands} onPick={onIsland} onBuild={onBuild} onCollide={onCollide} />
+      <ChartChrome islands={islands} onPick={onIsland} onBuild={onBuild} onCollide={onCollide} onExplore={onExplore} />
 
       {/* 岛卡 */}
       {card && <IslandCard content={card.content} left={card.left} top={card.top} />}

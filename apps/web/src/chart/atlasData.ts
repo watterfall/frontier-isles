@@ -9,7 +9,7 @@
  * either host's effect.
  */
 import { projectArchipelagos, projectClimate, projectContinentCurrents, type CurrentKind } from '@frontier-isles/core';
-import { REGION_NAMES } from '@frontier-isles/data';
+import { REGION_NAMES } from '@frontier-isles/data/regions';
 import {
   ATLAS_DOMAIN_FILL,
   ATLAS_DOMAIN_INK,
@@ -17,6 +17,7 @@ import {
   ATLAS_Y_TILT,
   assignAtlasAltitudes,
   assignAtlasHierarchy,
+  atlasHash,
   atlasIslandLift,
   type AtlasCluster,
   type AtlasContinent,
@@ -66,7 +67,16 @@ function curatedIslandCurrents(): AtlasCurrent[] {
     const fromSlug = slugOf.get(current.from);
     const toSlug = slugOf.get(current.to);
     if (!fromSlug || !toSlug || fromSlug === toSlug) return [];
-    return [{ fromSlug, toSlug, kind: current.kind, tint: FLOW_TINT[current.kind], weight: current.weight }];
+    return [{
+      fromSlug,
+      toSlug,
+      kind: current.kind,
+      sign: current.sign,
+      directed: current.directed,
+      maturity: current.maturity,
+      tint: FLOW_TINT[current.kind],
+      weight: current.weight,
+    }];
   });
   return cachedCurrents;
 }
@@ -121,13 +131,19 @@ export interface AtlasSceneData {
  * survive, only the collisions go. Lift is per-island constant, so pushing the
  * projected point and back-solving raw `y` is exact.
  */
-function despaceProjected<T extends AtlasIslandInput>(islands: T[]): T[] {
+function despaceProjected<T extends AtlasIslandInput>(islands: T[], spacingBySlug: ReadonlyMap<string, number> = new Map()): T[] {
   if (islands.length < 2) return islands;
   const lifts = islands.map((island) => atlasIslandLift(island));
+  // DELIBERATE: spacing runs in the pre-spread metric (y·TILT − lift, without
+  // ATLAS_Y_SPREAD). The rhythm profiles, minDist and the design tests were
+  // tuned in this space; render-side SPREAD only stretches vertical gaps
+  // further apart, so no overlap can re-enter. This is intentionally NOT
+  // projectAtlasIslandY — switching metrics flattens the tuned archipelago
+  // rhythm (p80/p20 drops below the design floor).
   const pts = islands.map((island, k) => ({
     x: island.x,
     y: island.y * ATLAS_Y_TILT - lifts[k]!,
-    s: ATLAS_STAGE_RADIUS[Math.max(0, Math.min(3, island.stage)) as 0 | 1 | 2 | 3] / 52,
+    s: ATLAS_STAGE_RADIUS[Math.max(0, Math.min(3, island.stage)) as 0 | 1 | 2 | 3] / 52 * (spacingBySlug.get(island.slug) ?? 1),
   }));
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   for (const p of pts) {
@@ -145,6 +161,66 @@ function despaceProjected<T extends AtlasIslandInput>(islands: T[]): T[] {
     x: spaced[k]!.x,
     y: (spaced[k]!.y + lifts[k]!) / ATLAS_Y_TILT,
   }));
+}
+
+/** Stable editorial rhythm for the atlas: named archipelagos keep recognisable
+ * local neighbourhoods, but their centres open into broad channels. Each region
+ * receives one of three local spacing profiles (close / ordinary / open), so the
+ * world contains settlements, breathing room, and solitary research outposts
+ * instead of one uniformly packed carpet. This is deterministic cartography —
+ * it changes no membership, activity, altitude, or research meaning. */
+function shapeArchipelagoRhythm<T extends AtlasIslandInput>(
+  islands: T[],
+  groupBySlug: ReadonlyMap<string, string>,
+): { islands: T[]; spacingBySlug: Map<string, number> } {
+  if (islands.length < 2) return { islands, spacingBySlug: new Map() };
+
+  const groups = new Map<string, number[]>();
+  // Same deliberate pre-spread metric as despaceProjected above — see its note.
+  const projected = islands.map((island) => ({ x: island.x, y: island.y * ATLAS_Y_TILT - atlasIslandLift(island) }));
+  islands.forEach((island, index) => {
+    const key = groupBySlug.get(island.slug) ?? `solo:${island.slug}`;
+    const list = groups.get(key);
+    if (list) list.push(index);
+    else groups.set(key, [index]);
+  });
+
+  const world = projected.reduce((sum, point) => ({ x: sum.x + point.x, y: sum.y + point.y }), { x: 0, y: 0 });
+  world.x /= projected.length;
+  world.y /= projected.length;
+  const next = islands.map((island) => ({ ...island }));
+  const spacingBySlug = new Map<string, number>();
+  const profiles = [0.9, 1.06, 1.26] as const;
+
+  for (const [key, indices] of [...groups.entries()].sort(([a], [b]) => a.localeCompare(b))) {
+    const center = indices.reduce(
+      (sum, index) => ({ x: sum.x + projected[index]!.x, y: sum.y + projected[index]!.y }),
+      { x: 0, y: 0 },
+    );
+    center.x /= indices.length;
+    center.y /= indices.length;
+    const seed = atlasHash(key);
+    const profile = profiles[seed % profiles.length]!;
+    // Expand region centres more strongly than their interiors. Small stable
+    // cross-currents prevent the expanded centres from falling on a rigid grid.
+    const target = {
+      x: world.x + (center.x - world.x) * 1.58 + (((atlasHash(key, 17) % 1000) / 999) - 0.5) * 116,
+      y: world.y + (center.y - world.y) * 1.44 + (((atlasHash(key, 31) % 1000) / 999) - 0.5) * 82,
+    };
+    for (const index of indices) {
+      const island = islands[index]!;
+      const point = projected[index]!;
+      const px = target.x + (point.x - center.x) * profile;
+      const py = target.y + (point.y - center.y) * profile;
+      next[index] = {
+        ...island,
+        x: Math.round(px * 100) / 100,
+        y: Math.round(((py + atlasIslandLift(island)) / ATLAS_Y_TILT) * 100) / 100,
+      };
+      spacingBySlug.set(island.slug, profile);
+    }
+  }
+  return { islands: next, spacingBySlug };
 }
 
 function dominantDomain(mix: Record<string, number>): AtlasDomain {
@@ -177,10 +253,17 @@ function dominantDomain(mix: Record<string, number>): AtlasDomain {
 export function buildAtlasScene(source: IslandDatum[] = DATA, extra: AtlasExtraIsland[] = []): AtlasSceneData {
   const real = source.map(toAtlasInput);
   const authored: AtlasIslandInput[] = extra.length > 0 ? [...real, ...extra] : real;
+  const groupBySlug = new Map<string, string>();
+  for (const d of source) {
+    const slug = d.slug ?? `id-${d.id}`;
+    groupBySlug.set(slug, d.cluster?.code ?? `solo:${slug}`);
+  }
+  for (const e of extra) groupBySlug.set(e.slug, e.cluster?.code ?? `solo:${e.slug}`);
   // Strata from the AUTHORED north→south order (stable per dataset), then
-  // despace in the projected plane BEFORE anything downstream (clusters,
-  // climate, anchor choice) reads positions — one world, no drift.
-  const islands = despaceProjected(assignAtlasAltitudes(authored));
+  // give named regions distinct spatial rhythms and despace in the projected
+  // plane BEFORE anything downstream reads positions — one world, no drift.
+  const rhythm = shapeArchipelagoRhythm(assignAtlasAltitudes(authored), groupBySlug);
+  const islands = despaceProjected(rhythm.islands, rhythm.spacingBySlug);
   // Cluster provenance for NAMING: curated islands from their `cluster` field,
   // synthetic (extra) islands from theirs — so 700 islands still read as NAMED
   // regions, not generic domain blobs. Activity feeds region 体温.

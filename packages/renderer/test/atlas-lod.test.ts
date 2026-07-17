@@ -14,6 +14,8 @@ import { describe, expect, it } from 'vitest';
 import {
   atlasHash,
   atlasCoastline,
+  atlasCurrentGeometry,
+  atlasCurrentId,
   assignAtlasAltitudes,
   assignAtlasHierarchy,
   computeWorldMinScale,
@@ -21,6 +23,7 @@ import {
   focusFog,
   islandPriority,
   makeFakeIslands,
+  nearestAtlasCurrentPoint,
   placeholderClusters,
   satelliteDisclosure,
   satelliteReveal,
@@ -49,6 +52,38 @@ const isle = (over: Partial<AtlasIslandInput> = {}): AtlasIslandInput => ({
   x: 0,
   y: 0,
   ...over,
+});
+
+describe('atlas currents — one geometry for drawing and field sampling', () => {
+  it('builds a stable notebook id from the ledger endpoints, kind, and sign', () => {
+    expect(atlasCurrentId({ fromSlug: 'a', toSlug: 'b', kind: 'evidence', sign: 'affirm' })).toBe('a::b::evidence::affirm');
+    // Invariant 8: an affirm and a contest on the same ordered pair are two currents.
+    expect(atlasCurrentId({ fromSlug: 'a', toSlug: 'b', kind: 'evidence', sign: 'contest' }))
+      .not.toBe(atlasCurrentId({ fromSlug: 'a', toSlug: 'b', kind: 'evidence', sign: 'affirm' }));
+  });
+
+  it('finds the rendered curve rather than the straight endpoint chord', () => {
+    const from = isle({ slug: 'a', x: 100, y: 100, altitude: 'middle', altitudeZ: 0.5 });
+    const to = isle({ slug: 'b', x: 500, y: 100, altitude: 'middle', altitudeZ: 0.5 });
+    const geometry = atlasCurrentGeometry(from, to);
+    const curveMid = {
+      x: geometry.ax * 0.25 + geometry.mx * 0.5 + geometry.bx * 0.25,
+      y: geometry.ay * 0.25 + geometry.my * 0.5 + geometry.by * 0.25,
+    };
+    const point = nearestAtlasCurrentPoint(geometry, { ...curveMid, altitudeZ: 0.5 });
+    expect(point.progress).toBeCloseTo(0.5, 1);
+    expect(point.horizontalDistance).toBeLessThan(8);
+  });
+
+  it('requires the craft to match a climbing current in three dimensions', () => {
+    const from = isle({ slug: 'low', x: 100, y: 180, altitude: 'low', altitudeZ: 0.1 });
+    const to = isle({ slug: 'high', x: 500, y: 180, altitude: 'high', altitudeZ: 0.9 });
+    const geometry = atlasCurrentGeometry(from, to);
+    const aligned = nearestAtlasCurrentPoint(geometry, { x: geometry.mx, y: geometry.my, altitudeZ: 0.5 });
+    const below = nearestAtlasCurrentPoint(geometry, { x: geometry.mx, y: geometry.my, altitudeZ: 0.05 });
+    expect(aligned.distance).toBeLessThan(below.distance);
+    expect(Math.abs(aligned.altitudeDelta)).toBeLessThan(0.08);
+  });
 });
 
 describe('assignAtlasAltitudes — place-plane strata, never progress', () => {

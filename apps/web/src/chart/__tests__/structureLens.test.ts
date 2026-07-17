@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { buildStructureLens, toAtlasLens } from '../structureLens';
 import { fallbackStructures, fallbackStructureGraph } from '../../api/structureFallback';
-import { SEED_STRUCTURES } from '@frontier-isles/data';
+import { SEED_STRUCTURES } from '@frontier-isles/data/structures';
 
 describe('buildStructureLens', () => {
   const islands = [

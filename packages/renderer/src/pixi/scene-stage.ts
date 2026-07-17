@@ -19,6 +19,7 @@ import {
   Particle,
   ParticleContainer,
   RenderTexture,
+  Rectangle,
   Sprite,
   Text,
   TextStyle,
@@ -179,6 +180,7 @@ export class SceneStage {
   //    single-glyph seal, near zoom → the full name. ─────────────────────────
   readonly labelLayer = new Container();
   private labelSpecs: Array<{
+    id: string;
     gx: number; gy: number; elevation: number; height: number;
     short: string; full: string; group: Container; text: Text; bg: Graphics; showing: string;
   }> = [];
@@ -221,10 +223,10 @@ export class SceneStage {
     this.sceneContent.addChild(this.cameraRoot);
 
     // Station labels live in the screen-space uiLayer (never camera-transformed,
-    // so text stays a constant, crisp size). eventMode 'none' → they never
-    // intercept the pointer, so station click hit-testing underneath still works.
+    // so text stays a constant, crisp size). `passive` keeps the layer itself
+    // transparent to hits while allowing each semantic label group to be tapped.
     this.labelLayer.label = 'labels';
-    this.labelLayer.eventMode = 'none';
+    this.labelLayer.eventMode = 'passive';
     this.uiLayer.addChild(this.labelLayer);
   }
 
@@ -778,7 +780,20 @@ export class SceneStage {
       if (o.layer === 'world' && (o.kind.startsWith('station:') || o.kind === 'claim')) {
         node.eventMode = 'static';
         node.cursor = 'pointer';
-        node.on('pointertap', () => this.onPick?.(o.id));
+        // Baked textures include transparent margins. A building-sized hit area
+        // keeps neighbouring stations from stealing one another's taps.
+        node.hitArea = o.kind.startsWith('station:')
+          ? new Rectangle(-54, -92, 108, 108)
+          : new Rectangle(-25, -(o.height ?? 30) - 16, 50, (o.height ?? 30) + 28);
+        node
+          .on('pointerover', () => { node.scale.set(1.035); this.redraw(); })
+          .on('pointerout', () => { node.scale.set(1); this.redraw(); })
+          .on('pointerdown', () => { node.scale.set(0.985); this.redraw(); })
+          .on('pointerup', () => { node.scale.set(1.035); this.redraw(); })
+          // pointertap (not pointerup): requires press+release on the same target,
+          // so releasing a camera-pan over a building doesn't open its drawer.
+          .on('pointertap', () => this.onPick?.(o.id))
+          .on('pointerupoutside', () => { node.scale.set(1); this.redraw(); });
       }
       // Register M5 animatable nodes (data-bound): refuted/returned ghosts bob,
       // consensus halos breathe. Registries are rebuilt each render (clearNodes resets).
@@ -944,11 +959,12 @@ export class SceneStage {
    * unlike the baked raster namecards, which the layout layer now suppresses.
    * Call after {@link render}. Content (P2) is passed in; the stage only lays out.
    */
-  setStationLabels(specs: Array<{ gx: number; gy: number; elevation: number; height: number; short: string; full: string }>): void {
+  setStationLabels(specs: Array<{ id: string; gx: number; gy: number; elevation: number; height: number; short: string; full: string }>): void {
     this.labelLayer.removeChildren().forEach((c) => c.destroy({ children: true }));
     this.labelSpecs = specs.map((s) => {
       const group = new Container();
-      group.eventMode = 'none';
+      group.eventMode = 'static';
+      group.cursor = 'pointer';
       const bg = new Graphics();
       const text = new Text({
         text: s.full,
@@ -957,6 +973,11 @@ export class SceneStage {
       });
       text.anchor.set(0.5, 0.5);
       group.addChild(bg, text);
+      group
+        .on('pointerover', () => { group.scale.set(1.045); this.redraw(); })
+        .on('pointerout', () => { group.scale.set(1); this.redraw(); })
+        // pointertap, same rationale as the building nodes above.
+        .on('pointertap', () => this.onPick?.(s.id));
       this.labelLayer.addChild(group);
       return { ...s, group, text, bg, showing: '' };
     });
@@ -978,6 +999,10 @@ export class SceneStage {
         const halfH = L.text.height / 2 + 3;
         L.bg.clear();
         L.bg.roundRect(-halfW, -halfH, halfW * 2, halfH * 2, 5).fill({ color: 0xfaf5e8, alpha: 0.92 }).stroke({ color: 0x3a342b, width: 1 });
+        // Labels billboard on the topmost uiLayer, so an oversized hit box steals
+        // taps meant for buildings beneath at far zoom. Keep a touch-friendly
+        // minimum but hug the rendered card instead of a fixed 44px band.
+        L.group.hitArea = new Rectangle(-Math.max(22, halfW), -Math.max(14, halfH), Math.max(44, halfW * 2), Math.max(28, halfH * 2));
       }
       const w = worldToScreenElevated(L.gx + 0.5, L.gy + 0.5, L.elevation);
       const sx = w.x * scale + this.cameraRoot.x;

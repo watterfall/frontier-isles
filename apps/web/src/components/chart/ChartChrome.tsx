@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import type { IslandDatum } from '../../api/fallback';
 import type { AtlasControls, AtlasMetrics } from '../../chart/atlasControls';
@@ -15,6 +16,8 @@ export interface ChartChromeProps {
   /** Sail back to My Harbor (depth-plan-v1 §3(d)). Provided only when the
    * session actually has a harbor — absent, the button does not render. */
   onHome?: () => void;
+  /** Enter the continuous world-level low-altitude exploration field. */
+  onExplore?: () => void;
 }
 
 const DOMAIN_KEYS = [
@@ -29,7 +32,7 @@ const DOMAIN_KEYS = [
  * visible affordance is real: `/` focuses search, results sail through the
  * normal L0→L1 route, and all actions are semantic keyboard-reachable buttons.
  */
-export function ChartChrome({ islands, onPick, onBuild, onCollide, filter = '全部', onFilter, controls, metrics, onHome }: ChartChromeProps) {
+export function ChartChrome({ islands, onPick, onBuild, onCollide, filter = '全部', onFilter, controls, metrics, onHome, onExplore }: ChartChromeProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -147,53 +150,67 @@ export function ChartChrome({ islands, onPick, onBuild, onCollide, filter = '全
         </button>
       </div>
 
-      <div className="fi-atlas-context" aria-live="polite">
-        <span className="fi-atlas-index">{t('chart.atlasStatus', { count: islands.length })} · {tierLabel}</span>
-        <div className="fi-domain-key" aria-label={t('chart.domainLegend')}>
-          <button type="button" className={filter === '全部' ? 'is-active' : ''} aria-pressed={filter === '全部'} onClick={() => setDomain('全部')}>{t('chart.domains.all')}</button>
-          {DOMAIN_KEYS.map((domain) => (
-            <button key={domain.key} type="button" className={filter === t(`chart.domains.${domain.key}`) || filter === ({ math: '数理', matter: '物质', life: '生命', cross: '交叉' } as const)[domain.key] ? 'is-active' : ''} aria-pressed={filter === ({ math: '数理', matter: '物质', life: '生命', cross: '交叉' } as const)[domain.key]} onClick={() => setDomain(({ math: '数理', matter: '物质', life: '生命', cross: '交叉' } as const)[domain.key])}><i style={{ background: domain.color }} aria-hidden="true" />{t(`chart.domains.${domain.key}`)}</button>
-          ))}
-        </div>
-      </div>
-
       <div className="fi-atlas-guidance">
         <div className="fi-guidance-icon" aria-hidden="true"><span>⌖</span><i /></div>
         <div><strong>{t('chart.navigationHint')}</strong><small>{detailHint}</small></div>
+        {onExplore && (
+          <button type="button" className="fi-world-explore-launch" onClick={onExplore}>
+            <span aria-hidden="true">舟</span>
+            <b>{t('chart.explore.launch')}</b>
+            <small>{t('chart.explore.launchHint')}</small>
+          </button>
+        )}
       </div>
 
-      <div className="fi-outlier-key"><i aria-hidden="true" />{t('chart.legendOutlier')}</div>
-
-      <div className="fi-altitude-key" aria-label={t('chart.altitudeLegend')}>
-        <span><i aria-hidden="true" />{t('chart.altitudeLegend')}</span>
-        <div>
-          {([null, 'low', 'middle', 'high'] as const).map((band) => (
-            <button key={band ?? 'all'} type="button" className={altitude === band ? 'is-active' : ''} aria-pressed={altitude === band} onClick={() => setAltitudeBand(band)}>
-              {t(`chart.altitudes.${band ?? 'all'}`)}
-            </button>
-          ))}
-        </div>
-        <small>{t('chart.altitudeNote')}</small>
-      </div>
-
-      <div className="fi-hierarchy-key" aria-label={t('chart.hierarchyLegend')}>
-        <span><i aria-hidden="true" />{t('chart.hierarchyLegend')}</span>
-        <div data-tier={metrics?.tier ?? 'loading'}>
-          <b className="is-world">{t('chart.hierarchyLevels.world')}</b>
-          <b className="is-anchor">{t('chart.hierarchyLevels.anchor')}</b>
-          <b className="is-satellite">{t('chart.hierarchyLevels.satellite')}</b>
-        </div>
-        <small>{metrics ? t('chart.satelliteStatus', { visible: metrics.visibleSatellites, total: metrics.satellites }) : t('chart.tiers.loading')}</small>
-        <em>{t('chart.routeLegend')}</em>
-        <em>{t('chart.hierarchyNote')}</em>
-      </div>
-
-      <nav className="fi-atlas-camera" aria-label={t('chart.cameraControls')}>
-        <button type="button" onClick={() => controls?.zoomIn()} disabled={!controls} aria-label={t('chart.zoomIn')}>＋</button>
-        <button type="button" onClick={() => controls?.zoomOut()} disabled={!controls} aria-label={t('chart.zoomOut')}>−</button>
-        <button type="button" className="fi-camera-reset" onClick={() => controls?.reset()} disabled={!controls} aria-label={t('chart.resetView')}><span aria-hidden="true">⌾</span><small>{t('chart.resetShort')}</small></button>
-        {onHome && <button type="button" className="fi-camera-reset" onClick={onHome} disabled={!controls} aria-label={t('chart.harborReturn')}><span aria-hidden="true">⚓</span><small>{t('chart.harborShort')}</small></button>}
-      </nav>
+      {typeof document !== 'undefined' && createPortal(
+        <aside className="fi-atlas-edge-tools" aria-label={t('chart.tools')}>
+          <div className="fi-atlas-edge-head">
+            <strong>{t('chart.tools')}</strong>
+            <span>{tierLabel}</span>
+          </div>
+          <div className="fi-atlas-context" aria-live="polite">
+            <span className="fi-atlas-index">{t('chart.atlasStatus', { count: islands.length })}</span>
+            <div className="fi-domain-key" aria-label={t('chart.domainLegend')}>
+              <button type="button" className={filter === '全部' ? 'is-active' : ''} aria-pressed={filter === '全部'} onClick={() => setDomain('全部')}>{t('chart.domains.all')}</button>
+              {DOMAIN_KEYS.map((domain) => (
+                <button key={domain.key} type="button" className={filter === t(`chart.domains.${domain.key}`) || filter === ({ math: '数理', matter: '物质', life: '生命', cross: '交叉' } as const)[domain.key] ? 'is-active' : ''} aria-pressed={filter === ({ math: '数理', matter: '物质', life: '生命', cross: '交叉' } as const)[domain.key]} onClick={() => setDomain(({ math: '数理', matter: '物质', life: '生命', cross: '交叉' } as const)[domain.key])}><i style={{ background: domain.color }} aria-hidden="true" />{t(`chart.domains.${domain.key}`)}</button>
+              ))}
+            </div>
+          </div>
+          <div className="fi-altitude-key" aria-label={t('chart.altitudeLegend')}>
+            <span><i aria-hidden="true" />{t('chart.altitudeLegend')}</span>
+            <div>
+              {([null, 'low', 'middle', 'high'] as const).map((band) => (
+                <button key={band ?? 'all'} type="button" className={altitude === band ? 'is-active' : ''} aria-pressed={altitude === band} onClick={() => setAltitudeBand(band)}>
+                  {t(`chart.altitudes.${band ?? 'all'}`)}
+                </button>
+              ))}
+            </div>
+          </div>
+          <nav className="fi-atlas-camera" aria-label={t('chart.cameraControls')}>
+            <button type="button" onClick={() => controls?.zoomIn()} disabled={!controls} aria-label={t('chart.zoomIn')}>＋</button>
+            <button type="button" onClick={() => controls?.zoomOut()} disabled={!controls} aria-label={t('chart.zoomOut')}>−</button>
+            <button type="button" className="fi-camera-reset" onClick={() => controls?.reset()} disabled={!controls} aria-label={t('chart.resetView')}><span aria-hidden="true">⌾</span><small>{t('chart.resetShort')}</small></button>
+            {onHome && <button type="button" className="fi-camera-reset" onClick={onHome} disabled={!controls} aria-label={t('chart.harborReturn')}><span aria-hidden="true">⚓</span><small>{t('chart.harborShort')}</small></button>}
+          </nav>
+          <details className="fi-atlas-edge-legend">
+            <summary>{t('chart.legendDetails')}</summary>
+            <div className="fi-outlier-key"><i aria-hidden="true" />{t('chart.legendOutlier')}</div>
+            <div className="fi-hierarchy-key" aria-label={t('chart.hierarchyLegend')}>
+              <span><i aria-hidden="true" />{t('chart.hierarchyLegend')}</span>
+              <div data-tier={metrics?.tier ?? 'loading'}>
+                <b className="is-world">{t('chart.hierarchyLevels.world')}</b>
+                <b className="is-anchor">{t('chart.hierarchyLevels.anchor')}</b>
+                <b className="is-satellite">{t('chart.hierarchyLevels.satellite')}</b>
+              </div>
+              <small>{metrics ? t('chart.satelliteStatus', { visible: metrics.visibleSatellites, total: metrics.satellites }) : t('chart.tiers.loading')}</small>
+              <em>{t('chart.routeLegend')}</em>
+              <em>{t('chart.hierarchyNote')}</em>
+            </div>
+          </details>
+        </aside>,
+        document.body,
+      )}
     </header>
   );
 }

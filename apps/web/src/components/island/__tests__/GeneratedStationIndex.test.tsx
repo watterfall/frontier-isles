@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import type { StationKind } from '@frontier-isles/core';
-import { INTERIORS } from '@frontier-isles/data';
+import { INTERIORS } from '@frontier-isles/data/interiors';
 import { GeneratedStationIndex } from '../GeneratedStationIndex';
 import { zh } from '../../../i18n/zh';
 import { en } from '../../../i18n/en';
@@ -24,14 +24,14 @@ describe('GeneratedStationIndex', () => {
   const interior = INTERIORS['formal-math']!;
 
   it('renders a clickable row for all nine buildings', () => {
-    const html = renderToStaticMarkup(<GeneratedStationIndex interior={interior} sel={null} onStation={() => {}} />);
+    const html = renderToStaticMarkup(<GeneratedStationIndex interior={interior} sel={null} onStation={() => {}} defaultOpen />);
     for (const k of ALL) {
       expect(html, `row for ${k}`).toContain(`data-station-row="${k}"`);
     }
   });
 
   it('shows each building name and its content count', () => {
-    const html = renderToStaticMarkup(<GeneratedStationIndex interior={interior} sel={null} onStation={() => {}} />);
+    const html = renderToStaticMarkup(<GeneratedStationIndex interior={interior} sel={null} onStation={() => {}} defaultOpen />);
     expect(html).toContain(zh.island.interior.questions.title);
     expect(html).toContain(zh.island.interior.gallery.title);
     // question count reflects the interior (formal-math has 7)
@@ -41,9 +41,19 @@ describe('GeneratedStationIndex', () => {
 
   it('is bound to onStation via the row buttons (every kind reachable)', () => {
     // Confirm every station kind the drawer can render has a row (no orphan station).
-    const html = renderToStaticMarkup(<GeneratedStationIndex interior={interior} sel="questions" onStation={() => {}} />);
+    const html = renderToStaticMarkup(<GeneratedStationIndex interior={interior} sel="questions" onStation={() => {}} defaultOpen />);
     const rows = [...html.matchAll(/data-station-row="([^"]+)"/g)].map((m) => m[1]);
     expect(new Set(rows)).toEqual(new Set(ALL));
     expect(rows).toHaveLength(9);
+  });
+
+  it('ships collapsed behind an accessible disclosure (the untested default)', () => {
+    // GeneratedIslandScreen renders the index WITHOUT defaultOpen. The rows are
+    // deliberately out of the DOM until disclosed, so the toggle itself is the
+    // list twin's entry point — it must exist and announce its collapsed state.
+    const html = renderToStaticMarkup(<GeneratedStationIndex interior={interior} sel={null} onStation={() => {}} />);
+    expect(html).toContain('aria-expanded="false"');
+    expect(html).toContain(zh.island.interior.index.title);
+    expect(html).not.toContain('data-station-row=');
   });
 });

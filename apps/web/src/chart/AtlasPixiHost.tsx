@@ -25,6 +25,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { AtlasStage, type AtlasMetrics } from '@frontier-isles/renderer/pixi';
 import { makeScaleCorpus } from '@frontier-isles/core';
+import { acquirePixiLifecycle, disposePixiStage } from '../pixiLifecycle';
 import { buildAtlasScene } from './atlasData';
 
 export default function AtlasPixiHost() {
@@ -40,13 +41,20 @@ export default function AtlasPixiHost() {
     const host = hostRef.current;
     if (!host) return;
     let disposed = false;
+    let releasePixi: (() => void) | null = null;
     const stage = new AtlasStage();
     stage.onMetrics = setMetrics;
     stage.onPick = (slug) => setPicked(slug);
 
-    void stage.init(host, { resizeTo: host }).then(() => {
+    void acquirePixiLifecycle().then(async (release) => {
       if (disposed) {
-        stage.destroy();
+        release();
+        return;
+      }
+      releasePixi = release;
+      await stage.init(host, { resizeTo: host });
+      if (disposed) {
+        releasePixi = disposePixiStage(stage, releasePixi);
         return;
       }
       // Scale test: append N believable synthetic frontier islands (W4) through
@@ -58,11 +66,16 @@ export default function AtlasPixiHost() {
       stageRef.current = stage;
       // DEV-only handle for deterministic camera control (verification screenshots).
       if (import.meta.env.DEV) (window as unknown as { __atlas?: AtlasStage }).__atlas = stage;
+    }).catch((error) => {
+      releasePixi = disposePixiStage(stage, releasePixi);
+      console.warn('[atlas-pixi] stage boot failed', error);
     });
 
     return () => {
       disposed = true;
-      stageRef.current?.destroy();
+      // No activeStage means init never completed — its chain owns the release.
+      const activeStage = stageRef.current;
+      if (activeStage) releasePixi = disposePixiStage(activeStage, releasePixi);
       stageRef.current = null;
     };
   }, [n]);

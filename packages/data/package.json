@@ -4,10 +4,21 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./atlas": "./src/atlas.ts",
+    "./bridges": "./src/bridges.ts",
+    "./frontiers": "./src/frontiers.ts",
+    "./interior-bundle": "./src/interior-bundle.ts",
+    "./interiors": "./src/interiors.ts",
+    "./interiors-2": "./src/interiors-2.ts",
+    "./regions": "./src/regions.ts",
+    "./sea": "./src/sea.ts",
+    "./structures": "./src/structures.ts"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "generate:atlas": "node --experimental-strip-types scripts/generate-atlas.mjs",
+    "check:atlas": "node --experimental-strip-types scripts/generate-atlas.mjs --check",
+    "typecheck": "pnpm check:atlas && tsc --noEmit"
   },
   "devDependencies": {
     "typescript": "^5.7.2"

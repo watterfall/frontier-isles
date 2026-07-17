@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { SEA_SEED_RELATIONS } from '@frontier-isles/data';
+import { SEA_SEED_RELATIONS } from '@frontier-isles/data/sea';
 import type { IslandDatum } from '../../api/fallback';
 import { LangToggle } from '../shell/LangToggle';
 

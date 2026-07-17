@@ -8,7 +8,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "test:e2e": "playwright test",
+    "check:data-imports": "node scripts/check-data-imports.mjs",
+    "typecheck": "pnpm check:data-imports && tsc --noEmit"
   },
   "dependencies": {
     "@frontier-isles/assets": "workspace:*",
@@ -25,6 +27,7 @@
     "yjs": "^13.6.0"
   },
   "devDependencies": {
+    "@playwright/test": "1.61.1",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.0",

@@ -66,6 +66,18 @@ describe('buildAtlasScene — the default L0 atlas data wiring (atlas-world-plan
     expect(a.islands.map((i) => i.outlier)).toEqual(b.islands.map((i) => i.outlier));
   });
 
+  it('keeps a varied archipelago rhythm instead of one uniform dense packing', () => {
+    const scene = buildAtlasScene();
+    const nearest = scene.islands.map((island, index) => Math.min(
+      ...scene.islands
+        .filter((_, otherIndex) => otherIndex !== index)
+        .map((other) => Math.hypot(island.x - other.x, island.y - other.y)),
+    )).sort((a, b) => a - b);
+    const p20 = nearest[Math.floor(nearest.length * 0.2)]!;
+    const p80 = nearest[Math.floor(nearest.length * 0.8)]!;
+    expect(p80 / p20).toBeGreaterThan(1.45);
+  });
+
   it('nests each computed region around a geometry-derived anchor', () => {
     const scene = buildAtlasScene();
     for (const cluster of scene.clusters) {

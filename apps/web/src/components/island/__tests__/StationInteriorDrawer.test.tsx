@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import type { StationKind } from '@frontier-isles/core';
-import { INTERIORS } from '@frontier-isles/data';
+import { INTERIORS } from '@frontier-isles/data/interiors';
 import { StationInteriorDrawer } from '../StationInteriorDrawer';
 import { zh } from '../../../i18n/zh';
 import { en } from '../../../i18n/en';

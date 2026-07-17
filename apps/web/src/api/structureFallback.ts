@@ -12,7 +12,7 @@
  * this file's test will catch the drift.
  */
 import { structureFrontier, type StructureEdge } from '@frontier-isles/core';
-import { SEED_STRUCTURES } from '@frontier-isles/data';
+import { SEED_STRUCTURES } from '@frontier-isles/data/structures';
 import { DATA } from './fallback';
 import type { ApiStructure, ApiStructureGraph } from './client';
 

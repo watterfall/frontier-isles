@@ -1,13 +1,11 @@
-import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import type { StationKind } from '@frontier-isles/core';
-import { Boat } from '@frontier-isles/assets';
 import { AtlasChartScreen } from './components/chart/AtlasChartScreen';
 import { IslandScreen } from './components/island/IslandScreen';
-import { GeneratedIslandScreen } from './components/island/GeneratedIslandScreen';
 import { CeremonyOverlay } from './components/ceremony/CeremonyOverlay';
 import { CollisionOverlay } from './components/ceremony/CollisionOverlay';
-import { ScrollWipe } from './components/shell/ScrollWipe';
 import { Toast } from './components/shell/Toast';
 import { LangToggle } from './components/shell/LangToggle';
 import { SessionBadge } from './components/shell/SessionBadge';
@@ -17,13 +15,38 @@ import { api } from './api/client';
 import { usePresence } from './presence/usePresence';
 import { QUESTIONS, SAMPLE_SLUG, STN, type IslandDatum, type QuestionDatum } from './api/fallback';
 import { localizeStationZh } from './i18n/stations';
-import { wipeReducer, initialWipe, MID_MS, END_MS, type WipeView } from './state/wipeMachine';
+import { wipeReducer, initialWipe } from './state/wipeMachine';
+import {
+  explorationReducer,
+  type WorldExplorerPose,
+} from './state/explorationSession';
+import {
+  downloadExplorationNotebook,
+  explorationNotebookMarkdown,
+  loadExplorationNotebook,
+  saveExplorationNotebook,
+} from './state/explorationNotebook';
 import {
   ceremonyReducer,
   initialCeremony,
   ritFocusText,
 } from './state/ceremonyReducer';
 import { useIsMobile, useStageScale } from './useIsMobile';
+
+const GeneratedIslandScreen = lazy(() =>
+  import('./components/island/GeneratedIslandScreen').then((module) => ({
+    default: module.GeneratedIslandScreen,
+  })),
+);
+
+interface NativeViewTransition {
+  finished: Promise<void>;
+  skipTransition: () => void;
+}
+
+type ViewTransitionDocument = Document & {
+  startViewTransition?: (update: () => void | Promise<void>) => NativeViewTransition;
+};
 
 export default function App() {
   const { t, i18n } = useTranslation();
@@ -34,18 +57,13 @@ export default function App() {
 
   // ── screen / transition ──────────────────────────────────────────────
   const [wipe, dispatchWipe] = useReducer(wipeReducer, initialWipe('chart'));
-  const wipeTimers = useRef<number[]>([]);
+  const [exploration, dispatchExploration] = useReducer(explorationReducer, undefined, loadExplorationNotebook);
 
-  const startWipe = useCallback(
-    (view: WipeView) => {
-      dispatchWipe({ type: 'begin', view });
-      requestAnimationFrame(() => requestAnimationFrame(() => dispatchWipe({ type: 'raf' })));
-      wipeTimers.current.push(window.setTimeout(() => dispatchWipe({ type: 'mid' }), MID_MS));
-      wipeTimers.current.push(window.setTimeout(() => dispatchWipe({ type: 'end' }), END_MS));
-    },
-    [],
-  );
-  useEffect(() => () => wipeTimers.current.forEach(clearTimeout), []);
+  // The field notebook is local-first and versioned. Navigation phase is not
+  // persisted, so reload always starts safely at L0 while retaining research.
+  useEffect(() => {
+    saveExplorationNotebook(exploration);
+  }, [exploration]);
 
   // ── L0 chart ─────────────────────────────────────────────────────────
   const [hover, setHover] = useState<number | null>(null);
@@ -53,9 +71,14 @@ export default function App() {
 
   // ── founded island (from a completed ceremony) ───────────────────────
   const [founded, setFounded] = useState<{ name: string; q: string; slug: string } | null>(null);
-  const chartIslands: IslandDatum[] = founded
-    ? [...islands, { id: 21, n: { zh: founded.name, en: founded.name }, q: { zh: founded.q, en: founded.q }, d: '交叉', x: 1108, y: 742, s: 0.8, st: 0, m: 1, a: 5, born: true, slug: founded.slug }]
-    : islands;
+  const chartIslands = useMemo<IslandDatum[]>(
+    () => founded
+      // id 1002: above the frontier range, beside the sample island's 1001 —
+      // a duplicate id breaks React list keys and every find-by-id lookup.
+      ? [...islands, { id: 1002, n: { zh: founded.name, en: founded.name }, q: { zh: founded.q, en: founded.q }, d: '交叉', x: 1108, y: 742, s: 0.8, st: 0, m: 1, a: 5, born: true, slug: founded.slug }]
+      : islands,
+    [founded, islands],
+  );
 
   // ── L1 island ────────────────────────────────────────────────────────
   const [night, setNight] = useState(false);
@@ -63,10 +86,13 @@ export default function App() {
   const [sel, setSel] = useState<StationKind | null>(null);
   const [selSlug, setSelSlug] = useState<string | null>(null);
   const [panel, setPanel] = useState(false);
-  // ── D2 sail: a ferry boat animates across the chart before the wipe ──────
-  const [sailing, setSailing] = useState<{ fromX: number; fromY: number; toX: number; toY: number; cx: number; cy: number; slug: string; t: number } | null>(null);
-  const [sailingPos, setSailingPos] = useState<{ x: number; y: number } | null>(null);
-  const lastIslandPos = useRef<{ x: number; y: number }>({ x: 760, y: 470 });
+  // The browser compositor snapshots the destination-centred L0 before React
+  // swaps to L1. This preserves the canvas visually without a second Pixi app,
+  // a copied WebGL buffer, or any page-covering wipe.
+  const [voyageActive, setVoyageActive] = useState(false);
+  const activeVoyage = useRef<NativeViewTransition | null>(null);
+  const islandReadyResolver = useRef<(() => void) | null>(null);
+  const atlasReadyResolver = useRef<(() => void) | null>(null);
   const [stFilter, setStFilter] = useState('全部');
   const [driftOn, setDriftOn] = useState(false);
   const [driftDest, setDriftDest] = useState<string | null>(null);
@@ -92,6 +118,12 @@ export default function App() {
     setToastOn(true);
     toastTimer.current = window.setTimeout(() => setToastOn(false), 2600);
   }, []);
+
+  const exportExplorationNotebook = useCallback(() => {
+    const markdown = explorationNotebookMarkdown(exploration, chartIslands, lang);
+    downloadExplorationNotebook(markdown);
+    showToast(t('chart.explore.exported'));
+  }, [chartIslands, exploration, lang, showToast, t]);
 
   // ── ceremony ─────────────────────────────────────────────────────────
   const [ceremony, dispatchCeremony] = useReducer(ceremonyReducer, undefined, initialCeremony);
@@ -140,26 +172,116 @@ export default function App() {
   }, [ceremony.ritLog.length, showToast, t]);
 
   // ── handlers ─────────────────────────────────────────────────────────
-  const onIsland = useCallback(
-    (d: IslandDatum) => {
-      if (sailing || wipe.phase !== 'idle') return;
-      const from = lastIslandPos.current;
-      lastIslandPos.current = { x: d.x, y: d.y };
-      const mx = (from.x + d.x) / 2;
-      const my = (from.y + d.y) / 2;
-      setSailing({ fromX: from.x, fromY: from.y, toX: d.x, toY: d.y, cx: mx, cy: my - 30, slug: d.slug ?? SAMPLE_SLUG, t: Date.now() });
+  const signalIslandReady = useCallback(() => {
+    islandReadyResolver.current?.();
+    islandReadyResolver.current = null;
+  }, []);
+
+  const signalAtlasReady = useCallback(() => {
+    atlasReadyResolver.current?.();
+    atlasReadyResolver.current = null;
+  }, []);
+
+  // One scaffold for both voyage directions: the reduced-motion probe, the
+  // capability fallback, the data-fi-voyage lifecycle, the readiness gate
+  // (bounded at 700ms) and the ownership-guarded cleanup. Direction-specific
+  // work lives entirely in `commit`/`afterCommit`.
+  const runVoyageTransition = useCallback(
+    (options: {
+      direction: 'entering' | 'returning';
+      commit: () => void;
+      /** Resolved when the destination screen has actually painted. */
+      readyResolver: { current: (() => void) | null };
+      /** Runs inside the transition after commit (resolve-at-once shortcuts). */
+      afterCommit?: (resolveReady: () => void) => void;
+    }) => {
+      const { direction, commit, readyResolver, afterCommit } = options;
+      let reduced = false;
+      try {
+        reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      } catch {
+        // Browsers without matchMedia take the non-animated fallback below.
+      }
+      const startViewTransition = (document as ViewTransitionDocument).startViewTransition;
+      if (reduced || !startViewTransition) {
+        commit();
+        requestAnimationFrame(() => setVoyageActive(false));
+        return;
+      }
+
+      let resolveReady = () => {};
+      const ready = new Promise<void>((resolve) => {
+        resolveReady = resolve;
+        readyResolver.current = resolve;
+      });
+
+      const transition = startViewTransition.call(document, async () => {
+        document.documentElement.dataset.fiVoyage = direction;
+        commit();
+        afterCommit?.(resolveReady);
+        // Keep the compositor's old snapshot visible until the destination has
+        // actually painted. Slow/error paths still progress after a bounded wait.
+        await Promise.race([
+          ready,
+          new Promise<void>((resolve) => window.setTimeout(resolve, 700)),
+        ]);
+      });
+      activeVoyage.current = transition;
+      const cleanUp = () => {
+        // A newer voyage owns the shared dataset flag; leave it to that voyage.
+        if (activeVoyage.current !== transition) return;
+        activeVoyage.current = null;
+        readyResolver.current = null;
+        delete document.documentElement.dataset.fiVoyage;
+        setVoyageActive(false);
+      };
+      // `skipTransition()` may reject `finished` in some implementations. Use
+      // both promise branches so Escape never leaves an unhandled rejection.
+      void transition.finished.then(cleanUp, cleanUp);
     },
-    [sailing, wipe.phase],
+    [],
   );
 
-  // Clicking a bridge sails along its arc to the far island (§4 ferryman route).
+  const beginVoyage = useCallback(
+    (d: IslandDatum, source: 'atlas' | 'explore' = 'atlas', worldPose?: WorldExplorerPose) => {
+      if (voyageActive) return;
+      const slug = d.slug ?? SAMPLE_SLUG;
+      runVoyageTransition({
+        direction: 'entering',
+        readyResolver: islandReadyResolver,
+        commit: () => {
+          flushSync(() => {
+            setSelSlug(slug);
+            setVoyageActive(true);
+            dispatchExploration({ type: 'dock', slug, source, pose: worldPose });
+            dispatchWipe({ type: 'switch', view: 'island' });
+          });
+        },
+        // The bespoke sample island renders synchronously — release at once.
+        afterCommit: (resolveReady) => {
+          if (slug === SAMPLE_SLUG) requestAnimationFrame(resolveReady);
+        },
+      });
+    },
+    [runVoyageTransition, voyageActive],
+  );
+
+  const onIsland = useCallback(
+    (d: IslandDatum) => {
+      beginVoyage(d);
+    },
+    [beginVoyage],
+  );
+
+  // A bridge uses the same destination-centred handoff. Its route remains
+  // visible on the atlas up to this point; the transition should not invent a
+  // second, differently projected arc in DOM coordinates.
   const onBridge = useCallback(
     (b: { fromPos: { x: number; y: number }; toPos: { x: number; y: number }; arc: { cx: number; cy: number }; toSlug: string; toX: number; toY: number }) => {
-      if (sailing || wipe.phase !== 'idle') return;
-      lastIslandPos.current = { x: b.toX, y: b.toY };
-      setSailing({ fromX: b.fromPos.x, fromY: b.fromPos.y, toX: b.toPos.x, toY: b.toPos.y, cx: b.arc.cx, cy: b.arc.cy, slug: b.toSlug, t: Date.now() });
+      const destination = chartIslands.find((d) => d.slug === b.toSlug);
+      if (destination) beginVoyage(destination);
     },
-    [sailing, wipe.phase],
+    [beginVoyage, chartIslands],
   );
 
   // Collision founding: found a new island on a real isomorphism bridge.
@@ -186,34 +308,46 @@ export default function App() {
     [actor, showToast, t],
   );
 
-  // Sail along a quadratic Bezier arc, then trigger the wipe.
+  // Esc skips the shared-axis transition without reversing the user's choice.
   useEffect(() => {
-    if (!sailing) return;
-    let raf = 0;
-    const start = performance.now();
-    const dur = 950;
-    const { fromX, fromY, toX, toY, cx, cy, slug } = sailing;
-    const tick = (now: number) => {
-      const t = Math.min((now - start) / dur, 1);
-      const mt = 1 - t;
-      setSailingPos({ x: mt * mt * fromX + 2 * mt * t * cx + t * t * toX, y: mt * mt * fromY + 2 * mt * t * cy + t * t * toY });
-      if (t < 1) {
-        raf = requestAnimationFrame(tick);
-      } else {
-        setSelSlug(slug);
-        startWipe('island');
-        setSailing(null);
-      }
+    if (!voyageActive) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      signalIslandReady();
+      signalAtlasReady();
+      activeVoyage.current?.skipTransition();
     };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [sailing, startWipe]);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [signalAtlasReady, signalIslandReady, voyageActive]);
+
+  useEffect(() => () => {
+    islandReadyResolver.current?.();
+    atlasReadyResolver.current?.();
+    activeVoyage.current?.skipTransition();
+    delete document.documentElement.dataset.fiVoyage;
+  }, []);
 
   const goChart = useCallback(() => {
-    setPanel(false);
-    setSelSlug(null);
-    startWipe('chart');
-  }, [startWipe]);
+    // Same re-entry guard as beginVoyage: a double-clicked Back must not start
+    // a second transition whose cleanup races the first one's shared flag.
+    if (voyageActive) return;
+    const returnToWorld = exploration.returnTo === 'explore';
+    runVoyageTransition({
+      direction: 'returning',
+      readyResolver: atlasReadyResolver,
+      commit: () => {
+        flushSync(() => {
+          setPanel(false);
+          setSelSlug(null);
+          setVoyageActive(true);
+          dispatchExploration({ type: returnToWorld ? 'return-world' : 'return-atlas' });
+          dispatchWipe({ type: 'switch', view: 'chart' });
+        });
+      },
+    });
+  }, [exploration.returnTo, runVoyageTransition, voyageActive]);
 
   const onStation = useCallback(
     (key: StationKind) => {
@@ -282,7 +416,11 @@ export default function App() {
 
   // ── desktop shell (1440×900 world, fitted edge-to-edge) ──────────────
   return (
-    <main className="fi-app-shell">
+    <main
+      className="fi-app-shell"
+      data-voyage={voyageActive ? 'entering' : undefined}
+      data-world-explore={exploration.phase === 'explore' || undefined}
+    >
       <div className={`fi-global-controls fi-global-controls-${wipe.view}`} aria-label={t('shell.accountControls')}>
         <SessionBadge />
         <LangToggle />
@@ -291,77 +429,99 @@ export default function App() {
       <div className="fi-stage-viewport" style={{ width: 1440 * scale, height: 900 * scale }}>
         <div className="fi-stage" style={{ transform: `scale(${scale})` }}>
           <div className="fi-stage-inner">
-          {wipe.view === 'island' && selSlug && selSlug !== SAMPLE_SLUG && (
-            <GeneratedIslandScreen
-              slug={selSlug}
-              night={night}
-              onToggleNight={() => setNight((v) => !v)}
-              onBack={goChart}
-              onStation={onStation}
-              actor={actor}
-              onToast={showToast}
-            />
-          )}
-          {wipe.view === 'island' && (selSlug === SAMPLE_SLUG || !selSlug) && (
-            <IslandScreen
-              night={night}
-              onToggleNight={() => setNight((v) => !v)}
-              t={tval}
-              onT={setTval}
-              sel={sel}
-              panel={panel}
-              onStation={onStation}
-              onClosePanel={() => setPanel(false)}
-              onBack={goChart}
-              stFilter={stFilter}
-              onStFilter={setStFilter}
-              driftOn={driftOn}
-              driftDest={driftDest}
-              transTo={transTo}
-              onCloseDrift={() => {
-                setDriftOn(false);
-                setDriftDest(null);
-              }}
-              onMove={() => setDriftDest('choosing')}
-              onToWorkshop={() => transplant('实验坊')}
-              onToCanvas={() => transplant('白板厅')}
-              actor={actor}
-              onToast={showToast}
-              qs={qs}
-              voted={voted}
-              focusIdx={focusIdx}
-              advOn={advOn}
-              onCloseAdv={() => setAdvOn(false)}
-              onToggleQ={onToggleQ}
-              onVoteQ={onVoteQ}
-              onFocus={onFocus}
-              peers={peers}
-            />
+          {wipe.view === 'island' && (
+            <div className="fi-screen-layer fi-screen-layer-island">
+              {selSlug && selSlug !== SAMPLE_SLUG ? (
+                <Suspense fallback={<div className="fi-island-loading-mark" role="status"><i aria-hidden="true" /><span>{t('island.loading')}</span></div>}>
+                  <GeneratedIslandScreen
+                    slug={selSlug}
+                    night={night}
+                    onToggleNight={() => setNight((v) => !v)}
+                    onBack={goChart}
+                    backTarget={exploration.returnTo}
+                    onStation={onStation}
+                    actor={actor}
+                    onToast={showToast}
+                    onReady={signalIslandReady}
+                  />
+                </Suspense>
+              ) : (
+                <IslandScreen
+                  night={night}
+                  onToggleNight={() => setNight((v) => !v)}
+                  t={tval}
+                  onT={setTval}
+                  sel={sel}
+                  panel={panel}
+                  onStation={onStation}
+                  onClosePanel={() => setPanel(false)}
+                  onBack={goChart}
+                  backTarget={exploration.returnTo}
+                  stFilter={stFilter}
+                  onStFilter={setStFilter}
+                  driftOn={driftOn}
+                  driftDest={driftDest}
+                  transTo={transTo}
+                  onCloseDrift={() => {
+                    setDriftOn(false);
+                    setDriftDest(null);
+                  }}
+                  onMove={() => setDriftDest('choosing')}
+                  onToWorkshop={() => transplant('实验坊')}
+                  onToCanvas={() => transplant('白板厅')}
+                  actor={actor}
+                  onToast={showToast}
+                  qs={qs}
+                  voted={voted}
+                  focusIdx={focusIdx}
+                  advOn={advOn}
+                  onCloseAdv={() => setAdvOn(false)}
+                  onToggleQ={onToggleQ}
+                  onVoteQ={onVoteQ}
+                  onFocus={onFocus}
+                  peers={peers}
+                />
+              )}
+            </div>
           )}
 
           {wipe.view === 'chart' && (
-            <AtlasChartScreen
-              islands={chartIslands}
-              harbor={harbor}
-              filter={filter}
-              onFilter={setFilter}
-              hover={hover}
-              onHover={setHover}
-              onIsland={onIsland}
-              onBuild={() => dispatchCeremony({ type: 'start' })}
-              onCollide={() => setCollideOn(true)}
-              onBridge={onBridge}
-            />
-          )}
-
-          {/* D2 渡船 — a ferry sails across the chart before the wipe to L1 */}
-          {sailing && sailingPos && (
-            <svg viewBox="0 0 1440 900" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 50 }}>
-              <g style={{ transform: `translate(${sailingPos.x}px, ${sailingPos.y}px)` }}>
-                <path d="M -40 8 Q -20 4 0 8 Q 20 12 40 8" stroke="#BFCEDB" strokeWidth="1.5" fill="none" opacity="0.6" strokeDasharray="3 4" />
-                <Boat x={0} y={0} variant="sail" bobSeconds={1.2} />
-              </g>
-            </svg>
+            <div className="fi-screen-layer fi-screen-layer-chart">
+              <AtlasChartScreen
+                islands={chartIslands}
+                harbor={harbor}
+                filter={filter}
+                onFilter={setFilter}
+                hover={hover}
+                onHover={setHover}
+                onIsland={onIsland}
+                onBuild={() => dispatchCeremony({ type: 'start' })}
+                onCollide={() => setCollideOn(true)}
+                onBridge={onBridge}
+                onExplore={() => dispatchExploration({ type: 'enter-world' })}
+                onAtlasReady={signalAtlasReady}
+                worldExplore={{
+                  active: exploration.phase === 'explore',
+                  initialPose: exploration.worldPose,
+                  visitedIslandSlugs: exploration.visitedIslandSlugs,
+                  sampledCurrents: exploration.sampledCurrents,
+                  courseSlug: exploration.courseIslandSlug,
+                  courseHistorySlugs: exploration.courseHistorySlugs,
+                  notes: exploration.notes,
+                  onCourse: (slug) => dispatchExploration({ type: 'set-course', slug }),
+                  onPose: (pose) => dispatchExploration({ type: 'remember-world-pose', pose }),
+                  onInspect: (slug) => dispatchExploration({ type: 'inspect-island', slug }),
+                  onSampleCurrent: (current) => dispatchExploration({ type: 'sample-current', current }),
+                  onNote: (slug, text) => dispatchExploration({ type: 'write-note', slug, text }),
+                  onExportNotebook: exportExplorationNotebook,
+                  onDock: (island, pose) => beginVoyage(island, 'explore', pose),
+                  onExit: (pose) => {
+                    if (pose) dispatchExploration({ type: 'remember-world-pose', pose });
+                    dispatchExploration({ type: 'return-atlas' });
+                  },
+                }}
+              />
+            </div>
           )}
 
           {ceremony.rit !== null && (
@@ -371,8 +531,6 @@ export default function App() {
           {collideOn && (
             <CollisionOverlay onCollide={onCollide} onClose={() => setCollideOn(false)} />
           )}
-
-          {wipe.wipeOn && <ScrollWipe wipeTf={wipe.wipeTf} wipeTrans={wipe.wipeTrans} />}
 
           <Toast text={toast} on={toastOn} />
           </div>

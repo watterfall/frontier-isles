@@ -47,7 +47,7 @@ export function computeCardContent(
     citation: hd.citation,
     act: hd.a,
     m: hd.m,
-    hint: hd.out ? t('chart.card.hintOutlier') : t('chart.card.hintEnter'),
+    hint: hd.out ? t('chart.card.hintOutlier') : t('chart.card.routeOpen'),
     hintCol: '#B5673A',
   };
 }

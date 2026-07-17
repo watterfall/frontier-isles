@@ -41,6 +41,7 @@ export interface IslandScreenProps {
   onStation: (key: StationKind) => void;
   onClosePanel: () => void;
   onBack: () => void;
+  backTarget?: 'atlas' | 'explore';
   stFilter: string;
   onStFilter: (f: string) => void;
   driftOn: boolean;
@@ -67,6 +68,7 @@ export function IslandScreen(props: IslandScreenProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
   const { night, peers } = props;
+  const returnsToExplore = props.backTarget === 'explore';
 
   /**
    * Phase B.2 (docs/ROADMAP.md §4 Phase B item 2, "ledger-driven night
@@ -132,7 +134,7 @@ export function IslandScreen(props: IslandScreenProps) {
 
       <div className="fi-island-hud">
         <div className="fi-island-hud-left">
-          <button type="button" onClick={props.onBack} className="fi-island-back"><span aria-hidden="true">←</span><span><strong>{t('island.back')}</strong><small>L0 · ATLAS</small></span></button>
+          <button type="button" onClick={props.onBack} className="fi-island-back"><span aria-hidden="true">←</span><span><strong>{t(returnsToExplore ? 'island.backExplore' : 'island.back')}</strong><small>{returnsToExplore ? 'L0.5 · EXPLORE' : 'L0 · ATLAS'}</small></span></button>
           <section className="fi-island-dossier fi-island-dossier-sample">
             <div className="fi-island-dossier-meta"><span>L1 · ISLAND</span><span>{t('island.academy')}</span><span>{t('island.residents')}</span></div>
             <h1>{SAMPLE_TITLE[lang]}</h1>
