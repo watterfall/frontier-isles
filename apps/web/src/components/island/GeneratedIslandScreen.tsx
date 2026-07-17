@@ -10,16 +10,29 @@ import { TransplantPanel } from './TransplantPanel';
 import { NightTimeline } from './NightTimeline';
 import { StationInteriorDrawer } from './StationInteriorDrawer';
 import { GeneratedStationIndex } from './GeneratedStationIndex';
-import type { IslandInterior } from '@frontier-isles/data';
+import { frontierAtlasBySlug } from '@frontier-isles/data/atlas';
+import type { IslandInterior } from '@frontier-isles/data/frontiers';
 import { api } from '../../api/client';
-import { DATA } from '../../api/fallback';
 
-/** The curated interior for a slug from the offline fallback atlas. Used when
- *  the server detail omits it — e.g. a DB seeded before interiors existed, or
- *  the server being absent entirely (the app must render identically offline,
- *  fallback.ts convention). Flagship islands carry an interior here. */
-function fallbackInterior(slug: string): IslandInterior | undefined {
-  return DATA.find((d) => d.slug === slug)?.interior;
+/** Load the full L1 station archive only when a stale server omitted it. */
+export async function loadFallbackInterior(slug: string): Promise<IslandInterior | undefined> {
+  if (!frontierAtlasBySlug(slug)?.hasInterior) return undefined;
+  try {
+    const { interiorBySlug } = await import('@frontier-isles/data/interior-bundle');
+    return interiorBySlug(slug);
+  } catch {
+    return undefined;
+  }
+}
+
+/** A minority of content-rich islands reuse the original sample's research-
+ * courtyard grammar. Stable by slug, never random per visit; other islands keep
+ * the organic terrain grammar so visual diversity grows instead of converging. */
+function usesCourtyardLayout(slug: string, hasInterior: boolean): boolean {
+  if (!hasInterior) return false;
+  let hash = 5381;
+  for (let i = 0; i < slug.length; i++) hash = (Math.imul(hash, 33) ^ slug.charCodeAt(i)) >>> 0;
+  return hash % 3 === 0;
 }
 import { generate, type GeneratedScene } from '../../scene/generator';
 import { GeneratedSceneView } from '../../scene/GeneratedScene';
@@ -76,10 +89,13 @@ export interface GeneratedIslandScreenProps {
   night: boolean;
   onToggleNight: () => void;
   onBack: () => void;
+  backTarget?: 'atlas' | 'explore';
   onStation: (key: StationKind) => void;
   /** Current user's ledger actor id — for the human transplant (Phase B.3). */
   actor: string;
   onToast: (msg: string) => void;
+  /** Signals that the destination scene can safely replace the atlas snapshot. */
+  onReady?: () => void;
 }
 
 /**
@@ -88,10 +104,11 @@ export interface GeneratedIslandScreenProps {
  * and renders it with the island's real title/qfocus/brief/citation. The
  * sample island keeps its bespoke {@link Scene}; this is the data-driven path.
  */
-export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onStation, actor, onToast }: GeneratedIslandScreenProps) {
+export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, backTarget = 'atlas', onStation, actor, onToast, onReady }: GeneratedIslandScreenProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
   const [detail, setDetail] = useState<IslandDetail | null>(null);
+  const [localInterior, setLocalInterior] = useState<IslandInterior | undefined>(undefined);
   const [scene, setScene] = useState<GeneratedScene | null>(null);
   const [input, setInput] = useState<LayoutInput | null>(null);
   const [claims, setClaims] = useState<ClaimState[] | undefined>(undefined);
@@ -153,6 +170,7 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
     let cancelled = false;
     setFailed(false);
     setNoGpu(false);
+    setLocalInterior(undefined);
     setDrawerStation(null);
     setDueRitualEvents([]);
     setReplay(null);
@@ -161,20 +179,23 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
     // Fetch the island detail + its real ledger in parallel: the ledger drives the
     // Pixi claim buildings (M4「接线上」); the detail drives everything else. Either
     // is best-effort — a null ledger just means buildSceneGraph synths from eventCount.
-    Promise.all([api.island(slug), api.ledger(slug)]).then(([d, ledger]) => {
+    Promise.all([api.island(slug), api.ledger(slug)]).then(async ([d, ledger]) => {
       if (cancelled) return;
       if (!d) {
         setFailed(true);
         return;
       }
       const det = d as IslandDetail;
+      const fallback = det.atlas?.interior ? undefined : await loadFallbackInterior(slug);
+      if (cancelled) return;
+      setLocalInterior(fallback);
       setDetail(det);
       // A flagship island's interior may be absent from the server detail (a DB
       // seeded before interiors shipped) — fall back to the offline atlas so the
       // station drawers still open. An island WITH an interior is an academy by
       // definition, so floor its scene stage at 2: otherwise a stale-DB low stage
       // would hide library/whiteboard/data and leave them untappable.
-      const hasInterior = !!(det.atlas?.interior ?? fallbackInterior(slug));
+      const hasInterior = !!(det.atlas?.interior ?? fallback);
       const stage = Math.max(STAGE_INDEX[det.growth.stage] ?? 1, hasInterior ? 2 : 0);
       const hasAi = det.memberships.some((m) => m.actorKind === 'agent');
       const layoutInput: LayoutInput = {
@@ -188,6 +209,7 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
         tide: det.tide.N,
         hasAi,
         eventCount: det.eventCount,
+        layoutVariant: usesCourtyardLayout(slug, hasInterior) ? 'courtyard' : 'organic',
       };
       const projected = ledger ? projectClaimState(ledger) : undefined;
       setInput(layoutInput);
@@ -232,6 +254,21 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
       cancelled = true;
     };
   }, [slug]);
+
+  // Let React commit the populated scene and give the renderer two frames to
+  // initialise before the View Transition captures L1. The parent still has a
+  // bounded timeout, so a slow renderer can never trap navigation.
+  useEffect(() => {
+    if (!detail || !scene || !input) return;
+    let secondFrame = 0;
+    const firstFrame = window.requestAnimationFrame(() => {
+      secondFrame = window.requestAnimationFrame(() => onReady?.());
+    });
+    return () => {
+      window.cancelAnimationFrame(firstFrame);
+      if (secondFrame) window.cancelAnimationFrame(secondFrame);
+    };
+  }, [detail, input, onReady, scene]);
 
   // Ritual moments — live poll: a publish/transplant fired while you're on the
   // island (by you or anyone else) still lights a lantern / sends a carrier
@@ -288,7 +325,7 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
     return (
       <div style={{ position: 'absolute', inset: 0, background: '#F2EAD8', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, color: '#6B6154' }}>
         <span style={{ fontFamily: "'Noto Serif SC',serif", fontSize: 16 }}>{t('island.notReachable')}</span>
-        <button onClick={onBack} style={{ cursor: 'pointer', background: '#2B2620', color: '#F2EAD8', border: 'none', borderRadius: 6, padding: '8px 16px', fontSize: 13 }}>{t('island.back')}</button>
+        <button onClick={onBack} style={{ cursor: 'pointer', background: '#2B2620', color: '#F2EAD8', border: 'none', borderRadius: 6, padding: '8px 16px', fontSize: 13 }}>{t(backTarget === 'explore' ? 'island.backExplore' : 'island.back')}</button>
       </div>
     );
   }
@@ -310,7 +347,7 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
   const literature = detail.atlas?.literature ?? [];
   // Server interior first; fall back to the offline atlas when the server omits
   // it (pre-interior DB seed, or server absent) so the drawers still open.
-  const interior = detail.atlas?.interior ?? fallbackInterior(slug);
+  const interior = detail.atlas?.interior ?? localInterior;
   // Station tap: flagship islands (with an interior) open the L2 station-interior
   // drawer; islands without one fall through to the parent (toast), unchanged.
   const handleStation = (key: StationKind): void => {
@@ -342,7 +379,6 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
   const effActive = scrubbing ? replay!.activeStations : activeStations;
   // Only offer the scrubber when the ledger actually has events to replay.
   const hasReplay = timeline != null && (timeline.eventCountByNight[timeline.nights] ?? 0) > 0;
-
   return (
     <div
       data-screen-label="L1 生成岛"
@@ -397,7 +433,7 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, onSt
 
       <div className="fi-island-hud">
         <div className="fi-island-hud-left">
-          <button type="button" onClick={onBack} className="fi-island-back"><span aria-hidden="true">←</span><span><strong>{t('island.back')}</strong><small>L0 · ATLAS</small></span></button>
+          <button type="button" onClick={onBack} className="fi-island-back"><span aria-hidden="true">←</span><span><strong>{t(backTarget === 'explore' ? 'island.backExplore' : 'island.back')}</strong><small>{backTarget === 'explore' ? 'L0.5 · EXPLORE' : 'L0 · ATLAS'}</small></span></button>
           <section className="fi-island-dossier">
             <div className="fi-island-dossier-meta">
               <span>L1 · ISLAND</span>

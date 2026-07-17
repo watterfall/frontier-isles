@@ -6,10 +6,28 @@
  */
 
 export { IsoStage, type IsoStageOptions } from './stage';
-export { SceneStage, type SceneStageOptions, type TextureResolver, type ResolvedTexture, type SeaColors } from './scene-stage';
+export {
+  SceneStage,
+  type SceneStageOptions,
+  type TextureResolver,
+  type ResolvedTexture,
+  type SeaColors,
+} from './scene-stage';
 export { createSeaMesh, type SeaMesh, type SeaMeshOptions } from './sea-mesh';
 export { RitualLayer, type RitualPoint, type RitualFireOptions } from './rituals';
-export { AtlasStage, type AtlasStageOptions, type AtlasMetrics, type AtlasStructureLensInput } from './atlas-stage';
+export {
+  AtlasStage,
+  type AtlasStageOptions,
+  type AtlasMetrics,
+  type AtlasCameraPose,
+  type AtlasStructureLensInput,
+  type AtlasExplorerPose,
+  type AtlasExplorerCamera,
+  type AtlasExplorerFacing,
+  type AtlasExplorerIsland,
+  type AtlasExplorerCurrent,
+  type AtlasExplorerBounds,
+} from './atlas-stage';
 export {
   zoomTier,
   tierBlend,
@@ -18,12 +36,26 @@ export {
   placeholderClusters,
   makeFakeIslands,
   atlasCoastline,
+  atlasCurrentGeometry,
+  ATLAS_ALTITUDE_DISTANCE_WEIGHT,
+  ATLAS_EXPLORER_APPROACH_DISTANCE,
+  ATLAS_EXPLORER_CURRENT_SAMPLE_DISTANCE,
+  ATLAS_EXPLORER_CURRENT_SIGNAL_DISTANCE,
+  ATLAS_EXPLORER_MAX_SPEED,
+  ATLAS_EXPLORER_SIGNAL_DISTANCE,
+  atlasAltitudeZ,
+  atlasCruiseScale,
+  atlasCurrentId,
   atlasHash,
+  facingToHeading,
+  headingToFacing,
+  vectorToFacing,
   atlasRng,
   assignAtlasAltitudes,
   assignAtlasHierarchy,
   atlasIslandLift,
   projectAtlasIslandY,
+  nearestAtlasCurrentPoint,
   satelliteReveal,
   satelliteViewFactor,
   satelliteDisclosure,
@@ -52,6 +84,8 @@ export {
   type AtlasFogCell,
   type AtlasFlow,
   type AtlasCurrent,
+  type AtlasCurrentGeometry,
+  type AtlasCurrentNearestPoint,
   type LabelBox,
   type LabelVerdict,
 } from './atlas-lod';

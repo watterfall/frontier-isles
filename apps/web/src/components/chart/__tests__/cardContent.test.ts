@@ -21,10 +21,10 @@ describe('computeCardContent — extracted from ChartScreen (no behavior change)
     expect(c.hint).toContain('hintOutlier');
   });
 
-  it('a non-outlier gets the enter hint', () => {
+  it('a non-outlier reports route availability without duplicating the enter action', () => {
     const d = { ...DATA[0]!, out: false };
     const c = computeCardContent(d, 'zh', t);
-    expect(c.hint).toContain('hintEnter');
+    expect(c.hint).toContain('routeOpen');
   });
 });
 

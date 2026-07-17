@@ -55,4 +55,10 @@ describe('AtlasChartScreen — SVG fallback preserved (no WebGL in this test env
   it('never crashes for an empty island list (server-absent-safe boundary)', () => {
     expect(() => renderToStaticMarkup(<AtlasChartScreen {...baseProps} islands={[]} />)).not.toThrow();
   });
+
+  it('keeps the global exploration entry available in the SVG fallback', () => {
+    const markup = renderToStaticMarkup(<AtlasChartScreen {...baseProps} onExplore={() => {}} />);
+    expect(markup).toContain(zh.chart.explore.launch);
+    expect(markup).toContain(zh.chart.explore.launchHint);
+  });
 });

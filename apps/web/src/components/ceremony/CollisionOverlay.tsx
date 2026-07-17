@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { BRIDGES, frontierBySlug } from '@frontier-isles/data';
+import { frontierAtlasBySlug } from '@frontier-isles/data/atlas';
+import { BRIDGES } from '@frontier-isles/data/bridges';
 
 export interface CollisionOverlayProps {
   onCollide: (bridge: { formula: string; skeleton: { zh: string; en: string }; from: string; to: string }) => void;
@@ -26,8 +27,8 @@ export function CollisionOverlay({ onCollide, onClose }: CollisionOverlayProps) 
       </div>
       <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', justifyContent: 'center', maxWidth: 900 }}>
         {BRIDGES.map((b, i) => {
-          const fromName = frontierBySlug(b.from)?.title.zh ?? b.from;
-          const toName = frontierBySlug(b.to)?.title.zh ?? b.to;
+          const fromName = frontierAtlasBySlug(b.from)?.title.zh ?? b.from;
+          const toName = frontierAtlasBySlug(b.to)?.title.zh ?? b.to;
           return (
             <div
               key={i}

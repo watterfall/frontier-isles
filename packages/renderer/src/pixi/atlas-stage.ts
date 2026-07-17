@@ -25,19 +25,33 @@
  */
 
 import { Application, Container, Graphics, Sprite, Text, TextStyle, Texture, isWebGLSupported } from 'pixi.js';
+import { AtlasMotionDirector, registerAtlasMotionPixi } from './atlas-motion';
 import {
   ATLAS_BAND_LIFT,
   ATLAS_DOMAIN_FILL,
   ATLAS_DOMAIN_INK,
   ATLAS_STAGE_RADIUS,
+  ATLAS_ALTITUDE_DISTANCE_WEIGHT,
+  ATLAS_EXPLORER_APPROACH_DISTANCE,
+  ATLAS_EXPLORER_CURRENT_SAMPLE_DISTANCE,
+  ATLAS_EXPLORER_CURRENT_SIGNAL_DISTANCE,
+  ATLAS_EXPLORER_MAX_SPEED,
+  ATLAS_EXPLORER_SIGNAL_DISTANCE,
   ATLAS_Y_TILT,
   ATLAS_Y_SPREAD,
+  atlasAltitudeZ,
   atlasCoastline,
+  atlasCruiseScale,
+  atlasCurrentGeometry,
+  atlasCurrentId,
   atlasIslandLift,
+  facingToHeading,
+  headingToFacing,
   computeWorldMinScale,
   deconflictLabels,
   focusFog,
   islandPriority,
+  nearestAtlasCurrentPoint,
   satelliteDisclosure,
   satelliteReveal,
   tierBlend,
@@ -46,6 +60,7 @@ import {
   type AtlasAltitudeBand,
   type AtlasContinent,
   type AtlasCurrent,
+  type AtlasCurrentGeometry,
   type AtlasDomain,
   type AtlasFlow,
   type AtlasFogCell,
@@ -53,6 +68,10 @@ import {
   type AtlasTier,
   type LabelBox,
 } from './atlas-lod';
+
+// Do not import the whole PIXI namespace into the GSAP chunk. These are the
+// same constructors this stage already pays for and the only ones it animates.
+registerAtlasMotionPixi({ Container, Graphics, Sprite });
 
 const STAGE_LABELS = ['空岛', '草棚', '书院', '学派'] as const;
 const ALTITUDE_LABELS: Record<AtlasAltitudeBand, string> = { low: '低空', middle: '中空', high: '高空' };
@@ -62,7 +81,7 @@ const ALTITUDE_LIFT = ATLAS_BAND_LIFT;
 const ALTITUDE_DEPTH: Record<AtlasAltitudeBand, number> = { low: 20, middle: 34, high: 48 };
 
 const altitudeOf = (o: AtlasIslandInput): AtlasAltitudeBand => o.altitude ?? 'middle';
-const altitudeZOf = (o: AtlasIslandInput): number => Math.max(0, Math.min(1, o.altitudeZ ?? ALTITUDE_INDEX[altitudeOf(o)] / 2));
+const altitudeZOf = atlasAltitudeZ;
 const altitudeLiftOf = (o: AtlasIslandInput): number => atlasIslandLift(o);
 const projectAtlasY = (y: number, band?: AtlasAltitudeBand): number => y * ATLAS_Y_TILT * ATLAS_Y_SPREAD - (band ? ALTITUDE_LIFT[band] : 0);
 const projectIslandY = (o: AtlasIslandInput): number => o.y * ATLAS_Y_TILT * ATLAS_Y_SPREAD - altitudeLiftOf(o);
@@ -320,6 +339,88 @@ export interface AtlasMetrics {
   visibleSatellites: number;
 }
 
+/** Viewport-independent atlas camera state. `centerX`/`centerY` are chart-space
+ * coordinates at the centre of the screen; `scale` is the semantic zoom. A
+ * guided journey can therefore scrub the same pose across resizes without
+ * reaching into Pixi's screen-space container transform. */
+export interface AtlasCameraPose {
+  centerX: number;
+  centerY: number;
+  scale: number;
+}
+
+export type AtlasExplorerFacing = 'north' | 'east' | 'south' | 'west';
+
+/** A low-altitude field position in the atlas' already-projected world. */
+export interface AtlasExplorerPose {
+  x: number;
+  y: number;
+  facing: AtlasExplorerFacing;
+  /** Continuous heading in radians; `facing` remains the list/keyboard twin. */
+  heading?: number;
+  /** World units per second, used only for honest vessel feedback. */
+  speed?: number;
+  /** Signed visual bank in radians, derived from turning acceleration. */
+  bank?: number;
+  /** 0..1 craft position across the low / middle / high cartographic strata. */
+  altitudeZ?: number;
+  /** Normalized stratum change per second, used by rig and wake feedback. */
+  verticalSpeed?: number;
+}
+
+export interface AtlasExplorerCamera {
+  centerX: number;
+  centerY: number;
+  scale: number;
+  /** Screen-space composition anchor as a 0..1 viewport fraction. */
+  anchorX: number;
+  anchorY: number;
+}
+
+export interface AtlasExplorerIsland {
+  slug: string;
+  name: string;
+  distance: number;
+  /** Horizontal projected-world distance, before the height mismatch penalty. */
+  horizontalDistance: number;
+  altitude: AtlasAltitudeBand;
+  altitudeZ: number;
+  /** Signed target minus craft height; positive means the target is above. */
+  altitudeDelta: number;
+  /** Already-projected atlas coordinates for relationship framing. */
+  x: number;
+  y: number;
+}
+
+/** A craft-relative reading of one real ledger current. */
+export interface AtlasExplorerCurrent {
+  id: string;
+  fromSlug: string;
+  toSlug: string;
+  kind: AtlasCurrent['kind'];
+  sign: AtlasCurrent['sign'];
+  directed: boolean;
+  maturity?: AtlasCurrent['maturity'];
+  weight: number;
+  tint: number;
+  distance: number;
+  horizontalDistance: number;
+  altitudeZ: number;
+  altitudeDelta: number;
+  progress: number;
+  x: number;
+  y: number;
+  tangentX: number;
+  tangentY: number;
+}
+
+export interface AtlasExplorerBounds {
+  minX: number;
+  minY: number;
+  maxX: number;
+  maxY: number;
+}
+
 /** Camera zoom-IN clamp — near tier must always be reachable. The zoom-OUT
  *  floor is `minScale` (an instance field, computed per-dataset by
  *  `computeWorldMinScale` in `fitToContent` — see that method's doc comment). */
@@ -339,6 +440,11 @@ interface IslandNode {
   halfH: number;
   showingTier: AtlasTier | '';
   band: AtlasAltitudeBand;
+  /** cached pose-independent field coordinates (projectIslandY / altitudeZOf are
+   * pure over static island data — recomputing them per island per explore
+   * frame was the bulk of nearbyExplorerIslands' cost). */
+  fieldY: number;
+  fieldZ: number;
   /** Nested-disclosure alpha for THIS camera (anchors always 1; satellites from
    * satelliteDisclosure). Written once per applyTier, read by labels + routes. */
   reveal: number;
@@ -375,6 +481,14 @@ export class AtlasStage {
   readonly lensLayer = new Container();
   /** Island coastlines (world space, mid/near). */
   readonly islandLayer = new Container();
+  /** One data-grounded encounter bearing and island focus mark. */
+  readonly encounterLayer = new Container();
+  /** A route-reading mark kept separate so island and current encounters can
+   * coexist without either rebuilding the other's Graphics children. */
+  readonly currentEncounterLayer = new Container();
+  /** The visitor's low-altitude survey vessel. Separate from island sprites so
+   * it stays legible while crossing routes and never becomes island data. */
+  readonly explorerLayer = new Container();
   readonly cloudFrontLayer = new Container();
   /** Screen-space labels (never camera-transformed → constant crisp size). */
   readonly uiLayer = new Container();
@@ -402,7 +516,7 @@ export class AtlasStage {
   private fogCells: AtlasFogCell[] = [];
   private flows: AtlasFlow[] = [];
   private currents: AtlasCurrent[] = [];
-  private currentRoutes: Array<{ current: AtlasCurrent; line: Graphics }> = [];
+  private currentRoutes: Array<{ current: AtlasCurrent; geometry: AtlasCurrentGeometry; line: Graphics }> = [];
   private continentLabels: Array<{ c: AtlasContinent; group: Container }> = [];
   private lastLabelCount = 0;
   private settleTimer: ReturnType<typeof setTimeout> | null = null;
@@ -427,9 +541,16 @@ export class AtlasStage {
   private wheelPx = 0;
   private wheelPy = 0;
   private wheelRaf: number | null = null;
+  /** False while a guided journey owns the camera. The overlay still receives
+   * native scrolling, while wheel zoom and drag cannot fight the scrubbed pose. */
+  private cameraInputEnabled = true;
   /** rAF-coalesced render request state — see `requestFrame`'s doc comment. */
   private frameScheduled = false;
+  private frameRaf: number | null = null;
   private pendingReflow = false;
+  /** Teardown closes every asynchronous render entrance before Pixi resources
+   * are released. This also makes destroy idempotent under React transitions. */
+  private destroyed = false;
   private domainFocus: AtlasDomain | null = null;
   private altitudeFocus: AtlasAltitudeBand | null = null;
   private altitudeBySlug = new Map<string, AtlasAltitudeBand>();
@@ -452,6 +573,30 @@ export class AtlasStage {
    * animation composes with applyTier's tier blend instead of fighting it. */
   private lensReveal = 1;
   private lensAnimRaf: number | null = null;
+  private exploreActive = false;
+  private exploreLeaving = false;
+  private exploreEntering = false;
+  private explorerPose: AtlasExplorerPose | null = null;
+  private explorerNode?: Container;
+  private explorerRig?: Container;
+  private explorerWake?: Container;
+  private explorerShadow?: Container;
+  private explorerHeadingMark?: Graphics;
+  private explorerSignal?: Container;
+  private explorerEncounterMarker?: Container;
+  private explorerBearing?: Graphics;
+  private explorerEncounterSlug: string | null = null;
+  private explorerEncounterStrength = 0;
+  private explorerEncounterSurveyed = false;
+  private explorerSurveyedSlugs = new Set<string>();
+  private explorerCurrentEncounterId: string | null = null;
+  private explorerCurrentEncounterStrength = 0;
+  private explorerCurrentEncounterSampled = false;
+  private explorerCurrentEncounterMarker?: Container;
+  private explorerSampledCurrentIds = new Set<string>();
+  private explorerMotionPhase = 0;
+  private atlasCameraBeforeExplore: AtlasCameraPose | null = null;
+  private readonly motionDirector = new AtlasMotionDirector((reflow) => this.requestFrame(reflow));
   /** The visitor has taken the camera somewhere themselves (drag / wheel /
    * zoom buttons). A late-arriving harbor then only applies its fog — it
    * never steals the camera back to the anchor mid-exploration. */
@@ -481,6 +626,9 @@ export class AtlasStage {
     this.cloudBackLayer.label = 'clouds-behind';
     this.glowLayer.label = 'glow';
     this.islandLayer.label = 'islands';
+    this.encounterLayer.label = 'survey-encounter';
+    this.currentEncounterLayer.label = 'current-encounter';
+    this.explorerLayer.label = 'low-altitude-survey-vessel';
     this.cloudFrontLayer.label = 'clouds-front';
     this.uiLayer.label = 'atlas-ui';
     this.continentLabelLayer.label = 'continent-labels';
@@ -490,7 +638,7 @@ export class AtlasStage {
     // paint order within world: climate washes (back) → cluster blobs → glow →
     // islands (front). The continent layer is lane W2's and sits BELOW clusters.
     this.islandLayer.sortableChildren = true;
-    this.worldRoot.addChild(this.terrainLayer, this.continentLayer, this.clusterLayer, this.routeLayer, this.localRouteLayer, this.glowLayer, this.lensLayer, this.cloudBackLayer, this.islandLayer, this.cloudFrontLayer);
+    this.worldRoot.addChild(this.terrainLayer, this.continentLayer, this.clusterLayer, this.routeLayer, this.localRouteLayer, this.glowLayer, this.lensLayer, this.cloudBackLayer, this.islandLayer, this.currentEncounterLayer, this.encounterLayer, this.explorerLayer, this.cloudFrontLayer);
   }
 
   async init(target: HTMLCanvasElement | HTMLElement, opts: AtlasStageOptions = {}): Promise<void> {
@@ -509,6 +657,10 @@ export class AtlasStage {
       resolution: opts.resolution ?? 1,
       autoDensity: true,
       autoStart: false, // static except on interaction → on-demand render (§7)
+      // The atlas participates in View Transitions and remains still between
+      // interactions. Preserve its last GPU frame so compositor snapshots do
+      // not read a discarded WebGL buffer as black geometry.
+      preserveDrawingBuffer: true,
     });
     if (!isCanvas) {
       app.canvas.style.display = 'block';
@@ -612,8 +764,8 @@ export class AtlasStage {
     sprite.eventMode = 'static';
     sprite.cursor = 'pointer';
     // Camera-continuity (W5 goal 1b): ease the camera toward the tapped island
-    // BEFORE firing `onPick`, so the drill-down reads as one continuous zoom
-    // (T0/T1→T2) instead of a hard cut into the existing sail→wipe (App.tsx).
+    // BEFORE firing `onPick`, so App can continue from this exact centred frame
+    // into L1 instead of inserting a second route or page-covering wipe.
     sprite.on('pointertap', () => { if (!this.moved) this.activateIsland(o); });
     sprite.on('pointerover', () => this.onHover?.(o.slug));
     sprite.on('pointerout', () => this.onHover?.(null));
@@ -652,7 +804,7 @@ export class AtlasStage {
     dot.eventMode = 'none';
     this.labelLayer.addChild(dot);
 
-    return { o, sprite, glow, labelGroup: group, labelText, labelSub, labelBg, dot, halfW: 0, halfH: 0, showingTier: '', band, reveal: (o.role ?? 'anchor') === 'satellite' ? 0 : 1, fogDim: 1 };
+    return { o, sprite, glow, labelGroup: group, labelText, labelSub, labelBg, dot, halfW: 0, halfH: 0, showingTier: '', band, fieldY: projectIslandY(o), fieldZ: altitudeZOf(o), reveal: (o.role ?? 'anchor') === 'satellite' ? 0 : 1, fogDim: 1 };
   }
 
   private buildClusters(): void {
@@ -785,6 +937,17 @@ export class AtlasStage {
     this.continentLayer.removeChildren().forEach((c) => c.destroy());
     this.routeLayer.removeChildren().forEach((c) => c.destroy());
     this.localRouteLayer.removeChildren().forEach((c) => c.destroy());
+    this.encounterLayer.removeChildren().forEach((c) => c.destroy({ children: true }));
+    this.currentEncounterLayer.removeChildren().forEach((c) => c.destroy({ children: true }));
+    this.explorerEncounterMarker = undefined;
+    this.explorerBearing = undefined;
+    this.explorerEncounterSlug = null;
+    this.explorerEncounterStrength = 0;
+    this.explorerEncounterSurveyed = false;
+    this.explorerCurrentEncounterId = null;
+    this.explorerCurrentEncounterStrength = 0;
+    this.explorerCurrentEncounterSampled = false;
+    this.explorerCurrentEncounterMarker = undefined;
     this.currentRoutes = [];
     this.cloudBackLayer.removeChildren().forEach((c) => c.destroy());
     this.cloudFrontLayer.removeChildren().forEach((c) => c.destroy());
@@ -946,19 +1109,8 @@ export class AtlasStage {
       const from = bySlug.get(current.fromSlug);
       const to = bySlug.get(current.toSlug);
       if (!from || !to) continue;
-      const ax = from.o.x;
-      const ay = projectIslandY(from.o);
-      const bx = to.o.x;
-      const by = projectIslandY(to.o);
-      const dx = bx - ax;
-      const dy = by - ay;
-      const len = Math.hypot(dx, dy) || 1;
-      const nx = -dy / len;
-      const ny = dx / len;
-      const climb = Math.abs(altitudeZOf(to.o) - altitudeZOf(from.o));
-      const bow = Math.min(120, len * 0.18) + climb * 54;
-      const mx = (ax + bx) / 2 + nx * bow;
-      const my = (ay + by) / 2 + ny * bow - 20 - climb * 34;
+      const geometry = atlasCurrentGeometry(from.o, to.o);
+      const { ax, ay, mx, my, bx, by, climb } = geometry;
       const width = Math.min(6, 1.1 + Math.sqrt(Math.max(0, current.weight)) * 0.8);
       const line = new Graphics();
       line.moveTo(ax, ay).quadraticCurveTo(mx, my, bx, by)
@@ -983,9 +1135,31 @@ export class AtlasStage {
           .stroke({ color: current.tint, width: 0.9, alpha: 0.72 });
       }
       line.circle(ax, ay, 3.2).fill({ color: 0xf8f1de, alpha: 0.9 }).stroke({ color: current.tint, width: 1, alpha: 0.8 });
-      line.circle(bx, by, 3.2).fill({ color: current.tint, alpha: 0.76 });
+      if (!current.directed) {
+        line.circle(bx, by, 3.2).fill({ color: current.tint, alpha: 0.76 });
+      } else {
+        const tx = bx - mx;
+        const ty = by - my;
+        const tl = Math.hypot(tx, ty) || 1;
+        const ux = tx / tl;
+        const uy = ty / tl;
+        const px = -uy;
+        const py = ux;
+        if (current.sign === 'contest') {
+          line.moveTo(bx - px * 5.5, by - py * 5.5).lineTo(bx + px * 5.5, by + py * 5.5)
+            .stroke({ color: current.tint, width: 1.8, alpha: 0.9 });
+        } else {
+          const tipX = bx + ux * 4;
+          const tipY = by + uy * 4;
+          const baseX = bx - ux * 6;
+          const baseY = by - uy * 6;
+          line.poly([tipX, tipY, baseX + px * 4.2, baseY + py * 4.2, baseX - px * 4.2, baseY - py * 4.2])
+            .fill({ color: current.sign === 'affirm' ? current.tint : 0xf8f1de, alpha: 0.86 })
+            .stroke({ color: current.tint, width: 1, alpha: 0.92 });
+        }
+      }
       this.localRouteLayer.addChild(line);
-      this.currentRoutes.push({ current, line });
+      this.currentRoutes.push({ current, geometry, line });
     }
   }
 
@@ -1050,6 +1224,719 @@ export class AtlasStage {
     return this.worldRoot.scale.x || 1;
   }
 
+  /** Cancel any autonomous camera motion before a deterministic controller
+   * (journey scrub, restore, teardown) takes ownership. */
+  private cancelCameraMotion(): void {
+    if (this.flightRaf !== null) cancelAnimationFrame(this.flightRaf);
+    if (this.wheelRaf !== null) cancelAnimationFrame(this.wheelRaf);
+    this.flightRaf = null;
+    this.wheelRaf = null;
+    this.wheelTarget = 0;
+    this.flying = false;
+  }
+
+  /** Current camera as a chart-space centre + scale. */
+  cameraPose(): AtlasCameraPose | null {
+    if (!this.app) return null;
+    const scale = this.scale;
+    return {
+      centerX: (this.app.screen.width / 2 - this.worldRoot.x) / scale,
+      centerY: (this.app.screen.height / 2 - this.worldRoot.y) / scale,
+      scale,
+    };
+  }
+
+  /** Compute (without moving) the canonical whole-world composition. */
+  worldCameraPose(): AtlasCameraPose | null {
+    return this.fittedCamera(this.islands.map((node) => node.o))?.pose ?? null;
+  }
+
+  /** Deterministically place the camera. Used by scroll-scrubbed journeys;
+   * regular wheel/drag navigation keeps using `zoomAt` and `flyToPoint`. */
+  seekCamera(pose: AtlasCameraPose, reflow = false): void {
+    if (!this.app) return;
+    const scale = Math.max(this.minScale, Math.min(MAX_SCALE, pose.scale));
+    this.worldRoot.scale.set(scale);
+    this.worldRoot.x = this.app.screen.width / 2 - pose.centerX * scale;
+    this.worldRoot.y = this.app.screen.height / 2 - pose.centerY * scale;
+    this.requestFrame(reflow);
+    this.scheduleSettle();
+  }
+
+  /** Hand camera ownership to/from a guided journey. Locking marks the camera as
+   * intentionally touched so a late My Harbor response never steals it back. */
+  setCameraInputEnabled(enabled: boolean): void {
+    this.cameraInputEnabled = enabled;
+    if (enabled) return;
+    this.touched = true;
+    this.dragging = false;
+    this.cancelCameraMotion();
+  }
+
+  /** A stable field departure beside My Harbor (or the first navigation
+   * anchor). It begins inside signal range but outside survey range, so the
+   * first encounter is learned through movement rather than an instant button. */
+  explorerSpawn(preferredSlugs: readonly string[] = []): AtlasExplorerPose | null {
+    const preferred = preferredSlugs
+      .map((slug) => this.islands.find((node) => node.o.slug === slug))
+      .find(Boolean);
+    const node = preferred ?? this.islands.find((candidate) => (candidate.o.role ?? 'anchor') === 'anchor') ?? this.islands[0];
+    if (!node) return null;
+    const originX = node.o.x;
+    const originY = projectIslandY(node.o);
+    let best: { x: number; y: number; clearance: number; heading: number } | null = null;
+    // Dense atlases make a single fixed offset unsafe. Sample a small departure
+    // ring and choose the point with the greatest clearance from every island;
+    // its 230–300 radius remains inside the harbor island's signal range.
+    for (const radius of [230, 265, 300]) {
+      for (let step = 0; step < 16; step++) {
+        const angle = (Math.PI * 2 * step) / 16;
+        const x = originX + Math.cos(angle) * radius;
+        const y = originY + Math.sin(angle) * radius;
+        const clearance = this.islands.reduce(
+          (minimum, candidate) => Math.min(minimum, Math.hypot(candidate.o.x - x, projectIslandY(candidate.o) - y)),
+          Infinity,
+        );
+        if (!best || clearance > best.clearance) {
+          best = { x, y, clearance, heading: Math.atan2(originY - y, originX - x) };
+        }
+      }
+    }
+    if (best && this.islands.length > 1) {
+      const xs = this.islands.map((candidate) => candidate.o.x);
+      const ys = this.islands.map((candidate) => projectIslandY(candidate.o));
+      const dataMinX = Math.min(...xs);
+      const dataMaxX = Math.max(...xs);
+      const dataMinY = Math.min(...ys);
+      const dataMaxY = Math.max(...ys);
+      const padding = 300;
+      const minX = dataMinX - padding;
+      const maxX = dataMaxX + padding;
+      const minY = dataMinY - padding;
+      const maxY = dataMaxY + padding;
+      const centerX = (dataMinX + dataMaxX) / 2;
+      const centerY = (dataMinY + dataMaxY) / 2;
+      let open: { x: number; y: number; clearance: number; heading: number } | null = null;
+      let openDistance = Infinity;
+      let widest: { x: number; y: number; clearance: number; heading: number } | null = null;
+      for (let row = 0; row <= 48; row++) {
+        for (let column = 0; column <= 72; column++) {
+          const x = minX + ((maxX - minX) * column) / 72;
+          const y = minY + ((maxY - minY) * row) / 48;
+          const clearance = this.islands.reduce(
+            (minimum, candidate) => Math.min(minimum, Math.hypot(candidate.o.x - x, projectIslandY(candidate.o) - y)),
+            Infinity,
+          );
+          const heading = Math.atan2(originY - y, originX - x);
+          const candidate = { x, y, clearance, heading };
+          if (!widest || clearance > widest.clearance) widest = candidate;
+          const fromCenter = Math.hypot(x - centerX, y - centerY);
+          const avoidsVerticalBlank = y >= dataMinY + 40 && y <= dataMaxY - 40;
+          if (clearance >= 240 && clearance <= 285 && avoidsVerticalBlank && fromCenter < openDistance) {
+            open = candidate;
+            openDistance = fromCenter;
+          }
+        }
+      }
+      best = open ?? widest ?? best;
+    }
+    const departure = best ?? { x: originX - 265, y: originY, clearance: 0, heading: 0 };
+    const facing: AtlasExplorerFacing = headingToFacing(departure.heading);
+    return {
+      x: departure.x,
+      y: departure.y,
+      facing,
+      heading: departure.heading,
+      altitudeZ: altitudeZOf(node.o),
+      verticalSpeed: 0,
+    };
+  }
+
+  explorerBounds(padding = 230): AtlasExplorerBounds | null {
+    if (this.islands.length === 0) return null;
+    const xs = this.islands.map((node) => node.o.x);
+    const ys = this.islands.map((node) => projectIslandY(node.o));
+    return {
+      minX: Math.min(...xs) - padding,
+      minY: Math.min(...ys) - padding,
+      maxX: Math.max(...xs) + padding,
+      maxY: Math.max(...ys) + padding,
+    };
+  }
+
+  nearbyExplorerIslands(pose: AtlasExplorerPose, limit = 4): AtlasExplorerIsland[] {
+    const craftAltitude = Math.max(0, Math.min(1, pose.altitudeZ ?? 0.5));
+    const max = Math.max(0, limit);
+    if (max === 0) return [];
+    // Single-pass k-nearest insertion into a distance-sorted window. The old
+    // map+sort built ~N rich objects and ran O(N log N) on every explore frame;
+    // here islands beyond the current k-th distance cost one hypot pair each.
+    const nearest: AtlasExplorerIsland[] = [];
+    let cutoff = Infinity;
+    for (const node of this.islands) {
+      const horizontalDistance = Math.hypot(node.o.x - pose.x, node.fieldY - pose.y);
+      const altitudeDelta = node.fieldZ - craftAltitude;
+      const distance = Math.hypot(horizontalDistance, altitudeDelta * ATLAS_ALTITUDE_DISTANCE_WEIGHT);
+      if (nearest.length >= max && distance >= cutoff) continue;
+      const entry: AtlasExplorerIsland = {
+        slug: node.o.slug,
+        name: node.o.name,
+        distance,
+        horizontalDistance,
+        altitude: altitudeOf(node.o),
+        altitudeZ: node.fieldZ,
+        altitudeDelta,
+        x: node.o.x,
+        y: node.fieldY,
+      };
+      let index = nearest.length;
+      while (index > 0) {
+        const ahead = nearest[index - 1];
+        if (!ahead || ahead.distance <= distance) break;
+        index -= 1;
+      }
+      nearest.splice(index, 0, entry);
+      if (nearest.length > max) nearest.pop();
+      const worst = nearest[nearest.length - 1];
+      if (nearest.length >= max && worst) cutoff = worst.distance;
+    }
+    return nearest;
+  }
+
+  /** Craft-relative readings of the exact curves drawn by buildLocalRoutes. */
+  nearbyExplorerCurrents(pose: AtlasExplorerPose, limit = 4): AtlasExplorerCurrent[] {
+    return this.currentRoutes
+      .map(({ current, geometry }) => {
+        const point = nearestAtlasCurrentPoint(geometry, pose);
+        return {
+          id: atlasCurrentId(current),
+          fromSlug: current.fromSlug,
+          toSlug: current.toSlug,
+          kind: current.kind,
+          sign: current.sign,
+          directed: current.directed,
+          ...(current.maturity ? { maturity: current.maturity } : {}),
+          weight: current.weight,
+          tint: current.tint,
+          ...point,
+        };
+      })
+      .sort((a, b) => a.distance - b.distance)
+      .slice(0, Math.max(0, limit));
+  }
+
+  private buildExplorerNode(): Container {
+    const node = new Container();
+    node.label = 'survey-vessel';
+    node.eventMode = 'none';
+    // A composed 2.5D field craft, not one flat icon: shadow, wake and hull rig
+    // respond independently to altitude, speed and turning.
+    const shadow = new Container();
+    shadow.label = 'vessel-shadow';
+    shadow.addChild(
+      new Graphics()
+        .ellipse(-3, 16, 36, 9)
+        .fill({ color: 0x302a23, alpha: 0.18 }),
+    );
+
+    const wake = new Container();
+    wake.label = 'vessel-wake';
+    wake.addChild(
+      new Graphics()
+        .moveTo(-25, 5).bezierCurveTo(-43, 3, -58, -8, -78, -5).stroke({ color: 0x6f98ad, width: 2.8, alpha: 0.58, cap: 'round' })
+        .moveTo(-25, 12).bezierCurveTo(-46, 16, -58, 24, -82, 18).stroke({ color: 0x91afbd, width: 1.5, alpha: 0.44, cap: 'round' })
+        .moveTo(-31, 8).bezierCurveTo(-48, 10, -62, 8, -92, 10).stroke({ color: 0xf8f1de, width: 0.9, alpha: 0.5, cap: 'round' }),
+    );
+
+    const rig = new Container();
+    rig.label = 'vessel-rig';
+    const underside = new Graphics()
+      .poly([-34, 4, -20, 15, 18, 14, 36, 5, 25, 16, -20, 20, -38, 10])
+      .fill({ color: 0x7d4932, alpha: 0.92 })
+      .stroke({ color: 0x302a23, width: 1.2, join: 'round' });
+    const hull = new Graphics()
+      .poly([-36, 1, -19, -7, 23, -8, 38, 1, 18, 12, -22, 13, -38, 7])
+      .fill({ color: 0xf6edd6 })
+      .stroke({ color: 0x302a23, width: 2, join: 'round' })
+      .moveTo(-28, 7).bezierCurveTo(-7, 12, 19, 9, 33, 1).stroke({ color: 0xb5673a, width: 2.3, alpha: 0.92, cap: 'round' });
+    const deck = new Graphics()
+      .poly([-15, -7, -5, -15, 18, -14, 27, -7, 16, -2, -9, -1])
+      .fill({ color: 0xd8c8a5 })
+      .stroke({ color: 0x302a23, width: 1.2, join: 'round' })
+      .poly([-5, -15, 2, -23, 15, -22, 20, -14])
+      .fill({ color: 0xe3a93c })
+      .stroke({ color: 0x302a23, width: 1.1, join: 'round' })
+      .rect(1, -17, 13, 4)
+      .fill({ color: 0x426f79, alpha: 0.9 });
+    const mast = new Graphics()
+      .moveTo(-13, -6).lineTo(-13, -31).stroke({ color: 0x302a23, width: 1.7, cap: 'round' })
+      .circle(-13, -34, 3.2).fill({ color: 0xe3a93c }).stroke({ color: 0x302a23, width: 1 })
+      .moveTo(-10, -28).lineTo(7, -23).stroke({ color: 0x302a23, width: 1 })
+      .circle(8, -23, 2.2).fill({ color: 0x426f79 }).stroke({ color: 0x302a23, width: 0.8 });
+    const surveyMarks = new Graphics()
+      .circle(-25, 3, 3.4).fill({ color: 0x426f79 }).stroke({ color: 0x302a23, width: 0.8 })
+      .circle(26, 1, 2.3).fill({ color: 0xe3a93c })
+      .moveTo(-2, 14).lineTo(-2, 19).stroke({ color: 0x302a23, width: 1.2 })
+      .moveTo(12, 12).lineTo(12, 17).stroke({ color: 0x302a23, width: 1.2 });
+    rig.addChild(underside, hull, deck, mast, surveyMarks);
+
+    // A quiet keel/probe preserves true heading while the illustrated rig stays
+    // in a legible isometric side view. Especially northbound, this prevents the
+    // whole craft from turning into a thin vertical book.
+    const headingMark = new Graphics()
+      .moveTo(34, 2).lineTo(48, 2).stroke({ color: 0x426f79, width: 1.2, alpha: 0.72, cap: 'round' })
+      .poly([48, 2, 43, -1, 43, 5]).fill({ color: 0xe3a93c, alpha: 0.86 });
+
+    const signal = new Container();
+    signal.label = 'vessel-signal';
+    signal.alpha = 0;
+    signal.addChild(
+      new Graphics()
+        .ellipse(0, 4, 49, 23).stroke({ color: 0xb5673a, width: 1.1, alpha: 0.7 })
+        .ellipse(0, 4, 57, 28).stroke({ color: 0xe3a93c, width: 0.7, alpha: 0.42 }),
+    );
+
+    node.addChild(shadow, wake, rig, headingMark, signal);
+    this.explorerShadow = shadow;
+    this.explorerWake = wake;
+    this.explorerRig = rig;
+    this.explorerSignal = signal;
+    this.explorerHeadingMark = headingMark;
+    return node;
+  }
+
+  private defaultExplorerCamera(pose: AtlasExplorerPose): AtlasExplorerCamera {
+    const heading = pose.heading ?? facingToHeading(pose.facing);
+    const speed = pose.speed ?? 0;
+    const lookAhead = Math.min(116, speed * 0.43);
+    const altitudeZ = Math.max(0, Math.min(1, pose.altitudeZ ?? 0.5));
+    return {
+      centerX: pose.x + Math.cos(heading) * lookAhead,
+      centerY: pose.y + Math.sin(heading) * lookAhead * 0.72 - altitudeZ * 18,
+      scale: atlasCruiseScale(speed, altitudeZ),
+      anchorX: 0.47,
+      anchorY: 0.61,
+    };
+  }
+
+  private cameraTarget(camera: AtlasExplorerCamera): { x: number; y: number; scale: number } | null {
+    if (!this.app) return null;
+    return {
+      x: this.app.screen.width * camera.anchorX - camera.centerX * camera.scale,
+      y: this.app.screen.height * camera.anchorY - camera.centerY * camera.scale,
+      scale: camera.scale,
+    };
+  }
+
+  private applyExplorerTransform(pose: AtlasExplorerPose): void {
+    if (!this.explorerNode) return;
+    const heading = pose.heading ?? facingToHeading(pose.facing);
+    const speedT = Math.max(0, Math.min(1, (pose.speed ?? 0) / ATLAS_EXPLORER_MAX_SPEED));
+    const fore = Math.sin(heading);
+    const broadside = Math.cos(heading);
+    const altitudeZ = Math.max(0, Math.min(1, pose.altitudeZ ?? 0.5));
+    const verticalSpeed = Math.max(-0.46, Math.min(0.46, pose.verticalSpeed ?? 0));
+    const flightLift = 16 + altitudeZ * 54;
+    this.explorerNode.x = pose.x;
+    this.explorerNode.y = pose.y;
+    this.explorerNode.rotation = heading;
+    this.explorerMotionPhase += 0.035 + speedT * 0.16;
+    if (this.explorerRig) {
+      // The wake/probe carry true heading. The rig billboards into a readable
+      // broadside, mirrors westbound, and only pitches slightly north/south.
+      this.explorerRig.rotation = -heading + fore * 0.11;
+      this.explorerRig.y = -flightLift + Math.sin(this.explorerMotionPhase) * (0.35 + speedT * 1.25) + fore * 3.5 - verticalSpeed * 10;
+      this.explorerRig.skew.y = pose.bank ?? 0;
+      this.explorerRig.scale.x = broadside < -0.08 ? -1 : 1;
+      this.explorerRig.scale.y = (1 - Math.abs(fore) * 0.12) * (1 - Math.min(0.1, Math.abs(pose.bank ?? 0) * 0.26));
+    }
+    if (this.explorerWake) {
+      this.explorerWake.alpha = 0.18 + speedT * 0.82;
+      this.explorerWake.scale.x = 0.64 + speedT * 0.72;
+      this.explorerWake.y = -flightLift * 0.82;
+    }
+    if (this.explorerShadow) {
+      this.explorerShadow.rotation = -heading + fore * 0.06;
+      this.explorerShadow.alpha = Math.max(0.28, 0.76 - altitudeZ * 0.34 + speedT * 0.16);
+      this.explorerShadow.x = -3 - speedT * 4;
+      this.explorerShadow.y = 2 + speedT * 2;
+      this.explorerShadow.scale.x = 1 + altitudeZ * 0.32 + Math.abs(fore) * 0.08;
+      this.explorerShadow.scale.y = (1 + altitudeZ * 0.2) * (1 - Math.abs(fore) * 0.16);
+    }
+    if (this.explorerHeadingMark) this.explorerHeadingMark.y = -flightLift;
+    if (this.explorerSignal) {
+      this.explorerSignal.rotation = -heading;
+      this.explorerSignal.y = -flightLift * 0.72;
+    }
+  }
+
+  setExploreMode(active: boolean, pose?: AtlasExplorerPose | null, reducedMotion = false): AtlasExplorerPose | null {
+    if (!active) {
+      this.exploreActive = false;
+      this.exploreLeaving = true;
+      this.exploreEntering = false;
+      this.setExplorerEncounter(null);
+      this.setExplorerCurrentEncounter(null);
+      this.cloudBackLayer.position.set(0, 0);
+      this.cloudFrontLayer.position.set(0, 0);
+      const vessel = this.explorerNode;
+      const restore = this.atlasCameraBeforeExplore;
+      const camera = restore && this.app ? {
+        x: this.app.screen.width / 2 - restore.centerX * restore.scale,
+        y: this.app.screen.height / 2 - restore.centerY * restore.scale,
+        scale: restore.scale,
+      } : null;
+      if (vessel && camera) {
+        void this.motionDirector.leave({ world: this.worldRoot, vessel, camera, reducedMotion }).then(() => {
+          if (this.exploreActive) return;
+          this.exploreLeaving = false;
+          this.explorerLayer.visible = false;
+          this.setCameraInputEnabled(true);
+          this.requestFrame(true);
+        });
+      } else {
+        this.exploreLeaving = false;
+        this.explorerLayer.visible = false;
+        this.setCameraInputEnabled(true);
+        this.requestFrame(true);
+      }
+      this.explorerPose = null;
+      return null;
+    }
+    if (!this.exploreActive) this.atlasCameraBeforeExplore = this.cameraPose();
+    this.exploreActive = true;
+    this.exploreLeaving = false;
+    this.explorerEncounterSurveyed = false;
+    this.explorerCurrentEncounterId = null;
+    this.currentEncounterLayer.visible = false;
+    this.setCameraInputEnabled(false);
+    const next = pose ?? this.explorerPose ?? this.explorerSpawn();
+    if (!next) return null;
+    if (!this.explorerNode) {
+      this.explorerNode = this.buildExplorerNode();
+      this.explorerLayer.addChild(this.explorerNode);
+    }
+    this.explorerLayer.visible = true;
+    this.explorerPose = { ...next };
+    this.applyExplorerTransform(next);
+    const camera = this.cameraTarget(this.defaultExplorerCamera(next));
+    if (camera && this.explorerNode) {
+      this.exploreEntering = true;
+      void this.motionDirector.enter({ world: this.worldRoot, vessel: this.explorerNode, camera, reducedMotion }).then(() => {
+        this.exploreEntering = false;
+      });
+    } else {
+      this.requestFrame(true);
+    }
+    return { ...next };
+  }
+
+  setExplorerPose(pose: AtlasExplorerPose, reflow = false): void {
+    this.setExplorerMotion(pose, this.defaultExplorerCamera(pose), reflow);
+  }
+
+  setExplorerMotion(pose: AtlasExplorerPose, camera: AtlasExplorerCamera, reflow = false): void {
+    const previous = this.explorerPose;
+    // Compared BEFORE the in-place write below. The tick loop reports a
+    // stationary pose every frame during the authored entry; cancelling then
+    // would kill the fly-in on frame 1 — only real steering may interrupt.
+    const moved = !previous
+      || Math.abs(previous.x - pose.x) > 0.01
+      || Math.abs(previous.y - pose.y) > 0.01
+      || previous.altitudeZ !== pose.altitudeZ
+      || previous.heading !== pose.heading;
+    if (previous) {
+      // Reuse the persistent snapshot — a fresh spread every ticked frame is
+      // avoidable allocation on the hot path (the object never escapes).
+      previous.x = pose.x;
+      previous.y = pose.y;
+      previous.facing = pose.facing;
+      previous.heading = pose.heading;
+      previous.speed = pose.speed;
+      previous.bank = pose.bank;
+      previous.altitudeZ = pose.altitudeZ;
+      previous.verticalSpeed = pose.verticalSpeed;
+    } else {
+      this.explorerPose = { ...pose };
+    }
+    if (!this.explorerNode) {
+      this.explorerNode = this.buildExplorerNode();
+      this.explorerLayer.addChild(this.explorerNode);
+    }
+    if (this.motionDirector.active) {
+      if (this.exploreEntering && !moved) return;
+      // Steering may intentionally interrupt the authored departure timeline.
+      // Resolve its visual end state first so a killed fade never leaves the
+      // persistent craft transparent.
+      this.motionDirector.cancel();
+      this.explorerNode.alpha = 1;
+      this.explorerNode.scale.set(1);
+    }
+    this.applyExplorerTransform(pose);
+    const target = this.cameraTarget(camera);
+    if (target) {
+      this.worldRoot.x = target.x;
+      this.worldRoot.y = target.y;
+      this.worldRoot.scale.set(target.scale);
+    }
+    // Atmospheric layers lag the craft by different amounts. This is a small
+    // screen-projection cue, not invented geography: the cloud shapes still
+    // come exclusively from the atlas' real fog field.
+    const cameraDx = camera.centerX - pose.x;
+    const cameraDy = camera.centerY - pose.y;
+    this.cloudBackLayer.x = cameraDx * 0.035;
+    this.cloudBackLayer.y = cameraDy * 0.025;
+    this.cloudFrontLayer.x = cameraDx * -0.075;
+    this.cloudFrontLayer.y = cameraDy * -0.05;
+    this.requestFrame(reflow);
+  }
+
+  /** World memory, not a score: surveyed islands remain readable when revisited. */
+  setExplorerSurveyedSlugs(slugs: readonly string[]): void {
+    this.explorerSurveyedSlugs = new Set(slugs);
+    this.requestFrame(true);
+  }
+
+  /** Sampled routes remain inked after docking and returning to the same world. */
+  setExplorerSampledCurrentIds(ids: readonly string[]): void {
+    this.explorerSampledCurrentIds = new Set(ids);
+    this.requestFrame(false);
+  }
+
+  /** Resolve one nearby current into an in-world cartographic sampling mark. */
+  setExplorerCurrentEncounter(
+    current: AtlasExplorerCurrent | null,
+    sampled = false,
+    signalDistance = ATLAS_EXPLORER_CURRENT_SIGNAL_DISTANCE,
+    sampleDistance = ATLAS_EXPLORER_CURRENT_SAMPLE_DISTANCE,
+  ): void {
+    if (!current) {
+      this.explorerCurrentEncounterId = null;
+      this.explorerCurrentEncounterStrength = 0;
+      this.explorerCurrentEncounterSampled = false;
+      this.currentEncounterLayer.visible = false;
+      this.requestFrame(false);
+      return;
+    }
+
+    const raw = signalDistance <= sampleDistance
+      ? Number(current.distance <= sampleDistance)
+      : (signalDistance - current.distance) / (signalDistance - sampleDistance);
+    const t = Math.max(0, Math.min(1, raw));
+    const strength = t * t * (3 - 2 * t);
+    const needsMarker = current.id !== this.explorerCurrentEncounterId
+      || sampled !== this.explorerCurrentEncounterSampled
+      || !this.explorerCurrentEncounterMarker;
+    if (needsMarker) {
+      this.currentEncounterLayer.removeChildren().forEach((child) => child.destroy({ children: true }));
+      const marker = new Container();
+      marker.label = sampled ? 'sampled-ledger-current' : 'unread-ledger-current';
+      const ring = new Graphics()
+        .ellipse(0, 0, 16, 7.5)
+        .stroke({ color: 0xf8f1de, width: 4, alpha: 0.56 })
+        .ellipse(0, 0, 15, 6.5)
+        .stroke({ color: current.tint, width: sampled ? 1.8 : 1.15, alpha: 0.9 })
+        .moveTo(-22, 0).lineTo(-11, 0)
+        .moveTo(11, 0).lineTo(22, 0)
+        .stroke({ color: current.tint, width: 1, alpha: 0.72 });
+      if (sampled) {
+        ring.circle(0, 0, 3.4).fill({ color: current.tint, alpha: 0.92 });
+        ring.moveTo(0, -10).lineTo(0, -6).moveTo(0, 6).lineTo(0, 10)
+          .stroke({ color: current.tint, width: 1, alpha: 0.76 });
+      } else {
+        ring.circle(0, 0, 2.4).fill({ color: 0xf8f1de, alpha: 0.94 }).stroke({ color: current.tint, width: 1, alpha: 0.8 });
+      }
+      marker.addChild(ring);
+      this.currentEncounterLayer.addChild(marker);
+      this.explorerCurrentEncounterMarker = marker;
+    }
+
+    const marker = this.explorerCurrentEncounterMarker!;
+    marker.x = current.x;
+    marker.y = current.y;
+    marker.rotation = Math.atan2(current.tangentY, current.tangentX);
+    marker.alpha = sampled ? 0.94 : 0.38 + strength * 0.62;
+    marker.scale.set(0.88 + strength * 0.12);
+    this.explorerCurrentEncounterId = current.id;
+    this.explorerCurrentEncounterStrength = strength;
+    this.explorerCurrentEncounterSampled = sampled;
+    this.currentEncounterLayer.visible = this.exploreActive;
+    this.requestFrame(false);
+  }
+
+  async sampleExplorerCurrent(id: string, reducedMotion = false): Promise<void> {
+    if (id !== this.explorerCurrentEncounterId || !this.explorerCurrentEncounterMarker) return;
+    await this.motionDirector.survey({ marker: this.explorerCurrentEncounterMarker, reducedMotion });
+  }
+
+  /**
+   * Make an acquired signal part of the world: a ruled bearing connects the
+   * vessel and target, the target receives a cartographic focus mark, and the
+   * surrounding field recedes continuously as survey range approaches.
+   */
+  setExplorerEncounter(
+    island: AtlasExplorerIsland | null,
+    surveyed = false,
+    signalDistance = ATLAS_EXPLORER_SIGNAL_DISTANCE,
+    approachDistance = ATLAS_EXPLORER_APPROACH_DISTANCE,
+  ): void {
+    if (!island) {
+      this.explorerEncounterSlug = null;
+      this.explorerEncounterStrength = 0;
+      this.explorerEncounterSurveyed = false;
+      this.encounterLayer.visible = false;
+      if (this.explorerSignal) this.explorerSignal.alpha = 0;
+      this.requestFrame(false);
+      return;
+    }
+
+    const raw = signalDistance <= approachDistance
+      ? Number(island.distance <= approachDistance)
+      : (signalDistance - island.distance) / (signalDistance - approachDistance);
+    const t = Math.max(0, Math.min(1, raw));
+    const strength = t * t * (3 - 2 * t);
+    const slugChanged = this.explorerEncounterSlug !== island.slug;
+    if (slugChanged || !this.explorerEncounterMarker || !this.explorerBearing) {
+      this.encounterLayer.removeChildren().forEach((child) => child.destroy({ children: true }));
+      const node = this.islands.find((candidate) => candidate.o.slug === island.slug);
+      const stage = node ? Math.max(0, Math.min(3, node.o.stage)) as 0 | 1 | 2 | 3 : 1;
+      const radius = ATLAS_STAGE_RADIUS[stage] + 8;
+      const bearing = new Graphics();
+      bearing.label = 'survey-bearing';
+      const marker = new Container();
+      marker.label = 'island-survey-mark';
+      marker.x = island.x;
+      marker.y = island.y;
+      marker.addChild(
+        new Graphics()
+          .ellipse(0, 0, radius * 1.08, radius * 0.56)
+          .stroke({ color: 0xb5673a, width: 1.25, alpha: 0.78 })
+          .ellipse(0, 0, radius * 1.22, radius * 0.66)
+          .stroke({ color: 0xe3a93c, width: 0.72, alpha: 0.46 })
+          .moveTo(-radius * 1.36, 0).lineTo(-radius * 1.16, 0)
+          .moveTo(radius * 1.16, 0).lineTo(radius * 1.36, 0)
+          .moveTo(0, -radius * 0.76).lineTo(0, -radius * 0.6)
+          .moveTo(0, radius * 0.6).lineTo(0, radius * 0.76)
+          .stroke({ color: 0x302a23, width: 0.8, alpha: 0.62, cap: 'round' }),
+      );
+      this.encounterLayer.addChild(bearing, marker);
+      this.explorerBearing = bearing;
+      this.explorerEncounterMarker = marker;
+      this.explorerEncounterSlug = island.slug;
+    }
+
+    this.explorerEncounterStrength = strength;
+    // Latch within one encounter (a survey keeps its ink while the signal
+    // wavers), but a direct handoff to a different island must start from the
+    // caller's flag — otherwise an unsurveyed isle inherits the surveyed color.
+    this.explorerEncounterSurveyed = slugChanged ? surveyed : surveyed || this.explorerEncounterSurveyed;
+    this.encounterLayer.visible = true;
+    if (this.explorerEncounterMarker) {
+      this.explorerEncounterMarker.alpha = 0.28 + strength * 0.72;
+      this.explorerEncounterMarker.scale.set(0.9 + strength * 0.1);
+    }
+    if (this.explorerBearing) {
+      this.explorerBearing.clear();
+      const pose = this.explorerPose;
+      if (pose && strength > 0.02) {
+        const ax = pose.x;
+        const ay = pose.y;
+        const bx = island.x;
+        const by = island.y;
+        this.explorerBearing
+          .moveTo(ax + (bx - ax) * 0.22, ay + (by - ay) * 0.22)
+          .lineTo(ax + (bx - ax) * 0.78, ay + (by - ay) * 0.78)
+          .stroke({ color: this.explorerEncounterSurveyed ? 0xb5673a : 0x426f79, width: 0.8, alpha: 0.18 + strength * 0.42, cap: 'round' });
+        for (let index = 2; index <= 6; index++) {
+          const part = index / 8;
+          this.explorerBearing.circle(ax + (bx - ax) * part, ay + (by - ay) * part, index === 4 ? 2.1 : 1.25)
+            .fill({ color: index === 4 ? 0xe3a93c : 0xf8f1de, alpha: 0.35 + strength * 0.5 });
+        }
+      }
+    }
+    if (this.explorerSignal) {
+      this.explorerSignal.alpha = 0.18 + strength * 0.72;
+      this.explorerSignal.scale.set(0.9 + strength * 0.18);
+    }
+    this.requestFrame(false);
+  }
+
+  async surveyExplorer(slug: string, reducedMotion = false): Promise<void> {
+    if (slug !== this.explorerEncounterSlug || !this.explorerEncounterMarker) return;
+    this.explorerEncounterSurveyed = true;
+    await this.motionDirector.survey({
+      marker: this.explorerEncounterMarker,
+      signal: this.explorerSignal,
+      reducedMotion,
+    });
+    this.requestFrame(true);
+  }
+
+  async dockExplorer(slug: string, pose: AtlasExplorerPose, reducedMotion = false): Promise<AtlasExplorerPose> {
+    const node = this.islands.find((candidate) => candidate.o.slug === slug);
+    if (!node || !this.app || !this.explorerNode) return pose;
+    const islandX = node.o.x;
+    const islandY = projectIslandY(node.o);
+    const radius = ATLAS_STAGE_RADIUS[Math.max(0, Math.min(3, node.o.stage)) as 0 | 1 | 2 | 3];
+    const angle = Math.atan2(islandY - pose.y, islandX - pose.x);
+    const berth = radius + 34;
+    const finalPose: AtlasExplorerPose = {
+      x: islandX - Math.cos(angle) * berth,
+      y: islandY - Math.sin(angle) * berth * 0.72,
+      facing: headingToFacing(angle),
+      heading: angle,
+      speed: 0,
+      bank: 0,
+      altitudeZ: altitudeZOf(node.o),
+      verticalSpeed: 0,
+    };
+    const scale = 2.22;
+    this.explorerSignal && (this.explorerSignal.alpha = 1);
+    await this.motionDirector.dock({
+      world: this.worldRoot,
+      vessel: this.explorerNode,
+      camera: this.cameraTarget(this.defaultExplorerCamera(pose)) ?? { x: this.worldRoot.x, y: this.worldRoot.y, scale: this.scale },
+      reducedMotion,
+      dock: {
+        vesselX: finalPose.x,
+        vesselY: finalPose.y,
+        vesselRotation: angle,
+        x: this.app.screen.width * 0.5 - islandX * scale,
+        y: this.app.screen.height * 0.54 - islandY * scale,
+        scale,
+      },
+    });
+    // Store a copy: the returned pose escapes to the caller, while
+    // setExplorerMotion reuses this.explorerPose by in-place mutation.
+    this.explorerPose = { ...finalPose };
+    this.applyExplorerTransform(finalPose);
+    this.requestFrame(true);
+    return finalPose;
+  }
+
+  private fittedCamera(islands: AtlasIslandInput[]): { pose: AtlasCameraPose; minScale: number } | null {
+    if (!this.app || islands.length === 0) return null;
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const o of islands) {
+      minX = Math.min(minX, o.x); maxX = Math.max(maxX, o.x);
+      const py = projectIslandY(o);
+      minY = Math.min(minY, py); maxY = Math.max(maxY, py);
+    }
+    const minScale = computeWorldMinScale(this.app.screen.width, this.app.screen.height, { minX, minY, maxX, maxY });
+    const pad = 120;
+    const w = maxX - minX + pad * 2;
+    const h = maxY - minY + pad * 2;
+    const fittedScale = Math.min(this.app.screen.width / w, this.app.screen.height / h, MAX_SCALE);
+    return {
+      minScale,
+      pose: {
+        centerX: (minX + maxX) / 2,
+        centerY: (minY + maxY) / 2,
+        scale: Math.max(minScale, fittedScale),
+      },
+    };
+  }
+
   /**
    * Frame the whole atlas so every island is visible on first paint, and
    * (W5 camera-framing fix) compute this dataset's zoom-OUT floor from its
@@ -1062,28 +1949,18 @@ export class AtlasStage {
    * filling the frame, whether there are 26 curated islands or 700 synthetic.
    */
   fitToContent(islands: AtlasIslandInput[]): void {
-    if (!this.app || islands.length === 0) return;
-    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-    for (const o of islands) {
-      minX = Math.min(minX, o.x); maxX = Math.max(maxX, o.x);
-      const py = projectIslandY(o);
-      minY = Math.min(minY, py); maxY = Math.max(maxY, py);
-    }
-    this.minScale = computeWorldMinScale(this.app.screen.width, this.app.screen.height, { minX, minY, maxX, maxY });
-    const pad = 120;
-    const w = maxX - minX + pad * 2;
-    const h = maxY - minY + pad * 2;
-    const s = Math.min(this.app.screen.width / w, this.app.screen.height / h, MAX_SCALE);
-    const scale = Math.max(this.minScale, s);
-    this.worldRoot.scale.set(scale);
-    const cx = (minX + maxX) / 2;
-    const cy = (minY + maxY) / 2;
-    this.worldRoot.x = this.app.screen.width / 2 - cx * scale;
-    this.worldRoot.y = this.app.screen.height / 2 - cy * scale;
+    const fitted = this.fittedCamera(islands);
+    if (!fitted || !this.app) return;
+    this.minScale = fitted.minScale;
+    const { pose } = fitted;
+    this.worldRoot.scale.set(pose.scale);
+    this.worldRoot.x = this.app.screen.width / 2 - pose.centerX * pose.scale;
+    this.worldRoot.y = this.app.screen.height / 2 - pose.centerY * pose.scale;
   }
 
   private onWheel(e: WheelEvent): void {
     e.preventDefault();
+    if (!this.cameraInputEnabled) return;
     this.touched = true;
     const rect = this.canvasEl!.getBoundingClientRect();
     this.wheelPx = e.clientX - rect.left;
@@ -1429,12 +2306,20 @@ export class AtlasStage {
   resize(width: number, height: number): void {
     if (!this.app || width < 1 || height < 1) return;
     this.app.renderer.resize(width, height);
-    this.resetView();
+    if (this.exploreActive && this.explorerPose) {
+      const target = this.cameraTarget(this.defaultExplorerCamera(this.explorerPose));
+      if (target) {
+        this.worldRoot.x = target.x;
+        this.worldRoot.y = target.y;
+        this.worldRoot.scale.set(target.scale);
+        this.requestFrame(true);
+      }
+    } else this.resetView();
     // Keep the harbor opening composition through the boot-time
     // ResizeObserver tick (observe() fires once immediately) and honest
     // window resizes alike — but never wrestle a camera the visitor has
     // already taken over. No-op without a harbor.
-    if (!this.touched) this.openAtHarbor();
+    if (!this.exploreActive && !this.touched) this.openAtHarbor();
   }
 
   // ─── Camera continuity (W5 goal 1b + §5 wayfinding) ─────────────────────────
@@ -1461,7 +2346,7 @@ export class AtlasStage {
 
   /** Ease the camera to centre `(x,y)` at `targetScale`, then invoke
    *  `onArrived` (used to defer `onPick` until the zoom actually reads as
-   *  "arrived" — the camera-continuity handoff into App.tsx's sail→wipe). */
+   *  "arrived" — the compositor then preserves this frame for App's handoff). */
   private flyToPoint(x: number, y: number, targetScale: number, onArrived?: () => void): void {
     if (this.flying || !this.app) return;
     const reduced = typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1493,8 +2378,7 @@ export class AtlasStage {
   }
 
   /** Tapped an island: fly to it, THEN fire `onPick` — the camera converges
-   *  on the island (T0/T1→T2) right before the existing sail→wipe (T2→T3)
-   *  takes over, reading as one continuous drill-down instead of a hard cut. */
+   *  on the island before App reveals L1 from the same optical centre. */
   private flyToIsland(o: AtlasIslandInput): void {
     this.flyToPoint(o.x, projectIslandY(o), this.nearTargetScale(), () => this.onPick?.(o.slug));
   }
@@ -1518,6 +2402,7 @@ export class AtlasStage {
   }
 
   private onPointerDown(e: PointerEvent): void {
+    if (!this.cameraInputEnabled) return;
     this.dragging = true;
     this.touched = true;
     this.moved = false;
@@ -1572,13 +2457,16 @@ export class AtlasStage {
    * the current frame" responsiveness (§7 on-demand render discipline).
    */
   private requestFrame(reflow: boolean): void {
+    if (this.destroyed || !this.app) return;
     this.pendingReflow = this.pendingReflow || reflow;
     if (this.frameScheduled) return;
     this.frameScheduled = true;
-    requestAnimationFrame(() => {
+    this.frameRaf = requestAnimationFrame(() => {
+      this.frameRaf = null;
       this.frameScheduled = false;
       const r = this.pendingReflow;
       this.pendingReflow = false;
+      if (this.destroyed || !this.app) return;
       this.applyTier(r);
     });
   }
@@ -1602,8 +2490,8 @@ export class AtlasStage {
     // Climate territories (washes + currents + fog) are the FAR/world tier — they
     // read strongest at overview and dissolve as you zoom toward content, so the
     // fog lifts and the washes never fight the mid/near island detail.
-    this.continentLayer.alpha = blend.far;
-    this.terrainLayer.alpha = Math.max(blend.far * 0.95, blend.mid * 0.24);
+    this.continentLayer.alpha = this.exploreActive ? 0.05 : blend.far;
+    this.terrainLayer.alpha = this.exploreActive ? 0.16 : Math.max(blend.far * 0.95, blend.mid * 0.24);
     // Routes recede at the world tier: with only a handful of cross-domain
     // currents in the whole atlas, a single arc at full strength reads as a
     // stray pen stroke over the overview. Keep them a faint ambient hint at far
@@ -1618,17 +2506,21 @@ export class AtlasStage {
     this.lensLayer.visible = lensActive;
     // `lensReveal` is the one-shot enter animation's fade (1 once settled).
     this.lensLayer.alpha = lensActive ? Math.max(blend.far * 0.85, blend.mid, blend.near) * this.lensReveal : 0;
-    this.routeLayer.alpha = lensActive ? 0 : Math.max(blend.far * 0.28, blend.mid * 0.34);
-    this.localRouteLayer.alpha = lensActive ? 0 : Math.max(blend.far * 0.06, blend.mid * 0.44, blend.near * 0.58);
-    this.cloudBackLayer.alpha = Math.max(blend.far * 0.82, blend.mid * 0.46, blend.near * 0.18);
-    this.cloudFrontLayer.alpha = Math.max(blend.far * 0.54, blend.mid * 0.3, blend.near * 0.08);
+    this.routeLayer.alpha = lensActive ? 0 : this.exploreActive ? 0.42 : Math.max(blend.far * 0.28, blend.mid * 0.34);
+    this.localRouteLayer.alpha = lensActive ? 0 : this.exploreActive ? 0.72 : Math.max(blend.far * 0.06, blend.mid * 0.44, blend.near * 0.58);
+    const explorerAltitude = Math.max(0, Math.min(1, this.explorerPose?.altitudeZ ?? 0.5));
+    this.cloudBackLayer.alpha = this.exploreActive ? 0.22 + explorerAltitude * 0.18 : Math.max(blend.far * 0.82, blend.mid * 0.46, blend.near * 0.18);
+    this.cloudFrontLayer.alpha = this.exploreActive ? 0.24 - explorerAltitude * 0.16 : Math.max(blend.far * 0.54, blend.mid * 0.3, blend.near * 0.08);
     // Territory NAMES fade faster than their washes (crisp only at true far zoom).
     // With a lens on, name chips recede too (same fog discipline as the isles):
     // the lens marks are the figure, the geography stays a quiet ground.
-    this.continentLabelLayer.alpha = blend.far * blend.far * (lensActive ? 0.4 : 1);
-    this.clusterLayer.alpha = blend.far;
-    this.clusterLabelLayer.alpha = blend.far * (lensActive ? 0.35 : 1);
-    this.islandLayer.alpha = lensActive ? Math.max(blend.mid, blend.near, 0.9) : Math.max(blend.mid, blend.near);
+    this.continentLabelLayer.alpha = this.exploreActive ? 0 : blend.far * blend.far * (lensActive ? 0.4 : 1);
+    this.clusterLayer.alpha = this.exploreActive ? 0.06 : blend.far;
+    this.clusterLabelLayer.alpha = this.exploreActive ? 0 : blend.far * (lensActive ? 0.35 : 1);
+    this.islandLayer.alpha = this.exploreActive ? 1 : lensActive ? Math.max(blend.mid, blend.near, 0.9) : Math.max(blend.mid, blend.near);
+    this.encounterLayer.alpha = this.exploreActive ? 1 : 0;
+    this.currentEncounterLayer.alpha = this.exploreActive ? 1 : 0;
+    this.explorerLayer.visible = this.exploreActive || this.exploreLeaving;
     // outlier glow floats at every tier, but strongest at far (it IS the overview signal).
     this.glowLayer.alpha = Math.max(0.55, blend.far);
 
@@ -1700,7 +2592,9 @@ export class AtlasStage {
           : this.lensFarGaps.has(o.slug)
             ? 'far'
             : 'out';
-      const hierarchyAlpha = lensRole === 'member' || lensRole === 'far'
+      const hierarchyAlpha = this.exploreActive
+        ? 1
+        : lensRole === 'member' || lensRole === 'far'
         ? 1
         : (o.role ?? 'anchor') === 'satellite'
           ? (parent ? satelliteDisclosure(scale, parent.sx, parent.sy, view.width, view.height) : satelliteAlpha)
@@ -1733,10 +2627,30 @@ export class AtlasStage {
       const vis = sx > -80 && sx < view.width + 80 && sy > -80 && sy < view.height + 80;
       // Sprite culling: hide when off-screen or when the island layer is invisible (far tier).
       nd.sprite.visible = vis && focusVisible && hierarchyAlpha > 0.02 && this.islandLayer.alpha > 0.02;
-      nd.sprite.eventMode = hierarchyAlpha > 0.24 ? 'static' : 'none';
-      nd.sprite.alpha = (o.dormant ? 0.68 : 1) * hierarchyAlpha * nd.fogDim;
-      if (nd.glow) nd.glow.visible = vis && focusVisible && hierarchyAlpha > 0.02; // glow rides glowLayer alpha
-      if (nd.glow) nd.glow.alpha = hierarchyAlpha;
+      nd.sprite.eventMode = !this.exploreActive && hierarchyAlpha > 0.24 ? 'static' : 'none';
+      const encounterTarget = this.explorerEncounterSlug === o.slug;
+      const encounterDim = this.exploreActive && this.explorerEncounterSlug && !encounterTarget
+        ? 1 - this.explorerEncounterStrength * 0.42
+        : 1;
+      const explorerHorizontalDistance = this.explorerPose
+        ? Math.hypot(o.x - this.explorerPose.x, projectIslandY(o) - this.explorerPose.y)
+        : Infinity;
+      const explorerAltitudeDelta = this.explorerPose
+        ? Math.abs(altitudeZOf(o) - (this.explorerPose.altitudeZ ?? 0.5))
+        : 0;
+      const explorerDistance = Math.hypot(explorerHorizontalDistance, explorerAltitudeDelta * ATLAS_ALTITUDE_DISTANCE_WEIGHT);
+      const surveyedInWorld = this.explorerSurveyedSlugs.has(o.slug);
+      // Exploration is a reading field, not a zoomed copy of the atlas. Unknown
+      // isles keep only a distant silhouette; proximity, an intentional course,
+      // or an earlier field note progressively returns their material detail.
+      const distanceReveal = explorerDistance <= 300 ? 0.68 : explorerDistance <= 520 ? 0.3 : 0.1;
+      const memoryReveal = surveyedInWorld ? (explorerDistance <= 680 ? 1 : 0.48) : 0;
+      const signalReveal = encounterTarget ? 0.46 + this.explorerEncounterStrength * 0.54 : 0;
+      const fieldReveal = this.exploreActive ? Math.max(distanceReveal, memoryReveal, signalReveal) : 1;
+      nd.sprite.tint = this.exploreActive && !surveyedInWorld && !encounterTarget ? 0xb8b4a7 : 0xffffff;
+      nd.sprite.alpha = (o.dormant ? 0.68 : 1) * hierarchyAlpha * nd.fogDim * encounterDim * fieldReveal;
+      if (nd.glow) nd.glow.visible = vis && focusVisible && hierarchyAlpha > 0.02 && (!this.exploreActive || surveyedInWorld || encounterTarget); // glow rides glowLayer alpha
+      if (nd.glow) nd.glow.alpha = hierarchyAlpha * encounterDim * fieldReveal;
       if (vis && focusVisible && hierarchyAlpha > 0.02 && this.islandLayer.alpha > 0.02) {
         onScreen++;
         if ((o.role ?? 'anchor') === 'satellite' && hierarchyAlpha > 0.24) visibleSatellites++;
@@ -1750,7 +2664,14 @@ export class AtlasStage {
       nd.labelGroup.y = Math.round(ly);
       nd.dot.x = Math.round(sx);
       nd.dot.y = Math.round(ly);
-      if (labelsVisible && vis && focusVisible && hierarchyAlpha > 0.34) {
+      const encounterLabelVisible = !this.exploreActive
+        || !this.explorerEncounterSlug
+        || encounterTarget
+        || this.explorerEncounterStrength < 0.38;
+      const explorationLabelKnown = surveyedInWorld
+        ? explorerDistance < 620
+        : encounterTarget && (this.explorerEncounterStrength > 0.16 || explorerDistance < 380);
+      if (labelsVisible && vis && focusVisible && hierarchyAlpha > 0.34 && encounterLabelVisible && (!this.exploreActive || (explorationLabelKnown && explorerDistance > 132))) {
         // Navigation anchors keep their names when a newly disclosed satellite
         // crowds them; this is label wayfinding, never a visual size/value rank.
         const navigationPriority = (o.role ?? 'anchor') === 'anchor' ? 500 : 0;
@@ -1770,7 +2691,25 @@ export class AtlasStage {
       const revealOf = (node: IslandNode) => node.reveal;
       const domainVisible = !this.domainFocus || from.o.domain === this.domainFocus || to.o.domain === this.domainFocus;
       const altitudeVisible = !this.altitudeFocus || from.band === this.altitudeFocus || to.band === this.altitudeFocus;
-      line.visible = Math.min(revealOf(from), revealOf(to)) > 0.05 && domainVisible && altitudeVisible;
+      const touchesEncounter = !!this.explorerEncounterSlug
+        && (current.fromSlug === this.explorerEncounterSlug || current.toSlug === this.explorerEncounterSlug);
+      const rememberedRoute = this.explorerSurveyedSlugs.has(current.fromSlug) || this.explorerSurveyedSlugs.has(current.toSlug);
+      const currentId = atlasCurrentId(current);
+      const sampledRoute = this.explorerSampledCurrentIds.has(currentId);
+      const currentEncounter = currentId === this.explorerCurrentEncounterId;
+      line.visible = Math.min(revealOf(from), revealOf(to)) > 0.05
+        && domainVisible
+        && altitudeVisible
+        && (!this.exploreActive || touchesEncounter || rememberedRoute || sampledRoute || currentEncounter);
+      line.alpha = !this.exploreActive
+        ? current.maturity === 'proposed' ? 0.58 : 1
+        : currentEncounter
+          ? 0.72 + this.explorerCurrentEncounterStrength * 0.28
+          : sampledRoute
+            ? 0.7
+            : touchesEncounter
+              ? 0.52 + this.explorerEncounterStrength * 0.26
+              : rememberedRoute ? 0.34 : 0.18;
     }
 
     // De-collision only on settle (reflow) — the expensive-ish pass. Between
@@ -1778,7 +2717,7 @@ export class AtlasStage {
     if (labelsVisible && (reflow || this.lastLabelCount === 0)) {
       // Screen-area label budget: past it even a collision-free card demotes to
       // a dot — a comfortable page of place names, not an index of everything.
-      const labelBudget = Math.max(10, Math.round((view.width * view.height) / 85000));
+      const labelBudget = this.exploreActive ? 7 : Math.max(10, Math.round((view.width * view.height) / 85000));
       const verdict = deconflictLabels(boxes, 96, { pad: 12, maxLabels: labelBudget });
       let shown = 0;
       for (const nd of this.islands) {
@@ -1788,8 +2727,11 @@ export class AtlasStage {
         nd.labelGroup.visible = onscreen && asLabel;
         nd.dot.visible = onscreen && !asLabel;
         const hierarchyAlpha = nd.reveal;
-        nd.labelGroup.alpha = Math.max(blend.mid, blend.near) * hierarchyAlpha * nd.fogDim;
-        nd.dot.alpha = Math.max(blend.mid, blend.near) * hierarchyAlpha * nd.fogDim;
+        const encounterDim = this.exploreActive && this.explorerEncounterSlug && nd.o.slug !== this.explorerEncounterSlug
+          ? 1 - this.explorerEncounterStrength * 0.5
+          : 1;
+        nd.labelGroup.alpha = Math.max(blend.mid, blend.near) * hierarchyAlpha * nd.fogDim * encounterDim;
+        nd.dot.alpha = Math.max(blend.mid, blend.near) * hierarchyAlpha * nd.fogDim * encounterDim;
         if (asLabel) shown++;
       }
       this.lastLabelCount = shown;
@@ -1797,8 +2739,11 @@ export class AtlasStage {
       // cheap path: keep prior verdicts, just re-apply tier alpha
       for (const nd of this.islands) {
         const hierarchyAlpha = nd.reveal;
-        nd.labelGroup.alpha = Math.max(blend.mid, blend.near) * hierarchyAlpha * nd.fogDim;
-        nd.dot.alpha = Math.max(blend.mid, blend.near) * hierarchyAlpha * nd.fogDim;
+        const encounterDim = this.exploreActive && this.explorerEncounterSlug && nd.o.slug !== this.explorerEncounterSlug
+          ? 1 - this.explorerEncounterStrength * 0.5
+          : 1;
+        nd.labelGroup.alpha = Math.max(blend.mid, blend.near) * hierarchyAlpha * nd.fogDim * encounterDim;
+        nd.dot.alpha = Math.max(blend.mid, blend.near) * hierarchyAlpha * nd.fogDim * encounterDim;
       }
     } else {
       this.lastLabelCount = 0;
@@ -1863,6 +2808,7 @@ export class AtlasStage {
     this.clusterLayer.removeChildren().forEach((c) => c.destroy());
     this.routeLayer.removeChildren().forEach((c) => c.destroy());
     this.localRouteLayer.removeChildren().forEach((c) => c.destroy());
+    this.currentEncounterLayer.removeChildren().forEach((c) => c.destroy({ children: true }));
     this.cloudBackLayer.removeChildren().forEach((c) => c.destroy());
     this.cloudFrontLayer.removeChildren().forEach((c) => c.destroy());
     this.clusterLabelLayer.removeChildren().forEach((c) => c.destroy());
@@ -1876,6 +2822,9 @@ export class AtlasStage {
     this.flows = [];
     this.currents = [];
     this.currentRoutes = [];
+    this.explorerCurrentEncounterMarker = undefined;
+    this.explorerCurrentEncounterId = null;
+    this.explorerSampledCurrentIds.clear();
     this.continentLabels = [];
     this.altitudeBySlug.clear();
     this.fogGfx = undefined;
@@ -1883,11 +2832,20 @@ export class AtlasStage {
   }
 
   destroy(): void {
+    if (this.destroyed) return;
+    this.destroyed = true;
+    const app = this.app;
+    // Make every already-queued callback observe a closed stage before any
+    // display object or renderer resource starts being released.
+    this.app = undefined;
     if (this.settleTimer) clearTimeout(this.settleTimer);
     this.settleTimer = null;
-    if (this.flightRaf !== null) cancelAnimationFrame(this.flightRaf);
-    this.flightRaf = null;
-    this.flying = false;
+    if (this.frameRaf !== null) cancelAnimationFrame(this.frameRaf);
+    this.frameRaf = null;
+    this.frameScheduled = false;
+    this.pendingReflow = false;
+    this.cancelCameraMotion();
+    this.motionDirector.cancel();
     if (this.canvasEl) {
       this.canvasEl.removeEventListener('wheel', this.boundWheel);
       this.canvasEl.removeEventListener('pointerdown', this.boundDown);
@@ -1895,9 +2853,9 @@ export class AtlasStage {
     window.removeEventListener('pointermove', this.boundMove);
     window.removeEventListener('pointerup', this.boundUp);
     this.disposeNodes();
-    if (this.app) {
-      this.app.destroy(true, { children: true });
-      this.app = undefined;
-    }
+    this.explorerLayer.removeChildren().forEach((child) => child.destroy({ children: true }));
+    this.explorerNode = undefined;
+    this.canvasEl = undefined;
+    app?.destroy(true, { children: true });
   }
 }

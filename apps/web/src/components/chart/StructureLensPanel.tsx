@@ -10,6 +10,7 @@
  * mapping (§九 red-line). Structure titles/statements are editorial bilingual
  * content (invariant 9): rendered from the object, not from i18n.
  */
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import type { ApiStructure } from '../../api/client';
 import type { IslandDatum } from '../../api/fallback';
@@ -38,72 +39,75 @@ export function StructureLensPanel({ structures, selected, onSelect, rebuilt, ne
   if (structures.length === 0) return null;
   const active = selected ? structures.find((s) => s.id === selected) ?? null : null;
 
-  return (
+  const panel = (
     <aside className="fi-structure-key" aria-label={t('chart.structures.legend')}>
-      <span><i aria-hidden="true" />{t('chart.structures.legend')}</span>
-      <div className="fi-structure-options" role="group">
-        <button type="button" className={selected === null ? 'is-active' : ''} aria-pressed={selected === null} onClick={() => onSelect(null)}>
-          {t('chart.structures.off')}
-        </button>
-        {structures.map((s) => (
-          <button key={s.id} type="button" className={selected === s.id ? 'is-active' : ''} aria-pressed={selected === s.id} onClick={() => onSelect(s.id)} title={s.statement[lang]}>
-            {s.title[lang]}
-            {s.status === 'proposed' && <em>{t('chart.structures.proposed')}</em>}
+      <details open={selected !== null || undefined}>
+        <summary><i aria-hidden="true" />{t('chart.structures.legend')}<b aria-hidden="true">{selected ? '开' : '展'}</b></summary>
+        <div className="fi-structure-options" role="group">
+          <button type="button" className={selected === null ? 'is-active' : ''} aria-pressed={selected === null} onClick={() => onSelect(null)}>
+            {t('chart.structures.off')}
           </button>
-        ))}
-      </div>
-
-      {active && (
-        <div className="fi-structure-twin">
-          <p className="fi-structure-statement">{active.statement[lang]}</p>
-          <div className="fi-structure-columns">
-            <section>
-              <b>{t('chart.structures.rebuilt')} · {rebuilt.length}</b>
-              <ul>
-                {rebuilt.map(({ d, weight, actors }) => (
-                  <li key={d.slug ?? d.id}>
-                    <button type="button" onClick={() => onEnter(d)}>
-                      {d.n[lang]}
-                      <small>{weight > 1 ? `×${weight} · ` : ''}{actors.map(handleOf).join(' ')}</small>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </section>
-            <section data-kind="gap">
-              <b>{t('chart.structures.gaps')} · {nearGaps.length + farGaps.length}</b>
-              {nearGaps.length > 0 && (
-                <>
-                  <em className="fi-structure-sub">{t('chart.structures.nearGaps')}</em>
-                  <ul>
-                    {nearGaps.map((d) => (
-                      <li key={d.slug ?? d.id}>
-                        <button type="button" onClick={() => onEnter(d)}>{d.n[lang]}</button>
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              )}
-              {farGaps.length > 0 && (
-                <>
-                  <em className="fi-structure-sub">{t('chart.structures.domainGaps')}</em>
-                  <ul data-far="true">
-                    {farGaps.map((d) => (
-                      <li key={d.slug ?? d.id}>
-                        <button type="button" onClick={() => onEnter(d)}>{d.n[lang]}</button>
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              )}
-            </section>
-          </div>
-          {rebuilt.length === 0 && <p className="fi-structure-frontier">{t('chart.structures.pureFrontier')}</p>}
-          <small>{t('chart.structures.gapHint')}</small>
+          {structures.map((s) => (
+            <button key={s.id} type="button" className={selected === s.id ? 'is-active' : ''} aria-pressed={selected === s.id} onClick={() => onSelect(s.id)} title={s.statement[lang]}>
+              {s.title[lang]}
+              {s.status === 'proposed' && <em>{t('chart.structures.proposed')}</em>}
+            </button>
+          ))}
         </div>
-      )}
 
-      <small className="fi-structure-note">{t('chart.structures.note')}</small>
+        {active && (
+          <div className="fi-structure-twin">
+            <p className="fi-structure-statement">{active.statement[lang]}</p>
+            <div className="fi-structure-columns">
+              <section>
+                <b>{t('chart.structures.rebuilt')} · {rebuilt.length}</b>
+                <ul>
+                  {rebuilt.map(({ d, weight, actors }) => (
+                    <li key={d.slug ?? d.id}>
+                      <button type="button" onClick={() => onEnter(d)}>
+                        {d.n[lang]}
+                        <small>{weight > 1 ? `×${weight} · ` : ''}{actors.map(handleOf).join(' ')}</small>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+              <section data-kind="gap">
+                <b>{t('chart.structures.gaps')} · {nearGaps.length + farGaps.length}</b>
+                {nearGaps.length > 0 && (
+                  <>
+                    <em className="fi-structure-sub">{t('chart.structures.nearGaps')}</em>
+                    <ul>
+                      {nearGaps.map((d) => (
+                        <li key={d.slug ?? d.id}>
+                          <button type="button" onClick={() => onEnter(d)}>{d.n[lang]}</button>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+                {farGaps.length > 0 && (
+                  <>
+                    <em className="fi-structure-sub">{t('chart.structures.domainGaps')}</em>
+                    <ul data-far="true">
+                      {farGaps.map((d) => (
+                        <li key={d.slug ?? d.id}>
+                          <button type="button" onClick={() => onEnter(d)}>{d.n[lang]}</button>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </section>
+            </div>
+            {rebuilt.length === 0 && <p className="fi-structure-frontier">{t('chart.structures.pureFrontier')}</p>}
+            <small>{t('chart.structures.gapHint')}</small>
+          </div>
+        )}
+
+        <small className="fi-structure-note">{t('chart.structures.note')}</small>
+      </details>
     </aside>
   );
+  return typeof document !== 'undefined' ? createPortal(panel, document.body) : panel;
 }

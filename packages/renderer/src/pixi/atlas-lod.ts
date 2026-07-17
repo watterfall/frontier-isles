@@ -137,13 +137,51 @@ export const ATLAS_BAND_LIFT: Record<AtlasAltitudeBand, number> = { low: 10, mid
 
 const ATLAS_BAND_ORD: Record<AtlasAltitudeBand, number> = { low: 0, middle: 1, high: 2 };
 
+const clamp01 = (v: number): number => (v < 0 ? 0 : v > 1 ? 1 : v);
+
+/** One home for the band→z fallback rule: an island's continuous 0..1 stratum
+ * position, from `altitudeZ` when present, else the middle of its named band.
+ * Encounter metrics, lift and airway endpoints must all agree on this. */
+export function atlasAltitudeZ(o: Pick<AtlasIslandInput, 'altitude' | 'altitudeZ'>): number {
+  return clamp01(o.altitudeZ ?? ATLAS_BAND_ORD[o.altitude ?? 'middle'] / 2);
+}
+
+/** Exchange rate between one full stratum of altitude difference and
+ * horizontal world units, shared by encounter selection, per-island reveal and
+ * airway hit-testing — one weight, or "nearest" and "lit" drift apart. */
+export const ATLAS_ALTITUDE_DISTANCE_WEIGHT = 240;
+
 /** Continuous per-island lift from its stratum position — cartographic place,
  * never a rank (the altitude invariant). */
 export function atlasIslandLift(o: Pick<AtlasIslandInput, 'altitude' | 'altitudeZ'>): number {
-  const band = o.altitude ?? 'middle';
-  const z = Math.max(0, Math.min(1, o.altitudeZ ?? ATLAS_BAND_ORD[band] / 2));
-  return 10 + z * 136;
+  return 10 + atlasAltitudeZ(o) * 136;
 }
+
+/** Exploration contract shared by the app's world runtime (worldExplore.ts)
+ * and the stage's own defaults — the two camera/encounter owners must agree on
+ * framing and ranges, or a resize/spawn mid-flight snaps to a different frame. */
+export const ATLAS_EXPLORER_MAX_SPEED = 236;
+export const ATLAS_EXPLORER_CRUISE_SCALE = 1.82;
+export const ATLAS_EXPLORER_SIGNAL_DISTANCE = 320;
+export const ATLAS_EXPLORER_APPROACH_DISTANCE = 168;
+export const ATLAS_EXPLORER_CURRENT_SIGNAL_DISTANCE = 120;
+export const ATLAS_EXPLORER_CURRENT_SAMPLE_DISTANCE = 54;
+export function atlasCruiseScale(speed: number, altitudeZ: number): number {
+  return ATLAS_EXPLORER_CRUISE_SCALE
+    - Math.min(0.16, (speed / ATLAS_EXPLORER_MAX_SPEED) * 0.16)
+    - (altitudeZ - 0.5) * 0.1;
+}
+
+/** The craft's cardinal facing ↔ continuous heading conventions. The sign map
+ * (north = -π/2) and the abs-cos/abs-sin tie-break must stay identical for the
+ * rendered craft and its accessible facing label — one home for both. */
+export type AtlasCardinalFacing = 'east' | 'south' | 'west' | 'north';
+export const facingToHeading = (facing: AtlasCardinalFacing): number =>
+  ({ east: 0, south: Math.PI / 2, west: Math.PI, north: -Math.PI / 2 } as const)[facing];
+export const vectorToFacing = (x: number, y: number): AtlasCardinalFacing =>
+  Math.abs(x) >= Math.abs(y) ? (x >= 0 ? 'east' : 'west') : (y >= 0 ? 'south' : 'north');
+export const headingToFacing = (heading: number): AtlasCardinalFacing =>
+  vectorToFacing(Math.cos(heading), Math.sin(heading));
 
 /** An island's projected (rendered) vertical position. */
 export function projectAtlasIslandY(o: Pick<AtlasIslandInput, 'y' | 'altitude' | 'altitudeZ'>): number {
@@ -301,8 +339,163 @@ export interface AtlasCurrent {
   fromSlug: string;
   toSlug: string;
   kind: 'evidence' | 'bridge' | 'lineage';
+  /** Epistemic direction from the projected ledger event, never inferred here. */
+  sign: 'affirm' | 'contest' | 'neutral';
+  /** Evidence and lineage are directed; bridges are mutual spans. */
+  directed: boolean;
+  /** Bridge-only ratification state from the ledger projection. */
+  maturity?: 'proposed' | 'ratified';
   tint: number;
   weight: number;
+}
+
+/** Stable notebook identity for one real ledger current. Sign is part of the
+ * identity: core keys currents by from+to+kind+sign (invariant 8), so an affirm
+ * and a contest on the same ordered pair must stay distinct here too. */
+export function atlasCurrentId(current: Pick<AtlasCurrent, 'fromSlug' | 'toSlug' | 'kind' | 'sign'>): string {
+  return `${current.fromSlug}::${current.toSlug}::${current.kind}::${current.sign}`;
+}
+
+/** The exact quadratic route geometry shared by Pixi drawing and field hit tests. */
+export interface AtlasCurrentGeometry {
+  ax: number;
+  ay: number;
+  az: number;
+  mx: number;
+  my: number;
+  bx: number;
+  by: number;
+  bz: number;
+  climb: number;
+}
+
+export interface AtlasCurrentNearestPoint {
+  x: number;
+  y: number;
+  altitudeZ: number;
+  altitudeDelta: number;
+  horizontalDistance: number;
+  distance: number;
+  progress: number;
+  tangentX: number;
+  tangentY: number;
+}
+
+/**
+ * Build the single source of truth for a local airway. The bow is derived only
+ * from its real endpoints and their cartographic strata; it adds legibility,
+ * not fictional geography.
+ */
+export function atlasCurrentGeometry(
+  from: Pick<AtlasIslandInput, 'x' | 'y' | 'altitude' | 'altitudeZ'>,
+  to: Pick<AtlasIslandInput, 'x' | 'y' | 'altitude' | 'altitudeZ'>,
+): AtlasCurrentGeometry {
+  const ax = from.x;
+  const ay = projectAtlasIslandY(from);
+  const bx = to.x;
+  const by = projectAtlasIslandY(to);
+  const az = atlasAltitudeZ(from);
+  const bz = atlasAltitudeZ(to);
+  const dx = bx - ax;
+  const dy = by - ay;
+  const len = Math.hypot(dx, dy) || 1;
+  const nx = -dy / len;
+  const ny = dx / len;
+  const climb = Math.abs(bz - az);
+  const bow = Math.min(120, len * 0.18) + climb * 54;
+  return {
+    ax,
+    ay,
+    az,
+    mx: (ax + bx) / 2 + nx * bow,
+    my: (ay + by) / 2 + ny * bow - 20 - climb * 34,
+    bx,
+    by,
+    bz,
+    climb,
+  };
+}
+
+function sampleAtlasCurrent(geometry: AtlasCurrentGeometry, progress: number): Omit<AtlasCurrentNearestPoint, 'altitudeDelta' | 'horizontalDistance' | 'distance'> {
+  const t = clamp01(progress);
+  const u = 1 - t;
+  return {
+    x: u * u * geometry.ax + 2 * u * t * geometry.mx + t * t * geometry.bx,
+    y: u * u * geometry.ay + 2 * u * t * geometry.my + t * t * geometry.by,
+    altitudeZ: geometry.az + (geometry.bz - geometry.az) * t,
+    progress: t,
+    tangentX: 2 * u * (geometry.mx - geometry.ax) + 2 * t * (geometry.bx - geometry.mx),
+    tangentY: 2 * u * (geometry.my - geometry.ay) + 2 * t * (geometry.by - geometry.my),
+  };
+}
+
+// The coarse-scan curve points are pose-independent, so they are computed once
+// per geometry and reused every explore frame. Keyed by geometry identity:
+// buildLocalRoutes mints fresh geometry objects on new data, which drops the
+// stale cache entries without any explicit invalidation.
+const COARSE_STEPS = 32;
+const coarseSampleCache = new WeakMap<AtlasCurrentGeometry, Array<{ x: number; y: number; altitudeZ: number }>>();
+function coarseSamplesOf(geometry: AtlasCurrentGeometry): Array<{ x: number; y: number; altitudeZ: number }> {
+  let samples = coarseSampleCache.get(geometry);
+  if (!samples) {
+    samples = [];
+    for (let index = 0; index <= COARSE_STEPS; index++) {
+      const point = sampleAtlasCurrent(geometry, index / COARSE_STEPS);
+      samples.push({ x: point.x, y: point.y, altitudeZ: point.altitudeZ });
+    }
+    coarseSampleCache.set(geometry, samples);
+  }
+  return samples;
+}
+
+/**
+ * Closest point on a rendered airway to the craft, including height alignment.
+ * A coarse scan followed by a bounded ternary refinement is deterministic and
+ * cheap for the small curated current set, while keeping hit tests locked to
+ * the visible curve rather than an endpoint chord.
+ */
+export function nearestAtlasCurrentPoint(
+  geometry: AtlasCurrentGeometry,
+  pose: { x: number; y: number; altitudeZ?: number },
+): AtlasCurrentNearestPoint {
+  const craftZ = clamp01(pose.altitudeZ ?? 0.5);
+  const metricAt = (progress: number) => {
+    const point = sampleAtlasCurrent(geometry, progress);
+    const horizontalDistance = Math.hypot(point.x - pose.x, point.y - pose.y);
+    const altitudeDelta = point.altitudeZ - craftZ;
+    return { point, horizontalDistance, altitudeDelta, distance: Math.hypot(horizontalDistance, altitudeDelta * ATLAS_ALTITUDE_DISTANCE_WEIGHT) };
+  };
+
+  let bestT = 0;
+  let bestDistance = Infinity;
+  const samples = coarseSamplesOf(geometry);
+  for (let index = 0; index < samples.length; index++) {
+    const sample = samples[index];
+    if (!sample) continue;
+    const horizontalDistance = Math.hypot(sample.x - pose.x, sample.y - pose.y);
+    const altitudeDelta = sample.altitudeZ - craftZ;
+    const distance = Math.hypot(horizontalDistance, altitudeDelta * ATLAS_ALTITUDE_DISTANCE_WEIGHT);
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      bestT = index / COARSE_STEPS;
+    }
+  }
+
+  let low = Math.max(0, bestT - 1 / COARSE_STEPS);
+  let high = Math.min(1, bestT + 1 / COARSE_STEPS);
+  for (let iteration = 0; iteration < 12; iteration++) {
+    const left = low + (high - low) / 3;
+    const right = high - (high - low) / 3;
+    if (metricAt(left).distance <= metricAt(right).distance) high = right;
+    else low = left;
+  }
+  const result = metricAt((low + high) / 2);
+  return {
+    ...result.point,
+    altitudeDelta: result.altitudeDelta,
+    horizontalDistance: result.horizontalDistance,
+    distance: result.distance,
+  };
 }
 
 // ─── Camera framing (W5, atlas-world-plan.md §4) ─────────────────────────────
@@ -355,7 +548,6 @@ export function computeWorldMinScale(screenW: number, screenH: number, bounds: A
 
 // ─── Fog-as-focus (W5, atlas-world-plan.md §4 goal 2) ────────────────────────
 
-const clamp01 = (v: number): number => (v < 0 ? 0 : v > 1 ? 1 : v);
 /** Hermite smoothstep — a soft 0→1 ramp (no hard fog wall), mirrors
  *  `core/climate.ts`'s identical helper (restated, renderer must not import core). */
 const smoothstep01 = (t: number): number => {
@@ -434,8 +626,10 @@ export function tierBlend(scale: number): { far: number; mid: number; near: numb
 // (invariant 13). Restated here only because of the package boundary.
 
 /** FNV-1a 32-bit hash — same string in ⇒ same number out, forever. */
-export function atlasHash(input: string): number {
-  let h = 0x811c9dc5;
+export function atlasHash(input: string, salt = 0): number {
+  // FNV-1a; the optional salt XORs the offset basis, matching (bit-for-bit)
+  // the salted variant the web despace pipeline used before unification.
+  let h = 0x811c9dc5 ^ salt;
   for (let i = 0; i < input.length; i++) {
     h ^= input.charCodeAt(i);
     h = Math.imul(h, 0x01000193);

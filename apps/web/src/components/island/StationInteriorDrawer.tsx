@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import type { StationKind } from '@frontier-isles/core';
-import type { IslandInterior } from '@frontier-isles/data';
+import type { IslandInterior } from '@frontier-isles/data/frontiers';
 
 /**
  * L2 station-interior drawer for curated/generated islands. When a visitor taps

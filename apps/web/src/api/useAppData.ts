@@ -19,14 +19,19 @@ export interface AppData {
 /** Server growth stages are names (core GrowthStage); the chart layout indexes them. */
 const STAGE_INDEX: Record<string, number> = { empty: 0, hut: 1, academy: 2, school: 3 };
 
-/** Merge a server island list onto the positioned prototype layout by title. */
+/** Merge a server island list onto the positioned prototype layout by title.
+ * Identity-preserving: when the server holds nothing new, the returned array
+ * (and each unchanged island) keeps its old reference — a gratuitously fresh
+ * islands array re-keys the stage-boot effect downstream and tears down the
+ * whole Pixi atlas (visibly resetting an in-flight explore session). */
 function reconcile(list: ApiIsland[]): IslandDatum[] {
   const byTitle = new Map(list.map((i) => [i.title, i]));
-  return DATA.map((d) => {
+  let changed = false;
+  const next = DATA.map((d) => {
     const s = byTitle.get(d.n.zh);
     if (!s) return d;
     const stage = typeof s.growth?.stage === 'string' ? STAGE_INDEX[s.growth.stage] : s.growth?.stage;
-    return {
+    const merged = {
       ...d,
       m: s.members ?? d.m,
       a: s.activity ?? d.a,
@@ -34,7 +39,13 @@ function reconcile(list: ApiIsland[]): IslandDatum[] {
       dor: s.growth?.dormant ?? d.dor,
       slug: s.slug ?? d.slug,
     };
+    if (merged.m === d.m && merged.a === d.a && merged.st === d.st && merged.dor === d.dor && merged.slug === d.slug) {
+      return d;
+    }
+    changed = true;
+    return merged;
   });
+  return changed ? next : DATA;
 }
 
 /**

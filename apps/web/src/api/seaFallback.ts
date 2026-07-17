@@ -7,7 +7,8 @@
  */
 import type { ActionType, LedgerEvent } from '@frontier-isles/opp';
 import { projectCurrents, projectWhirlpools } from '@frontier-isles/core';
-import { FRONTIERS, SEA_SEED_RELATIONS, domainToVec, type SeaVerb } from '@frontier-isles/data';
+import { FRONTIER_ATLAS } from '@frontier-isles/data/atlas';
+import { SEA_SEED_RELATIONS, domainToVec, type SeaVerb } from '@frontier-isles/data/sea';
 import type { ApiSeaData, ApiSeaIsland } from './client';
 
 const OP = (slug: string) => `op://frontier-isles/prob/${slug}`;
@@ -44,7 +45,7 @@ function ev(op: string, action: ActionType, phase: 'A' | 'B' | 'D', ref: string)
   };
 }
 
-/** The sample island (not in FRONTIERS) — matches the server seed's chart meta. */
+/** The sample island (not in FRONTIER_ATLAS) — matches the server seed's chart meta. */
 const SAMPLE: ApiSeaIsland = {
   op: OP('machine-curiosity'),
   name: 'AI 之问',
@@ -76,7 +77,7 @@ export function fixtureSeaData(): ApiSeaData {
   }
 
   const islands: ApiSeaIsland[] = [
-    ...FRONTIERS.map((f) => {
+    ...FRONTIER_ATLAS.map((f) => {
       const s = f.scores?.[6];
       return {
         op: OP(f.slug),

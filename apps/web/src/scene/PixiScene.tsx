@@ -18,6 +18,7 @@ import { SceneStage, RitualLayer, type TextureResolver, type ResolvedTexture, ty
 import { worldToScreen, worldToScreenElevated, seaDepthAt } from '@frontier-isles/renderer';
 import { STATION_META, type ClaimState, type StationKind } from '@frontier-isles/core';
 import { localizeStation, type Lang } from '../i18n/stations';
+import { acquirePixiLifecycle, disposePixiStage } from '../pixiLifecycle';
 import type { RitualEvent } from './rituals';
 import {
   StationWorkshop,
@@ -131,6 +132,9 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
   const stageRef = useRef<SceneStage | null>(null);
   const cam = useRef({ ...worldToScreen(8, 8), zoom: 0.75 }); // island centre (tile 8,8)
   const drag = useRef<{ x: number; y: number } | null>(null);
+  // Total pointer travel of the current gesture — a pick is only honoured when
+  // the gesture stayed a tap (see s.onPick below).
+  const dragTravel = useRef(0);
   // Read live inside the boot closure so late day/night without re-boot is correct,
   // and callbacks don't re-boot the scene when their identity changes each render.
   const tRef = useRef(t);
@@ -193,7 +197,14 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
     let disposed = false;
     let stage: SceneStage | null = null;
     let resizeObserver: ResizeObserver | null = null;
+    let releasePixi: (() => void) | null = null;
     void (async () => {
+      const release = await acquirePixiLifecycle();
+      if (disposed) {
+        release();
+        return;
+      }
+      releasePixi = release;
       const s = new SceneStage();
       try {
         // Pass the host DIV (not a shared canvas): Pixi creates its own canvas so
@@ -207,11 +218,14 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
         // the FIRST frame instead of calm-until-the-prop-next-changes.
         s.setAgitation(agitationRef.current);
       } catch (e) {
+        // Release the lifecycle slot without destroy: init failed, the stage
+        // never owned GPU resources.
+        releasePixi = disposePixiStage(null, releasePixi);
         if (!disposed) cbRef.current.onWebglError?.(String(e));
         return;
       }
       if (disposed) {
-        s.destroy();
+        releasePixi = disposePixiStage(s, releasePixi);
         return;
       }
       stage = s;
@@ -226,6 +240,10 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
       // `claims` (see layout.ts push order); look the ClaimState back up rather
       // than inventing any new data.
       s.onPick = (id) => {
+        // The camera pans 1:1 with the pointer, so a pressed building stays
+        // under the cursor and still "taps" on release — a real pan must not
+        // open anything (same guard idea as the L0 atlas' moved flag).
+        if (dragTravel.current > 6) return;
         if (id.startsWith('station:')) {
           cbRef.current.onStation?.(id.slice('station:'.length) as StationKind);
           return;
@@ -311,6 +329,7 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
             // Question Wall) out above a label sized for a shorter one, or floats a
             // short station's label too high.
             return {
+              id: o.id,
               gx: o.gx,
               gy: o.gy,
               elevation: o.elevation,
@@ -329,13 +348,17 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
       });
       objCountRef.current = graph.objects.length;
       cbRef.current.onMetrics?.({ objects: graph.objects.length, sorted: s.sortedNodeCount(), renderMs: s.lastRenderMs });
-    })();
+    })().catch((error) => {
+      releasePixi = disposePixiStage(stage, releasePixi);
+      if (!disposed) cbRef.current.onWebglError?.(String(error));
+    });
     return () => {
       disposed = true;
       resizeObserver?.disconnect();
       ritualLayerRef.current?.destroy();
       ritualLayerRef.current = null;
-      if (stage) stage.destroy();
+      // No stage means init never completed — its chain owns the release.
+      if (stage) releasePixi = disposePixiStage(stage, releasePixi);
       stageRef.current = null;
     };
     // lang/activeStations aren't read via a ref (unlike t/onStation/onMetrics)
@@ -387,13 +410,19 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
     applyCam();
   };
   const onPointerDown = (e: React.PointerEvent): void => {
+    // Capture keeps the pan alive when the cursor crosses HUD chrome or exits
+    // the canvas; without it pointerleave ends every edge-directed drag.
+    (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
+    dragTravel.current = 0;
     drag.current = { x: e.clientX, y: e.clientY };
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
   };
   const onPointerMove = (e: React.PointerEvent): void => {
     if (!drag.current) return;
-    cam.current.x -= (e.clientX - drag.current.x) / cam.current.zoom;
-    cam.current.y -= (e.clientY - drag.current.y) / cam.current.zoom;
+    const dx = e.clientX - drag.current.x;
+    const dy = e.clientY - drag.current.y;
+    dragTravel.current += Math.hypot(dx, dy);
+    cam.current.x -= dx / cam.current.zoom;
+    cam.current.y -= dy / cam.current.zoom;
     drag.current = { x: e.clientX, y: e.clientY };
     applyCam();
   };
@@ -409,6 +438,7 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
+      onPointerLeave={onPointerUp}
     />
   );
 }

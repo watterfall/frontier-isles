@@ -95,6 +95,83 @@ button {
   background: var(--fi-paper);
 }
 
+/* ── L0 → L1 shared-axis voyage ────────────────────────────────────── */
+
+.fi-screen-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  contain: paint;
+}
+
+.fi-screen-layer-island { z-index: 1; }
+.fi-screen-layer-chart { z-index: 2; }
+
+.fi-app-shell[data-voyage='entering'] .fi-global-controls {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* The atlas and island never coexist as two Pixi applications. The browser's
+   View Transition compositor holds the already-centred atlas frame, zooms its
+   island in place, and reveals the live L1 scene from that same optical axis. */
+html[data-fi-voyage='entering']::view-transition-group(root) {
+  animation-duration: 880ms;
+  animation-timing-function: cubic-bezier(.16, 1, .3, 1);
+}
+
+html[data-fi-voyage='entering']::view-transition-image-pair(root) {
+  isolation: auto;
+}
+
+html[data-fi-voyage='entering']::view-transition-old(root) {
+  transform-origin: 50% 52%;
+  animation: fi-voyage-atlas-in 880ms cubic-bezier(.16, 1, .3, 1) both;
+}
+
+html[data-fi-voyage='entering']::view-transition-new(root) {
+  transform-origin: 50% 52%;
+  animation: fi-voyage-island-reveal 880ms cubic-bezier(.16, 1, .3, 1) both;
+}
+
+html[data-fi-voyage='returning']::view-transition-group(root) {
+  animation-duration: 760ms;
+  animation-timing-function: cubic-bezier(.16, 1, .3, 1);
+}
+
+html[data-fi-voyage='returning']::view-transition-old(root) {
+  transform-origin: 50% 54%;
+  animation: fi-voyage-island-out 620ms cubic-bezier(.7, 0, .84, 0) both;
+}
+
+html[data-fi-voyage='returning']::view-transition-new(root) {
+  transform-origin: 50% 54%;
+  animation: fi-voyage-world-return 760ms cubic-bezier(.16, 1, .3, 1) both;
+}
+
+@keyframes fi-voyage-atlas-in {
+  0%, 18% { opacity: 1; filter: blur(0); transform: scale(1); }
+  70% { opacity: .68; }
+  100% { opacity: 0; filter: blur(1.5px); transform: scale(1.18); }
+}
+
+@keyframes fi-voyage-island-reveal {
+  0% { opacity: 0; filter: blur(2px); transform: scale(1.065); }
+  42% { opacity: .52; }
+  100% { opacity: 1; filter: blur(0); transform: scale(1); }
+}
+
+@keyframes fi-voyage-island-out {
+  from { opacity: 1; filter: blur(0); transform: scale(1); }
+  to { opacity: 0; filter: blur(1.5px); transform: scale(.84); }
+}
+
+@keyframes fi-voyage-world-return {
+  0% { opacity: 0; filter: blur(2px); transform: scale(1.16); }
+  45% { opacity: .58; }
+  100% { opacity: 1; filter: blur(0); transform: scale(1); }
+}
+
 .fi-global-controls {
   position: fixed;
   right: 18px;
@@ -104,6 +181,7 @@ button {
   gap: 8px;
   align-items: center;
   animation: fi-rise-in 600ms 420ms var(--fi-ease) both;
+  transition: opacity 180ms ease;
 }
 
 .fi-global-controls-island {
@@ -120,6 +198,7 @@ button {
 
 .fi-global-controls :focus-visible,
 .fi-chart-chrome :focus-visible,
+.fi-atlas-edge-tools :focus-visible,
 .fi-island-screen :focus-visible,
 .fi-mobile-shell :focus-visible {
   outline: 3px solid color-mix(in srgb, var(--fi-gamboge) 78%, transparent);
@@ -136,6 +215,21 @@ button {
   color: var(--fi-ink);
   animation: fi-atlas-reveal 760ms var(--fi-ease) both;
 }
+
+.fi-atlas-instruments {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  transition: opacity 260ms var(--fi-ease), filter 260ms var(--fi-ease);
+}
+
+.fi-atlas-instruments[data-muted='true'] {
+  opacity: 0;
+  filter: saturate(.45);
+  pointer-events: none;
+}
+.fi-atlas-instruments[data-muted='true'] * { pointer-events: none !important; }
 
 .fi-atlas-loading,
 .fi-island-loading-mark { position: absolute; inset: 0; display: grid; z-index: 2; place-content: center; gap: 10px; color: var(--fi-ink-2); font-family: var(--fi-font-display); font-size: 12px; letter-spacing: .08em; text-align: center; }
@@ -403,6 +497,30 @@ button {
 .fi-atlas-guidance strong { display: block; font-family: var(--fi-font-display); font-size: 11.5px; font-weight: 600; }
 .fi-atlas-guidance small { display: block; margin-top: 2px; font-size: 9.5px; opacity: .76; }
 
+.fi-world-explore-launch {
+  display: grid;
+  min-height: 44px;
+  grid-template-columns: 28px auto;
+  grid-template-rows: auto auto;
+  column-gap: 9px;
+  align-items: center;
+  margin-left: 10px;
+  padding: 4px 12px 4px 5px;
+  border: 1px solid color-mix(in srgb, var(--fi-ochre) 76%, var(--fi-ink));
+  border-radius: 0;
+  background: color-mix(in srgb, var(--fi-paper-raised) 92%, transparent);
+  box-shadow: 3px 3px 0 rgba(58,48,36,.11);
+  color: var(--fi-ink);
+  pointer-events: auto;
+  cursor: pointer;
+  transition: transform 180ms var(--fi-ease), box-shadow 180ms var(--fi-ease), background 180ms ease;
+}
+.fi-world-explore-launch:hover { transform: translateY(-2px); box-shadow: 4px 5px 0 rgba(58,48,36,.14); background: var(--fi-paper-raised); }
+.fi-world-explore-launch:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 rgba(58,48,36,.12); }
+.fi-world-explore-launch > span { grid-row: 1 / 3; display: grid; width: 28px; height: 32px; place-items: center; background: var(--fi-ochre); color: var(--fi-paper); font-family: var(--fi-font-display); font-size: 14px; }
+.fi-world-explore-launch b { align-self: end; font-family: var(--fi-font-display); font-size: 11px; font-weight: 700; text-align: left; }
+.fi-world-explore-launch small { align-self: start; margin: 0; font-family: var(--fi-font-mono); font-size: 7.5px; letter-spacing: .035em; white-space: nowrap; }
+
 .fi-outlier-key { position: absolute; right: 30px; top: calc(50% + 184px); display: flex; align-items: center; gap: 7px; color: var(--fi-ink-2); font-size: 10.5px; }
 .fi-outlier-key i { width: 7px; height: 7px; border-radius: 50%; background: var(--fi-gamboge); box-shadow: 0 0 0 6px color-mix(in srgb, var(--fi-gamboge) 16%, transparent); }
 
@@ -441,9 +559,14 @@ button {
    The legend glyph is a dashed halo (the lens' own gap mark); rebuilt rows
    carry a solid amber dot, gap rows a dashed ochre ring — the SAME two marks
    the map draws, so the twin and the lens read as one instrument. */
-.fi-structure-key { position: absolute; left: 30px; bottom: 96px; z-index: 30; width: 246px; color: var(--fi-ink-2); pointer-events: auto; }
-.fi-structure-key > span { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; font-family: var(--fi-font-display); font-size: 10px; font-weight: 700; }
-.fi-structure-key > span i { width: 13px; height: 13px; box-sizing: border-box; border: 1.2px dashed var(--fi-ochre); border-radius: 50%; opacity: .85; }
+.fi-structure-key { position: fixed; top: 50%; right: 14px; z-index: 220; width: 124px; box-sizing: border-box; color: var(--fi-ink-2); pointer-events: auto; transform: translateY(-50%); transition: width 220ms var(--fi-ease); }
+.fi-structure-key details { border: .75px solid rgba(58,52,43,.32); background: color-mix(in srgb, var(--fi-paper-raised) 92%, transparent); box-shadow: 3px 4px 0 rgba(58,48,36,.09); backdrop-filter: blur(8px); }
+.fi-structure-key details[open] { width: 246px; margin-left: -122px; }
+.fi-structure-key summary { display: grid; min-height: 42px; grid-template-columns: 17px minmax(0, 1fr) 19px; align-items: center; gap: 6px; box-sizing: border-box; padding: 6px 6px 6px 8px; color: var(--fi-ink); font-family: var(--fi-font-display); font-size: 9px; font-weight: 700; list-style: none; cursor: pointer; }
+.fi-structure-key summary::-webkit-details-marker { display: none; }
+.fi-structure-key summary > i { width: 13px; height: 13px; box-sizing: border-box; border: 1.2px dashed var(--fi-ochre); border-radius: 50%; opacity: .85; }
+.fi-structure-key summary > b { display: grid; height: 24px; place-items: center; border-left: .75px solid rgba(58,52,43,.22); font-size: 7px; }
+.fi-structure-key details[open] summary { border-bottom: .75px solid rgba(58,52,43,.22); }
 .fi-structure-options { display: grid; grid-template-columns: 1fr; border: .75px solid rgba(58,52,43,.36); background: rgba(250,245,232,.78); backdrop-filter: blur(6px); }
 .fi-structure-options button { display: flex; align-items: center; justify-content: space-between; gap: 6px; min-height: 26px; padding: 3px 8px; border: 0; border-bottom: .75px solid rgba(58,52,43,.18); background: transparent; color: inherit; font: inherit; font-size: 10px; text-align: left; cursor: pointer; transition: background 150ms ease, color 150ms ease; }
 .fi-structure-options button:last-child { border-bottom: 0; }
@@ -474,6 +597,9 @@ button {
 .fi-card-lens[data-kind='gap'] { color: var(--fi-ochre); }
 .fi-structure-twin > small { display: block; margin-top: 5px; font-size: 8px; opacity: .7; }
 .fi-structure-note { display: block; margin-top: 4px; font-family: var(--fi-font-mono); font-size: 7.5px; opacity: .62; }
+@media (max-aspect-ratio: 17/10) {
+  .fi-structure-key { top: auto; right: 14px; bottom: 14px; transform: none; }
+}
 @media (max-width: 900px) { .fi-structure-key { display: none; } }
 
 .fi-atlas-camera { position: absolute; right: 30px; top: 50%; display: grid; grid-template-columns: 42px 42px; gap: 6px; pointer-events: auto; transform: translateY(-50%); }
@@ -482,6 +608,78 @@ button {
 .fi-atlas-camera button:disabled { opacity: .42; cursor: wait; }
 .fi-atlas-camera .fi-camera-reset { grid-column: 1 / -1; grid-template-columns: 18px auto; gap: 5px; font-size: 14px; }
 .fi-atlas-camera small { font-family: var(--fi-font-display); font-size: 10px; }
+
+/* The atlas is a world, not a control panel. Secondary instruments live in
+   the otherwise-empty page gutter and arrive through a portal, outside the
+   scaled canvas. The rail folds explanatory material until it is requested. */
+.fi-atlas-edge-tools {
+  position: fixed;
+  top: 50%;
+  left: 14px;
+  z-index: 220;
+  width: 124px;
+  box-sizing: border-box;
+  padding: 10px 9px 9px;
+  border: .75px solid color-mix(in srgb, var(--fi-ink) 32%, transparent);
+  background:
+    repeating-linear-gradient(0deg, rgba(58,48,36,.018) 0 1px, transparent 1px 4px),
+    color-mix(in srgb, var(--fi-paper-raised) 91%, transparent);
+  box-shadow: 3px 4px 0 rgba(58,48,36,.09);
+  color: var(--fi-ink-2);
+  backdrop-filter: blur(9px);
+  transform: translateY(-50%);
+  animation: fi-edge-tools-in 420ms 120ms var(--fi-ease) both;
+}
+
+.fi-atlas-edge-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 6px; margin-bottom: 9px; padding-bottom: 6px; border-bottom: .75px solid rgba(58,52,43,.2); }
+.fi-atlas-edge-head strong { color: var(--fi-ink); font-family: var(--fi-font-display); font-size: 10px; }
+.fi-atlas-edge-head span { font-family: var(--fi-font-mono); font-size: 6.5px; text-align: right; }
+.fi-atlas-edge-tools .fi-atlas-context,
+.fi-atlas-edge-tools .fi-altitude-key,
+.fi-atlas-edge-tools .fi-atlas-camera,
+.fi-atlas-edge-tools .fi-outlier-key,
+.fi-atlas-edge-tools .fi-hierarchy-key { position: static; width: auto; max-width: none; transform: none; }
+.fi-atlas-edge-tools .fi-atlas-context { margin: 0 0 11px; }
+.fi-atlas-edge-tools .fi-atlas-index { margin-bottom: 6px; font-size: 7px; line-height: 1.45; }
+.fi-atlas-edge-tools .fi-domain-key { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
+.fi-atlas-edge-tools .fi-domain-key > button { min-height: 32px; justify-content: center; padding: 3px 4px; font-size: 8px; }
+.fi-atlas-edge-tools .fi-domain-key > button:first-child { grid-column: 1 / -1; min-height: 28px; }
+.fi-atlas-edge-tools .fi-altitude-key { margin-bottom: 10px; }
+.fi-atlas-edge-tools .fi-altitude-key > span { margin-bottom: 4px; font-size: 8px; }
+.fi-atlas-edge-tools .fi-altitude-key > div { grid-template-columns: 1fr 1fr; }
+.fi-atlas-edge-tools .fi-altitude-key button { min-height: 30px; border-right: .75px solid rgba(58,52,43,.18); border-bottom: .75px solid rgba(58,52,43,.18); font-size: 7.5px; }
+.fi-atlas-edge-tools .fi-altitude-key button:nth-child(2n) { border-right: 0; }
+.fi-atlas-edge-tools .fi-altitude-key button:nth-last-child(-n + 2) { border-bottom: 0; }
+.fi-atlas-edge-tools .fi-altitude-key small { display: none; }
+.fi-atlas-edge-tools .fi-atlas-camera { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 8px; }
+.fi-atlas-edge-tools .fi-atlas-camera button { min-width: 0; min-height: 38px; font-size: 15px; }
+.fi-atlas-edge-tools .fi-atlas-camera .fi-camera-reset { grid-column: auto; grid-template-columns: 14px auto; padding: 0 4px; font-size: 11px; }
+.fi-atlas-edge-tools .fi-atlas-camera small { font-size: 7px; }
+.fi-atlas-edge-legend { border-top: .75px dashed rgba(58,52,43,.24); }
+.fi-atlas-edge-legend summary { min-height: 32px; box-sizing: border-box; padding: 9px 0 5px; color: var(--fi-ink-2); font-family: var(--fi-font-display); font-size: 8px; cursor: pointer; }
+.fi-atlas-edge-legend[open] summary { color: var(--fi-ink); }
+.fi-atlas-edge-tools .fi-outlier-key { margin: 5px 2px 10px; font-size: 7.5px; line-height: 1.35; }
+.fi-atlas-edge-tools .fi-hierarchy-key { pointer-events: none; }
+.fi-atlas-edge-tools .fi-hierarchy-key > span { font-size: 8px; }
+.fi-atlas-edge-tools .fi-hierarchy-key > div { grid-template-columns: 1fr; }
+.fi-atlas-edge-tools .fi-hierarchy-key b { min-height: 20px; box-sizing: border-box; border-right: 0; border-bottom: .75px solid rgba(58,52,43,.18); font-size: 7px; }
+.fi-atlas-edge-tools .fi-hierarchy-key b:last-child { border-bottom: 0; }
+.fi-atlas-edge-tools .fi-hierarchy-key small,
+.fi-atlas-edge-tools .fi-hierarchy-key em { font-size: 6.5px; line-height: 1.35; text-align: left; }
+
+@keyframes fi-edge-tools-in { from { opacity: 0; transform: translate(-7px, -50%); } to { opacity: 1; transform: translate(0, -50%); } }
+
+@media (max-aspect-ratio: 17/10) {
+  .fi-atlas-edge-tools { top: auto; bottom: 14px; left: 14px; width: 116px; transform: none; }
+  .fi-atlas-edge-head,
+  .fi-atlas-edge-tools .fi-atlas-index { display: none; }
+  .fi-atlas-edge-tools .fi-atlas-context { margin-bottom: 7px; }
+  .fi-atlas-edge-tools .fi-domain-key > button { min-height: 28px; }
+  .fi-atlas-edge-tools .fi-altitude-key { display: none; }
+  @keyframes fi-edge-tools-in { from { opacity: 0; transform: translateX(-7px); } to { opacity: 1; transform: translateX(0); } }
+}
+
+@media (max-width: 900px) { .fi-atlas-edge-tools { display: none; } }
 
 /* ── Atlas field note ───────────────────────────────────────────────── */
 
@@ -755,9 +953,197 @@ button {
 .fi-leave-links a { color: var(--gold2, var(--fi-ochre)) !important; text-underline-offset: 2px; }
 .fi-leave-links-sample { gap: 12px; }
 
+/* Generated islands are spatial-first too: the building index is a folded
+   fallback, while the enlarged Pixi hit regions remain the primary route. */
+.fi-generated-station-index { position: absolute; top: 112px; left: 28px; z-index: 35; width: 184px; color: var(--inkT, var(--fi-ink)); pointer-events: auto; }
+.fi-generated-station-index-toggle { display: grid; width: 100%; min-height: 48px; grid-template-columns: 34px minmax(0, 1fr) 27px; align-items: center; gap: 8px; padding: 5px 5px 5px 6px; border: 1px solid var(--ink, var(--fi-ink)); background: var(--card, rgba(250,245,232,.88)); color: inherit; box-shadow: 3px 3px 0 var(--shadow, rgba(58,48,36,.1)); text-align: left; cursor: pointer; backdrop-filter: blur(7px); transition: transform 180ms var(--fi-ease), box-shadow 180ms var(--fi-ease); }
+.fi-generated-station-index-toggle:hover { transform: translateY(-2px); box-shadow: 4px 5px 0 var(--shadow, rgba(58,48,36,.12)); }
+.fi-generated-station-index-toggle > span:first-child { display: grid; width: 32px; height: 36px; place-items: center; background: var(--gold, var(--fi-gamboge)); color: #3a2e14; font-family: var(--fi-font-display); font-size: 14px; font-weight: 900; }
+.fi-generated-station-index-toggle > span:nth-child(2) { min-width: 0; }
+.fi-generated-station-index-toggle strong,
+.fi-generated-station-index-toggle small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fi-generated-station-index-toggle strong { font-family: var(--fi-font-display); font-size: 10.5px; }
+.fi-generated-station-index-toggle small { margin-top: 3px; color: var(--ink2, var(--fi-ink-2)); font-family: var(--fi-font-mono); font-size: 6.7px; }
+.fi-generated-station-index-toggle b { display: grid; height: 28px; place-items: center; border-left: .75px solid var(--ink2, rgba(58,52,43,.28)); font-family: var(--fi-font-display); font-size: 8px; }
+.fi-generated-station-index-sheet { margin-top: -1px; border: 1px solid var(--ink, var(--fi-ink)); background: var(--card, rgba(250,245,232,.96)); box-shadow: 5px 7px 0 var(--shadow, rgba(58,48,36,.12)); animation: fi-generated-index-in 220ms var(--fi-ease) both; }
+.fi-generated-station-index-sheet > button { display: grid; width: 100%; min-height: 38px; grid-template-columns: 28px minmax(0, 1fr) 18px; align-items: center; gap: 7px; padding: 3px 8px 3px 5px; border: 0; border-bottom: .75px solid var(--ink2, rgba(58,52,43,.16)); background: transparent; color: inherit; text-align: left; cursor: pointer; transition: background 150ms ease, transform 150ms var(--fi-ease); }
+.fi-generated-station-index-sheet > button:hover { background: color-mix(in srgb, var(--gold, var(--fi-gamboge)) 10%, transparent); transform: translateX(2px); }
+.fi-generated-station-index-sheet > button[data-selected='true'] { background: color-mix(in srgb, var(--gold, var(--fi-gamboge)) 17%, transparent); }
+.fi-generated-station-index-sheet > button > span:first-child { display: grid; width: 26px; height: 28px; place-items: center; color: var(--fi-paper); font-family: var(--fi-font-display); font-size: 11px; }
+.fi-generated-station-index-sheet > button > span:nth-child(2) { overflow: hidden; font-family: var(--fi-font-display); font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.fi-generated-station-index-sheet > button small { color: var(--ink2, var(--fi-ink-2)); font-family: var(--fi-font-mono); font-size: 7px; text-align: right; }
+.fi-generated-station-index-sheet > div { padding: 7px 8px; color: var(--ink2, var(--fi-ink-2)); font-family: var(--fi-font-mono); font-size: 6.8px; text-align: center; }
+
+@keyframes fi-generated-index-in { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── Persistent low-altitude archipelago field ─────────────────────── */
+
+.fi-world-explore { position: absolute; inset: 0; z-index: 40; overflow: hidden; color: var(--fi-ink); pointer-events: none; animation: fi-world-explore-in 420ms var(--fi-ease) both; }
+.fi-world-explore::before { content: ''; position: absolute; inset: 0; z-index: 1; background: radial-gradient(ellipse 48% 46% at 47% 61%, transparent 0 46%, rgba(242,234,216,.16) 66%, rgba(219,214,197,.42) 100%), linear-gradient(90deg, rgba(242,234,216,.18), transparent 22% 76%, rgba(242,234,216,.24)); opacity: .78; pointer-events: none; transition: opacity 320ms var(--fi-ease); }
+.fi-world-explore::after { content: ''; position: absolute; inset: 0; z-index: 2; background: radial-gradient(ellipse at 47% 61%, transparent 0 40%, rgba(35,31,25,.04) 74%, rgba(35,31,25,.15) 132%); pointer-events: none; }
+.fi-world-explore[data-altitude='low']::before { opacity: .92; }
+.fi-world-explore[data-altitude='high']::before { opacity: .56; }
+.fi-app-shell[data-world-explore='true'] .fi-global-controls { visibility: hidden; opacity: 0; pointer-events: none; }
+.fi-world-explore-fallback { position: absolute; inset: 0; z-index: 80; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; background: var(--fi-paper); color: var(--fi-ink-2); }
+.fi-world-explore-fallback > span { display: grid; width: 52px; height: 52px; place-items: center; background: var(--fi-ink); color: var(--fi-paper); font-family: var(--fi-font-display); font-size: 22px; }
+.fi-world-explore-fallback h1 { margin: 4px 0 0; font-family: var(--fi-font-display); font-size: 20px; }
+.fi-world-explore-fallback p { max-width: 420px; margin: 0; font-family: var(--fi-font-display); font-size: 12px; line-height: 1.7; text-align: center; }
+.fi-world-explore-fallback button { min-height: 44px; padding: 0 16px; border: 1px solid var(--fi-ink); background: var(--fi-paper-raised); cursor: pointer; }
+
+.fi-world-explore-heading { position: absolute; top: 25px; left: 29px; right: 28px; z-index: 5; display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; animation: fi-world-explore-heading-in 380ms var(--fi-ease) both; }
+.fi-world-explore-heading > div { padding: 3px 0 4px 13px; border-left: 2px solid var(--fi-gamboge); text-shadow: 0 1px var(--fi-paper); }
+.fi-world-explore-heading small { display: block; color: var(--fi-ochre); font-family: var(--fi-font-mono); font-size: 8px; letter-spacing: .16em; }
+.fi-world-explore-heading strong { display: block; margin-top: 3px; font-family: var(--fi-font-display); font-size: 18px; }
+.fi-world-explore-heading span { display: block; margin-top: 3px; color: var(--fi-ink-2); font-family: var(--fi-font-display); font-size: 8px; letter-spacing: .08em; }
+.fi-world-explore-heading > button { min-height: 44px; padding: 0 14px; border: .75px solid color-mix(in srgb, var(--fi-ink) 62%, transparent); background: rgba(250,245,232,.78); color: var(--fi-ink); font-family: var(--fi-font-display); font-size: 10px; cursor: pointer; pointer-events: auto; backdrop-filter: blur(5px); transition: transform 160ms var(--fi-ease), background 160ms ease; }
+.fi-world-explore-heading > button:hover { transform: translateY(-2px); background: var(--fi-paper-raised); }
+
+.fi-world-explore-journal { position: absolute; top: 108px; left: 28px; z-index: 7; width: 250px; pointer-events: auto; animation: fi-world-explore-journal-in 430ms 60ms var(--fi-ease) both; }
+.fi-world-explore-journal-toggle { display: grid; width: 100%; min-height: 44px; grid-template-columns: 1fr auto 24px; align-items: center; gap: 8px; padding: 0 10px 0 13px; border: 1px solid color-mix(in srgb, var(--fi-ink) 58%, transparent); background: rgba(250,245,232,.82); color: var(--fi-ink); text-align: left; cursor: pointer; backdrop-filter: blur(6px); box-shadow: 2px 3px 0 rgba(58,48,36,.09); }
+.fi-world-explore-journal-toggle span { font-family: var(--fi-font-display); font-size: 12px; font-weight: 800; }
+.fi-world-explore-journal-toggle small { display: flex; align-items: center; gap: 5px; color: var(--fi-ochre); font-family: var(--fi-font-mono); font-size: 7.5px; }
+.fi-world-explore-journal-toggle kbd { display: grid; min-width: 21px; height: 21px; place-items: center; border: .75px solid currentColor; background: transparent; font-size: 7px; }
+.fi-world-explore-journal-toggle b { display: grid; height: 24px; place-items: center; border-left: .75px solid rgba(58,48,36,.2); font-family: var(--fi-font-display); font-size: 8px; }
+.fi-world-explore-journal-sheet { overflow: auto; max-height: 640px; margin-top: -1px; padding: 10px 12px 8px; border: 1px solid var(--fi-ink); background: linear-gradient(90deg, transparent 0 10px, rgba(181,103,58,.12) 10px 11px, transparent 11px), repeating-linear-gradient(0deg, rgba(58,48,36,.02) 0 1px, transparent 1px 4px), rgba(250,245,232,.95); box-shadow: 5px 7px 0 rgba(58,48,36,.12); animation: fi-world-explore-sheet-in 260ms var(--fi-ease) both; }
+.fi-world-explore-journal-sheet > p { margin: 1px 4px 8px 7px; color: var(--fi-ink-2); font-family: var(--fi-font-display); font-size: 8.5px; line-height: 1.5; }
+.fi-world-explore-notebook-status { display: grid; gap: 3px; margin: 0 3px 8px 7px; padding: 7px 8px; border-left: 2px solid var(--fi-malachite); background: color-mix(in srgb, var(--fi-malachite) 7%, transparent); }
+.fi-world-explore-notebook-status span { color: var(--fi-malachite); font-family: var(--fi-font-display); font-size: 8px; font-weight: 700; }
+.fi-world-explore-notebook-status b { color: var(--fi-ink-2); font-family: var(--fi-font-mono); font-size: 6.8px; font-weight: 400; }
+.fi-world-explore-journal ol { display: grid; margin: 0; padding: 0; list-style: none; }
+.fi-world-explore-journal li { border-top: .75px dashed rgba(58,48,36,.24); }
+.fi-world-explore-journal-entry { display: grid; width: 100%; min-height: 52px; box-sizing: border-box; grid-template-columns: 29px minmax(0, 1fr); align-items: center; gap: 8px; padding: 5px 3px; border: 0; background: transparent; color: inherit; text-align: left; cursor: pointer; transition: background 150ms ease, transform 150ms var(--fi-ease); }
+.fi-world-explore-journal-entry:hover { background: rgba(227,169,60,.1); transform: translateX(2px); }
+.fi-world-explore-journal li i { display: grid; width: 26px; height: 26px; place-items: center; border: .75px solid var(--fi-ink); font-family: var(--fi-font-mono); font-size: 7px; font-style: normal; }
+.fi-world-explore-journal li strong { display: -webkit-box; overflow: hidden; font-family: var(--fi-font-display); font-size: 9.5px; line-height: 1.35; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.fi-world-explore-journal li small { display: block; margin-top: 2px; color: var(--fi-ink-2); font-family: var(--fi-font-mono); font-size: 6.8px; }
+.fi-world-explore-journal li[data-visited='true'] i { border-color: var(--fi-ochre); background: var(--fi-gamboge); color: #3a2e14; }
+.fi-world-explore-journal li[data-nearby='true'] { background: rgba(66,111,121,.1); }
+.fi-world-explore-journal li[data-course='true'] { background: color-mix(in srgb, var(--fi-gamboge) 14%, transparent); }
+.fi-world-explore-journal li[data-course='true'] i { border-color: var(--fi-ochre); background: var(--fi-ink); color: var(--fi-paper); box-shadow: 0 0 0 3px color-mix(in srgb, var(--fi-gamboge) 22%, transparent); }
+.fi-world-explore-visited-log { margin: 10px 0 2px; padding-top: 8px; border-top: 1px solid color-mix(in srgb, var(--fi-ochre) 48%, transparent); }
+.fi-world-explore-current-log { margin: 10px 0 2px; padding-top: 8px; border-top: 1px solid color-mix(in srgb, var(--fi-azurite) 48%, transparent); }
+.fi-world-explore-visited-log > header,
+.fi-world-explore-current-log > header { display: flex; min-height: 24px; align-items: center; justify-content: space-between; color: var(--fi-azurite); font-family: var(--fi-font-mono); font-size: 7px; letter-spacing: .1em; }
+.fi-world-explore-visited-log > header { color: var(--fi-ochre); }
+.fi-world-explore-visited-log > header span,
+.fi-world-explore-current-log > header span { display: grid; width: 19px; height: 19px; place-items: center; border: .75px solid currentColor; }
+.fi-world-explore-current-log li { display: grid; min-height: 47px; grid-template-columns: 29px minmax(0, 1fr); align-items: center; gap: 8px; padding: 4px 3px; }
+.fi-world-explore-current-log li i { border-radius: 50%; color: var(--fi-azurite); }
+.fi-world-explore-current-log li[data-kind='bridge'] i { color: var(--fi-ochre); }
+.fi-world-explore-current-log li[data-kind='lineage'] i { color: var(--fi-malachite); }
+.fi-world-explore-notebook-export { display: grid; width: 100%; min-height: 44px; align-content: center; gap: 2px; margin-top: 10px; border: 1px solid var(--fi-ink); background: var(--fi-ink); color: var(--fi-paper); font-family: var(--fi-font-display); cursor: pointer; }
+.fi-world-explore-notebook-export span { font-size: 9px; font-weight: 700; }
+.fi-world-explore-notebook-export small { color: color-mix(in srgb, var(--fi-paper) 70%, transparent); font-family: var(--fi-font-mono); font-size: 6.5px; letter-spacing: .1em; }
+
+.fi-world-explore-altimeter { --fi-flight-altitude: .5; --fi-target-altitude: .5; --fi-flight-offset: 77px; --fi-target-offset: 77px; position: absolute; top: 50%; right: 29px; z-index: 7; display: grid; width: 88px; justify-items: stretch; transform: translateY(-50%); pointer-events: auto; animation: fi-world-explore-altimeter-in 420ms 90ms var(--fi-ease) both; }
+.fi-world-explore-altimeter > button { display: grid; min-height: 44px; grid-template-columns: 22px 1fr; align-items: center; gap: 4px; padding: 0 7px; border: 0; border-top: .75px solid color-mix(in srgb, var(--fi-ink) 52%, transparent); border-bottom: .75px solid color-mix(in srgb, var(--fi-ink) 28%, transparent); background: rgba(250,245,232,.78); color: var(--fi-ink); cursor: pointer; backdrop-filter: blur(5px); transition: background 150ms ease, transform 150ms var(--fi-ease); }
+.fi-world-explore-altimeter > button:hover { background: var(--fi-paper-raised); transform: translateX(-2px); }
+.fi-world-explore-altimeter > button span { color: var(--fi-ochre); font-size: 15px; }
+.fi-world-explore-altimeter > button small { font-family: var(--fi-font-display); font-size: 8px; text-align: left; }
+.fi-world-explore-altimeter > strong { padding: 6px 0 5px; color: var(--fi-ochre); font-family: var(--fi-font-mono); font-size: 7px; letter-spacing: .12em; text-align: center; background: rgba(250,245,232,.72); }
+.fi-world-explore-altimeter-track { position: relative; height: 154px; margin: 8px 0 6px; border-left: 1px solid color-mix(in srgb, var(--fi-ink) 58%, transparent); background: linear-gradient(90deg, rgba(250,245,232,.62), transparent 66%); }
+.fi-world-explore-altimeter-track::before { content: ''; position: absolute; top: 0; bottom: 0; left: -4px; width: 7px; background: repeating-linear-gradient(180deg, var(--fi-ink-2) 0 1px, transparent 1px 25px); opacity: .42; }
+.fi-world-explore-altimeter-track > span { position: absolute; left: 10px; color: color-mix(in srgb, var(--fi-ink-2) 76%, transparent); font-family: var(--fi-font-mono); font-size: 6.5px; letter-spacing: .05em; }
+.fi-world-explore-altimeter-track > span[data-level='high'] { top: -3px; }
+.fi-world-explore-altimeter-track > span[data-level='middle'] { top: 50%; transform: translateY(-50%); }
+.fi-world-explore-altimeter-track > span[data-level='low'] { bottom: -3px; }
+.fi-world-explore-altimeter-target { position: absolute; top: 0; left: -8px; display: block; width: 42px; border-top: 1px dashed var(--fi-ochre); transform: translateY(var(--fi-target-offset)); transform-origin: left; transition: transform 260ms var(--fi-ease); }
+.fi-world-explore-altimeter-target::after { content: ''; position: absolute; top: -3px; right: -1px; width: 5px; height: 5px; border: 1px solid var(--fi-ochre); background: var(--fi-paper); transform: rotate(45deg); }
+.fi-world-explore-altimeter-craft { position: absolute; top: -8px; left: -13px; display: grid; width: 25px; height: 17px; place-items: center; border: 1px solid var(--fi-ink); background: var(--fi-paper-raised); color: var(--fi-azurite); font-family: var(--fi-font-display); font-size: 8px; font-style: normal; transform: translateY(var(--fi-flight-offset)); transition: transform 180ms var(--fi-ease); box-shadow: 2px 2px 0 rgba(58,48,36,.1); }
+.fi-world-explore:has(.fi-world-explore-note) .fi-world-explore-altimeter { opacity: .18; pointer-events: none; }
+
+.fi-world-explore-course { position: absolute; left: 30px; bottom: 28px; z-index: 4; display: flex; align-items: center; gap: 9px; color: color-mix(in srgb, var(--fi-ink-2) 82%, transparent); font-family: var(--fi-font-display); font-size: 8px; letter-spacing: .06em; }
+.fi-world-explore-course i { display: block; width: 44px; height: 1px; background: var(--fi-ochre); box-shadow: 18px -4px 0 -0.3px var(--fi-ochre); transform: rotate(-6deg); transform-origin: right; }
+
+.fi-world-explore-transect { --fi-transect-progress: 0; position: absolute; z-index: 7; left: 28px; bottom: 27px; width: 348px; box-sizing: border-box; padding: 13px 14px 11px 16px; border-top: 1px solid var(--fi-ink); border-bottom: .75px solid color-mix(in srgb, var(--fi-ink) 48%, transparent); background: linear-gradient(90deg, color-mix(in srgb, var(--fi-gamboge) 12%, transparent), transparent 38%), rgba(250,245,232,.9); box-shadow: 5px 6px 0 rgba(58,48,36,.09); pointer-events: auto; backdrop-filter: blur(6px); animation: fi-world-explore-transect-in 320ms var(--fi-ease) both; }
+.fi-world-explore-transect::before { content: ''; position: absolute; top: 0; bottom: 0; left: 7px; width: 1px; background: color-mix(in srgb, var(--fi-gamboge) 76%, transparent); }
+.fi-world-explore-transect > header { display: grid; grid-template-columns: minmax(0, 1fr) 44px; align-items: start; gap: 9px; }
+.fi-world-explore-transect > header span { min-width: 0; }
+.fi-world-explore-transect > header small { display: block; color: var(--fi-ochre); font-family: var(--fi-font-mono); font-size: 7px; letter-spacing: .13em; }
+.fi-world-explore-transect > header strong { display: -webkit-box; overflow: hidden; margin-top: 4px; font-family: var(--fi-font-display); font-size: 11px; line-height: 1.45; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.fi-world-explore-transect > header button { width: 44px; height: 44px; margin: -8px -8px 0 0; border: 0; background: transparent; color: var(--fi-ink-2); font-size: 18px; cursor: pointer; transition: color 150ms ease, transform 150ms var(--fi-ease); }
+.fi-world-explore-transect > header button:hover { color: var(--fi-cinnabar); transform: rotate(4deg); }
+.fi-world-explore-transect-track { position: relative; height: 8px; margin: 11px 3px 2px 0; border-top: .75px dashed color-mix(in srgb, var(--fi-ink) 34%, transparent); }
+.fi-world-explore-transect-track i { position: absolute; top: -1px; left: 0; display: block; width: 100%; height: 1.5px; background: var(--fi-azurite); transform: scaleX(var(--fi-transect-progress)); transform-origin: left center; transition: transform 280ms var(--fi-ease); }
+.fi-world-explore-transect-track i::after { content: ''; position: absolute; top: -3px; right: -4px; width: 7px; height: 7px; border: 1px solid var(--fi-azurite); background: var(--fi-paper); transform: rotate(45deg); }
+.fi-world-explore-transect > ol { display: grid; grid-template-columns: repeat(3, 1fr); margin: 0; padding: 0; color: color-mix(in srgb, var(--fi-ink-2) 64%, transparent); font-family: var(--fi-font-mono); font-size: 6.8px; letter-spacing: .12em; list-style: none; }
+.fi-world-explore-transect > ol li:nth-child(2) { text-align: center; }
+.fi-world-explore-transect > ol li:last-child { text-align: right; }
+.fi-world-explore-transect > ol li[data-reached='true'] { color: var(--fi-ink); }
+.fi-world-explore-transect > ol li[data-current='true'] { color: var(--fi-ochre); font-weight: 800; }
+.fi-world-explore-transect > p { display: grid; grid-template-columns: minmax(80px, auto) minmax(0, 1fr); gap: 9px; margin: 10px 0 0; padding-top: 8px; border-top: .75px dashed rgba(58,48,36,.22); font-family: var(--fi-font-display); animation: fi-world-explore-transect-detail-in 220ms var(--fi-ease) both; }
+.fi-world-explore-transect > p b { color: var(--fi-ink); font-size: 8px; line-height: 1.5; }
+.fi-world-explore-transect > p span { color: var(--fi-ink-2); font-size: 7.5px; line-height: 1.5; }
+.fi-world-explore-transect-neighbor { display: grid; width: 100%; min-height: 44px; grid-template-columns: 74px minmax(0, 1fr) 16px; align-items: center; gap: 8px; margin-top: 8px; padding: 5px 4px; border: 0; border-top: .75px solid color-mix(in srgb, var(--fi-azurite) 48%, transparent); background: transparent; color: var(--fi-ink); text-align: left; cursor: pointer; transition: background 160ms ease, transform 160ms var(--fi-ease); animation: fi-world-explore-transect-detail-in 220ms var(--fi-ease) both; }
+.fi-world-explore-transect-neighbor:hover { background: color-mix(in srgb, var(--fi-azurite) 9%, transparent); transform: translateX(2px); }
+.fi-world-explore-transect-neighbor small { color: var(--fi-azurite); font-family: var(--fi-font-mono); font-size: 6.5px; letter-spacing: .06em; }
+.fi-world-explore-transect-neighbor span { display: -webkit-box; overflow: hidden; font-family: var(--fi-font-display); font-size: 8px; line-height: 1.4; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.fi-world-explore-transect-neighbor b { color: var(--fi-azurite); font-size: 13px; }
+
+.fi-world-explore-nearby { position: absolute; z-index: 7; left: 50%; bottom: 27px; display: flex; min-height: 46px; align-items: stretch; gap: 3px; padding: 3px; border: .75px solid transparent; transform: translateX(-50%); transition: opacity 220ms ease, transform 260ms var(--fi-ease), background 220ms ease, border-color 220ms ease; pointer-events: auto; }
+.fi-world-explore-nearby[data-visible='true'] { border-color: var(--fi-ink); background: rgba(250,245,232,.93); box-shadow: 4px 5px 0 rgba(58,48,36,.12); }
+.fi-world-explore-nearby[data-phase='signal'] { border-color: color-mix(in srgb, var(--fi-azurite) 62%, transparent); }
+.fi-world-explore-nearby[data-phase='course'] { border-color: var(--fi-ochre); background: color-mix(in srgb, var(--fi-gamboge) 8%, rgba(250,245,232,.95)); }
+.fi-world-explore-nearby[data-phase='altitude'] { border-color: var(--fi-azurite); background: color-mix(in srgb, var(--fi-azurite) 7%, rgba(250,245,232,.95)); }
+.fi-world-explore-nearby[data-phase='surveyed'] { border-color: var(--fi-ochre); box-shadow: 4px 5px 0 rgba(181,103,58,.15); }
+.fi-world-explore-nearby[data-current='true'] { border-color: var(--fi-azurite); background: linear-gradient(90deg, color-mix(in srgb, var(--fi-azurite) 9%, transparent), transparent 58%), rgba(250,245,232,.94); }
+.fi-world-explore-nearby[data-phase='current-sample'] { border-color: var(--fi-ochre); box-shadow: 4px 5px 0 rgba(46,94,140,.14); }
+.fi-world-explore-nearby[data-phase='current-sampled'] { border-color: var(--fi-malachite); }
+.fi-world-explore-nearby:not([data-visible='true']) { opacity: .6; pointer-events: none; }
+.fi-world-explore-nearby > span { display: flex; min-width: 150px; flex-direction: column; justify-content: center; padding: 2px 10px; font-family: var(--fi-font-display); }
+.fi-world-explore-nearby > span small { color: var(--fi-ochre); font-family: var(--fi-font-mono); font-size: 6.5px; letter-spacing: .12em; }
+.fi-world-explore-nearby > span strong { margin-top: 2px; font-size: 10px; }
+.fi-world-explore-nearby > button { display: flex; min-height: 44px; align-items: center; gap: 7px; padding: 0 10px; border: 0; border-left: .75px solid rgba(58,48,36,.25); background: transparent; color: var(--fi-ink); font-family: var(--fi-font-display); font-size: 9px; cursor: pointer; }
+.fi-world-explore-nearby > button:hover { background: rgba(227,169,60,.12); }
+.fi-world-explore-nearby > em { display: flex; max-width: 112px; align-items: center; padding: 0 10px; border-left: .75px dashed rgba(58,48,36,.26); color: var(--fi-ink-2); font-family: var(--fi-font-display); font-size: 8px; font-style: normal; line-height: 1.35; }
+.fi-world-explore-nearby kbd { display: grid; min-width: 24px; height: 24px; place-items: center; border: .75px solid var(--fi-ink); background: var(--fi-paper); font-family: var(--fi-font-mono); font-size: 8px; }
+.fi-world-explore-nearby .fi-world-explore-dock { background: var(--fi-ink); color: var(--fi-paper); }
+.fi-world-explore-nearby .fi-world-explore-dock kbd { border-color: var(--fi-paper); background: transparent; color: inherit; }
+.fi-world-explore-nearby .fi-world-explore-current-sample { background: var(--fi-azurite); color: var(--fi-paper); }
+.fi-world-explore-nearby .fi-world-explore-current-sample kbd { border-color: var(--fi-paper); background: transparent; color: inherit; }
+.fi-world-explore-heading button:focus-visible,
+.fi-world-explore-journal-toggle:focus-visible,
+.fi-world-explore-journal-entry:focus-visible,
+.fi-world-explore-notebook-export:focus-visible,
+.fi-world-explore-altimeter button:focus-visible,
+.fi-world-explore-transect button:focus-visible,
+.fi-world-explore-nearby button:focus-visible,
+.fi-world-explore-note button:focus-visible,
+.fi-world-explore-note a:focus-visible { outline: 2px solid var(--fi-azurite); outline-offset: 3px; }
+
+.fi-world-explore-note { position: absolute; z-index: 8; top: 112px; right: 28px; width: 344px; box-sizing: border-box; padding: 19px 21px 18px 25px; border: 1px solid var(--fi-ink); background: repeating-linear-gradient(0deg, rgba(58,48,36,.02) 0 1px, transparent 1px 4px), rgba(250,245,232,.96); box-shadow: 7px 9px 0 rgba(58,48,36,.13); pointer-events: auto; animation: fi-world-explore-note-in 300ms var(--fi-ease) both; }
+.fi-world-explore-note::before { content: ''; position: absolute; top: 10px; bottom: 10px; left: 10px; border-left: 2px solid var(--fi-gamboge); }
+.fi-world-explore-note > button:first-child { position: absolute; top: 7px; right: 7px; width: 36px; height: 36px; border: 0; background: transparent; color: var(--fi-ink-2); font-size: 20px; cursor: pointer; }
+.fi-world-explore-note > small { display: block; padding-right: 30px; color: var(--fi-ochre); font-family: var(--fi-font-mono); font-size: 7.5px; letter-spacing: .12em; }
+.fi-world-explore-note h2 { margin: 12px 0 5px; font-family: var(--fi-font-display); font-size: 19px; }
+.fi-world-explore-note h3 { margin: 0; font-family: var(--fi-font-display); font-size: 12px; line-height: 1.65; }
+.fi-world-explore-note p { margin: 11px 0; color: var(--fi-ink-2); font-family: var(--fi-font-display); font-size: 10.5px; line-height: 1.7; }
+.fi-world-explore-note > a { display: block; padding-top: 9px; border-top: .75px dashed rgba(58,48,36,.35); font-family: var(--fi-font-mono); font-size: 7.5px; }
+.fi-world-explore-personal-note { display: grid; gap: 6px; margin-top: 12px; padding-top: 10px; border-top: .75px dashed rgba(58,48,36,.35); }
+.fi-world-explore-personal-note > span { color: var(--fi-ochre); font-family: var(--fi-font-display); font-size: 9px; font-weight: 700; }
+.fi-world-explore-personal-note textarea { width: 100%; min-height: 82px; box-sizing: border-box; resize: vertical; padding: 9px 10px; border: 1px solid rgba(58,48,36,.42); border-radius: 0; outline: 0; background: rgba(255,252,241,.7); color: var(--fi-ink); font: 10px/1.6 var(--fi-font-display); }
+.fi-world-explore-personal-note textarea:focus-visible { border-color: var(--fi-azurite); box-shadow: 0 0 0 2px color-mix(in srgb, var(--fi-azurite) 18%, transparent); }
+.fi-world-explore-personal-note > small { color: var(--fi-ink-2); font-family: var(--fi-font-mono); font-size: 6.8px; }
+.fi-world-explore-note > span { display: block; margin-top: 12px; color: var(--fi-ink-2); font-family: var(--fi-font-display); font-size: 8.5px; }
+.fi-world-explore-note .fi-world-explore-note-dock { position: static; width: 100%; min-height: 44px; margin-top: 13px; border: 1px solid var(--fi-ink); background: var(--fi-ink); color: var(--fi-paper); font-family: var(--fi-font-display); font-size: 10px; cursor: pointer; }
+.fi-world-explore-note .fi-world-explore-note-continue { position: static; display: grid; width: 100%; min-height: 52px; gap: 3px; margin-top: 9px; padding: 7px 10px; border: .75px solid color-mix(in srgb, var(--fi-azurite) 58%, transparent); background: color-mix(in srgb, var(--fi-azurite) 7%, var(--fi-paper)); color: var(--fi-ink); text-align: left; cursor: pointer; }
+.fi-world-explore-note-continue small { color: var(--fi-azurite); font-family: var(--fi-font-mono); font-size: 7px; letter-spacing: .08em; }
+.fi-world-explore-note-continue strong { font-family: var(--fi-font-display); font-size: 9px; line-height: 1.45; }
+
+@keyframes fi-world-explore-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fi-world-explore-heading-in { from { opacity: 0; transform: translateY(-7px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fi-world-explore-journal-in { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes fi-world-explore-altimeter-in { from { opacity: 0; transform: translate(10px, -50%); } to { opacity: 1; transform: translate(0, -50%); } }
+@keyframes fi-world-explore-sheet-in { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fi-world-explore-note-in { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes fi-world-explore-transect-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fi-world-explore-transect-detail-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
 @media (max-width: 1050px) {
   .fi-island-dossier { width: 540px; }
   .fi-island-dossier-sample { width: 620px; }
+  .fi-world-explore-transect { width: 302px; }
+  .fi-world-explore-nearby { right: 28px; left: auto; transform: none; }
 }
 
 a {
@@ -782,7 +1168,27 @@ input[type='range'] {
   .fi-atlas-loading i,
   .fi-island-loading-mark i,
   .fi-chart-live i,
-  .fi-guidance-icon i { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+  .fi-guidance-icon i,
+  .fi-world-explore,
+  .fi-world-explore-heading,
+  .fi-world-explore-journal,
+  .fi-world-explore-altimeter,
+  .fi-world-explore-transect,
+  .fi-world-explore-transect > p,
+  .fi-world-explore-transect-neighbor,
+  .fi-world-explore-note,
+  .fi-atlas-edge-tools,
+  .fi-generated-station-index-sheet { animation-duration: .01ms !important; animation-delay: 0ms !important; animation-iteration-count: 1 !important; }
+  .fi-atlas-instruments,
+  .fi-world-explore-launch,
+  .fi-world-explore-transect-track i,
+  .fi-world-explore-transect button,
+  .fi-world-explore-altimeter > button,
+  .fi-world-explore-altimeter-target,
+  .fi-world-explore-altimeter-craft,
+  .fi-world-explore-nearby,
+  .fi-world-explore-journal-entry,
+  .fi-generated-station-index-toggle { transition: none !important; }
   svg * {
     transition: none !important;
   }

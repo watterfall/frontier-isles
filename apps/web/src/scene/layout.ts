@@ -17,7 +17,7 @@
  * ledger abandon/refute events.
  */
 import type { ClaimState, StationKind } from '@frontier-isles/core';
-import type { Domain } from '@frontier-isles/data';
+import type { Domain } from '@frontier-isles/data/frontiers';
 import {
   isoDepthKey,
   type Growth,
@@ -45,6 +45,22 @@ const STATION_TILES: Record<StationKind, { gx: number; gy: number }> = {
   dock: { gx: 8, gy: 15 }, // on the shore, front-most
 };
 
+/** A restrained reuse of the original AI之问 campus grammar: large civic
+ * buildings frame a readable central court on a bounded research platform.
+ * Only selected flagship islands opt in; the organic grammar remains the
+ * default so the archipelago does not collapse into one repeated template. */
+const COURTYARD_STATION_TILES: Record<StationKind, { gx: number; gy: number }> = {
+  questions: { gx: 11, gy: 5 },
+  workshop: { gx: 4, gy: 6 },
+  library: { gx: 7, gy: 3 },
+  data: { gx: 11, gy: 10 },
+  canvas: { gx: 6, gy: 8 },
+  gallery: { gx: 4, gy: 11 },
+  tearoom: { gx: 10, gy: 12 },
+  driftwood: { gx: 8, gy: 13 },
+  dock: { gx: 8, gy: 15 },
+};
+
 /**
  * Stele tiles — "steles before the Gallery" (architecture §4 Claims & evidence,
  * Phase B.4). Claims are first-class artifacts displayed as inscribed steles
@@ -63,16 +79,25 @@ const CLAIM_TILES = [
   { gx: 5, gy: 14 },
   { gx: 7, gy: 14 },
 ];
+const COURTYARD_CLAIM_TILES = [
+  { gx: 7, gy: 9 }, { gx: 8, gy: 9 }, { gx: 9, gy: 9 },
+  { gx: 7, gy: 10 }, { gx: 8, gy: 10 }, { gx: 9, gy: 10 },
+];
 
 /** Fixed anchor tile for the island's single biome Landmark (M4.4) — "岛心最高
  *  tile" (M4-DESIGN §2): near the geometric centre but clear of every claim/
  *  station tile above, so it never collides with either ring. */
 const LANDMARK_TILE = { gx: 8, gy: 9 };
+const COURTYARD_LANDMARK_TILE = { gx: 8, gy: 7 };
 /** Small life-trace anchors along the civic circuit. Generator data decides how
  * many are occupied and whether an AI resident joins; the renderer decides form. */
 const RESIDENT_TILES = [
   { gx: 9, gy: 6 }, { gx: 10, gy: 8 }, { gx: 9, gy: 11 },
   { gx: 7, gy: 11 }, { gx: 6, gy: 9 }, { gx: 7, gy: 7 }, { gx: 8, gy: 10 },
+];
+const COURTYARD_RESIDENT_TILES = [
+  { gx: 5, gy: 5 }, { gx: 9, gy: 5 }, { gx: 10, gy: 8 },
+  { gx: 6, gy: 11 }, { gx: 9, gy: 11 }, { gx: 5, gy: 9 }, { gx: 12, gy: 8 },
 ];
 /** ~2.8× a normal station's 30px body — "2–3× 体量" (M4-DESIGN §3e). */
 const LANDMARK_HEIGHT = 84;
@@ -163,6 +188,22 @@ function isLand(gx: number, gy: number, seed: number): boolean {
   return d < ISLAND_R * (0.8 + fbm((gx + seed) * 0.2, (gy + seed) * 0.2) * 0.32);
 }
 
+/** Bounded jiehua-like platform with clipped corners and a shore-facing dock. */
+function isCourtyardLand(gx: number, gy: number): boolean {
+  if (gx === 8 && gy === 15) return true;
+  if (gx < 1 || gx > 14 || gy < 2 || gy > 14) return false;
+  const clippedCorner =
+    (gx + gy < 5) || ((15 - gx) + gy < 4)
+    || (gx + (15 - gy) < 3) || ((15 - gx) + (15 - gy) < 3);
+  return !clippedCorner;
+}
+
+function courtyardElevation(gx: number, gy: number): 0 | 1 | 2 {
+  if (gx <= 1 || gx >= 14 || gy <= 2 || gy >= 14) return 0;
+  if (gx >= 7 && gx <= 9 && gy >= 6 && gy <= 8) return 2;
+  return 1;
+}
+
 /** Terrain elevation 0/1/2 from a radial + noise height field (P6, M4.1). */
 function elevationAt(gx: number, gy: number, seed: number): 0 | 1 | 2 {
   const radial = 1 - centreDist(gx, gy);
@@ -229,6 +270,11 @@ export function buildSceneGraph(
 ): SceneGraph {
   const scene = generate(input);
   const objects: SceneObject[] = [];
+  const courtyard = input.layoutVariant === 'courtyard';
+  const stationTiles = courtyard ? COURTYARD_STATION_TILES : STATION_TILES;
+  const claimTiles = courtyard ? COURTYARD_CLAIM_TILES : CLAIM_TILES;
+  const landmarkTile = courtyard ? COURTYARD_LANDMARK_TILE : LANDMARK_TILE;
+  const residentTiles = courtyard ? COURTYARD_RESIDENT_TILES : RESIDENT_TILES;
 
   const push = (
     id: string,
@@ -269,8 +315,8 @@ export function buildSceneGraph(
   // Claim buildings: from the ledger (projectClaimState, M4.3) if given, else synth.
   const claimSpecs: ClaimSpec[] =
     claims && claims.length > 0
-      ? claims.slice(0, CLAIM_TILES.length).map((c) => ({ floors: c.floors, roof: c.roof, ghost: c.ghost, hasDoi: c.hasDoi }))
-      : Array.from({ length: Math.min(CLAIM_TILES.length, Math.floor((input.eventCount ?? 0) / 4)) }, (_, i) => {
+      ? claims.slice(0, claimTiles.length).map((c) => ({ floors: c.floors, roof: c.roof, ghost: c.ghost, hasDoi: c.hasDoi }))
+      : Array.from({ length: Math.min(claimTiles.length, Math.floor((input.eventCount ?? 0) / 4)) }, (_, i) => {
           const f = Math.floor(variantSeed(`claim:${input.slug}:${i}`) * 4);
           // Synth has no ledger → no DOI evidence. Honest default: preprint, not published.
           return { floors: f, roof: f >= 3, hasDoi: false };
@@ -278,14 +324,14 @@ export function buildSceneGraph(
 
   // Building/scenery tiles are forced to land so nothing floats on the noisy coast.
   const forced = new Set<string>();
-  for (const s of scene.stations) if (s.visible) forced.add(tileKey(STATION_TILES[s.kind].gx, STATION_TILES[s.kind].gy));
-  for (let i = 0; i < claimSpecs.length; i++) forced.add(tileKey(CLAIM_TILES[i]!.gx, CLAIM_TILES[i]!.gy));
-  scene.residents.slice(0, RESIDENT_TILES.length).forEach((_, i) => forced.add(tileKey(RESIDENT_TILES[i]!.gx, RESIDENT_TILES[i]!.gy)));
-  forced.add(tileKey(LANDMARK_TILE.gx, LANDMARK_TILE.gy));
-  scene.ghosts.forEach((_, i) => forced.add(tileKey(CLAIM_TILES[(i + 3) % CLAIM_TILES.length]!.gx, CLAIM_TILES[(i + 3) % CLAIM_TILES.length]!.gy)));
+  for (const s of scene.stations) if (s.visible) forced.add(tileKey(stationTiles[s.kind].gx, stationTiles[s.kind].gy));
+  for (let i = 0; i < claimSpecs.length; i++) forced.add(tileKey(claimTiles[i]!.gx, claimTiles[i]!.gy));
+  scene.residents.slice(0, residentTiles.length).forEach((_, i) => forced.add(tileKey(residentTiles[i]!.gx, residentTiles[i]!.gy)));
+  forced.add(tileKey(landmarkTile.gx, landmarkTile.gy));
+  scene.ghosts.forEach((_, i) => forced.add(tileKey(claimTiles[(i + 3) % claimTiles.length]!.gx, claimTiles[(i + 3) % claimTiles.length]!.gy)));
 
-  const land = (gx: number, gy: number): boolean => isLand(gx, gy, seed) || forced.has(tileKey(gx, gy));
-  const elev = (gx: number, gy: number): 0 | 1 | 2 => elevationAt(gx, gy, seed);
+  const land = (gx: number, gy: number): boolean => (courtyard ? isCourtyardLand(gx, gy) : isLand(gx, gy, seed)) || forced.has(tileKey(gx, gy));
+  const elev = (gx: number, gy: number): 0 | 1 | 2 => courtyard ? courtyardElevation(gx, gy) : elevationAt(gx, gy, seed);
 
   // ── ground bed (terrain layer) — 3-level elevation from the height field ────
   // Each tile also carries the terrain fingerprint (depth-plan-v1 §5): a stable
@@ -310,7 +356,7 @@ export function buildSceneGraph(
   // ── stations (world layer) — visibility bound to stage; sit on their tile ───
   for (const s of scene.stations) {
     if (!s.visible) continue;
-    const tile = STATION_TILES[s.kind];
+    const tile = stationTiles[s.kind];
     const height = s.kind === 'dock' ? 10 : 30; // dock is a low pier
     push(`station:${s.kind}`, `station:${s.kind}`, tile.gx, tile.gy, 'world', {
       height,
@@ -324,7 +370,7 @@ export function buildSceneGraph(
   // tier so it always reads as the island's tallest silhouette, regardless of
   // what the noisy height field would have put there. Shape is a pure function
   // of `input.domain` via LANDMARK_CODE — the renderer picks the draw function.
-  push(`landmark:${input.domain}`, `landmark:${LANDMARK_CODE[input.domain]}`, LANDMARK_TILE.gx, LANDMARK_TILE.gy, 'world', {
+  push(`landmark:${input.domain}`, `landmark:${LANDMARK_CODE[input.domain]}`, landmarkTile.gx, landmarkTile.gy, 'world', {
     height: LANDMARK_HEIGHT,
     elevation: 2,
   });
@@ -332,8 +378,8 @@ export function buildSceneGraph(
   // ── residents (world layer) — the previously generated occupancy now reaches
   // Pixi. Human/AI identity is categorical, never a score; figures stand along
   // the civic circuit so the island reads as inhabited rather than as a model.
-  scene.residents.slice(0, RESIDENT_TILES.length).forEach((resident, i) => {
-    const tile = RESIDENT_TILES[i]!;
+  scene.residents.slice(0, residentTiles.length).forEach((resident, i) => {
+    const tile = residentTiles[i]!;
     push(`resident:${resident.kind}:${i}`, `resident:${resident.kind}`, tile.gx, tile.gy, 'world', {
       height: resident.kind === 'ai' ? 18 : 16,
       elevation: elev(tile.gx, tile.gy),
@@ -348,7 +394,7 @@ export function buildSceneGraph(
   // returned. It stays distinctly smaller than civic stations and remains
   // clustered before Gallery, preserving the first-class-artifact semantics.
   claimSpecs.forEach((spec, i) => {
-    const tile = CLAIM_TILES[i]!;
+    const tile = claimTiles[i]!;
     const growth: Growth = { foundation: true, floors: spec.floors, roof: spec.roof, hasDoi: spec.hasDoi };
     const height = 16 + spec.floors * 12; // base + one inscription row per reproduction (P1)
     const night = spec.ghost ? { dayVisibility: 0, nightVisibility: 1 } : {};
@@ -388,7 +434,7 @@ export function buildSceneGraph(
   for (const { gx, gy } of scatterCandidates) {
     if (scatterN >= MAX_SCATTER) break;
     const key = tileKey(gx, gy);
-    if (forced.has(key) || !isLand(gx, gy, seed)) continue;
+    if (forced.has(key) || !land(gx, gy)) continue;
     const ring = ringAt(gx, gy);
     if (scatterRng(gx, gy, seed) >= scatterProb(ring) * liveliness) continue;
     const useCoastal = ring === 'shore' && coastalKinds.length > 0;
@@ -404,7 +450,7 @@ export function buildSceneGraph(
   // The day/night visibility path (P4): dayVisibility 0 → nightVisibility 1, so
   // ghosts fade in only as t → 1. Data source = ledger refute/return_to_driftwood.
   scene.ghosts.forEach((gh, i) => {
-    const tile = CLAIM_TILES[(i + 3) % CLAIM_TILES.length]!;
+    const tile = claimTiles[(i + 3) % claimTiles.length]!;
     push(`ghost:${i}:${gh.type}`, `ghost:${gh.type}`, tile.gx, tile.gy, 'world', {
       dayVisibility: 0,
       nightVisibility: 1,

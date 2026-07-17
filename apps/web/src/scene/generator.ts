@@ -20,7 +20,7 @@
  * growth earned from events (§4), user content untranslated (§9).
  */
 import type { StationKind } from '@frontier-isles/core';
-import type { Domain } from '@frontier-isles/data';
+import type { Domain } from '@frontier-isles/data/frontiers';
 
 // ── deterministic RNG ──────────────────────────────────────────────────────
 
@@ -219,6 +219,9 @@ export interface GenerateInput {
   hasAi?: boolean;
   /** Night-replay events count (for ghost thresholds). */
   eventCount?: number;
+  /** Spatial grammar only. A minority of curated islands reuse the original
+   * sample's bounded research-courtyard composition; data semantics stay equal. */
+  layoutVariant?: 'organic' | 'courtyard';
 }
 
 export function generate(input: GenerateInput): GeneratedScene {
