@@ -1,6 +1,7 @@
 import type { Dispatch } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
+import { useDialogChrome } from '../panelChrome';
 import { RITQ, RIT_NAMES } from '../../api/fallback';
 import {
   type CeremonyState,
@@ -26,7 +27,7 @@ const STEP_DEFS: Array<[string, string]> = [
   ['立', '上墙'],
 ];
 
-const goldBtn = { cursor: 'pointer', background: '#F5B94B', borderRadius: 6, padding: 12, textAlign: 'center' as const, fontFamily: "'Noto Serif SC',serif", fontWeight: 700, fontSize: 15, color: '#3A2E14', userSelect: 'none' as const };
+const goldBtn = { cursor: 'pointer', display: 'block' as const, background: '#F5B94B', borderRadius: 6, padding: 12, textAlign: 'center' as const, fontFamily: "'Noto Serif SC',serif", fontWeight: 700, fontSize: 15, color: '#3A2E14', userSelect: 'none' as const };
 const chKicker = { fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 10.5, letterSpacing: '0.2em', color: '#F5B94B' } as const;
 const chTitle = { fontFamily: "'Noto Serif SC',serif", fontWeight: 900, fontSize: 24, color: '#E8E4D4', marginTop: 6 } as const;
 
@@ -39,6 +40,7 @@ export interface CeremonyOverlayProps {
 
 export function CeremonyOverlay({ state, dispatch, onAbort, onFinish }: CeremonyOverlayProps) {
   const { t, i18n } = useTranslation();
+  const { dialogRef, closeRef, onDialogKey } = useDialogChrome<HTMLDivElement>(onAbort);
   const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
   const rit = state.rit;
   const riseY = state.riseUp ? '0px' : '210px';
@@ -48,7 +50,15 @@ export function CeremonyOverlay({ state, dispatch, onAbort, onFinish }: Ceremony
   const nameShow = state.ritName ?? t('ceremony.unnamed');
 
   return (
-    <div data-screen-label="建岛仪式" style={{ position: 'absolute', inset: 0, zIndex: 40, background: '#161F36', overflow: 'hidden' }}>
+    <div
+      data-screen-label="建岛仪式"
+      ref={dialogRef}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="fi-ceremony-title"
+      onKeyDown={onDialogKey}
+      style={{ position: 'absolute', inset: 0, zIndex: 40, background: '#161F36', overflow: 'hidden' }}
+    >
       <svg viewBox="0 0 1440 900" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
         <defs>
           <radialGradient id="lgradRit">
@@ -95,7 +105,7 @@ export function CeremonyOverlay({ state, dispatch, onAbort, onFinish }: Ceremony
         </div>
       )}
 
-      <div onClick={onAbort} style={{ position: 'absolute', left: 24, top: 20, cursor: 'pointer', fontSize: 12, color: '#8B94B2', border: '1px solid rgba(139,148,178,0.5)', borderRadius: 6, padding: '7px 14px', userSelect: 'none' }}>{t('ceremony.abort')}</div>
+      <button type="button" className="fi-btn-reset" ref={closeRef} onClick={onAbort} style={{ position: 'absolute', left: 24, top: 20, cursor: 'pointer', fontSize: 12, color: '#8B94B2', border: '1px solid rgba(139,148,178,0.5)', borderRadius: 6, padding: '7px 14px', userSelect: 'none' }}>{t('ceremony.abort')}</button>
 
       {/* 章节步进 */}
       <div style={{ position: 'absolute', top: 20, left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -119,7 +129,7 @@ export function CeremonyOverlay({ state, dispatch, onAbort, onFinish }: Ceremony
         {rit === 0 && (
           <div>
             <div style={chKicker}>{t('ceremony.ch0.kicker')}</div>
-            <div style={chTitle}>{t('ceremony.ch0.title')}</div>
+            <div id="fi-ceremony-title" style={chTitle}>{t('ceremony.ch0.title')}</div>
             <div style={{ marginTop: 16, border: '1.5px solid rgba(245,185,75,0.6)', background: 'rgba(245,185,75,0.08)', borderRadius: 6, padding: '14px 16px' }}>
               <div style={{ fontSize: 10.5, color: '#F5B94B', fontFamily: "'JetBrains Mono',ui-monospace,monospace", letterSpacing: '0.1em' }}>{t('ceremony.ch0.materialKicker')}</div>
               <div style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 700, fontSize: 17, color: '#E8E4D4', marginTop: 4 }}>{t('ceremony.ch0.materialName')}</div>
@@ -129,7 +139,7 @@ export function CeremonyOverlay({ state, dispatch, onAbort, onFinish }: Ceremony
               <b style={{ color: '#C9D0E4' }}>{t('ceremony.ch0.covenantTitle')}</b>{t('ceremony.ch0.covenantIntro')}<br />
               {t('ceremony.ch0.c1')}<br />{t('ceremony.ch0.c2')}<br />{t('ceremony.ch0.c3')}<br />{t('ceremony.ch0.c4')}
             </div>
-            <div onClick={() => dispatch({ type: 'ignite' })} style={{ ...goldBtn, marginTop: 18 }}>{t('ceremony.ch0.ignite')}</div>
+            <button type="button" className="fi-btn-reset" onClick={() => dispatch({ type: 'ignite' })} style={{ ...goldBtn, marginTop: 18 }}>{t('ceremony.ch0.ignite')}</button>
           </div>
         )}
 
@@ -138,7 +148,7 @@ export function CeremonyOverlay({ state, dispatch, onAbort, onFinish }: Ceremony
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
                 <div style={chKicker}>{t('ceremony.ch1.kicker')}</div>
-                <div style={chTitle}>{t('ceremony.ch1.title')}</div>
+                <div id="fi-ceremony-title" style={chTitle}>{t('ceremony.ch1.title')}</div>
               </div>
               <div style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 32, color: '#F5B94B' }}>{timer}</div>
             </div>
@@ -151,17 +161,17 @@ export function CeremonyOverlay({ state, dispatch, onAbort, onFinish }: Ceremony
             <div style={{ marginTop: 14, fontSize: 11, color: '#8B94B2' }}>{t('ceremony.ch1.candLabel')}</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 8 }}>
               {cand.map((c) => (
-                <span key={c.i} onClick={() => dispatch({ type: 'add', i: c.i })} style={{ cursor: 'pointer', fontSize: 12, padding: '6px 12px', borderRadius: 999, border: '1px dashed rgba(245,185,75,0.55)', color: '#E3C98F', userSelect: 'none' }}>＋ {c.text}</span>
+                <button key={c.i} type="button" className="fi-btn-reset fi-hit" onClick={() => dispatch({ type: 'add', i: c.i })} style={{ cursor: 'pointer', fontSize: 12, padding: '6px 12px', borderRadius: 999, border: '1px dashed rgba(245,185,75,0.55)', color: '#E3C98F', userSelect: 'none' }}>＋ {c.text}</button>
               ))}
             </div>
-            <div onClick={() => dispatch({ type: 'close' })} style={{ ...goldBtn, marginTop: 18, opacity: nextOp, transition: 'opacity .3s' }}>{t('ceremony.ch1.close')}</div>
+            <button type="button" className="fi-btn-reset" onClick={() => dispatch({ type: 'close' })} style={{ ...goldBtn, marginTop: 18, opacity: nextOp, transition: 'opacity .3s' }}>{t('ceremony.ch1.close')}</button>
           </div>
         )}
 
         {rit === 2 && (
           <div>
             <div style={chKicker}>{t('ceremony.ch2.kicker')}</div>
-            <div style={chTitle}>{t('ceremony.ch2.title')}</div>
+            <div id="fi-ceremony-title" style={chTitle}>{t('ceremony.ch2.title')}</div>
             <div style={{ marginTop: 8, fontSize: 12, color: '#8B94B2' }}>{t('ceremony.ch2.note')}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 14 }}>
               {state.ritAdded.map((qi) => {
@@ -171,25 +181,25 @@ export function CeremonyOverlay({ state, dispatch, onAbort, onFinish }: Ceremony
                 const canRw = qi === 1 && !rw;
                 return (
                   <div key={qi} style={{ border: '1px solid rgba(139,148,178,0.4)', background: 'rgba(22,31,54,0.6)', borderRadius: 6, padding: '10px 14px' }}>
-                    {rw && <div style={{ fontSize: 11.5, color: '#5F6C8E', textDecoration: 'line-through' }}>{RITQ[qi]?.[lang]}</div>}
+                    {rw && <div style={{ fontSize: 11.5, color: '#7883A0', textDecoration: 'line-through' }}>{RITQ[qi]?.[lang]}</div>}
                     <div style={{ fontSize: 13.5, color: '#E8E4D4', fontFamily: "'Noto Serif SC',serif" }}>{rtext(state, qi, lang)}</div>
                     <div style={{ display: 'flex', gap: 10, marginTop: 8, alignItems: 'center' }}>
-                      <span onClick={() => dispatch({ type: 'toggleOpen', qi })} style={{ cursor: 'pointer', fontSize: 11, padding: '2px 10px', borderRadius: 999, border: `1px solid ${open ? '#3E9B7E' : '#C08054'}`, color: open ? '#7FC4AC' : '#E3A98A', userSelect: 'none' }}>{open ? t('panel.open') : t('panel.closed')}</span>
-                      {canRw && <span onClick={() => dispatch({ type: 'rewrite', qi })} style={{ cursor: 'pointer', fontSize: 11, color: '#F5B94B', textDecoration: 'underline', textUnderlineOffset: 3, userSelect: 'none' }}>{t('ceremony.ch2.rewrite')}</span>}
+                      <button type="button" className="fi-btn-reset fi-hit" aria-expanded={open} onClick={() => dispatch({ type: 'toggleOpen', qi })} style={{ cursor: 'pointer', fontSize: 11, padding: '2px 10px', borderRadius: 999, border: `1px solid ${open ? '#3E9B7E' : '#C08054'}`, color: open ? '#7FC4AC' : '#E3A98A', userSelect: 'none' }}>{open ? t('panel.open') : t('panel.closed')}</button>
+                      {canRw && <button type="button" className="fi-btn-reset fi-hit" onClick={() => dispatch({ type: 'rewrite', qi })} style={{ cursor: 'pointer', fontSize: 11, color: '#F5B94B', textDecoration: 'underline', textUnderlineOffset: 3, userSelect: 'none' }}>{t('ceremony.ch2.rewrite')}</button>}
                       {rw && <span style={{ fontSize: 11, color: '#F5B94B' }}>{t('ceremony.ch2.rewritten')}</span>}
                     </div>
                   </div>
                 );
               })}
             </div>
-            <div onClick={() => dispatch({ type: 'shaped' })} style={{ ...goldBtn, marginTop: 18 }}>{t('ceremony.ch2.done')}</div>
+            <button type="button" className="fi-btn-reset" onClick={() => dispatch({ type: 'shaped' })} style={{ ...goldBtn, marginTop: 18 }}>{t('ceremony.ch2.done')}</button>
           </div>
         )}
 
         {rit === 3 && (
           <div>
             <div style={chKicker}>{t('ceremony.ch3.kicker')}</div>
-            <div style={chTitle}>{t('ceremony.ch3.title')}</div>
+            <div id="fi-ceremony-title" style={chTitle}>{t('ceremony.ch3.title')}</div>
             <div style={{ marginTop: 8, fontSize: 12, color: '#8B94B2' }}>{t('ceremony.ch3.note')}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 14 }}>
               {state.ritAdded.map((qi) => {
@@ -199,19 +209,19 @@ export function CeremonyOverlay({ state, dispatch, onAbort, onFinish }: Ceremony
                     <span style={{ flex: 1, fontSize: 13.5, color: '#E8E4D4', fontFamily: "'Noto Serif SC',serif" }}>{rtext(state, qi, lang)}</span>
                     <span style={{ fontSize: 9, letterSpacing: 2, color: '#F5B94B' }}>{'●'.repeat(Math.min(votes, 10))}</span>
                     <span style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 12, color: '#F5B94B', minWidth: 14, textAlign: 'right' }}>{votes}</span>
-                    <span onClick={() => dispatch({ type: 'vote', qi })} style={{ cursor: 'pointer', fontSize: 11, padding: '3px 12px', borderRadius: 5, border: '1px solid #F5B94B', color: '#F5B94B', userSelect: 'none' }}>{t('ceremony.ch3.vote')}</span>
+                    <button type="button" className="fi-btn-reset fi-hit" aria-pressed={votes > 0} onClick={() => dispatch({ type: 'vote', qi })} style={{ cursor: 'pointer', fontSize: 11, padding: '3px 12px', borderRadius: 5, border: '1px solid #F5B94B', color: '#F5B94B', userSelect: 'none' }}>{t('ceremony.ch3.vote')}</button>
                   </div>
                 );
               })}
             </div>
-            <div onClick={() => dispatch({ type: 'focus' })} style={{ ...goldBtn, marginTop: 18 }}>{t('ceremony.ch3.done')}</div>
+            <button type="button" className="fi-btn-reset" onClick={() => dispatch({ type: 'focus' })} style={{ ...goldBtn, marginTop: 18 }}>{t('ceremony.ch3.done')}</button>
           </div>
         )}
 
         {rit === 4 && (
           <div>
             <div style={chKicker}>{t('ceremony.ch4.kicker')}</div>
-            <div style={chTitle}>{t('ceremony.ch4.title')}</div>
+            <div id="fi-ceremony-title" style={chTitle}>{t('ceremony.ch4.title')}</div>
             <div style={{ marginTop: 14, border: '1.5px solid #F5B94B', background: 'rgba(245,185,75,0.1)', borderRadius: 6, padding: '14px 16px' }}>
               <div style={{ fontSize: 10.5, color: '#F5B94B', fontFamily: "'JetBrains Mono',ui-monospace,monospace", letterSpacing: '0.1em' }}>{t('ceremony.ch4.pinKicker')}</div>
               <div style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 700, fontSize: 17, color: '#E8E4D4', marginTop: 4 }}>{ritFocusText(state, lang)}</div>
@@ -221,11 +231,11 @@ export function CeremonyOverlay({ state, dispatch, onAbort, onFinish }: Ceremony
               {RIT_NAMES.map((nm) => {
                 const on = state.ritName === nm;
                 return (
-                  <span key={nm} onClick={() => dispatch({ type: 'pickName', name: nm })} style={{ cursor: 'pointer', fontSize: 12.5, padding: '6px 14px', borderRadius: 999, border: '1px solid #F5B94B', background: on ? '#F5B94B' : 'transparent', color: on ? '#3A2E14' : '#C9D0E4', userSelect: 'none', transition: 'all .25s' }}>{nm}</span>
+                  <button key={nm} type="button" className="fi-btn-reset fi-hit" aria-pressed={on} onClick={() => dispatch({ type: 'pickName', name: nm })} style={{ cursor: 'pointer', fontSize: 12.5, padding: '6px 14px', borderRadius: 999, border: '1px solid #F5B94B', background: on ? '#F5B94B' : 'transparent', color: on ? '#3A2E14' : '#C9D0E4', userSelect: 'none', transition: 'all .25s' }}>{nm}</button>
                 );
               })}
             </div>
-            <div onClick={onFinish} style={{ ...goldBtn, marginTop: 18 }}>{t('ceremony.ch4.finish', { name: nameShow })}</div>
+            <button type="button" className="fi-btn-reset" onClick={onFinish} style={{ ...goldBtn, marginTop: 18 }}>{t('ceremony.ch4.finish', { name: nameShow })}</button>
             <div style={{ marginTop: 10, fontSize: 10.5, color: '#8B94B2', fontFamily: "'JetBrains Mono',ui-monospace,monospace", textAlign: 'center' }}>{t('ceremony.ch4.note')}</div>
           </div>
         )}

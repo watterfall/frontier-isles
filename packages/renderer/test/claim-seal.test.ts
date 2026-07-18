@@ -69,9 +69,10 @@ describe('makeClaimMark DOI seal (R6 Lever 1 + R7 ride-along A)', () => {
   it('DOI_SEAL_INK is euclidean-distant (>40) from EVERY domain ink, not just != (collision killed)', () => {
     const rgb = (h: number) => [(h >> 16) & 255, (h >> 8) & 255, h & 255];
     const dist = (a: number, b: number) => Math.hypot(...rgb(a).map((v, i) => v - rgb(b)[i]!));
-    // math / matter / life / cross domain inks (scene-stage claimDomain). >40 closes
-    // the "a distance-1 regression still passes `!== 0xb5673a`" hole.
-    for (const ink of [0x2e5e8c, 0xb5673a, 0x2b7a5f, 0xa08428]) {
+    // math / matter / life / cross domain inks (scene-stage claimDomain, post-§3.15
+    // AA darkening). >40 closes the "a distance-1 regression still passes
+    // `!== 0x9c5932`" hole.
+    for (const ink of [0x2e5e8c, 0x9c5932, 0x2a775d, 0x7e6820]) {
       expect(dist(DOI_SEAL_INK, ink)).toBeGreaterThan(40);
     }
   });

@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { CONSENSUS_MIN, type ClaimState } from '@frontier-isles/core';
+import { PanelCloseButton, PanelScrim, useDialogChrome } from '../panelChrome';
 
 export interface ClaimDetailPanelProps {
   /** The tapped claim tower's ledger-projected state, or null when closed. */
@@ -16,16 +17,26 @@ export interface ClaimDetailPanelProps {
  * decoded into text (list-twin discipline, architecture §7).
  */
 export function ClaimDetailPanel({ claim, onClose }: ClaimDetailPanelProps) {
-  const { t } = useTranslation();
   if (!claim) return null;
+  return <ClaimDetailCard claim={claim} onClose={onClose} />;
+}
+
+function ClaimDetailCard({ claim, onClose }: { claim: ClaimState; onClose: () => void }) {
+  const { t } = useTranslation();
+  const { dialogRef, closeRef, onDialogKey } = useDialogChrome<HTMLDivElement>(onClose);
 
   const refBody = claim.ref.startsWith('sha256:') ? claim.ref.slice('sha256:'.length) : claim.ref;
   const refShort = refBody.slice(0, 10);
 
   return (
-    <div>
-      <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(24,20,14,0.35)' }} />
+    <div onKeyDown={onDialogKey}>
+      <PanelScrim onClose={onClose} label={t('panel.close')} />
       <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="fi-claim-title"
+        className="fi-panel-card"
         style={{
           position: 'absolute',
           left: '50%',
@@ -44,16 +55,16 @@ export function ClaimDetailPanel({ claim, onClose }: ClaimDetailPanelProps) {
             <div style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 10.5, letterSpacing: '0.15em', color: '#6B6154' }}>
               {t('island.claim.kicker')} · {refShort}
             </div>
-            <div style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 900, fontSize: 18, color: '#2B2620', marginTop: 3 }}>
+            <div id="fi-claim-title" style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 900, fontSize: 18, color: '#2B2620', marginTop: 3 }}>
               {claim.roof ? t('island.claim.titleRoofed') : t('island.claim.titlePlain')}
             </div>
           </div>
-          <div
-            onClick={onClose}
-            style={{ cursor: 'pointer', width: 28, height: 28, border: '1.5px solid #3A342B', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2B2620', fontSize: 13, background: '#F2EAD8' }}
-          >
-            ✕
-          </div>
+          <PanelCloseButton
+            ref={closeRef}
+            onClose={onClose}
+            label={t('panel.close')}
+            boxStyle={{ width: 28, height: 28, border: '1.5px solid #3A342B', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2B2620', fontSize: 13, background: '#F2EAD8' }}
+          />
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 14 }}>
@@ -70,7 +81,7 @@ export function ClaimDetailPanel({ claim, onClose }: ClaimDetailPanelProps) {
           <Row label={t('island.claim.activityLabel')} value={t('island.claim.activityValue', { n: claim.activity })} />
         </div>
 
-        <div style={{ marginTop: 12, fontSize: 10, color: '#A89C88', fontFamily: "'JetBrains Mono',ui-monospace,monospace", textAlign: 'center' }}>
+        <div style={{ marginTop: 12, fontSize: 10, color: '#776F61', fontFamily: "'JetBrains Mono',ui-monospace,monospace", textAlign: 'center' }}>
           {t('island.claim.footer')}
         </div>
       </div>

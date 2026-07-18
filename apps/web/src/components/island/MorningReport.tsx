@@ -91,7 +91,7 @@ export function MorningReport({ actor, onToast }: MorningReportProps) {
   return (
     <div style={{ position: 'absolute', right: 20, top: 140, width: 278, background: 'var(--card,rgba(250,245,232,0.94))', border: '1.5px solid var(--ink,#3A342B)', borderRadius: 8, overflow: 'hidden' }}>
       <div style={{ padding: '10px 14px 8px', borderBottom: '0.75px solid var(--ink2,#6B6154)', display: 'flex', alignItems: 'center', gap: 8 }}>
-        <span style={{ width: 22, height: 22, borderRadius: 3, background: '#2E5E8C', color: '#F6F2E6', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Noto Serif SC',serif", fontSize: 12 }}>{t('island.morning.seal')}</span>
+        <span aria-hidden="true" style={{ width: 22, height: 22, borderRadius: 3, background: '#2E5E8C', color: '#F6F2E6', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Noto Serif SC',serif", fontSize: 12 }}>{t('island.morning.seal')}</span>
         <span style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 700, fontSize: 13, color: 'var(--inkT,#2B2620)' }}>{t('island.morning.title')}</span>
         <span style={{ marginLeft: 'auto', fontSize: 9, padding: '1.5px 7px', borderRadius: 999, border: '1px solid rgba(90,108,158,0.6)', color: '#5A6C9E' }}>{t('island.morning.badge')}</span>
       </div>
@@ -108,8 +108,8 @@ export function MorningReport({ actor, onToast }: MorningReportProps) {
               <span style={{ flex: 1 }} />
               {st === 'pending' && (
                 <>
-                  <button type="button" onClick={() => void decide(b.refHash, 'adopt')} style={{ cursor: 'pointer', fontSize: 10.5, padding: '2.5px 10px', border: 0, borderRadius: 5, background: '#3E9B7E', color: '#F6F2E6', userSelect: 'none' }}>{t('island.morning.adopt')}</button>
-                  <button type="button" onClick={() => void decide(b.refHash, 'return')} style={{ cursor: 'pointer', fontSize: 10.5, padding: '2.5px 10px', borderRadius: 5, background: 'transparent', border: '1px solid var(--ink2,#6B6154)', color: 'var(--ink2,#6B6154)', userSelect: 'none' }}>{t('island.morning.return')}</button>
+                  <button type="button" className="fi-hit" onClick={() => void decide(b.refHash, 'adopt')} style={{ cursor: 'pointer', fontSize: 10.5, padding: '2.5px 10px', border: 0, borderRadius: 5, background: '#3E9B7E', color: '#F6F2E6', userSelect: 'none' }}>{t('island.morning.adopt')}</button>
+                  <button type="button" className="fi-hit" onClick={() => void decide(b.refHash, 'return')} style={{ cursor: 'pointer', fontSize: 10.5, padding: '2.5px 10px', borderRadius: 5, background: 'transparent', border: '1px solid var(--ink2,#6B6154)', color: 'var(--ink2,#6B6154)', userSelect: 'none' }}>{t('island.morning.return')}</button>
                 </>
               )}
               {st === 'ok' && <span style={{ fontSize: 10.5, color: '#2B7A5F' }}>{t('island.morning.adopted')}</span>}

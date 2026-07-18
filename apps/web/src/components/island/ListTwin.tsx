@@ -34,7 +34,7 @@ export function ListTwin({ sel, stFilter, onStFilter, onStation }: ListTwinProps
         {TWIN_CHIPS.map((f) => {
           const on = stFilter === f;
           return (
-            <button type="button" key={f} aria-pressed={on} onClick={() => onStFilter(f)} style={{ cursor: 'pointer', fontSize: 10, padding: '2px 9px', borderRadius: 999, border: `1px solid ${on ? 'var(--inkT,#2B2620)' : 'rgba(139,148,178,0.6)'}`, background: on ? 'var(--inkT,#2B2620)' : 'transparent', color: on ? 'var(--pp,#F2EAD8)' : 'var(--ink2,#6B6154)', userSelect: 'none' }}>
+            <button type="button" className="fi-hit" key={f} aria-pressed={on} onClick={() => onStFilter(f)} style={{ cursor: 'pointer', fontSize: 10, padding: '2px 9px', borderRadius: 999, border: `1px solid ${on ? 'var(--inkT,#2B2620)' : 'rgba(139,148,178,0.6)'}`, background: on ? 'var(--inkT,#2B2620)' : 'transparent', color: on ? 'var(--pp,#F2EAD8)' : 'var(--ink2,#6B6154)', userSelect: 'none' }}>
               {t(`island.twin.chips.${f}`)}
             </button>
           );
@@ -48,7 +48,7 @@ export function ListTwin({ sel, stFilter, onStFilter, onStation }: ListTwinProps
           onClick={() => onStation(s.k)}
           style={{ display: 'flex', width: '100%', alignItems: 'center', gap: 8, padding: '7.5px 14px', border: 0, cursor: 'pointer', background: sel === s.k ? 'rgba(227,169,60,0.18)' : 'transparent', opacity: matches(s.auth, stFilter, lang) ? 1 : 0.3, textAlign: 'left', transition: 'background .3s,opacity .3s' }}
         >
-          <span style={{ width: 20, height: 20, borderRadius: 3, background: s.sealBg, color: '#F6F2E6', fontSize: 11, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Noto Serif SC',serif" }}>{s.glyph}</span>
+          <span aria-hidden="true" style={{ width: 20, height: 20, borderRadius: 3, background: s.sealBg, color: '#F6F2E6', fontSize: 11, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Noto Serif SC',serif" }}>{s.glyph}</span>
           <span style={{ flex: 1, fontSize: 13, color: 'var(--inkT,#2B2620)' }}>{localizeStationZh(s.name, lang)}</span>
           <span style={{ fontSize: 8.5, padding: '1px 6px', borderRadius: 999, border: '1px solid rgba(139,148,178,0.55)', color: 'var(--ink2,#6B6154)', whiteSpace: 'nowrap' }}>{s.auth[lang]}</span>
           <span style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 10.5, color: 'var(--ink2,#6B6154)' }}>{s.count[lang]}</span>

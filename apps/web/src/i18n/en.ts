@@ -404,6 +404,7 @@ export const en: Resources = {
   },
 
   panel: {
+    close: 'Close',
     kicker: 'Question Wall workspace',
     title: 'Question Wall · QFT workspace',
     stampDiverge: '发',

@@ -2165,3 +2165,82 @@ input[type='range'] {
     transition: none !important;
   }
 }
+
+/* ── L2 panel shared chrome (ROADMAP §3.13/§3.15 a11y pass) ──────────────
+   Scrim + close are real buttons; the close keeps its drawn 28px square but
+   earns a 44px hit area (.impeccable principle 5). `.fi-btn-reset` lets a
+   converted div/span keep its inline-styled look on a semantic <button>;
+   `.fi-hit` grows any small chip's touch target to ≥44px without moving ink. */
+.fi-panel-scrim {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  appearance: none;
+  background: rgba(24, 20, 14, 0.35);
+  cursor: pointer;
+}
+
+.fi-panel-close {
+  position: relative;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  margin: -8px -8px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.fi-btn-reset {
+  appearance: none;
+  background: none;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+  text-align: inherit;
+}
+
+.fi-hit {
+  position: relative;
+}
+
+.fi-hit::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(100%, 44px);
+  height: max(100%, 44px);
+  transform: translate(-50%, -50%);
+}
+
+.fi-panel-scrim:focus-visible,
+.fi-panel-close:focus-visible,
+.fi-panel-card :focus-visible,
+.fi-panel-card:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--fi-gamboge) 78%, transparent);
+  outline-offset: 3px;
+}
+
+/* Desktop SVG-fallback atlas: keyboard focus on an island <g> draws a gamboge
+   ring on its (otherwise invisible) hit ellipse — outline on a bare <g> is
+   unreliable across browsers (mobile twin: .fi-mobile-map rule). */
+.fi-screen-layer-chart g[role='button'] {
+  outline: none;
+}
+
+.fi-screen-layer-chart g[role='button']:focus-visible ellipse[pointer-events='all'] {
+  stroke: color-mix(in srgb, var(--fi-gamboge) 85%, transparent);
+  stroke-width: 3;
+}

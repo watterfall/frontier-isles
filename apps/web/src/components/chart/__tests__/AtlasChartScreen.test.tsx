@@ -61,4 +61,12 @@ describe('AtlasChartScreen — SVG fallback preserved (no WebGL in this test env
     expect(markup).toContain(zh.chart.explore.launch);
     expect(markup).toContain(zh.chart.explore.launchHint);
   });
+
+  it('exposes each island node as a keyboard-focusable button (a11y pass §3.13/§3.15)', () => {
+    const html = renderToStaticMarkup(<ChartScreen {...baseProps} />);
+    expect(html).toContain('role="button"');
+    expect(html).toContain('tabindex="0"');
+    // aria-label carries the FULL (untruncated) island name from the node data.
+    expect(html).toContain(`aria-label="${DATA[0]!.n.zh}"`);
+  });
 });

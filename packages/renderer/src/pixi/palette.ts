@@ -11,8 +11,9 @@
  * a matter-domain mark. Mirrors design token `--fi-seal-doi` in
  * packages/assets/src/tokens.css.
  *
- * NOMINATED value (R7): euclidean-distinct from every palette ink/fill (nearest is
- * 物质 ink at ~45). The design side may retune the exact hue in review; keep this
- * constant and the token in lock-step if it changes.
+ * NOMINATED value (R7, deepened in the §3.15 AA pass so it stays >40 from the
+ * AA-darkened domain inks — nearest is 物质 ink 0x9c5932 at ~47). The design side
+ * may retune the exact hue in review; keep this constant and the token in
+ * lock-step if it changes.
  */
-export const DOI_SEAL_INK = 0xa8481c;
+export const DOI_SEAL_INK = 0x863a16;
