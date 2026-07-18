@@ -17,13 +17,19 @@
 
 import type { ActionType, LedgerEvent } from "@frontier-isles/opp";
 
-/** Actions worth a golden dot on the scrubber. Ambient writes stay unmarked. */
+/**
+ * Actions worth a golden dot on the scrubber. Ambient writes stay unmarked.
+ * `return_to_driftwood` joined 2026-07-19 (B.2 caveat): like `refute` it
+ * creates a ghost in `projectClaimState`, so shelving a claim is as notable
+ * a night as refuting one — the scene ghost tiers already keyed on it.
+ */
 export const TIMELINE_MARKER_ACTIONS: readonly ActionType[] = [
   "found_island",
   "refute",
   "publish",
   "transplant",
   "adopt",
+  "return_to_driftwood",
 ];
 
 export interface NightTimelineMarker {

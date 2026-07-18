@@ -395,6 +395,7 @@ export const zh = {
         publish: '一件成果被发布 · 点亮一盏灯',
         transplant: '一个洞见被移植到别的岛',
         adopt: '采纳了邻岛的一件成果',
+        return_to_driftwood: '一条主张被归还漂流木 · 暂且搁置',
         silent: '寂静之夜 · 无标记事件',
       },
     },

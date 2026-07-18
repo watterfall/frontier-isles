@@ -39,7 +39,7 @@ import {
   TRANS_TAG_POS,
   type ResidentPlacement,
 } from './sampleIsland';
-import { DEFAULT_GHOST_REVEALS, type GhostReveal } from './nightReveal';
+import { DEFAULT_GHOST_REVEALS, DEFAULT_NIGHT_SIGNS, type GhostReveal, type NightSign, type NightSignType } from './nightReveal';
 
 export interface SceneProps {
   night: boolean;
@@ -55,6 +55,13 @@ export interface SceneProps {
    * rendering). Optional so Scene stays usable standalone (tests, Storybook).
    */
   ghostReveals?: GhostReveal[];
+  /**
+   * Night sign-tag thresholds (§3.3, `scene/nightReveal.ts`) — the argument /
+   * AI-night-watch / synthesizer-draft tags appear only from the night their
+   * real trigger event happened; `absent` signs never render. Optional for
+   * the same standalone reasons as `ghostReveals`.
+   */
+  nightSigns?: NightSign[];
 }
 
 const STATION_COMPONENTS: Record<
@@ -116,12 +123,15 @@ function Resident({ r, i, lang }: { r: ResidentPlacement; i: number; lang: 'zh' 
  * is palette-only: the caller applies NIGHT_SCENE_VARS on the wrapping div,
  * so every `var(--x,…)` shape repaints without changing shape.
  */
-export function Scene({ night, nightT, selKey, transTo, onStation, ghostReveals }: SceneProps) {
+export function Scene({ night, nightT, selKey, transTo, onStation, ghostReveals, nightSigns }: SceneProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
   const sel = selKey ? STN.find((s) => s.k === selKey) : undefined;
   const transPos = transTo ? TRANS_TAG_POS[transTo] : undefined;
   const ghosts = ghostReveals ?? DEFAULT_GHOST_REVEALS;
+  const signs = nightSigns ?? DEFAULT_NIGHT_SIGNS;
+  const signOn = (type: NightSignType): boolean =>
+    signs.some((s) => s.type === type && nightT >= s.threshold);
 
   return (
     <svg viewBox="0 0 1440 900" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
@@ -189,34 +199,42 @@ export function Scene({ night, nightT, selKey, transTo, onStation, ghostReveals 
             <HangingLantern key={i} x={l.x} y={l.y} size={l.size} swaySeconds={l.sway} />
           ))}
           <Fireflies />
-          <g transform="translate(980,332)">
-            <rect x="-58" y="-10" width="116" height="18" rx="9" fill="rgba(33,44,78,0.9)" stroke="rgba(245,185,75,0.5)" strokeWidth="0.75" />
-            <text x="0" y="3" textAnchor="middle" fontSize="10" fill="#F5B94B" style={{ fontFamily: "'PingFang SC',sans-serif" }}>
-              {t('scene.nightArgument')}
-            </text>
-          </g>
-          {/* AI 值夜窗光（文献阁） */}
-          <g transform="translate(760,296)">
-            <g transform="skewY(26.565)">
-              <rect x="-84" y="-22" width="14" height="13" fill="#F5B94B" opacity="0.85" />
-              <rect x="-62" y="-22" width="14" height="13" fill="#F5B94B" opacity="0.55" />
+          {signOn('argument') && (
+            <g transform="translate(980,332)">
+              <rect x="-58" y="-10" width="116" height="18" rx="9" fill="rgba(33,44,78,0.9)" stroke="rgba(245,185,75,0.5)" strokeWidth="0.75" />
+              <text x="0" y="3" textAnchor="middle" fontSize="10" fill="#F5B94B" style={{ fontFamily: "'PingFang SC',sans-serif" }}>
+                {t('scene.nightArgument')}
+              </text>
             </g>
-            <circle cx="-58" cy="6" r="28" fill="url(#lgrad)" />
-          </g>
-          <g transform="translate(760,178)">
-            <rect x="-84" y="-11" width="168" height="21" rx="10" fill="rgba(33,44,78,0.92)" stroke="rgba(245,185,75,0.5)" strokeWidth="0.75" />
-            <circle cx="-70" cy="-0.5" r="3" fill="#F5B94B" style={{ animation: 'pulseGlow 2.6s ease-in-out infinite', animationPlayState: 'var(--play,running)' as never }} />
-            <text x="6" y="3.5" textAnchor="middle" fontSize="10" fill="#F5B94B" style={{ fontFamily: "'PingFang SC',sans-serif" }}>
-              {t('scene.aiNightWatch')}
-            </text>
-          </g>
-          <g transform="translate(560,268)">
-            <rect x="-74" y="-11" width="148" height="21" rx="10" fill="rgba(33,44,78,0.92)" stroke="rgba(245,185,75,0.5)" strokeWidth="0.75" />
-            <circle cx="-60" cy="-0.5" r="3" fill="#F5B94B" style={{ animation: 'pulseGlow 3.2s ease-in-out infinite .8s', animationPlayState: 'var(--play,running)' as never }} />
-            <text x="6" y="3.5" textAnchor="middle" fontSize="10" fill="#F5B94B" style={{ fontFamily: "'PingFang SC',sans-serif" }}>
-              {t('scene.synthesizerDraft')}
-            </text>
-          </g>
+          )}
+          {/* AI 值夜窗光（文献阁）— 与值夜标签同一触发事件，一起点亮 */}
+          {signOn('aiNightWatch') && (
+            <g transform="translate(760,296)">
+              <g transform="skewY(26.565)">
+                <rect x="-84" y="-22" width="14" height="13" fill="#F5B94B" opacity="0.85" />
+                <rect x="-62" y="-22" width="14" height="13" fill="#F5B94B" opacity="0.55" />
+              </g>
+              <circle cx="-58" cy="6" r="28" fill="url(#lgrad)" />
+            </g>
+          )}
+          {signOn('aiNightWatch') && (
+            <g transform="translate(760,178)">
+              <rect x="-84" y="-11" width="168" height="21" rx="10" fill="rgba(33,44,78,0.92)" stroke="rgba(245,185,75,0.5)" strokeWidth="0.75" />
+              <circle cx="-70" cy="-0.5" r="3" fill="#F5B94B" style={{ animation: 'pulseGlow 2.6s ease-in-out infinite', animationPlayState: 'var(--play,running)' as never }} />
+              <text x="6" y="3.5" textAnchor="middle" fontSize="10" fill="#F5B94B" style={{ fontFamily: "'PingFang SC',sans-serif" }}>
+                {t('scene.aiNightWatch')}
+              </text>
+            </g>
+          )}
+          {signOn('synthesizerDraft') && (
+            <g transform="translate(560,268)">
+              <rect x="-74" y="-11" width="148" height="21" rx="10" fill="rgba(33,44,78,0.92)" stroke="rgba(245,185,75,0.5)" strokeWidth="0.75" />
+              <circle cx="-60" cy="-0.5" r="3" fill="#F5B94B" style={{ animation: 'pulseGlow 3.2s ease-in-out infinite .8s', animationPlayState: 'var(--play,running)' as never }} />
+              <text x="6" y="3.5" textAnchor="middle" fontSize="10" fill="#F5B94B" style={{ fontFamily: "'PingFang SC',sans-serif" }}>
+                {t('scene.synthesizerDraft')}
+              </text>
+            </g>
+          )}
           {/* 魂影三件，按时间轴阈值渐显 — 阈值来自真账本（见 scene/nightReveal.ts），
               离线/无数据时回落到 seed 常量（GHOSTS，与旧行为一致）。 */}
           {ghosts.map((g) => (

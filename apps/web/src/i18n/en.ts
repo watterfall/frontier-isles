@@ -397,6 +397,7 @@ export const en: Resources = {
         publish: 'An artifact was published · a lantern was lit',
         transplant: 'An insight was transplanted to another isle',
         adopt: 'A neighbour’s artifact was adopted here',
+        return_to_driftwood: 'A claim was returned to driftwood · shelved for now',
         silent: 'A quiet night · nothing was marked',
       },
     },

@@ -5,7 +5,7 @@ import type { StationKind, NightTimelineModel } from '@frontier-isles/core';
 import { projectNightTimeline } from '@frontier-isles/core';
 import { NIGHT_SCENE_VARS, sceneVarsToStyle } from '@frontier-isles/assets';
 import { Scene } from '../../scene/Scene';
-import { computeGhostReveals } from '../../scene/nightReveal';
+import { computeGhostReveals, computeNightSigns } from '../../scene/nightReveal';
 import { DayNightLever } from './DayNightLever';
 import { ListTwin } from './ListTwin';
 import { MorningReport } from './MorningReport';
@@ -116,6 +116,11 @@ export function IslandScreen(props: IslandScreenProps) {
     [ledgerEvents, nightModel],
   );
 
+  const nightSigns = useMemo(
+    () => computeNightSigns(ledgerEvents, nightModel),
+    [ledgerEvents, nightModel],
+  );
+
   return (
     <div
       data-screen-label="L1 样板岛"
@@ -130,6 +135,7 @@ export function IslandScreen(props: IslandScreenProps) {
         transTo={props.transTo}
         onStation={props.onStation}
         ghostReveals={ghostReveals}
+        nightSigns={nightSigns}
       />
 
       <div className="fi-island-hud">

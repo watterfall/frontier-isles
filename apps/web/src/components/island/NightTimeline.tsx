@@ -16,6 +16,7 @@ const MARKER_COLORS: Record<string, string> = {
   adopt: '#6FC3A0',
   refute: '#E0765B', // ember — a claim fell
   transplant: '#7FA8E0', // current-blue — carried to another isle
+  return_to_driftwood: '#B8A98E', // driftwood bone — shelved, not fallen
 };
 
 /**

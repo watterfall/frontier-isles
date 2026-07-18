@@ -18,19 +18,16 @@
  *   | 'prototype' | `refute`               | 1st        | g2 @ night 41, "实验坊原型宣告失败" |
  *   | 'canvas'    | `return_to_driftwood`  | 2nd        | g3 @ night 63, "一张画布被废弃" |
  *
- * `refute` is one of `TIMELINE_MARKER_ACTIONS` (packages/core/night-timeline
- * .ts) — the 'prototype' ghost lines up exactly with a real golden-dot
- * scrubber marker. `return_to_driftwood` is deliberately NOT in that list
- * (it's "ambient" there) but it is the exact action the seed authored for
- * the card/canvas ghosts, so we key on it directly here rather than widen
- * TIMELINE_MARKER_ACTIONS, which is owned by the B.2 contract in
- * packages/core and shared with the scrubber UI.
+ * `refute` AND `return_to_driftwood` are both in `TIMELINE_MARKER_ACTIONS`
+ * (packages/core/night-timeline.ts — the latter joined 2026-07-19, closing
+ * the B.2 caveat), so every ghost tier now lines up with a real scrubber
+ * marker; this module still keys on the actions directly because it needs
+ * per-occurrence (1st/2nd) matching, not just "some marker exists".
  *
- * Honest scope: only these three thresholds are ledger-driven. The rest of
- * the night layer (hanging lanterns, night-argument tag, AI-night-watch /
- * synthesizer-draft tags, fireflies) has no 1:1 event correspondence baked
- * into the bespoke SVG and stays a "performance" layer, gated only by
- * `night` — see the outstanding list in docs/ROADMAP.md §3.3.
+ * Honest scope: the three ghost thresholds AND the three night sign tags
+ * (see {@link computeNightSigns}) are ledger-driven. Hanging lanterns and
+ * fireflies remain ambient night lighting — they assert atmosphere, not
+ * progress, so they stay gated by `night` alone (deliberate, ROADMAP §3.3).
  *
  * Scale note: `nightT` (the scrubber's `t` prop, 1..86) is still driven by
  * NightTimeline.tsx's hardcoded `<input type=range min=1 max=86>` — that
@@ -125,3 +122,69 @@ function calendarNight(tsMs: number, genesisMs: number): number {
 
 /** Reveal thresholds when there is no ledger (offline / not yet loaded) — identical to today's behavior. */
 export const DEFAULT_GHOST_REVEALS: GhostReveal[] = computeGhostReveals(null, null);
+
+// ---------------------------------------------------------------------------
+// Night sign tags (§3.3): the hero scene's three story tags stop being pure
+// stage dressing. Each is shown only from the night its real trigger event
+// happened; with a ledger present but no trigger, the tag is HONESTLY ABSENT
+// (design principle 1: decoration must not invent progress). Offline / no
+// ledger keeps the seed look (all three visible every night, threshold 1).
+// The authored captions themselves stay authored content — only visibility
+// is event-bound here.
+// ---------------------------------------------------------------------------
+
+export type NightSignType = 'argument' | 'aiNightWatch' | 'synthesizerDraft';
+
+export interface NightSign {
+  type: NightSignType;
+  /** First night (scrubber scale) the sign is real; Infinity = never (hidden). */
+  threshold: number;
+  source: 'ledger' | 'seed' | 'absent';
+}
+
+/**
+ * Trigger semantics (each derivable from the event stream alone, no ref
+ * contents needed):
+ *   - argument         → 1st `refute` (a real unresolved dispute entered the ledger)
+ *   - aiNightWatch     → 1st `night_digest` by an AI actor (the scout's shift)
+ *   - synthesizerDraft → 1st `night_digest` by a SECOND distinct AI actor —
+ *     the synthesizer is a different resident than the scout; while only one
+ *     AI resident exists, the tag stays honestly absent on a real ledger.
+ */
+export function computeNightSigns(
+  events: readonly LedgerEvent[] | null,
+  model: NightTimelineModel | null,
+): NightSign[] {
+  const seed = (type: NightSignType): NightSign => ({ type, threshold: 1, source: 'seed' });
+  if (!events || events.length === 0 || !model || !model.genesis) {
+    return [seed('argument'), seed('aiNightWatch'), seed('synthesizerDraft')];
+  }
+
+  const sorted = [...events]
+    .filter((e) => !Number.isNaN(new Date(e.ts).getTime()))
+    .sort((a, b) => a.ts.localeCompare(b.ts));
+  if (sorted.length === 0) return [seed('argument'), seed('aiNightWatch'), seed('synthesizerDraft')];
+
+  const genesisMs = new Date(model.genesis).getTime();
+  const nightAt = (e: LedgerEvent): number =>
+    Math.min(model.nights, Math.max(1, calendarNight(new Date(e.ts).getTime(), genesisMs)));
+  const fromEvent = (type: NightSignType, hit: LedgerEvent | undefined): NightSign =>
+    hit ? { type, threshold: nightAt(hit), source: 'ledger' } : { type, threshold: Number.POSITIVE_INFINITY, source: 'absent' };
+
+  const firstRefute = sorted.find((e) => e.action === 'refute');
+
+  const aiDigests = sorted.filter((e) => e.action === 'night_digest' && e.actor.kind === 'agent');
+  const firstAi = aiDigests[0];
+  const secondActorDigest = firstAi
+    ? aiDigests.find((e) => e.actor.id !== firstAi.actor.id)
+    : undefined;
+
+  return [
+    fromEvent('argument', firstRefute),
+    fromEvent('aiNightWatch', firstAi),
+    fromEvent('synthesizerDraft', secondActorDigest),
+  ];
+}
+
+/** Sign visibility when there is no ledger — identical to today's always-on night look. */
+export const DEFAULT_NIGHT_SIGNS: NightSign[] = computeNightSigns(null, null);

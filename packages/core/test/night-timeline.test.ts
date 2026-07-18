@@ -79,3 +79,15 @@ describe("projectNightTimeline", () => {
     expect(m.eventCountByNight[1]).toBe(1);
   });
 });
+
+describe("TIMELINE_MARKER_ACTIONS — return_to_driftwood is a marked night (B.2 caveat closed)", () => {
+  it("a return_to_driftwood event earns a scrubber marker like refute does", () => {
+    const m = projectNightTimeline([
+      ev("2026-01-01T00:00:00Z", "found_island"),
+      ev("2026-01-02T00:00:00Z", "return_to_driftwood"),
+      ev("2026-01-03T00:00:00Z", "night_digest"), // ambient — stays unmarked
+    ]);
+    expect(m.markers.map((k) => k.action)).toEqual(["found_island", "return_to_driftwood"]);
+    expect(TIMELINE_MARKER_ACTIONS).toContain("return_to_driftwood");
+  });
+});

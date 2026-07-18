@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { LedgerEvent } from '@frontier-isles/opp';
 import { projectNightTimeline } from '@frontier-isles/core';
-import { computeGhostReveals, DEFAULT_GHOST_REVEALS } from './nightReveal';
+import { computeGhostReveals, computeNightSigns, DEFAULT_GHOST_REVEALS } from './nightReveal';
 import { GHOSTS } from './sampleIsland';
 
 const ev = (ts: string, action: LedgerEvent['action']): LedgerEvent => ({
@@ -81,5 +81,53 @@ describe('computeGhostReveals', () => {
     const shuffled = [...events].reverse();
     const b = computeGhostReveals(shuffled, projectNightTimeline(shuffled));
     expect(a).toEqual(b);
+  });
+});
+
+describe('computeNightSigns (§3.3 — night sign tags stop being stage dressing)', () => {
+  const aiEv = (ts: string, actorId: string): LedgerEvent => ({
+    ...ev(ts, 'night_digest'),
+    actor: { id: actorId, kind: 'agent' },
+  });
+
+  it('offline / no ledger keeps the seed look: all three visible from night 1', () => {
+    const out = computeNightSigns(null, null);
+    expect(out).toHaveLength(3);
+    expect(out.every((s) => s.source === 'seed' && s.threshold === 1)).toBe(true);
+  });
+
+  it('argument appears from the first refute night; missing triggers are honestly absent', () => {
+    const events = [
+      ev('2026-01-01T00:00:00Z', 'found_island'),
+      ev('2026-01-03T00:00:00Z', 'refute'),
+    ];
+    const out = computeNightSigns(events, projectNightTimeline(events));
+    expect(out.find((s) => s.type === 'argument')).toMatchObject({ threshold: 3, source: 'ledger' });
+    expect(out.find((s) => s.type === 'aiNightWatch')).toMatchObject({ source: 'absent', threshold: Number.POSITIVE_INFINITY });
+    expect(out.find((s) => s.type === 'synthesizerDraft')).toMatchObject({ source: 'absent' });
+  });
+
+  it('aiNightWatch keys on the first AI night_digest; a human night_digest does not count', () => {
+    const events = [
+      ev('2026-01-01T00:00:00Z', 'found_island'),
+      ev('2026-01-02T00:00:00Z', 'night_digest'), // human — ambient, not a watch
+      aiEv('2026-01-04T00:00:00Z', 'github:curiosity-scout'),
+    ];
+    const out = computeNightSigns(events, projectNightTimeline(events));
+    expect(out.find((s) => s.type === 'aiNightWatch')).toMatchObject({ threshold: 4, source: 'ledger' });
+  });
+
+  it('synthesizerDraft needs a SECOND distinct AI resident — one scout alone keeps it absent', () => {
+    const oneAi = [
+      ev('2026-01-01T00:00:00Z', 'found_island'),
+      aiEv('2026-01-02T00:00:00Z', 'github:curiosity-scout'),
+      aiEv('2026-01-03T00:00:00Z', 'github:curiosity-scout'),
+    ];
+    const outOne = computeNightSigns(oneAi, projectNightTimeline(oneAi));
+    expect(outOne.find((s) => s.type === 'synthesizerDraft')).toMatchObject({ source: 'absent' });
+
+    const twoAi = [...oneAi, aiEv('2026-01-05T00:00:00Z', 'github:synthesizer')];
+    const outTwo = computeNightSigns(twoAi, projectNightTimeline(twoAi));
+    expect(outTwo.find((s) => s.type === 'synthesizerDraft')).toMatchObject({ threshold: 5, source: 'ledger' });
   });
 });
