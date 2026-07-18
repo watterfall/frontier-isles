@@ -22,6 +22,19 @@ const receipt = {
   evidenceRefs: ['doi:10.0000/frontier-isles-test'],
   completedAt: '2026-07-18T00:00:00.000Z',
 };
+const modelRun = {
+  id: 'model-run-sync-1',
+  familyId: 'synchronization' as const,
+  substrateId: 'fireflies' as const,
+  seed: 17,
+  parameters: { count: 40, spread: 0.32, coupling: 2.4, dt: 0.04 },
+  prediction: 'increase' as const,
+  observation: { metric: 'coherence' as const, initial: 0.12, final: 0.91, steps: 360 },
+  boundary: '这个相位模型没有表示萤火虫的空间遮挡和脉冲感知。',
+  language: 'zh' as const,
+  sourceStructureId: 'struct://xfrontier/synchronization',
+  createdAt: '2026-07-18T02:00:00.000Z',
+};
 
 describe('global exploration session', () => {
   it('enters a world-level exploration field without selecting an island', () => {
@@ -117,5 +130,14 @@ describe('global exploration session', () => {
     state = explorationReducer(state, { type: 'select-structure', structureId: 'struct://xfrontier/scaling' });
     expect(state.structureDeparture).toBeNull();
     expect(state.passageIntent).toBeNull();
+  });
+
+  it('keeps model runs as local learner records without changing graph or island progress', () => {
+    let state = explorationReducer(initialExplorationSession(), { type: 'record-model-run', receipt: modelRun });
+    state = explorationReducer(state, { type: 'record-model-run', receipt: modelRun });
+    expect(state.modelRuns).toEqual([modelRun]);
+    expect(state.completedPassages).toEqual([]);
+    expect(state.sampledCurrents).toEqual([]);
+    expect(state.visitedIslandSlugs).toEqual([]);
   });
 });

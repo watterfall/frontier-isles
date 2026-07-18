@@ -1,3 +1,5 @@
+import type { ModelRunReceipt } from '../models/types';
+
 export type ExplorationPhase = 'atlas' | 'explore' | 'island';
 export type ExplorerFacing = 'north' | 'east' | 'south' | 'west';
 
@@ -93,6 +95,8 @@ export interface ExplorationSession {
   surveyedDistricts: Record<string, IslandDistrictId[]>;
   /** Floor ids visited in each `island:station` building, local to the notebook. */
   visitedBuildingFloors: Record<string, string[]>;
+  /** Learner-owned local model runs. They are never folded into graph/ledger truth. */
+  modelRuns: ModelRunReceipt[];
 }
 
 export type ExplorationAction =
@@ -110,6 +114,7 @@ export type ExplorationAction =
   | { type: 'complete-passage'; receipt: CompletedPassage }
   | { type: 'survey-district'; slug: string; districtId: IslandDistrictId }
   | { type: 'visit-building-floor'; slug: string; station: string; floorId: string }
+  | { type: 'record-model-run'; receipt: ModelRunReceipt }
   | { type: 'dock'; slug: string; source: 'atlas' | 'explore'; pose?: WorldExplorerPose }
   | { type: 'return-world' }
   | { type: 'return-atlas' };
@@ -132,6 +137,7 @@ export function initialExplorationSession(): ExplorationSession {
     completedPassages: [],
     surveyedDistricts: {},
     visitedBuildingFloors: {},
+    modelRuns: [],
   };
 }
 
@@ -249,6 +255,10 @@ export function explorationReducer(state: ExplorationSession, action: Exploratio
         ),
         visitedIslandSlugs: logIsland(state, action.slug),
       };
+    }
+    case 'record-model-run': {
+      const prior = state.modelRuns.filter((receipt) => receipt.id !== action.receipt.id);
+      return { ...state, modelRuns: [...prior, action.receipt].slice(-200) };
     }
     case 'dock':
       return {

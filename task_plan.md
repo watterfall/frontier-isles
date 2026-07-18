@@ -2,6 +2,19 @@
 
 ## Current Goal
 
+Turn cross-domain connection from an evidence browser into an executable learning loop without splitting Frontier Isles into a separate product:
+
+1. preserve the atlas and islands as the place where people encounter real questions;
+2. preserve the connection projection as the place where evidence-backed resemblances and differences are found;
+3. add a separately bounded **model runtime** where a learner defines the actors, interaction rule, observable, and prediction, then watches the model run;
+4. let the same runnable rule change substrate so the learner can test what transfers from fireflies to cardiac cells, applause, grids, heat, diffusion, fields, and flow;
+5. save the learner's prediction, parameters, outcome, and stated limitation into the existing exploration notebook;
+6. keep AI in the role of mathematical/code scaffolding rather than answer-giver.
+
+The acceptance question is now: **can a learner build one small model, run it, reuse it in another domain, see where the analogy breaks, and leave with a durable record of what they personally tested?**
+
+## Previous Goal — Evidence-bearing cross-domain connection
+
 Replace the abstract Ferry Dock / Tearoom / Structure Lens experience with one integrated, evidence-bearing cross-domain connection system:
 
 1. make a global **connection field** the primary entry: multiple domains and problems visibly converge through mechanisms, methods, constraints, evidence, and contradictions;
@@ -15,7 +28,42 @@ The acceptance question is no longer “can a user complete a formal passage?”
 
 ## Current Phase
 
-Phase 8 — plain-language research-comparison reset verified and closed
+Phase 12 — full learning-loop verification completed
+
+## Executable Model Phases
+
+### Phase 9: Reset the product boundary around learning
+
+- [x] Distinguish evidence-backed relationships from executable models in the current code and live product
+- [x] Decide product integration versus a separate project
+- [x] Confirm audience, task, tone, and visual authority from `.impeccable.md` and the user's learning thesis
+- [x] Define a plain-language model contract and the first two reusable model families
+- [x] Freeze the navigation, notebook, accessibility, mobile, and provenance boundaries before implementation
+- **Status:** completed
+
+### Phase 10: Build the independent model runtime
+
+- [x] Implement deterministic, browser-safe simulation kernels with no server or graph dependency
+- [x] Build a model workspace where the learner controls units, interaction, observable, prediction, and run state
+- [x] Make one rule visibly reusable across multiple domain substrates while keeping domain-specific limits explicit
+- [x] Provide a readable visual twin for every animated/model state and full reduced-motion behavior
+- **Status:** completed
+
+### Phase 11: Integrate the learning loop into Frontier Isles
+
+- [x] Add a first-class atlas/connection entry without nesting the workspace inside the relationship panel
+- [x] Open relevant models from concrete cross-domain records with the source context retained
+- [x] Record learner-owned model runs in the versioned exploration notebook and Markdown export
+- [x] Adapt the workspace for desktop and mobile rather than making mobile a dead read-only surface
+- **Status:** completed
+
+### Phase 12: Verify the full build-transfer-reflect loop
+
+- [x] Add kernel, state, persistence, UI, and integration tests
+- [x] Run repository tests, typechecks, data-boundary checks, build, and E2E
+- [x] Verify desktop/mobile, keyboard, touch, reduced motion, overflow, theme isolation, console, and reload persistence
+- [x] Update roadmap and design contract with delivered truth and remaining scientific limits
+- **Status:** completed
 
 ## Redesign Phases
 
@@ -182,6 +230,14 @@ Phase 8 — plain-language research-comparison reset verified and closed
 | First bilingual-copy patch assumed the English action text was `Set sail`; the file uses `Set out` | 1 | Read the exact adjacent i18n blocks and applied a narrow patch against the current strings. |
 | First web typecheck after the floor-drawer API rewrite failed only in the old drawer tests (`interior` prop no longer exists) | 1 | Migrated the tests to real projected `BuildingFloorPlan` inputs and added semantic-dialog/cutaway assertions. |
 | First repository typecheck after requiring a connection boundary found `boundary_required` missing from `PassageInvalidReason` | 1 | Added the already-emitted reason to the server type union; the full workspace typecheck then passed. |
+| First model-notebook typecheck found unescaped Markdown backticks inside a template literal | 1 | Escaped only the inline-code delimiters in the new model-source export row, then reran the focused typecheck. |
+| Browser verification command found no globally installed `agent-browser` binary | 1 | Follow the skill's documented `npx agent-browser` fallback in a fresh named session. |
+| Field-rate slider announced `0.70` while its adjacent label showed off-step default `0.72` | 1 | Align the initial rate to the slider's `0.05` step (`0.70`) so visual, accessibility, runtime, and saved parameters agree. |
+| A post-reload browser click reused an atlas-era element ref after reopening the modal | 1 | Refresh the accessibility snapshot and use the model dialog's current ref before continuing; no product interaction failed. |
+| Vite HMR invalidated the active model-dialog refs immediately after the field-rate fix | 1 | Reload the live page, take a fresh accessibility snapshot, and restart the field verification from current refs; persisted notebook data remained intact. |
+| Keyboard audit found collapsed source links counted as the dialog's last focus target | 1 | Filter the focus-trap target list to elements with a rendered client rect, then reverify forward/backward wrapping and Escape focus restoration in Chromium. |
+| Escape closed the model dialog but returned focus to `body` because the opener is intentionally unmounted while the model layer is active | 1 | Record the opener kind before state changes, then focus its remounted `data-model-launch` target on the next animation frame. |
+| The mobile model tab inherited the old global “read-only” caption plus atlas search/altitude controls that do not affect a model | 1 | Label the boundary as “atlas read-only · models interactive” and render atlas tools only on the chart/list tabs. |
 | First focused drawer run still expected every interior corpus item on the ground-floor render | 1 | Kept truthful ground-floor entry, added last-floor resume/deep-link support, and made content tests select the projected floor that owns each item. |
 | Browser network evidence contains repeated successful `ledger.jsonl` reads accumulated across the long multi-route session | 1 | CodeGraph found one initial read plus the existing 20 s ritual poll. A fresh isolated 25 s performance audit recorded exactly one poll request, ruling out a render/request loop. |
 | A temporary Playwright config created outside the web package could not resolve the package-local runner | 1 | Moved the temporary config under `apps/web`, used the installed headless Chromium explicitly, then removed the config after the run. |

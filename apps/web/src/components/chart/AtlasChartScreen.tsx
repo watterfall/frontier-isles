@@ -22,6 +22,7 @@
  * route, or page-covering wipe sits between the atlas and the island.
  */
 import { Component, lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import type { AtlasExplorerCurrent, AtlasExplorerIsland, AtlasExplorerPose } from '@frontier-isles/renderer/pixi';
 import { ChartScreen, type ChartScreenProps } from './ChartScreen';
@@ -42,6 +43,7 @@ import {
   type ConnectionFocus,
 } from '../../chart/connectionField';
 import type { PassageIntent, SampledCurrentRecord, StructureDeparture } from '../../state/explorationSession';
+import type { ModelLaunchContext } from '../../models/types';
 
 const AtlasChartHost = lazy(() => import('../../chart/AtlasChartHost'));
 const ConnectionFieldPanel = lazy(() =>
@@ -91,6 +93,10 @@ export interface AtlasChartScreenProps extends ChartScreenProps {
   /** Fires once the atlas is actually painted (Pixi ready, or the SVG fallback
    * mounted). The return voyage holds its snapshot on this signal. */
   onAtlasReady?: () => void;
+  modelLayer?: {
+    active: boolean;
+    onOpen: (launch: ModelLaunchContext) => void;
+  };
 }
 
 export function AtlasChartScreen(props: AtlasChartScreenProps) {
@@ -98,7 +104,7 @@ export function AtlasChartScreen(props: AtlasChartScreenProps) {
 }
 
 function AtlasChartScreenImpl(props: AtlasChartScreenProps) {
-  const { islands, harbor, filter = '全部', onFilter, hover, onHover, onIsland, onBuild, onCollide, onExplore, worldExplore, structurePassage, onAtlasReady } = props;
+  const { islands, harbor, filter = '全部', onFilter, hover, onHover, onIsland, onBuild, onCollide, onExplore, worldExplore, structurePassage, onAtlasReady, modelLayer } = props;
   const { t, i18n } = useTranslation();
   const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
 
@@ -320,7 +326,7 @@ function AtlasChartScreenImpl(props: AtlasChartScreenProps) {
       >
         {!worldExplore?.active && <ChartChrome islands={islands} onPick={onIsland} onBuild={onBuild} onCollide={onCollide} filter={filter} onFilter={onFilter} controls={controls} metrics={metrics} onHome={harbor && harbor.islandSlugs.length > 0 ? () => controls?.home?.() : undefined} onExplore={onExplore} />}
 
-        {!worldExplore?.active && connectionField && (
+        {!worldExplore?.active && !modelLayer?.active && connectionField && (
           <Suspense fallback={null}>
             <ConnectionFieldPanel
               field={connectionField}
@@ -341,12 +347,26 @@ function AtlasChartScreenImpl(props: AtlasChartScreenProps) {
                 pendingConnectionPath.current = pathId;
                 structurePassage?.onConnectionWrite?.();
               }}
+              onBuildModel={(launch) => modelLayer?.onOpen(launch)}
             />
           </Suspense>
         )}
 
         {!worldExplore?.active && card && <IslandCard content={card.content} left={card.left} top={card.top} />}
       </div>
+
+      {!worldExplore?.active && !modelLayer?.active && modelLayer && typeof document !== 'undefined' && createPortal(
+        <button type="button" className="fi-model-launch" data-model-launch="global" onClick={() => modelLayer.onOpen({
+          familyId: 'synchronization',
+          sourceStructureId: 'struct://xfrontier/synchronization',
+          sourceProblemSlugs: ['self-learning-matter'],
+        })}>
+          <i aria-hidden="true"><span /><span /><span /></i>
+          <span><small>{lang === 'zh' ? '已有记录：耦合振子同步' : 'Recorded: coupled-oscillator synchronization'}</small><strong>{lang === 'zh' ? '亲手搭一个会跑的模型' : 'Build a model you can run'}</strong><em>{lang === 'zh' ? '再换到热 · 扩散 · 静电势 · 流动' : 'then move into heat · diffusion · potential · flow'}</em></span>
+          <b aria-hidden="true">↗</b>
+        </button>,
+        document.body,
+      )}
 
       {worldExplore?.active && (
         <WorldExploreScreen

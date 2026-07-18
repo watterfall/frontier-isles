@@ -408,3 +408,42 @@
 - Desktop 1440×1000 and mobile 390×844 live checks found none of the removed Chinese/English platform terms or raw `wN` weights. Mobile document/body width was exactly 390 px, English singular counts render `1 record`, reduced-motion media matched, and the page-error list was empty.
 - Final gate: **698/698 tests** (OPP 21, assets 53, renderer 114, scout 19, core 170, Web 238, server 83); all eight recursive typechecks; production build; Chromium world round trip **1/1**; and `git diff --check`.
 - The scientific boundary remains explicit: relation kinds, stable ids, renderer grammar, ledger provenance, evidence packages, and human write permissions are unchanged. This is a comprehension-layer reset, not a new graph or an inferred-analogy engine.
+## 2026-07-18 Executable Cross-Domain Learning Reset
+
+### Why the current connection work still misses the learning goal
+
+- The current `ConnectionField` is an evidence projection: it can show a shared statement, domain-specific correspondences, boundaries, provenance, support, and challenge. That is necessary scholarly infrastructure, but the learner still mainly reads someone else's judgment.
+- `PassageWorkbench` lets a person author a correspondence and a falsifiable test, but it does not execute the mapped rule. Completing it proves that a record was written, not that the learner constructed and observed a model.
+- The atlas, island districts, and building floors add spatial depth, but no current world layer owns simulation state, parameters, predictions, time-series output, or a durable model-run receipt.
+- Therefore adding more relation types or more explanatory copy would deepen the graph while leaving the central pedagogical failure unchanged: the software, not the learner, performs the understanding.
+
+### Product boundary decision
+
+- Do **not** create a separate product. The atlas supplies real questions and domain context; the connection projection supplies evidence-backed candidates for transfer; a model workspace can turn those candidates into learner action. Splitting the product would sever precisely this question -> connection -> construction -> return loop.
+- Do create an independently bounded model subsystem: pure deterministic kernels, a typed model/content catalog, a local learner session, and notebook receipts must not depend on Pixi, the ledger, or island rendering. This keeps the runtime testable and reusable while the product remains integrated.
+- The model workspace must be a first-class screen/layer, not another nested detail inside `ConnectionFieldPanel`. The relationship panel answers “why might these be connected?”; the workspace answers “can I make the shared rule run, and where does it fail?”
+
+### First vertical slice
+
+- **Synchronization:** one coupled-oscillator rule reused across fireflies, cardiac pacemaker cells, coordinated applause, and grid frequency. Learner-controlled diversity and coupling should visibly change the order parameter over time.
+- **Shared fields and flow:** one grid/Laplacian-style update reused across heat, diffusion, electrostatic potential, and steady flow. Boundary conditions and interpretation change while the spatial update stencil remains visible.
+- Every run must retain four learner-owned facts: prediction before running, chosen parameters, observed result, and a domain-specific limitation. A run without these is a demo, not a learning artifact.
+
+### Source check and scientific red lines
+
+- Feynman Lectures Vol. II, Ch. 12 (`https://www.feynmanlectures.caltech.edu/II_12.html`) is the direct authority for the electrostatic analogy. It states the steady heat-flow/electrostatic correspondence through the same divergence/gradient form. The workspace must not falsely say that every listed phenomenon has identical causal physics or identical boundary conditions.
+- Feynman Lectures Vol. II, Ch. 3 (`https://www.feynmanlectures.caltech.edu/II_03.html`) gives the time-dependent heat/diffusion equation. The field runtime may reuse a discrete Laplacian stencil, but its UI must distinguish time evolution from a steady Laplace/Poisson boundary-value problem.
+- The synchronization runtime uses the finite Kuramoto form and its order parameter only as a deliberately reduced model. APS sources confirm the relevance of coupled-oscillator synchronization to rhythmic applause and power-grid phase locking, while the model's limitations differ by substrate.
+- Fireflies are not “proved to be Kuramoto oscillators”; empirical synchronous flashing and mathematical oscillator models are separate claims. The UI must label the simplified model and show the domain-specific boundary before a run is saved.
+
+### Executable-model verification findings
+
+- The strongest integration is one product with four distinct truths: islands hold real questions; research comparisons hold evidence-backed candidate relations; the model layer holds learner-controlled execution; the notebook holds personal predictions, measurements, and limits. A model run never promotes itself into the relation graph.
+- Browser proof exposed a metric-language mismatch that unit tests did not: fixed-boundary heat reached a lower local equation residual while its global range remained fixed. The shipped copy now predicts and reports neighbour imbalance for heat/electrostatic/steady flow, and concentration range only for diffusion.
+- The field family's common object is a discrete four-neighbour update, not a common cause. Heat and diffusion use it as time evolution; electrostatic potential and ideal steady flow use iteration as numerical relaxation toward a boundary-value solution. The substrate boundary text states this before saving.
+- The saved synchronization proof moves order parameter `R` from `0.106` to `0.998` in 360 deterministic steps. The saved heat proof moves neighbour residual from `0.025` to `0.001` in 90 steps. These establish runtime behavior, not empirical fit to fireflies or materials.
+- Transfer works by retaining load-bearing parameters while resetting prediction, run state, boundary note, and saved state. This makes “same rule, changed world” an experiment instead of a carousel of examples.
+- Keyboard browser testing found two issues invisible to server markup: links inside collapsed `<details>` polluted the focus-trap endpoints, and the model opener is unmounted while the modal is active. Filtering hidden-detail descendants plus restoring focus to a remounted, tagged opener closes both loops.
+- Reduced-motion is behavioral, not only visual: one Run action advances immediately to the deterministic final state, while manual single-step remains available. Computed model animation/transition duration is `0s` under the media preference.
+- Mobile is now deliberately asymmetric rather than globally read-only: atlas/L1/research-ledger writes remain unavailable, but the same embedded workbench can save a personal local model receipt. At 390×844, document and body widths are exactly 390 px and atlas-only filters are absent from the model tab.
+- Notebook v4 reload proof retained the research launch context and model run. A second mobile save increased the same local notebook from one to two receipts; it did not create a graph mapping, evidence response, or server write.

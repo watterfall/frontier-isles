@@ -398,3 +398,44 @@
 - Final repository gate: **698/698 tests** (OPP 21, assets 53, renderer 114, scout 19, core 170, Web 238, server 83); all eight recursive typechecks including atlas drift and Web import-boundary checks; production build; `git diff --check`; and real Chromium world round trip **1/1**.
 - Production output: CSS **145.97 / 23.15 kB gzip**, lazy `ConnectionFieldPanel` **26.39 / 8.67**, lazy `PassageWorkbench` **7.11 / 2.33**, main **1,278.60 / 418.10**, lazy interior fallback **1,210.00 / 482.99**. Vite's existing >500 kB warnings remain a performance follow-up.
 - The development stack remains the live truth surface on Web `5173` and API `8787`. No additional graph system, schema, relation edge, ledger action, or persistent-data write was introduced by this language reset.
+## 2026-07-18 Executable Cross-Domain Learning Reset — Start
+
+- Reopened the completed connection iteration as a new product-core phase rather than extending the old panel taxonomy.
+- Reconfirmed the repository's `.impeccable.md` design context: exploratory research commons, hand-drawn scholarly atlas, progressive disclosure, list twins, mobile adaptation, and data-grounded visuals.
+- Used CodeGraph before direct reads to trace the current atlas -> connection -> passage flow and identify the absence of executable model state or simulation UI.
+- Made the architectural decision: one Frontier Isles product with a separately bounded model runtime; no second standalone project and no new graph system.
+- Defined the intended first two runnable families: synchronization and shared scalar-field/flow equations.
+- Verified the scientific framing against the official Feynman Lectures and primary/official physics sources; recorded the time-dependent-versus-steady-field and simplified-model boundaries before coding.
+- Current branch remains `main`; `tmp/` is the only pre-existing untracked path and remains user-owned/untouched.
+
+### Pure runtime checkpoint
+
+- Added an authored two-family/eight-substrate catalog with bilingual object/interaction/observable mappings, primary source links, and a distinct scientific boundary for every substrate.
+- Added a deterministic seeded finite Kuramoto kernel with a mean-field step and order parameter.
+- Added one pure four-neighbour scalar-field stencil used by heat, diffusion, electrostatic-potential, and ideal steady-flow presets, with fixed-boundary and reflecting-boundary behavior kept explicit.
+- Focused gate: 3 model files, 9/9 tests pass; Web typecheck and the existing data-import boundary both pass.
+
+### Model workspace and product-integration checkpoint
+
+- Added one lazy, full-screen desktop model workspace and the same locally writable workspace as a fourth mobile segment. The workspace is not nested in the research-comparison panel.
+- Added a separate atlas action grounded in the existing `struct://xfrontier/synchronization` record. Its launch context is retained in saved receipts; a matching multi-problem synchronization group can also open it contextually when the graph gains enough real mappings.
+- The model workspace requires a prediction before run/step, exposes only load-bearing parameters, supports pause/reset/manual step, and prevents notebook save until a completed run has an authored boundary note.
+- Both visuals have DOM text twins. Reduced-motion runs directly to the deterministic final state while retaining manual step.
+- Notebook persistence is now v4, migrates v1/v2/v3, sanitizes and bounds model receipts, and exports learner prediction, parameters, measured result, boundary, source context, and the explicit local-not-evidence disclaimer.
+- Focused checkpoint: model kernels/catalog/workspace plus exploration reducer/notebook total 28/28 tests; integration-adjacent atlas/mobile/connection tests add 29/29 passing; Web typecheck and data-import boundary pass.
+
+## 2026-07-18 Executable Cross-Domain Learning Reset — Final Closeout
+
+- **Status:** completed and verified on `main` before commit.
+- Added the independently bounded model catalog, deterministic oscillator/scalar-field kernels, visual/list twins, full desktop workbench, embedded mobile workbench, atlas/research launch context, exploration-state receipts, notebook v4 migration/persistence, and Markdown export.
+- Corrected live-browser scientific copy after observing that fixed-boundary heat reduces neighbour residual rather than global range. Heat/electrostatic/steady flow now predict and report neighbour imbalance; diffusion predicts and reports concentration range.
+- Desktop 1440×1000 proof: model launch is separate from the comparison panel; background stage is inert and aria-hidden while the dialog is open; document width is exactly 1440 px; synchronization runs `R 0.106→0.998`; heat runs neighbour residual `0.025→0.001`; parameter-preserving transfer resets the prediction; electrostatic copy states that iterations are numerical solving, not physical time.
+- Keyboard proof: Enter opens from the atlas action; the dialog focuses its first control; forward and reverse Tab wrap across only visible controls; Escape closes and restores focus to the remounted opener. The two focus defects found during this audit were fixed before the final run.
+- Reduced-motion proof: `matchMedia('(prefers-reduced-motion: reduce)')` is true; computed launch/workbench animation is `0s`; one Run action completes all 360 deterministic synchronization steps immediately while manual step remains present.
+- Mobile 390×844 proof: `海图只读 · 模型可操作`, no irrelevant atlas search/altitude controls in the model tab, document/body `390/390`, full predict→run→limit→save path, and notebook v4 receipt count `1→2`. English parity reads `Atlas read-only · models interactive` and preserves authored Chinese as source-language user content.
+- Reload persistence proof: notebook version 4 retains saved runs, parameters, result, authored limit, `struct://xfrontier/synchronization`, and the source problem slug. The interface labels every receipt local and non-evidentiary.
+- Chromium page-error collection is empty. Console output contains only Vite connection/hot-update and React DevTools development messages; no product runtime warning or exception was observed.
+- Final repository gate: **712/712 tests** (OPP 21, assets 53, renderer 114, scout 19, core 170, Web 252, server 83); all eight recursive typechecks including atlas drift and Web import-boundary checks; production build; and Playwright world round trip **1/1** (`test-results/.last-run.json` = `passed`).
+- Production output: CSS **167.58 / 26.36 kB gzip**, lazy `ModelWorkbench` **36.73 / 14.38**, lazy `ConnectionFieldPanel` **26.86 / 8.83**, main **1,286.08 / 420.77**, lazy interior fallback **1,210.00 / 482.99**. Against the immediate pre-model main, the integration delta is **+7.48 / +2.67 kB**; the runtime stays separately lazy. Existing >500 kB warnings remain.
+- Screenshot evidence: `tmp/model-launch-desktop.png`, `tmp/model-workbench-sync-initial.png`, `tmp/model-workbench-sync-result.png`, `tmp/model-workbench-field-result.png`, and `tmp/model-workbench-mobile.png`.
+- Honest remaining boundary: only two hand-authored families/eight interpretations ship; there is no arbitrary learner-authored model compiler, AI-generated inspectable scaffold, competing-model comparison, observational fitting, or empirical validation yet. The phase-only and 12×12 grid kernels are learning instruments, not domain-fidelity claims.

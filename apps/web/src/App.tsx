@@ -34,6 +34,7 @@ import {
   ritFocusText,
 } from './state/ceremonyReducer';
 import { useIsMobile, useStageScale } from './useIsMobile';
+import type { ModelLaunchContext, ModelRunReceipt } from './models/types';
 
 const GeneratedIslandScreen = lazy(() =>
   import('./components/island/GeneratedIslandScreen').then((module) => ({
@@ -44,6 +45,12 @@ const GeneratedIslandScreen = lazy(() =>
 const PassageWorkbench = lazy(() =>
   import('./components/island/PassageWorkbench').then((module) => ({
     default: module.PassageWorkbench,
+  })),
+);
+
+const ModelWorkbench = lazy(() =>
+  import('./components/model/ModelWorkbench').then((module) => ({
+    default: module.ModelWorkbench,
   })),
 );
 
@@ -99,6 +106,8 @@ export default function App() {
   // a copied WebGL buffer, or any page-covering wipe.
   const [voyageActive, setVoyageActive] = useState(false);
   const [connectionRevision, setConnectionRevision] = useState(0);
+  const [modelLaunch, setModelLaunch] = useState<ModelLaunchContext | null>(null);
+  const modelReturnFocus = useRef('global');
   const activeVoyage = useRef<NativeViewTransition | null>(null);
   const islandReadyResolver = useRef<(() => void) | null>(null);
   const atlasReadyResolver = useRef<(() => void) | null>(null);
@@ -373,6 +382,27 @@ export default function App() {
     goChart();
   }, [goChart]);
 
+  const openModel = useCallback((launch: ModelLaunchContext = {}) => {
+    const opener = document.activeElement instanceof HTMLElement
+      ? document.activeElement.dataset.modelLaunch
+      : undefined;
+    modelReturnFocus.current = opener ?? 'global';
+    setModelLaunch(launch);
+  }, []);
+  const closeModel = useCallback(() => {
+    const returnTarget = modelReturnFocus.current;
+    setModelLaunch(null);
+    window.requestAnimationFrame(() => {
+      const target = document.querySelector<HTMLElement>(`[data-model-launch="${returnTarget}"]`)
+        ?? document.querySelector<HTMLElement>('[data-model-launch="global"]');
+      target?.focus();
+    });
+  }, []);
+  const recordModelRun = useCallback((receipt: ModelRunReceipt) => {
+    dispatchExploration({ type: 'record-model-run', receipt });
+    showToast(lang === 'zh' ? '这次模型运行已放进考察札记' : 'This model run is now in the field notebook');
+  }, [lang, showToast]);
+
   const onStation = useCallback(
     (key: StationKind) => {
       if (key === 'questions') {
@@ -436,7 +466,7 @@ export default function App() {
   );
 
   // ── mobile (read-only) ───────────────────────────────────────────────
-  if (isMobile) return <MobileShell islands={chartIslands} />;
+  if (isMobile) return <MobileShell islands={chartIslands} modelRuns={exploration.modelRuns} onRecordModelRun={recordModelRun} />;
 
   const passageSource = exploration.passageIntent
     ? chartIslands.find((island) => island.slug === exploration.passageIntent?.islandSlug) ?? null
@@ -451,13 +481,14 @@ export default function App() {
       className="fi-app-shell"
       data-voyage={voyageActive ? 'entering' : undefined}
       data-world-explore={exploration.phase === 'explore' || undefined}
+      data-model-open={modelLaunch ? true : undefined}
     >
-      <div className={`fi-global-controls fi-global-controls-${wipe.view}`} aria-label={t('shell.accountControls')}>
+      <div className={`fi-global-controls fi-global-controls-${wipe.view}`} aria-label={t('shell.accountControls')} aria-hidden={modelLaunch ? true : undefined} inert={modelLaunch ? true : undefined}>
         <SessionBadge />
         <LangToggle />
       </div>
 
-      <div className="fi-stage-viewport" style={{ width: 1440 * scale, height: 900 * scale }}>
+      <div className="fi-stage-viewport" style={{ width: 1440 * scale, height: 900 * scale }} aria-hidden={modelLaunch ? true : undefined} inert={modelLaunch ? true : undefined}>
         <div className="fi-stage" style={{ transform: `scale(${scale})` }}>
           <div className="fi-stage-inner">
           {wipe.view === 'island' && (
@@ -553,6 +584,7 @@ export default function App() {
                 onBridge={onBridge}
                 onExplore={() => dispatchExploration({ type: 'enter-world' })}
                 onAtlasReady={signalAtlasReady}
+                modelLayer={{ active: !!modelLaunch, onOpen: openModel }}
                 structurePassage={{
                   selectedId: exploration.structureLensId,
                   departure: exploration.structureDeparture,
@@ -600,6 +632,17 @@ export default function App() {
           </div>
         </div>
       </div>
+      {modelLaunch && (
+        <Suspense fallback={<div className="fi-model-overlay"><div className="fi-model-loading" role="status">{t('island.loading')}</div></div>}>
+          <ModelWorkbench
+            lang={lang}
+            launch={modelLaunch}
+            previousRuns={exploration.modelRuns}
+            onSave={recordModelRun}
+            onClose={closeModel}
+          />
+        </Suspense>
+      )}
     </main>
   );
 }

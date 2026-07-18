@@ -1,4 +1,5 @@
 import type { IslandDatum } from '../api/fallback';
+import type { ModelRunReceipt, ModelFamilyId, ModelPrediction, ModelSubstrateId } from '../models/types';
 import {
   initialExplorationSession,
   type IslandDistrictId,
@@ -11,7 +12,7 @@ import {
 } from './explorationSession';
 
 export const EXPLORATION_NOTEBOOK_STORAGE_KEY = 'frontier-isles:field-notebook:v1';
-const NOTEBOOK_VERSION = 3;
+const NOTEBOOK_VERSION = 4;
 const MAX_RECORDS = 1000;
 
 export interface StorageLike {
@@ -20,7 +21,7 @@ export interface StorageLike {
 }
 
 interface StoredExplorationNotebook {
-  version: 1 | 2 | typeof NOTEBOOK_VERSION;
+  version: 1 | 2 | 3 | typeof NOTEBOOK_VERSION;
   savedAt: string;
   worldPose: WorldExplorerPose | null;
   courseIslandSlug: string | null;
@@ -34,6 +35,7 @@ interface StoredExplorationNotebook {
   completedPassages?: CompletedPassage[];
   surveyedDistricts?: Record<string, IslandDistrictId[]>;
   visitedBuildingFloors?: Record<string, string[]>;
+  modelRuns?: ModelRunReceipt[];
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -173,6 +175,54 @@ function receiptOf(value: unknown): CompletedPassage | null {
   };
 }
 
+const MODEL_FAMILY_IDS = new Set<ModelFamilyId>(['synchronization', 'shared-field']);
+const MODEL_SUBSTRATE_IDS = new Set<ModelSubstrateId>([
+  'fireflies', 'heart-cells', 'applause', 'power-grid',
+  'heat', 'diffusion', 'electrostatic', 'steady-flow',
+]);
+const MODEL_PREDICTIONS = new Set<ModelPrediction>(['increase', 'stay', 'decrease']);
+
+function modelRunOf(value: unknown): ModelRunReceipt | null {
+  if (!isRecord(value)) return null;
+  if (typeof value.id !== 'string' || !value.id.trim()) return null;
+  if (typeof value.familyId !== 'string' || !MODEL_FAMILY_IDS.has(value.familyId as ModelFamilyId)) return null;
+  if (typeof value.substrateId !== 'string' || !MODEL_SUBSTRATE_IDS.has(value.substrateId as ModelSubstrateId)) return null;
+  if (!finite(value.seed) || typeof value.prediction !== 'string' || !MODEL_PREDICTIONS.has(value.prediction as ModelPrediction)) return null;
+  if (typeof value.boundary !== 'string' || !value.boundary.trim()) return null;
+  if (value.language !== 'zh' && value.language !== 'en') return null;
+  if (typeof value.createdAt !== 'string' || !value.createdAt) return null;
+  if (!isRecord(value.parameters) || !isRecord(value.observation)) return null;
+  const parameters = Object.fromEntries(Object.entries(value.parameters).slice(0, 24).flatMap(([key, raw]) =>
+    key && finite(raw) ? [[key.slice(0, 80), raw] as const] : [],
+  ));
+  const metric = value.observation.metric;
+  if (!['coherence', 'spread', 'residual'].includes(String(metric))) return null;
+  if (!finite(value.observation.initial) || !finite(value.observation.final) || !finite(value.observation.steps)) return null;
+  const sourceStructureId = typeof value.sourceStructureId === 'string' && /^struct:\/\//.test(value.sourceStructureId)
+    ? value.sourceStructureId.slice(0, 320)
+    : undefined;
+  const sourceProblemSlugs = uniqueStrings(value.sourceProblemSlugs).map((slug) => slug.slice(0, 240)).slice(0, 24);
+  return {
+    id: value.id.trim().slice(0, 240),
+    familyId: value.familyId as ModelFamilyId,
+    substrateId: value.substrateId as ModelSubstrateId,
+    seed: Math.trunc(value.seed),
+    parameters,
+    prediction: value.prediction as ModelPrediction,
+    observation: {
+      metric: metric as ModelRunReceipt['observation']['metric'],
+      initial: value.observation.initial,
+      final: value.observation.final,
+      steps: Math.max(0, Math.trunc(value.observation.steps)),
+    },
+    boundary: value.boundary.trim().slice(0, 1200),
+    language: value.language,
+    ...(sourceStructureId ? { sourceStructureId } : {}),
+    ...(sourceProblemSlugs.length ? { sourceProblemSlugs } : {}),
+    createdAt: value.createdAt,
+  };
+}
+
 function notesOf(value: unknown): Record<string, string> {
   if (!isRecord(value)) return {};
   return Object.fromEntries(
@@ -199,7 +249,7 @@ export function loadExplorationNotebook(storage: StorageLike | null = browserSto
     const raw = storage.getItem(EXPLORATION_NOTEBOOK_STORAGE_KEY);
     if (!raw) return initial;
     const value = JSON.parse(raw) as unknown;
-    if (!isRecord(value) || ![1, 2, NOTEBOOK_VERSION].includes(Number(value.version))) return initial;
+    if (!isRecord(value) || ![1, 2, 3, NOTEBOOK_VERSION].includes(Number(value.version))) return initial;
     const currents = Array.isArray(value.sampledCurrents)
       ? value.sampledCurrents.map(currentOf).filter((item): item is SampledCurrentRecord => !!item)
       : [];
@@ -211,6 +261,10 @@ export function loadExplorationNotebook(storage: StorageLike | null = browserSto
     const structureLensId = structureIdOf(value.structureLensId);
     const structureDeparture = departureOf(value.structureDeparture);
     const passageIntent = intentOf(value.passageIntent);
+    const parsedModelRuns = Array.isArray(value.modelRuns)
+      ? value.modelRuns.map(modelRunOf).filter((item): item is ModelRunReceipt => !!item)
+      : [];
+    const modelRuns = [...new Map(parsedModelRuns.map((receipt) => [receipt.id, receipt])).values()].slice(-200);
     return {
       ...initial,
       worldPose: poseOf(value.worldPose),
@@ -225,6 +279,7 @@ export function loadExplorationNotebook(storage: StorageLike | null = browserSto
       completedPassages,
       surveyedDistricts: districtsOf(value.surveyedDistricts),
       visitedBuildingFloors: floorVisitsOf(value.visitedBuildingFloors),
+      modelRuns,
     };
   } catch {
     return initial;
@@ -253,6 +308,7 @@ export function saveExplorationNotebook(
     completedPassages: session.completedPassages,
     surveyedDistricts: session.surveyedDistricts,
     visitedBuildingFloors: session.visitedBuildingFloors,
+    modelRuns: session.modelRuns,
   };
   try {
     storage.setItem(EXPLORATION_NOTEBOOK_STORAGE_KEY, JSON.stringify(durable));
@@ -269,6 +325,7 @@ const labels = {
     none: '暂无', domain: '领域', question: '问题', note: '个人观察', source: '来源', relation: '关系', weight: '账本事件',
     districts: '岛内勘察图', floors: '建筑楼层札记', building: '建筑',
     passages: '连接记录', route: '比较对象', kind: '性质', charted: '复核已有连接', frontier: '建立新连接', mapping: '变量对应', boundary: '重要差异 / 类比边界', prediction: '可证伪预测', evidence: '证据或记录', ledgerRef: '账本映射', completed: '完成时间',
+    models: '我亲手运行的模型', modelLocal: '以下是个人学习记录，不是研究证据，也不会自动生成关系图连线。', modelFamily: '规律', substrate: '具体问题', parameters: '参数', observation: '观察结果', steps: '步', modelSource: '进入来源',
   },
   en: {
     title: 'Frontier Isles · Field Notebook', local: 'This notebook is stored in this browser and can leave as Markdown. It is not yet synced to an account or island ledger.',
@@ -276,8 +333,35 @@ const labels = {
     none: 'None yet', domain: 'Domain', question: 'Question', note: 'Personal observation', source: 'Source', relation: 'Relation', weight: 'ledger events',
     districts: 'Island district surveys', floors: 'Building floor notes', building: 'Building',
     passages: 'Connection records', route: 'Compared problems', kind: 'Kind', charted: 'reviewed connection', frontier: 'new connection', mapping: 'Variable correspondence', boundary: 'Important difference / analogy boundary', prediction: 'Falsifiable prediction', evidence: 'Evidence or record', ledgerRef: 'Ledger mapping', completed: 'Completed',
+    models: 'Models I ran myself', modelLocal: 'These are personal learning records, not research evidence, and they do not automatically create graph connections.', modelFamily: 'Rule', substrate: 'Concrete problem', parameters: 'Parameters', observation: 'Observation', steps: 'steps', modelSource: 'Entry context',
   },
 } as const;
+
+const modelFamilyNames: Record<'zh' | 'en', Record<ModelFamilyId, string>> = {
+  zh: { synchronization: '同步', 'shared-field': '热、扩散与势场' },
+  en: { synchronization: 'Synchronization', 'shared-field': 'Heat, diffusion & fields' },
+};
+
+const modelSubstrateNames: Record<'zh' | 'en', Record<ModelSubstrateId, string>> = {
+  zh: { fireflies: '萤火虫闪光', 'heart-cells': '心脏起搏细胞', applause: '观众鼓掌', 'power-grid': '交流电网锁频', heat: '热传导', diffusion: '物质扩散', electrostatic: '静电势', 'steady-flow': '理想稳态流' },
+  en: { fireflies: 'Firefly flashes', 'heart-cells': 'Cardiac pacemaker cells', applause: 'Audience applause', 'power-grid': 'AC grid frequency lock', heat: 'Heat conduction', diffusion: 'Material diffusion', electrostatic: 'Electrostatic potential', 'steady-flow': 'Ideal steady flow' },
+};
+
+const modelPredictionNames: Record<'zh' | 'en', Record<ModelFamilyId, Record<ModelPrediction, string>>> = {
+  zh: {
+    synchronization: { increase: '会越来越整齐', stay: '不会明显改变', decrease: '会更分散' },
+    'shared-field': { increase: '空间差异会变小', stay: '分布不会明显改变', decrease: '空间差异会变大' },
+  },
+  en: {
+    synchronization: { increase: 'They will become more coherent', stay: 'Little will change', decrease: 'They will spread apart' },
+    'shared-field': { increase: 'Spatial differences will shrink', stay: 'The distribution will barely change', decrease: 'Spatial differences will grow' },
+  },
+};
+
+const modelMetricNames: Record<'zh' | 'en', Record<ModelRunReceipt['observation']['metric'], string>> = {
+  zh: { coherence: '整体同步程度', spread: '空间极差', residual: '局部方程残差' },
+  en: { coherence: 'group coherence', spread: 'spatial range', residual: 'local-equation residual' },
+};
 
 const districtNames: Record<'zh' | 'en', Record<IslandDistrictId, string>> = {
   zh: { harbor: '问题定位', inquiry: '问题与差异', archive: '证据与测量', works: '方法与试验', observatory: '结果与下一步' },
@@ -354,6 +438,22 @@ export function explorationNotebookMarkdown(
       ...(passage.evidenceRefs?.length ? [`- ${l.evidence}: ${passage.evidenceRefs.join(', ')}`] : []),
       `- ${l.ledgerRef}: \`${passage.refHash}\``,
       `- ${l.completed}: ${passage.completedAt}`,
+    );
+  }
+  lines.push('', `## ${l.models}`, '', `> ${l.modelLocal}`);
+  if (session.modelRuns.length === 0) lines.push(l.none);
+  for (const [index, run] of session.modelRuns.entries()) {
+    lines.push(
+      '',
+      `### ${String(index + 1).padStart(2, '0')} · ${modelSubstrateNames[lang][run.substrateId]}`,
+      `- ${l.modelFamily}: ${modelFamilyNames[lang][run.familyId]}`,
+      `- ${l.substrate}: ${modelSubstrateNames[lang][run.substrateId]}`,
+      `- ${l.parameters}: ${Object.entries(run.parameters).map(([key, value]) => `${key}=${value}`).join(', ')}`,
+      `- ${l.prediction}: ${modelPredictionNames[lang][run.familyId][run.prediction]}`,
+      `- ${l.observation}: ${modelMetricNames[lang][run.observation.metric]} ${run.observation.initial.toFixed(4)} → ${run.observation.final.toFixed(4)} · ${run.observation.steps} ${l.steps}`,
+      `- ${l.boundary}: ${run.boundary.replace(/\n/g, '\n  ')}`,
+      ...(run.sourceStructureId ? [`- ${l.modelSource}: \`${run.sourceStructureId}\``] : []),
+      `- ${l.completed}: ${run.createdAt}`,
     );
   }
   return `${lines.join('\n')}\n`;

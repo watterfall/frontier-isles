@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SEA_SEED_RELATIONS } from '@frontier-isles/data/sea';
 import { api } from '../../api/client';
@@ -13,9 +13,16 @@ import {
   type ConnectionPathKind,
 } from '../../chart/connectionField';
 import { LangToggle } from '../shell/LangToggle';
+import type { ModelRunReceipt } from '../../models/types';
+
+const ModelWorkbench = lazy(() =>
+  import('../model/ModelWorkbench').then((module) => ({ default: module.ModelWorkbench })),
+);
 
 export interface MobileShellProps {
   islands: IslandDatum[];
+  modelRuns?: readonly ModelRunReceipt[];
+  onRecordModelRun?: (receipt: ModelRunReceipt) => void;
 }
 
 const DOMAIN_COLOR: Record<string, string> = {
@@ -95,19 +102,20 @@ export function buildMobileHierarchy(islands: IslandDatum[]): Map<number, Mobile
 }
 
 /**
- * Read-only does not mean inert. Mobile visitors browse the real atlas data,
- * search it, switch between its spatial and list twins, and inspect one island
- * at a time. Ledger-writing rituals remain a desktop affordance by design.
+ * The atlas and research ledger stay read-only on mobile, but not inert:
+ * visitors can browse, search, and inspect the same data. Personal model runs
+ * are intentionally writable because they do not mutate the research ledger.
  */
-export function MobileShell({ islands }: MobileShellProps) {
+export function MobileShell({ islands, modelRuns = [], onRecordModelRun = () => {} }: MobileShellProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
-  const [seg, setSeg] = useState<'connections' | 'chart' | 'list'>('connections');
+  const [seg, setSeg] = useState<'connections' | 'models' | 'chart' | 'list'>('connections');
   const [query, setQuery] = useState('');
   const [altitude, setAltitude] = useState<MobileAltitude | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(islands[0]?.id ?? null);
   const [expandedAnchor, setExpandedAnchor] = useState<string | null>(null);
   const [connectionField, setConnectionField] = useState<ConnectionField | null>(null);
+  const showingAtlasTools = seg === 'chart' || seg === 'list';
 
   useEffect(() => {
     let alive = true;
@@ -180,14 +188,16 @@ export function MobileShell({ islands }: MobileShellProps) {
 
       <section className="fi-mobile-intro">
         <div>
-          <span className="fi-mobile-kicker">{t('mobile.caption')}</span>
+          <span className="fi-mobile-kicker">{seg === 'models'
+            ? (lang === 'zh' ? '海图只读 · 模型可操作' : 'Atlas read-only · models interactive')
+            : t('mobile.caption')}</span>
           <h1>{t('chart.atlasStatus', { count: islands.length })}</h1>
           <p dangerouslySetInnerHTML={{ __html: t('chart.tagline') }} />
         </div>
-        <span className="fi-mobile-readonly"><i aria-hidden="true" />{t('mobile.readonly')}</span>
+        <span className="fi-mobile-readonly"><i aria-hidden="true" />{seg === 'models' ? (lang === 'zh' ? '本地建模 · 不写研究账本' : 'Local modeling · no research-ledger write') : t('mobile.readonly')}</span>
       </section>
 
-      {seg !== 'connections' && (
+      {showingAtlasTools && (
         <label className="fi-mobile-search">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="5.8" /><path d="m15 15 4.4 4.4" /></svg>
           <span className="sr-only">{t('chart.searchLabel')}</span>
@@ -198,11 +208,12 @@ export function MobileShell({ islands }: MobileShellProps) {
 
       <div className="fi-mobile-segments" role="tablist" aria-label={t('mobile.note')}>
         <button type="button" role="tab" aria-selected={seg === 'connections'} onClick={() => setSeg('connections')}>{t('mobile.segConnections')} <span>{connectionField ? connectionField.convergences.length + connectionField.paths.length : '…'}</span></button>
+        <button type="button" role="tab" aria-selected={seg === 'models'} onClick={() => setSeg('models')}>{lang === 'zh' ? '搭模型' : 'Models'} <span>{modelRuns.length}</span></button>
         <button type="button" role="tab" aria-selected={seg === 'chart'} onClick={() => setSeg('chart')}>{t('mobile.segChart')}</button>
         <button type="button" role="tab" aria-selected={seg === 'list'} onClick={() => setSeg('list')}>{t('mobile.segList')} <span>{filtered.length}</span></button>
       </div>
 
-      {seg !== 'connections' && (
+      {showingAtlasTools && (
         <div className="fi-mobile-altitudes" aria-label={t('chart.altitudeLegend')}>
           <span>{t('chart.altitudeLegend')}</span>
           {([null, 'low', 'middle', 'high'] as const).map((band) => (
@@ -214,6 +225,10 @@ export function MobileShell({ islands }: MobileShellProps) {
       <section className="fi-mobile-content">
         {seg === 'connections' ? (
           <MobileConnectionField field={connectionField} lang={lang} />
+        ) : seg === 'models' ? (
+          <Suspense fallback={<p className="fi-mobile-connection-empty">{lang === 'zh' ? '正在准备模型台…' : 'Preparing the model bench…'}</p>}>
+            <ModelWorkbench lang={lang} embedded previousRuns={modelRuns} onSave={onRecordModelRun} />
+          </Suspense>
         ) : seg === 'chart' ? (
           <>
             <div className="fi-mobile-map">
@@ -294,7 +309,7 @@ export function MobileShell({ islands }: MobileShellProps) {
       <nav className="fi-mobile-nav" aria-label={t('mobile.note')}>
         <button type="button" aria-current={seg === 'chart' ? 'page' : undefined} onClick={() => setSeg('chart')}><span aria-hidden="true">⌖</span>{t('mobile.tabs.chart')}</button>
         <button type="button" aria-current={seg === 'connections' ? 'page' : undefined} onClick={() => setSeg('connections')}><span aria-hidden="true">联</span>{t('mobile.tabs.bridge')}</button>
-        <button type="button" disabled><span aria-hidden="true">◌</span>{t('mobile.tabs.notif')}</button>
+        <button type="button" aria-current={seg === 'models' ? 'page' : undefined} onClick={() => setSeg('models')}><span aria-hidden="true">模</span>{lang === 'zh' ? '模型' : 'Model'}</button>
         <button type="button" disabled><span aria-hidden="true">印</span>{t('mobile.tabs.mine')}</button>
       </nav>
     </main>

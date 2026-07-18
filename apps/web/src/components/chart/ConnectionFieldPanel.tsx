@@ -12,6 +12,7 @@ import type {
 } from '../../chart/connectionField';
 import { pathInChannel, searchConnectionProblems } from '../../chart/connectionField';
 import type { PassageIntent, StructureDeparture } from '../../state/explorationSession';
+import type { ModelLaunchContext } from '../../models/types';
 
 export interface ConnectionFieldPanelProps {
   field: ConnectionField;
@@ -29,6 +30,7 @@ export interface ConnectionFieldPanelProps {
   onPassage: (intent: PassageIntent, problem: ConnectionProblem) => void;
   onEnter: (problem: ConnectionProblem) => void;
   onResponseRecorded?: (pathId: string) => void;
+  onBuildModel?: (launch: ModelLaunchContext) => void;
 }
 
 const COPY = {
@@ -65,6 +67,7 @@ const COPY = {
     errorTarget: '这条原材料已经不存在，或不再接受公开回应。', errorSameIsland: '同一项研究内部的反驳不属于跨领域对照。',
     errorNetwork: '暂时无法连接记录服务。请保留文字，稍后重试。', errorGeneric: '这条判断没有保存。请检查内容后重试。',
     desktopWrite: '手机可以完整阅读；补充理由请使用桌面端。',
+    buildModel: '不用只看解释：亲手搭这个模型',
   },
   en: {
     aria: 'Research comparisons across fields', kicker: 'Recorded research comparisons', title: 'Find a useful idea in another study',
@@ -99,6 +102,7 @@ const COPY = {
     errorTarget: 'The source material is gone or no longer accepts a public response.', errorSameIsland: 'A challenge within one study is not a cross-field comparison.',
     errorNetwork: 'The record service is unavailable. Keep your text and try again later.', errorGeneric: 'This judgment was not saved. Check the fields and try again.',
     desktopWrite: 'You can read everything on mobile; use desktop to add a reason.',
+    buildModel: 'Do not just read it: build this model',
   },
 } as const;
 
@@ -130,7 +134,7 @@ function RelationMark({ kind }: { kind: ConnectionPath['kind'] | 'mechanism' }) 
 }
 
 export function ConnectionFieldPanel(props: ConnectionFieldPanelProps) {
-  const { field, lang, channel, focus, visible, departure, intent, actor, onChannel, onFocus, onVisible, onDeparture, onPassage, onEnter, onResponseRecorded } = props;
+  const { field, lang, channel, focus, visible, departure, intent, actor, onChannel, onFocus, onVisible, onDeparture, onPassage, onEnter, onResponseRecorded, onBuildModel } = props;
   const c = COPY[lang];
   const [expanded, setExpanded] = useState(true);
   const [query, setQuery] = useState('');
@@ -206,7 +210,7 @@ export function ConnectionFieldPanel(props: ConnectionFieldPanelProps) {
           )}
 
           {activeGroup
-            ? <ConvergenceDetail group={activeGroup} field={field} lang={lang} copy={c} departure={departure} intent={intent} onDeparture={onDeparture} onPassage={onPassage} onEnter={onEnter} onFocus={onFocus} />
+            ? <ConvergenceDetail group={activeGroup} field={field} lang={lang} copy={c} departure={departure} intent={intent} onDeparture={onDeparture} onPassage={onPassage} onEnter={onEnter} onFocus={onFocus} onBuildModel={onBuildModel} />
             : activePath
               ? <PathDetail key={activePath.id} path={activePath} lang={lang} copy={c} actor={actor} onEnter={onEnter} onResponseRecorded={onResponseRecorded} />
               : activeProblem
@@ -274,7 +278,7 @@ function GlobalField({ field, lang, channel, copy, onFocus }: {
   );
 }
 
-function ConvergenceDetail({ group, field, lang, copy, departure, intent, onDeparture, onPassage, onEnter, onFocus }: {
+function ConvergenceDetail({ group, field, lang, copy, departure, intent, onDeparture, onPassage, onEnter, onFocus, onBuildModel }: {
   group: ConnectionConvergence;
   field: ConnectionField;
   lang: 'zh' | 'en';
@@ -285,6 +289,7 @@ function ConvergenceDetail({ group, field, lang, copy, departure, intent, onDepa
   onPassage: (intent: PassageIntent, problem: ConnectionProblem) => void;
   onEnter: (problem: ConnectionProblem) => void;
   onFocus: (focus: ConnectionFocus) => void;
+  onBuildModel?: (launch: ModelLaunchContext) => void;
 }) {
   const memberSlugs = new Set(group.members.map((member) => member.problem.slug));
   const crossing = field.paths.filter((path) => memberSlugs.has(path.from.slug) && memberSlugs.has(path.to.slug));
@@ -298,6 +303,13 @@ function ConvergenceDetail({ group, field, lang, copy, departure, intent, onDepa
         <a className="fi-connection-source-note" href={group.provenance.url} target="_blank" rel="noopener noreferrer">
           {copy.evidenceRefs}: {group.provenance.source}{group.provenance.recordIds.length ? ` · #${group.provenance.recordIds.join(' · #')}` : ''} ↗
         </a>
+      )}
+      {group.structureId === 'struct://xfrontier/synchronization' && onBuildModel && (
+        <button type="button" className="fi-connection-model-action" data-model-launch="connection" onClick={() => onBuildModel({
+          familyId: 'synchronization',
+          sourceStructureId: group.structureId,
+          sourceProblemSlugs: group.members.map((member) => member.problem.slug),
+        })}>{copy.buildModel} →</button>
       )}
       <ol className="fi-connection-manifestations">
         {group.members.map((member, index) => {

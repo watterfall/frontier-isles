@@ -29,6 +29,20 @@ const receipt = {
   evidenceRefs: ['doi:10.0000/frontier-isles-test'],
   completedAt: '2026-07-18T00:00:00.000Z',
 };
+const modelRun = {
+  id: 'model-run-sync-1',
+  familyId: 'synchronization' as const,
+  substrateId: 'fireflies' as const,
+  seed: 17,
+  parameters: { count: 40, spread: 0.32, coupling: 2.4, dt: 0.04 },
+  prediction: 'increase' as const,
+  observation: { metric: 'coherence' as const, initial: 0.12, final: 0.91, steps: 360 },
+  boundary: '这个相位模型没有表示萤火虫的空间遮挡和脉冲感知。',
+  language: 'zh' as const,
+  sourceStructureId: 'struct://xfrontier/synchronization',
+  sourceProblemSlugs: ['a', 'b'],
+  createdAt: '2026-07-18T02:00:00.000Z',
+};
 const islands: IslandDatum[] = [
   { id: 1, slug: 'a', n: { zh: '甲岛', en: 'Isle A' }, q: { zh: '甲问题？', en: 'Question A?' }, d: '数理', x: 0, y: 0, s: 1, st: 1, m: 1, a: 1, citation: { title: 'A', venue: 'Nature', year: 2025, url: 'https://example.com/a' } },
   { id: 2, slug: 'b', n: { zh: '乙岛', en: 'Isle B' }, q: { zh: '乙问题？', en: 'Question B?' }, d: '交叉', x: 1, y: 1, s: 1, st: 1, m: 1, a: 1 },
@@ -53,6 +67,7 @@ describe('exploration field notebook persistence', () => {
     session = explorationReducer(session, { type: 'complete-passage', receipt });
     session = explorationReducer(session, { type: 'survey-district', slug: 'a', districtId: 'inquiry' });
     session = explorationReducer(session, { type: 'visit-building-floor', slug: 'a', station: 'questions', floorId: 'questions:open:0' });
+    session = explorationReducer(session, { type: 'record-model-run', receipt: modelRun });
     const storage = memoryStorage();
 
     expect(saveExplorationNotebook(session, storage, '2026-07-16T00:00:00.000Z')).toBe(true);
@@ -72,6 +87,7 @@ describe('exploration field notebook persistence', () => {
       completedPassages: [receipt],
       surveyedDistricts: { a: ['inquiry'] },
       visitedBuildingFloors: { 'a:questions': ['questions:open:0'] },
+      modelRuns: [modelRun],
     });
     expect(restored.worldPose).toMatchObject({ x: 420, y: 260, facing: 'east', altitudeZ: 0.72, speed: 0, verticalSpeed: 0 });
   });
@@ -101,6 +117,7 @@ describe('exploration field notebook persistence', () => {
       completedPassages: [],
       surveyedDistricts: {},
       visitedBuildingFloors: {},
+      modelRuns: [],
     });
   });
 
@@ -123,6 +140,26 @@ describe('exploration field notebook persistence', () => {
     expect(restored.completedPassages).toEqual([receipt]);
     expect(restored.surveyedDistricts).toEqual({});
     expect(restored.visitedBuildingFloors).toEqual({});
+    expect(restored.modelRuns).toEqual([]);
+  });
+
+  it('migrates the prior v3 district/floor notebook with empty model-run state', () => {
+    const legacy = memoryStorage(JSON.stringify({
+      version: 3,
+      savedAt: '2026-07-18T01:00:00.000Z',
+      worldPose: null,
+      courseIslandSlug: null,
+      courseHistorySlugs: [],
+      visitedIslandSlugs: ['a'],
+      sampledCurrents: [],
+      notes: {},
+      surveyedDistricts: { a: ['harbor', 'inquiry'] },
+      visitedBuildingFloors: { 'a:questions': ['questions:open:0'] },
+    }));
+    const restored = loadExplorationNotebook(legacy);
+    expect(restored.surveyedDistricts).toEqual({ a: ['harbor', 'inquiry'] });
+    expect(restored.visitedBuildingFloors).toEqual({ 'a:questions': ['questions:open:0'] });
+    expect(restored.modelRuns).toEqual([]);
   });
 
   it('exports the same routes, observations, sources, and currents as portable Markdown', () => {
@@ -134,6 +171,7 @@ describe('exploration field notebook persistence', () => {
     session = explorationReducer(session, { type: 'dock', slug: 'a', source: 'atlas' });
     session = explorationReducer(session, { type: 'survey-district', slug: 'a', districtId: 'inquiry' });
     session = explorationReducer(session, { type: 'visit-building-floor', slug: 'a', station: 'questions', floorId: 'questions:open:0' });
+    session = explorationReducer(session, { type: 'record-model-run', receipt: modelRun });
     const markdown = explorationNotebookMarkdown(session, islands, 'zh', '2026-07-16T01:02:03.000Z');
 
     expect(markdown).toContain('# 问题群岛 · 考察札记');
@@ -152,5 +190,12 @@ describe('exploration field notebook persistence', () => {
     expect(markdown).toContain('重要差异 / 类比边界: 视觉耦合不是电导更新。');
     expect(markdown).toContain('doi:10.0000/frontier-isles-test');
     expect(markdown).toContain(receipt.refHash);
+    expect(markdown).toContain('## 我亲手运行的模型');
+    expect(markdown).toContain('以下是个人学习记录，不是研究证据');
+    expect(markdown).toContain('萤火虫闪光');
+    expect(markdown).toContain('整体同步程度');
+    expect(markdown).toContain('整体同步程度 0.1200 → 0.9100 · 360 步');
+    expect(markdown).toContain('这个相位模型没有表示萤火虫的空间遮挡和脉冲感知。');
+    expect(markdown).toContain('`struct://xfrontier/synchronization`');
   });
 });
