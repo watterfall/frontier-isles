@@ -10,6 +10,9 @@ export default defineConfig({
   // × 50ms dt clamp), so the exploration round trip legitimately needs longer
   // there; locally the test still finishes in ~35s.
   timeout: process.env.CI ? 150_000 : 60_000,
+  // Screen transitions (dock, return-to-craft) animate through the same
+  // dt-clamped world sim — at CI frame rates they can exceed the 5s default.
+  expect: { timeout: process.env.CI ? 30_000 : 5_000 },
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? 'github' : 'list',
   use: {
