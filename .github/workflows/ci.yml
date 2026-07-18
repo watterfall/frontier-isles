@@ -1,0 +1,61 @@
+# Repository gate (ROADMAP Phase A): the same four gates every slice runs
+# locally — test → typecheck → build → full-stack Playwright smoke — so a red
+# main (like the pre-1043f62 archipelago snapshot drift) can't land unseen.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      # CJK snapshot sorts use the default locale via localeCompare; Node's
+      # bundled full-ICU resolves zh-CN from LANG without an OS-generated locale.
+      LANG: zh_CN.UTF-8
+    steps:
+      - uses: actions/checkout@v4
+
+      # Reads the pinned version from package.json "packageManager".
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Test
+        run: pnpm test
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Build
+        run: pnpm build
+
+      - name: Install Playwright Chromium
+        run: pnpm --filter @frontier-isles/web exec playwright install --with-deps chromium
+
+      - name: E2E world-exploration smoke
+        run: pnpm test:e2e
+
+      - name: Upload Playwright artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            apps/web/playwright-report
+            apps/web/test-results
+          if-no-files-found: ignore
