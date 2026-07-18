@@ -21,3 +21,4 @@ coverage/
 # local code index + browser-test scratch
 .codegraph/
 .playwright-mcp/
+tmp/

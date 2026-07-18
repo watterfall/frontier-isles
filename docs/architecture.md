@@ -111,7 +111,7 @@ GitHub OAuth → ORCID (identity) · OKH/LOSH manifests (hardware; search indexe
 5. Every spatial object has a list twin; space is never the only path.
 6. AI never pushes; agent station-write requires a public grant event.
 7. All knowledge writes are ledger events; all reads are projections; place events stay in their own stream.
-8. Dissolved is never deleted; the ledger is never GC'd; **a bold question later refuted counts as positive contribution** (A-phase weighted) — otherwise the system decays into rewarding safe convergence.
+8. Dissolved is never deleted; the ledger is never GC'd; **a bold question later refuted counts as positive contribution** (A-phase weighted) — otherwise the system decays into rewarding conservative convergence.
 9. Bilingual UI (zh-CN / en) from day one: all strings externalized; load-bearing terms follow the glossary (§9); user content untranslated.
 
 ## 8 · Milestones

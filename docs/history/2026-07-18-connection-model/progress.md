@@ -1,5 +1,7 @@
 # Progress Log
 
+> Historical execution log from the 2026-07-18 implementation cycle. Status and next-step language below is not current project direction.
+
 ## 2026-07-18 — Connection argument and challenge continuation
 
 - **Status:** Phase 5 implementation in progress.

@@ -9,7 +9,7 @@
 | **真·可 token 化**(组件 JSX 的 CSS 属性位,值 == token) | **19** | ✅ **已改** → `var(--token, #hex)` | fallback 保留 → SSR 输出不变、`toContain('#hex')` 测试仍过;19/19 test 绿 |
 | 测试夹具(`__tests__/`) | ~10 | 保留 | 刻意用字面量断言透传(如 `sealColor:'#123456'`、`.toBe('#C9D8E6')`)——改了就坏测试 |
 | JS 数据映射(`palettes.ts`) | ~55 | 保留 | `NIGHT_SCENE_VARS`/`DOMAIN_COLORS`/`DOMAIN_SCENE_VARS` 是 scene-var 的**真相源数据**,不是 CSS 上下文;域色本就数据驱动 |
-| `AI_INK = '#5A6C9E'` | 1(用 6 处) | 保留 | 刻意的组件级常量,升 token = breaking change(CLAUDE.md 明确) |
+| `AI_INK = '#5A6C9E'` | 1(用 6 处) | 保留 | 刻意的组件级常量,升 token = breaking change(`.claude/context/interface.md` 明确) |
 | 界画场景墨(`#3a342b`/`#4a4238`/`#605034`/`#9fb2d8`…) | ~63 | 保留 | 场景细节勾线/水色,非 canonical 调色板;强行 token 化会稀释界画笔触辨识度 |
 
 ## 已 token 化的 19 处(语义纠正)

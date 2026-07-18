@@ -1,5 +1,7 @@
 # Findings & Decisions
 
+> Historical evidence from the 2026-07-18 implementation cycle. Read only when tracing a prior decision or verification claim.
+
 ## 2026-07-18 — Connection argument and challenge continuation
 
 - The first Connection Field solved discovery and comparison, but a direct ledger path still exposes only relation type, sign, maturity, weight, and endpoints. A person cannot yet inspect the underlying claim/evidence body from the field or record a structured challenge there.

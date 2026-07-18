@@ -1,5 +1,7 @@
 # Task Plan: From Ferry Metaphor to Real Cross-Domain Connection
 
+> Historical execution record, frozen after the 2026-07-18 implementation cycle. It is not a current task queue; begin with `docs/PROJECT-CORE.md` and `docs/ROADMAP.md`.
+
 ## Current Goal
 
 Turn cross-domain connection from an evidence browser into an executable learning loop without splitting Frontier Isles into a separate product:
@@ -7,7 +9,7 @@ Turn cross-domain connection from an evidence browser into an executable learnin
 1. preserve the atlas and islands as the place where people encounter real questions;
 2. preserve the connection projection as the place where evidence-backed resemblances and differences are found;
 3. add a separately bounded **model runtime** where a learner defines the actors, interaction rule, observable, and prediction, then watches the model run;
-4. let the same runnable rule change substrate so the learner can test what transfers from fireflies to cardiac cells, applause, grids, heat, diffusion, fields, and flow;
+4. let the same runnable rule change interpretation so the learner can test what transfers across four rhythmic settings and four spatial-field settings;
 5. save the learner's prediction, parameters, outcome, and stated limitation into the existing exploration notebook;
 6. keep AI in the role of mathematical/code scaffolding rather than answer-giver.
 
@@ -43,7 +45,7 @@ Phase 12 — full learning-loop verification completed
 
 ### Phase 10: Build the independent model runtime
 
-- [x] Implement deterministic, browser-safe simulation kernels with no server or graph dependency
+- [x] Implement deterministic, browser-contained simulation kernels with no server or graph dependency
 - [x] Build a model workspace where the learner controls units, interaction, observable, prediction, and run state
 - [x] Make one rule visibly reusable across multiple domain substrates while keeping domain-specific limits explicit
 - [x] Provide a readable visual twin for every animated/model state and full reduced-motion behavior
@@ -177,7 +179,7 @@ Phase 12 — full learning-loop verification completed
 - [x] Implement pure district/floor projection contracts with focused tests
 - [x] Extend exploration notebook/session persistence and backward-compatible hydration
 - [x] Connect verified structure/theme metadata without breaking existing structure IDs or graph truth
-- [x] Preserve the browser-safe atlas projection and lazy interior bundle boundary
+- [x] Preserve the browser-compatible atlas projection and lazy interior bundle boundary
 - **Status:** completed
 
 ### Phase 4: Product UI and renderer integration
@@ -241,7 +243,7 @@ Phase 12 — full learning-loop verification completed
 | First focused drawer run still expected every interior corpus item on the ground-floor render | 1 | Kept truthful ground-floor entry, added last-floor resume/deep-link support, and made content tests select the projected floor that owns each item. |
 | Browser network evidence contains repeated successful `ledger.jsonl` reads accumulated across the long multi-route session | 1 | CodeGraph found one initial read plus the existing 20 s ritual poll. A fresh isolated 25 s performance audit recorded exactly one poll request, ruling out a render/request loop. |
 | A temporary Playwright config created outside the web package could not resolve the package-local runner | 1 | Moved the temporary config under `apps/web`, used the installed headless Chromium explicitly, then removed the config after the run. |
-| The first full E2E restored a durable pose that a denser nearby island could immediately re-own; the second attempt exposed a 38.7 px dock-distance mismatch against the 36 px threshold | 2 | Added an explicit explorer safety radius and split the visible dock berth from the durable physical re-entry pose. The final real-stack E2E passed 1/1. |
+| The first full E2E restored a durable pose that a denser nearby island could immediately re-own; the second attempt exposed a 38.7 px dock-distance mismatch against the 36 px threshold | 2 | Added an explicit explorer ownership radius and split the visible dock berth from the durable physical re-entry pose. The final real-stack E2E passed 1/1. |
 | Desktop browser proof found that Enter on the response form's focused native `summary` did not expand it | 1 | The active exploration key handler exempted buttons and links but intercepted `summary`. Added the missing native-control guard and reverified Enter, input Escape, and panel Escape in the production stack. |
 | `agent-browser set media light reduced-motion` accepted the command but did not enable the motion preference | 1 | Used the CLI's single-setting form `set media reduced-motion`, reopened the app after the context reset, and verified `matchMedia` plus computed 0 s transition/animation durations. |
 
