@@ -56,6 +56,8 @@ const ModelWorkbench = lazy(() =>
 
 interface NativeViewTransition {
   finished: Promise<void>;
+  ready?: Promise<void>;
+  updateCallbackDone?: Promise<void>;
   skipTransition: () => void;
 }
 
@@ -256,6 +258,13 @@ export default function App() {
       // `skipTransition()` may reject `finished` in some implementations. Use
       // both promise branches so Escape never leaves an unhandled rejection.
       void transition.finished.then(cleanUp, cleanUp);
+      // Chromium aborts the whole transition ("timeout in DOM update") when
+      // the update callback outlives its internal deadline (slow machines,
+      // headless CI). Progress already flows through `finished`; the abort
+      // also rejects these two promises, which nothing awaits — swallow them
+      // so a skipped animation never surfaces as a console error.
+      void transition.ready?.catch(() => {});
+      void transition.updateCallbackDone?.catch(() => {});
     },
     [],
   );
