@@ -6,7 +6,10 @@ const repoRoot = fileURLToPath(new URL('../..', import.meta.url));
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: false,
-  timeout: 60_000,
+  // CI runners simulate world time slower than the clock (few rendered frames
+  // × 50ms dt clamp), so the exploration round trip legitimately needs longer
+  // there; locally the test still finishes in ~35s.
+  timeout: process.env.CI ? 150_000 : 60_000,
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? 'github' : 'list',
   use: {

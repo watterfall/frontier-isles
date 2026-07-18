@@ -47,7 +47,13 @@ async function flyIntoSurveyRange(page: Page): Promise<{ pose: ExplorerPose; tar
   const initial = await explorerReading(page);
   const targetSlug = initial.target.slug;
 
-  for (let step = 0; step < 36; step += 1) {
+  // Deadline-based rather than a fixed step count: slow CI runners render few
+  // frames per wall-clock second, and the world tick clamps dt at 50ms/frame,
+  // so simulated time runs slower than the clock there. A fixed 36×240ms
+  // budget converges locally but starves the (0.46/s max) altitude channel on
+  // CI — size each hold to the remaining error instead.
+  const deadline = Date.now() + 75_000;
+  while (Date.now() < deadline) {
     const reading = await explorerReading(page, targetSlug);
     if (reading.target.horizontalDistance <= 150 && Math.abs(reading.target.altitudeDelta) <= 0.12) return reading;
 
@@ -56,10 +62,15 @@ async function flyIntoSurveyRange(page: Page): Promise<{ pose: ExplorerPose; tar
     const keys: string[] = [];
     if (Math.abs(dx) > 12) keys.push(dx > 0 ? 'KeyD' : 'KeyA');
     if (Math.abs(dy) > 12) keys.push(dy > 0 ? 'KeyS' : 'KeyW');
-    if (Math.abs(reading.target.altitudeDelta) > 0.06) keys.push(reading.target.altitudeDelta > 0 ? 'KeyR' : 'KeyF');
+    const altitudeKey = Math.abs(reading.target.altitudeDelta) > 0.06;
+    if (altitudeKey) keys.push(reading.target.altitudeDelta > 0 ? 'KeyR' : 'KeyF');
+
+    const horizontalHold = reading.target.horizontalDistance > 260 ? 520 : 240;
+    const altitudeHold = Math.min(1400, Math.round(Math.abs(reading.target.altitudeDelta) * 2600) + 200);
+    const hold = Math.max(horizontalHold, altitudeKey ? altitudeHold : 0);
 
     for (const key of keys) await page.keyboard.down(key);
-    await page.waitForTimeout(reading.target.horizontalDistance > 260 ? 520 : 240);
+    await page.waitForTimeout(hold);
     for (const key of keys.reverse()) await page.keyboard.up(key);
     await page.waitForTimeout(100);
   }
