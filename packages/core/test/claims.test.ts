@@ -167,3 +167,67 @@ describe("extractEvidence / hasClaimEvidence — §4 evidence-role data refs", (
     expect(content).toEqual(copy);
   });
 });
+
+describe("projectClaimState — gateway response refs rejoin their claim (ROADMAP §3.5 caveat)", () => {
+  // Gateway-written validates/refutes ref the RESPONSE artifact, whose content
+  // carries `targetRef` → the stele's claim. With a resolver the projection
+  // follows that hop; without one (offline/legacy) it stays tolerant.
+  const CLAIM = `sha256:${"a".repeat(64)}`;
+  const RESP_B = `sha256:${"b".repeat(64)}`;
+  const RESP_C = `sha256:${"c".repeat(64)}`;
+  const RESPONSES: Record<string, unknown> = {
+    [RESP_B]: { targetRef: CLAIM, action: "validate", body: "独立复现记录" },
+    [RESP_C]: { targetRef: CLAIM, action: "validate", body: "第二次复现" },
+  };
+  const resolver = (ref: string) =>
+    ref in RESPONSES ? { kind: "connection_response", content: RESPONSES[ref] } : null;
+
+  it("counts a floor per validate that refs a response artifact carrying targetRef", () => {
+    const states = projectClaimState(
+      [ev("op://a", "submit_claim", CLAIM), ev("op://b", "validate", RESP_B), ev("op://c", "validate", RESP_C)],
+      resolver,
+    );
+    expect(states).toHaveLength(1);
+    expect(states[0]).toMatchObject({ ref: CLAIM, floors: 2 });
+  });
+
+  it("joined response events count toward the claim's activity", () => {
+    const c = projectClaimState(
+      [ev("op://a", "submit_claim", CLAIM), ev("op://b", "validate", RESP_B)],
+      resolver,
+    )[0]!;
+    expect(c.activity).toBe(2);
+  });
+
+  it("a refute through a response artifact still ghosts the claim", () => {
+    const REFUTE = `sha256:${"d".repeat(64)}`;
+    const refuteResolver = (ref: string) =>
+      ref === REFUTE ? { kind: "connection_response", content: { targetRef: CLAIM, action: "refute", body: "反例" } } : null;
+    const c = projectClaimState(
+      [ev("op://a", "submit_claim", CLAIM), ev("op://b", "refute", REFUTE)],
+      refuteResolver,
+    )[0]!;
+    expect(c.ghost).toBe("refuted");
+  });
+
+  it("without a resolver the hop cannot be followed (documented tolerance): 0 floors, no phantom building", () => {
+    const states = projectClaimState([
+      ev("op://a", "submit_claim", CLAIM),
+      ev("op://b", "validate", RESP_B),
+    ]);
+    expect(states).toHaveLength(1);
+    expect(states[0]).toMatchObject({ ref: CLAIM, floors: 0 });
+  });
+
+  it("a mixed ledger joins direct historical validates AND response-ref validates on one stele", () => {
+    const c = projectClaimState(
+      [
+        ev("op://a", "submit_claim", CLAIM),
+        ev("op://b", "validate", CLAIM), // historical direct ref
+        ev("op://c", "validate", RESP_C), // gateway response ref
+      ],
+      resolver,
+    )[0]!;
+    expect(c.floors).toBe(2);
+  });
+});

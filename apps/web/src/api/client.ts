@@ -6,7 +6,7 @@
  * the UI is identical online or offline.
  */
 import type { LedgerEvent } from '@frontier-isles/opp';
-import type { BridgeArtifactType, EvidenceRef } from '@frontier-isles/core';
+import type { BridgeArtifactType, EvidenceRef, RelationRefResolver, RelationRefValue } from '@frontier-isles/core';
 
 /** A transplantable driftwood atom (GET `/api/islands/:slug/driftwood`). */
 export interface DriftwoodAtom {
@@ -414,6 +414,42 @@ export const api = {
     } catch {
       return null;
     }
+  },
+
+  /** One stored ref's `{kind, content}` (GET `/api/refs/:hash`). Best-effort null. */
+  ref: async (hash: string): Promise<RelationRefValue | null> => {
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
+      const res = await fetch(`/api/refs/${encodeURIComponent(hash)}`, { signal: ctrl.signal });
+      clearTimeout(timer);
+      if (!res.ok) return null;
+      const value = (await res.json()) as { kind?: unknown; content?: unknown };
+      if (typeof value.kind !== 'string') return null;
+      return { kind: value.kind, content: value.content };
+    } catch {
+      return null;
+    }
+  },
+
+  /**
+   * Synchronous {@link RelationRefResolver} over the given ledger, for the
+   * client-side claim/night projections. Gateway-written validates/refutes ref
+   * their RESPONSE artifact (whose content carries `targetRef` → the claim), so
+   * `projectClaimState` undercounts stele floors unless it can follow that hop
+   * (ROADMAP §3.5 caveat). Prefetches only the response-action refs, in
+   * parallel, best-effort: unresolved refs stay null and the projection keeps
+   * its documented no-resolver tolerance (historical direct refs still count).
+   */
+  relationRefResolver: async (events: readonly LedgerEvent[]): Promise<RelationRefResolver> => {
+    const wanted = [...new Set(
+      events
+        .filter((e) => (e.action === 'validate' || e.action === 'refute') && typeof e.ref === 'string')
+        .map((e) => e.ref as string),
+    )];
+    const entries = await Promise.all(wanted.map(async (hash) => [hash, await api.ref(hash)] as const));
+    const contents = new Map(entries);
+    return (ref: string) => contents.get(ref) ?? null;
   },
 
   /**

@@ -78,3 +78,27 @@ describe('replayToNight', () => {
     expect([...a.activeStations]).toEqual([...b.activeStations]);
   });
 });
+
+describe('replayToNight — response-ref validates rejoin their stele (§3.5)', () => {
+  const CLAIM = `sha256:${'a'.repeat(64)}`;
+  const RESP = `sha256:${'b'.repeat(64)}`;
+  const LEDGER2: LedgerEvent[] = [
+    ev('2026-01-01T00:00:00Z', 'found_island', 'sha256:g', 'op://g'),
+    ev('2026-01-01T06:00:00Z', 'submit_claim', CLAIM, 'op://a'),
+    ev('2026-01-02T06:00:00Z', 'validate', RESP, 'op://v'),
+  ];
+  const TL2 = projectNightTimeline(LEDGER2);
+  const resolver = (ref: string) =>
+    ref === RESP ? { kind: 'connection_response', content: { targetRef: CLAIM } } : null;
+
+  it('with a resolver the gateway-written validate counts as a floor', () => {
+    const state = replayToNight(LEDGER2, TL2, TL2.nights, { resolveRef: resolver });
+    expect(state.claims.find((c) => c.ref === CLAIM)?.floors).toBe(1);
+  });
+
+  it('without a resolver it keeps the documented tolerance (0 floors, no phantom stele)', () => {
+    const state = replayToNight(LEDGER2, TL2, TL2.nights);
+    expect(state.claims.find((c) => c.ref === CLAIM)?.floors).toBe(0);
+    expect(state.claims).toHaveLength(1);
+  });
+});

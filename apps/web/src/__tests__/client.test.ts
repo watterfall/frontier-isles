@@ -169,3 +169,44 @@ describe('api.respondToConnection', () => {
     });
   });
 });
+
+/**
+ * api.relationRefResolver: gateway validates/refutes ref their RESPONSE
+ * artifact; the resolver prefetches those contents so projectClaimState can
+ * follow content.targetRef back to the stele's claim (ROADMAP §3.5 caveat).
+ */
+describe('api.ref + api.relationRefResolver (stele floors, §3.5)', () => {
+  const CLAIM = `sha256:${'a'.repeat(64)}`;
+  const RESP = `sha256:${'b'.repeat(64)}`;
+  const mkEvent = (action: string, ref: string) =>
+    ({ ts: '2026-01-01T00:00:01.000Z', op: 'op://x', actor: { id: 'u', kind: 'human' }, credit: [], phase: 'A', action, ref }) as never;
+
+  it('api.ref resolves a stored ref to {kind, content}; null on 404', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (url: string) =>
+      url.includes(encodeURIComponent(RESP))
+        ? new Response(JSON.stringify({ kind: 'connection_response', content: { targetRef: CLAIM } }), { status: 200 })
+        : new Response(JSON.stringify({ error: 'not found' }), { status: 404 })));
+    expect(await api.ref(RESP)).toEqual({ kind: 'connection_response', content: { targetRef: CLAIM } });
+    expect(await api.ref('sha256:missing')).toBeNull();
+  });
+
+  it('prefetches ONLY validate/refute refs (deduped) and returns a sync resolver', async () => {
+    const fetchMock = vi.fn(async () =>
+      new Response(JSON.stringify({ kind: 'connection_response', content: { targetRef: CLAIM } }), { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+    const resolver = await api.relationRefResolver([
+      mkEvent('submit_claim', CLAIM), // anchor — must NOT be fetched
+      mkEvent('validate', RESP),
+      mkEvent('validate', RESP), // duplicate — still one fetch
+    ]);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(resolver(RESP)).toEqual({ kind: 'connection_response', content: { targetRef: CLAIM } });
+    expect(resolver(CLAIM)).toBeNull();
+  });
+
+  it('a failed ref fetch degrades to null — projection keeps its no-resolver tolerance', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response('', { status: 500 })));
+    const resolver = await api.relationRefResolver([mkEvent('refute', RESP)]);
+    expect(resolver(RESP)).toBeNull();
+  });
+});

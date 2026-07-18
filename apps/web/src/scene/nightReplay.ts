@@ -3,6 +3,7 @@ import {
   projectNightReplay,
   projectActiveStations,
   type ClaimState,
+  type RelationRefResolver,
   type ReplaySlice,
   type StationKind,
   type NightTimelineModel,
@@ -46,7 +47,7 @@ export function replayToNight(
   ledger: readonly LedgerEvent[],
   timeline: NightTimelineModel,
   night: number,
-  opts: { now?: string | number } = {},
+  opts: { now?: string | number; resolveRef?: RelationRefResolver } = {},
 ): NightReplayState {
   const maxNight = Math.max(1, timeline.nights);
   const clamped = Math.min(maxNight, Math.max(1, Math.round(night)));
@@ -57,7 +58,7 @@ export function replayToNight(
   return {
     night: clamped,
     upTo,
-    claims: projectClaimState(slice),
+    claims: projectClaimState(slice, opts.resolveRef),
     replay: projectNightReplay(ledger, upTo),
     activeStations: projectActiveStations(slice, now !== undefined ? { now } : {}),
   };

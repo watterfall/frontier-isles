@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
-import { projectClaimState, projectActiveStations, projectNightTimeline, type ClaimState, type StationKind, type NightTimelineModel } from '@frontier-isles/core';
+import { projectClaimState, projectActiveStations, projectNightTimeline, type ClaimState, type RelationRefResolver, type StationKind, type NightTimelineModel } from '@frontier-isles/core';
 import type { LedgerEvent } from '@frontier-isles/opp';
 import { NIGHT_SCENE_VARS, DOMAIN_SCENE_VARS, sceneVarsToStyle } from '@frontier-isles/assets';
 import { DayNightLever } from './DayNightLever';
@@ -173,6 +173,9 @@ export function GeneratedIslandScreen({
   // ledger is kept in a ref so the throttled scrub handler reads it without
   // re-subscribing. Invariant 11: read-only projections, zero new events.
   const ledgerRef = useRef<LedgerEvent[] | null>(null);
+  // Gateway validates/refutes ref their response artifact, not the claim —
+  // the resolver follows that hop so stele floors count them (ROADMAP §3.5).
+  const resolveRefRef = useRef<RelationRefResolver | null>(null);
   const [timeline, setTimeline] = useState<NightTimelineModel | null>(null);
   const [scrubNight, setScrubNight] = useState(1);
   const [replay, setReplay] = useState<NightReplayState | null>(null);
@@ -261,7 +264,10 @@ export function GeneratedIslandScreen({
         eventCount: det.eventCount,
         layoutVariant: usesCourtyardLayout(slug, hasInterior) ? 'courtyard' : 'organic',
       };
-      const projected = ledger ? projectClaimState(ledger) : undefined;
+      const resolveRef = ledger ? await api.relationRefResolver(ledger) : undefined;
+      if (cancelled) return;
+      resolveRefRef.current = resolveRef ?? null;
+      const projected = ledger ? projectClaimState(ledger, resolveRef) : undefined;
       setInput(layoutInput);
       setClaims(projected);
       setScene(generate(layoutInput)); // still needed for the SVG (no-GPU) fallback
@@ -358,7 +364,7 @@ export function GeneratedIslandScreen({
           setReplay(null); // tonight → full projection
           return;
         }
-        setReplay(replayToNight(led, tl, n));
+        setReplay(replayToNight(led, tl, n, { resolveRef: resolveRefRef.current ?? undefined }));
       };
       if (typeof requestAnimationFrame === 'function') rafRef.current = requestAnimationFrame(run);
       else run();
