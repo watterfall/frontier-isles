@@ -734,6 +734,14 @@ html[data-fi-voyage='returning']::view-transition-new(root) {
 .fi-connection-manifestations dt { color: var(--fi-azurite); font-family: var(--fi-font-mono); font-size: 7.5px; line-height: 1.4; }
 .fi-connection-manifestations dd { margin: 0; font-size: 8.5px; line-height: 1.45; }
 .fi-connection-boundary { margin: 10px 12px; padding: 8px 9px; border-left: 2px solid var(--fi-ochre); background: color-mix(in srgb, var(--fi-ochre) 6%, transparent); }
+
+/* Cross-island responses about this correspondence (bridge-challenge v1) */
+.fi-connection-related { margin: 10px 12px; padding: 8px 9px; border-left: 2px solid var(--fi-azurite); background: color-mix(in srgb, var(--fi-azurite) 6%, transparent); }
+.fi-connection-related h3 { margin: 0 0 5px; color: var(--fi-azurite); font-family: var(--fi-font-display); font-size: 8px; }
+.fi-connection-related ul { display: grid; gap: 5px; margin: 0; padding: 0; list-style: none; }
+.fi-connection-related li { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; font-size: 8.7px; line-height: 1.5; }
+.fi-connection-related li small { color: var(--fi-ink-2); }
+.fi-connection-related li button { margin-left: auto; padding: 2px 8px; border: 1px solid var(--fi-azurite); border-radius: 999px; background: none; color: var(--fi-azurite); font-size: 8.5px; cursor: pointer; }
 .fi-connection-manifestations .fi-connection-boundary { margin-right: 0; margin-left: 32px; }
 .fi-connection-boundary[data-missing='true'] { border-left-style: dashed; opacity: .72; }
 .fi-connection-boundary h3,

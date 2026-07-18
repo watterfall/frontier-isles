@@ -297,3 +297,20 @@ export function searchConnectionProblems(field: ConnectionField, query: string, 
   ].some((value) => value.toLocaleLowerCase(lang === 'zh' ? 'zh-CN' : 'en').includes(needle)))
     .slice(0, 12);
 }
+
+/**
+ * Sibling evidence/contradiction paths whose records respond to one of this
+ * path's target refs — e.g. signed judgments about a bridge artifact
+ * (bridge-challenge v1). The responses live as their own signed currents (the
+ * bridge stays neutral); this join lets the bridge dossier surface them.
+ */
+export function relatedResponsePaths(field: ConnectionField, path: ConnectionPath): ConnectionPath[] {
+  const targets = new Set(path.records.map((record) => record.targetRef));
+  if (targets.size === 0) return [];
+  return field.paths.filter(
+    (candidate) =>
+      candidate.id !== path.id &&
+      (candidate.kind === 'evidence' || candidate.kind === 'contradiction') &&
+      candidate.records.some((record) => targets.has(record.targetRef)),
+  );
+}

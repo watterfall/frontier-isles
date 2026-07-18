@@ -10,7 +10,7 @@ import type {
   ConnectionPath,
   ConnectionProblem,
 } from '../../chart/connectionField';
-import { pathInChannel, searchConnectionProblems } from '../../chart/connectionField';
+import { pathInChannel, relatedResponsePaths, searchConnectionProblems } from '../../chart/connectionField';
 import type { PassageIntent, StructureDeparture } from '../../state/explorationSession';
 import type { ModelLaunchContext } from '../../models/types';
 
@@ -58,6 +58,8 @@ const COPY = {
     recordedAction: '判断', by: '记录人', openRef: '查看原记录', targetEvidence: '原材料', responseEvidence: '回应依据',
     writeResponse: '补充支持或反对的理由', writeIntro: '用“{{to}}”的材料回应“{{from}}”。写入后其他人可以继续核对。',
     target: '你在回应哪条材料', position: '你的判断', validate: '这些材料支持它', refute: '这些材料反对它',
+    bridgeValidate: '这次对应经得起检验', bridgeRefute: '这次对应在此断裂',
+    relatedResponses: '关于这次对应的跨岛回应', viewPath: '查看这条回应',
     argument: '具体哪里支持或反对', argumentHint: '说明你比较了什么、哪些地方相同、哪些地方不能照搬。',
     test: '什么结果会让你改变判断', testHint: '写下一个可以观察、实验或复现的结果。',
     crate: '证据来源（RO-Crate）', hash: '材料的 sha256 哈希', role: '这份材料用于', evidenceRole: '提供依据', replicationRole: '复现检查',
@@ -93,6 +95,8 @@ const COPY = {
     recordedAction: 'Judgment', by: 'Recorded by', openRef: 'View original record', targetEvidence: 'Source material', responseEvidence: 'Material used in the response',
     writeResponse: 'Add a reason to support or challenge', writeIntro: 'Use material from “{{to}}” to respond to “{{from}}”. Other people can then check it.',
     target: 'Material you are responding to', position: 'Your judgment', validate: 'This material supports it', refute: 'This material challenges it',
+    bridgeValidate: 'The correspondence holds under this material', bridgeRefute: 'The correspondence breaks here',
+    relatedResponses: 'Cross-island responses about this correspondence', viewPath: 'View this response',
     argument: 'Exactly what supports or challenges it', argumentHint: 'State what you compared, what matches, and what cannot be copied.',
     test: 'What result would change your judgment', testHint: 'Name an observable, experimental, or reproducible result.',
     crate: 'Evidence source (RO-Crate)', hash: 'Material sha256 hash', role: 'This material is for', evidenceRole: 'Supporting the judgment', replicationRole: 'Replication check',
@@ -212,7 +216,7 @@ export function ConnectionFieldPanel(props: ConnectionFieldPanelProps) {
           {activeGroup
             ? <ConvergenceDetail group={activeGroup} field={field} lang={lang} copy={c} departure={departure} intent={intent} onDeparture={onDeparture} onPassage={onPassage} onEnter={onEnter} onFocus={onFocus} onBuildModel={onBuildModel} />
             : activePath
-              ? <PathDetail key={activePath.id} path={activePath} lang={lang} copy={c} actor={actor} onEnter={onEnter} onResponseRecorded={onResponseRecorded} />
+              ? <PathDetail key={activePath.id} path={activePath} lang={lang} copy={c} actor={actor} onEnter={onEnter} onResponseRecorded={onResponseRecorded} related={activePath.kind === 'bridge' ? relatedResponsePaths(field, activePath) : []} onFocusPath={(id) => onFocus({ type: 'path', id })} />
               : activeProblem
                 ? <ProblemDetail problem={activeProblem} field={field} lang={lang} copy={c} onFocus={onFocus} onEnter={onEnter} />
                 : <GlobalField field={field} lang={lang} channel={channel} copy={c} onFocus={onFocus} />}
@@ -374,13 +378,16 @@ function ConvergenceDetail({ group, field, lang, copy, departure, intent, onDepa
   );
 }
 
-function PathDetail({ path, lang, copy, actor, onEnter, onResponseRecorded }: {
+function PathDetail({ path, lang, copy, actor, onEnter, onResponseRecorded, related = [], onFocusPath }: {
   path: ConnectionPath;
   lang: 'zh' | 'en';
   copy: typeof COPY.zh | typeof COPY.en;
   actor?: string;
   onEnter: (problem: ConnectionProblem) => void;
   onResponseRecorded?: (pathId: string) => void;
+  /** Signed sibling responses about this path's targets (bridge dossier join). */
+  related?: ConnectionPath[];
+  onFocusPath?: (id: string) => void;
 }) {
   const boundary = path.kind === 'mathematical' ? copy.formulaBoundary : copy.ledgerBoundary;
   return (
@@ -397,8 +404,22 @@ function PathDetail({ path, lang, copy, actor, onEnter, onResponseRecorded }: {
         ))}
       </div>
       {path.source === 'ledger' && <ConnectionDossier path={path} lang={lang} copy={copy} />}
+      {related.length > 0 && (
+        <section className="fi-connection-related" aria-labelledby="fi-connection-related-title">
+          <h3 id="fi-connection-related-title">{copy.relatedResponses}</h3>
+          <ul>
+            {related.map((sibling) => (
+              <li key={sibling.id}>
+                <span>{sibling.sign === 'contest' ? '⊣' : '→'} {pathStatement(sibling, lang)}</span>
+                <small>{localized(sibling.to.title, lang)} · {counted(sibling.weight, copy.record, copy.records)}</small>
+                {onFocusPath && <button type="button" onClick={() => onFocusPath(sibling.id)}>{copy.viewPath}</button>}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       <section className="fi-connection-boundary"><h3>{copy.boundary}</h3><p>{boundary}</p></section>
-      {path.source === 'ledger' && (path.kind === 'evidence' || path.kind === 'contradiction') && (
+      {path.source === 'ledger' && (path.kind === 'evidence' || path.kind === 'contradiction' || path.kind === 'bridge') && (
         <ConnectionResponseForm
           path={path}
           lang={lang}
@@ -576,8 +597,8 @@ function ConnectionResponseForm({ path, lang, copy, actor, onResponseRecorded }:
           ) : <p className="fi-connection-response-target"><strong>{copy.target}</strong><span>{targets[0]?.targetSummary ?? copy.targetMissing}</span><code>{targetRef}</code></p>}
           <fieldset>
             <legend>{copy.position}</legend>
-            <label><input type="radio" name="connection-response-action" value="validate" checked={action === 'validate'} onChange={() => setAction('validate')} /><span>→ {copy.validate}</span></label>
-            <label><input type="radio" name="connection-response-action" value="refute" checked={action === 'refute'} onChange={() => setAction('refute')} /><span>⊣ {copy.refute}</span></label>
+            <label><input type="radio" name="connection-response-action" value="validate" checked={action === 'validate'} onChange={() => setAction('validate')} /><span>→ {path.kind === 'bridge' ? copy.bridgeValidate : copy.validate}</span></label>
+            <label><input type="radio" name="connection-response-action" value="refute" checked={action === 'refute'} onChange={() => setAction('refute')} /><span>⊣ {path.kind === 'bridge' ? copy.bridgeRefute : copy.refute}</span></label>
           </fieldset>
           <label><span>{copy.argument}</span><textarea required maxLength={1800} rows={5} value={body} onChange={(event) => setBody(event.target.value)} placeholder={copy.argumentHint} /></label>
           <label><span>{copy.test}</span><textarea required maxLength={1200} rows={4} value={test} onChange={(event) => setTest(event.target.value)} placeholder={copy.testHint} /></label>

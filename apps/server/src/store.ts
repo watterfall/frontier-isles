@@ -615,13 +615,23 @@ export class Store {
       throw new ConnectionResponseInvalid("language_invalid", "language must be zh or en");
     }
 
+    // A response may target an anchored claim/publication (dossier v1) or a
+    // bridge artifact (bridge-challenge v1): a bridge is an authored,
+    // content-addressed correspondence assertion, challengeable exactly like
+    // a claim. Mechanism/lineage targets stay closed until their contracts.
     const anchors = this.listProblemRows()
       .flatMap((row) =>
         this.getEvents(row.opId)
           .filter(
             (event) =>
               event.ref === targetRef &&
-              (event.action === "submit_claim" || event.action === "publish"),
+              (event.action === "submit_claim" ||
+                event.action === "publish" ||
+                // bridge artifacts arrive on a `bridge_artifact` event (MCP /
+                // gateway) or riding a human `transplant` (B.3 dock path) —
+                // both anchor the same challengeable correspondence artifact.
+                event.action === "bridge_artifact" ||
+                event.action === "transplant"),
           )
           .map((event) => ({ row, event })),
       )
@@ -634,7 +644,7 @@ export class Store {
     if (!anchor || !this.getRef(targetRef)) {
       throw new ConnectionResponseInvalid(
         "target_unanchored",
-        "the target ref is not an anchored claim or publication",
+        "the target ref is not an anchored claim, publication, or bridge artifact",
       );
     }
     if (anchor.row.opId === responding.opId) {

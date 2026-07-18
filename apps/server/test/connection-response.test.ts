@@ -173,3 +173,67 @@ describe("connection response API", () => {
     expect((await jsonOf(res)).code).toBe("same_island");
   });
 });
+
+describe("bridge-challenge v1 — responses may target an anchored bridge artifact", () => {
+  const founder = (slug: string) => ({ id: `github:founder-${slug}`, kind: "human" as const });
+
+  const fileBridge = async (slug: string): Promise<string> => {
+    const res = await app.request(`/api/islands/${slug}/events`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        actor: founder(slug),
+        action: "bridge_artifact",
+        payload: { type: "analogy-mapping", body: "自由能最小化 ↔ 控制律稳定性：同一变分骨架。" },
+        refKind: "bridge_artifact",
+      }),
+    });
+    const body = await jsonOf(res);
+    if (!body?.event?.ref) throw new Error(`bridge artifact write failed: ${JSON.stringify(body)}`);
+    return body.event.ref as string;
+  };
+
+  it("accepts a challenge to a bridge artifact from another island and projects a signed current", async () => {
+    const bridgeRef = await fileBridge("living-wires");
+    const res = await post("bio-compute-thermo", {
+      targetRef: bridgeRef,
+      action: "refute",
+      body: "变分骨架只在静态边界下同构；控制律的时变项没有自由能对应物。",
+      test: "引入时变扰动；若对应成立，两侧应出现同形的响应核。",
+      evidence,
+      language: "zh",
+      actor: founder("bio-compute-thermo"),
+    });
+    expect(res.status).toBe(201);
+    const written = await jsonOf(res);
+    expect(written).toMatchObject({
+      degraded: false,
+      effectiveAction: "refute",
+      targetRef: bridgeRef,
+      sourceIslandOp: opIdFor("living-wires"),
+      respondingIslandOp: opIdFor("bio-compute-thermo"),
+    });
+
+    // The response projects as a signed contest current about the bridge —
+    // the record keeps the bridge ref and the response artifact.
+    const contest = store.seaData().currents.find(
+      (item) => item.from === opIdFor("living-wires") && item.to === opIdFor("bio-compute-thermo") && item.sign === "contest",
+    );
+    expect(contest?.records.some((r: { targetRef: string }) => r.targetRef === bridgeRef)).toBe(true);
+  });
+
+  it("rejects a bridge self-endorsement from the bridge's own anchor island", async () => {
+    const bridgeRef = await fileBridge("living-wires");
+    const res = await post("living-wires", {
+      targetRef: bridgeRef,
+      action: "validate",
+      body: "自我背书。",
+      test: "无。",
+      evidence,
+      actor: founder("living-wires"),
+    });
+    expect(res.status).toBe(422);
+    const body = await jsonOf(res);
+    expect(body.code).toBe("same_island");
+  });
+});

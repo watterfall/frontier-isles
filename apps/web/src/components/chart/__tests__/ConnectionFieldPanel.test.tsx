@@ -91,3 +91,47 @@ describe('ConnectionFieldPanel — source-preserving dossier', () => {
     expect(markup).not.toMatch(/\bw\d+\b/);
   });
 });
+
+describe('ConnectionFieldPanel — bridge-challenge v1 (correspondence responses)', () => {
+  const bridgePath = base.paths.find((path) => path.kind === 'bridge')!;
+
+  it('the fixture sea carries a real bridge path to exercise', () => {
+    expect(bridgePath).toBeTruthy();
+    expect(bridgePath.records.length).toBeGreaterThan(0);
+  });
+
+  it('opens the response form on a bridge path with concrete correspondence stances', () => {
+    const markup = renderToStaticMarkup(
+      <ConnectionFieldPanel {...props} channel="all" focus={{ type: 'path', id: bridgePath.id }} />,
+    );
+    expect(markup).toContain('补充支持或反对的理由');
+    expect(markup).toContain('这次对应经得起检验');
+    expect(markup).toContain('这次对应在此断裂');
+  });
+
+  it('mathematical and lineage paths stay read-only (their contracts are pending)', () => {
+    const lineage = base.paths.find((path) => path.kind === 'lineage');
+    if (!lineage) return; // fixture may not carry one; server tests still pin the API side
+    const markup = renderToStaticMarkup(
+      <ConnectionFieldPanel {...props} channel="all" focus={{ type: 'path', id: lineage.id }} />,
+    );
+    expect(markup).not.toContain('补充支持或反对的理由');
+  });
+
+  it('surfaces sibling signed responses about the bridge target with a focus jump', () => {
+    const bridgeTarget = bridgePath.records[0]!.targetRef;
+    const withResponse: ConnectionField = {
+      ...base,
+      paths: base.paths.map((path) =>
+        path.kind === 'evidence'
+          ? { ...path, records: [{ ...path.records[0]!, targetRef: bridgeTarget }] }
+          : path,
+      ),
+    };
+    const markup = renderToStaticMarkup(
+      <ConnectionFieldPanel {...props} field={withResponse} channel="all" focus={{ type: 'path', id: bridgePath.id }} />,
+    );
+    expect(markup).toContain('关于这次对应的跨岛回应');
+    expect(markup).toContain('查看这条回应');
+  });
+});

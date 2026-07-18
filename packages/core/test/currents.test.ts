@@ -220,3 +220,39 @@ describe("projectWhirlpools — a dispute storms between two islands (invariant 
     ]);
   });
 });
+
+describe("bridge-challenge v1 — a semantic response to a bridge artifact", () => {
+  const BRIDGE = `sha256:${"e".repeat(64)}`;
+  const RESP = `sha256:${"f".repeat(64)}`;
+  const mk = (ts: string, op: string, action: LedgerEvent["action"], ref: string): LedgerEvent => ({
+    ts,
+    op,
+    actor: { id: "github:x", kind: "human" },
+    credit: [],
+    phase: "B",
+    action,
+    ref,
+  });
+  const events: LedgerEvent[] = [
+    mk("2026-01-01T00:00:00Z", "op://a", "bridge_artifact", BRIDGE),
+    mk("2026-01-02T00:00:00Z", "op://b", "bridge_propose", BRIDGE),
+    mk("2026-01-03T00:00:00Z", "op://c", "refute", RESP),
+  ];
+  const resolver = (ref: string) =>
+    ref === RESP ? { kind: "note", content: { targetRef: BRIDGE, body: "对应在此断裂", test: "时变扰动" } } : null;
+
+  it("projects a signed contest current about the bridge, keeping the bridge ref in the record", () => {
+    const currents = projectCurrents(events, resolver);
+    const contest = find(currents, "op://a", "op://c", "evidence", "contest");
+    expect(contest).toBeTruthy();
+    expect(contest!.records[0]).toMatchObject({ targetRef: BRIDGE, responseRef: RESP, responseBody: "对应在此断裂" });
+  });
+
+  it("leaves the bridge current itself neutral and unpolluted (maturity semantics intact)", () => {
+    const currents = projectCurrents(events, resolver);
+    const bridge = find(currents, "op://a", "op://b", "bridge", "neutral");
+    expect(bridge).toBeTruthy();
+    expect(bridge!.maturity).toBe("proposed");
+    expect(bridge!.records.some((r) => r.responseRef === RESP)).toBe(false);
+  });
+});
