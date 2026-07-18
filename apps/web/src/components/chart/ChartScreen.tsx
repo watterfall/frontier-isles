@@ -193,10 +193,19 @@ export function ChartScreen({ islands, hover, onHover, onIsland, onBuild, onColl
           return (
             <g
               key={d.id}
+              role="button"
+              tabIndex={0}
+              aria-label={d.n[lang]}
               transform={`translate(${d.x},${d.y}) scale(${d.s})`}
               onMouseEnter={() => onHover(d.id)}
               onMouseLeave={() => onHover(null)}
               onClick={() => onIsland(d)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  if (e.key === ' ') e.preventDefault();
+                  onIsland(d);
+                }
+              }}
               style={{ cursor: 'pointer' }}
             >
               {/* the isle floats on the water — the caption below stays level */}

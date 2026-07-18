@@ -1442,11 +1442,11 @@ function claimDomain(biome: string): { fill: number; ink: number } {
     case '数理':
       return { fill: 0xc9d8e6, ink: 0x2e5e8c };
     case '物质':
-      return { fill: 0xe8cfae, ink: 0xb5673a };
+      return { fill: 0xe8cfae, ink: 0x9c5932 };
     case '生命':
-      return { fill: 0xc6decc, ink: 0x2b7a5f };
+      return { fill: 0xc6decc, ink: 0x2a775d };
     case '交叉':
-      return { fill: 0xecdfb4, ink: 0xa08428 };
+      return { fill: 0xecdfb4, ink: 0x7e6820 };
     default:
       return { fill: 0xc9d8e6, ink: 0x2e5e8c };
   }

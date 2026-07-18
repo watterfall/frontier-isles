@@ -402,6 +402,7 @@ export const zh = {
   },
 
   panel: {
+    close: '关闭',
     kicker: '问题墙工作区',
     title: '问题墙 · QFT 工作区',
     stampDiverge: '发',

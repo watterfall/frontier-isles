@@ -27,9 +27,9 @@ export function LangToggle() {
         boxShadow: '2px 2px 0 rgba(58,48,36,0.12)',
       }}
     >
-      <span style={{ fontWeight: cur === 'zh' ? 700 : 400, color: cur === 'zh' ? '#B5673A' : '#A89C88' }}>中</span>
-      <span style={{ color: '#A89C88' }}>/</span>
-      <span style={{ fontWeight: cur === 'en' ? 700 : 400, color: cur === 'en' ? '#B5673A' : '#A89C88', fontFamily: "'JetBrains Mono',ui-monospace,monospace" }}>EN</span>
+      <span style={{ fontWeight: cur === 'zh' ? 700 : 400, color: cur === 'zh' ? '#9C5932' : '#776F61' }}>中</span>
+      <span style={{ color: '#776F61' }} aria-hidden="true">/</span>
+      <span style={{ fontWeight: cur === 'en' ? 700 : 400, color: cur === 'en' ? '#9C5932' : '#776F61', fontFamily: "'JetBrains Mono',ui-monospace,monospace" }}>EN</span>
     </button>
   );
 }

@@ -61,7 +61,7 @@ describe('palettes', () => {
 
   it('exposes the four domain colors and the component-level AI ink constant', () => {
     expect(DOMAIN_COLORS.数理.fill).toBe('#C9D8E6');
-    expect(DOMAIN_COLORS.物质.ink).toBe('#B5673A');
+    expect(DOMAIN_COLORS.物质.ink).toBe('#9C5932'); // AA-darkened 2026-07-19 (§3.15 contrast pass)
     expect(DOMAIN_COLORS.生命.fill).toBe('#C6DECC');
     expect(DOMAIN_COLORS.交叉.fill).toBe('#ECDFB4');
     expect(AI_INK).toBe('#5A6C9E');

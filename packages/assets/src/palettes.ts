@@ -56,9 +56,9 @@ export type Domain = '数理' | '物质' | '生命' | '交叉';
 
 export const DOMAIN_COLORS: Record<Domain, { fill: string; ink: string }> = {
   数理: { fill: '#C9D8E6', ink: '#2E5E8C' },
-  物质: { fill: '#E8CFAE', ink: '#B5673A' },
-  生命: { fill: '#C6DECC', ink: '#2B7A5F' },
-  交叉: { fill: '#ECDFB4', ink: '#A08428' },
+  物质: { fill: '#E8CFAE', ink: '#9C5932' },
+  生命: { fill: '#C6DECC', ink: '#2A775D' },
+  交叉: { fill: '#ECDFB4', ink: '#7E6820' },
 };
 
 /**

@@ -11,6 +11,7 @@ import {
   type StationKind,
 } from '@frontier-isles/core';
 import { api, type DriftwoodAtom } from '../../api/client';
+import { PanelCloseButton, PanelScrim, useDialogChrome } from '../panelChrome';
 
 export interface TransplantPanelProps {
   slug: string;
@@ -29,10 +30,12 @@ export interface TransplantPanelProps {
  * one `transplant` event. The ritual layer animates the 移栽之路 walk on the next
  * poll. Same overlay/card convention as {@link ClaimDetailPanel}; every network
  * call is best-effort (fallback.ts discipline — a failed POST just toasts and
- * leaves the panel open).
+ * leaves the panel open). Mounted only while open (GeneratedIslandScreen guards
+ * it), so {@link useDialogChrome} runs directly.
  */
 export function TransplantPanel({ slug, actor, lang, onClose, onToast }: TransplantPanelProps) {
   const { t } = useTranslation();
+  const { dialogRef, closeRef, onDialogKey } = useDialogChrome<HTMLDivElement>(onClose);
   const [atoms, setAtoms] = useState<DriftwoodAtom[] | null>(null);
   const [pickRef, setPickRef] = useState<string | null>(null);
   const [type, setType] = useState<BridgeArtifactType>(BRIDGE_ARTIFACT_TYPES[0]);
@@ -70,9 +73,14 @@ export function TransplantPanel({ slug, actor, lang, onClose, onToast }: Transpl
   };
 
   return (
-    <div>
-      <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(24,20,14,0.35)' }} />
+    <div onKeyDown={onDialogKey}>
+      <PanelScrim onClose={onClose} label={t('panel.close')} />
       <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="fi-transplant-title"
+        className="fi-panel-card"
         style={{
           position: 'absolute',
           left: '50%',
@@ -93,16 +101,16 @@ export function TransplantPanel({ slug, actor, lang, onClose, onToast }: Transpl
             <div style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 10.5, letterSpacing: '0.15em', color: '#6B6154' }}>
               {t('island.transplant.kicker')}
             </div>
-            <div style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 900, fontSize: 18, color: '#2B2620', marginTop: 3 }}>
+            <div id="fi-transplant-title" style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 900, fontSize: 18, color: '#2B2620', marginTop: 3 }}>
               {t('island.transplant.title')}
             </div>
           </div>
-          <div
-            onClick={onClose}
-            style={{ cursor: 'pointer', width: 28, height: 28, border: '1.5px solid #3A342B', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2B2620', fontSize: 13, background: '#F2EAD8' }}
-          >
-            ✕
-          </div>
+          <PanelCloseButton
+            ref={closeRef}
+            onClose={onClose}
+            label={t('panel.close')}
+            boxStyle={{ width: 28, height: 28, border: '1.5px solid #3A342B', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2B2620', fontSize: 13, background: '#F2EAD8' }}
+          />
         </div>
 
         {atoms == null ? (
@@ -117,14 +125,17 @@ export function TransplantPanel({ slug, actor, lang, onClose, onToast }: Transpl
               {atoms.map((a) => {
                 const on = a.refHash === pickRef;
                 return (
-                  <div
+                  <button
                     key={a.refHash}
+                    type="button"
+                    className="fi-btn-reset"
+                    aria-pressed={on}
                     onClick={() => setPickRef(a.refHash)}
-                    style={{ cursor: 'pointer', border: `1.5px solid ${on ? '#8A6A1E' : 'rgba(58,52,43,0.25)'}`, background: on ? '#F2E6C8' : '#F2EAD8', borderRadius: 6, padding: '8px 10px' }}
+                    style={{ cursor: 'pointer', display: 'block', width: '100%', textAlign: 'left', border: `1.5px solid ${on ? '#8A6A1E' : 'rgba(58,52,43,0.25)'}`, background: on ? '#F2E6C8' : '#F2EAD8', borderRadius: 6, padding: '8px 10px' }}
                   >
-                    <span style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 9.5, color: '#8A6A1E', marginRight: 8 }}>{atomName(a.atom)}</span>
+                    <span style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 9.5, color: '#84651D', marginRight: 8 }}>{atomName(a.atom)}</span>
                     <span style={{ fontSize: 12, color: '#2B2620' }}>{a.text}</span>
-                  </div>
+                  </button>
                 );
               })}
             </div>
@@ -135,20 +146,24 @@ export function TransplantPanel({ slug, actor, lang, onClose, onToast }: Transpl
               {BRIDGE_ARTIFACT_TYPES.map((bt) => {
                 const on = bt === type;
                 return (
-                  <div
+                  <button
                     key={bt}
+                    type="button"
+                    className="fi-btn-reset fi-hit"
+                    aria-pressed={on}
                     onClick={() => setType(bt)}
                     style={{ cursor: 'pointer', border: `1.5px solid ${on ? '#8A6A1E' : 'rgba(58,52,43,0.25)'}`, background: on ? '#F2E6C8' : '#F2EAD8', borderRadius: 6, padding: '5px 10px', fontSize: 11.5, color: '#2B2620' }}
                   >
                     {typeName(bt)}
-                  </div>
+                  </button>
                 );
               })}
             </div>
 
             {/* 3 · target formal station */}
-            <div style={{ marginTop: 14, fontSize: 11, color: '#6B6154', fontFamily: "'JetBrains Mono',ui-monospace,monospace" }}>{t('island.transplant.selectDest')}</div>
+            <label htmlFor="fi-transplant-dest" style={{ display: 'block', marginTop: 14, fontSize: 11, color: '#6B6154', fontFamily: "'JetBrains Mono',ui-monospace,monospace" }}>{t('island.transplant.selectDest')}</label>
             <select
+              id="fi-transplant-dest"
               value={dest}
               onChange={(e) => setDest(e.target.value as StationKind)}
               style={{ marginTop: 8, width: '100%', padding: '7px 9px', fontSize: 12, color: '#2B2620', background: '#F2EAD8', border: '1.5px solid rgba(58,52,43,0.35)', borderRadius: 6 }}
@@ -161,6 +176,8 @@ export function TransplantPanel({ slug, actor, lang, onClose, onToast }: Transpl
             </select>
 
             <button
+              type="button"
+              className="fi-hit"
               onClick={submit}
               disabled={!pickRef || busy}
               style={{ marginTop: 16, width: '100%', cursor: pickRef && !busy ? 'pointer' : 'default', background: '#2B2620', color: '#F2EAD8', border: 'none', borderRadius: 6, padding: '9px 0', fontSize: 13, opacity: pickRef && !busy ? 1 : 0.5 }}
@@ -170,7 +187,7 @@ export function TransplantPanel({ slug, actor, lang, onClose, onToast }: Transpl
           </>
         )}
 
-        <div style={{ marginTop: 12, fontSize: 10, color: '#A89C88', fontFamily: "'JetBrains Mono',ui-monospace,monospace", textAlign: 'center', lineHeight: 1.6 }}>
+        <div style={{ marginTop: 12, fontSize: 10, color: '#776F61', fontFamily: "'JetBrains Mono',ui-monospace,monospace", textAlign: 'center', lineHeight: 1.6 }}>
           {t('island.transplant.footer')}
         </div>
       </div>

@@ -46,9 +46,9 @@ export const ATLAS_DOMAIN_FILL: Record<AtlasDomain, number> = {
 /** Domain → ink/accent (Pixi hex ints, matching assets DOMAIN_COLORS verbatim). */
 export const ATLAS_DOMAIN_INK: Record<AtlasDomain, number> = {
   数理: 0x2e5e8c,
-  物质: 0xb5673a,
-  生命: 0x2b7a5f,
-  交叉: 0xa08428,
+  物质: 0x9c5932,
+  生命: 0x2a775d,
+  交叉: 0x7e6820,
 };
 
 /**

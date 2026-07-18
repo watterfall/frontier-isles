@@ -91,7 +91,7 @@ export default function AtlasPixiHost() {
         <div>satellites {metrics.visibleSatellites}/{metrics.satellites} · geometry-derived anchors</div>
         <div style={{ opacity: 0.7 }}>wheel = zoom (pointer-anchored) · drag = pan · tap isle</div>
         <div style={{ opacity: 0.7 }}>?n=300 → +N synthetic frontier islands (scale test){n > 0 ? ` · +${n}` : ''}</div>
-        {picked && <div style={{ marginTop: 4, color: '#B5673A' }}>picked: {picked}</div>}
+        {picked && <div style={{ marginTop: 4, color: '#9C5932' }}>picked: {picked}</div>}
       </div>
     </div>
   );

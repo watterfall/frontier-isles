@@ -12,9 +12,9 @@
 /** Domain key → island base fill + accent ink (prototype `DOMC`). */
 export const DOMAIN_META = {
   数理: { fill: '#C9D8E6', col: '#2E5E8C' },
-  物质: { fill: '#E8CFAE', col: '#B5673A' },
-  生命: { fill: '#C6DECC', col: '#2B7A5F' },
-  交叉: { fill: '#ECDFB4', col: '#A08428' },
+  物质: { fill: '#E8CFAE', col: '#9C5932' },
+  生命: { fill: '#C6DECC', col: '#2A775D' },
+  交叉: { fill: '#ECDFB4', col: '#7E6820' },
 } as const;
 
 export type DomainKey = keyof typeof DOMAIN_META;
