@@ -52,6 +52,8 @@ export type { ProblemBody, ParsedProblemObject } from "./markdown";
 export {
   StructureObjectSchema,
   StructureStatusSchema,
+  StructureThemeSchema,
+  StructureProvenanceSchema,
   StructId,
   STRUCT_ID_RE,
   serializeStructureObject,
@@ -61,6 +63,8 @@ export type {
   StructureObject,
   StructureObjectInput,
   StructureStatus,
+  StructureTheme,
+  StructureProvenance,
 } from "./structure-object";
 
 // Ledger

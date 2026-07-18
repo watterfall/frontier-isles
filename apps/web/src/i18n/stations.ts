@@ -16,6 +16,11 @@ const ZH_TO_KIND: Record<string, StationKind> = Object.fromEntries(
   STATION_KINDS.map((k) => [STATION_META[k].zh, k]),
 ) as Record<string, StationKind>;
 
+// Durable notebooks and fallback records authored before the plain-language
+// rename still hydrate to the same stable station kinds.
+ZH_TO_KIND['茶寮'] = 'tearoom';
+ZH_TO_KIND['渡口'] = 'dock';
+
 /** Map an authored zh station name (as used in fallback data) to its kind. */
 export function stationKindByZh(zhName: string): StationKind | undefined {
   return ZH_TO_KIND[zhName];

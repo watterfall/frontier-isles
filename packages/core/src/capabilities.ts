@@ -12,6 +12,7 @@ import { ROLE_LADDER, type Role } from "./roles";
 export type Capability =
   | "propose"
   | "driftwood_write"
+  | "rebuild"
   | "station_write"
   | "bridge_propose"
   | "validate"
@@ -28,12 +29,13 @@ export const DEFAULT_AGENT_CAPABILITIES: readonly Capability[] = ["propose", "dr
 
 export const ROLE_CAPABILITIES: Record<Role, readonly Capability[]> = {
   visitor: [],
-  apprentice: ["propose", "driftwood_write"],
-  researcher: ["propose", "driftwood_write", "station_write", "validate"],
-  resident: ["propose", "driftwood_write", "station_write", "validate", "publish", "bridge_propose"],
+  apprentice: ["propose", "driftwood_write", "rebuild"],
+  researcher: ["propose", "driftwood_write", "rebuild", "station_write", "validate"],
+  resident: ["propose", "driftwood_write", "rebuild", "station_write", "validate", "publish", "bridge_propose"],
   master: [
     "propose",
     "driftwood_write",
+    "rebuild",
     "station_write",
     "validate",
     "publish",
@@ -60,10 +62,9 @@ export const ACTION_CAPABILITY: Record<GatewayAction, Capability> = {
   transplant: "station_write",
   fork: "station_write",
   merge_back: "station_write",
-  // rebuild = a human maps a structure onto this island (执行纲要 §九). It is a
-  // station-write push, so an ungranted AGENT's rebuild degrades to a dock
-  // proposal — the mapping (§六.1) can only ever be authored by a human.
-  rebuild: "station_write",
+  // The same passage action is available from apprentice onward; whether it is
+  // charted practice or frontier research is derived from the destination graph.
+  rebuild: "rebuild",
   validate: "validate",
   publish: "publish",
   // bridges / governance
@@ -73,7 +74,7 @@ export const ACTION_CAPABILITY: Record<GatewayAction, Capability> = {
 };
 
 /** Capabilities that count as pushing into a formal station. */
-const PUSH_CAPABILITIES: ReadonlySet<Capability> = new Set(["station_write", "validate", "publish"]);
+const PUSH_CAPABILITIES: ReadonlySet<Capability> = new Set(["rebuild", "station_write", "validate", "publish"]);
 
 export interface CapabilityActor {
   id: string;
@@ -112,6 +113,9 @@ export function can(
   action: GatewayAction,
   grants: readonly string[] = [],
 ): boolean {
+  // Mapping variable correspondences is the irreducible human act. A capability
+  // grant may let an agent propose at the dock, never finalize a rebuild edge.
+  if (action === "rebuild" && actor.kind === "agent") return false;
   const required = ACTION_CAPABILITY[action];
   if (required === undefined) return false;
   return effectiveCapabilities(actor, grants).has(required);

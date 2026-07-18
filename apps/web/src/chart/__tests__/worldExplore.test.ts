@@ -5,6 +5,7 @@ import {
   researchFieldRelation,
   researchTransectProgress,
   researchTransectStage,
+  restoredWorldEncounter,
   selectWorldEncounter,
   selectWorldCurrentEncounter,
   stepWorldMotion,
@@ -73,6 +74,24 @@ describe('world explorer movement', () => {
     expect(selectWorldEncounter([island('new-nearest', 90), island('locked', 150)], 'locked')?.slug).toBe('locked');
     expect(selectWorldEncounter([island('new-nearest', 90), island('locked', 380)], 'locked')?.slug).toBe('new-nearest');
     expect(selectWorldEncounter([island('far', 400)], null)).toBeNull();
+  });
+
+  it('relocks a restored safety-boundary pose to its original isle in a dense field', () => {
+    const island = (slug: string, horizontalDistance: number, altitudeDelta = 0) => ({
+      slug,
+      name: slug,
+      distance: Math.hypot(horizontalDistance, altitudeDelta * 180),
+      horizontalDistance,
+      altitude: 'middle' as const,
+      altitudeZ: 0.5,
+      altitudeDelta,
+      x: 0,
+      y: 0,
+    });
+    const field = [island('closer-neighbour', 90), island('settled-owner', 104.2)];
+    expect(restoredWorldEncounter(field)?.slug).toBe('settled-owner');
+    expect(restoredWorldEncounter([island('open-ocean-signal', 132)])).toBeNull();
+    expect(restoredWorldEncounter([island('wrong-stratum', 104, 0.3)])).toBeNull();
   });
 
   it('locks a real current crossing and samples only when route height aligns', () => {

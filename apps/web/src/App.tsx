@@ -18,6 +18,8 @@ import { localizeStationZh } from './i18n/stations';
 import { wipeReducer, initialWipe } from './state/wipeMachine';
 import {
   explorationReducer,
+  type CompletedPassage,
+  type PassageIntent,
   type WorldExplorerPose,
 } from './state/explorationSession';
 import {
@@ -36,6 +38,12 @@ import { useIsMobile, useStageScale } from './useIsMobile';
 const GeneratedIslandScreen = lazy(() =>
   import('./components/island/GeneratedIslandScreen').then((module) => ({
     default: module.GeneratedIslandScreen,
+  })),
+);
+
+const PassageWorkbench = lazy(() =>
+  import('./components/island/PassageWorkbench').then((module) => ({
+    default: module.PassageWorkbench,
   })),
 );
 
@@ -90,6 +98,7 @@ export default function App() {
   // swaps to L1. This preserves the canvas visually without a second Pixi app,
   // a copied WebGL buffer, or any page-covering wipe.
   const [voyageActive, setVoyageActive] = useState(false);
+  const [connectionRevision, setConnectionRevision] = useState(0);
   const activeVoyage = useRef<NativeViewTransition | null>(null);
   const islandReadyResolver = useRef<(() => void) | null>(null);
   const atlasReadyResolver = useRef<(() => void) | null>(null);
@@ -273,6 +282,15 @@ export default function App() {
     [beginVoyage],
   );
 
+  const beginStructurePassage = useCallback(
+    (intent: PassageIntent, island: IslandDatum) => {
+      if (voyageActive) return;
+      dispatchExploration({ type: 'begin-passage', intent });
+      beginVoyage(island, 'atlas');
+    },
+    [beginVoyage, voyageActive],
+  );
+
   // A bridge uses the same destination-centred handoff. Its route remains
   // visible on the atlas up to this point; the transition should not invent a
   // second, differently projected arc in DOM coordinates.
@@ -349,6 +367,12 @@ export default function App() {
     });
   }, [exploration.returnTo, runVoyageTransition, voyageActive]);
 
+  const completeStructurePassage = useCallback((receipt: CompletedPassage) => {
+    dispatchExploration({ type: 'complete-passage', receipt });
+    setConnectionRevision((revision) => revision + 1);
+    goChart();
+  }, [goChart]);
+
   const onStation = useCallback(
     (key: StationKind) => {
       if (key === 'questions') {
@@ -414,6 +438,13 @@ export default function App() {
   // ── mobile (read-only) ───────────────────────────────────────────────
   if (isMobile) return <MobileShell islands={chartIslands} />;
 
+  const passageSource = exploration.passageIntent
+    ? chartIslands.find((island) => island.slug === exploration.passageIntent?.islandSlug) ?? null
+    : null;
+  const passageTarget = exploration.passageIntent
+    ? chartIslands.find((island) => island.slug === exploration.passageIntent?.targetIslandSlug) ?? null
+    : null;
+
   // ── desktop shell (1440×900 world, fitted edge-to-edge) ──────────────
   return (
     <main
@@ -442,6 +473,14 @@ export default function App() {
                     onStation={onStation}
                     actor={actor}
                     onToast={showToast}
+                    surveyedDistricts={exploration.surveyedDistricts[selSlug] ?? []}
+                    visitedBuildingFloors={exploration.visitedBuildingFloors}
+                    activeStructureId={exploration.structureLensId}
+                    completedPassageCount={exploration.completedPassages.filter((passage) =>
+                      passage.islandSlug === selSlug || passage.targetIslandSlug === selSlug,
+                    ).length}
+                    onSurveyDistrict={(districtId) => dispatchExploration({ type: 'survey-district', slug: selSlug, districtId })}
+                    onVisitBuildingFloor={(station, floorId) => dispatchExploration({ type: 'visit-building-floor', slug: selSlug, station, floorId })}
                     onReady={signalIslandReady}
                   />
                 </Suspense>
@@ -482,6 +521,20 @@ export default function App() {
                   peers={peers}
                 />
               )}
+              {exploration.passageIntent && selSlug === exploration.passageIntent.targetIslandSlug && (
+                <Suspense fallback={<div className="fi-passage-overlay fi-passage-loading" role="status"><span>{t('island.loading')}</span></div>}>
+                  <PassageWorkbench
+                    intent={exploration.passageIntent}
+                    source={passageSource}
+                    target={passageTarget}
+                    actor={actor}
+                    lang={lang}
+                    onCancel={() => dispatchExploration({ type: 'cancel-passage' })}
+                    onComplete={completeStructurePassage}
+                    onToast={showToast}
+                  />
+                </Suspense>
+              )}
             </div>
           )}
 
@@ -500,6 +553,17 @@ export default function App() {
                 onBridge={onBridge}
                 onExplore={() => dispatchExploration({ type: 'enter-world' })}
                 onAtlasReady={signalAtlasReady}
+                structurePassage={{
+                  selectedId: exploration.structureLensId,
+                  departure: exploration.structureDeparture,
+                  intent: exploration.passageIntent,
+                  revision: connectionRevision,
+                  actor,
+                  onSelect: (structureId) => dispatchExploration({ type: 'select-structure', structureId }),
+                  onDeparture: (departure) => dispatchExploration({ type: 'select-passage-departure', departure }),
+                  onBegin: beginStructurePassage,
+                  onConnectionWrite: () => setConnectionRevision((value) => value + 1),
+                }}
                 worldExplore={{
                   active: exploration.phase === 'explore',
                   initialPose: exploration.worldPose,

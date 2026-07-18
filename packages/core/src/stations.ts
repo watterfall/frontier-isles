@@ -21,7 +21,7 @@ export interface StationMeta {
   kind: StationKind;
   zh: string;
   en: string;
-  /** Single-character seal glyph (问数板文坊展茶木渡). */
+  /** Single-character seal glyph (问数板文坊展议木联). */
   seal: string;
   note: string;
 }
@@ -71,10 +71,10 @@ export const STATION_META: Record<StationKind, StationMeta> = {
   },
   tearoom: {
     kind: "tearoom",
-    zh: "茶寮",
-    en: "Tearoom",
-    seal: "茶",
-    note: "Never metricized.",
+    zh: "开放讨论",
+    en: "Open Discussion",
+    seal: "议",
+    note: "Unformed ideas and cross-domain discussion; never ranked or metricized.",
   },
   driftwood: {
     kind: "driftwood",
@@ -85,10 +85,10 @@ export const STATION_META: Record<StationKind, StationMeta> = {
   },
   dock: {
     kind: "dock",
-    zh: "渡口",
-    en: "Ferry Dock",
-    seal: "渡",
-    note: "Bridge layer; all transplants pass through; morning reports issue here; the ferryman berths here.",
+    zh: "连接工作台",
+    en: "Connection Workbench",
+    seal: "联",
+    note: "Cross-problem comparison and connection validation; every accepted mapping remains human-authored.",
   },
 };
 

@@ -22,7 +22,7 @@ export function StationTearoom({ x = 880, y = 590, onClick, selected = false, la
         style={{ animation: 'smoke 3.6s ease-in-out infinite', animationPlayState: 'var(--play,running)' as never }}
       />
       {selected && <SelectionHighlight cx={0} cy={17} />}
-      {showLabel && <NameCard x={0} y={-46} width={52} text={label?.text ?? '茶寮'} sealColor={label?.sealColor ?? '#3E9B7E'} />}
+      {showLabel && <NameCard x={0} y={-46} width={82} text={label?.text ?? '开放讨论'} sealColor={label?.sealColor ?? '#3E9B7E'} />}
     </g>
   );
 }

@@ -11,6 +11,24 @@ import {
 
 const pose: WorldExplorerPose = { x: 420, y: 260, facing: 'east', altitudeZ: 0.72, speed: 80, verticalSpeed: 0.2 };
 const current = { id: 'a::b::bridge', fromSlug: 'a', toSlug: 'b', kind: 'bridge' as const, sign: 'neutral' as const, directed: true, maturity: 'ratified' as const, weight: 3 };
+const intent = {
+  structureId: 'struct://xfrontier/synchronization',
+  islandSlug: 'a',
+  islandOp: 'op://frontier-isles/prob/a',
+  targetIslandSlug: 'b',
+  targetIslandOp: 'op://frontier-isles/prob/b',
+  passageKind: 'frontier' as const,
+};
+const receipt = {
+  ...intent,
+  refHash: `sha256:${'b'.repeat(64)}`,
+  structureTitle: '耦合振子同步',
+  correspondences: [{ quantity: '耦合强度', inThisSubstrate: '视觉强度' }],
+  boundary: '视觉耦合不是电导更新。',
+  prediction: '若成立，应出现临界转变。',
+  evidenceRefs: ['doi:10.0000/frontier-isles-test'],
+  completedAt: '2026-07-18T00:00:00.000Z',
+};
 const islands: IslandDatum[] = [
   { id: 1, slug: 'a', n: { zh: '甲岛', en: 'Isle A' }, q: { zh: '甲问题？', en: 'Question A?' }, d: '数理', x: 0, y: 0, s: 1, st: 1, m: 1, a: 1, citation: { title: 'A', venue: 'Nature', year: 2025, url: 'https://example.com/a' } },
   { id: 2, slug: 'b', n: { zh: '乙岛', en: 'Isle B' }, q: { zh: '乙问题？', en: 'Question B?' }, d: '交叉', x: 1, y: 1, s: 1, st: 1, m: 1, a: 1 },
@@ -31,6 +49,10 @@ describe('exploration field notebook persistence', () => {
     session = explorationReducer(session, { type: 'inspect-island', slug: 'a' });
     session = explorationReducer(session, { type: 'sample-current', current });
     session = explorationReducer(session, { type: 'write-note', slug: 'a', text: 'Compare this bridge with B.' });
+    session = explorationReducer(session, { type: 'begin-passage', intent });
+    session = explorationReducer(session, { type: 'complete-passage', receipt });
+    session = explorationReducer(session, { type: 'survey-district', slug: 'a', districtId: 'inquiry' });
+    session = explorationReducer(session, { type: 'visit-building-floor', slug: 'a', station: 'questions', floorId: 'questions:open:0' });
     const storage = memoryStorage();
 
     expect(saveExplorationNotebook(session, storage, '2026-07-16T00:00:00.000Z')).toBe(true);
@@ -42,9 +64,14 @@ describe('exploration field notebook persistence', () => {
       returnTo: 'atlas',
       courseIslandSlug: 'a',
       courseHistorySlugs: ['a'],
-      visitedIslandSlugs: ['a'],
+      visitedIslandSlugs: ['a', 'b'],
       sampledCurrents: [current],
       notes: { a: 'Compare this bridge with B.' },
+      structureLensId: intent.structureId,
+      passageIntent: null,
+      completedPassages: [receipt],
+      surveyedDistricts: { a: ['inquiry'] },
+      visitedBuildingFloors: { 'a:questions': ['questions:open:0'] },
     });
     expect(restored.worldPose).toMatchObject({ x: 420, y: 260, facing: 'east', altitudeZ: 0.72, speed: 0, verticalSpeed: 0 });
   });
@@ -54,11 +81,59 @@ describe('exploration field notebook persistence', () => {
     expect(loadExplorationNotebook(memoryStorage(JSON.stringify({ version: 99 })))).toEqual(initialExplorationSession());
   });
 
+  it('migrates the existing v1 payload without dropping prior field research', () => {
+    const legacy = memoryStorage(JSON.stringify({
+      version: 1,
+      savedAt: '2026-07-16T00:00:00.000Z',
+      worldPose: pose,
+      courseIslandSlug: 'a',
+      courseHistorySlugs: ['a'],
+      visitedIslandSlugs: ['a'],
+      sampledCurrents: [current],
+      notes: { a: 'legacy note' },
+    }));
+    const restored = loadExplorationNotebook(legacy);
+    expect(restored).toMatchObject({
+      courseIslandSlug: 'a',
+      visitedIslandSlugs: ['a'],
+      notes: { a: 'legacy note' },
+      structureLensId: null,
+      completedPassages: [],
+      surveyedDistricts: {},
+      visitedBuildingFloors: {},
+    });
+  });
+
+  it('migrates the prior v2 passage payload with empty depth-survey state', () => {
+    const legacy = memoryStorage(JSON.stringify({
+      version: 2,
+      savedAt: '2026-07-18T00:00:00.000Z',
+      worldPose: pose,
+      courseIslandSlug: null,
+      courseHistorySlugs: [],
+      visitedIslandSlugs: ['a'],
+      sampledCurrents: [],
+      notes: {},
+      structureLensId: intent.structureId,
+      structureDeparture: null,
+      passageIntent: null,
+      completedPassages: [receipt],
+    }));
+    const restored = loadExplorationNotebook(legacy);
+    expect(restored.completedPassages).toEqual([receipt]);
+    expect(restored.surveyedDistricts).toEqual({});
+    expect(restored.visitedBuildingFloors).toEqual({});
+  });
+
   it('exports the same routes, observations, sources, and currents as portable Markdown', () => {
     let session = explorationReducer(initialExplorationSession(), { type: 'remember-world-pose', pose });
     session = explorationReducer(session, { type: 'set-course', slug: 'a' });
     session = explorationReducer(session, { type: 'write-note', slug: 'a', text: '比较边界条件。' });
     session = explorationReducer(session, { type: 'sample-current', current });
+    session = explorationReducer(session, { type: 'complete-passage', receipt });
+    session = explorationReducer(session, { type: 'dock', slug: 'a', source: 'atlas' });
+    session = explorationReducer(session, { type: 'survey-district', slug: 'a', districtId: 'inquiry' });
+    session = explorationReducer(session, { type: 'visit-building-floor', slug: 'a', station: 'questions', floorId: 'questions:open:0' });
     const markdown = explorationNotebookMarkdown(session, islands, 'zh', '2026-07-16T01:02:03.000Z');
 
     expect(markdown).toContain('# 问题群岛 · 考察札记');
@@ -67,5 +142,15 @@ describe('exploration field notebook persistence', () => {
     expect(markdown).toContain('[Nature · 2025](https://example.com/a)');
     expect(markdown).toContain('甲岛 → 乙岛');
     expect(markdown).toContain('bridge/neutral/ratified');
+    expect(markdown).toContain('## 岛内勘察图');
+    expect(markdown).toContain('甲岛: 问题定位 → 问题与差异');
+    expect(markdown).toContain('## 建筑楼层札记');
+    expect(markdown).toContain('甲岛 · 建筑: 问题墙 — questions:open:0');
+    expect(markdown).toContain('## 连接记录');
+    expect(markdown).toContain('甲岛 → 乙岛');
+    expect(markdown).toContain('耦合强度 ↦ 视觉强度');
+    expect(markdown).toContain('重要差异 / 类比边界: 视觉耦合不是电导更新。');
+    expect(markdown).toContain('doi:10.0000/frontier-isles-test');
+    expect(markdown).toContain(receipt.refHash);
   });
 });

@@ -18,12 +18,15 @@ import {
   type AtlasExplorerCurrent,
   type AtlasExplorerIsland,
   type AtlasExplorerPose,
+  type AtlasStructureLensInput,
 } from '@frontier-isles/renderer/pixi';
 import { buildAtlasScene } from './atlasData';
 import { buildHarborView } from './harbor';
 import { toAtlasLens } from './structureLens';
+import type { ConnectionMapView } from './connectionField';
 import {
   createWorldMotion,
+  restoredWorldEncounter,
   selectWorldCurrentEncounter,
   selectWorldEncounter,
   stepWorldMotion,
@@ -54,6 +57,9 @@ export interface AtlasChartHostProps {
   /** Structure lens (执行纲要 §九): the selected `struct://` id + the bipartite
    * graph (live API or `structureFallback`). `null`/absent → the plain world. */
   lens?: { structureId: string; graph: ApiStructureGraph } | null;
+  /** Unified global/focused relation field. When present it supersedes the
+   * legacy single-structure lens but uses the same on-demand stage layer. */
+  connectionField?: ConnectionMapView | null;
   /** A tap/click on an island — mirrors the SVG chart's `onClick` and hands
    * the centred destination frame to App's shared-axis L1 transition. */
   onPick: (d: IslandDatum) => void;
@@ -88,7 +94,7 @@ export interface AtlasChartHostProps {
 }
 
 export default function AtlasChartHost(props: AtlasChartHostProps) {
-  const { islands, harbor, lens } = props;
+  const { islands, harbor, lens, connectionField } = props;
   const hostRef = useRef<HTMLDivElement | null>(null);
   const stageRef = useRef<AtlasStage | null>(null);
   // Latest callbacks in a ref so the boot effect (keyed only on `islands`,
@@ -112,6 +118,8 @@ export default function AtlasChartHost(props: AtlasChartHostProps) {
   harborRef.current = harbor ?? null;
   const lensRef = useRef(lens ?? null);
   lensRef.current = lens ?? null;
+  const connectionFieldRef = useRef(connectionField ?? null);
+  connectionFieldRef.current = connectionField ?? null;
   // Cluster provenance (xfrontier code) per stage slug — feeds the lens'
   // near/far gap gradient (same-cluster vs same-domain-only).
   const clusterBySlug = useMemo(
@@ -407,6 +415,9 @@ export default function AtlasChartHost(props: AtlasChartHostProps) {
       worldMotion = createWorldMotion(spawn);
       cbRef.current.onExplorePose?.(spawn);
       cbRef.current.onExploreFlight?.(spawn);
+      if (cbRef.current.exploreInitialPose) {
+        nearby = restoredWorldEncounter(stage.nearbyExplorerIslands(spawn, 256));
+      }
       reportPosition(spawn);
       ensureWorldTick();
     };
@@ -421,9 +432,15 @@ export default function AtlasChartHost(props: AtlasChartHostProps) {
         cbRef.current.onExploreExit?.(worldMotion.pose);
         return;
       }
-      // A focused overlay button/link owns its activation keys: preventDefault
-      // below would steal the Space/Enter click from keyboard users.
-      if (event.target instanceof HTMLButtonElement || event.target instanceof HTMLAnchorElement) return;
+      // A focused overlay control owns its activation keys: preventDefault
+      // below would steal the Space/Enter click from keyboard users. `summary`
+      // is included explicitly because it is natively interactive but is not a
+      // button/link/input instance.
+      if (
+        event.target instanceof HTMLButtonElement
+        || event.target instanceof HTMLAnchorElement
+        || (event.target instanceof HTMLElement && event.target.tagName === 'SUMMARY')
+      ) return;
       if (event.code === 'KeyC' && !event.repeat) {
         if (!nearbyCurrent) return;
         event.preventDefault();
@@ -508,8 +525,10 @@ export default function AtlasChartHost(props: AtlasChartHostProps) {
           stage.openAtHarbor();
         }
         // A lens selected before the Pixi chunk finished booting applies now.
+        const field = connectionFieldRef.current;
         const l = lensRef.current;
-        if (l) stage.setStructureLens(toAtlasLens(l.structureId, l.graph.edges, l.graph.frontier, scene.islands, clusterBySlug));
+        if (field) stage.setStructureLens(toStageConnectionField(field));
+        else if (l) stage.setStructureLens(toAtlasLens(l.structureId, l.graph.edges, l.graph.frontier, scene.islands, clusterBySlug));
         stageRef.current = stage;
         worldControlRef.current = { setActive: setWorldActive, setCourse, inspect, dock, sampleCurrent, altitude: changeAltitude };
         cbRef.current.onReady?.({
@@ -608,14 +627,32 @@ export default function AtlasChartHost(props: AtlasChartHostProps) {
     if (!stage.touched) stage.openAtHarbor();
   }, [harbor, scene]);
 
-  // Structure lens (§九): enter/leave the modal lens on selection change. The
-  // lens is computed over the SAME scene islands the stage renders, so marks
-  // land exactly on the despaced positions.
+  // Unified connection field supersedes the legacy one-structure lens. Both
+  // use the SAME scene islands the stage renders, so every mark lands on the
+  // despaced authored world rather than a second graph layout.
   useEffect(() => {
     const stage = stageRef.current;
     if (!stage) return;
-    stage.setStructureLens(lens ? toAtlasLens(lens.structureId, lens.graph.edges, lens.graph.frontier, scene.islands, clusterBySlug) : null);
-  }, [lens, scene, clusterBySlug]);
+    stage.setStructureLens(
+      connectionField
+        ? toStageConnectionField(connectionField)
+        : lens
+          ? toAtlasLens(lens.structureId, lens.graph.edges, lens.graph.frontier, scene.islands, clusterBySlug)
+          : null,
+    );
+  }, [connectionField, lens, scene, clusterBySlug]);
 
   return <div ref={hostRef} style={{ position: 'absolute', inset: 0 }} />;
+}
+
+function toStageConnectionField(view: ConnectionMapView): AtlasStructureLensInput {
+  return {
+    structureId: 'connection-field',
+    mode: view.mode,
+    rebuiltSlugs: view.memberSlugs,
+    gapSlugs: [],
+    farGapSlugs: [],
+    convergences: view.convergences,
+    arcs: view.paths,
+  };
 }

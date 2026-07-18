@@ -84,7 +84,7 @@ export const DAY_RESIDENTS: ResidentPlacement[] = [
   { x: 614, y: 452, kind: 'human', flip: true, carryingCanvas: true, caption: { zh: '林徽 · 携画布向白板厅', en: 'Lin Hui · carrying canvas to Whiteboard Hall' } },
   { x: 858, y: 608, kind: 'human' },
   { x: 880, y: 614, kind: 'human', flip: true },
-  { x: 786, y: 742, kind: 'ai', aiRole: 'ferryman', caption: { zh: '摆渡人 · AI · 往邻岛递问', en: 'Ferryman · AI · relaying questions to the next isle' } },
+  { x: 786, y: 742, kind: 'ai', aiRole: 'ferryman', caption: { zh: '连接协调员 · AI · 对齐邻岛问题', en: 'Connection steward · AI · aligning neighboring problems' } },
 ];
 
 /** Always-present figures (day or night): 阿若 wandering + literature scout. */

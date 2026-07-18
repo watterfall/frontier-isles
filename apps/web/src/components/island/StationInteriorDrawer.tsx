@@ -1,309 +1,238 @@
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { StationKind } from '@frontier-isles/core';
-import type { IslandInterior } from '@frontier-isles/data/frontiers';
+import type { BuildingFloor, BuildingFloorItem, BuildingFloorPlan } from './islandDepth';
 
-/**
- * L2 station-interior drawer for curated/generated islands. When a visitor taps
- * a station on a generated island's L1 scene, this slides in a right-side scroll
- * panel showing that station's real content — the Question Wall, the library's
- * clustered digests, whiteboard debates, the data desk, the driftwood garden, or
- * the resident roster — sourced from the island's {@link IslandInterior}
- * (meta.atlas.interior on the server; the offline fallback carries the same
- * block). This is the generated-island analogue of the sample island's bespoke
- * QftPanel / MorningReport / DriftwoodModal, and it is READ-ONLY: it renders the
- * archive, it never posts events (AI-never-pushes discipline, and the visitor
- * writes through the existing transplant/ceremony flows, not here).
- *
- * Visual language mirrors QftPanel (aged-paper scroll, seal chips, mono kickers)
- * so an interior reads as the same world whether the island is the sample or a
- * curated frontier. Bilingual via the caller's `lang`; editorial content stays
- * in its authored form (invariant 9).
- */
 export interface StationInteriorDrawerProps {
-  /** Which station was tapped; null closes the drawer. */
   station: StationKind | null;
-  interior: IslandInterior | undefined;
+  plan: BuildingFloorPlan | undefined;
   lang: 'zh' | 'en';
+  visitedFloorIds?: readonly string[];
+  initialFloorId?: string;
+  onVisitFloor?: (floorId: string) => void;
   onClose: () => void;
 }
 
-/** Station kind → which interior section it opens. Stations without a dedicated
- *  archive section (workshop/gallery/tearoom/dock — the "life" of the island)
- *  open the resident roster. */
-type Section = 'questions' | 'library' | 'whiteboard' | 'data' | 'driftwood' | 'workshop' | 'gallery' | 'tearoom' | 'residents';
-const SECTION_OF: Record<StationKind, Section> = {
-  questions: 'questions',
-  library: 'library',
-  canvas: 'whiteboard',
-  data: 'data',
-  driftwood: 'driftwood',
-  workshop: 'workshop',
-  gallery: 'gallery',
-  tearoom: 'tearoom',
-  // The dock (渡口) is the ferry stub in the sample island too — no archive of
-  // its own; it opens the resident/ferry roster.
-  dock: 'residents',
+const STATION_META: Record<StationKind, { titleKey: string; seal: string; ink: string }> = {
+  questions: { titleKey: 'island.interior.questions.title', seal: '问', ink: '#B5673A' },
+  library: { titleKey: 'island.interior.library.title', seal: '文', ink: '#2E5E8C' },
+  canvas: { titleKey: 'island.interior.whiteboard.title', seal: '板', ink: '#3E9B7E' },
+  data: { titleKey: 'island.interior.data.title', seal: '数', ink: '#2E5E8C' },
+  driftwood: { titleKey: 'island.interior.driftwood.title', seal: '木', ink: '#6B6154' },
+  workshop: { titleKey: 'island.interior.workshop.title', seal: '坊', ink: '#B5673A' },
+  gallery: { titleKey: 'island.interior.gallery.title', seal: '展', ink: '#4A4238' },
+  tearoom: { titleKey: 'island.interior.tearoom.title', seal: '议', ink: '#3E9B7E' },
+  dock: { titleKey: 'island.interior.dock.title', seal: '联', ink: '#4A4238' },
 };
 
-function ScrollRod() {
-  return (
-    <div style={{ position: 'relative', height: 20, background: 'linear-gradient(180deg,#5B4632,#3E2F20)', borderRadius: 10, border: '1px solid #2B2015', margin: '0 6px' }}>
-      <span style={{ position: 'absolute', left: -9, top: 1, width: 16, height: 16, borderRadius: '50%', background: 'radial-gradient(circle at 35% 35%,#7A5B3E,#3E2F20)', border: '1px solid #2B2015' }} />
-      <span style={{ position: 'absolute', right: -9, top: 1, width: 16, height: 16, borderRadius: '50%', background: 'radial-gradient(circle at 35% 35%,#7A5B3E,#3E2F20)', border: '1px solid #2B2015' }} />
-    </div>
-  );
-}
-
-const sealBase = { width: 26, height: 26, borderRadius: 3, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Noto Serif SC',serif", fontSize: 13, flex: 'none' } as const;
-const cardStyle = { border: '1.5px solid rgba(58,52,43,0.35)', background: '#FDFAF1', borderRadius: 6, padding: '12px 14px' } as const;
-
-export function StationInteriorDrawer({ station, interior, lang, onClose }: StationInteriorDrawerProps) {
+export function StationInteriorDrawer({
+  station,
+  plan,
+  lang,
+  visitedFloorIds = [],
+  initialFloorId,
+  onVisitFloor,
+  onClose,
+}: StationInteriorDrawerProps) {
   const { t } = useTranslation();
-  const open = station !== null;
-  const section = station ? SECTION_OF[station] : 'residents';
+  const open = station !== null && !!plan;
+  const floors = plan?.floors ?? [];
+  const [floorId, setFloorId] = useState<string | null>(null);
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  const closeRef = useRef<HTMLButtonElement | null>(null);
+  const priorFocus = useRef<HTMLElement | null>(null);
+  const floorRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const meta = station ? STATION_META[station] : STATION_META.dock;
+  const preferredFloor = floors.find((floor) => floor.id === initialFloorId) ?? floors[0] ?? null;
 
-  const sealText: Record<Section, string> = {
-    questions: t('island.interior.questions.seal'),
-    library: t('island.interior.library.seal'),
-    whiteboard: t('island.interior.whiteboard.seal'),
-    data: t('island.interior.data.seal'),
-    driftwood: t('island.interior.driftwood.seal'),
-    workshop: t('island.interior.workshop.seal'),
-    gallery: t('island.interior.gallery.seal'),
-    tearoom: t('island.interior.tearoom.seal'),
-    residents: t('island.interior.residents.seal'),
+  useEffect(() => {
+    if (!open || !preferredFloor) return;
+    priorFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    setFloorId(preferredFloor.id);
+    onVisitFloor?.(preferredFloor.id);
+    const frame = window.requestAnimationFrame(() => closeRef.current?.focus());
+    return () => {
+      window.cancelAnimationFrame(frame);
+      priorFocus.current?.focus();
+    };
+  }, [open, plan?.station]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const selected = useMemo(
+    () => floors.find((floor) => floor.id === floorId) ?? preferredFloor,
+    [floorId, floors, preferredFloor],
+  );
+
+  const chooseFloor = (floor: BuildingFloor): void => {
+    setFloorId(floor.id);
+    onVisitFloor?.(floor.id);
   };
-  const sealBg: Record<Section, string> = {
-    questions: '#B5673A',
-    library: '#2E5E8C',
-    whiteboard: '#3E9B7E',
-    data: '#2E5E8C',
-    driftwood: '#6B6154',
-    workshop: '#B5673A',
-    gallery: '#4A4238',
-    tearoom: '#3E9B7E',
-    residents: '#4A4238',
+
+  const onDialogKey = (event: ReactKeyboardEvent<HTMLDivElement>): void => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      onClose();
+      return;
+    }
+    if (event.key !== 'Tab') return;
+    const focusable = [...(dialogRef.current?.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])',
+    ) ?? [])].filter((element) => element.getClientRects().length > 0);
+    const first = focusable[0];
+    const last = focusable.at(-1);
+    if (!first || !last) return;
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
   };
-  const titleText: Record<Section, string> = {
-    questions: t('island.interior.questions.title'),
-    library: t('island.interior.library.title'),
-    whiteboard: t('island.interior.whiteboard.title'),
-    data: t('island.interior.data.title'),
-    driftwood: t('island.interior.driftwood.title'),
-    workshop: t('island.interior.workshop.title'),
-    gallery: t('island.interior.gallery.title'),
-    tearoom: t('island.interior.tearoom.title'),
-    residents: t('island.interior.residents.title'),
+
+  const onFloorKey = (event: ReactKeyboardEvent<HTMLButtonElement>, index: number): void => {
+    let next = index;
+    if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') next = Math.max(0, index - 1);
+    else if (event.key === 'ArrowDown' || event.key === 'ArrowRight') next = Math.min(floors.length - 1, index + 1);
+    else if (event.key === 'Home') next = 0;
+    else if (event.key === 'End') next = floors.length - 1;
+    else return;
+    event.preventDefault();
+    const floor = floors[next];
+    if (floor) chooseFloor(floor);
+    floorRefs.current[next]?.focus();
   };
 
   return (
     <>
-      <div
+      <button
+        type="button"
+        className="fi-interior-scrim"
+        data-open={open || undefined}
+        aria-label={t('island.interior.close')}
+        tabIndex={open ? 0 : -1}
         onClick={onClose}
-        style={{ position: 'absolute', inset: 0, background: 'rgba(24,20,14,0.32)', opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none', transition: 'opacity .5s' }}
       />
       <div
+        ref={dialogRef}
+        className="fi-interior-tower"
+        data-open={open || undefined}
         data-screen-label="L2 站点内景抽屉"
         data-station={station ?? undefined}
-        style={{ position: 'absolute', top: 0, right: 0, bottom: 0, width: 560, transform: `translateX(${open ? '0%' : '108%'})`, transition: 'transform .55s cubic-bezier(0.22,1,0.36,1)', display: 'flex', flexDirection: 'column', filter: 'drop-shadow(-14px 0 30px rgba(24,20,14,0.3))' }}
+        role="dialog"
+        aria-modal="true"
+        aria-hidden={!open}
+        aria-labelledby="fi-interior-title"
+        onKeyDown={onDialogKey}
       >
-        <ScrollRod />
-        <div style={{ position: 'relative', flex: 1, background: '#FAF5E8', backgroundImage: 'repeating-linear-gradient(0deg,rgba(43,38,32,0.016) 0 1px,transparent 1px 3px)', borderLeft: '1.5px solid #3A342B', borderRight: '1.5px solid #3A342B', overflowY: 'auto', padding: '22px 26px' }}>
-          <span style={{ position: 'absolute', right: 2, top: 56, fontFamily: "'Noto Serif SC',serif", fontSize: 150, fontWeight: 900, color: 'rgba(181,103,58,0.05)', pointerEvents: 'none', lineHeight: 1 }} aria-hidden="true">{sealText[section]}</span>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div className="fi-interior-scroll-rod" aria-hidden="true" />
+        <div className="fi-interior-paper">
+          <header className="fi-interior-header">
             <div>
-              <div style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 10.5, letterSpacing: '0.15em', color: '#B5673A' }}>{t('island.interior.kicker')}</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
-                <span style={{ ...sealBase, background: sealBg[section], color: '#F6F2E6' }}>{sealText[section]}</span>
-                <span style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 900, fontSize: 22, color: '#2B2620' }}>{titleText[section]}</span>
-              </div>
+              <small>{t('island.interior.kicker')} · {t('island.interior.floorKicker')}</small>
+              <h2 id="fi-interior-title"><span style={{ background: meta.ink }}>{meta.seal}</span>{t(meta.titleKey)}</h2>
+              <p>{t('island.interior.floorIntro', { count: floors.length })}</p>
             </div>
-            <div onClick={onClose} title={t('island.interior.close')} style={{ cursor: 'pointer', width: 30, height: 30, border: '1.5px solid #3A342B', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2B2620', fontSize: 14, background: '#F2EAD8' }}>✕</div>
-          </div>
+            <button ref={closeRef} type="button" className="fi-interior-close" onClick={onClose} aria-label={t('island.interior.close')}>×</button>
+          </header>
 
-          <div style={{ marginTop: 16 }}>
-            {!interior ? (
-              <div style={{ ...cardStyle, color: '#6B6154', fontSize: 12.5 }}>{t('island.interior.empty')}</div>
-            ) : (
-              <SectionBody section={section} interior={interior} lang={lang} t={t} />
-            )}
-          </div>
+          {floors.length > 0 ? (
+            <div className="fi-interior-layout">
+              <nav className="fi-floor-cutaway" aria-label={t('island.interior.floorNav')}>
+                <div className="fi-floor-roof" aria-hidden="true" />
+                {[...floors].reverse().map((floor, reverseIndex) => {
+                  const index = floors.length - reverseIndex - 1;
+                  return (
+                    <button
+                      key={floor.id}
+                      ref={(element) => { floorRefs.current[index] = element; }}
+                      type="button"
+                      role="tab"
+                      aria-selected={selected?.id === floor.id}
+                      data-active={selected?.id === floor.id || undefined}
+                      data-visited={visitedFloorIds.includes(floor.id) || undefined}
+                      data-source={floor.source}
+                      onClick={() => chooseFloor(floor)}
+                      onKeyDown={(event) => onFloorKey(event, index)}
+                    >
+                      <b>{floor.level === floors.length ? 'R' : `F${floor.level}`}</b>
+                      <span>{floor.title[lang]}</span>
+                      <i aria-hidden="true" />
+                    </button>
+                  );
+                })}
+                <div className="fi-floor-foundation" aria-hidden="true">{t('island.interior.foundation')}</div>
+              </nav>
 
-          <div style={{ marginTop: 16, fontSize: 10.5, color: '#A89C88', fontFamily: "'JetBrains Mono',ui-monospace,monospace", textAlign: 'center' }}>{t('island.interior.footer')}</div>
+              <section className="fi-floor-room" role="tabpanel" aria-live="polite">
+                {selected && (
+                  <>
+                    <header>
+                      <span>{selected.level === floors.length ? 'ROOF' : `FLOOR ${String(selected.level).padStart(2, '0')}`}</span>
+                      <h3>{selected.title[lang]}</h3>
+                      <p>{selected.subtitle[lang]}</p>
+                    </header>
+                    <div className="fi-floor-items">
+                      {selected.items.map((item, index) => <FloorItem key={`${selected.id}:${index}`} item={item} lang={lang} />)}
+                    </div>
+                  </>
+                )}
+              </section>
+            </div>
+          ) : (
+            <div className="fi-interior-empty">{t('island.interior.empty')}</div>
+          )}
+
+          <footer>{t('island.interior.floorFooter')}</footer>
         </div>
-        <ScrollRod />
+        <div className="fi-interior-scroll-rod" aria-hidden="true" />
       </div>
     </>
   );
 }
 
-function SectionBody({ section, interior, lang, t }: { section: Section; interior: IslandInterior; lang: 'zh' | 'en'; t: (k: string) => string }) {
-  switch (section) {
-    case 'questions':
+function Citation({ cite }: { cite: { title: string; venue: string; year: number; url?: string } }) {
+  const text = `${cite.title} · ${cite.venue} ${cite.year}`;
+  return cite.url ? <a href={cite.url} target="_blank" rel="noopener noreferrer">{text} ↗</a> : <span>{text}</span>;
+}
+
+function FloorItem({ item, lang }: { item: BuildingFloorItem; lang: 'zh' | 'en' }) {
+  const { t } = useTranslation();
+  switch (item.kind) {
+    case 'brief':
+      return <article className="fi-floor-card fi-floor-brief"><small>{item.label[lang]}</small><p>{item.text[lang]}</p></article>;
+    case 'question': {
+      const question = item.question;
       return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {interior.questions.map((q, i) => (
-            <div key={i} style={cardStyle}>
-              <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                <span style={{ width: 22, height: 22, borderRadius: '50%', border: '1.2px solid #6B6154', color: '#6B6154', fontSize: 11, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flex: 'none', fontFamily: "'JetBrains Mono',ui-monospace,monospace" }}>{i + 1}</span>
-                <div style={{ flex: 1 }}>
-                  {q.rewrittenFrom && (
-                    <div style={{ fontSize: 12, color: '#A89C88', textDecoration: 'line-through', marginBottom: 2 }}>
-                      {q.rewrittenFrom[lang]} <span style={{ textDecoration: 'none', color: '#8A6A1E' }}>{t('island.interior.questions.rewriteTag')}</span>
-                    </div>
-                  )}
-                  <div style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 600, fontSize: 14.5, color: '#2B2620', lineHeight: 1.5 }}>{q.text[lang]}</div>
-                </div>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 9, paddingLeft: 32 }}>
-                <span style={{ fontSize: 9.5, padding: '2px 7px', borderRadius: 999, border: '1px solid rgba(139,148,178,0.55)', color: '#6B7594', whiteSpace: 'nowrap' }}>{q.author[lang]}</span>
-                <span style={{ fontSize: 11, padding: '2.5px 10px', borderRadius: 999, border: `1.2px solid ${q.open ? '#3E9B7E' : '#B5673A'}`, background: q.open ? 'rgba(62,155,126,0.1)' : '#B5673A', color: q.open ? '#2B7A5F' : '#F6F2E6' }}>{q.open ? t('island.interior.questions.open') : t('island.interior.questions.closed')}</span>
-                <span style={{ flex: 1 }} />
-                <span style={{ fontSize: 9, letterSpacing: 2, color: '#2E5E8C', whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: 110 }} title={t('island.interior.questions.voteHint')}>{'●'.repeat(Math.min(q.votes, 12))}</span>
-                <span style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 12, color: '#2E5E8C', minWidth: 16, textAlign: 'right' }}>{q.votes}</span>
-              </div>
-            </div>
-          ))}
-        </div>
+        <article className="fi-floor-card fi-floor-question">
+          {question.rewrittenFrom && <del>{question.rewrittenFrom[lang]}</del>}
+          <p>{question.text[lang]}</p>
+          <footer><span>{question.author[lang]}</span><b data-open={question.open || undefined}>{question.open ? t('island.interior.questions.open') : t('island.interior.questions.closed')}</b><em>{question.votes}</em></footer>
+        </article>
       );
-    case 'library':
-      return (
-        <>
-          <div style={{ margin: '0 0 10px', fontSize: 11.5, color: '#6B6154' }}>{t('island.interior.library.sub')}</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {interior.digests.map((d, i) => (
-              <div key={i} style={cardStyle}>
-                <div style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 700, fontSize: 14, color: '#2B2620', lineHeight: 1.45 }}>{d.title[lang]}</div>
-                <div style={{ marginTop: 5, fontSize: 12.5, color: '#4A4238', lineHeight: 1.55 }}>{d.gist[lang]}</div>
-                {d.cite && (
-                  <div style={{ marginTop: 7, fontSize: 10.5, color: '#6B6154', fontFamily: "'JetBrains Mono',ui-monospace,monospace" }}>
-                    {t('island.interior.library.cite')} · {d.cite.url ? (
-                      <a href={d.cite.url} target="_blank" rel="noopener noreferrer" style={{ color: '#2E5E8C' }}>{d.cite.title} · {d.cite.venue} {d.cite.year} ↗</a>
-                    ) : (
-                      <span>{d.cite.title} · {d.cite.venue} {d.cite.year}</span>
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </>
-      );
-    case 'whiteboard':
-      return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {interior.debates.map((db, i) => (
-            <div key={i} style={cardStyle}>
-              <div style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 700, fontSize: 14.5, color: '#2B2620', lineHeight: 1.5 }}>{db.topic[lang]}</div>
-              <div style={{ margin: '6px 0 4px', fontSize: 10, color: '#3E9B7E', fontFamily: "'JetBrains Mono',ui-monospace,monospace", letterSpacing: '0.1em' }}>{t('island.interior.whiteboard.positions')}</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {db.positions.map((p, j) => (
-                  <div key={j} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 12.5, color: '#3E4A48', lineHeight: 1.5 }}>
-                    <span style={{ color: '#3E9B7E', flex: 'none', fontFamily: "'JetBrains Mono',ui-monospace,monospace" }}>{String.fromCharCode(65 + j)}</span>
-                    <span>{p[lang]}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      );
-    case 'data':
-      return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {interior.data.map((d, i) => (
-            <div key={i} style={{ ...cardStyle, display: 'flex', gap: 12, alignItems: 'baseline' }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 12.5, color: '#2B2620', fontFamily: "'Noto Serif SC',serif", fontWeight: 600 }}>{d.label[lang]}</div>
-                {d.note && <div style={{ marginTop: 3, fontSize: 10.5, color: '#8C8270', lineHeight: 1.45 }}>{d.note[lang]}</div>}
-              </div>
-              <div style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 14, color: '#2E5E8C', textAlign: 'right', flex: 'none', maxWidth: 200 }}>{d.value[lang]}</div>
-            </div>
-          ))}
-        </div>
-      );
-    case 'driftwood':
-      return (
-        <>
-          <div style={{ margin: '0 0 10px', fontSize: 11.5, color: '#6B6154' }}>{t('island.interior.driftwood.sub')}</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {interior.driftwood.map((it, i) => (
-              <div key={i} style={{ ...cardStyle, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ flex: 1, fontSize: 13, color: '#2B2620', fontFamily: "'Noto Serif SC',serif", fontWeight: 600, lineHeight: 1.45 }}>{it.text[lang]}</span>
-                <span style={{ fontSize: 9.5, padding: '1.5px 7px', borderRadius: 999, border: '1px solid rgba(139,148,178,0.55)', color: '#6B7594', whiteSpace: 'nowrap', flex: 'none' }}>{it.author[lang]}</span>
-              </div>
-            ))}
-          </div>
-        </>
-      );
-    case 'workshop':
-      return (
-        <>
-          <div style={{ margin: '0 0 10px', fontSize: 11.5, color: '#6B6154' }}>{t('island.interior.workshop.sub')}</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {interior.workshop.map((it, i) => (
-              <div key={i} style={{ ...cardStyle, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ flex: 1, fontSize: 13, color: '#2B2620', fontFamily: "'Noto Serif SC',serif", fontWeight: 600, lineHeight: 1.45 }}>{it.text[lang]}</span>
-                <span style={{ fontSize: 9.5, padding: '1.5px 7px', borderRadius: 999, border: '1px solid rgba(139,148,178,0.55)', color: '#6B7594', whiteSpace: 'nowrap', flex: 'none' }}>{it.author[lang]}</span>
-              </div>
-            ))}
-          </div>
-        </>
-      );
+    }
+    case 'digest':
+      return <article className="fi-floor-card"><h4>{item.digest.title[lang]}</h4><p>{item.digest.gist[lang]}</p>{item.digest.cite && <small><Citation cite={item.digest.cite} /></small>}</article>;
+    case 'debate':
+      return <article className="fi-floor-card"><h4>{item.debate.topic[lang]}</h4><ol className="fi-floor-positions">{item.debate.positions.map((position, index) => <li key={index}><b>{String.fromCharCode(65 + index)}</b>{position[lang]}</li>)}</ol></article>;
+    case 'datum':
+      return <article className="fi-floor-card fi-floor-datum"><div><h4>{item.datum.label[lang]}</h4>{item.datum.note && <p>{item.datum.note[lang]}</p>}</div><strong>{item.datum.value[lang]}</strong></article>;
+    case 'scrap':
+      return <article className="fi-floor-card fi-floor-scrap"><p>{item.scrap.text[lang]}</p><small>— {item.scrap.author[lang]}</small></article>;
     case 'gallery':
+      return <article className="fi-floor-card"><h4>{item.gallery.title[lang]}</h4><p>{item.gallery.gist[lang]}</p>{item.gallery.cite && <small><Citation cite={item.gallery.cite} /></small>}</article>;
+    case 'resident':
+      return <article className="fi-floor-card fi-floor-resident"><span data-kind={item.resident.kind}>{item.resident.kind === 'ai' ? 'AI' : '人'}</span><div><h4>{item.resident.name}</h4><p>{item.resident.caption[lang]}</p></div></article>;
+    case 'structure': {
+      const structure = item.structure;
       return (
-        <>
-          <div style={{ margin: '0 0 10px', fontSize: 11.5, color: '#6B6154' }}>{t('island.interior.gallery.sub')}</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {interior.gallery.map((g, i) => (
-              <div key={i} style={cardStyle}>
-                <div style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 700, fontSize: 14, color: '#2B2620', lineHeight: 1.45 }}>{g.title[lang]}</div>
-                <div style={{ marginTop: 5, fontSize: 12.5, color: '#4A4238', lineHeight: 1.55 }}>{g.gist[lang]}</div>
-                {g.cite && (
-                  <div style={{ marginTop: 7, fontSize: 10.5, color: '#6B6154', fontFamily: "'JetBrains Mono',ui-monospace,monospace" }}>
-                    {t('island.interior.gallery.exhibit')} · {g.cite.url ? (
-                      <a href={g.cite.url} target="_blank" rel="noopener noreferrer" style={{ color: '#2E5E8C' }}>{g.cite.title} · {g.cite.venue} {g.cite.year} ↗</a>
-                    ) : (
-                      <span>{g.cite.title} · {g.cite.venue} {g.cite.year}</span>
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </>
+        <article className="fi-floor-card fi-floor-structure">
+          <small>{structure.theme ? t(`chart.structures.theme.${structure.theme}`) : t('chart.structures.legend')}</small>
+          <h4>{structure.title[lang]}</h4>
+          <p>{structure.statement[lang]}</p>
+          {structure.provenance && <a href={structure.provenance.url} target="_blank" rel="noopener noreferrer">{structure.provenance.source}{structure.provenance.recordIds.length ? ` · #${structure.provenance.recordIds.join(' · #')}` : ''} · {structure.provenance.reviewedAt} ↗</a>}
+          <em>{t('island.interior.structureBoundary')}</em>
+        </article>
       );
-    case 'tearoom':
-      return (
-        <>
-          <div style={{ margin: '0 0 10px', fontSize: 11.5, color: '#6B6154' }}>{t('island.interior.tearoom.sub')}</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {interior.tearoom.map((it, i) => (
-              <div key={i} style={{ ...cardStyle }}>
-                <div style={{ fontSize: 13, color: '#2B2620', lineHeight: 1.5 }}>{it.text[lang]}</div>
-                <div style={{ marginTop: 5, fontSize: 9.5, color: '#8C8270', fontStyle: 'italic' }}>— {it.author[lang]}</div>
-              </div>
-            ))}
-          </div>
-        </>
-      );
-    case 'residents':
-      return (
-        <>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {interior.residents.map((r, i) => (
-              <div key={i} style={{ ...cardStyle, display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ width: 26, height: 26, borderRadius: r.kind === 'ai' ? 4 : '50%', background: r.kind === 'ai' ? '#5A6C9E' : '#2E5E8C', color: '#F6F2E6', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Noto Serif SC',serif", fontSize: 12, flex: 'none' }}>{r.kind === 'ai' ? t('island.interior.residents.ai') : t('island.interior.residents.human')}</span>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 700, fontSize: 14, color: '#2B2620' }}>{r.name}</div>
-                  <div style={{ fontSize: 11.5, color: '#6B6154', marginTop: 1 }}>{r.caption[lang]}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div style={{ marginTop: 10, fontSize: 10.5, color: '#A89C88', textAlign: 'center' }}>{t('island.interior.residents.note')}</div>
-        </>
-      );
+    }
   }
 }

@@ -43,8 +43,8 @@ export function GeneratedStationIndex({ interior, sel, onStation, defaultOpen = 
     { kind: 'workshop', glyph: '坊', bg: '#B5673A', titleKey: 'island.interior.workshop.title', count: interior.workshop.length },
     { kind: 'gallery', glyph: '展', bg: '#4A4238', titleKey: 'island.interior.gallery.title', count: interior.gallery.length },
     { kind: 'driftwood', glyph: '木', bg: '#6B6154', titleKey: 'island.interior.driftwood.title', count: interior.driftwood.length },
-    { kind: 'tearoom', glyph: '茶', bg: '#3E9B7E', titleKey: 'island.interior.tearoom.title', count: interior.tearoom.length },
-    { kind: 'dock', glyph: '渡', bg: '#4A4238', titleKey: 'island.interior.dock.title', count: interior.residents.length },
+    { kind: 'tearoom', glyph: '议', bg: '#3E9B7E', titleKey: 'island.interior.tearoom.title', count: interior.tearoom.length },
+    { kind: 'dock', glyph: '联', bg: '#4A4238', titleKey: 'island.interior.dock.title', count: interior.residents.length },
   ];
 
   return (

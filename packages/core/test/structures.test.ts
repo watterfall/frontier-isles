@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
+  projectStructureMappings,
   reduceStructureGraph,
   structureFrontier,
   disciplineDistance,
@@ -64,6 +65,31 @@ describe("reduceStructureGraph", () => {
     const a = reduceStructureGraph([ev("op://x/prob/firefly", "sha256:k1"), ev("op://x/prob/heart", "sha256:k2")], resolve);
     const b = reduceStructureGraph([ev("op://x/prob/heart", "sha256:k2"), ev("op://x/prob/firefly", "sha256:k1")], resolve);
     expect(a).toEqual(b);
+  });
+});
+
+describe("projectStructureMappings", () => {
+  it("keeps the explanatory ref content, actor, and time behind a compressed edge", () => {
+    const records = projectStructureMappings([ev("op://x/prob/firefly", "sha256:k1")], resolve);
+    expect(records).toEqual([
+      expect.objectContaining({
+        refHash: "sha256:k1",
+        actor: "github:a",
+        ts: "2026-07-12T00:00:00Z",
+        structureId: "struct://x/kuramoto",
+        islandOp: "op://x/prob/firefly",
+        correspondences: MAPS["sha256:k1"]!.correspondences,
+      }),
+    ]);
+  });
+
+  it("keeps repeated human refinements instead of pretending one edge has one eternal explanation", () => {
+    const records = projectStructureMappings([
+      ev("op://x/prob/firefly", "sha256:k1", "github:a"),
+      ev("op://x/prob/firefly", "sha256:k1", "github:b"),
+    ], resolve);
+    expect(records).toHaveLength(2);
+    expect(records.map((record) => record.actor)).toEqual(["github:a", "github:b"]);
   });
 });
 

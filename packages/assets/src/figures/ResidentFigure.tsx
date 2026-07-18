@@ -1,9 +1,9 @@
 const AI_ROLE_GLYPH: Record<'scout' | 'advocate' | 'synthesizer' | 'ferryman', string> = {
-  // 文献斥候 · 魔鬼辩护人 · 综合者 · 摆渡人 (docs/architecture.md §3 AI residents)
+  // 文献斥候 · 魔鬼辩护人 · 综合者 · 连接协调员 (stable role id remains ferryman)
   scout: '斥',
   advocate: '辩',
   synthesizer: '综',
-  ferryman: '渡',
+  ferryman: '联',
 };
 
 export interface ResidentFigureProps {

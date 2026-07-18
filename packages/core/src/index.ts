@@ -74,7 +74,8 @@ export type {
 
 // Sea-plane projections (depth-plan-v2 §3 — currents & whirlpools)
 export { projectCurrents, projectWhirlpools } from "./currents";
-export type { Current, CurrentKind, CurrentSign, CurrentMaturity, Whirlpool } from "./currents";
+export type { Current, CurrentRecord, CurrentKind, CurrentSign, CurrentMaturity, Whirlpool } from "./currents";
+export type { RelationRefResolver, RelationRefValue } from "./relation-refs";
 
 // Archipelago clustering (depth-plan-v2 §4 / INFO-HIERARCHY C3 — Phase C3 data layer)
 export { projectArchipelagos } from "./archipelago";
@@ -128,9 +129,10 @@ export type { TransplantInput, TransplantBuild, BridgeArtifactContent } from "./
 // Structure ⇄ 现象 bipartite graph (执行纲要 §九 — 学科打通)
 export { MappingArtifactSchema } from "./mapping";
 export type { MappingArtifact } from "./mapping";
-export { reduceStructureGraph, structureFrontier, disciplineDistance } from "./structures";
+export { projectStructureMappings, reduceStructureGraph, structureFrontier, disciplineDistance } from "./structures";
 export type {
   StructureEdge,
+  StructureMappingRecord,
   StructureIslandLike,
   StructureFrontier,
   DomainPairDistance,

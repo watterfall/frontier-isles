@@ -35,9 +35,9 @@ export interface AiResidentTemplate {
   kind: AiResidentKind;
   zh: string;
   en: string;
-  /** Seal glyph (斥/辩/综/渡). */
+  /** Seal glyph (斥/辩/综/联). */
   seal: string;
-  /** Only the ferryman travels between islands. */
+  /** Only the connection steward works across islands. */
   crossIsland: boolean;
   /** Default granted capabilities for this resident template. */
   capabilities: string[];
@@ -70,9 +70,9 @@ export const AI_RESIDENT_TEMPLATES: Record<AiResidentKind, AiResidentTemplate> =
   },
   ferryman: {
     kind: "ferryman",
-    zh: "摆渡人",
-    en: "ferryman",
-    seal: "渡",
+    zh: "连接协调员",
+    en: "connection steward",
+    seal: "联",
     crossIsland: true, // the only cross-island agent
     capabilities: ["propose", "driftwood_write", "bridge_propose"], // bridge-proposal rights only
   },

@@ -190,7 +190,7 @@ export const STN: StationRow[] = [
   { k: 'library', name: '文献阁', glyph: '文', sealBg: '#2E5E8C', count: { zh: '12', en: '12' }, x: 760, y: 344, auth: { zh: 'AI 值夜', en: 'AI night watch' } },
   { k: 'workshop', name: '实验坊', glyph: '坊', sealBg: '#B5673A', count: { zh: '2', en: '2' }, x: 470, y: 538, auth: { zh: '人', en: 'Human' } },
   { k: 'gallery', name: '展厅', glyph: '展', sealBg: '#4A4238', count: { zh: '1', en: '1' }, x: 668, y: 594, auth: { zh: '人+AI', en: 'Human+AI' } },
-  { k: 'tearoom', name: '茶寮', glyph: '茶', sealBg: '#3E9B7E', count: { zh: '·', en: '·' }, x: 880, y: 619, auth: { zh: '人', en: 'Human' } },
+  { k: 'tearoom', name: '开放讨论', glyph: '议', sealBg: '#3E9B7E', count: { zh: '·', en: '·' }, x: 880, y: 619, auth: { zh: '人', en: 'Human' } },
   { k: 'driftwood', name: '散木园', glyph: '木', sealBg: '#6B6154', count: { zh: '4', en: '4' }, x: 790, y: 660, auth: { zh: '人+AI', en: 'Human+AI' } },
 ];
 

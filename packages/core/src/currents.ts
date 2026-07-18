@@ -1,4 +1,6 @@
 import type { ActionType, LedgerEvent } from "@frontier-isles/opp";
+import { extractEvidence, type EvidenceRef } from "./claims";
+import { groupBySemanticRef, type RelationRefResolver, type SemanticRefEvent } from "./relation-refs";
 
 /**
  * Sea-plane projections (depth-plan-v2 §3, invariants 14–15). The horizontal
@@ -34,6 +36,25 @@ export type CurrentSign = "affirm" | "contest" | "neutral";
 /** A proposed bridge is a strait (water); a ratified bridge is an isthmus (land) — §3. */
 export type CurrentMaturity = "proposed" | "ratified";
 
+/** One source-preserving ledger response behind an aggregated current. */
+export interface CurrentRecord {
+  targetRef: string;
+  targetKind?: string;
+  targetSummary?: string;
+  targetEvidence?: EvidenceRef;
+  responseRef?: string;
+  responseKind?: string;
+  responseBody?: string;
+  responseTest?: string;
+  responseEvidence?: EvidenceRef;
+  action: ActionType;
+  actor: string;
+  actorKind: LedgerEvent["actor"]["kind"];
+  ts: string;
+  /** True when a validate/refute event predates separate response artifacts. */
+  historical: boolean;
+}
+
 export interface Current {
   /** Anchor island `op` — where the referenced artifact originated. */
   from: string;
@@ -48,6 +69,8 @@ export interface Current {
   directed: boolean;
   /** Bridge-only: proposed (strait) vs ratified (isthmus). Undefined elsewhere. */
   maturity?: CurrentMaturity;
+  /** Every ledger response backing this aggregate, with its resolvable provenance. */
+  records: CurrentRecord[];
 }
 
 /**
@@ -91,18 +114,6 @@ const ANCHOR_ACTIONS: ReadonlySet<ActionType> = new Set<ActionType>([
 
 const DIRECTED_KINDS: ReadonlySet<CurrentKind> = new Set<CurrentKind>(["evidence", "lineage"]);
 
-/** Group events by `ref` (events without a ref carry no cross-island relation). */
-function groupByRef(events: readonly LedgerEvent[]): Map<string, LedgerEvent[]> {
-  const byRef = new Map<string, LedgerEvent[]>();
-  for (const e of events) {
-    if (!e.ref) continue;
-    const g = byRef.get(e.ref);
-    if (g) g.push(e);
-    else byRef.set(e.ref, [e]);
-  }
-  return byRef;
-}
-
 /**
  * Deterministic anchor island for a ref-group: the earliest ANCHOR-action event
  * (min `ts`, `op` breaks ties); if none, the earliest event overall. Independent
@@ -127,6 +138,54 @@ interface EdgeAcc {
   sign: CurrentSign;
   weight: number;
   ratifiedBridge: boolean;
+  records: CurrentRecord[];
+}
+
+function explicitString(content: unknown, keys: readonly string[]): string | undefined {
+  if (content === null || typeof content !== "object") return undefined;
+  const value = content as Record<string, unknown>;
+  for (const key of keys) {
+    const candidate = value[key];
+    if (typeof candidate === "string" && candidate.trim().length > 0) return candidate.trim();
+  }
+  return undefined;
+}
+
+function recordFor(
+  semantic: SemanticRefEvent,
+  resolveRef?: RelationRefResolver,
+): CurrentRecord {
+  const { event, targetRef, responseRef } = semantic;
+  const target = resolveRef?.(targetRef) ?? undefined;
+  const response = responseRef ? resolveRef?.(responseRef) ?? undefined : undefined;
+  const targetEvidence = target ? extractEvidence(target.content) ?? undefined : undefined;
+  const responseEvidence = response ? extractEvidence(response.content) ?? undefined : undefined;
+  return {
+    targetRef,
+    ...(target?.kind ? { targetKind: target.kind } : {}),
+    ...(target ? { targetSummary: explicitString(target.content, ["text", "title", "body"]) } : {}),
+    ...(targetEvidence ? { targetEvidence } : {}),
+    ...(responseRef ? { responseRef } : {}),
+    ...(response?.kind ? { responseKind: response.kind } : {}),
+    ...(response ? { responseBody: explicitString(response.content, ["body"]) } : {}),
+    ...(response ? { responseTest: explicitString(response.content, ["test"]) } : {}),
+    ...(responseEvidence ? { responseEvidence } : {}),
+    action: event.action,
+    actor: event.actor.id,
+    actorKind: event.actor.kind,
+    ts: event.ts,
+    historical: (event.action === "validate" || event.action === "refute") && responseRef === undefined,
+  };
+}
+
+function sortRecords(records: CurrentRecord[]): CurrentRecord[] {
+  return records.sort(
+    (a, b) =>
+      a.targetRef.localeCompare(b.targetRef) ||
+      a.ts.localeCompare(b.ts) ||
+      (a.responseRef ?? "").localeCompare(b.responseRef ?? "") ||
+      a.actor.localeCompare(b.actor),
+  );
 }
 
 /**
@@ -136,20 +195,36 @@ interface EdgeAcc {
  * contest between the same pair stay DISTINCT currents. `maturity` is set only for
  * bridges (proposed until a `bridge_accept` shares the ref). Stable order.
  */
-export function projectCurrents(events: readonly LedgerEvent[]): Current[] {
+export function projectCurrents(events: readonly LedgerEvent[], resolveRef?: RelationRefResolver): Current[] {
   const edges = new Map<string, EdgeAcc>();
 
-  for (const group of groupByRef(events).values()) {
-    const anchorOp = pickAnchor(group);
-    const ratifiedBridge = group.some((e) => e.action === "bridge_accept");
-    for (const e of group) {
+  for (const group of groupBySemanticRef(events, resolveRef).values()) {
+    const rawGroup = group.map(({ event }) => event);
+    const anchorOp = pickAnchor(rawGroup);
+    const ratifiedBridge = rawGroup.some((e) => e.action === "bridge_accept");
+    for (const semantic of group) {
+      const e = semantic.event;
       const r = REACTOR[e.action];
       if (!r) continue;
       if (e.op === anchorOp) continue; // a reactor must be a different island
       const key = `${anchorOp} ${e.op} ${r.kind} ${r.sign}`;
       const acc = edges.get(key);
-      if (acc) acc.weight += 1;
-      else edges.set(key, { from: anchorOp, to: e.op, kind: r.kind, sign: r.sign, weight: 1, ratifiedBridge });
+      const record = recordFor(semantic, resolveRef);
+      if (acc) {
+        acc.weight += 1;
+        acc.ratifiedBridge ||= ratifiedBridge;
+        acc.records.push(record);
+      } else {
+        edges.set(key, {
+          from: anchorOp,
+          to: e.op,
+          kind: r.kind,
+          sign: r.sign,
+          weight: 1,
+          ratifiedBridge,
+          records: [record],
+        });
+      }
     }
   }
 
@@ -162,6 +237,7 @@ export function projectCurrents(events: readonly LedgerEvent[]): Current[] {
       sign: a.sign,
       weight: a.weight,
       directed: DIRECTED_KINDS.has(a.kind),
+      records: sortRecords(a.records),
     };
     // maturity is a bridge-only concept (strait vs isthmus); undefined otherwise.
     if (a.kind === "bridge") current.maturity = a.ratifiedBridge ? "ratified" : "proposed";
@@ -190,18 +266,19 @@ interface DisputeAcc {
  * only removing the refutation does. Refutes without a `ref` cannot be sited and
  * are skipped. Stable order.
  */
-export function projectWhirlpools(events: readonly LedgerEvent[]): Whirlpool[] {
+export function projectWhirlpools(events: readonly LedgerEvent[], resolveRef?: RelationRefResolver): Whirlpool[] {
   const disputes = new Map<string, DisputeAcc>();
 
-  for (const group of groupByRef(events).values()) {
-    const refuters = group.filter((e) => e.action === "refute");
+  for (const group of groupBySemanticRef(events, resolveRef).values()) {
+    const refuters = group.filter(({ event }) => event.action === "refute");
     if (refuters.length === 0) continue;
-    const anchorOp = pickAnchor(group);
-    for (const e of refuters) {
+    const anchorOp = pickAnchor(group.map(({ event }) => event));
+    for (const semantic of refuters) {
+      const e = semantic.event;
       // A sea whirlpool is a dispute BETWEEN islands (§3). A refute of an
       // island's OWN claim is internal weather, not a sea vortex — skip it.
       if (e.op === anchorOp) continue;
-      const ref = e.ref!; // groupByRef only keeps events with a ref
+      const ref = semantic.targetRef;
       const key = `${anchorOp} ${e.op}`;
       let acc = disputes.get(key);
       if (!acc) {

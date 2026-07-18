@@ -460,6 +460,13 @@ function seedCrossIslandRelations(store: Store): void {
  */
 function seedStructures(store: Store): void {
   const curator: Actor = { id: "github:shen-kuo", kind: "human" };
+  // Existing databases receive explanatory mapping refinements too. Identity
+  // is the content-addressed mapping ref, not merely the structure/island pair:
+  // a newly authored boundary is a real refinement behind the same compressed
+  // edge. Once that exact ref has an event, reconciliation is idempotent.
+  const existingMappingRefs = new Set(
+    store.structureGraph().mappings.map((mapping) => mapping.refHash),
+  );
   for (const s of SEED_STRUCTURES) {
     const object = StructureObjectSchema.parse({
       schema: "opp/0.3",
@@ -467,6 +474,9 @@ function seedStructures(store: Store): void {
       title: s.title,
       statement: s.statement,
       status: s.status,
+      theme: s.theme,
+      isomorphism: s.isomorphism,
+      provenance: s.provenance,
     });
     store.insertStructure(object);
     s.mappings.forEach((m, i) => {
@@ -476,8 +486,19 @@ function seedStructures(store: Store): void {
         islandOp: opId,
         correspondences: m.correspondences,
         ...(m.prediction ? { prediction: m.prediction } : {}),
+        ...(m.boundary ? { boundary: m.boundary } : {}),
       };
       const ref = store.putRef("mapping", mapping);
+      if (existingMappingRefs.has(ref)) return;
+      // The curator is already the recorded human author of this island's
+      // mapping. Reflect that knowledge-plane truth on the place plane too so
+      // her harbor and departure capability do not contradict the ledger.
+      store.addMembership(opId, {
+        actorId: curator.id,
+        kind: curator.kind,
+        role: "master",
+        aiKind: null,
+      });
       const ev = store.appendRaw(opId, {
         ts: day(70 + i),
         op: opId as ProblemObject["id"],
@@ -493,13 +514,18 @@ function seedStructures(store: Store): void {
         structureId: s.id,
         hash: hashEvent(ev),
       });
+      existingMappingRefs.add(ref);
     });
   }
 }
 
 /** Idempotent: seeds only when the DB has no islands. Returns the count seeded. */
 export function seed(store: Store): number {
-  if (store.hasIslands()) return 0;
+  if (store.hasIslands()) {
+    const tx = store.db.transaction(() => seedStructures(store));
+    tx();
+    return 0;
+  }
   const tx = store.db.transaction(() => {
     seedSampleIsland(store);
     for (const c of DATA) {
@@ -521,6 +547,6 @@ if (invokedDirectly) {
   const db = openDb(process.env.DB_FILE ?? "data/isles.db");
   const store = new Store(db);
   const n = seed(store);
-  console.log(n > 0 ? `[seed] seeded ${n} islands` : "[seed] already seeded — nothing to do");
+  console.log(n > 0 ? `[seed] seeded ${n} islands` : "[seed] islands already present — structure catalog reconciled");
   db.close();
 }

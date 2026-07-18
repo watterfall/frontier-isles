@@ -86,10 +86,11 @@ describe('toAtlasLens (op graph → slug-keyed stage input)', () => {
 });
 
 describe('structureFallback (offline twin of /api/structures*)', () => {
-  it('serves the 3 seed structures in the API object shape', () => {
+  it('serves the expanded themed seed catalog in the API object shape', () => {
     const s = fallbackStructures();
     expect(s.map((x) => x.id)).toEqual(SEED_STRUCTURES.map((x) => x.id));
-    expect(s.every((x) => x.schema === 'opp/0.3' && x.title.zh && x.statement.en)).toBe(true);
+    expect(s).toHaveLength(8);
+    expect(s.every((x) => x.schema === 'opp/0.3' && x.title.zh && x.statement.en && x.theme && x.provenance?.source)).toBe(true);
   });
 
   it('graph edges mirror the seed mappings 1:1 (no edge without an event — inv 14)', () => {

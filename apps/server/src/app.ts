@@ -6,7 +6,15 @@ import { ZodError } from "zod";
 import type { Actor, FlowType, Phase } from "@frontier-isles/opp";
 import type { BridgeArtifactType, GatewayAction, StationKind } from "@frontier-isles/core";
 import { BRIDGE_ARTIFACT_TYPES, TRANSPLANT_TARGETS, MappingArtifactSchema } from "@frontier-isles/core";
-import { Store, GatewayDenied, ChainError, EvidenceRequired, NotFound } from "./store.js";
+import {
+  Store,
+  GatewayDenied,
+  ChainError,
+  EvidenceRequired,
+  NotFound,
+  PassageInvalid,
+  ConnectionResponseInvalid,
+} from "./store.js";
 import type { RefKind } from "./refs.js";
 
 const GATEWAY_ACTIONS = new Set<string>([
@@ -148,6 +156,37 @@ export function createApp(store: Store): Hono {
     }
   });
 
+  // A focused connection response: another island records a supported argument
+  // and a discriminating test against an anchored claim/publication. The Store
+  // owns semantic validation and the atomic response-ref + ledger write.
+  app.post("/api/islands/:slug/connection-response", async (c) => {
+    const slug = c.req.param("slug");
+    if (!store.getProblemRow(slug)) return c.json({ error: "not found" }, 404);
+    const body = await c.req.json().catch(() => null);
+    if (!body || typeof body !== "object") return c.json({ error: "invalid body" }, 400);
+    // Session identity wins over a body actor; body fallback supports local tests.
+    const actor: Actor | undefined = actorOf(c) ?? body.actor;
+    if (!actor) return c.json({ error: "actor required" }, 401);
+    if (body.action !== "validate" && body.action !== "refute") {
+      return c.json({ error: "action must be validate or refute" }, 400);
+    }
+    try {
+      const result = store.respondToConnection(slug, {
+        targetRef: typeof body.targetRef === "string" ? body.targetRef : "",
+        action: body.action,
+        body: typeof body.body === "string" ? body.body : "",
+        test: typeof body.test === "string" ? body.test : "",
+        evidence: body.evidence,
+        actor,
+        language: body.language,
+        credit: Array.isArray(body.credit) ? body.credit : undefined,
+      });
+      return c.json(result, 201);
+    } catch (e) {
+      return errorResponse(c, e);
+    }
+  });
+
   app.get("/api/islands/:slug/problem.md", (c) => {
     const row = store.getProblemRow(c.req.param("slug"));
     if (!row) return c.text("not found", 404);
@@ -194,29 +233,28 @@ export function createApp(store: Store): Hono {
       : c.json(found.object);
   });
 
-  // A human rebuilds a structure onto this island: the edge of the bipartite
-  // graph (§九). Routed through the SAME capability gateway as every push —
-  // rebuild requires station_write, so an ungranted AGENT's rebuild degrades to
-  // a dock proposal (§六.1: the mapping can only be human-authored). The mapping
-  // artifact is validated, then stored content-addressed as the event's ref.
+  // One human-authored passage: a verified departure edge → this island. The
+  // Store transaction derives charted practice vs frontier research, validates
+  // departure capability, then stores one mapping ref + one rebuild event.
   app.post("/api/islands/:slug/rebuild", async (c) => {
     const slug = c.req.param("slug");
     const row = store.getProblemRow(slug);
     if (!row) return c.json({ error: "not found" }, 404);
     const body = await c.req.json().catch(() => null);
     if (!body || typeof body !== "object") return c.json({ error: "invalid body" }, 400);
-    const actor: Actor | undefined = body.actor ?? actorOf(c);
+    // An authenticated session wins over a body actor so provenance cannot be
+    // spoofed by an otherwise well-formed payload. Body fallback keeps tests and
+    // offline/dev callers compatible.
+    const actor: Actor | undefined = actorOf(c) ?? body.actor;
     if (!actor) return c.json({ error: "actor required" }, 401);
     const parsed = MappingArtifactSchema.safeParse(body.mapping);
     if (!parsed.success) return c.json({ error: "invalid mapping", detail: parsed.error.issues }, 400);
     // The mapping must be about THIS island (no cross-island spoofing).
     if (parsed.data.islandOp !== row.opId) return c.json({ error: "mapping.islandOp must match this island" }, 400);
     try {
-      const result = store.gateway(row.opId, {
+      const result = store.rebuildPassage(slug, {
         actor,
-        gatewayAction: "rebuild",
-        payload: parsed.data,
-        refKind: "mapping",
+        mapping: parsed.data,
       });
       return c.json(result, 201);
     } catch (e) {
@@ -381,6 +419,8 @@ function errorResponse(c: import("hono").Context, e: unknown) {
   // §4 Claims & evidence: an evidence-less refute/validate is a hard 422 —
   // record honesty, not a capability problem, so never a dock degradation.
   if (e instanceof EvidenceRequired) return c.json({ error: e.message, code: "evidence_required" }, 422);
+  if (e instanceof PassageInvalid) return c.json({ error: e.message, code: e.reason }, 422);
+  if (e instanceof ConnectionResponseInvalid) return c.json({ error: e.message, code: e.reason }, 422);
   if (e instanceof ChainError) return c.json({ error: e.message, code: "chain" }, 409);
   if (e instanceof NotFound) return c.json({ error: e.message, code: "not_found" }, 404);
   if (e instanceof ZodError) return c.json({ error: "validation", issues: e.issues }, 400);

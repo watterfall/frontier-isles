@@ -24,7 +24,7 @@ export function FerryDock({ x = 0, y = 0, onClick, selected = false, label, show
       <Jetty />
       <Boat x={836} y={792} variant="jetty" />
       {selected && <SelectionHighlight cx={790} cy={760} />}
-      {showLabel && <NameCard x={790} y={706} width={64} text={label?.text ?? '渡口'} sealColor={label?.sealColor ?? '#6B6154'} />}
+      {showLabel && <NameCard x={790} y={706} width={96} text={label?.text ?? '连接工作台'} sealColor={label?.sealColor ?? '#6B6154'} />}
     </g>
   );
 }

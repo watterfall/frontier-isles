@@ -16,6 +16,14 @@ describe("StructureObject", () => {
       en: "Weakly coupled oscillators spontaneously phase-lock above a critical coupling.",
     },
     status: "active" as const,
+    theme: "collective-dynamics" as const,
+    isomorphism: "ISO-10",
+    provenance: {
+      source: "xfrontier.science",
+      url: "https://xfrontier.science/",
+      recordIds: [231, 1491],
+      reviewedAt: "2026-07-18",
+    },
   };
 
   it("accepts a struct:// id", () => {
@@ -36,5 +44,18 @@ describe("StructureObject", () => {
 
   it("requires non-empty bilingual title + statement (structure ≠ a bare label, §五)", () => {
     expect(() => StructureObjectSchema.parse({ ...raw, statement: { zh: "", en: "" } })).toThrow();
+  });
+
+  it("keeps old structure Markdown valid when theme/provenance are absent", () => {
+    const { theme: _theme, isomorphism: _iso, provenance: _provenance, ...legacy } = raw;
+    expect(() => StructureObjectSchema.parse(legacy)).not.toThrow();
+  });
+
+  it("rejects an unknown theme or unversioned provenance review date", () => {
+    expect(() => StructureObjectSchema.parse({ ...raw, theme: "biology" })).toThrow();
+    expect(() => StructureObjectSchema.parse({
+      ...raw,
+      provenance: { ...raw.provenance, reviewedAt: "18 July 2026" },
+    })).toThrow();
   });
 });

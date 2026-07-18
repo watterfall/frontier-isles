@@ -31,6 +31,9 @@ export function fallbackStructures(): ApiStructure[] {
     title: s.title,
     statement: s.statement,
     status: s.status,
+    theme: s.theme,
+    isomorphism: s.isomorphism,
+    provenance: s.provenance,
     license: 'CC-BY-4.0',
   }));
 }
@@ -52,5 +55,15 @@ export function fallbackStructureGraph(): ApiStructureGraph {
     domain: d.d,
     cluster: d.cluster?.code,
   }));
-  return { edges, frontier: structureFrontier(edges, islands) };
+  const mappings = SEED_STRUCTURES.flatMap((structure) => structure.mappings.map((mapping, index) => ({
+    refHash: `seed:${structure.id}:${mapping.slug}:${index}`,
+    actor: SEED_CURATOR,
+    ts: '2026-07-18T00:00:00.000Z',
+    structureId: structure.id,
+    islandOp: opIdFor(mapping.slug),
+    correspondences: mapping.correspondences,
+    ...(mapping.prediction ? { prediction: mapping.prediction } : {}),
+    ...(mapping.boundary ? { boundary: mapping.boundary } : {}),
+  })));
+  return { edges, frontier: structureFrontier(edges, islands), mappings };
 }

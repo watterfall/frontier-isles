@@ -1,4 +1,5 @@
 import type { ActionType, LedgerEvent } from "@frontier-isles/opp";
+import { groupBySemanticRef, type RelationRefResolver } from "./relation-refs";
 
 /**
  * Per-claim epistemic projection (M4.3, scene-upgrade). A building is a claim
@@ -129,17 +130,10 @@ function pickAnchor(group: readonly LedgerEvent[]): string {
  * `submit_claim` or `publish` become buildings (D2: a building is a claim). Stable
  * order by `ref`; never mutates its input.
  */
-export function projectClaimState(events: readonly LedgerEvent[]): ClaimState[] {
-  const byRef = new Map<string, LedgerEvent[]>();
-  for (const e of events) {
-    if (!e.ref) continue;
-    const g = byRef.get(e.ref);
-    if (g) g.push(e);
-    else byRef.set(e.ref, [e]);
-  }
-
+export function projectClaimState(events: readonly LedgerEvent[], resolveRef?: RelationRefResolver): ClaimState[] {
   const out: ClaimState[] = [];
-  for (const [ref, group] of byRef) {
+  for (const [ref, semanticGroup] of groupBySemanticRef(events, resolveRef)) {
+    const group = semanticGroup.map(({ event }) => event);
     const foundation = group.some((e) => e.action === "submit_claim" || e.action === "publish");
     if (!foundation) continue; // not a claim/record → not a building
 

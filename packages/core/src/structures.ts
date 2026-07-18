@@ -16,6 +16,55 @@ export interface StructureEdge {
   actors: string[];
 }
 
+/** One explanatory mapping record behind the compressed structure edge. The
+ * graph edge stays the geometry/provenance reduce; this record is the read
+ * projection that lets a client explain WHY a structure was rebuilt here. */
+export interface StructureMappingRecord extends MappingArtifact {
+  refHash: string;
+  actor: string;
+  ts: string;
+}
+
+/** Resolve every real rebuild event into its human-authored mapping content.
+ * Unlike `reduceStructureGraph`, repeated refinements are intentionally kept:
+ * a reader may inspect how a correspondence and its boundary evolved. */
+export function projectStructureMappings(
+  events: readonly LedgerEvent[],
+  resolveRef: (ref: string) => MappingArtifact | null,
+): StructureMappingRecord[] {
+  const records: StructureMappingRecord[] = [];
+  for (const event of events) {
+    if (event.action !== "rebuild" || !event.ref) continue;
+    const mapping = resolveRef(event.ref);
+    if (!mapping) continue;
+    records.push({
+      ...mapping,
+      refHash: event.ref,
+      actor: event.actor.id,
+      ts: event.ts,
+    });
+  }
+  return records.sort((a, b) =>
+    a.structureId < b.structureId
+      ? -1
+      : a.structureId > b.structureId
+        ? 1
+        : a.islandOp < b.islandOp
+          ? -1
+          : a.islandOp > b.islandOp
+            ? 1
+            : a.ts < b.ts
+              ? -1
+              : a.ts > b.ts
+                ? 1
+                : a.refHash < b.refHash
+                  ? -1
+                  : a.refHash > b.refHash
+                    ? 1
+                    : 0,
+  );
+}
+
 /**
  * Reduce the ledger into structure⇄island edges. An edge appears ONLY where a
  * `rebuild` event carries a resolvable mapping artifact — a "draw a link" tool

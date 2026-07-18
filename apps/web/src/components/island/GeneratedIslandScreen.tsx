@@ -9,10 +9,13 @@ import { RitualEventPanel } from './RitualEventPanel';
 import { TransplantPanel } from './TransplantPanel';
 import { NightTimeline } from './NightTimeline';
 import { StationInteriorDrawer } from './StationInteriorDrawer';
-import { GeneratedStationIndex } from './GeneratedStationIndex';
+import { IslandDistrictMap } from './IslandDistrictMap';
+import { projectBuildingFloors, projectIslandDistricts, type BuildingFloorPlan } from './islandDepth';
 import { frontierAtlasBySlug } from '@frontier-isles/data/atlas';
 import type { IslandInterior } from '@frontier-isles/data/frontiers';
-import { api } from '../../api/client';
+import { api, type ApiStructure } from '../../api/client';
+import { fallbackStructures } from '../../api/structureFallback';
+import { buildingVisitKey, type IslandDistrictId } from '../../state/explorationSession';
 
 /** Load the full L1 station archive only when a stale server omitted it. */
 export async function loadFallbackInterior(slug: string): Promise<IslandInterior | undefined> {
@@ -94,6 +97,12 @@ export interface GeneratedIslandScreenProps {
   /** Current user's ledger actor id — for the human transplant (Phase B.3). */
   actor: string;
   onToast: (msg: string) => void;
+  surveyedDistricts?: readonly IslandDistrictId[];
+  visitedBuildingFloors?: Record<string, readonly string[]>;
+  activeStructureId?: string | null;
+  completedPassageCount?: number;
+  onSurveyDistrict?: (districtId: IslandDistrictId) => void;
+  onVisitBuildingFloor?: (station: StationKind, floorId: string) => void;
   /** Signals that the destination scene can safely replace the atlas snapshot. */
   onReady?: () => void;
 }
@@ -104,7 +113,23 @@ export interface GeneratedIslandScreenProps {
  * and renders it with the island's real title/qfocus/brief/citation. The
  * sample island keeps its bespoke {@link Scene}; this is the data-driven path.
  */
-export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, backTarget = 'atlas', onStation, actor, onToast, onReady }: GeneratedIslandScreenProps) {
+export function GeneratedIslandScreen({
+  slug,
+  night,
+  onToggleNight,
+  onBack,
+  backTarget = 'atlas',
+  onStation,
+  actor,
+  onToast,
+  surveyedDistricts = [],
+  visitedBuildingFloors = {},
+  activeStructureId = null,
+  completedPassageCount = 0,
+  onSurveyDistrict,
+  onVisitBuildingFloor,
+  onReady,
+}: GeneratedIslandScreenProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
   const [detail, setDetail] = useState<IslandDetail | null>(null);
@@ -137,6 +162,7 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, back
   // driftwood / residents). Islands without an interior fall through to the
   // parent's onStation (a "station coming soon" toast), unchanged.
   const [drawerStation, setDrawerStation] = useState<StationKind | null>(null);
+  const [activeStructure, setActiveStructure] = useState<ApiStructure | null>(null);
   // Human transplant-through-dock (Phase B.3): the driftwood→dock→station panel.
   const [transplantOpen, setTransplantOpen] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
@@ -165,6 +191,30 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, back
       /* no matchMedia — keep full motion */
     }
   }, []);
+
+  useEffect(() => {
+    if (!activeStructureId) {
+      setActiveStructure(null);
+      return;
+    }
+    let alive = true;
+    const fallback = fallbackStructures().find((structure) => structure.id === activeStructureId) ?? null;
+    setActiveStructure(fallback);
+    api.structures().then((result) => {
+      if (!alive) return;
+      const found = result?.structures.find((structure) => structure.id === activeStructureId);
+      if (found) {
+        setActiveStructure({
+          ...fallback,
+          ...found,
+          theme: found.theme ?? fallback?.theme,
+          isomorphism: found.isomorphism ?? fallback?.isomorphism,
+          provenance: found.provenance ?? fallback?.provenance,
+        });
+      }
+    });
+    return () => { alive = false; };
+  }, [activeStructureId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -348,12 +398,6 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, back
   // Server interior first; fall back to the offline atlas when the server omits
   // it (pre-interior DB seed, or server absent) so the drawers still open.
   const interior = detail.atlas?.interior ?? localInterior;
-  // Station tap: flagship islands (with an interior) open the L2 station-interior
-  // drawer; islands without one fall through to the parent (toast), unchanged.
-  const handleStation = (key: StationKind): void => {
-    if (interior) setDrawerStation(key);
-    else onStation(key);
-  };
   const domain = detail.domain as '数理' | '物质' | '生命' | '交叉';
   // 海即数据 decoder (invariant 6): abstractness tier for the sea-depth readout +
   // the relation counts that make the current/agitation legible as text (list-twin).
@@ -379,6 +423,53 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, back
   const effActive = scrubbing ? replay!.activeStations : activeStations;
   // Only offer the scrubber when the ledger actually has events to replay.
   const hasReplay = timeline != null && (timeline.eventCountByNight[timeline.nights] ?? 0) > 0;
+  const atlasSummary = frontierAtlasBySlug(slug);
+  const qfocusBilingual = atlasSummary?.qfocus ?? { zh: qfocus, en: qfocus };
+  const briefBilingual = detail.atlas?.brief ?? atlasSummary?.brief;
+  const visibleStations = [...new Set(scene.stations.filter((station) => station.visible).map((station) => station.kind))];
+  const ledgerEvents = ledgerRef.current ?? [];
+  const ledgerStats = {
+    events: ledgerEvents.length,
+    validates: ledgerEvents.filter((event) => event.action === 'validate').length,
+    refutes: ledgerEvents.filter((event) => event.action === 'refute').length,
+    rebuilds: ledgerEvents.filter((event) => event.action === 'rebuild').length,
+  };
+  const floorPlans: BuildingFloorPlan[] = visibleStations.map((station) => projectBuildingFloors({
+    station,
+    qfocus: qfocusBilingual,
+    brief: briefBilingual,
+    depth,
+    citation,
+    literature,
+    interior,
+    activeStructure,
+    ledgerStats,
+  }));
+  const planByStation = new Map(floorPlans.map((plan) => [plan.station, plan]));
+  const districtProjection = projectIslandDistricts({
+    slug,
+    domain,
+    cluster: detail.atlas?.cluster,
+    stage: STAGE_INDEX[detail.growth.stage] ?? 0,
+    status: detail.object.status,
+    stations: visibleStations,
+    ledgerActions: ledgerEvents.map((event) => event.action),
+    literatureCount: literature.length + (citation ? 1 : 0),
+    hasInterior: !!interior,
+    openQuestionCount: interior?.questions.filter((question) => question.open).length ?? depth?.subQuestions.length ?? 1,
+    surveyed: surveyedDistricts,
+    activeStructure,
+    completedPassageCount,
+  });
+  const visitedByStation = Object.fromEntries(visibleStations.map((station) => [
+    station,
+    visitedBuildingFloors[buildingVisitKey(slug, station)] ?? [],
+  ]));
+  const handleStation = (key: StationKind): void => {
+    if (planByStation.has(key)) setDrawerStation(key);
+    else onStation(key);
+  };
+  const drawerPlan = drawerStation ? planByStation.get(drawerStation) : undefined;
   return (
     <div
       data-screen-label="L1 生成岛"
@@ -413,13 +504,24 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, back
 
       <ClaimDetailPanel claim={claimPanel} onClose={() => setClaimPanel(null)} />
       <RitualEventPanel event={ritualPanel} onClose={() => setRitualPanel(null)} />
-      {/* DOM station index (list twin) — the reliable, scale-proof way to open
-          every one of the nine buildings; only shown when the island actually
-          has an interior to open. */}
-      {interior && (
-        <GeneratedStationIndex interior={interior} sel={drawerStation} onStation={handleStation} />
-      )}
-      <StationInteriorDrawer station={drawerStation} interior={interior} lang={lang} onClose={() => setDrawerStation(null)} />
+      <IslandDistrictMap
+        projection={districtProjection}
+        plans={floorPlans}
+        visitedFloors={visitedByStation}
+        activeStructure={activeStructure}
+        lang={lang}
+        onSurvey={(districtId) => onSurveyDistrict?.(districtId)}
+        onStation={handleStation}
+      />
+      <StationInteriorDrawer
+        station={drawerStation}
+        plan={drawerPlan}
+        lang={lang}
+        visitedFloorIds={drawerStation ? visitedBuildingFloors[buildingVisitKey(slug, drawerStation)] ?? [] : []}
+        initialFloorId={drawerStation ? (visitedBuildingFloors[buildingVisitKey(slug, drawerStation)] ?? []).at(-1) : undefined}
+        onVisitFloor={(floorId) => { if (drawerStation) onVisitBuildingFloor?.(drawerStation, floorId); }}
+        onClose={() => setDrawerStation(null)}
+      />
       {transplantOpen && (
         <TransplantPanel slug={slug} actor={actor} lang={lang} onClose={() => setTransplantOpen(false)} onToast={onToast} />
       )}
@@ -501,7 +603,7 @@ export function GeneratedIslandScreen({ slug, night, onToggleNight, onBack, back
         data-testid="transplant-open"
         className="fi-transplant-trigger"
       >
-        <span aria-hidden="true">渡</span><span><strong>{t('island.transplant.open')}</strong><small>DRIFTWOOD → DOCK → STATION</small></span>
+        <span aria-hidden="true">入</span><span><strong>{t('island.transplant.open')}</strong><small>{t('island.transplant.flow')}</small></span>
       </button>
 
       {/* Leave links */}

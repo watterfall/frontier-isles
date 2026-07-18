@@ -76,10 +76,10 @@ describe('ResidentFigure', () => {
   });
 
   it('renders an AI resident with dashed AI_INK stroke and a role seal glyph', () => {
-    const markup = svg(<ResidentFigure kind="ai" aiRole="ferryman" caption="摆渡人 · AI" />);
+    const markup = svg(<ResidentFigure kind="ai" aiRole="ferryman" caption="连接协调员 · AI" />);
     expect(markup).toContain('stroke-dasharray');
     expect(markup).toContain(AI_INK);
-    expect(markup).toContain('渡'); // ferryman seal glyph
+    expect(markup).toContain('联'); // connection-steward seal glyph
   });
 
   it('maps each AI role to its prototype glyph', () => {
@@ -114,9 +114,9 @@ describe('stations', () => {
     expect(markup).toContain('无考核野地');
   });
 
-  it('FerryDock stub renders without throwing (no v3 design exists yet)', () => {
+  it('connection-workbench dock stub renders without throwing (no final art exists yet)', () => {
     const markup = svg(<FerryDock />);
-    expect(markup).toContain('渡口');
+    expect(markup).toContain('连接工作台');
   });
 
   it('onClick and selected wire through to the rendered station', () => {

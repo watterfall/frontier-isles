@@ -8,11 +8,17 @@ import { z } from "zod";
  * table (events never inline content).
  */
 
-const Bilingual = z.object({ zh: z.string().min(1), en: z.string().min(1) });
+const Bilingual = z
+  .object({ zh: z.string().trim(), en: z.string().trim() })
+  .refine(({ zh, en }) => zh.length > 0 || en.length > 0, "at least one authored language is required");
 
 export const MappingArtifactSchema = z.object({
   /** Which structure was rebuilt here. */
   structureId: z.string().regex(/^struct:\/\//, "must be a struct:// id"),
+  /** The already-rebuilt island this passage departed from. Legacy seed
+   *  mappings predate explicit passage provenance, so the shared artifact keeps
+   *  this optional; interactive rebuilds require it at the server boundary. */
+  sourceIslandOp: z.string().regex(/^op:\/\//, "must be an op:// id").optional(),
   /** Which island (substrate) it was rebuilt onto. */
   islandOp: z.string().regex(/^op:\/\//, "must be an op:// id"),
   /** quantity in the structure ↦ what it corresponds to in this substrate.
@@ -22,8 +28,17 @@ export const MappingArtifactSchema = z.object({
     .min(1),
   /** "若这成立,我们就应该观察到 X" — the falsifiable prediction (§七). */
   prediction: Bilingual.optional(),
+  /** Where the analogy stops: the most important substrate-specific difference
+   * or condition under which the correspondence must not be carried across.
+   * Optional for legacy mappings; interactive mappings require it at the
+   * passage boundary so similarity can never silently become identity. */
+  boundary: Bilingual.optional(),
   /** Optional pointers to the real data/record this rebuild was checked against. */
   evidenceRefs: z.array(z.string()).optional(),
+  /** Translation provenance is separate from conceptual authorship. A ferryman
+   *  may translate later without claiming the human's variable mapping. */
+  authoredLanguage: z.enum(["zh", "en"]).optional(),
+  translationStatus: z.enum(["source_only", "human", "assisted"]).optional(),
 });
 
 export type MappingArtifact = z.infer<typeof MappingArtifactSchema>;

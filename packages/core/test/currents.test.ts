@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import type { LedgerEvent } from "@frontier-isles/opp";
 import {
   projectCurrents,
+  projectClaimState,
   projectWhirlpools,
   type Current,
   type CurrentKind,
@@ -62,6 +63,76 @@ describe("projectCurrents — signed edges (invariant 8: dissent ≠ assent)", (
     const copy = [...SEA_EVENTS];
     expect(projectCurrents(SEA_EVENTS)).toEqual(projectCurrents(SEA_EVENTS));
     expect(SEA_EVENTS).toEqual(copy);
+  });
+
+  it("joins a response artifact back to its target without losing either ref or its argument", () => {
+    const targetRef = `sha256:${"d".repeat(64)}`;
+    const responseRef = `sha256:${"a".repeat(64)}`;
+    const evidenceHash = `sha256:${"b".repeat(64)}`;
+    const events: LedgerEvent[] = [
+      { ...SEA_EVENTS[0]!, op: RIEMANN, action: "submit_claim", ref: targetRef },
+      {
+        ...SEA_EVENTS[1]!,
+        op: FOLDING,
+        action: "validate",
+        ref: responseRef,
+        actor: { id: "github:folding-researcher", kind: "human" },
+      },
+    ];
+    const refs = new Map<string, { kind: string; content: unknown }>([
+      [
+        targetRef,
+        {
+          kind: "claim",
+          content: {
+            text: "Critical spacing transfers as an energy-landscape constraint.",
+            evidence: { ro_crate: "https://example.test/target", role: "evidence", hash: `sha256:${"e".repeat(64)}` },
+          },
+        },
+      ],
+      [
+        responseRef,
+        {
+          kind: "note",
+          content: {
+            targetRef,
+            body: "The folding landscape preserves the same spacing restriction.",
+            test: "Perturb the landscape and compare the spacing distribution.",
+            evidence: { ro_crate: "https://example.test/response", role: "replication", hash: evidenceHash },
+          },
+        },
+      ],
+    ]);
+
+    const currents = projectCurrents(events, (ref) => refs.get(ref));
+    const current = find(currents, RIEMANN, FOLDING, "evidence", "affirm");
+    expect(current).toMatchObject({ weight: 1 });
+    expect(current?.records).toEqual([
+      expect.objectContaining({
+        targetRef,
+        targetKind: "claim",
+        targetSummary: "Critical spacing transfers as an energy-landscape constraint.",
+        responseRef,
+        responseKind: "note",
+        responseBody: "The folding landscape preserves the same spacing restriction.",
+        responseTest: "Perturb the landscape and compare the spacing distribution.",
+        responseEvidence: { ro_crate: "https://example.test/response", role: "replication", hash: evidenceHash },
+        actor: "github:folding-researcher",
+        historical: false,
+      }),
+    ]);
+
+    expect(projectClaimState(events, (ref) => refs.get(ref))).toEqual([
+      expect.objectContaining({ ref: targetRef, island: RIEMANN, floors: 1, ghost: undefined }),
+    ]);
+  });
+
+  it("keeps legacy direct-target reactions visible as explicit historical gaps", () => {
+    const current = find(projectCurrents(SEA_EVENTS), RIEMANN, FOLDING, "evidence", "affirm");
+    expect(current?.records).toEqual([
+      expect.objectContaining({ targetRef: SEA_REFS.R1, historical: true }),
+    ]);
+    expect(current?.records[0]).not.toHaveProperty("responseRef");
   });
 });
 
@@ -130,5 +201,22 @@ describe("projectWhirlpools — a dispute storms between two islands (invariant 
       { ...SEA_EVENTS[0]!, op: RIEMANN, action: "refute", ref: SEA_REFS.R2 },
     ];
     expect(projectWhirlpools(selfRefute)).toHaveLength(0);
+  });
+
+  it("sites a response-artifact refute at the target claim and exposes the target ref", () => {
+    const targetRef = `sha256:${"f".repeat(64)}`;
+    const responseRef = `sha256:${"c".repeat(64)}`;
+    const events: LedgerEvent[] = [
+      { ...SEA_EVENTS[0]!, op: CATALYSIS, action: "submit_claim", ref: targetRef },
+      { ...SEA_EVENTS[1]!, op: EMERGENCE, action: "refute", ref: responseRef },
+    ];
+    const resolve = (ref: string) =>
+      ref === responseRef
+        ? { kind: "note", content: { targetRef, body: "The turnover relation breaks in the sparse regime." } }
+        : { kind: "claim", content: { text: "Turnover remains scale invariant." } };
+
+    expect(projectWhirlpools(events, resolve)).toEqual([
+      { between: [CATALYSIS, EMERGENCE], refs: [targetRef], weight: 1 },
+    ]);
   });
 });

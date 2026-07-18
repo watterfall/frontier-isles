@@ -38,6 +38,7 @@ import {
   projectWhirlpools,
   projectMorningReport,
   buildTransplant,
+  projectStructureMappings,
   reduceStructureGraph,
   structureFrontier,
   type BridgeArtifactType,
@@ -47,6 +48,7 @@ import {
   type MappingArtifact,
   type StructureEdge,
   type StructureFrontier,
+  type StructureMappingRecord,
 } from "@frontier-isles/core";
 import { domainToVec, type IslandInterior } from "@frontier-isles/data";
 import type { DB } from "./db.js";
@@ -180,6 +182,38 @@ export class NotFound extends Error {
   }
 }
 
+export type PassageInvalidReason =
+  | "source_required"
+  | "prediction_required"
+  | "boundary_required"
+  | "same_island"
+  | "mapping_target_mismatch"
+  | "source_unverified";
+
+/** A structurally valid mapping that cannot truthfully become a passage edge. */
+export class PassageInvalid extends Error {
+  constructor(public reason: PassageInvalidReason, message: string) {
+    super(message);
+    this.name = "PassageInvalid";
+  }
+}
+
+export type ConnectionResponseInvalidReason =
+  | "target_required"
+  | "target_unanchored"
+  | "same_island"
+  | "body_required"
+  | "test_required"
+  | "language_invalid";
+
+/** A response that cannot truthfully become evidence for or against a cross-island claim. */
+export class ConnectionResponseInvalid extends Error {
+  constructor(public reason: ConnectionResponseInvalidReason, message: string) {
+    super(message);
+    this.name = "ConnectionResponseInvalid";
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Row shapes / public types
 // ---------------------------------------------------------------------------
@@ -255,6 +289,32 @@ export interface GatewayResult {
   effectiveAction: EffectiveAction;
   refHash?: string;
   proposalHash?: string;
+}
+
+export interface RebuildPassageResult extends GatewayResult {
+  passageKind: "charted" | "frontier";
+  structureId: string;
+  sourceIslandOp: string;
+  targetIslandOp: string;
+}
+
+export interface ConnectionResponseInput {
+  targetRef: string;
+  action: "validate" | "refute";
+  body: string;
+  test: string;
+  evidence: unknown;
+  actor: Actor;
+  language?: "zh" | "en";
+  credit?: string[];
+  ts?: string;
+}
+
+export interface ConnectionResponseResult extends GatewayResult {
+  targetRef: string;
+  responseRef: string;
+  sourceIslandOp: string;
+  respondingIslandOp: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -350,7 +410,12 @@ export class Store {
         chart: { x: r.meta.chart.x, y: r.meta.chart.y },
       };
     });
-    return { currents: projectCurrents(events), whirlpools: projectWhirlpools(events), islands };
+    const resolveRef = (ref: string) => this.getRef(ref);
+    return {
+      currents: projectCurrents(events, resolveRef),
+      whirlpools: projectWhirlpools(events, resolveRef),
+      islands,
+    };
   }
 
   /** Insert a problem object (knowledge plane). Idempotent on op_id. */
@@ -373,13 +438,18 @@ export class Store {
 
   // --- structures (执行纲要 §九, knowledge plane) ----------------------------
 
-  /** Insert a structure object. md_source is authoritative + round-trips (§6).
-   *  Idempotent on id. slug is the last struct:// path segment. */
+  /** Upsert a catalogued structure object. md_source is authoritative +
+   *  round-trips (§6). Seed reconciliation calls this only for known catalog
+   *  ids; user-created ids remain untouched. */
   insertStructure(object: StructureObject): void {
     const slug = structSlugOf(object.id);
     this.db
       .prepare(
-        `INSERT OR IGNORE INTO structure_objects (id, slug, md_source, status) VALUES (?, ?, ?, ?)`,
+        `INSERT INTO structure_objects (id, slug, md_source, status) VALUES (?, ?, ?, ?)
+         ON CONFLICT(id) DO UPDATE SET
+           slug = excluded.slug,
+           md_source = excluded.md_source,
+           status = excluded.status`,
       )
       .run(object.id, slug, serializeStructureObject(object), object.status);
   }
@@ -407,7 +477,7 @@ export class Store {
    * structureFrontier then derives each structure's rebuilt islands + near gaps.
    * No edge is stored — this is `reduce`, not a relation table (inv 14/15).
    */
-  structureGraph(): { edges: StructureEdge[]; frontier: StructureFrontier[] } {
+  structureGraph(): { edges: StructureEdge[]; frontier: StructureFrontier[]; mappings: StructureMappingRecord[] } {
     const rows = this.listProblemRows();
     const events: LedgerEvent[] = [];
     for (const r of rows) events.push(...this.getEvents(r.opId));
@@ -416,12 +486,195 @@ export class Store {
       return r && r.kind === "mapping" ? (r.content as MappingArtifact) : null;
     };
     const edges = reduceStructureGraph(events, resolveRef);
+    const mappings = projectStructureMappings(events, resolveRef);
     const islands = rows.map((r) => ({
       op: r.opId,
       domain: r.meta.domain,
       cluster: r.meta.atlas?.cluster.code,
     }));
-    return { edges, frontier: structureFrontier(edges, islands) };
+    return { edges, frontier: structureFrontier(edges, islands), mappings };
+  }
+
+  /**
+   * Complete one human-authored Ferry Dock passage. The departure must already
+   * carry a real rebuild edge for this structure; the destination may either be
+   * another charted edge (practice) or a true gap (frontier research). Both
+   * paths write the exact same mapping ref + rebuild event. The label is derived
+   * from the destination graph before mutation and can never be submitted by a
+   * client.
+   */
+  rebuildPassage(
+    slug: string,
+    input: { mapping: MappingArtifact; actor: Actor; credit?: string[]; ts?: string },
+  ): RebuildPassageResult {
+    const target = this.getProblemRow(slug);
+    if (!target) throw new NotFound(slug);
+    const { mapping, actor } = input;
+
+    if (mapping.islandOp !== target.opId) {
+      throw new PassageInvalid("mapping_target_mismatch", "mapping.islandOp must match the destination island");
+    }
+    if (!mapping.sourceIslandOp) {
+      throw new PassageInvalid("source_required", "a passage must name its rebuilt departure island");
+    }
+    if (!mapping.prediction) {
+      throw new PassageInvalid("prediction_required", "a passage requires a falsifiable prediction");
+    }
+    if (!mapping.boundary) {
+      throw new PassageInvalid("boundary_required", "a passage requires the important difference or analogy boundary");
+    }
+    if (mapping.sourceIslandOp === mapping.islandOp) {
+      throw new PassageInvalid("same_island", "departure and destination must be different islands");
+    }
+
+    const structure = this.getStructure(structSlugOf(mapping.structureId));
+    if (!structure || structure.object.id !== mapping.structureId) {
+      throw new NotFound(`structure ${mapping.structureId}`);
+    }
+    const source = this.getProblemRow(slugOf(mapping.sourceIslandOp));
+    if (!source || source.opId !== mapping.sourceIslandOp) {
+      throw new NotFound(`departure ${mapping.sourceIslandOp}`);
+    }
+
+    // The irreducible mapping act is human. A pair is allowed because it
+    // contains a ratifying human; a lone agent is never allowed to finalize.
+    if (actor.kind === "agent") throw new GatewayDenied("rebuild");
+    const sourceRole = this.memberRole(source.opId, actor.id);
+    const capActor = { id: actor.id, kind: actor.kind, role: sourceRole };
+    if (!can(capActor, "rebuild", this.grantsFor(source.opId, actor.id))) {
+      throw new GatewayDenied("rebuild");
+    }
+
+    const hasEdge = (opId: string): boolean => this.getEvents(opId).some((event) => {
+      if (event.action !== "rebuild" || !event.ref) return false;
+      const ref = this.getRef(event.ref);
+      if (ref?.kind !== "mapping" || !ref.content || typeof ref.content !== "object") return false;
+      return (ref.content as { structureId?: unknown }).structureId === mapping.structureId;
+    });
+    if (!hasEdge(source.opId)) {
+      throw new PassageInvalid(
+        "source_unverified",
+        "the departure island has no recorded rebuild edge for this structure",
+      );
+    }
+    const passageKind: RebuildPassageResult["passageKind"] = hasEdge(target.opId) ? "charted" : "frontier";
+
+    let result: RebuildPassageResult | undefined;
+    const tx = this.db.transaction(() => {
+      const ref = this.putRef("mapping", mapping);
+      const event = this.appendRaw(target.opId, {
+        ts: input.ts ?? new Date().toISOString(),
+        op: target.opId as ProblemObject["id"],
+        actor,
+        credit: input.credit ?? ["credit:human/conceptualization"],
+        phase: "B",
+        action: "rebuild",
+        ref,
+      });
+      this.addPlacement(target.opId, "dock", ref, {
+        action: "rebuild",
+        actorId: actor.id,
+        structureId: mapping.structureId,
+        sourceIslandOp: source.opId,
+        passageKind,
+        hash: hashEvent(event),
+      });
+      result = {
+        event,
+        degraded: false,
+        effectiveAction: "rebuild",
+        refHash: ref,
+        passageKind,
+        structureId: mapping.structureId,
+        sourceIslandOp: source.opId,
+        targetIslandOp: target.opId,
+      };
+    });
+    tx();
+    if (!result) throw new ChainError("rebuild passage transaction did not complete");
+    return result;
+  }
+
+  /**
+   * Record a source-preserving cross-island support/refutation. The ledger event
+   * points to a response artifact; that artifact retains the target claim ref,
+   * body, discriminating test, and evidence descriptor. The entire gateway write
+   * is transactional, so a denied/invalid response cannot leave an orphan ref.
+   */
+  respondToConnection(slug: string, input: ConnectionResponseInput): ConnectionResponseResult {
+    const responding = this.getProblemRow(slug);
+    if (!responding) throw new NotFound(slug);
+
+    const targetRef = input.targetRef?.trim();
+    if (!targetRef) throw new ConnectionResponseInvalid("target_required", "a response requires a target ref");
+    const body = input.body?.trim();
+    if (!body) throw new ConnectionResponseInvalid("body_required", "a response requires a concrete argument");
+    const test = input.test?.trim();
+    if (!test) throw new ConnectionResponseInvalid("test_required", "a response requires a discriminating test");
+    if (input.language !== undefined && input.language !== "zh" && input.language !== "en") {
+      throw new ConnectionResponseInvalid("language_invalid", "language must be zh or en");
+    }
+
+    const anchors = this.listProblemRows()
+      .flatMap((row) =>
+        this.getEvents(row.opId)
+          .filter(
+            (event) =>
+              event.ref === targetRef &&
+              (event.action === "submit_claim" || event.action === "publish"),
+          )
+          .map((event) => ({ row, event })),
+      )
+      .sort(
+        (a, b) =>
+          a.event.ts.localeCompare(b.event.ts) ||
+          a.row.opId.localeCompare(b.row.opId),
+      );
+    const anchor = anchors[0];
+    if (!anchor || !this.getRef(targetRef)) {
+      throw new ConnectionResponseInvalid(
+        "target_unanchored",
+        "the target ref is not an anchored claim or publication",
+      );
+    }
+    if (anchor.row.opId === responding.opId) {
+      throw new ConnectionResponseInvalid("same_island", "a connection response must come from another island");
+    }
+
+    const payload = {
+      targetRef,
+      body,
+      test,
+      ...(input.language ? { language: input.language } : {}),
+      evidence: input.evidence,
+    };
+    let gatewayResult: GatewayResult | undefined;
+    const tx = this.db.transaction(() => {
+      gatewayResult = this.gateway(responding.opId, {
+        actor: input.actor,
+        gatewayAction: input.action,
+        phase: "D",
+        credit: input.credit ?? ["credit:human/validation"],
+        payload,
+        refKind: "note",
+        station: "workshop",
+        placementMeta: {
+          targetRef,
+          sourceIslandOp: anchor.row.opId,
+          responseKind: "connection",
+        },
+        ts: input.ts,
+      });
+    });
+    tx();
+    if (!gatewayResult?.refHash) throw new ChainError("connection response transaction did not complete");
+    return {
+      ...gatewayResult,
+      targetRef,
+      responseRef: gatewayResult.refHash,
+      sourceIslandOp: anchor.row.opId,
+      respondingIslandOp: responding.opId,
+    };
   }
 
   // --- ledger ---------------------------------------------------------------

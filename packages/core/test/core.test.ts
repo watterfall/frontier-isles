@@ -43,7 +43,7 @@ describe("static tables", () => {
   it("has nine stations and a nine-glyph seal string", () => {
     expect(STATION_KINDS).toHaveLength(9);
     expect([...STATION_SEALS]).toHaveLength(9);
-    expect(STATION_SEALS).toBe("问数板文坊展茶木渡");
+    expect(STATION_SEALS).toBe("问数板文坊展议木联");
   });
   it("has six atoms and four bridge artifacts", () => {
     expect(ATOM_TYPES).toHaveLength(6);

@@ -28,16 +28,25 @@ import { ChartScreen, type ChartScreenProps } from './ChartScreen';
 import { WorldExploreScreen } from './WorldExploreScreen';
 import { ChartChrome } from './ChartChrome';
 import { IslandCard } from './IslandCard';
-import { StructureLensPanel } from './StructureLensPanel';
 import { computeCardContent, cardBoxPos } from './cardContent';
 import { hasWebGL } from '../../chart/webgl';
-import { api, type ApiStructure, type ApiStructureGraph } from '../../api/client';
-import { fallbackStructures, fallbackStructureGraph, slugOfOp } from '../../api/structureFallback';
+import { api, type ApiSeaData, type ApiStructure, type ApiStructureGraph } from '../../api/client';
+import { fallbackStructures, fallbackStructureGraph } from '../../api/structureFallback';
+import { fixtureSeaData } from '../../api/seaFallback';
 import type { IslandDatum } from '../../api/fallback';
 import type { AtlasControls, AtlasMetrics } from '../../chart/atlasControls';
-import type { SampledCurrentRecord } from '../../state/explorationSession';
+import {
+  buildConnectionField,
+  projectConnectionMap,
+  type ConnectionChannel,
+  type ConnectionFocus,
+} from '../../chart/connectionField';
+import type { PassageIntent, SampledCurrentRecord, StructureDeparture } from '../../state/explorationSession';
 
 const AtlasChartHost = lazy(() => import('../../chart/AtlasChartHost'));
+const ConnectionFieldPanel = lazy(() =>
+  import('./ConnectionFieldPanel').then((module) => ({ default: module.ConnectionFieldPanel })),
+);
 
 class AtlasErrorBoundary extends Component<{ fallback: ReactNode; children: ReactNode }, { failed: boolean }> {
   state = { failed: false };
@@ -66,6 +75,19 @@ export interface AtlasWorldExploreProps {
 
 export interface AtlasChartScreenProps extends ChartScreenProps {
   worldExplore?: AtlasWorldExploreProps;
+  structurePassage?: {
+    selectedId: string | null;
+    departure: StructureDeparture | null;
+    intent: PassageIntent | null;
+    /** Incremented after a successful write so the returning atlas refetches
+     * the canonical mapping and shows the new branch immediately. */
+    revision: number;
+    actor?: string;
+    onSelect: (structureId: string | null) => void;
+    onDeparture: (departure: StructureDeparture) => void;
+    onBegin: (intent: PassageIntent, island: IslandDatum) => void;
+    onConnectionWrite?: () => void;
+  };
   /** Fires once the atlas is actually painted (Pixi ready, or the SVG fallback
    * mounted). The return voyage holds its snapshot on this signal. */
   onAtlasReady?: () => void;
@@ -76,7 +98,7 @@ export function AtlasChartScreen(props: AtlasChartScreenProps) {
 }
 
 function AtlasChartScreenImpl(props: AtlasChartScreenProps) {
-  const { islands, harbor, filter = '全部', onFilter, hover, onHover, onIsland, onBuild, onCollide, onExplore, worldExplore, onAtlasReady } = props;
+  const { islands, harbor, filter = '全部', onFilter, hover, onHover, onIsland, onBuild, onCollide, onExplore, worldExplore, structurePassage, onAtlasReady } = props;
   const { t, i18n } = useTranslation();
   const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
 
@@ -104,84 +126,78 @@ function AtlasChartScreenImpl(props: AtlasChartScreenProps) {
     [worldExplore?.sampledCurrents],
   );
   const instrumentsRef = useRef<HTMLDivElement | null>(null);
-  // Structure lens (执行纲要 §九): objects + bipartite graph, best-effort from
-  // the live API with the offline fallback (same seed, same reduce — the lens
-  // renders identically with the server absent).
+  // One fused read field over the three existing truths: resolved human
+  // mappings, curated mathematical bridges, and ledger currents. If any live
+  // half is unavailable, all three come from the matched offline seed so eras
+  // never mix and the visual explanation remains identical.
   const [structures, setStructures] = useState<ApiStructure[]>([]);
   const [structureGraph, setStructureGraph] = useState<ApiStructureGraph | null>(null);
-  const [lensId, setLensId] = useState<string | null>(null);
+  const [seaData, setSeaData] = useState<ApiSeaData | null>(null);
+  const [connectionChannel, setConnectionChannel] = useState<ConnectionChannel>('all');
+  const [connectionFocus, setConnectionFocusState] = useState<ConnectionFocus>(null);
+  const [connectionVisible, setConnectionVisible] = useState(true);
+  const [localLensId, setLocalLensId] = useState<string | null>(null);
+  const lensId = structurePassage ? structurePassage.selectedId : localLensId;
+  const setLensId = useCallback((id: string | null) => {
+    if (structurePassage) structurePassage.onSelect(id);
+    else setLocalLensId(id);
+  }, [structurePassage]);
+  const pendingPassage = useRef<{ intent: PassageIntent; island: IslandDatum } | null>(null);
+  const pendingConnectionPath = useRef<string | null>(null);
 
   useEffect(() => {
     let alive = true;
     void (async () => {
-      const [s, g] = await Promise.all([api.structures(), api.structureGraph()]);
+      const [s, g, sea] = await Promise.all([api.structures(), api.structureGraph(), api.currents()]);
       if (!alive) return;
-      // req is best-effort (null on any failure) — either half missing means
-      // the pair comes from the fallback, so objects and graph never mix eras.
-      if (s && g) {
+      if (s && g && sea && Array.isArray(g.mappings)) {
         setStructures(s.structures);
         setStructureGraph(g);
+        setSeaData(sea);
+        if (pendingConnectionPath.current) {
+          setConnectionFocusState({ type: 'path', id: pendingConnectionPath.current });
+          pendingConnectionPath.current = null;
+        }
       } else {
         setStructures(fallbackStructures());
         setStructureGraph(fallbackStructureGraph());
+        setSeaData(fixtureSeaData());
+        pendingConnectionPath.current = null;
       }
     })();
     return () => { alive = false; };
-  }, []);
+  }, [structurePassage?.revision]);
 
-  // Stable lens identity: the host keys an effect on this object, and metrics
-  // updates re-render this screen every camera settle — an inline literal here
-  // would re-fire setStructureLens (and its camera flight) forever.
-  const lens = useMemo(
-    () => (lensId && structureGraph ? { structureId: lensId, graph: structureGraph } : null),
-    [lensId, structureGraph],
+  const connectionField = useMemo(
+    () => structureGraph && seaData ? buildConnectionField(structures, structureGraph, seaData, islands) : null,
+    [structures, structureGraph, seaData, islands],
+  );
+  const effectiveFocus = useMemo<ConnectionFocus>(
+    () => connectionFocus ?? (lensId ? { type: 'convergence', id: lensId } : null),
+    [connectionFocus, lensId],
+  );
+  const setConnectionFocus = useCallback((focus: ConnectionFocus) => {
+    setConnectionFocusState(focus);
+    setLensId(focus?.type === 'convergence' ? focus.id : null);
+  }, [setLensId]);
+  const connectionMap = useMemo(
+    () => connectionVisible && connectionField
+      ? projectConnectionMap(connectionField, connectionChannel, effectiveFocus)
+      : null,
+    [connectionVisible, connectionField, connectionChannel, effectiveFocus],
   );
 
-  // The list twin's rows, resolved from the frontier's op ids to chart
-  // islands. Rebuilt rows carry the edge's real weight + actors (a reduce
-  // over rebuild events); gaps split into the same near/far gradient the map
-  // draws (same cluster vs same domain only).
-  const twin = useMemo(() => {
-    const empty = {
-      rebuilt: [] as Array<{ d: IslandDatum; weight: number; actors: string[] }>,
-      nearGaps: [] as IslandDatum[],
-      farGaps: [] as IslandDatum[],
-    };
-    if (!lensId || !structureGraph) return empty;
-    const bySlug = new Map(islands.filter((d) => d.slug).map((d) => [d.slug!, d] as const));
-    const f = structureGraph.frontier.find((x) => x.structureId === lensId);
-    const edgeBySlug = new Map(
-      structureGraph.edges.filter((e) => e.structureId === lensId).map((e) => [slugOfOp(e.islandOp), e] as const),
-    );
-    const rebuilt = (f?.rebuilt ?? []).flatMap((op) => {
-      const d = bySlug.get(slugOfOp(op));
-      if (!d) return [];
-      const e = edgeBySlug.get(slugOfOp(op));
-      return [{ d, weight: e?.weight ?? 1, actors: e?.actors ?? [] }];
-    });
-    const rebuiltClusters = new Set(rebuilt.map((r) => r.d.cluster?.code).filter((c): c is string => !!c));
-    const nearGaps: IslandDatum[] = [];
-    const farGaps: IslandDatum[] = [];
-    for (const op of f?.gaps ?? []) {
-      const d = bySlug.get(slugOfOp(op));
-      if (!d) continue;
-      if (d.cluster?.code && rebuiltClusters.has(d.cluster.code)) nearGaps.push(d);
-      else farGaps.push(d);
-    }
-    return { rebuilt, nearGaps, farGaps };
-  }, [lensId, structureGraph, islands]);
-
-  // ESC leaves the lens (the search box's own Escape handling wins while
-  // an input is focused).
+  // Escape returns a focused explanation to the global field. Inputs retain
+  // their native Escape behavior.
   useEffect(() => {
-    if (!lensId) return;
+    if (!effectiveFocus) return;
     const onKey = (event: KeyboardEvent) => {
       const tag = (event.target as HTMLElement | null)?.tagName;
-      if (event.key === 'Escape' && tag !== 'INPUT' && tag !== 'TEXTAREA') setLensId(null);
+      if (event.key === 'Escape' && tag !== 'INPUT' && tag !== 'TEXTAREA') setConnectionFocus(null);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [lensId]);
+  }, [effectiveFocus, setConnectionFocus]);
 
   const handleHoverIsland = useCallback(
     (d: IslandDatum | null, pos: { x: number; y: number } | null) => {
@@ -199,10 +215,18 @@ function AtlasChartScreenImpl(props: AtlasChartScreenProps) {
 
   useEffect(() => {
     if (!worldExplore?.active) return;
-    setLensId(null);
     onHover(null);
     setHoverPos(null);
   }, [onHover, worldExplore?.active]);
+
+  const enterPassage = useCallback((intent: PassageIntent, island: IslandDatum) => {
+    if (controls && island.slug) {
+      pendingPassage.current = { intent, island };
+      controls.enter(island.slug);
+      return;
+    }
+    structurePassage?.onBegin(intent, island);
+  }, [controls, structurePassage]);
 
   // The SVG fallback paints synchronously — release the return voyage at once.
   useEffect(() => {
@@ -224,21 +248,7 @@ function AtlasChartScreenImpl(props: AtlasChartScreenProps) {
   }
 
   const hd = hover != null ? islands.find((d) => d.id === hover) ?? null : null;
-  // While a lens is on, the hover card states this island's relation to the
-  // structure: rebuilt (who walked the bridge, from the real edge) or an
-  // honest gap line — bare fact only, never a suggested mapping (§九).
-  let lensNote: { kind: 'rebuilt' | 'gap'; text: string } | undefined;
-  if (hd?.slug && lensId && structureGraph) {
-    const slug = hd.slug;
-    const edge = structureGraph.edges.find((e) => e.structureId === lensId && slugOfOp(e.islandOp) === slug);
-    if (edge) {
-      const who = edge.actors.map((a) => `@${a.split(':').at(-1) ?? a}`).join(' ');
-      lensNote = { kind: 'rebuilt', text: t('chart.card.lensRebuilt', { n: edge.weight, who }) };
-    } else if (twin.nearGaps.some((d) => d.slug === slug) || twin.farGaps.some((d) => d.slug === slug)) {
-      lensNote = { kind: 'gap', text: t('chart.card.lensGap') };
-    }
-  }
-  const card = hd && hoverPos ? { content: computeCardContent(hd, lang, t, lensNote), ...cardBoxPos(hoverPos.x, hoverPos.y) } : null;
+  const card = hd && hoverPos ? { content: computeCardContent(hd, lang, t), ...cardBoxPos(hoverPos.x, hoverPos.y) } : null;
 
   return (
     <div data-screen-label="L0 图集海图" style={{ position: 'absolute', inset: 0, background: '#F2EAD8' }}>
@@ -249,8 +259,17 @@ function AtlasChartScreenImpl(props: AtlasChartScreenProps) {
         <AtlasChartHost
           islands={islands}
           harbor={harbor}
-          lens={worldExplore?.active ? null : lens}
-          onPick={onIsland}
+          connectionField={worldExplore?.active ? null : connectionMap}
+          onPick={(island) => {
+            const pending = pendingPassage.current;
+            if (pending && pending.island.slug === island.slug) {
+              pendingPassage.current = null;
+              structurePassage?.onBegin(pending.intent, island);
+              return;
+            }
+            pendingPassage.current = null;
+            onIsland(island);
+          }}
           onHoverIsland={handleHoverIsland}
           onWebglError={handleWebglError}
           onReady={(atlasControls) => { setControls(atlasControls); onAtlasReady?.(); }}
@@ -301,16 +320,29 @@ function AtlasChartScreenImpl(props: AtlasChartScreenProps) {
       >
         {!worldExplore?.active && <ChartChrome islands={islands} onPick={onIsland} onBuild={onBuild} onCollide={onCollide} filter={filter} onFilter={onFilter} controls={controls} metrics={metrics} onHome={harbor && harbor.islandSlugs.length > 0 ? () => controls?.home?.() : undefined} onExplore={onExplore} />}
 
-        {!worldExplore?.active && (
-          <StructureLensPanel
-            structures={structures}
-            selected={lensId}
-            onSelect={setLensId}
-            rebuilt={twin.rebuilt}
-            nearGaps={twin.nearGaps}
-            farGaps={twin.farGaps}
-            onEnter={(d) => { if (controls && d.slug) controls.enter(d.slug); else onIsland(d); }}
-          />
+        {!worldExplore?.active && connectionField && (
+          <Suspense fallback={null}>
+            <ConnectionFieldPanel
+              field={connectionField}
+              lang={lang}
+              channel={connectionChannel}
+              focus={effectiveFocus}
+              visible={connectionVisible}
+              departure={structurePassage?.departure ?? null}
+              intent={structurePassage?.intent ?? null}
+              actor={structurePassage?.actor}
+              onChannel={setConnectionChannel}
+              onFocus={setConnectionFocus}
+              onVisible={setConnectionVisible}
+              onDeparture={(departure) => structurePassage?.onDeparture(departure)}
+              onPassage={(intent, problem) => enterPassage(intent, problem.datum)}
+              onEnter={(problem) => { if (controls) controls.enter(problem.slug); else onIsland(problem.datum); }}
+              onResponseRecorded={(pathId) => {
+                pendingConnectionPath.current = pathId;
+                structurePassage?.onConnectionWrite?.();
+              }}
+            />
+          </Suspense>
         )}
 
         {!worldExplore?.active && card && <IslandCard content={card.content} left={card.left} top={card.top} />}

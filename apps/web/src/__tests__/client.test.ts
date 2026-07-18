@@ -78,3 +78,94 @@ describe('api.morningReport', () => {
     expect(await api.morningReport('machine-curiosity')).toBeNull();
   });
 });
+
+describe('api.rebuildPassage', () => {
+  it('sends only the language the human authored and never submits a passage classification', async () => {
+    const response = {
+      event: { ts: '2026-07-18T00:00:00.000Z', op: 'op://frontier-isles/prob/target', actor: { id: 'github:shen-kuo', kind: 'human' }, credit: [], phase: 'B', action: 'rebuild' },
+      degraded: false,
+      effectiveAction: 'rebuild',
+      refHash: `sha256:${'c'.repeat(64)}`,
+      passageKind: 'frontier',
+      structureId: 'struct://xfrontier/synchronization',
+      sourceIslandOp: 'op://frontier-isles/prob/source',
+      targetIslandOp: 'op://frontier-isles/prob/target',
+    };
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify(response), { status: 201 }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = await api.rebuildPassage('target', {
+      structureId: response.structureId,
+      sourceIslandOp: response.sourceIslandOp,
+      targetIslandOp: response.targetIslandOp,
+      correspondences: [{ quantity: '耦合强度', inThisSubstrate: '视觉强度' }],
+      boundary: '视觉耦合不是电导更新。',
+      prediction: '若成立，应出现临界转变。',
+      evidenceRefs: ['https://example.com/evidence'],
+      language: 'zh',
+      actor: 'github:shen-kuo',
+    });
+
+    expect(result?.passageKind).toBe('frontier');
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe('/api/islands/target/rebuild');
+    const body = JSON.parse(init.body as string);
+    expect(body.actor).toEqual({ id: 'github:shen-kuo', kind: 'human' });
+    expect(body.mapping.correspondences[0]).toEqual({
+      quantity: { zh: '耦合强度', en: '' },
+      inThisSubstrate: { zh: '视觉强度', en: '' },
+    });
+    expect(body.mapping.prediction).toEqual({ zh: '若成立，应出现临界转变。', en: '' });
+    expect(body.mapping.boundary).toEqual({ zh: '视觉耦合不是电导更新。', en: '' });
+    expect(body.mapping).toMatchObject({ authoredLanguage: 'zh', translationStatus: 'source_only' });
+    expect(body.mapping).not.toHaveProperty('passageKind');
+  });
+});
+
+describe('api.respondToConnection', () => {
+  const draft = {
+    targetRef: `sha256:${'a'.repeat(64)}`,
+    action: 'refute' as const,
+    body: 'The mechanism breaks outside steady state.',
+    test: 'Change the energy flux and measure both transitions.',
+    evidence: {
+      ro_crate: 'https://example.test/response',
+      role: 'replication' as const,
+      hash: `sha256:${'b'.repeat(64)}`,
+    },
+    language: 'en' as const,
+    actor: 'github:shen-kuo',
+  };
+
+  it('sends the target, argument, test, evidence, language, and attributed actor', async () => {
+    const response = { responseRef: `sha256:${'c'.repeat(64)}` };
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify(response), { status: 201 }));
+    vi.stubGlobal('fetch', fetchMock);
+    const outcome = await api.respondToConnection('bio-compute-thermo', draft);
+    expect(outcome).toEqual({ ok: true, value: response });
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe('/api/islands/bio-compute-thermo/connection-response');
+    expect(JSON.parse(init.body as string)).toEqual({
+      targetRef: draft.targetRef,
+      action: 'refute',
+      body: draft.body,
+      test: draft.test,
+      evidence: draft.evidence,
+      language: 'en',
+      actor: { id: 'github:shen-kuo', kind: 'human' },
+    });
+  });
+
+  it('preserves a semantic server error instead of collapsing it to null', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(
+      JSON.stringify({ error: 'capability denied', code: 'denied' }),
+      { status: 403 },
+    )));
+    expect(await api.respondToConnection('bio-compute-thermo', draft)).toEqual({
+      ok: false,
+      status: 403,
+      code: 'denied',
+      error: 'capability denied',
+    });
+  });
+});

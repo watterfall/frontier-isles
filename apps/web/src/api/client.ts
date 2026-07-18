@@ -6,7 +6,7 @@
  * the UI is identical online or offline.
  */
 import type { LedgerEvent } from '@frontier-isles/opp';
-import type { BridgeArtifactType } from '@frontier-isles/core';
+import type { BridgeArtifactType, EvidenceRef } from '@frontier-isles/core';
 
 /** A transplantable driftwood atom (GET `/api/islands/:slug/driftwood`). */
 export interface DriftwoodAtom {
@@ -50,6 +50,20 @@ export interface ApiStructure {
   title: { zh: string; en: string };
   statement: { zh: string; en: string };
   status: 'proposed' | 'active' | 'retired';
+  theme?:
+    | 'collective-dynamics'
+    | 'causal-inference'
+    | 'unknown-mapping'
+    | 'knowledge-commons'
+    | 'living-computation'
+    | 'simulation-twins';
+  isomorphism?: string;
+  provenance?: {
+    source: string;
+    url: string;
+    recordIds: number[];
+    reviewedAt: string;
+  };
   license: string;
 }
 
@@ -68,13 +82,73 @@ export interface ApiStructureFrontier {
   gaps: string[];
 }
 
+/** One resolved human-authored explanation behind a compressed structure edge. */
+export interface ApiStructureMapping {
+  refHash: string;
+  actor: string;
+  ts: string;
+  structureId: string;
+  sourceIslandOp?: string;
+  islandOp: string;
+  correspondences: Array<{
+    quantity: { zh: string; en: string };
+    inThisSubstrate: { zh: string; en: string };
+  }>;
+  prediction?: { zh: string; en: string };
+  boundary?: { zh: string; en: string };
+  evidenceRefs?: string[];
+  authoredLanguage?: 'zh' | 'en';
+  translationStatus?: 'source_only' | 'human' | 'assisted';
+}
+
 /** GET /api/structures/graph payload. */
 export interface ApiStructureGraph {
   edges: ApiStructureEdge[];
   frontier: ApiStructureFrontier[];
+  mappings: ApiStructureMapping[];
+}
+
+export interface RebuildPassageDraft {
+  structureId: string;
+  sourceIslandOp: string;
+  targetIslandOp: string;
+  correspondences: Array<{ quantity: string; inThisSubstrate: string }>;
+  prediction: string;
+  boundary: string;
+  language: 'zh' | 'en';
+  actor: string;
+  evidenceRefs?: string[];
+}
+
+export interface ApiRebuildPassageResult {
+  event: LedgerEvent;
+  degraded: false;
+  effectiveAction: 'rebuild';
+  refHash: string;
+  passageKind: 'charted' | 'frontier';
+  structureId: string;
+  sourceIslandOp: string;
+  targetIslandOp: string;
 }
 
 /** Sea-plane payload (GET /api/currents) — a projection over the whole ledger. */
+export interface ApiCurrentRecord {
+  targetRef: string;
+  targetKind?: string;
+  targetSummary?: string;
+  targetEvidence?: EvidenceRef;
+  responseRef?: string;
+  responseKind?: string;
+  responseBody?: string;
+  responseTest?: string;
+  responseEvidence?: EvidenceRef;
+  action: LedgerEvent['action'];
+  actor: string;
+  actorKind: LedgerEvent['actor']['kind'];
+  ts: string;
+  historical: boolean;
+}
+
 export interface ApiCurrent {
   from: string;
   to: string;
@@ -83,6 +157,7 @@ export interface ApiCurrent {
   weight: number;
   directed: boolean;
   maturity?: 'proposed' | 'ratified';
+  records: ApiCurrentRecord[];
 }
 export interface ApiWhirlpool {
   between: [string, string];
@@ -108,6 +183,31 @@ export interface ApiActor {
   id: string;
   kind: 'human' | 'agent' | 'pair';
 }
+
+export interface ConnectionResponseDraft {
+  targetRef: string;
+  action: 'validate' | 'refute';
+  body: string;
+  test: string;
+  evidence: EvidenceRef;
+  language: 'zh' | 'en';
+  actor: string;
+}
+
+export interface ApiConnectionResponseResult {
+  event: LedgerEvent;
+  degraded: boolean;
+  effectiveAction: string;
+  refHash: string;
+  targetRef: string;
+  responseRef: string;
+  sourceIslandOp: string;
+  respondingIslandOp: string;
+}
+
+export type ApiWriteOutcome<T> =
+  | { ok: true; value: T }
+  | { ok: false; status: number; code?: string; error: string };
 
 /**
  * A pending morning-report draft (GET `/api/islands/:slug/morning-report`) —
@@ -167,6 +267,37 @@ async function req<T>(path: string, init?: RequestInit): Promise<T | null> {
   }
 }
 
+/** A write variant that preserves server validation/capability errors for the UI. */
+async function reqOutcome<T>(path: string, init?: RequestInit): Promise<ApiWriteOutcome<T>> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
+  try {
+    const res = await fetch(path, {
+      ...init,
+      signal: ctrl.signal,
+      headers: { 'content-type': 'application/json', ...(init?.headers ?? {}) },
+    });
+    const payload = await res.json().catch(() => null) as { error?: unknown; code?: unknown } | null;
+    if (!res.ok) {
+      return {
+        ok: false,
+        status: res.status,
+        ...(typeof payload?.code === 'string' ? { code: payload.code } : {}),
+        error: typeof payload?.error === 'string' ? payload.error : `request failed (${res.status})`,
+      };
+    }
+    return { ok: true, value: payload as T };
+  } catch (error) {
+    return {
+      ok: false,
+      status: 0,
+      error: error instanceof Error && error.name === 'AbortError' ? 'request timed out' : 'network unavailable',
+    };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export const api = {
   /** Boot probe + L0 island list. Server wraps as `{islands: [...]}`. */
   listIslands: async (): Promise<ApiIsland[] | null> => {
@@ -183,6 +314,50 @@ export const api = {
   /** The structure ⇄ 现象 graph: edges + per-structure frontier, reduced over
    *  the whole ledger server-side. Best-effort (falls back to a static graph). */
   structureGraph: () => req<ApiStructureGraph>('/api/structures/graph'),
+
+  /** Complete one human-authored Ferry Dock passage. Text is sent only in the
+   * language actually authored; translation is a later ferryman aid, never a
+   * prerequisite for the conceptual mapping. */
+  rebuildPassage: (targetSlug: string, input: RebuildPassageDraft) => {
+    const sourceOnly = (text: string) => input.language === 'zh'
+      ? { zh: text.trim(), en: '' }
+      : { zh: '', en: text.trim() };
+    return req<ApiRebuildPassageResult>(`/api/islands/${targetSlug}/rebuild`, {
+      method: 'POST',
+      body: JSON.stringify({
+        actor: toActor(input.actor),
+        mapping: {
+          structureId: input.structureId,
+          sourceIslandOp: input.sourceIslandOp,
+          islandOp: input.targetIslandOp,
+          correspondences: input.correspondences.map((item) => ({
+            quantity: sourceOnly(item.quantity),
+            inThisSubstrate: sourceOnly(item.inThisSubstrate),
+          })),
+          prediction: sourceOnly(input.prediction),
+          boundary: sourceOnly(input.boundary),
+          ...(input.evidenceRefs?.length ? { evidenceRefs: input.evidenceRefs } : {}),
+          authoredLanguage: input.language,
+          translationStatus: 'source_only',
+        },
+      }),
+    });
+  },
+
+  /** Record a real support/refutation artifact against one focused connection. */
+  respondToConnection: (respondingSlug: string, input: ConnectionResponseDraft) =>
+    reqOutcome<ApiConnectionResponseResult>(`/api/islands/${respondingSlug}/connection-response`, {
+      method: 'POST',
+      body: JSON.stringify({
+        targetRef: input.targetRef,
+        action: input.action,
+        body: input.body.trim(),
+        test: input.test.trim(),
+        evidence: input.evidence,
+        language: input.language,
+        actor: toActor(input.actor),
+      }),
+    }),
 
   /** Server shape: `{actor: {id, kind} | null}`; expose the app's handle view. */
   me: async (): Promise<ApiMe | null> => {

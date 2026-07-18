@@ -3,6 +3,7 @@ import {
   ATLAS_EXPLORER_CURRENT_SAMPLE_DISTANCE,
   ATLAS_EXPLORER_CURRENT_SIGNAL_DISTANCE,
   ATLAS_EXPLORER_MAX_SPEED,
+  ATLAS_EXPLORER_SAFETY_RADIUS,
   ATLAS_EXPLORER_SIGNAL_DISTANCE,
   atlasCruiseScale,
   facingToHeading,
@@ -61,6 +62,8 @@ export const WORLD_SIGNAL_DISTANCE = ATLAS_EXPLORER_SIGNAL_DISTANCE;
 export const WORLD_APPROACH_DISTANCE = ATLAS_EXPLORER_APPROACH_DISTANCE;
 export const WORLD_COURSE_DISTANCE = 1200;
 export const WORLD_ALTITUDE_ALIGNMENT = 0.16;
+/** Calm collision boundary used when an altitude-aligned craft reaches an isle. */
+export const WORLD_SAFETY_RADIUS = ATLAS_EXPLORER_SAFETY_RADIUS;
 export const WORLD_CURRENT_SIGNAL_DISTANCE = ATLAS_EXPLORER_CURRENT_SIGNAL_DISTANCE;
 export const WORLD_CURRENT_SAMPLE_DISTANCE = ATLAS_EXPLORER_CURRENT_SAMPLE_DISTANCE;
 export const WORLD_CURRENT_ALTITUDE_ALIGNMENT = 0.14;
@@ -157,6 +160,24 @@ export function selectWorldEncounter(
   return closest && closest.distance <= signalDistance ? closest : null;
 }
 
+/**
+ * Recover the encounter that owned a durable settled pose. Dense atlas fields
+ * can contain a closer neighbour, but a pose written after physics settles is
+ * geometrically distinctive: it lies on the 104-unit safety boundary of the
+ * island it approached. Re-locking that owner before the first restored tick
+ * prevents a reload from projecting the craft around a different neighbour.
+ */
+export function restoredWorldEncounter(
+  field: readonly AtlasExplorerIsland[],
+  tolerance = 1,
+): AtlasExplorerIsland | null {
+  const ranked = field
+    .filter((candidate) => Math.abs(candidate.altitudeDelta) <= WORLD_ALTITUDE_ALIGNMENT)
+    .map((candidate) => ({ candidate, error: Math.abs(candidate.horizontalDistance - WORLD_SAFETY_RADIUS) }))
+    .sort((a, b) => a.error - b.error);
+  return ranked[0] && ranked[0].error <= tolerance ? ranked[0].candidate : null;
+}
+
 /** Route-crossing hysteresis: a current stays acquired until the craft clears it. */
 export function selectWorldCurrentEncounter(
   sortedField: readonly AtlasExplorerCurrent[],
@@ -240,7 +261,7 @@ export function stepWorldMotion(
     const fromIslandX = x - focus.x;
     const fromIslandY = y - focus.y;
     const planarDistance = Math.hypot(fromIslandX, fromIslandY);
-    const safetyRadius = 104;
+    const safetyRadius = WORLD_SAFETY_RADIUS;
     if (planarDistance < safetyRadius) {
       const fallbackAngle = state.heading + Math.PI;
       const nx = planarDistance > 0.001 ? fromIslandX / planarDistance : Math.cos(fallbackAngle);

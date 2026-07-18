@@ -36,6 +36,7 @@ import {
   ATLAS_EXPLORER_CURRENT_SAMPLE_DISTANCE,
   ATLAS_EXPLORER_CURRENT_SIGNAL_DISTANCE,
   ATLAS_EXPLORER_MAX_SPEED,
+  ATLAS_EXPLORER_SAFETY_RADIUS,
   ATLAS_EXPLORER_SIGNAL_DISTANCE,
   ATLAS_Y_TILT,
   ATLAS_Y_SPREAD,
@@ -277,6 +278,9 @@ function drawAtlasUnderside(g: Graphics, r: number, depth: number, domain: Atlas
  */
 export interface AtlasStructureLensInput {
   structureId: string;
+  /** `global` keeps the whole relation landscape readable; `focus` frames and
+   * strongly separates one explanation. Omitted preserves the legacy modal lens. */
+  mode?: 'global' | 'focus';
   /** Islands where this structure was rebuilt — lit solid. */
   rebuiltSlugs: string[];
   /** Honest dashed gaps ("此结构尚无人带来") — position only, NEVER a
@@ -287,8 +291,20 @@ export interface AtlasStructureLensInput {
    * lighter dim: the neighbourhood has a real gradient and the lens
    * transcribes it instead of flattening it. Optional (defaults to none). */
   farGapSlugs?: string[];
-  /** Arcs between rebuilt islands (air-route vocabulary, chord order). */
-  arcs: Array<{ fromSlug: string; toSlug: string }>;
+  /** A real bipartite structure is a convergence, not a set of fabricated
+   * pairwise island edges. The stage draws a seam/hub with one branch per member. */
+  convergences?: Array<{ id: string; memberSlugs: string[]; weight: number }>;
+  /** Direct relations retain their own epistemic kind, sign, and maturity. */
+  arcs: Array<{
+    id?: string;
+    fromSlug: string;
+    toSlug: string;
+    kind?: 'mechanism' | 'mathematical' | 'bridge' | 'evidence' | 'contradiction' | 'lineage';
+    weight?: number;
+    directed?: boolean;
+    sign?: 'affirm' | 'contest' | 'neutral';
+    maturity?: 'proposed' | 'ratified';
+  }>;
 }
 
 /** Lens palette: arcs/dashes in 赭石 ochre — the BRIDGE current tint (a rebuild
@@ -297,8 +313,12 @@ export interface AtlasStructureLensInput {
  * prototype colours already used on this stage — no new colour invented. */
 const LENS_ARC_TINT = 0xb5673a; // --fi-ochre (bridge current)
 const LENS_GLOW_TINT = 0xe3a93c; // outlier glow amber
+const FIELD_EVIDENCE_TINT = 0x2e5e8c; // --fi-azurite
+const FIELD_LINEAGE_TINT = 0x3e9b7e; // --fi-malachite
 /** Fog-channel dim for islands outside the lens (matches My Harbor's 0.45 floor). */
 const LENS_DIM_FLOOR = 0.45;
+/** Global field is an overview, not a modal isolation. */
+const FIELD_GLOBAL_DIM_FLOOR = 0.7;
 
 /** Trace a dashed circle with the sea-current dash rhythm (`7 5` world px) —
  * Pixi has no strokeDasharray, so the dash is drawn as arc segments. */
@@ -566,8 +586,21 @@ export class AtlasStage {
    * `lensLayer`: the enter animation redraws ONLY the arcs (progressive
    * draw-on); halos ride the layer fade. */
   private lensArcGfx?: Graphics;
-  /** Arc geometry cached by buildLensLayer for the draw-on animation. */
-  private lensArcGeom: Array<{ ax: number; ay: number; mx: number; my: number; bx: number; by: number; climb: number }> = [];
+  /** Typed geometry cached by buildLensLayer for the draw-on animation. */
+  private lensArcGeom: Array<{
+    ax: number;
+    ay: number;
+    mx: number;
+    my: number;
+    bx: number;
+    by: number;
+    climb: number;
+    kind: 'mechanism' | 'mathematical' | 'bridge' | 'evidence' | 'contradiction' | 'lineage';
+    weight: number;
+    directed: boolean;
+    sign: 'affirm' | 'contest' | 'neutral';
+    maturity?: 'proposed' | 'ratified';
+  }> = [];
   /** Enter-animation state: one-shot rAF (never a ticker — §7 on-demand
    * render discipline). `lensReveal` multiplies into the layer alpha so the
    * animation composes with applyTier's tier blend instead of fighting it. */
@@ -1880,7 +1913,7 @@ export class AtlasStage {
     const radius = ATLAS_STAGE_RADIUS[Math.max(0, Math.min(3, node.o.stage)) as 0 | 1 | 2 | 3];
     const angle = Math.atan2(islandY - pose.y, islandX - pose.x);
     const berth = radius + 34;
-    const finalPose: AtlasExplorerPose = {
+    const dockedPose: AtlasExplorerPose = {
       x: islandX - Math.cos(angle) * berth,
       y: islandY - Math.sin(angle) * berth * 0.72,
       facing: headingToFacing(angle),
@@ -1890,6 +1923,15 @@ export class AtlasStage {
       altitudeZ: altitudeZOf(node.o),
       verticalSpeed: 0,
     };
+    // The visible animation lands at the island's authored berth. The durable
+    // pose is the calm-water safety boundary used by field physics, so an L1
+    // round trip or reload never has to project the craft away on its first
+    // frame (and cannot relock to a denser neighbouring isle by accident).
+    const reentryPose: AtlasExplorerPose = {
+      ...dockedPose,
+      x: islandX - Math.cos(angle) * ATLAS_EXPLORER_SAFETY_RADIUS,
+      y: islandY - Math.sin(angle) * ATLAS_EXPLORER_SAFETY_RADIUS,
+    };
     const scale = 2.22;
     this.explorerSignal && (this.explorerSignal.alpha = 1);
     await this.motionDirector.dock({
@@ -1898,8 +1940,8 @@ export class AtlasStage {
       camera: this.cameraTarget(this.defaultExplorerCamera(pose)) ?? { x: this.worldRoot.x, y: this.worldRoot.y, scale: this.scale },
       reducedMotion,
       dock: {
-        vesselX: finalPose.x,
-        vesselY: finalPose.y,
+        vesselX: dockedPose.x,
+        vesselY: dockedPose.y,
         vesselRotation: angle,
         x: this.app.screen.width * 0.5 - islandX * scale,
         y: this.app.screen.height * 0.54 - islandY * scale,
@@ -1908,10 +1950,10 @@ export class AtlasStage {
     });
     // Store a copy: the returned pose escapes to the caller, while
     // setExplorerMotion reuses this.explorerPose by in-place mutation.
-    this.explorerPose = { ...finalPose };
-    this.applyExplorerTransform(finalPose);
+    this.explorerPose = { ...reentryPose };
+    this.applyExplorerTransform(dockedPose);
     this.requestFrame(true);
-    return finalPose;
+    return reentryPose;
   }
 
   private fittedCamera(islands: AtlasIslandInput[]): { pose: AtlasCameraPose; minScale: number } | null {
@@ -2169,31 +2211,87 @@ export class AtlasStage {
     if (!lens) return;
     const bySlug = new Map(this.islands.map((node) => [node.o.slug, node] as const));
 
-    // Bridge arcs between rebuilt islands — the SAME bow as `buildLocalRoutes`,
-    // in the bridge/ochre tint (a rebuild is a human bridging act). Geometry is
-    // cached; `drawLensArcs` paints it (partially, during the enter animation).
-    // Every arc is backed by rebuild events (inv 14).
-    for (const arc of lens.arcs) {
-      const from = bySlug.get(arc.fromSlug);
-      const to = bySlug.get(arc.toSlug);
-      if (!from || !to) continue;
+    const pushArc = (
+      from: IslandNode,
+      toPoint: { x: number; y: number },
+      relation: AtlasStructureLensInput['arcs'][number],
+    ): void => {
       const ax = from.o.x;
       const ay = projectIslandY(from.o);
-      const bx = to.o.x;
-      const by = projectIslandY(to.o);
+      const bx = toPoint.x;
+      const by = toPoint.y;
       const dx = bx - ax;
       const dy = by - ay;
       const len = Math.hypot(dx, dy) || 1;
       const nx = -dy / len;
       const ny = dx / len;
-      const climb = Math.abs(altitudeZOf(to.o) - altitudeZOf(from.o));
-      const bow = Math.min(120, len * 0.18) + climb * 54;
+      const toNode = relation.toSlug ? bySlug.get(relation.toSlug) : undefined;
+      const climb = toNode ? Math.abs(altitudeZOf(toNode.o) - altitudeZOf(from.o)) : 0;
+      const bow = Math.min(relation.kind === 'mechanism' ? 42 : 120, len * (relation.kind === 'mechanism' ? 0.1 : 0.18)) + climb * 54;
       const mx = (ax + bx) / 2 + nx * bow;
-      const my = (ay + by) / 2 + ny * bow - 20 - climb * 34;
-      this.lensArcGeom.push({ ax, ay, mx, my, bx, by, climb });
+      const my = (ay + by) / 2 + ny * bow - (relation.kind === 'mechanism' ? 4 : 20) - climb * 34;
+      this.lensArcGeom.push({
+        ax,
+        ay,
+        mx,
+        my,
+        bx,
+        by,
+        climb,
+        kind: relation.kind ?? 'mechanism',
+        weight: relation.weight ?? 1,
+        directed: relation.directed ?? false,
+        sign: relation.sign ?? 'neutral',
+        ...(relation.maturity ? { maturity: relation.maturity } : {}),
+      });
+    };
+
+    // Direct relations retain the epistemic grammar of the existing sea:
+    // evidence dotted, bridge solid, lineage dashed; sign controls the head.
+    for (const arc of lens.arcs) {
+      const from = bySlug.get(arc.fromSlug);
+      const to = bySlug.get(arc.toSlug);
+      if (!from || !to) continue;
+      pushArc(from, { x: to.o.x, y: projectIslandY(to.o) }, arc);
     }
 
     const halos = new Graphics();
+    // A mechanism convergence remains bipartite: a seam at the centroid, then
+    // one branch to each participating problem. No pairwise edge is invented.
+    for (const convergence of lens.convergences ?? []) {
+      const members = convergence.memberSlugs.flatMap((slug) => {
+        const node = bySlug.get(slug);
+        return node ? [node] : [];
+      });
+      if (members.length < 2) continue;
+      let cx = members.reduce((sum, node) => sum + node.o.x, 0) / members.length;
+      let cy = members.reduce((sum, node) => sum + projectIslandY(node.o), 0) / members.length;
+      if (members.length === 2) {
+        const ax = members[0]!.o.x;
+        const ay = projectIslandY(members[0]!.o);
+        const bx = members[1]!.o.x;
+        const by = projectIslandY(members[1]!.o);
+        const len = Math.hypot(bx - ax, by - ay) || 1;
+        cx += (-(by - ay) / len) * 18;
+        cy += ((bx - ax) / len) * 18;
+      }
+      const hubR = 5.5 + Math.min(4, members.length * 0.7);
+      halos.circle(cx, cy, hubR + 7).fill({ color: LENS_GLOW_TINT, alpha: lens.mode === 'global' ? 0.08 : 0.13 });
+      halos.circle(cx, cy, hubR).fill({ color: 0xf8f1de, alpha: 0.95 }).stroke({ color: LENS_ARC_TINT, width: 1.4, alpha: 0.9 });
+      halos.moveTo(cx - hubR * 0.62, cy).lineTo(cx + hubR * 0.62, cy).moveTo(cx, cy - hubR * 0.62).lineTo(cx, cy + hubR * 0.62)
+        .stroke({ color: LENS_ARC_TINT, width: 0.9, alpha: 0.76 });
+      for (const member of members) {
+        pushArc(member, { x: cx, y: cy }, {
+          fromSlug: member.o.slug,
+          toSlug: '',
+          kind: 'mechanism',
+          weight: Math.max(1, convergence.weight / members.length),
+          directed: false,
+          sign: 'neutral',
+        });
+      }
+    }
+
     for (const node of this.islands) {
       const o = node.o;
       const r = ATLAS_STAGE_RADIUS[Math.max(0, Math.min(3, o.stage)) as 0 | 1 | 2 | 3];
@@ -2201,8 +2299,9 @@ export class AtlasStage {
       const y = projectIslandY(o);
       if (this.lensRebuilt.has(o.slug)) {
         // rebuilt → the outlier double-ring glow, verbatim proportions.
-        halos.circle(x, y, r + 22).fill({ color: LENS_GLOW_TINT, alpha: 0.1 });
-        halos.circle(x, y, r + 10).fill({ color: LENS_GLOW_TINT, alpha: 0.14 });
+        const global = lens.mode === 'global';
+        halos.circle(x, y, r + (global ? 14 : 22)).fill({ color: LENS_GLOW_TINT, alpha: global ? 0.055 : 0.1 });
+        halos.circle(x, y, r + (global ? 7 : 10)).fill({ color: LENS_GLOW_TINT, alpha: global ? 0.09 : 0.14 });
       } else if (this.lensGaps.has(o.slug)) {
         // near gap (same cluster) → dashed halo, sea-current dash `7 5` at the
         // proposed opacity 0.5. Position only — the halo states "no edge
@@ -2222,16 +2321,32 @@ export class AtlasStage {
     this.drawLensArcs(1);
   }
 
-  /** Paint the bridge arcs up to `t` ∈ [0,1] of their length (de Casteljau
-   * split of the quadratic). Gates and endpoint dots appear only at t = 1 —
-   * while drawing, the line is a pen travelling island to island. */
+  /** Paint typed connection paths up to `t` ∈ [0,1]. Kind uses material/dash,
+   * sign uses the terminal head, maturity uses opacity, and weight uses width. */
   private drawLensArcs(t: number): void {
     const g = this.lensArcGfx;
     if (!g) return;
     g.clear();
     const lerp = (a: number, b: number, k: number): number => a + (b - a) * k;
+    const point = (a: (typeof this.lensArcGeom)[number], k: number): { x: number; y: number } => {
+      const u = 1 - k;
+      return {
+        x: u * u * a.ax + 2 * u * k * a.mx + k * k * a.bx,
+        y: u * u * a.ay + 2 * u * k * a.my + k * k * a.by,
+      };
+    };
+    const tintOf = (kind: (typeof this.lensArcGeom)[number]['kind']): number =>
+      kind === 'evidence' || kind === 'contradiction'
+        ? FIELD_EVIDENCE_TINT
+        : kind === 'lineage'
+          ? FIELD_LINEAGE_TINT
+          : LENS_ARC_TINT;
     let drawn = false;
     for (const a of this.lensArcGeom) {
+      const tint = tintOf(a.kind);
+      const width = Math.min(5.8, 1.2 + Math.sqrt(Math.max(0, a.weight)) * 0.82);
+      const alpha = a.maturity === 'proposed' ? 0.5 : a.kind === 'mechanism' ? 0.72 : 0.84;
+      const dashed = a.kind === 'evidence' || a.kind === 'contradiction' || a.kind === 'lineage';
       // Partial quadratic [0,t]: de Casteljau split control points.
       const p1x = lerp(a.ax, a.mx, t);
       const p1y = lerp(a.ay, a.my, t);
@@ -2239,14 +2354,35 @@ export class AtlasStage {
       const q1y = lerp(a.my, a.by, t);
       const endX = lerp(p1x, q1x, t);
       const endY = lerp(p1y, q1y, t);
-      g.moveTo(a.ax, a.ay).quadraticCurveTo(p1x, p1y, endX, endY)
-        .stroke({ color: 0xf8f1de, width: 5.6, alpha: 0.58, cap: 'round', join: 'round' });
-      g.moveTo(a.ax, a.ay).quadraticCurveTo(p1x, p1y, endX, endY)
-        .stroke({ color: LENS_ARC_TINT, width: 2.4, alpha: 0.85, cap: 'round', join: 'round' });
+      if (!dashed) {
+        g.moveTo(a.ax, a.ay).quadraticCurveTo(p1x, p1y, endX, endY)
+          .stroke({ color: 0xf8f1de, width: width + 3.2, alpha: 0.56, cap: 'round', join: 'round' });
+        g.moveTo(a.ax, a.ay).quadraticCurveTo(p1x, p1y, endX, endY)
+          .stroke({ color: tint, width, alpha, cap: 'round', join: 'round' });
+      } else {
+        // Existing current grammar: evidence dotted (1/5), lineage dashed
+        // (7/5). Sampled quadratic segments keep that non-colour distinction.
+        const approximateLength = Math.hypot(a.mx - a.ax, a.my - a.ay) + Math.hypot(a.bx - a.mx, a.by - a.my);
+        const rhythm = a.kind === 'lineage' ? { on: 7, off: 5 } : { on: 1.4, off: 5 };
+        const segmentCount = Math.max(12, Math.ceil(approximateLength / (rhythm.on + rhythm.off)));
+        for (let index = 0; index < segmentCount; index++) {
+          const start = (index / segmentCount) * t;
+          const fraction = rhythm.on / (rhythm.on + rhythm.off);
+          const end = Math.min(t, ((index + fraction) / segmentCount) * t);
+          if (end <= start) continue;
+          const p0 = point(a, start);
+          const p2 = point(a, end);
+          g.moveTo(p0.x, p0.y).lineTo(p2.x, p2.y)
+            .stroke({ color: 0xf8f1de, width: width + 2.8, alpha: 0.48, cap: 'round' });
+          g.moveTo(p0.x, p0.y).lineTo(p2.x, p2.y)
+            .stroke({ color: tint, width, alpha, cap: 'round' });
+        }
+      }
       drawn = true;
       if (t >= 1) {
-        for (let gate = 1; gate <= 3; gate++) {
-          const s = gate / 4;
+        const gates = a.kind === 'mechanism' ? 1 : a.kind === 'mathematical' || a.kind === 'bridge' ? 3 : 0;
+        for (let gate = 1; gate <= gates; gate++) {
+          const s = gate / (gates + 1);
           const u = 1 - s;
           const gx = u * u * a.ax + 2 * u * s * a.mx + s * s * a.bx;
           const gy = u * u * a.ay + 2 * u * s * a.my + s * s * a.by;
@@ -2256,10 +2392,41 @@ export class AtlasStage {
           const half = 3.5 + a.climb * 2.5;
           g.moveTo(gx - (-ty / tl) * half, gy - (tx / tl) * half)
             .lineTo(gx + (-ty / tl) * half, gy + (tx / tl) * half)
-            .stroke({ color: LENS_ARC_TINT, width: 0.9, alpha: 0.72 });
+            .stroke({ color: tint, width: 0.9, alpha: 0.72 });
         }
-        g.circle(a.ax, a.ay, 3.2).fill({ color: 0xf8f1de, alpha: 0.9 }).stroke({ color: LENS_ARC_TINT, width: 1, alpha: 0.8 });
-        g.circle(a.bx, a.by, 3.2).fill({ color: LENS_ARC_TINT, alpha: 0.76 });
+        g.circle(a.ax, a.ay, 3).fill({ color: 0xf8f1de, alpha: 0.9 }).stroke({ color: tint, width: 1, alpha: 0.8 });
+        const tx = a.bx - a.mx;
+        const ty = a.by - a.my;
+        const tl = Math.hypot(tx, ty) || 1;
+        const ux = tx / tl;
+        const uy = ty / tl;
+        const px = -uy;
+        const py = ux;
+        if (a.directed) {
+          if (a.sign === 'contest' || a.kind === 'contradiction') {
+            g.moveTo(a.bx - px * 5.5, a.by - py * 5.5).lineTo(a.bx + px * 5.5, a.by + py * 5.5)
+              .stroke({ color: tint, width: 1.8, alpha: 0.92 });
+          } else if (a.kind === 'lineage') {
+            const baseX = a.bx - ux * 7;
+            const baseY = a.by - uy * 7;
+            g.moveTo(baseX + px * 4, baseY + py * 4).lineTo(a.bx + ux * 2, a.by + uy * 2).lineTo(baseX - px * 4, baseY - py * 4)
+              .stroke({ color: tint, width: 1.4, alpha: 0.92, cap: 'round', join: 'round' });
+          } else {
+            const tipX = a.bx + ux * 3.5;
+            const tipY = a.by + uy * 3.5;
+            const baseX = a.bx - ux * 6;
+            const baseY = a.by - uy * 6;
+            g.poly([tipX, tipY, baseX + px * 4.2, baseY + py * 4.2, baseX - px * 4.2, baseY - py * 4.2])
+              .fill({ color: tint, alpha: 0.88 });
+          }
+        } else {
+          g.circle(a.bx, a.by, 3).fill({ color: tint, alpha: 0.76 });
+        }
+        if (a.kind === 'mathematical') {
+          const mid = point(a, 0.5);
+          g.poly([mid.x, mid.y - 4.5, mid.x + 4.5, mid.y, mid.x, mid.y + 4.5, mid.x - 4.5, mid.y])
+            .fill({ color: 0xf8f1de, alpha: 0.94 }).stroke({ color: tint, width: 1.1, alpha: 0.9 });
+        }
       }
     }
     // Keep the Graphics non-empty at t=0 (same null-batcher discipline as
@@ -2503,6 +2670,7 @@ export class AtlasStage {
     // islands stay readable even at the world tier (their dimmed neighbours
     // recede through the fog channel below).
     const lensActive = this.structureLens !== null;
+    const fieldGlobal = this.structureLens?.mode === 'global';
     this.lensLayer.visible = lensActive;
     // `lensReveal` is the one-shot enter animation's fade (1 once settled).
     this.lensLayer.alpha = lensActive ? Math.max(blend.far * 0.85, blend.mid, blend.near) * this.lensReveal : 0;
@@ -2514,9 +2682,9 @@ export class AtlasStage {
     // Territory NAMES fade faster than their washes (crisp only at true far zoom).
     // With a lens on, name chips recede too (same fog discipline as the isles):
     // the lens marks are the figure, the geography stays a quiet ground.
-    this.continentLabelLayer.alpha = this.exploreActive ? 0 : blend.far * blend.far * (lensActive ? 0.4 : 1);
+    this.continentLabelLayer.alpha = this.exploreActive ? 0 : blend.far * blend.far * (lensActive ? (fieldGlobal ? 0.62 : 0.4) : 1);
     this.clusterLayer.alpha = this.exploreActive ? 0.06 : blend.far;
-    this.clusterLabelLayer.alpha = this.exploreActive ? 0 : blend.far * (lensActive ? 0.35 : 1);
+    this.clusterLabelLayer.alpha = this.exploreActive ? 0 : blend.far * (lensActive ? (fieldGlobal ? 0.55 : 0.35) : 1);
     this.islandLayer.alpha = this.exploreActive ? 1 : lensActive ? Math.max(blend.mid, blend.near, 0.9) : Math.max(blend.mid, blend.near);
     this.encounterLayer.alpha = this.exploreActive ? 1 : 0;
     this.currentEncounterLayer.alpha = this.exploreActive ? 1 : 0;
@@ -2616,7 +2784,8 @@ export class AtlasStage {
       // far gaps (same domain, different cluster) hold a middle register —
       // the same honest near/far gradient their fainter dash already draws.
       if (lensActive) {
-        nd.fogDim = lensRole === 'member' ? 1 : lensRole === 'far' ? 0.75 : nd.fogDim * LENS_DIM_FLOOR;
+        const floor = fieldGlobal ? FIELD_GLOBAL_DIM_FLOOR : LENS_DIM_FLOOR;
+        nd.fogDim = lensRole === 'member' ? 1 : lensRole === 'far' ? 0.75 : nd.fogDim * floor;
       }
       const domainVisible = !this.domainFocus || o.domain === this.domainFocus;
       const altitudeVisible = !this.altitudeFocus || nd.band === this.altitudeFocus;

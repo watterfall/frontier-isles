@@ -164,6 +164,8 @@ export const ATLAS_EXPLORER_MAX_SPEED = 236;
 export const ATLAS_EXPLORER_CRUISE_SCALE = 1.82;
 export const ATLAS_EXPLORER_SIGNAL_DISTANCE = 320;
 export const ATLAS_EXPLORER_APPROACH_DISTANCE = 168;
+/** Physical calm-water boundary used for durable return poses. */
+export const ATLAS_EXPLORER_SAFETY_RADIUS = 104;
 export const ATLAS_EXPLORER_CURRENT_SIGNAL_DISTANCE = 120;
 export const ATLAS_EXPLORER_CURRENT_SAMPLE_DISTANCE = 54;
 export function atlasCruiseScale(speed: number, altitudeZ: number): number {
