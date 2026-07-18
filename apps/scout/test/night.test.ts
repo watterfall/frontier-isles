@@ -133,3 +133,42 @@ describe("runNightShift", () => {
     expect(result.digest).toBe("");
   });
 });
+
+describe("atlas English enrichment (B.1 caveat — CJK-only QFocus weakens CrossRef recall)", () => {
+  const ZH_ONLY_MD = `---
+schema: opp/0.2
+id: op://frontier-isles/prob/compositional-modeling
+title: 复合建模
+status: active
+qfocus: |
+  模型能否像积木一样沿边界拼接？
+lineage:
+  children: []
+---
+
+## Night
+纯中文夜间笔记，没有任何拉丁词。
+`;
+  const zhDeps = (): NightDeps =>
+    baseDeps({
+      fetchText: async (url) => {
+        if (url.endsWith("/problem.md")) return ZH_ONLY_MD;
+        if (url.includes("/api/refs/")) throw new Error("404");
+        return "";
+      },
+    });
+
+  it("merges the curated atlas EN title/qfocus into keywords for a frontier island", async () => {
+    const result = await runNightShift({ ...OPTS, island: "compositional-modeling", dryRun: true }, zhDeps());
+    // "blocks" only exists in the atlas EN qfocus — CJK-only inputs could never
+    // produce it. extractKeywords prefers latin for CrossRef, so with the
+    // enrichment the 8 slots fill with English terms (that IS the recall win).
+    expect(result.keywords).toContain("blocks");
+    expect(result.keywords.filter((k) => /^[a-z]/.test(k)).length).toBeGreaterThanOrEqual(4);
+  });
+
+  it("a non-atlas island (the hero sample) is unchanged — no phantom enrichment", async () => {
+    const result = await runNightShift({ ...OPTS, dryRun: true }, zhDeps());
+    expect(result.keywords.every((k) => !/^[a-z]/.test(k))).toBe(true);
+  });
+});

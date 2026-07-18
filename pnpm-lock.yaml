@@ -20,6 +20,9 @@ importers:
 
   apps/scout:
     dependencies:
+      '@frontier-isles/data':
+        specifier: workspace:*
+        version: link:../../packages/data
       '@frontier-isles/opp':
         specifier: workspace:*
         version: link:../../packages/opp

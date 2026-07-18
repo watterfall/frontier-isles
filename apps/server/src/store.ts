@@ -1202,7 +1202,13 @@ export class Store {
     }
 
     if (decision === "adopt") {
-      const aiCredit = (content.credit ?? ["credit:ai/synthesis"]).filter((c) => c.startsWith("credit:ai/"));
+      // The draft's real AI role: the night_digest EVENT's credit is the
+      // write-time truth (MCP-filed drafts carry credit only there); seeded
+      // refs may also embed it in content. Only a draft with neither falls
+      // back to the generic synthesis tag (B.1 caveat closed 2026-07-19).
+      const eventAi = (draftEvent.credit ?? []).filter((c) => c.startsWith("credit:ai/"));
+      const contentAi = (content.credit ?? []).filter((c) => c.startsWith("credit:ai/"));
+      const aiCredit = eventAi.length ? eventAi : contentAi;
       const credit = Array.from(new Set(["curation", ...(aiCredit.length ? aiCredit : ["credit:ai/synthesis"])]));
       const event = this.appendRaw(opId, {
         ts: when,

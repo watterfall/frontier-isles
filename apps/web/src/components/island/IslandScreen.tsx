@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { LedgerEvent } from '@frontier-isles/opp';
 import type { StationKind, NightTimelineModel } from '@frontier-isles/core';
-import { projectNightTimeline } from '@frontier-isles/core';
+import { projectActiveStations, projectNightTimeline } from '@frontier-isles/core';
 import { NIGHT_SCENE_VARS, sceneVarsToStyle } from '@frontier-isles/assets';
 import { Scene } from '../../scene/Scene';
 import { computeGhostReveals, computeNightSigns } from '../../scene/nightReveal';
@@ -121,6 +121,18 @@ export function IslandScreen(props: IslandScreenProps) {
     [ledgerEvents, nightModel],
   );
 
+  // Per-station night lamps (B.1): stations with real ledger activity as of
+  // the scrub night. Undefined without a ledger → the scene draws no lamps,
+  // matching the pre-B.1 offline look.
+  const activeStations = useMemo(() => {
+    if (!ledgerEvents || ledgerEvents.length === 0) return undefined;
+    const clamped = Math.min(nightModel.nights, Math.max(1, Math.round(props.t)));
+    const upTo = nightModel.eventCountByNight[clamped] ?? ledgerEvents.length;
+    const slice = ledgerEvents.slice(0, upTo);
+    const last = slice[slice.length - 1];
+    return projectActiveStations(slice, last ? { now: last.ts } : {});
+  }, [ledgerEvents, nightModel, props.t]);
+
   return (
     <div
       data-screen-label="L1 样板岛"
@@ -136,6 +148,7 @@ export function IslandScreen(props: IslandScreenProps) {
         onStation={props.onStation}
         ghostReveals={ghostReveals}
         nightSigns={nightSigns}
+        activeStations={activeStations}
       />
 
       <div className="fi-island-hud">

@@ -364,6 +364,47 @@ describe("morning report HITL", () => {
     const after = await jsonOf(await app.request("/api/islands/machine-curiosity/morning-report"));
     expect(after.drafts.some((d: { refHash: string }) => d.refHash === refHash)).toBe(false);
   });
+
+  it("adopt carries the DRAFT's real AI credit role, not a hardcoded synthesis tag (B.1 caveat)", async () => {
+    // The seeded critique draft's night_digest event carries credit:ai/critique;
+    // adopting it must attribute THAT role — misattributing every adoption to
+    // "synthesis" falsifies the AI-governance record (architecture §4).
+    const list = await jsonOf(await app.request("/api/islands/machine-curiosity/morning-report"));
+    const critique = list.drafts.find((d: { title: string }) => d.title.includes("反例"));
+    expect(critique).toBeTruthy();
+    const res = await post(
+      `/api/islands/machine-curiosity/morning-report/${encodeURIComponent(critique.refHash)}`,
+      { decision: "adopt", actor: MASTER },
+    );
+    expect(res.status).toBe(201);
+    const body = await jsonOf(res);
+    expect(body.event.credit).toContain("curation");
+    expect(body.event.credit).toContain("credit:ai/critique");
+    expect(body.event.credit).not.toContain("credit:ai/synthesis");
+  });
+
+  it("adopt reads the role from the draft EVENT when the ref content has none (MCP scout shape)", async () => {
+    // The MCP night_digest tool files a morning draft with payload {title, dest}
+    // — credit lives only on the EVENT (mcp.ts). Adopting such a draft must
+    // still attribute the real role, not fall back to a synthesis tag.
+    const scout = { id: "github:curiosity-scout", kind: "agent" as const };
+    const filed = await jsonOf(await post("/api/islands/machine-curiosity/events", {
+      actor: scout,
+      action: "night_digest",
+      payload: { title: "文献斥候夜巡 · 新文三篇", dest: "library" },
+      refKind: "morning_report",
+      credit: ["credit:ai/literature"],
+    }));
+    expect(filed.event.action).toBe("night_digest");
+    const res = await post(
+      `/api/islands/machine-curiosity/morning-report/${encodeURIComponent(filed.event.ref)}`,
+      { decision: "adopt", actor: MASTER },
+    );
+    expect(res.status).toBe(201);
+    const body = await jsonOf(res);
+    expect(body.event.credit).toContain("credit:ai/literature");
+    expect(body.event.credit).not.toContain("credit:ai/synthesis");
+  });
 });
 
 describe("transplant-through-dock (Phase B.3)", () => {

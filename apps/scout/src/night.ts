@@ -14,6 +14,7 @@
  */
 
 import { parseProblemObject } from "@frontier-isles/opp";
+import { frontierAtlasBySlug } from "@frontier-isles/data/atlas";
 import {
   extractKeywords,
   extractSeenDois,
@@ -74,8 +75,20 @@ export async function runNightShift(opts: NightOptions, deps: NightDeps): Promis
   const md = await deps.fetchText(`${base}/api/islands/${opts.island}/problem.md`);
   const { object, body } = parseProblemObject(md);
   const qfocus = object.qfocus;
-  const keywords = extractKeywords({ title: object.title, qfocus, body: body.night });
+  // Seeded problem objects carry only the zh half of the curated bilingual
+  // qfocus (seed.ts takes `f.qfocus.zh`), and CrossRef recall on CJK-only
+  // terms is poor (B.1 caveat). For atlas frontier islands, merge the curated
+  // English title/qfocus into keyword extraction; non-atlas islands (e.g. the
+  // hero sample island) are unchanged.
+  const atlasEntry = frontierAtlasBySlug(opts.island);
+  const atlasEn = [atlasEntry?.title.en, atlasEntry?.qfocus.en].filter(Boolean).join(" ");
+  const keywords = extractKeywords({
+    title: object.title,
+    qfocus,
+    body: [body.night, atlasEn].filter(Boolean).join(" "),
+  });
   deps.log(`题：「${object.title}」 QFocus=${qfocus.replace(/\s+/g, " ").trim()}`);
+  if (atlasEn) deps.log(`图集英文补充：${atlasEn.replace(/\s+/g, " ").trim()}`);
   deps.log(`关键词：${keywords.join(" / ") || "(none)"}`);
 
   // c(部分). Dedup source — DOIs already proposed. Ledger events carry only

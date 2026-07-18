@@ -62,6 +62,13 @@ export interface SceneProps {
    * the same standalone reasons as `ghostReveals`.
    */
   nightSigns?: NightSign[];
+  /**
+   * Stations with recent ledger activity as of the scrub night (B.1 caveat:
+   * the generated islands' Pixi lamps were event-driven, the hero SVG had
+   * none). Each active station hangs a small night lamp at its anchor.
+   * Omitted (offline / no ledger) → no lamps, identical to the old look.
+   */
+  activeStations?: ReadonlySet<StationKind>;
 }
 
 const STATION_COMPONENTS: Record<
@@ -123,7 +130,7 @@ function Resident({ r, i, lang }: { r: ResidentPlacement; i: number; lang: 'zh' 
  * is palette-only: the caller applies NIGHT_SCENE_VARS on the wrapping div,
  * so every `var(--x,…)` shape repaints without changing shape.
  */
-export function Scene({ night, nightT, selKey, transTo, onStation, ghostReveals, nightSigns }: SceneProps) {
+export function Scene({ night, nightT, selKey, transTo, onStation, ghostReveals, nightSigns, activeStations }: SceneProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
   const sel = selKey ? STN.find((s) => s.k === selKey) : undefined;
@@ -199,6 +206,14 @@ export function Scene({ night, nightT, selKey, transTo, onStation, ghostReveals,
             <HangingLantern key={i} x={l.x} y={l.y} size={l.size} swaySeconds={l.sway} />
           ))}
           <Fireflies />
+          {/* 各站夜哨灯 — 该站在此夜（截至 scrub 夜）有真实账本活动才点亮
+              （B.1：生成岛 Pixi 灯早已事件驱动，英雄岛此前缺位）。 */}
+          {activeStations && STN.filter((s) => activeStations.has(s.k)).map((s) => (
+            <g key={`lamp-${s.k}`} data-lamp={s.k} transform={`translate(${s.x},${s.y - 26})`}>
+              <circle r="16" fill="url(#lgrad)" />
+              <circle r="2.4" fill="#F5B94B" style={{ animation: 'pulseGlow 3s ease-in-out infinite', animationPlayState: 'var(--play,running)' as never }} />
+            </g>
+          ))}
           {signOn('argument') && (
             <g transform="translate(980,332)">
               <rect x="-58" y="-10" width="116" height="18" rx="9" fill="rgba(33,44,78,0.9)" stroke="rgba(245,185,75,0.5)" strokeWidth="0.75" />

@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@frontier-isles/data": "workspace:*",
     "@frontier-isles/opp": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.0.0"
   },
