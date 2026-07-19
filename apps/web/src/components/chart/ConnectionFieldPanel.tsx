@@ -60,6 +60,9 @@ const COPY = {
     target: '你在回应哪条材料', position: '你的判断', validate: '这些材料支持它', refute: '这些材料反对它',
     bridgeValidate: '这次对应经得起检验', bridgeRefute: '这次对应在此断裂',
     relatedResponses: '关于这次对应的跨岛回应', viewPath: '查看这条回应',
+    returnFalsified: '将被证伪的材料退回散木园', returned: '已退回散木园',
+    returnFalsifiedNote: '锚定岛的人工决定 · 材料化作「矛盾」原子重新入园，可再移栽',
+    errorNotFalsified: '这份材料没有在案的反驳记录。', errorAlreadyReturned: '这份材料已经退回过散木园。',
     argument: '具体哪里支持或反对', argumentHint: '说明你比较了什么、哪些地方相同、哪些地方不能照搬。',
     test: '什么结果会让你改变判断', testHint: '写下一个可以观察、实验或复现的结果。',
     crate: '证据来源（RO-Crate）', hash: '材料的 sha256 哈希', role: '这份材料用于', evidenceRole: '提供依据', replicationRole: '复现检查',
@@ -97,6 +100,9 @@ const COPY = {
     target: 'Material you are responding to', position: 'Your judgment', validate: 'This material supports it', refute: 'This material challenges it',
     bridgeValidate: 'The correspondence holds under this material', bridgeRefute: 'The correspondence breaks here',
     relatedResponses: 'Cross-island responses about this correspondence', viewPath: 'View this response',
+    returnFalsified: 'Return the falsified material to the Driftwood Garden', returned: 'Returned to the Garden',
+    returnFalsifiedNote: 'The anchor island\'s human decision · the material re-enters the Garden as a contradiction atom, transplantable again',
+    errorNotFalsified: 'This material has no refutation on record.', errorAlreadyReturned: 'This material was already returned to the Garden.',
     argument: 'Exactly what supports or challenges it', argumentHint: 'State what you compared, what matches, and what cannot be copied.',
     test: 'What result would change your judgment', testHint: 'Name an observable, experimental, or reproducible result.',
     crate: 'Evidence source (RO-Crate)', hash: 'Material sha256 hash', role: 'This material is for', evidenceRole: 'Supporting the judgment', replicationRole: 'Replication check',
@@ -403,7 +409,7 @@ function PathDetail({ path, lang, copy, actor, onEnter, onResponseRecorded, rela
           </section>
         ))}
       </div>
-      {path.source === 'ledger' && <ConnectionDossier path={path} lang={lang} copy={copy} />}
+      {path.source === 'ledger' && <ConnectionDossier path={path} lang={lang} copy={copy} actor={actor} onResponseRecorded={onResponseRecorded} />}
       {related.length > 0 && (
         <section className="fi-connection-related" aria-labelledby="fi-connection-related-title">
           <h3 id="fi-connection-related-title">{copy.relatedResponses}</h3>
@@ -468,10 +474,49 @@ function EvidenceLine({ title, evidence, missing, evidenceRole, replicationRole 
   );
 }
 
-function ConnectionDossier({ path, lang, copy }: {
+function ReturnFalsifiedControl({ path, record, copy, actor, onResponseRecorded }: {
+  path: ConnectionPath;
+  record: ApiCurrentRecord;
+  copy: typeof COPY.zh | typeof COPY.en;
+  actor?: string;
+  onResponseRecorded?: (pathId: string) => void;
+}) {
+  const [state, setState] = useState<'idle' | 'saving' | 'done' | 'error'>('idle');
+  const [message, setMessage] = useState('');
+  const submit = async () => {
+    if (!actor) {
+      setState('error');
+      setMessage(copy.actorMissing);
+      return;
+    }
+    setState('saving');
+    setMessage('');
+    const outcome = await api.returnFalsified(path.from.slug, { targetRef: record.targetRef, actor });
+    if (!outcome.ok) {
+      setState('error');
+      setMessage(responseError(copy, outcome.code, outcome.status));
+      return;
+    }
+    setState('done');
+    onResponseRecorded?.(path.id);
+  };
+  return (
+    <div className="fi-connection-response fi-connection-return">
+      <button type="button" onClick={submit} disabled={state === 'saving' || state === 'done' || !actor}>
+        {state === 'done' ? copy.returned : copy.returnFalsified}
+      </button>
+      <small>{copy.returnFalsifiedNote}</small>
+      {message && state === 'error' && <p role="alert">{message}</p>}
+    </div>
+  );
+}
+
+function ConnectionDossier({ path, lang, copy, actor, onResponseRecorded }: {
   path: ConnectionPath;
   lang: 'zh' | 'en';
   copy: typeof COPY.zh | typeof COPY.en;
+  actor?: string;
+  onResponseRecorded?: (pathId: string) => void;
 }) {
   return (
     <section className="fi-connection-dossier" aria-labelledby="fi-connection-dossier-title">
@@ -512,6 +557,9 @@ function ConnectionDossier({ path, lang, copy }: {
                     <p>{record.responseTest ?? copy.testMissing}</p>
                   </section>
                 )}
+                {record.action === 'refute' && (
+                  <ReturnFalsifiedControl path={path} record={record} copy={copy} actor={actor} onResponseRecorded={onResponseRecorded} />
+                )}
               </li>
             );
           })}
@@ -527,6 +575,8 @@ function responseError(copy: typeof COPY.zh | typeof COPY.en, code: string | und
   if (code === 'evidence_required') return copy.errorEvidence;
   if (code === 'target_required' || code === 'target_unanchored') return copy.errorTarget;
   if (code === 'same_island') return copy.errorSameIsland;
+  if (code === 'not_falsified') return copy.errorNotFalsified;
+  if (code === 'already_returned') return copy.errorAlreadyReturned;
   return copy.errorGeneric;
 }
 

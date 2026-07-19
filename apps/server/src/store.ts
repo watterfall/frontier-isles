@@ -38,6 +38,7 @@ import {
   projectWhirlpools,
   projectMorningReport,
   buildTransplant,
+  semanticRefEvent,
   projectStructureMappings,
   reduceStructureGraph,
   structureFrontier,
@@ -204,7 +205,9 @@ export type ConnectionResponseInvalidReason =
   | "same_island"
   | "body_required"
   | "test_required"
-  | "language_invalid";
+  | "language_invalid"
+  | "not_falsified"
+  | "already_returned";
 
 /** A response that cannot truthfully become evidence for or against a cross-island claim. */
 export class ConnectionResponseInvalid extends Error {
@@ -1234,17 +1237,111 @@ export class Store {
       return { event, degraded: false, effectiveAction: "adopt", refHash: refHashValue };
     }
 
-    const event = this.appendRaw(opId, {
-      ts: when,
-      op: opId as ProblemObject["id"],
-      actor,
-      credit: ["curation"],
-      phase: "A",
-      action: "return_to_driftwood",
-      ref: refHashValue,
+    // The ledger event refs the ORIGINAL draft (ghost/timeline truth); the
+    // place plane receives a REAL driftwood atom carrying `returnedFrom`, so
+    // returned material actually reappears in the Garden as rework material
+    // (listDriftwood/transplant require driftwood-kind refs — placing the
+    // morning_report ref made returns silently invisible).
+    const titled = content as { title?: string };
+    let driftwoodRef = "";
+    let event!: LedgerEvent;
+    const returnTx = this.db.transaction(() => {
+      driftwoodRef = this.putRef("driftwood", {
+        atom: "thought",
+        text: typeof titled.title === "string" && titled.title ? titled.title : refHashValue,
+        returnedFrom: refHashValue,
+      });
+      event = this.appendRaw(opId, {
+        ts: when,
+        op: opId as ProblemObject["id"],
+        actor,
+        credit: ["curation"],
+        phase: "A",
+        action: "return_to_driftwood",
+        ref: refHashValue,
+      });
+      this.addPlacement(opId, "driftwood", driftwoodRef, { action: "return_to_driftwood", returnedFrom: refHashValue, actorId: actor.id });
     });
-    this.addPlacement(opId, "driftwood", refHashValue, { action: "return_to_driftwood", actorId: actor.id });
+    returnTx();
     return { event, degraded: false, effectiveAction: "return_to_driftwood", refHash: refHashValue };
+  }
+
+  /**
+   * Falsification → Driftwood (Phase C 8 / §3.10 "route failed tests back
+   * into the working space"). When an artifact anchored on THIS island has a
+   * refutation on record anywhere in the archipelago, the island's humans may
+   * return it to the Garden: one canonical `return_to_driftwood` event refs
+   * the ORIGINAL artifact (claim ghost + timeline marker semantics untouched),
+   * while the place plane receives a fresh `contradiction` driftwood atom
+   * carrying `returnedFrom` — the mirror of transplant's `onceDriftwood` mark,
+   * so falsified material re-enters the rework cycle instead of vanishing.
+   * Human-only finalization (AI proposes, never recycles formal material).
+   */
+  returnFalsified(
+    slug: string,
+    input: { targetRef: string; actor: Actor; ts?: string },
+  ): GatewayResult & { driftwoodRef: string } {
+    const row = this.getProblemRow(slug);
+    if (!row) throw new NotFound(slug);
+    const opId = row.opId;
+    const targetRef = input.targetRef?.trim();
+    if (!targetRef) throw new ConnectionResponseInvalid("target_required", "a return requires a target ref");
+
+    const anchored = this.getEvents(opId).some(
+      (event) =>
+        event.ref === targetRef &&
+        (event.action === "submit_claim" ||
+          event.action === "publish" ||
+          event.action === "bridge_artifact" ||
+          event.action === "transplant"),
+    );
+    const targetContent = this.getRef(targetRef);
+    if (!anchored || !targetContent) {
+      throw new ConnectionResponseInvalid("target_unanchored", "the target ref is not anchored on this island");
+    }
+
+    const resolver = (ref: string) => this.getRef(ref) ?? null;
+    const refuted = this.listProblemRows().some((problem) =>
+      this.getEvents(problem.opId).some(
+        (event) => event.action === "refute" && semanticRefEvent(event, resolver)?.targetRef === targetRef,
+      ),
+    );
+    if (!refuted) {
+      throw new ConnectionResponseInvalid("not_falsified", "the target has no refutation on record");
+    }
+    if (this.getEvents(opId).some((event) => event.action === "return_to_driftwood" && event.ref === targetRef)) {
+      throw new ConnectionResponseInvalid("already_returned", "the target was already returned to driftwood");
+    }
+
+    if (input.actor.kind === "agent") throw new GatewayDenied("return_to_driftwood");
+    const role = this.memberRole(opId, input.actor.id);
+    const capActor = { id: input.actor.id, kind: input.actor.kind, role };
+    if (!can(capActor, "return_to_driftwood", this.grantsFor(opId, input.actor.id))) {
+      throw new GatewayDenied("return_to_driftwood");
+    }
+
+    const content = (targetContent.content ?? {}) as { title?: string; text?: string; body?: string };
+    const text =
+      [content.title, content.text, content.body].find((value) => typeof value === "string" && value.length > 0) ??
+      targetRef;
+    const when = input.ts ?? new Date().toISOString();
+    let driftwoodRef = "";
+    let event!: LedgerEvent;
+    const tx = this.db.transaction(() => {
+      driftwoodRef = this.putRef("driftwood", { atom: "contradiction", text, returnedFrom: targetRef });
+      event = this.appendRaw(opId, {
+        ts: when,
+        op: opId as ProblemObject["id"],
+        actor: input.actor,
+        credit: ["curation"],
+        phase: "A",
+        action: "return_to_driftwood",
+        ref: targetRef,
+      });
+      this.addPlacement(opId, "driftwood", driftwoodRef, { action: "return_to_driftwood", returnedFrom: targetRef, actorId: input.actor.id });
+    });
+    tx();
+    return { event, degraded: false, effectiveAction: "return_to_driftwood", refHash: targetRef, driftwoodRef };
   }
 
   // --- transplant-through-dock (Phase B.3) ---------------------------------

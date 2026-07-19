@@ -159,6 +159,24 @@ export function createApp(store: Store): Hono {
   // A focused connection response: another island records a supported argument
   // and a discriminating test against an anchored claim/publication. The Store
   // owns semantic validation and the atomic response-ref + ledger write.
+  app.post("/api/islands/:slug/return-falsified", async (c) => {
+    const slug = c.req.param("slug");
+    if (!store.getProblemRow(slug)) return c.json({ error: "not found" }, 404);
+    const body = await c.req.json().catch(() => null);
+    if (!body || typeof body !== "object") return c.json({ error: "invalid body" }, 400);
+    const actor: Actor | undefined = actorOf(c) ?? body.actor;
+    if (!actor) return c.json({ error: "actor required" }, 401);
+    try {
+      const result = store.returnFalsified(slug, {
+        targetRef: typeof body.targetRef === "string" ? body.targetRef : "",
+        actor,
+      });
+      return c.json(result, 201);
+    } catch (e) {
+      return errorResponse(c, e);
+    }
+  });
+
   app.post("/api/islands/:slug/connection-response", async (c) => {
     const slug = c.req.param("slug");
     if (!store.getProblemRow(slug)) return c.json({ error: "not found" }, 404);

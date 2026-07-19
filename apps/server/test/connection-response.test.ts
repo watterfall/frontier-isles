@@ -237,3 +237,92 @@ describe("bridge-challenge v1 — responses may target an anchored bridge artifa
     expect(body.code).toBe("same_island");
   });
 });
+
+describe("falsification → driftwood v1 — refuted material re-enters the working space", () => {
+  const founder = (slug: string) => ({ id: `github:founder-${slug}`, kind: "human" as const });
+  const returnPost = (slug: string, body: unknown) =>
+    app.request(`/api/islands/${slug}/return-falsified`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+  /** A seeded contest current gives us a refuted claim + its anchor island. */
+  const refutedTarget = () => {
+    const current = store.seaData().currents.find((item) => item.sign === "contest");
+    if (!current) throw new Error("no seeded contest current");
+    const slug = current.from.split("/").pop()!;
+    return { slug, targetRef: current.records[0]!.targetRef };
+  };
+
+  it("returns a refuted claim to the Garden as a contradiction atom with provenance", async () => {
+    const { slug, targetRef } = refutedTarget();
+    const res = await returnPost(slug, { targetRef, actor: founder(slug) });
+    expect(res.status).toBe(201);
+    const written = await jsonOf(res);
+    expect(written.effectiveAction).toBe("return_to_driftwood");
+    expect(written.refHash).toBe(targetRef); // the EVENT refs the original artifact
+    expect(written.driftwoodRef).toMatch(/^sha256:[0-9a-f]{64}$/);
+    expect(written.driftwoodRef).not.toBe(targetRef);
+
+    // The Garden now lists the falsified material as rework material…
+    const atoms = store.listDriftwood(opIdFor(slug));
+    const atom = atoms.find((a) => a.refHash === written.driftwoodRef);
+    expect(atom).toBeTruthy();
+    expect(atom!.atom).toBe("contradiction");
+    expect(atom!.text.length).toBeGreaterThan(0);
+
+    // …with traceable provenance back to the refuted artifact.
+    const ref = store.getRef(written.driftwoodRef);
+    expect((ref?.content as { returnedFrom?: string }).returnedFrom).toBe(targetRef);
+
+    // The claim projection shows the ghost (refute wins the tier, return recorded).
+    const events = store.getEvents(opIdFor(slug));
+    expect(events.some((e) => e.action === "return_to_driftwood" && e.ref === targetRef)).toBe(true);
+  });
+
+  it("rejects returning material that has no refutation on record", async () => {
+    // A seeded affirm-only current's target is not falsified.
+    const current = store.seaData().currents.find(
+      (item) => item.sign === "affirm" &&
+        !store.seaData().currents.some((c2) => c2.sign === "contest" && c2.records.some((r) => r.targetRef === item.records[0]!.targetRef)),
+    );
+    if (!current) throw new Error("no affirm-only current in seed");
+    const slug = current.from.split("/").pop()!;
+    const res = await returnPost(slug, { targetRef: current.records[0]!.targetRef, actor: founder(slug) });
+    expect(res.status).toBe(422);
+    expect((await jsonOf(res)).code).toBe("not_falsified");
+  });
+
+  it("agents may never finalize a return (AI proposes, humans recycle)", async () => {
+    const { slug, targetRef } = refutedTarget();
+    const res = await returnPost(slug, { targetRef, actor: { id: "github:some-agent", kind: "agent" } });
+    expect(res.status).toBe(403);
+  });
+
+  it("a second return of the same target is rejected (already_returned)", async () => {
+    const { slug, targetRef } = refutedTarget();
+    await returnPost(slug, { targetRef, actor: founder(slug) });
+    const again = await returnPost(slug, { targetRef, actor: founder(slug) });
+    expect(again.status).toBe(422);
+    expect((await jsonOf(again)).code).toBe("already_returned");
+  });
+
+  it("the returned atom is transplantable — the rework cycle closes", async () => {
+    const { slug, targetRef } = refutedTarget();
+    const written = await jsonOf(await returnPost(slug, { targetRef, actor: founder(slug) }));
+    const res = await app.request(`/api/islands/${slug}/transplant`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        driftwoodRef: written.driftwoodRef,
+        type: "hypothesis-formalization",
+        dest: "workshop",
+        actor: founder(slug),
+      }),
+    });
+    expect(res.status).toBe(201);
+    const transplanted = await jsonOf(res);
+    expect(transplanted.event.action).toBe("transplant");
+  });
+});

@@ -359,6 +359,21 @@ export const api = {
       }),
     }),
 
+  /**
+   * Return a FALSIFIED artifact (one with a refutation on record) from its
+   * anchor island back to the Driftwood Garden as rework material
+   * (falsification→driftwood v1). Human-only; the server validates anchoring,
+   * refutation, capability, and once-only.
+   */
+  returnFalsified: (anchorSlug: string, input: { targetRef: string; actor: string }) =>
+    reqOutcome<{ effectiveAction: string; refHash: string; driftwoodRef: string }>(
+      `/api/islands/${anchorSlug}/return-falsified`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ targetRef: input.targetRef, actor: toActor(input.actor) }),
+      },
+    ),
+
   /** Server shape: `{actor: {id, kind} | null}`; expose the app's handle view. */
   me: async (): Promise<ApiMe | null> => {
     const res = await req<{ actor: ApiActor | null }>('/api/me');

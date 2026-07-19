@@ -135,3 +135,20 @@ describe('ConnectionFieldPanel — bridge-challenge v1 (correspondence responses
     expect(markup).toContain('查看这条回应');
   });
 });
+
+describe('ConnectionFieldPanel — falsification → driftwood v1', () => {
+  it('offers the anchor-island return decision on refuted records only', () => {
+    const contradiction = base.paths.find((path) => path.kind === 'contradiction')!;
+    expect(contradiction).toBeTruthy();
+    const markup = renderToStaticMarkup(
+      <ConnectionFieldPanel {...props} channel="all" focus={{ type: 'path', id: contradiction.id }} />,
+    );
+    expect(markup).toContain('将被证伪的材料退回散木园');
+    expect(markup).toContain('「矛盾」原子');
+  });
+
+  it('shows no return control on affirming evidence records', () => {
+    const markup = renderToStaticMarkup(<ConnectionFieldPanel {...props} />);
+    expect(markup).not.toContain('将被证伪的材料退回散木园');
+  });
+});

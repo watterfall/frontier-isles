@@ -76,6 +76,7 @@ export type {
 export { projectCurrents, projectWhirlpools } from "./currents";
 export type { Current, CurrentRecord, CurrentKind, CurrentSign, CurrentMaturity, Whirlpool } from "./currents";
 export type { RelationRefResolver, RelationRefValue } from "./relation-refs";
+export { semanticRefEvent, groupBySemanticRef } from "./relation-refs";
 
 // Archipelago clustering (depth-plan-v2 §4 / INFO-HIERARCHY C3 — Phase C3 data layer)
 export { projectArchipelagos } from "./archipelago";
