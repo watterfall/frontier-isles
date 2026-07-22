@@ -1,9 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { StationKind } from '@frontier-isles/core';
 import type { ApiStructure } from '../../api/client';
 import type { IslandDistrictId } from '../../state/explorationSession';
-import type { BuildingFloorPlan, IslandDistrictProjection } from './islandDepth';
+import type { BuildingFloorPlan, IslandDistrict, IslandDistrictProjection } from './islandDepth';
 
 export interface IslandDistrictMapProps {
   projection: IslandDistrictProjection;
@@ -13,6 +13,7 @@ export interface IslandDistrictMapProps {
   lang: 'zh' | 'en';
   onSurvey: (districtId: IslandDistrictId) => void;
   onStation: (station: StationKind) => void;
+  onActiveDistrict?: (district: IslandDistrict) => void;
 }
 
 const STATION_NAMES: Record<StationKind, { zh: string; en: string; glyph: string }> = {
@@ -43,6 +44,7 @@ export function IslandDistrictMap({
   lang,
   onSurvey,
   onStation,
+  onActiveDistrict,
 }: IslandDistrictMapProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(true);
@@ -50,6 +52,10 @@ export function IslandDistrictMap({
   const [selectedId, setSelectedId] = useState<IslandDistrictId>(defaultDistrict);
   const selected = projection.districts.find((district) => district.id === selectedId) ?? projection.districts[0]!;
   const planByStation = useMemo(() => new Map(plans.map((plan) => [plan.station, plan])), [plans]);
+
+  useEffect(() => {
+    onActiveDistrict?.(selected);
+  }, [lang, onActiveDistrict, selected.id, selected.name.en, selected.name.zh]);
 
   const selectDistrict = (id: IslandDistrictId): void => {
     const district = projection.districts.find((candidate) => candidate.id === id);

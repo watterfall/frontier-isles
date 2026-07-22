@@ -44,6 +44,7 @@ import {
 } from '../../chart/connectionField';
 import type { PassageIntent, SampledCurrentRecord, StructureDeparture } from '../../state/explorationSession';
 import type { ModelLaunchContext } from '../../models/types';
+import type { ResearchActionReceipt } from '../../state/routeOutcome';
 
 const AtlasChartHost = lazy(() => import('../../chart/AtlasChartHost'));
 const ConnectionFieldPanel = lazy(() =>
@@ -88,7 +89,7 @@ export interface AtlasChartScreenProps extends ChartScreenProps {
     onSelect: (structureId: string | null) => void;
     onDeparture: (departure: StructureDeparture) => void;
     onBegin: (intent: PassageIntent, island: IslandDatum) => void;
-    onConnectionWrite?: () => void;
+    onConnectionWrite?: (receipt: ResearchActionReceipt) => void;
   };
   /** Fires once the atlas is actually painted (Pixi ready, or the SVG fallback
    * mounted). The return voyage holds its snapshot on this signal. */
@@ -343,9 +344,9 @@ function AtlasChartScreenImpl(props: AtlasChartScreenProps) {
               onDeparture={(departure) => structurePassage?.onDeparture(departure)}
               onPassage={(intent, problem) => enterPassage(intent, problem.datum)}
               onEnter={(problem) => { if (controls) controls.enter(problem.slug); else onIsland(problem.datum); }}
-              onResponseRecorded={(pathId) => {
-                pendingConnectionPath.current = pathId;
-                structurePassage?.onConnectionWrite?.();
+              onResponseRecorded={(receipt) => {
+                pendingConnectionPath.current = receipt.focusPathId;
+                structurePassage?.onConnectionWrite?.(receipt);
               }}
               onBuildModel={(launch) => modelLayer?.onOpen(launch)}
             />

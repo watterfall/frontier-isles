@@ -14,6 +14,16 @@ import { slugOfOp } from '../api/structureFallback';
 export type ConnectionChannel = 'all' | 'mechanism' | 'form' | 'evidence' | 'lineage';
 export type ConnectionPathKind = 'mathematical' | 'bridge' | 'evidence' | 'contradiction' | 'lineage';
 
+/** Four first-step themes kept within working-memory limits. They deliberately
+ * include mature, single-landing, and unmapped topics so the global explorer
+ * does not confuse current evidence density with editorial importance. */
+export const DISCOVERY_THEME_IDS = [
+  'struct://xfrontier/synchronization',
+  'struct://xfrontier/scaling',
+  'struct://xfrontier/network-cascade',
+  'struct://xfrontier/substrate-local-learning',
+] as const;
+
 export interface ConnectionProblem {
   slug: string;
   title: Bilingual;
@@ -32,18 +42,24 @@ export interface ConnectionManifestation {
   records: ApiStructureMapping[];
 }
 
-export interface ConnectionConvergence {
+/** Editorial exploration topic projected from every recorded structure. Unlike a
+ * convergence it may honestly have zero or one mapped research problem. */
+export interface ConnectionTheme {
   id: string;
-  kind: 'mechanism';
   structureId: string;
   title: Bilingual;
   sharedCore: Bilingual;
   status: ApiStructure['status'];
+  programme?: NonNullable<ApiStructure['theme']>;
   isomorphism?: string;
   provenance?: ApiStructure['provenance'];
   members: ConnectionManifestation[];
-  /** Number of real rebuild records backing the convergence. */
+  /** Number of real rebuild records backing this topic. */
   weight: number;
+}
+
+export interface ConnectionConvergence extends ConnectionTheme {
+  kind: 'mechanism';
 }
 
 export interface ConnectionPath {
@@ -64,6 +80,9 @@ export interface ConnectionPath {
 
 export interface ConnectionField {
   problems: Map<string, ConnectionProblem>;
+  /** All recorded cross-disciplinary topics, including honest unmapped gaps. */
+  topics: ConnectionTheme[];
+  /** Only topics independently rebuilt into at least two research problems. */
   convergences: ConnectionConvergence[];
   paths: ConnectionPath[];
 }
@@ -151,6 +170,7 @@ export function buildConnectionField(
     recordsByStructure.set(mapping.structureId, records);
   }
 
+  const topics: ConnectionTheme[] = [];
   const convergences: ConnectionConvergence[] = [];
   for (const structure of structures) {
     const records = recordsByStructure.get(structure.id) ?? [];
@@ -162,26 +182,27 @@ export function buildConnectionField(
       islandRecords.push(record);
       byIsland.set(slug, islandRecords);
     }
-    // One mapped problem is useful local context, but not a cross-domain
-    // convergence. It remains reachable through the legacy graph/write path.
-    if (byIsland.size < 2) continue;
     const members = [...byIsland.entries()].map(([slug, islandRecords]) => ({
       problem: problems.get(slug)!,
       mapping: bestMapping(islandRecords),
       records: [...islandRecords].sort((a, b) => a.ts.localeCompare(b.ts) || a.refHash.localeCompare(b.refHash)),
     })).sort((a, b) => a.problem.title.zh.localeCompare(b.problem.title.zh, 'zh-CN'));
-    convergences.push({
+    const topic: ConnectionTheme = {
       id: structure.id,
-      kind: 'mechanism',
       structureId: structure.id,
       title: structure.title,
       sharedCore: structure.statement,
       status: structure.status,
+      ...(structure.theme ? { programme: structure.theme } : {}),
       isomorphism: structure.isomorphism,
       provenance: structure.provenance,
       members,
       weight: records.length,
-    });
+    };
+    topics.push(topic);
+    // One mapped problem is useful exploration context, but not a cross-domain
+    // convergence. Keep it in topics without fabricating a multi-problem hub.
+    if (byIsland.size >= 2) convergences.push({ ...topic, kind: 'mechanism' });
   }
 
   const paths: ConnectionPath[] = [];
@@ -224,9 +245,10 @@ export function buildConnectionField(
     });
   }
 
+  topics.sort((a, b) => a.title.zh.localeCompare(b.title.zh, 'zh-CN'));
   convergences.sort((a, b) => b.members.length - a.members.length || a.title.zh.localeCompare(b.title.zh, 'zh-CN'));
   paths.sort((a, b) => a.kind.localeCompare(b.kind) || a.id.localeCompare(b.id));
-  return { problems, convergences, paths };
+  return { problems, topics, convergences, paths };
 }
 
 export const pathInChannel = (path: ConnectionPath, channel: ConnectionChannel): boolean =>
@@ -244,10 +266,12 @@ export function projectConnectionMap(
 ): ConnectionMapView {
   let convergences = channel === 'all' || channel === 'mechanism' ? field.convergences : [];
   let paths = field.paths.filter((path) => pathInChannel(path, channel));
+  let focusedTopicMembers: string[] = [];
 
   if (focus?.type === 'convergence') {
     convergences = field.convergences.filter((group) => group.id === focus.id);
-    const members = new Set(convergences.flatMap((group) => group.members.map((member) => member.problem.slug)));
+    focusedTopicMembers = field.topics.find((topic) => topic.id === focus.id)?.members.map((member) => member.problem.slug) ?? [];
+    const members = new Set(focusedTopicMembers);
     // Preserve cross-collision information only when both endpoints genuinely
     // participate in the focused convergence.
     paths = field.paths.filter((path) => members.has(path.from.slug) && members.has(path.to.slug));
@@ -260,6 +284,7 @@ export function projectConnectionMap(
   }
 
   const memberSlugs = new Set<string>();
+  focusedTopicMembers.forEach((slug) => memberSlugs.add(slug));
   const convergenceRows = convergences.map((group) => {
     const slugs = group.members.map((member) => member.problem.slug);
     slugs.forEach((slug) => memberSlugs.add(slug));

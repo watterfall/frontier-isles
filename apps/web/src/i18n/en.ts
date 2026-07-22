@@ -9,7 +9,37 @@ import type { Resources } from './zh';
 export const en: Resources = {
   lang: { toggle: '中', name: 'English' },
   session: { login: 'Sign in with GitHub', logout: 'Sign out' },
-  shell: { accountControls: 'Account and language' },
+  shell: {
+    accountControls: 'Account and language',
+    worldTrail: {
+      aria: 'Current world location and research context',
+      place: 'Place',
+      research: 'Research context',
+      atlas: 'Frontier Isles atlas',
+      travel: 'Air-strata field survey',
+      travelTo: 'Surveying toward: {{target}}',
+      recorded: 'Recorded',
+      comparisons: 'Recorded research comparisons',
+      comparisonWorkspace: 'Research comparison workspace',
+      course: 'Personal bearing',
+      structure: 'Structure lens',
+      passage: 'Cross-problem connection check',
+      personalModel: 'Personal model run',
+      noResearch: 'No specific research thread selected',
+      outcome: {
+        label: 'Latest action receipt',
+        modelSaved: 'Personal model saved to the field notebook',
+        passageRecorded: 'Cross-problem connection recorded as research',
+        recorded: 'Research judgment recorded',
+        proposed: 'Agent proposal awaiting human review',
+        action: {
+          support: 'supports',
+          challenge: 'challenges',
+          return: 'falsified material returned to the Garden',
+        },
+      },
+    },
+  },
 
   chart: {
     latin: 'FRONTIER ISLES',

@@ -9,6 +9,7 @@ import { CollisionOverlay } from './components/ceremony/CollisionOverlay';
 import { Toast } from './components/shell/Toast';
 import { LangToggle } from './components/shell/LangToggle';
 import { SessionBadge } from './components/shell/SessionBadge';
+import { WorldTrail } from './components/shell/WorldTrail';
 import { MobileShell } from './components/mobile/MobileShell';
 import { useAppData } from './api/useAppData';
 import { api } from './api/client';
@@ -35,6 +36,18 @@ import {
 } from './state/ceremonyReducer';
 import { useIsMobile, useStageScale } from './useIsMobile';
 import type { ModelLaunchContext, ModelRunReceipt } from './models/types';
+import { modelFamily, normalizeModelLaunch } from './models/catalog';
+import {
+  selectWorldTrail,
+  type WorldTrailDistrict,
+  type WorldTrailFloor,
+  type WorldWorkspace,
+} from './state/worldTrail';
+import {
+  selectRouteOutcome,
+  worldTrailFeatureEnabled,
+  type ResearchActionReceipt,
+} from './state/routeOutcome';
 
 const GeneratedIslandScreen = lazy(() =>
   import('./components/island/GeneratedIslandScreen').then((module) => ({
@@ -70,6 +83,7 @@ export default function App() {
   const lang = i18n.language === 'en' ? 'en' : 'zh';
   const isMobile = useIsMobile();
   const scale = useStageScale();
+  const worldTrailEnabled = worldTrailFeatureEnabled(import.meta.env.VITE_WORLD_TRAIL);
   const { islands, actor, harbor } = useAppData();
 
   // ── screen / transition ──────────────────────────────────────────────
@@ -109,6 +123,9 @@ export default function App() {
   const [voyageActive, setVoyageActive] = useState(false);
   const [connectionRevision, setConnectionRevision] = useState(0);
   const [modelLaunch, setModelLaunch] = useState<ModelLaunchContext | null>(null);
+  const [trailDistrict, setTrailDistrict] = useState<WorldTrailDistrict | null>(null);
+  const [trailFloor, setTrailFloor] = useState<WorldTrailFloor | null>(null);
+  const [recentResearchAction, setRecentResearchAction] = useState<ResearchActionReceipt | null>(null);
   const modelReturnFocus = useRef('global');
   const activeVoyage = useRef<NativeViewTransition | null>(null);
   const islandReadyResolver = useRef<(() => void) | null>(null);
@@ -279,6 +296,8 @@ export default function App() {
         commit: () => {
           flushSync(() => {
             setSelSlug(slug);
+            setTrailDistrict(null);
+            setTrailFloor(null);
             setVoyageActive(true);
             dispatchExploration({ type: 'dock', slug, source, pose: worldPose });
             dispatchWipe({ type: 'switch', view: 'island' });
@@ -377,6 +396,8 @@ export default function App() {
         flushSync(() => {
           setPanel(false);
           setSelSlug(null);
+          setTrailDistrict(null);
+          setTrailFloor(null);
           setVoyageActive(true);
           dispatchExploration({ type: returnToWorld ? 'return-world' : 'return-atlas' });
           dispatchWipe({ type: 'switch', view: 'chart' });
@@ -386,6 +407,7 @@ export default function App() {
   }, [exploration.returnTo, runVoyageTransition, voyageActive]);
 
   const completeStructurePassage = useCallback((receipt: CompletedPassage) => {
+    setRecentResearchAction(null);
     dispatchExploration({ type: 'complete-passage', receipt });
     setConnectionRevision((revision) => revision + 1);
     goChart();
@@ -408,9 +430,14 @@ export default function App() {
     });
   }, []);
   const recordModelRun = useCallback((receipt: ModelRunReceipt) => {
+    setRecentResearchAction(null);
     dispatchExploration({ type: 'record-model-run', receipt });
     showToast(lang === 'zh' ? '这次模型运行已放进考察札记' : 'This model run is now in the field notebook');
   }, [lang, showToast]);
+  const recordConnectionOutcome = useCallback((receipt: ResearchActionReceipt) => {
+    setRecentResearchAction(receipt);
+    setConnectionRevision((value) => value + 1);
+  }, []);
 
   const onStation = useCallback(
     (key: StationKind) => {
@@ -475,7 +502,65 @@ export default function App() {
   );
 
   // ── mobile (read-only) ───────────────────────────────────────────────
-  if (isMobile) return <MobileShell islands={chartIslands} modelRuns={exploration.modelRuns} onRecordModelRun={recordModelRun} />;
+  const trailIslands = useMemo(() => chartIslands.map((island) => ({
+    slug: island.slug ?? `id-${island.id}`,
+    title: island.n[lang],
+    question: island.q[lang],
+  })), [chartIslands, lang]);
+  const trailWorkspace = useMemo<WorldWorkspace | null>(() => {
+    if (modelLaunch) {
+      const normalized = normalizeModelLaunch(modelLaunch);
+      return {
+        kind: 'model',
+        familyId: normalized.familyId,
+        title: modelFamily(normalized.familyId).shortTitle[lang],
+        ...(modelLaunch.sourceStructureId ? { sourceStructureId: modelLaunch.sourceStructureId } : {}),
+      };
+    }
+    if (exploration.passageIntent && wipe.view === 'island') {
+      return {
+        kind: 'passage',
+        title: t('shell.worldTrail.passage'),
+        structureId: exploration.passageIntent.structureId,
+      };
+    }
+    return null;
+  }, [exploration.passageIntent, lang, modelLaunch, t, wipe.view]);
+  const worldTrail = useMemo(() => selectWorldTrail({
+    view: wipe.view,
+    phase: exploration.phase,
+    islandSlug: exploration.islandSlug,
+    courseIslandSlug: exploration.courseIslandSlug,
+    islands: trailIslands,
+    district: trailDistrict,
+    floor: trailFloor,
+    workspace: trailWorkspace,
+    structureLensId: exploration.structureLensId,
+    passageIntent: exploration.passageIntent,
+    comparisonLabel: wipe.view === 'chart' && exploration.phase === 'atlas'
+      ? t('shell.worldTrail.comparisons')
+      : null,
+  }), [
+    exploration.courseIslandSlug,
+    exploration.islandSlug,
+    exploration.passageIntent,
+    exploration.phase,
+    exploration.structureLensId,
+    t,
+    trailDistrict,
+    trailFloor,
+    trailIslands,
+    trailWorkspace,
+    wipe.view,
+  ]);
+  const routeOutcome = useMemo(() => selectRouteOutcome({
+    islands: trailIslands,
+    completedPassages: exploration.completedPassages,
+    modelRuns: exploration.modelRuns,
+    recentResearchAction,
+  }), [exploration.completedPassages, exploration.modelRuns, recentResearchAction, trailIslands]);
+
+  if (isMobile) return <MobileShell islands={chartIslands} modelRuns={exploration.modelRuns} onRecordModelRun={recordModelRun} worldTrailEnabled={worldTrailEnabled} />;
 
   const passageSource = exploration.passageIntent
     ? chartIslands.find((island) => island.slug === exploration.passageIntent?.islandSlug) ?? null
@@ -492,6 +577,7 @@ export default function App() {
       data-world-explore={exploration.phase === 'explore' || undefined}
       data-model-open={modelLaunch ? true : undefined}
     >
+      {!modelLaunch && worldTrailEnabled && <WorldTrail projection={worldTrail} outcome={routeOutcome} />}
       <div className={`fi-global-controls fi-global-controls-${wipe.view}`} aria-label={t('shell.accountControls')} aria-hidden={modelLaunch ? true : undefined} inert={modelLaunch ? true : undefined}>
         <SessionBadge />
         <LangToggle />
@@ -521,6 +607,8 @@ export default function App() {
                     ).length}
                     onSurveyDistrict={(districtId) => dispatchExploration({ type: 'survey-district', slug: selSlug, districtId })}
                     onVisitBuildingFloor={(station, floorId) => dispatchExploration({ type: 'visit-building-floor', slug: selSlug, station, floorId })}
+                    onActiveDistrict={setTrailDistrict}
+                    onActiveFloor={setTrailFloor}
                     onReady={signalIslandReady}
                   />
                 </Suspense>
@@ -603,7 +691,7 @@ export default function App() {
                   onSelect: (structureId) => dispatchExploration({ type: 'select-structure', structureId }),
                   onDeparture: (departure) => dispatchExploration({ type: 'select-passage-departure', departure }),
                   onBegin: beginStructurePassage,
-                  onConnectionWrite: () => setConnectionRevision((value) => value + 1),
+                  onConnectionWrite: recordConnectionOutcome,
                 }}
                 worldExplore={{
                   active: exploration.phase === 'explore',
@@ -649,6 +737,8 @@ export default function App() {
             previousRuns={exploration.modelRuns}
             onSave={recordModelRun}
             onClose={closeModel}
+            worldTrail={worldTrailEnabled ? worldTrail : undefined}
+            routeOutcome={worldTrailEnabled ? routeOutcome : undefined}
           />
         </Suspense>
       )}

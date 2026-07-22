@@ -8,7 +8,37 @@
 export const zh = {
   lang: { toggle: 'EN', name: '中文' },
   session: { login: '以 GitHub 登录', logout: '登出' },
-  shell: { accountControls: '账户与语言' },
+  shell: {
+    accountControls: '账户与语言',
+    worldTrail: {
+      aria: '当前世界位置与研究上下文',
+      place: '位置',
+      research: '研究上下文',
+      atlas: '问题群岛海图',
+      travel: '空域考察',
+      travelTo: '沿航向考察：{{target}}',
+      recorded: '已有记录',
+      comparisons: '已有研究对照',
+      comparisonWorkspace: '研究对照工作面',
+      course: '个人航向',
+      structure: '结构透镜',
+      passage: '跨问题连接验证',
+      personalModel: '个人模型运行',
+      noResearch: '尚未选择具体研究线索',
+      outcome: {
+        label: '最近行动收据',
+        modelSaved: '个人模型已存入考察札记',
+        passageRecorded: '跨问题连接已写入研究记录',
+        recorded: '研究判断已写入记录',
+        proposed: '代理建议待人工复核',
+        action: {
+          support: '支持',
+          challenge: '反对',
+          return: '证伪材料退回散木园',
+        },
+      },
+    },
+  },
 
   chart: {
     latin: 'FRONTIER ISLES',

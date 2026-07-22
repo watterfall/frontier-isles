@@ -24,6 +24,9 @@ import type {
   ModelSubstrateId,
 } from '../../models/types';
 import { OscillatorVisual, ScalarFieldVisual } from './ModelVisuals';
+import { WorldTrail } from '../shell/WorldTrail';
+import type { WorldTrailProjection } from '../../state/worldTrail';
+import type { RouteOutcomeViewModel } from '../../state/routeOutcome';
 
 interface ModelWorkbenchProps {
   lang: ModelLanguage;
@@ -32,6 +35,8 @@ interface ModelWorkbenchProps {
   onSave: (receipt: ModelRunReceipt) => void;
   onClose?: () => void;
   embedded?: boolean;
+  worldTrail?: WorldTrailProjection;
+  routeOutcome?: RouteOutcomeViewModel | null;
 }
 
 type Runtime =
@@ -154,7 +159,7 @@ function useReducedMotion(): boolean {
   return reduced;
 }
 
-export function ModelWorkbench({ lang, launch, previousRuns = [], onSave, onClose, embedded = false }: ModelWorkbenchProps) {
+export function ModelWorkbench({ lang, launch, previousRuns = [], onSave, onClose, embedded = false, worldTrail, routeOutcome }: ModelWorkbenchProps) {
   const copy = COPY[lang];
   const normalizedLaunch = useMemo(() => normalizeModelLaunch(launch), [launch]);
   const launchFamily = modelFamily(normalizedLaunch.familyId);
@@ -314,6 +319,7 @@ export function ModelWorkbench({ lang, launch, previousRuns = [], onSave, onClos
       aria-labelledby="fi-model-title"
       aria-describedby="fi-model-intro"
     >
+      {worldTrail && <WorldTrail projection={worldTrail} outcome={routeOutcome} variant="embedded" />}
       <header className="fi-model-head">
         <div>
           <small>{copy.kicker}</small>

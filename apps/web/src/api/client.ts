@@ -366,7 +366,7 @@ export const api = {
    * refutation, capability, and once-only.
    */
   returnFalsified: (anchorSlug: string, input: { targetRef: string; actor: string }) =>
-    reqOutcome<{ effectiveAction: string; refHash: string; driftwoodRef: string }>(
+    reqOutcome<{ event: LedgerEvent; effectiveAction: string; refHash: string; driftwoodRef: string }>(
       `/api/islands/${anchorSlug}/return-falsified`,
       {
         method: 'POST',

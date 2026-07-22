@@ -13,11 +13,14 @@ const field = buildConnectionField(
 
 describe('buildConnectionField', () => {
   it('fuses four real multi-problem mechanism convergences without turning gaps into links', () => {
+    expect(field.topics).toHaveLength(8);
     expect(field.convergences).toHaveLength(4);
     const cascade = field.convergences.find((group) => group.structureId.endsWith('network-cascade'));
     expect(cascade?.members).toHaveLength(3);
     expect(cascade?.members.every((member) => member.mapping.boundary?.zh)).toBe(true);
     expect(field.convergences.some((group) => group.structureId.endsWith('scaling'))).toBe(false);
+    expect(field.topics.find((topic) => topic.structureId.endsWith('scaling'))?.members).toHaveLength(0);
+    expect(field.topics.find((topic) => topic.structureId.endsWith('synchronization'))?.members).toHaveLength(1);
   });
 
   it('keeps curated equations and ledger evidence/bridge/lineage as direct typed paths', () => {

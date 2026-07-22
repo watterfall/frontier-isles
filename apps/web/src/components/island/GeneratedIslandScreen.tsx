@@ -10,12 +10,13 @@ import { TransplantPanel } from './TransplantPanel';
 import { NightTimeline } from './NightTimeline';
 import { StationInteriorDrawer } from './StationInteriorDrawer';
 import { IslandDistrictMap } from './IslandDistrictMap';
-import { projectBuildingFloors, projectIslandDistricts, type BuildingFloorPlan } from './islandDepth';
+import { projectBuildingFloors, projectIslandDistricts, type BuildingFloor, type BuildingFloorPlan, type IslandDistrict } from './islandDepth';
 import { frontierAtlasBySlug } from '@frontier-isles/data/atlas';
 import type { IslandInterior } from '@frontier-isles/data/frontiers';
 import { api, type ApiStructure } from '../../api/client';
 import { fallbackStructures } from '../../api/structureFallback';
 import { buildingVisitKey, type IslandDistrictId } from '../../state/explorationSession';
+import type { WorldTrailDistrict, WorldTrailFloor } from '../../state/worldTrail';
 
 /** Load the full L1 station archive only when a stale server omitted it. */
 export async function loadFallbackInterior(slug: string): Promise<IslandInterior | undefined> {
@@ -103,6 +104,8 @@ export interface GeneratedIslandScreenProps {
   completedPassageCount?: number;
   onSurveyDistrict?: (districtId: IslandDistrictId) => void;
   onVisitBuildingFloor?: (station: StationKind, floorId: string) => void;
+  onActiveDistrict?: (district: WorldTrailDistrict | null) => void;
+  onActiveFloor?: (floor: WorldTrailFloor | null) => void;
   /** Signals that the destination scene can safely replace the atlas snapshot. */
   onReady?: () => void;
 }
@@ -128,6 +131,8 @@ export function GeneratedIslandScreen({
   completedPassageCount = 0,
   onSurveyDistrict,
   onVisitBuildingFloor,
+  onActiveDistrict,
+  onActiveFloor,
   onReady,
 }: GeneratedIslandScreenProps) {
   const { t, i18n } = useTranslation();
@@ -180,6 +185,22 @@ export function GeneratedIslandScreen({
   const [scrubNight, setScrubNight] = useState(1);
   const [replay, setReplay] = useState<NightReplayState | null>(null);
   const rafRef = useRef<number | null>(null);
+  const reportActiveDistrict = useCallback((district: IslandDistrict) => {
+    onActiveDistrict?.({ slug, id: district.id, label: district.name[lang] });
+  }, [lang, onActiveDistrict, slug]);
+  const reportActiveFloor = useCallback((floor: BuildingFloor | null) => {
+    onActiveFloor?.(floor && drawerStation ? {
+      slug,
+      station: drawerStation,
+      floorId: floor.id,
+      label: floor.title[lang],
+    } : null);
+  }, [drawerStation, lang, onActiveFloor, slug]);
+
+  useEffect(() => {
+    onActiveDistrict?.(null);
+    onActiveFloor?.(null);
+  }, [slug]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // prefers-reduced-motion: best-effort (older browsers / non-browser test
   // environments without matchMedia keep full motion, never a crash).
@@ -518,6 +539,7 @@ export function GeneratedIslandScreen({
         lang={lang}
         onSurvey={(districtId) => onSurveyDistrict?.(districtId)}
         onStation={handleStation}
+        onActiveDistrict={reportActiveDistrict}
       />
       <StationInteriorDrawer
         station={drawerStation}
@@ -526,7 +548,8 @@ export function GeneratedIslandScreen({
         visitedFloorIds={drawerStation ? visitedBuildingFloors[buildingVisitKey(slug, drawerStation)] ?? [] : []}
         initialFloorId={drawerStation ? (visitedBuildingFloors[buildingVisitKey(slug, drawerStation)] ?? []).at(-1) : undefined}
         onVisitFloor={(floorId) => { if (drawerStation) onVisitBuildingFloor?.(drawerStation, floorId); }}
-        onClose={() => setDrawerStation(null)}
+        onActiveFloor={reportActiveFloor}
+        onClose={() => { setDrawerStation(null); onActiveFloor?.(null); }}
       />
       {transplantOpen && (
         <TransplantPanel slug={slug} actor={actor} lang={lang} onClose={() => setTransplantOpen(false)} onToast={onToast} />

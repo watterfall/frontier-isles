@@ -10,6 +10,7 @@ export interface StationInteriorDrawerProps {
   visitedFloorIds?: readonly string[];
   initialFloorId?: string;
   onVisitFloor?: (floorId: string) => void;
+  onActiveFloor?: (floor: BuildingFloor | null) => void;
   onClose: () => void;
 }
 
@@ -32,6 +33,7 @@ export function StationInteriorDrawer({
   visitedFloorIds = [],
   initialFloorId,
   onVisitFloor,
+  onActiveFloor,
   onClose,
 }: StationInteriorDrawerProps) {
   const { t } = useTranslation();
@@ -61,6 +63,10 @@ export function StationInteriorDrawer({
     () => floors.find((floor) => floor.id === floorId) ?? preferredFloor,
     [floorId, floors, preferredFloor],
   );
+
+  useEffect(() => {
+    onActiveFloor?.(open ? selected : null);
+  }, [onActiveFloor, open, selected?.id, selected?.title.en, selected?.title.zh]);
 
   const chooseFloor = (floor: BuildingFloor): void => {
     setFloorId(floor.id);
