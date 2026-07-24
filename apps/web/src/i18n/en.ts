@@ -300,6 +300,12 @@ export const en: Resources = {
       prevNamed: 'Previous island · {{name}}',
       nextNamed: 'Next island · {{name}}',
     },
+    arrival: {
+      terrain: 'Docking · the island rises from the mist…',
+      district: '{{name}} · inking in…',
+      claims: 'Steles rise · recorded claims take their places…',
+      lamps: 'Night-watch lamps switch on…',
+    },
     academy: 'Academy',
     residents: '9 residents',
     aiResidents: 'AI residents ×4 · scout/advocate/synth/ferry',

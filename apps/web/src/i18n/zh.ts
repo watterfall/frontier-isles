@@ -299,6 +299,12 @@ export const zh = {
       prevNamed: '上一岛 · {{name}}',
       nextNamed: '下一岛 · {{name}}',
     },
+    arrival: {
+      terrain: '泊入港湾 · 岛影浮出海雾…',
+      district: '{{name}} · 着墨落成…',
+      claims: '石碑立起 · 既有主张就位…',
+      lamps: '值夜灯火点亮…',
+    },
     academy: '书院',
     residents: '9 位居民',
     aiResidents: 'AI 居民 ×4 · 斥/辩/综/渡',

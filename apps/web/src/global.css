@@ -1665,6 +1665,50 @@ html[data-fi-voyage='returning']::view-transition-new(root) {
 .fi-island-back strong { font-family: var(--fi-font-display); font-size: 12px; }
 .fi-island-back small { margin-top: 2px; color: var(--ink2, var(--fi-ink-2)); font-family: var(--fi-font-mono); font-size: 7.5px; letter-spacing: .12em; }
 
+/* Arrival choreography — a paper-mist veil over the scene canvas that lifts
+   one beat at a time. Never intercepts input (pointer-events: none); sits
+   above the canvas, below the hud (z 32) and every panel. */
+.fi-arrival-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  background:
+    radial-gradient(120% 90% at 50% 42%, transparent 0%, var(--card, rgba(250,245,232,.92)) 78%),
+    var(--card, rgba(250,245,232,.6));
+  pointer-events: none;
+  transition: opacity 380ms var(--fi-ease);
+}
+.fi-arrival-caption {
+  position: absolute;
+  bottom: 86px;
+  left: 50%;
+  z-index: 21;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border: 1px solid var(--ink2, var(--fi-ink-2));
+  background: var(--card, rgba(250,245,232,.92));
+  color: var(--inkT, var(--fi-ink));
+  box-shadow: 2px 2px 0 var(--shadow, rgba(58,48,36,.13));
+  font-family: var(--fi-font-mono);
+  font-size: 10.5px;
+  letter-spacing: .08em;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.fi-arrival-caption i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ink2, var(--fi-ink-2));
+  animation: fi-arrival-pulse 860ms ease-in-out infinite;
+}
+@keyframes fi-arrival-pulse { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .fi-arrival-caption i { animation: none; }
+}
+
 /* ‹ › island stepping — same paper-card ink language as the back button,
    sized down so the hud still reads back-first. */
 .fi-island-stepper { display: flex; gap: 6px; margin-top: 6px; pointer-events: auto; }

@@ -18,6 +18,8 @@ import { fallbackStructures } from '../../api/structureFallback';
 import { buildingVisitKey, type IslandDistrictId } from '../../state/explorationSession';
 import { projectRecordFreshness, type RecordFreshness } from '../../models/recordFreshness';
 import { IslandStepper, type IslandStepperProps } from './IslandStepper';
+import { ArrivalChoreo } from './ArrivalChoreo';
+import { buildArrivalStages, stageVisible } from '../../scene/arrival';
 import type { WorldTrailDistrict, WorldTrailFloor } from '../../state/worldTrail';
 
 /** Load the full L1 station archive only when a stale server omitted it. */
@@ -187,6 +189,8 @@ export function GeneratedIslandScreen({
   const resolveRefRef = useRef<RelationRefResolver | null>(null);
   const [timeline, setTimeline] = useState<NightTimelineModel | null>(null);
   const [freshness, setFreshness] = useState<RecordFreshness | null>(null);
+  // Arrival choreography beat counter — reset per island in the fetch effect.
+  const [arrivalPhase, setArrivalPhase] = useState(0);
   const [scrubNight, setScrubNight] = useState(1);
   const [replay, setReplay] = useState<NightReplayState | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -255,6 +259,7 @@ export function GeneratedIslandScreen({
     setReplay(null);
     setTimeline(null);
     setFreshness(null);
+    setArrivalPhase(0);
     ledgerRef.current = null;
     // Fetch the island detail + its real ledger in parallel: the ledger drives the
     // Pixi claim buildings (M4「接线上」); the detail drives everything else. Either
@@ -497,6 +502,18 @@ export function GeneratedIslandScreen({
     activeStructure,
     completedPassageCount,
   });
+  // Arrival choreography: every beat is bound to recorded state. Sealed
+  // districts never get a beat (they stay foundation-only), and the stele /
+  // lamp beats exist only when the ledger actually projected them. Reduced
+  // motion is simply "already done".
+  const arrivalStages = buildArrivalStages({
+    districts: districtProjection.districts,
+    claimCount: effClaims?.length ?? 0,
+    activeStationCount: effActive?.size ?? 0,
+  });
+  const arrivalDone = reducedMotion || arrivalPhase >= arrivalStages.length;
+  const arrivalClaims = stageVisible(arrivalStages, 'claims', arrivalPhase, arrivalDone) ? effClaims : undefined;
+  const arrivalActive = stageVisible(arrivalStages, 'lamps', arrivalPhase, arrivalDone) ? effActive : undefined;
   const visitedByStation = Object.fromEntries(visibleStations.map((station) => [
     station,
     visitedBuildingFloors[buildingVisitKey(slug, station)] ?? [],
@@ -522,10 +539,10 @@ export function GeneratedIslandScreen({
         <Suspense fallback={<div className="fi-island-loading-mark" role="status"><i aria-hidden="true" /><span>{t('island.loading')}</span></div>}>
           <PixiScene
             input={input}
-            claims={effClaims}
+            claims={arrivalClaims}
             t={night ? 1 : 0}
             lang={lang}
-            activeStations={effActive}
+            activeStations={arrivalActive}
             substrate={seaStats?.substrate}
             agitation={seaStats?.contention ?? 0}
             onStation={handleStation}
@@ -538,6 +555,13 @@ export function GeneratedIslandScreen({
         </Suspense>
       )}
 
+      <ArrivalChoreo
+        stages={arrivalStages}
+        phase={arrivalPhase}
+        onAdvance={setArrivalPhase}
+        reducedMotion={reducedMotion}
+        lang={lang}
+      />
       <ClaimDetailPanel claim={claimPanel} onClose={() => setClaimPanel(null)} />
       <RitualEventPanel event={ritualPanel} onClose={() => setRitualPanel(null)} />
       <IslandDistrictMap
