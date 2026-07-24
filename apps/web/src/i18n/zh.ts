@@ -286,6 +286,12 @@ export const zh = {
       refuteEvents: '驳斥事件',
       bridge: '桥接',
     },
+    freshness: {
+      tonight: '今夜有新记录',
+      lastNight: '昨夜有新记录',
+      nightsAgo: '记录更新于 {{nights}} 夜前',
+      curated: '编纂图集内容 · 非实时记录',
+    },
     academy: '书院',
     residents: '9 位居民',
     aiResidents: 'AI 居民 ×4 · 斥/辩/综/渡',

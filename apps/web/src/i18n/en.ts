@@ -287,6 +287,12 @@ export const en: Resources = {
       refuteEvents: 'refute events',
       bridge: 'bridges',
     },
+    freshness: {
+      tonight: 'New record tonight',
+      lastNight: 'Record updated last night',
+      nightsAgo: 'Record updated {{nights}} nights ago',
+      curated: 'Curated atlas content · not a live record',
+    },
     academy: 'Academy',
     residents: '9 residents',
     aiResidents: 'AI residents ×4 · scout/advocate/synth/ferry',

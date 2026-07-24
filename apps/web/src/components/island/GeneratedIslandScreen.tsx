@@ -16,6 +16,7 @@ import type { IslandInterior } from '@frontier-isles/data/frontiers';
 import { api, type ApiStructure } from '../../api/client';
 import { fallbackStructures } from '../../api/structureFallback';
 import { buildingVisitKey, type IslandDistrictId } from '../../state/explorationSession';
+import { projectRecordFreshness, type RecordFreshness } from '../../models/recordFreshness';
 import type { WorldTrailDistrict, WorldTrailFloor } from '../../state/worldTrail';
 
 /** Load the full L1 station archive only when a stale server omitted it. */
@@ -182,6 +183,7 @@ export function GeneratedIslandScreen({
   // the resolver follows that hop so stele floors count them (ROADMAP §3.5).
   const resolveRefRef = useRef<RelationRefResolver | null>(null);
   const [timeline, setTimeline] = useState<NightTimelineModel | null>(null);
+  const [freshness, setFreshness] = useState<RecordFreshness | null>(null);
   const [scrubNight, setScrubNight] = useState(1);
   const [replay, setReplay] = useState<NightReplayState | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -249,6 +251,7 @@ export function GeneratedIslandScreen({
     setDueRitualEvents([]);
     setReplay(null);
     setTimeline(null);
+    setFreshness(null);
     ledgerRef.current = null;
     // Fetch the island detail + its real ledger in parallel: the ledger drives the
     // Pixi claim buildings (M4「接线上」); the detail drives everything else. Either
@@ -305,6 +308,9 @@ export function GeneratedIslandScreen({
       // relation counts decode the sea for the reader (list-twin, not a painted key).
       const events = ledger ?? [];
       setActiveStations(ledger ? projectActiveStations(ledger, { now: Date.now() }) : undefined);
+      // Record freshness speaks only for real events; a curated island with no
+      // ledger keeps its editorial label instead (see the dossier chip below).
+      setFreshness(projectRecordFreshness(ledger, Date.now()));
       // Single source (R7 Dim 1): agitationChannel returns BOTH the decoder readout
       // (refuted) and the sea magnitude (contention) from ONE refuted-claim count,
       // so the number on screen and the swirl can never diverge.
@@ -576,6 +582,20 @@ export function GeneratedIslandScreen({
             <p className="fi-island-qfocus"><span>QFocus</span>{qfocus}</p>
             {brief && <p className="fi-island-brief">{brief}</p>}
             <div className="fi-island-evidence-row">
+              {/* Record freshness: spoken only from real ledger events. A
+                  curated island (editorial content, no record) is labelled as
+                  curation — never given an invented "updated" time. */}
+              {freshness ? (
+                <span title={freshness.lastTs}>
+                  ◷ {freshness.nights === 0
+                    ? t('island.freshness.tonight')
+                    : freshness.nights === 1
+                      ? t('island.freshness.lastNight')
+                      : t('island.freshness.nightsAgo', { nights: freshness.nights })}
+                </span>
+              ) : (citation || depth) ? (
+                <span>▤ {t('island.freshness.curated')}</span>
+              ) : null}
               {citation && <a href={citation.url} target="_blank" rel="noopener noreferrer">↗ {citation.venue} · {citation.year}</a>}
             {/* 海即数据 decoder: sea darkness = abstractness, agitation = contention;
                 stated as text so the sea's data channels are always decodable. */}
