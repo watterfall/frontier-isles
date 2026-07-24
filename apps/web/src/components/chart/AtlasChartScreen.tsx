@@ -94,6 +94,11 @@ export interface AtlasChartScreenProps extends ChartScreenProps {
   /** Fires once the atlas is actually painted (Pixi ready, or the SVG fallback
    * mounted). The return voyage holds its snapshot on this signal. */
   onAtlasReady?: () => void;
+  /** A boot URL asked for this island. The atlas flies in through the same
+   * `controls.enter` path search uses (direct voyage on the no-GPU fallback);
+   * a slug missing from the roster reports back instead of erroring. */
+  deepLinkSlug?: string | null;
+  onDeepLinkUnknown?: () => void;
   modelLayer?: {
     active: boolean;
     onOpen: (launch: ModelLaunchContext) => void;
@@ -105,7 +110,7 @@ export function AtlasChartScreen(props: AtlasChartScreenProps) {
 }
 
 function AtlasChartScreenImpl(props: AtlasChartScreenProps) {
-  const { islands, harbor, filter = '全部', onFilter, hover, onHover, onIsland, onBuild, onCollide, onExplore, worldExplore, structurePassage, onAtlasReady, modelLayer } = props;
+  const { islands, harbor, filter = '全部', onFilter, hover, onHover, onIsland, onBuild, onCollide, onExplore, worldExplore, structurePassage, onAtlasReady, modelLayer, deepLinkSlug, onDeepLinkUnknown } = props;
   const { t, i18n } = useTranslation();
   const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
 
@@ -234,6 +239,28 @@ function AtlasChartScreenImpl(props: AtlasChartScreenProps) {
     }
     structurePassage?.onBegin(intent, island);
   }, [controls, structurePassage]);
+
+  // A shared link flies in exactly like a chosen search result. Waiting on
+  // `controls` covers the Pixi boot window; the no-GPU fallback docks
+  // directly, and an unknown slug reports back instead of erroring.
+  const enteredDeepLink = useRef<string | null>(null);
+  useEffect(() => {
+    if (!deepLinkSlug || enteredDeepLink.current === deepLinkSlug) return;
+    const island = islands.find((entry) => entry.slug === deepLinkSlug);
+    if (!island) {
+      enteredDeepLink.current = deepLinkSlug;
+      onDeepLinkUnknown?.();
+      return;
+    }
+    if (noGpu) {
+      enteredDeepLink.current = deepLinkSlug;
+      onIsland(island);
+      return;
+    }
+    if (!controls) return;
+    enteredDeepLink.current = deepLinkSlug;
+    controls.enter(deepLinkSlug);
+  }, [controls, deepLinkSlug, islands, noGpu, onDeepLinkUnknown, onIsland]);
 
   // The SVG fallback paints synchronously — release the return voyage at once.
   useEffect(() => {

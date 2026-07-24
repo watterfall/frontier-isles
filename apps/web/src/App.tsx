@@ -17,6 +17,7 @@ import { usePresence } from './presence/usePresence';
 import { QUESTIONS, SAMPLE_SLUG, STN, type IslandDatum, type QuestionDatum } from './api/fallback';
 import { localizeStationZh } from './i18n/stations';
 import { wipeReducer, initialWipe } from './state/wipeMachine';
+import { formatWorldLink, parseWorldLink } from './state/worldLink';
 import {
   explorationReducer,
   type CompletedPassage,
@@ -126,6 +127,11 @@ export default function App() {
   const [trailDistrict, setTrailDistrict] = useState<WorldTrailDistrict | null>(null);
   const [trailFloor, setTrailFloor] = useState<WorldTrailFloor | null>(null);
   const [recentResearchAction, setRecentResearchAction] = useState<ResearchActionReceipt | null>(null);
+  // A deep-linked island from the boot URL. While pending, the hash mirror
+  // below stays silent so the shared link survives the whole flight in; the
+  // pending mark clears when any island actually docks (or the slug proves
+  // unknown to the roster).
+  const [pendingLink, setPendingLink] = useState<string | null>(() => parseWorldLink(window.location.hash).island);
   const modelReturnFocus = useRef('global');
   const activeVoyage = useRef<NativeViewTransition | null>(null);
   const islandReadyResolver = useRef<(() => void) | null>(null);
@@ -406,6 +412,48 @@ export default function App() {
     });
   }, [exploration.returnTo, runVoyageTransition, voyageActive]);
 
+  // ── shareable world locations (worldLink) ────────────────────────────
+  // The URL hash mirrors the public place only: `#island=<slug>` when docked,
+  // empty on the atlas. Notebook, model runs, and craft pose never enter it.
+  useEffect(() => {
+    if (pendingLink && wipe.view === 'island') setPendingLink(null);
+  }, [pendingLink, wipe.view]);
+
+  const abandonPendingLink = useCallback(() => {
+    setPendingLink(null);
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+  }, []);
+
+  // Mirror state → hash. Popstate-driven moves arrive with the hash already
+  // correct, so this effect only writes for user-initiated voyages — Back then
+  // retraces them naturally.
+  useEffect(() => {
+    if (pendingLink) return;
+    const target = formatWorldLink({ island: wipe.view === 'island' ? selSlug : null });
+    const current = window.location.hash === '#' ? '' : window.location.hash;
+    if (current === target) return;
+    history.pushState(null, '', target || window.location.pathname + window.location.search);
+  }, [pendingLink, wipe.view, selSlug]);
+
+  // Hash → state. Browser Back/Forward re-runs the same voyage paths the UI
+  // uses; a command landing mid-transition is dropped and the mirror above
+  // re-asserts the settled location.
+  useEffect(() => {
+    const onPop = () => {
+      if (voyageActive) return;
+      const link = parseWorldLink(window.location.hash);
+      if (link.island) {
+        if (wipe.view === 'island' && selSlug === link.island) return;
+        const island = chartIslands.find((d) => (d.slug ?? SAMPLE_SLUG) === link.island);
+        if (island) beginVoyage(island);
+      } else if (wipe.view === 'island') {
+        goChart();
+      }
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, [beginVoyage, chartIslands, goChart, selSlug, voyageActive, wipe.view]);
+
   const completeStructurePassage = useCallback((receipt: CompletedPassage) => {
     setRecentResearchAction(null);
     dispatchExploration({ type: 'complete-passage', receipt });
@@ -681,6 +729,8 @@ export default function App() {
                 onBridge={onBridge}
                 onExplore={() => dispatchExploration({ type: 'enter-world' })}
                 onAtlasReady={signalAtlasReady}
+                deepLinkSlug={pendingLink}
+                onDeepLinkUnknown={abandonPendingLink}
                 modelLayer={{ active: !!modelLaunch, onOpen: openModel }}
                 structurePassage={{
                   selectedId: exploration.structureLensId,
