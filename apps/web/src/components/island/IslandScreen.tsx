@@ -5,6 +5,7 @@ import type { StationKind, NightTimelineModel } from '@frontier-isles/core';
 import { projectActiveStations, projectNightTimeline } from '@frontier-isles/core';
 import { NIGHT_SCENE_VARS, sceneVarsToStyle } from '@frontier-isles/assets';
 import { Scene } from '../../scene/Scene';
+import { IslandStepper, type IslandStepperProps } from './IslandStepper';
 import { computeGhostReveals, computeNightSigns } from '../../scene/nightReveal';
 import { DayNightLever } from './DayNightLever';
 import { ListTwin } from './ListTwin';
@@ -42,6 +43,7 @@ export interface IslandScreenProps {
   onClosePanel: () => void;
   onBack: () => void;
   backTarget?: 'atlas' | 'explore';
+  stepper?: IslandStepperProps;
   stFilter: string;
   onStFilter: (f: string) => void;
   driftOn: boolean;
@@ -154,6 +156,7 @@ export function IslandScreen(props: IslandScreenProps) {
       <div className="fi-island-hud">
         <div className="fi-island-hud-left">
           <button type="button" onClick={props.onBack} className="fi-island-back"><span aria-hidden="true">←</span><span><strong>{t(returnsToExplore ? 'island.backExplore' : 'island.back')}</strong><small>{returnsToExplore ? 'L0.5 · EXPLORE' : 'L0 · ATLAS'}</small></span></button>
+          {props.stepper && <IslandStepper {...props.stepper} />}
           <section className="fi-island-dossier fi-island-dossier-sample">
             <div className="fi-island-dossier-meta"><span>L1 · ISLAND</span><span>{t('island.academy')}</span><span>{t('island.residents')}</span></div>
             <h1>{SAMPLE_TITLE[lang]}</h1>

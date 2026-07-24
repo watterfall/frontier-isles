@@ -16,6 +16,10 @@ import type { IslandInterior } from '@frontier-isles/data/frontiers';
 import { api, type ApiStructure } from '../../api/client';
 import { fallbackStructures } from '../../api/structureFallback';
 import { buildingVisitKey, type IslandDistrictId } from '../../state/explorationSession';
+import { projectRecordFreshness, type RecordFreshness } from '../../models/recordFreshness';
+import { IslandStepper, type IslandStepperProps } from './IslandStepper';
+import { ArrivalChoreo } from './ArrivalChoreo';
+import { buildArrivalStages, stageVisible } from '../../scene/arrival';
 import type { WorldTrailDistrict, WorldTrailFloor } from '../../state/worldTrail';
 
 /** Load the full L1 station archive only when a stale server omitted it. */
@@ -94,6 +98,7 @@ export interface GeneratedIslandScreenProps {
   onToggleNight: () => void;
   onBack: () => void;
   backTarget?: 'atlas' | 'explore';
+  stepper?: IslandStepperProps;
   onStation: (key: StationKind) => void;
   /** Current user's ledger actor id — for the human transplant (Phase B.3). */
   actor: string;
@@ -122,6 +127,7 @@ export function GeneratedIslandScreen({
   onToggleNight,
   onBack,
   backTarget = 'atlas',
+  stepper,
   onStation,
   actor,
   onToast,
@@ -182,6 +188,9 @@ export function GeneratedIslandScreen({
   // the resolver follows that hop so stele floors count them (ROADMAP §3.5).
   const resolveRefRef = useRef<RelationRefResolver | null>(null);
   const [timeline, setTimeline] = useState<NightTimelineModel | null>(null);
+  const [freshness, setFreshness] = useState<RecordFreshness | null>(null);
+  // Arrival choreography beat counter — reset per island in the fetch effect.
+  const [arrivalPhase, setArrivalPhase] = useState(0);
   const [scrubNight, setScrubNight] = useState(1);
   const [replay, setReplay] = useState<NightReplayState | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -249,6 +258,8 @@ export function GeneratedIslandScreen({
     setDueRitualEvents([]);
     setReplay(null);
     setTimeline(null);
+    setFreshness(null);
+    setArrivalPhase(0);
     ledgerRef.current = null;
     // Fetch the island detail + its real ledger in parallel: the ledger drives the
     // Pixi claim buildings (M4「接线上」); the detail drives everything else. Either
@@ -305,6 +316,9 @@ export function GeneratedIslandScreen({
       // relation counts decode the sea for the reader (list-twin, not a painted key).
       const events = ledger ?? [];
       setActiveStations(ledger ? projectActiveStations(ledger, { now: Date.now() }) : undefined);
+      // Record freshness speaks only for real events; a curated island with no
+      // ledger keeps its editorial label instead (see the dossier chip below).
+      setFreshness(projectRecordFreshness(ledger, Date.now()));
       // Single source (R7 Dim 1): agitationChannel returns BOTH the decoder readout
       // (refuted) and the sea magnitude (contention) from ONE refuted-claim count,
       // so the number on screen and the swirl can never diverge.
@@ -488,6 +502,18 @@ export function GeneratedIslandScreen({
     activeStructure,
     completedPassageCount,
   });
+  // Arrival choreography: every beat is bound to recorded state. Sealed
+  // districts never get a beat (they stay foundation-only), and the stele /
+  // lamp beats exist only when the ledger actually projected them. Reduced
+  // motion is simply "already done".
+  const arrivalStages = buildArrivalStages({
+    districts: districtProjection.districts,
+    claimCount: effClaims?.length ?? 0,
+    activeStationCount: effActive?.size ?? 0,
+  });
+  const arrivalDone = reducedMotion || arrivalPhase >= arrivalStages.length;
+  const arrivalClaims = stageVisible(arrivalStages, 'claims', arrivalPhase, arrivalDone) ? effClaims : undefined;
+  const arrivalActive = stageVisible(arrivalStages, 'lamps', arrivalPhase, arrivalDone) ? effActive : undefined;
   const visitedByStation = Object.fromEntries(visibleStations.map((station) => [
     station,
     visitedBuildingFloors[buildingVisitKey(slug, station)] ?? [],
@@ -513,10 +539,10 @@ export function GeneratedIslandScreen({
         <Suspense fallback={<div className="fi-island-loading-mark" role="status"><i aria-hidden="true" /><span>{t('island.loading')}</span></div>}>
           <PixiScene
             input={input}
-            claims={effClaims}
+            claims={arrivalClaims}
             t={night ? 1 : 0}
             lang={lang}
-            activeStations={effActive}
+            activeStations={arrivalActive}
             substrate={seaStats?.substrate}
             agitation={seaStats?.contention ?? 0}
             onStation={handleStation}
@@ -529,6 +555,13 @@ export function GeneratedIslandScreen({
         </Suspense>
       )}
 
+      <ArrivalChoreo
+        stages={arrivalStages}
+        phase={arrivalPhase}
+        onAdvance={setArrivalPhase}
+        reducedMotion={reducedMotion}
+        lang={lang}
+      />
       <ClaimDetailPanel claim={claimPanel} onClose={() => setClaimPanel(null)} />
       <RitualEventPanel event={ritualPanel} onClose={() => setRitualPanel(null)} />
       <IslandDistrictMap
@@ -565,6 +598,7 @@ export function GeneratedIslandScreen({
       <div className="fi-island-hud">
         <div className="fi-island-hud-left">
           <button type="button" onClick={onBack} className="fi-island-back"><span aria-hidden="true">←</span><span><strong>{t(backTarget === 'explore' ? 'island.backExplore' : 'island.back')}</strong><small>{backTarget === 'explore' ? 'L0.5 · EXPLORE' : 'L0 · ATLAS'}</small></span></button>
+          {stepper && <IslandStepper {...stepper} currentName={title} />}
           <section className="fi-island-dossier">
             <div className="fi-island-dossier-meta">
               <span>L1 · ISLAND</span>
@@ -576,6 +610,20 @@ export function GeneratedIslandScreen({
             <p className="fi-island-qfocus"><span>QFocus</span>{qfocus}</p>
             {brief && <p className="fi-island-brief">{brief}</p>}
             <div className="fi-island-evidence-row">
+              {/* Record freshness: spoken only from real ledger events. A
+                  curated island (editorial content, no record) is labelled as
+                  curation — never given an invented "updated" time. */}
+              {freshness ? (
+                <span title={freshness.lastTs}>
+                  ◷ {freshness.nights === 0
+                    ? t('island.freshness.tonight')
+                    : freshness.nights === 1
+                      ? t('island.freshness.lastNight')
+                      : t('island.freshness.nightsAgo', { nights: freshness.nights })}
+                </span>
+              ) : (citation || depth) ? (
+                <span>▤ {t('island.freshness.curated')}</span>
+              ) : null}
               {citation && <a href={citation.url} target="_blank" rel="noopener noreferrer">↗ {citation.venue} · {citation.year}</a>}
             {/* 海即数据 decoder: sea darkness = abstractness, agitation = contention;
                 stated as text so the sea's data channels are always decodable. */}
