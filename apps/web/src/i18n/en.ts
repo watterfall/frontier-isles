@@ -293,6 +293,13 @@ export const en: Resources = {
       nightsAgo: 'Record updated {{nights}} nights ago',
       curated: 'Curated atlas content · not a live record',
     },
+    step: {
+      label: 'Island stepping',
+      prev: 'Previous island',
+      next: 'Next island',
+      prevNamed: 'Previous island · {{name}}',
+      nextNamed: 'Next island · {{name}}',
+    },
     academy: 'Academy',
     residents: '9 residents',
     aiResidents: 'AI residents ×4 · scout/advocate/synth/ferry',

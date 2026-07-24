@@ -1665,6 +1665,29 @@ html[data-fi-voyage='returning']::view-transition-new(root) {
 .fi-island-back strong { font-family: var(--fi-font-display); font-size: 12px; }
 .fi-island-back small { margin-top: 2px; color: var(--ink2, var(--fi-ink-2)); font-family: var(--fi-font-mono); font-size: 7.5px; letter-spacing: .12em; }
 
+/* ‹ › island stepping — same paper-card ink language as the back button,
+   sized down so the hud still reads back-first. */
+.fi-island-stepper { display: flex; gap: 6px; margin-top: 6px; pointer-events: auto; }
+.fi-island-stepper button {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1.25px solid var(--ink, var(--fi-ink));
+  border-radius: 0;
+  background: var(--card, rgba(250,245,232,.92));
+  color: var(--inkT, var(--fi-ink));
+  box-shadow: 2px 2px 0 var(--shadow, rgba(58,48,36,.13));
+  cursor: pointer;
+  transition: transform 180ms var(--fi-ease), box-shadow 180ms var(--fi-ease), background var(--fi-motion-day-night-flip) ease, color var(--fi-motion-day-night-flip) ease;
+}
+.fi-island-stepper button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 3px 4px 0 var(--shadow, rgba(58,48,36,.13)); }
+.fi-island-stepper button:active:not(:disabled) { transform: translate(0, 1px); box-shadow: 1px 1px 0 var(--shadow, rgba(58,48,36,.13)); }
+.fi-island-stepper button:disabled { opacity: .45; cursor: default; }
+.fi-island-stepper button > span { font-family: var(--fi-font-display); font-size: 17px; line-height: 1; }
+.fi-island-stepper button > small { overflow: hidden; max-width: 108px; color: var(--ink2, var(--fi-ink-2)); font-family: var(--fi-font-mono); font-size: 8px; letter-spacing: .1em; text-overflow: ellipsis; white-space: nowrap; }
+
 .fi-island-dossier {
   position: relative;
   width: min(600px, 48vw);

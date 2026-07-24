@@ -18,6 +18,7 @@ import { QUESTIONS, SAMPLE_SLUG, STN, type IslandDatum, type QuestionDatum } fro
 import { localizeStationZh } from './i18n/stations';
 import { wipeReducer, initialWipe } from './state/wipeMachine';
 import { formatWorldLink, parseWorldLink } from './state/worldLink';
+import { islandSlugOf, stepIsland } from './models/islandStepping';
 import {
   explorationReducer,
   type CompletedPassage,
@@ -454,6 +455,26 @@ export default function App() {
     return () => window.removeEventListener('popstate', onPop);
   }, [beginVoyage, chartIslands, goChart, selSlug, voyageActive, wipe.view]);
 
+  // ‹ › island stepping (L1 hud). The roster order is the list twin's order;
+  // each step is a normal voyage, so the worldLink hash follows along and any
+  // stop can be shared mid-browse.
+  const stepToIsland = useCallback((direction: -1 | 1) => {
+    if (!selSlug) return;
+    const destination = stepIsland(chartIslands, selSlug, direction);
+    if (destination) beginVoyage(destination);
+  }, [beginVoyage, chartIslands, selSlug]);
+  const stepper = useMemo(() => {
+    if (!selSlug) return undefined;
+    const current = chartIslands.find((d) => islandSlugOf(d) === selSlug) ?? null;
+    return {
+      prev: stepIsland(chartIslands, selSlug, -1),
+      next: stepIsland(chartIslands, selSlug, 1),
+      onStep: stepToIsland,
+      disabled: voyageActive,
+      currentName: current ? current.n[lang] : undefined,
+    };
+  }, [chartIslands, lang, selSlug, stepToIsland, voyageActive]);
+
   const completeStructurePassage = useCallback((receipt: CompletedPassage) => {
     setRecentResearchAction(null);
     dispatchExploration({ type: 'complete-passage', receipt });
@@ -644,6 +665,7 @@ export default function App() {
                     onToggleNight={() => setNight((v) => !v)}
                     onBack={goChart}
                     backTarget={exploration.returnTo}
+                    stepper={stepper}
                     onStation={onStation}
                     actor={actor}
                     onToast={showToast}
@@ -672,6 +694,7 @@ export default function App() {
                   onClosePanel={() => setPanel(false)}
                   onBack={goChart}
                   backTarget={exploration.returnTo}
+                  stepper={stepper}
                   stFilter={stFilter}
                   onStFilter={setStFilter}
                   driftOn={driftOn}

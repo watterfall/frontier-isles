@@ -17,6 +17,7 @@ import { api, type ApiStructure } from '../../api/client';
 import { fallbackStructures } from '../../api/structureFallback';
 import { buildingVisitKey, type IslandDistrictId } from '../../state/explorationSession';
 import { projectRecordFreshness, type RecordFreshness } from '../../models/recordFreshness';
+import { IslandStepper, type IslandStepperProps } from './IslandStepper';
 import type { WorldTrailDistrict, WorldTrailFloor } from '../../state/worldTrail';
 
 /** Load the full L1 station archive only when a stale server omitted it. */
@@ -95,6 +96,7 @@ export interface GeneratedIslandScreenProps {
   onToggleNight: () => void;
   onBack: () => void;
   backTarget?: 'atlas' | 'explore';
+  stepper?: IslandStepperProps;
   onStation: (key: StationKind) => void;
   /** Current user's ledger actor id — for the human transplant (Phase B.3). */
   actor: string;
@@ -123,6 +125,7 @@ export function GeneratedIslandScreen({
   onToggleNight,
   onBack,
   backTarget = 'atlas',
+  stepper,
   onStation,
   actor,
   onToast,
@@ -571,6 +574,7 @@ export function GeneratedIslandScreen({
       <div className="fi-island-hud">
         <div className="fi-island-hud-left">
           <button type="button" onClick={onBack} className="fi-island-back"><span aria-hidden="true">←</span><span><strong>{t(backTarget === 'explore' ? 'island.backExplore' : 'island.back')}</strong><small>{backTarget === 'explore' ? 'L0.5 · EXPLORE' : 'L0 · ATLAS'}</small></span></button>
+          {stepper && <IslandStepper {...stepper} currentName={title} />}
           <section className="fi-island-dossier">
             <div className="fi-island-dossier-meta">
               <span>L1 · ISLAND</span>

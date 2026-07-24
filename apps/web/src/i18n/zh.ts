@@ -292,6 +292,13 @@ export const zh = {
       nightsAgo: '记录更新于 {{nights}} 夜前',
       curated: '编纂图集内容 · 非实时记录',
     },
+    step: {
+      label: '逐岛巡览',
+      prev: '上一岛',
+      next: '下一岛',
+      prevNamed: '上一岛 · {{name}}',
+      nextNamed: '下一岛 · {{name}}',
+    },
     academy: '书院',
     residents: '9 位居民',
     aiResidents: 'AI 居民 ×4 · 斥/辩/综/渡',
