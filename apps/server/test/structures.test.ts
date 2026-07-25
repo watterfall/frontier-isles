@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { parseStructureObject } from "@frontier-isles/opp";
+import { SEED_STRUCTURES } from "@frontier-isles/data/structures";
 import { openDb } from "../src/db.js";
 import { Store, opIdFor } from "../src/store.js";
 import { createApp } from "../src/app.js";
@@ -37,7 +38,9 @@ const mappingFor = (
 describe("structures API (执行纲要 §九)", () => {
   it("GET /api/structures lists the expanded themed catalog with provenance", async () => {
     const body = await jsonOf(await app.request("/api/structures"));
-    expect(body.structures).toHaveLength(8);
+    // Count derives from the seed catalog — the API must list all of it, and the
+    // named ids below pin the ones whose behaviour the rest of the suite relies on.
+    expect(body.structures).toHaveLength(SEED_STRUCTURES.length);
     const ids = body.structures.map((s: { id: string }) => s.id);
     expect(ids).toContain("struct://xfrontier/synchronization");
     expect(ids).toContain("struct://xfrontier/network-cascade");
@@ -88,8 +91,9 @@ describe("structures API (执行纲要 §九)", () => {
     const cascade = g.frontier.find((f: { structureId: string }) => f.structureId.endsWith("network-cascade"));
     expect(cascade.rebuilt.length).toBe(3);
     expect(Array.isArray(cascade.gaps)).toBe(true);
-    expect(g.edges).toHaveLength(12);
-    expect(g.mappings).toHaveLength(12);
+    const seededMappings = SEED_STRUCTURES.reduce((n, s) => n + s.mappings.length, 0);
+    expect(g.edges).toHaveLength(seededMappings);
+    expect(g.mappings).toHaveLength(seededMappings);
     expect(g.mappings.every((mapping: { correspondences?: unknown[] }) => mapping.correspondences?.length)).toBe(true);
   });
 
@@ -98,7 +102,7 @@ describe("structures API (执行纲要 §九)", () => {
     expect(seed(store)).toBe(0);
     const after = await jsonOf(await app.request("/api/structures/graph"));
     expect(after.edges).toEqual(before.edges);
-    expect(store.listStructures()).toHaveLength(8);
+    expect(store.listStructures()).toHaveLength(SEED_STRUCTURES.length);
   });
 });
 

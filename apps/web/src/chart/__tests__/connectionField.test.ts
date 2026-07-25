@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { DATA } from '../../api/fallback';
 import { fixtureSeaData } from '../../api/seaFallback';
 import { fallbackStructureGraph, fallbackStructures } from '../../api/structureFallback';
+import { SEED_STRUCTURES } from '@frontier-isles/data/structures';
 import { buildConnectionField, projectConnectionMap, searchConnectionProblems } from '../connectionField';
 
 const field = buildConnectionField(
@@ -11,10 +12,17 @@ const field = buildConnectionField(
   DATA,
 );
 
+/** Every structure becomes a topic; only one landing on ≥2 distinct islands
+ * becomes a convergence hub. Derived, not snapshotted — the seed catalog grows
+ * as isomorphisms are aligned, and the rule is what these tests are about. */
+const EXPECTED_TOPICS = SEED_STRUCTURES.length;
+const EXPECTED_CONVERGENCES = SEED_STRUCTURES
+  .filter((s) => new Set(s.mappings.map((m) => m.slug)).size >= 2).length;
+
 describe('buildConnectionField', () => {
-  it('fuses four real multi-problem mechanism convergences without turning gaps into links', () => {
-    expect(field.topics).toHaveLength(8);
-    expect(field.convergences).toHaveLength(4);
+  it('fuses real multi-problem mechanism convergences without turning gaps into links', () => {
+    expect(field.topics).toHaveLength(EXPECTED_TOPICS);
+    expect(field.convergences).toHaveLength(EXPECTED_CONVERGENCES);
     const cascade = field.convergences.find((group) => group.structureId.endsWith('network-cascade'));
     expect(cascade?.members).toHaveLength(3);
     expect(cascade?.members.every((member) => member.mapping.boundary?.zh)).toBe(true);
@@ -46,7 +54,7 @@ describe('buildConnectionField', () => {
 
   it('uses a convergence hub model rather than fabricating pairwise mechanism paths', () => {
     const map = projectConnectionMap(field, 'mechanism');
-    expect(map.convergences).toHaveLength(4);
+    expect(map.convergences).toHaveLength(EXPECTED_CONVERGENCES);
     expect(map.paths).toHaveLength(0);
     expect(map.convergences.find((group) => group.id.endsWith('network-cascade'))?.memberSlugs).toHaveLength(3);
   });
