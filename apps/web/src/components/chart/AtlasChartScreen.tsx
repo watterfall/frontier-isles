@@ -24,7 +24,7 @@
 import { Component, lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import type { AtlasExplorerCurrent, AtlasExplorerIsland, AtlasExplorerPose } from '@frontier-isles/renderer/pixi';
+import type { AtlasBearing, AtlasDomain, AtlasExplorerCurrent, AtlasExplorerIsland, AtlasExplorerPose } from '@frontier-isles/renderer/pixi';
 import { ChartScreen, type ChartScreenProps } from './ChartScreen';
 import { WorldExploreScreen } from './WorldExploreScreen';
 import { ChartChrome } from './ChartChrome';
@@ -121,6 +121,9 @@ function AtlasChartScreenImpl(props: AtlasChartScreenProps) {
   const [hoverPos, setHoverPos] = useState<{ x: number; y: number } | null>(null);
   const [controls, setControls] = useState<AtlasControls | null>(null);
   const [metrics, setMetrics] = useState<AtlasMetrics | null>(null);
+  // Readable twin of the near-tier open-water reading (see AtlasStage
+  // `drawBearings`): the same off-sheet islands the canvas ticks, in words.
+  const [openWater, setOpenWater] = useState<{ marks: AtlasBearing[]; water: AtlasDomain | null }>({ marks: [], water: null });
   const [nearby, setNearby] = useState<AtlasExplorerIsland | null>(null);
   const [nearbyCurrent, setNearbyCurrent] = useState<AtlasExplorerCurrent | null>(null);
   const [neighborhood, setNeighborhood] = useState<AtlasExplorerIsland[]>([]);
@@ -308,6 +311,7 @@ function AtlasChartScreenImpl(props: AtlasChartScreenProps) {
           onWebglError={handleWebglError}
           onReady={(atlasControls) => { setControls(atlasControls); onAtlasReady?.(); }}
           onMetrics={setMetrics}
+          onBearings={(marks, water) => setOpenWater({ marks, water })}
           exploreActive={worldExplore?.active}
           exploreInitialPose={worldExplore?.initialPose}
           exploreSurveyedSlugs={worldExplore?.visitedIslandSlugs}
@@ -352,7 +356,7 @@ function AtlasChartScreenImpl(props: AtlasChartScreenProps) {
         aria-hidden={worldExplore?.active || undefined}
         inert={worldExplore?.active || undefined}
       >
-        {!worldExplore?.active && <ChartChrome islands={islands} onPick={onIsland} onBuild={onBuild} onCollide={onCollide} filter={filter} onFilter={onFilter} controls={controls} metrics={metrics} onHome={harbor && harbor.islandSlugs.length > 0 ? () => controls?.home?.() : undefined} onExplore={onExplore} />}
+        {!worldExplore?.active && <ChartChrome islands={islands} onPick={onIsland} onBuild={onBuild} onCollide={onCollide} filter={filter} onFilter={onFilter} controls={controls} metrics={metrics} openWater={openWater} onHome={harbor && harbor.islandSlugs.length > 0 ? () => controls?.home?.() : undefined} onExplore={onExplore} />}
 
         {!worldExplore?.active && !modelLayer?.active && connectionField && (
           <Suspense fallback={null}>

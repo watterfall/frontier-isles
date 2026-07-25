@@ -56,6 +56,7 @@ export const zh = {
     collisionHint: '从关系中生长',
     atlasStatus: '{{count}} 座问题岛 · 4 片知识气候',
     tools: '海图工具',
+    openWater: { label: '开阔水域', in: '{{domain}} 海域', hint: '屏外最近的岛' },
     legendDetails: '图例与层级',
     domainLegend: '知识气候图例',
     domains: { all: '全图', math: '数理', matter: '物质', life: '生命', cross: '交叉' },

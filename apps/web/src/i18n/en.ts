@@ -57,6 +57,7 @@ export const en: Resources = {
     collisionHint: 'Grow from a relation',
     atlasStatus: '{{count}} problem isles · 4 knowledge climates',
     tools: 'Atlas tools',
+    openWater: { label: 'Open water', in: '{{domain}} waters', hint: 'Nearest isles off screen' },
     legendDetails: 'Legend & hierarchy',
     domainLegend: 'Knowledge climate legend',
     domains: { all: 'All', math: 'Formal', matter: 'Matter', life: 'Living', cross: 'Cross-field' },

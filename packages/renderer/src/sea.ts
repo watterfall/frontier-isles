@@ -84,6 +84,70 @@ export function domainHueAt(vec: Vec2): DomainMix {
   return { weights, anchors, dominant, fill };
 }
 
+/**
+ * A named region of the manifold sitting at a REAL place — the centroid its own
+ * islands put it at, not a decreed unit-square corner.
+ *
+ * Why this exists: callers used to sample {@link domainHueAt} at
+ * `DOMAIN_CORNER[domain]`, which is the categorical label restated as a point.
+ * Every island of a domain therefore got the identical coordinate, so the
+ * "bilinear blend" never blended — four flat colours wearing a manifold's
+ * costume. Weighting the regions by distance to where they actually are makes
+ * hue a function of position again, which is what invariant 16 asks for and what
+ * this module's contract already anticipated ("a future IDW…").
+ */
+export interface ManifoldSite<K extends string = DomainKey> {
+  key: K;
+  /** Where this region actually sits, in whatever space the caller measures in. */
+  point: Vec2;
+}
+
+export interface ManifoldMix<K extends string = DomainKey> {
+  /** Normalised weights, descending, summing to 1. */
+  weights: { key: K; weight: number }[];
+  /** The heaviest region at this point. */
+  dominant: K;
+}
+
+/** Inverse-distance exponent. 2 keeps a region's own interior essentially pure
+ *  and confines real blending to the borders between regions. */
+export const MANIFOLD_IDW_POWER = 2;
+
+/**
+ * Inverse-distance weights over the regions at `point`. Returns `null` for an
+ * empty site list — no regions means no colour to claim, and an honest absence
+ * beats a default hue (the same rule the sea-depth reader follows).
+ *
+ * Deterministic: ties break on the site order the caller supplies, and a point
+ * sitting exactly on a region resolves to that region alone rather than to a
+ * division by zero.
+ */
+export function manifoldMixAt<K extends string>(
+  point: Vec2,
+  sites: readonly ManifoldSite<K>[],
+  power: number = MANIFOLD_IDW_POWER,
+): ManifoldMix<K> | null {
+  if (sites.length === 0) return null;
+  const raw: { key: K; w: number }[] = [];
+  for (const site of sites) {
+    const d = Math.hypot(point[0] - site.point[0], point[1] - site.point[1]);
+    if (d <= 1e-6) {
+      return { weights: sites.map((s) => ({ key: s.key, weight: s.key === site.key ? 1 : 0 })), dominant: site.key };
+    }
+    raw.push({ key: site.key, w: 1 / Math.pow(d, power) });
+  }
+  const total = raw.reduce((a, r) => a + r.w, 0);
+  if (!(total > 0) || !Number.isFinite(total)) {
+    // Degenerate geometry (non-finite coordinates) — say nothing rather than
+    // paint an arbitrary region.
+    return null;
+  }
+  const weights = raw
+    .map((r) => ({ key: r.key, weight: r.w / total }))
+    .sort((a, b) => b.weight - a.weight);
+  return { weights, dominant: weights[0]!.key };
+}
+
 /** Max darkening alpha of the deepest (most abstract) water. */
 export const SEA_DEPTH_MAX_ALPHA = 0.42;
 

@@ -43,6 +43,31 @@ export const ATLAS_DOMAIN_FILL: Record<AtlasDomain, number> = {
   交叉: 0xecdfb4,
 };
 
+/**
+ * Channel-wise blend of already-frozen tints by weight.
+ *
+ * This mints no new colour in the palette sense: every output lies inside the
+ * convex hull of the four `ATLAS_DOMAIN_FILL` values, so a blended pixel is
+ * always "between" two real domain tokens and never a fifth invented hue. It is
+ * what lets a point BETWEEN two territories read as between them, instead of
+ * snapping to whichever centroid happens to be nearer.
+ */
+export function blendTints(parts: readonly { tint: number; weight: number }[]): number | null {
+  let total = 0;
+  for (const p of parts) if (Number.isFinite(p.weight) && p.weight > 0) total += p.weight;
+  if (!(total > 0)) return null;
+  let r = 0, g = 0, b = 0;
+  for (const p of parts) {
+    if (!Number.isFinite(p.weight) || p.weight <= 0) continue;
+    const w = p.weight / total;
+    r += ((p.tint >> 16) & 0xff) * w;
+    g += ((p.tint >> 8) & 0xff) * w;
+    b += (p.tint & 0xff) * w;
+  }
+  const clamp = (n: number) => Math.max(0, Math.min(255, Math.round(n)));
+  return (clamp(r) << 16) | (clamp(g) << 8) | clamp(b);
+}
+
 /** Domain → ink/accent (Pixi hex ints, matching assets DOMAIN_COLORS verbatim). */
 export const ATLAS_DOMAIN_INK: Record<AtlasDomain, number> = {
   数理: 0x2e5e8c,
@@ -621,6 +646,157 @@ export function tierBlend(scale: number): { far: number; mid: number; near: numb
   };
 }
 
+// ─── Open water: off-sheet bearings ──────────────────────────────────────────
+//
+// Past `TIER_MID_MAX` the camera can sit in the gap BETWEEN islands, where the
+// far-tier climate washes have already faded to zero (`applyTier` ramps
+// `continentLayer.alpha` with `blend.far`) and nothing else is in frame. The
+// screen then reads as blank paper with no way to tell which way land is —
+// measured on the shipped atlas: twelve wheel steps from the default view left
+// a viewport containing one route arc and nothing else.
+//
+// A paper sea chart answers this with off-sheet index marks: a tick on the
+// sheet edge naming what lies beyond it and how far. That is navigation drawn
+// from real island positions, not invented geography, so it satisfies
+// invariant 1 (every prominent form traces to real place data) and it has an
+// obvious readable twin — the same list, in words.
+
+/** World-space spacing for the open-water graticule at a camera scale.
+ *
+ * Walks the 1-2-5 decade ladder a paper chart uses, picking the coarsest
+ * spacing that still puts lines at least {@link GRATICULE_MIN_PX} apart on
+ * screen. That keeps the grid legible at every zoom without ever drawing more
+ * than a few dozen lines, and makes the step a stable, testable function of
+ * scale rather than a magic number tuned at one zoom level. */
+export const GRATICULE_MIN_PX = 80;
+
+export function graticuleStep(scale: number): number {
+  const safe = scale > 0 && Number.isFinite(scale) ? scale : 1;
+  const target = GRATICULE_MIN_PX / safe;
+  const decade = Math.pow(10, Math.floor(Math.log10(target)));
+  for (const mult of [1, 2, 5]) {
+    if (decade * mult >= target) return decade * mult;
+  }
+  return decade * 10;
+}
+
+/** Per-side safe area the edge ticks must stay inside. Mirrors the web HUD's
+ *  `--fi-hud-*` layout contract so a tick and a panel can never claim the same
+ *  pixels; a plain number means all four sides alike. */
+export interface AtlasEdgeInset {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+}
+
+/** One off-screen island, reduced to where its edge tick belongs. */
+export interface AtlasBearing {
+  slug: string;
+  name: string;
+  domain: AtlasDomain;
+  /** Tick position, clamped onto the inset rectangle, in screen px. */
+  x: number;
+  y: number;
+  /** Direction from the viewport centre toward the island, radians, +x right /
+   *  +y down — the angle the tick's arrow points along. */
+  angle: number;
+  /** The same direction as a compass word. Carried on the mark so the readable
+   *  twin states exactly what the tick points at without recomputing it — and
+   *  so a caller in the main bundle needs no value import from this package. */
+  compass: ReturnType<typeof bearingCompass>;
+  /** Screen-space distance from the viewport centre to the island. */
+  distance: number;
+}
+
+/** Compass point for a bearing angle — the readable twin's wording. Screen
+ *  space has +y pointing DOWN, so north is -y. */
+export function bearingCompass(angle: number): '北' | '东北' | '东' | '东南' | '南' | '西南' | '西' | '西北' {
+  const points = ['东', '东南', '南', '西南', '西', '西北', '北', '东北'] as const;
+  const turn = ((angle / (Math.PI * 2)) % 1 + 1) % 1;
+  return points[Math.round(turn * 8) % 8]!;
+}
+
+/**
+ * Edge ticks for the islands that have left the viewport.
+ *
+ * Input positions are already screen-projected by the caller (the stage owns
+ * the camera transform); this function is pure arithmetic so it runs headless.
+ *
+ * - An island still on screen needs no tick and is skipped.
+ * - The nearest islands win, because "what is just past this edge" is the
+ *   question being answered; distance is display disambiguation, never a rank.
+ * - At most one tick per angular sector, so a crowded direction shows its
+ *   closest island instead of a pile of overlapping marks — the same discrete
+ *   keep/drop discipline as {@link deconflictLabels}.
+ */
+export function offscreenBearings(
+  islands: readonly { slug: string; name: string; domain: AtlasDomain; sx: number; sy: number }[],
+  view: { width: number; height: number },
+  opts: { inset?: number | AtlasEdgeInset; max?: number; sectors?: number } = {},
+): AtlasBearing[] {
+  // Per-side, because the HUD is not symmetric: the research panel claims the
+  // right edge and two control bands claim the top. A tick drawn under a panel
+  // is a tick the reader never gets.
+  const raw = opts.inset ?? 34;
+  const inset: AtlasEdgeInset = typeof raw === 'number'
+    ? { top: raw, right: raw, bottom: raw, left: raw }
+    : raw;
+  const max = opts.max ?? 6;
+  const sectors = opts.sectors ?? 16;
+  const boxW = view.width - inset.left - inset.right;
+  const boxH = view.height - inset.top - inset.bottom;
+  if (boxW <= 0 || boxH <= 0) return [];
+
+  const cx = view.width / 2;
+  const cy = view.height / 2;
+  const candidates: AtlasBearing[] = [];
+
+  for (const o of islands) {
+    const onScreen = o.sx >= 0 && o.sx <= view.width && o.sy >= 0 && o.sy <= view.height;
+    if (onScreen) continue;
+    const dx = o.sx - cx;
+    const dy = o.sy - cy;
+    const distance = Math.hypot(dx, dy);
+    if (distance < 1) continue;
+
+    // Push the direction out to the safe rectangle: scale the ray by whichever
+    // side it reaches first, so the tick lands on the nearer edge rather than a
+    // corner. Each side uses its own inset, so an asymmetric HUD moves the tick
+    // instead of hiding it.
+    const limX = dx >= 0 ? view.width - inset.right - cx : cx - inset.left;
+    const limY = dy >= 0 ? view.height - inset.bottom - cy : cy - inset.top;
+    const t = Math.min(
+      Math.max(0, limX) / Math.abs(dx || 1e-6),
+      Math.max(0, limY) / Math.abs(dy || 1e-6),
+    );
+    const angle = Math.atan2(dy, dx);
+    candidates.push({
+      slug: o.slug,
+      name: o.name,
+      domain: o.domain,
+      x: cx + dx * t,
+      y: cy + dy * t,
+      angle,
+      compass: bearingCompass(angle),
+      distance,
+    });
+  }
+
+  candidates.sort((a, b) => a.distance - b.distance || (a.slug < b.slug ? -1 : 1));
+
+  const taken = new Set<number>();
+  const out: AtlasBearing[] = [];
+  for (const c of candidates) {
+    if (out.length >= max) break;
+    const sector = Math.floor((((c.angle / (Math.PI * 2)) % 1 + 1) % 1) * sectors);
+    if (taken.has(sector)) continue;
+    taken.add(sector);
+    out.push(c);
+  }
+  return out;
+}
+
 // ─── Deterministic hashing (self-contained; renderer must not import assets) ──
 //
 // Follows the exact FNV-1a + mulberry32 recipe of assets/islandSilhouette so an
@@ -826,6 +1002,150 @@ export function deconflictLabels(boxes: readonly LabelBox[], cell = 96, opts: { 
     }
   }
   return verdict;
+}
+
+// ─── Unified label placement: labels may MOVE, not only survive or die ───────
+//
+// `deconflictLabels` compares labels against labels. Island coastlines are
+// invisible to it, and a region name is anchored at its cluster's spatial
+// medoid — which is, by construction, in the middle of that cluster's islands.
+// Measured on the shipped atlas at 1440×900: 11/11 region names at the world
+// tier and 12/13 at the default camera were sitting on top of an island glyph,
+// hiding the artwork the name is supposed to be describing.
+//
+// Demoting them all to dots would delete the region layer. A paper chart does
+// the other thing: it slides the name into open water and keeps it near its
+// feature. This pass does that — an accepted label also becomes an obstacle,
+// so ONE call resolves names against glyphs and against each other.
+
+/** Anything a label must not cover: an island coastline, an already-placed
+ *  name, a HUD card. Same screen-space AABB shape as {@link LabelBox}. */
+export interface LabelObstacle {
+  sx: number;
+  sy: number;
+  halfW: number;
+  halfH: number;
+}
+
+export interface LabelPlacement {
+  verdict: LabelVerdict;
+  /** Where the label actually landed. Equal to the input anchor when the label
+   *  did not need to move, and when it demoted to a dot. */
+  sx: number;
+  sy: number;
+}
+
+/** Search order for a displaced label, as unit offsets. Vertical first: a name
+ *  set above or below its region reads as belonging to it, while a sideways
+ *  shove reads as pointing at whatever is now beside it. Diagonals follow, then
+ *  half-steps — twelve directions rather than eight, because on a crowded
+ *  camera the four cardinal escapes are often all taken and a name that finds
+ *  no candidate is a name the reader loses entirely. */
+const LABEL_NUDGES: readonly (readonly [number, number])[] = [
+  [0, -1], [0, 1], [-1, 0], [1, 0],
+  [-1, -1], [1, -1], [-1, 1], [1, 1],
+  [-0.5, -1], [0.5, -1], [-0.5, 1], [0.5, 1],
+];
+
+/**
+ * Place labels so they clear both the given obstacles and each other.
+ *
+ * Priority order matches {@link deconflictLabels} (high → low, id as the
+ * deterministic tiebreak). Each label tries its anchor, then rings of
+ * increasing radius; the first free candidate wins. A label with no free
+ * candidate demotes to `dot` at its anchor — the discrete label|dot outcome is
+ * unchanged, so this never becomes a "bigger = better" rank.
+ */
+export function placeLabels(
+  boxes: readonly LabelBox[],
+  obstacles: readonly LabelObstacle[] = [],
+  opts: {
+    pad?: number;
+    maxLabels?: number;
+    rings?: number;
+    ringStep?: number;
+    cell?: number;
+    /** Screen rectangle a displaced label must stay wholly inside. Without it,
+     *  a nudge can push a name off the sheet — which is worse than the overlap
+     *  it was escaping, since a half-visible name reads as a clipping bug. */
+    bounds?: { minX: number; minY: number; maxX: number; maxY: number };
+  } = {},
+): Map<string, LabelPlacement> {
+  const pad = opts.pad ?? 0;
+  const maxLabels = opts.maxLabels ?? Infinity;
+  const rings = Math.max(0, opts.rings ?? 3);
+  const ringStep = opts.ringStep ?? 26;
+  const cell = opts.cell ?? 96;
+  const bounds = opts.bounds;
+  const inBounds = (sx: number, sy: number, halfW: number, halfH: number): boolean =>
+    !bounds
+    || (sx - halfW >= bounds.minX && sx + halfW <= bounds.maxX
+      && sy - halfH >= bounds.minY && sy + halfH <= bounds.maxY);
+
+  const grid = new Map<string, LabelObstacle[]>();
+  const cellsFor = (sx: number, sy: number, halfW: number, halfH: number): string[] => {
+    const keys: string[] = [];
+    const x0 = Math.floor((sx - halfW - pad) / cell);
+    const x1 = Math.floor((sx + halfW + pad) / cell);
+    const y0 = Math.floor((sy - halfH - pad) / cell);
+    const y1 = Math.floor((sy + halfH + pad) / cell);
+    for (let cx = x0; cx <= x1; cx++) for (let cy = y0; cy <= y1; cy++) keys.push(`${cx}:${cy}`);
+    return keys;
+  };
+  const add = (o: LabelObstacle): void => {
+    for (const k of cellsFor(o.sx, o.sy, o.halfW, o.halfH)) {
+      const bucket = grid.get(k);
+      if (bucket) bucket.push(o);
+      else grid.set(k, [o]);
+    }
+  };
+  const free = (sx: number, sy: number, halfW: number, halfH: number): boolean => {
+    for (const k of cellsFor(sx, sy, halfW, halfH)) {
+      const bucket = grid.get(k);
+      if (!bucket) continue;
+      for (const o of bucket) {
+        if (Math.abs(sx - o.sx) < halfW + o.halfW + pad && Math.abs(sy - o.sy) < halfH + o.halfH + pad) return false;
+      }
+    }
+    return true;
+  };
+
+  for (const o of obstacles) add(o);
+
+  const order = [...boxes].sort((a, b) => (b.priority - a.priority) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  const out = new Map<string, LabelPlacement>();
+  let accepted = 0;
+
+  for (const b of order) {
+    if (accepted >= maxLabels) { out.set(b.id, { verdict: 'dot', sx: b.sx, sy: b.sy }); continue; }
+    let placed: LabelPlacement | null = null;
+    // The anchor itself is exempt from `bounds`: a label the camera has partly
+    // scrolled off the sheet keeps its true position rather than sliding back
+    // in and lying about where its feature is. Bounds only constrain a nudge.
+    if (free(b.sx, b.sy, b.halfW, b.halfH)) {
+      placed = { verdict: 'label', sx: b.sx, sy: b.sy };
+    } else {
+      search: for (let ring = 1; ring <= rings; ring++) {
+        for (const [dx, dy] of LABEL_NUDGES) {
+          // Step by the label's own extent so a nudge actually clears what it
+          // was covering, instead of creeping by a fixed pixel amount that a
+          // wide name would need a dozen rings to escape.
+          const sx = b.sx + dx * ring * (ringStep + b.halfW);
+          const sy = b.sy + dy * ring * (ringStep + b.halfH);
+          if (!inBounds(sx, sy, b.halfW, b.halfH)) continue;
+          if (free(sx, sy, b.halfW, b.halfH)) { placed = { verdict: 'label', sx, sy }; break search; }
+        }
+      }
+    }
+    if (placed) {
+      out.set(b.id, placed);
+      add({ sx: placed.sx, sy: placed.sy, halfW: b.halfW, halfH: b.halfH });
+      accepted++;
+    } else {
+      out.set(b.id, { verdict: 'dot', sx: b.sx, sy: b.sy });
+    }
+  }
+  return out;
 }
 
 // ─── Placeholder archipelago clustering (C3 will replace) ────────────────────

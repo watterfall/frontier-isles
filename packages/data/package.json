@@ -11,6 +11,7 @@
     "./interior-bundle": "./src/interior-bundle.ts",
     "./interiors": "./src/interiors.ts",
     "./interiors-2": "./src/interiors-2.ts",
+    "./literature": "./src/literature.ts",
     "./regions": "./src/regions.ts",
     "./sea": "./src/sea.ts",
     "./structures": "./src/structures.ts"
@@ -18,9 +19,12 @@
   "scripts": {
     "generate:atlas": "node --experimental-strip-types scripts/generate-atlas.mjs",
     "check:atlas": "node --experimental-strip-types scripts/generate-atlas.mjs --check",
+    "generate:literature": "node --experimental-strip-types scripts/generate-literature.mjs",
+    "test": "vitest run",
     "typecheck": "pnpm check:atlas && tsc --noEmit"
   },
   "devDependencies": {
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.0"
   }
 }

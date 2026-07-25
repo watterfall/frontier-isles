@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
+// Types only: `ChartChrome` is in the main bundle, so a VALUE import from the
+// renderer barrel would drag PixiJS out of its lazy chunk. The compass word
+// therefore rides on the mark itself rather than being recomputed here.
+import type { AtlasBearing, AtlasDomain } from '@frontier-isles/renderer/pixi';
 import type { IslandDatum } from '../../api/fallback';
 import type { AtlasControls, AtlasMetrics } from '../../chart/atlasControls';
 
@@ -18,6 +22,11 @@ export interface ChartChromeProps {
   onHome?: () => void;
   /** Enter the continuous world-level low-altitude exploration field. */
   onExplore?: () => void;
+  /** The near-tier open-water reading, in data. The canvas draws it as a wash
+   * plus edge ticks; this renders the SAME facts as text, so the orientation
+   * the map gives by looking is also available by reading. Empty at far/mid
+   * tier, where the islands are on screen anyway. */
+  openWater?: { marks: AtlasBearing[]; water: AtlasDomain | null };
 }
 
 const DOMAIN_KEYS = [
@@ -27,12 +36,18 @@ const DOMAIN_KEYS = [
   { key: 'cross', color: 'var(--fi-domain-cross-ink)' },
 ] as const;
 
+/** Authored domain name → its i18n key, so the open-water readout translates
+ *  through the same strings the domain filter uses. */
+const DOMAIN_I18N: Record<AtlasDomain, 'math' | 'matter' | 'life' | 'cross'> = {
+  数理: 'math', 物质: 'matter', 生命: 'life', 交叉: 'cross',
+};
+
 /**
  * The atlas' instrument layer. It stays visually quiet until used, but every
  * visible affordance is real: `/` focuses search, results sail through the
  * normal L0→L1 route, and all actions are semantic keyboard-reachable buttons.
  */
-export function ChartChrome({ islands, onPick, onBuild, onCollide, filter = '全部', onFilter, controls, metrics, onHome, onExplore }: ChartChromeProps) {
+export function ChartChrome({ islands, onPick, onBuild, onCollide, filter = '全部', onFilter, controls, metrics, onHome, onExplore, openWater }: ChartChromeProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -187,6 +202,31 @@ export function ChartChrome({ islands, onPick, onBuild, onCollide, filter = '全
               ))}
             </div>
           </div>
+          {openWater && (openWater.water || openWater.marks.length > 0) && (
+            <div className="fi-open-water" aria-live="polite" aria-label={t('chart.openWater.label')}>
+              <span>{t('chart.openWater.label')}</span>
+              {openWater.water && <strong>{t('chart.openWater.in', { domain: t(`chart.domains.${DOMAIN_I18N[openWater.water]}`) })}</strong>}
+              {openWater.marks.length > 0 && (
+                <ul>
+                  {openWater.marks.map((mark) => (
+                    <li key={mark.slug}>
+                      <button
+                        type="button"
+                        className="fi-hit"
+                        onClick={() => {
+                          const target = islands.find((d) => (d.slug ?? `id-${d.id}`) === mark.slug);
+                          if (target) onPick(target);
+                        }}
+                      >
+                        <i aria-hidden="true">{mark.compass}</i>
+                        <span>{mark.name}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
           <nav className="fi-atlas-camera" aria-label={t('chart.cameraControls')}>
             <button type="button" onClick={() => controls?.zoomIn()} disabled={!controls} aria-label={t('chart.zoomIn')}>＋</button>
             <button type="button" onClick={() => controls?.zoomOut()} disabled={!controls} aria-label={t('chart.zoomOut')}>−</button>

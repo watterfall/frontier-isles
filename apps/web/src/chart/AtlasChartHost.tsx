@@ -15,6 +15,8 @@
 import { useEffect, useMemo, useRef } from 'react';
 import {
   AtlasStage,
+  type AtlasBearing,
+  type AtlasDomain,
   type AtlasExplorerCurrent,
   type AtlasExplorerIsland,
   type AtlasExplorerPose,
@@ -91,7 +93,75 @@ export interface AtlasChartHostProps {
   onExploreDock?: (slug: string, pose: AtlasExplorerPose) => void;
   onExploreSampleCurrent?: (current: AtlasExplorerCurrent) => void;
   onExploreExit?: (pose: AtlasExplorerPose) => void;
+  /** Readable twin for the near-tier open-water reading: which islands lie
+   *  past each edge, and which domain's water the camera is in. */
+  onBearings?: (marks: AtlasBearing[], water: AtlasDomain | null) => void;
 }
+
+/** Feed the atlas' off-sheet index marks the SAME safe area the HUD cards use.
+ *
+ * `global.css` already resolves the map's usable rectangle into `--fi-hud-*`;
+ * reading those values back keeps one source of truth, so a tick can never
+ * land under the research panel or the control bands. Values are converted to
+ * the canvas' own coordinate space, since the canvas is inset inside the
+ * stage frame. A missing/unparseable variable falls back to the plain canvas
+ * margin rather than guessing a layout. */
+function syncBearingInsets(stage: AtlasStage, host: HTMLElement): void {
+  const px = (raw: string, fallback: number): number => {
+    const n = Number.parseFloat(raw);
+    return Number.isFinite(n) ? n : fallback;
+  };
+  const style = getComputedStyle(document.body);
+  const rect = host.getBoundingClientRect();
+  const gutter = px(style.getPropertyValue('--fi-hud-gutter'), 16);
+  const rail = px(style.getPropertyValue('--fi-hud-rail-right'), 0);
+  const band2 = px(style.getPropertyValue('--fi-hud-band-2'), 68);
+  const dockLeft = px(style.getPropertyValue('--fi-hud-dock-left'), 0);
+  // The control row sits at band-2 and is ~46px tall; clear it plus a gutter.
+  const topSafe = band2 + 46 + gutter - rect.top;
+  const rightSafe = rail + gutter - (window.innerWidth - rect.right);
+  const bottomSafe = 96 - (window.innerHeight - rect.bottom);
+  const leftSafe = dockLeft - rect.left;
+  stage.bearingInsets = {
+    top: Math.max(34, topSafe),
+    right: Math.max(34, rightSafe),
+    bottom: Math.max(34, bottomSafe),
+    left: Math.max(34, leftSafe),
+  };
+
+  // The cards themselves, in canvas coordinates. A single safe rectangle is
+  // too blunt for these: the model card is a bottom-left dock, not a full-
+  // height wall, and clamping against it would herd every territory watermark
+  // into one narrow band. The real boxes let the stage keep region names out
+  // from under a card and withhold only the watermarks a card would bisect.
+  stage.hudObstacles = HUD_CARD_SELECTORS.flatMap((selector) => {
+    const el = document.querySelector(selector);
+    if (!el) return [];
+    const b = el.getBoundingClientRect();
+    if (b.width < 2 || b.height < 2) return [];
+    return [{
+      sx: b.x + b.width / 2 - rect.left,
+      sy: b.y + b.height / 2 - rect.top,
+      halfW: b.width / 2,
+      halfH: b.height / 2,
+    }];
+  });
+}
+
+/** The opaque paper cards painted over the atlas canvas. Ordered by how much
+ *  of the map they claim; each is looked up fresh so a panel that is closed,
+ *  collapsed or absent simply contributes nothing. */
+const HUD_CARD_SELECTORS = [
+  '.fi-connection-field',
+  '.fi-atlas-edge-tools',
+  '.fi-chart-brand',
+  '.fi-chart-actions',
+  '.fi-chart-search-wrap',
+  '.fi-model-launch',
+  '.fi-world-trail',
+  '.fi-atlas-guidance',
+  '.fi-global-controls',
+] as const;
 
 export default function AtlasChartHost(props: AtlasChartHostProps) {
   const { islands, harbor, lens, connectionField } = props;
@@ -132,6 +202,8 @@ export default function AtlasChartHost(props: AtlasChartHostProps) {
     if (!host) return;
     let disposed = false;
     let resizeObserver: ResizeObserver | null = null;
+    let hudResync: (() => void) | null = null;
+    let hudResyncQueued = false;
     let releasePixi: (() => void) | null = null;
     const stage = new AtlasStage();
     const byKey = new Map(islands.map((d) => [d.slug ?? `id-${d.id}`, d] as const));
@@ -153,6 +225,7 @@ export default function AtlasChartHost(props: AtlasChartHostProps) {
       cbRef.current.onHoverIsland(d, stage.screenPoint(slug));
     };
     stage.onMetrics = (metrics) => cbRef.current.onMetrics?.(metrics);
+    stage.onBearings = (marks, water) => cbRef.current.onBearings?.(marks, water);
 
     let worldRaf = 0;
     let worldLast = 0;
@@ -540,12 +613,27 @@ export default function AtlasChartHost(props: AtlasChartHostProps) {
           focusAltitude: (band) => stage.focusAltitude(band),
           home: () => stage.returnToHarbor(),
         });
+        syncBearingInsets(stage, host);
         resizeObserver = new ResizeObserver(([entry]) => {
           if (!entry || disposed) return;
           hostRect = null;
           stage.resize(Math.round(entry.contentRect.width), Math.round(entry.contentRect.height));
+          syncBearingInsets(stage, host);
         });
         resizeObserver.observe(host);
+        // Collapsing the research panel or opening a rail disclosure changes
+        // the HUD geometry without resizing the canvas, so re-measure after any
+        // click that settles. One rAF-coalesced batch of rects per click keeps
+        // this off the per-frame path.
+        hudResync = () => {
+          if (disposed || hudResyncQueued) return;
+          hudResyncQueued = true;
+          requestAnimationFrame(() => {
+            hudResyncQueued = false;
+            if (!disposed) { syncBearingInsets(stage, host); stage.applyTier(true); }
+          });
+        };
+        document.addEventListener('click', hudResync, true);
         window.addEventListener('keydown', onKeyDown);
         window.addEventListener('keyup', onKeyUp);
         host.addEventListener('pointerdown', onPointerDown);
@@ -565,6 +653,7 @@ export default function AtlasChartHost(props: AtlasChartHostProps) {
     return () => {
       disposed = true;
       resizeObserver?.disconnect();
+      if (hudResync) document.removeEventListener('click', hudResync, true);
       if (worldRaf) cancelAnimationFrame(worldRaf);
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('keyup', onKeyUp);

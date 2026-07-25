@@ -26,10 +26,12 @@
 
 import { Application, Container, Graphics, Sprite, Text, TextStyle, Texture, isWebGLSupported } from 'pixi.js';
 import { AtlasMotionDirector, registerAtlasMotionPixi } from './atlas-motion';
+import { manifoldMixAt } from '../sea';
 import {
   ATLAS_BAND_LIFT,
   ATLAS_DOMAIN_FILL,
   ATLAS_DOMAIN_INK,
+  blendTints,
   ATLAS_STAGE_RADIUS,
   ATLAS_ALTITUDE_DISTANCE_WEIGHT,
   ATLAS_EXPLORER_APPROACH_DISTANCE,
@@ -52,12 +54,18 @@ import {
   deconflictLabels,
   focusFog,
   islandPriority,
+  placeLabels,
+  graticuleStep,
   nearestAtlasCurrentPoint,
+  offscreenBearings,
   satelliteDisclosure,
   satelliteReveal,
   tierBlend,
   zoomTier,
+  type AtlasBearing,
   type AtlasCluster,
+  type AtlasEdgeInset,
+  type LabelObstacle,
   type AtlasAltitudeBand,
   type AtlasContinent,
   type AtlasCurrent,
@@ -73,6 +81,17 @@ import {
 // Do not import the whole PIXI namespace into the GSAP chunk. These are the
 // same constructors this stage already pays for and the only ones it animates.
 registerAtlasMotionPixi({ Container, Graphics, Sprite });
+
+/** How many off-sheet index marks the near tier may draw at once. Six is the
+ * point where the edges still read as a quiet border rather than a ring of
+ * labels; the readable twin carries the full roster regardless. */
+const BEARING_MAX = 6;
+/** Characters an edge mark shows before eliding. Long enough to identify a
+ * frontier question, short enough that six of them stay a quiet border. */
+const BEARING_NAME_MAX = 12;
+/** Share of a canvas billboard a HUD card must cover before the billboard is
+ * withheld rather than shown sliced. A third is where a name stops reading. */
+const HUD_BISECT_SHARE = 0.33;
 
 const STAGE_LABELS = ['空岛', '草棚', '书院', '学派'] as const;
 const ALTITUDE_LABELS: Record<AtlasAltitudeBand, string> = { low: '低空', middle: '中空', high: '高空' };
@@ -510,8 +529,19 @@ export class AtlasStage {
    * it stays legible while crossing routes and never becomes island data. */
   readonly explorerLayer = new Container();
   readonly cloudFrontLayer = new Container();
+  /** Open water (screen space, BEHIND the world): the near-tier reading of
+   * which domain's sea the camera is in. The climate washes are a far-tier
+   * layer — `applyTier` ramps them out with `blend.far` — so past
+   * `TIER_MID_MAX` a camera between islands had nothing left to look at but
+   * the flat paper background. This carries the SAME domain tint the far tier
+   * uses, at a scale that survives the zoom. No new semantics: hue is still
+   * manifold position (`sea.ts` `domainHueAt`), never a rank. */
+  readonly openWaterLayer = new Container();
   /** Screen-space labels (never camera-transformed → constant crisp size). */
   readonly uiLayer = new Container();
+  /** Off-sheet index marks: which islands lie just past each edge and how far.
+   * Screen space, above the labels — a navigation aid, never island data. */
+  readonly bearingLayer = new Container();
   /** Far-tier climate-territory name billboards (screen space, BEHIND the
    * cluster names — lane W2). */
   readonly continentLabelLayer = new Container();
@@ -521,6 +551,25 @@ export class AtlasStage {
   readonly labelLayer = new Container();
 
   lastRenderMs = 0;
+  /** The off-sheet marks drawn on the last frame, so the host can render the
+   * same information as text (invariant: every spatial state has a readable
+   * twin). Empty at far/mid tier, where islands are on screen anyway. */
+  lastBearings: AtlasBearing[] = [];
+  /** Which domain's water the near-tier wash is naming, or `null` when there
+   * is no wash (far/mid tier, or no climate data to read). */
+  lastOpenWater: AtlasDomain | null = null;
+  /** Fired when {@link lastBearings} changes, so the DOM twin can follow the
+   * camera without polling. */
+  onBearings?: (marks: AtlasBearing[], water: AtlasDomain | null) => void;
+  /** Safe area the edge ticks stay inside. The host sets this from the web
+   * HUD's `--fi-hud-*` contract so panels and ticks share one source of truth;
+   * the default is the bare canvas margin for standalone/demo hosts. */
+  bearingInsets: AtlasEdgeInset = { top: 34, right: 34, bottom: 34, left: 34 };
+  /** Screen boxes of the DOM HUD cards painted over this canvas. The host
+   * measures them; the stage uses them both to keep region names out from
+   * under a panel and to withhold a watermark a card would bisect. Empty for
+   * standalone/demo hosts, which have no cards over the map. */
+  hudObstacles: LabelObstacle[] = [];
   onMetrics?: (m: AtlasMetrics) => void;
   onPick?: (slug: string) => void;
   /** Pointer entered/left an island sprite (`null` on leave). Mirrors the SVG
@@ -531,7 +580,11 @@ export class AtlasStage {
 
   private islands: IslandNode[] = [];
   private clusters: AtlasCluster[] = [];
-  private clusterLabels: Array<{ c: AtlasCluster; band: AtlasAltitudeBand; group: Container; halfW: number; halfH: number }> = [];
+  /** `offX`/`offY` is the displacement the unified placement pass gave this
+   * region name to get it off an island coastline. Held here so the expensive
+   * search runs on camera settle while intermediate frames just translate the
+   * name with the camera — the same no-flicker discipline island labels use. */
+  private clusterLabels: Array<{ c: AtlasCluster; band: AtlasAltitudeBand; group: Container; halfW: number; halfH: number; offX: number; offY: number; shown: boolean }> = [];
   private continents: AtlasContinent[] = [];
   private fogCells: AtlasFogCell[] = [];
   private flows: AtlasFlow[] = [];
@@ -539,6 +592,9 @@ export class AtlasStage {
   private currentRoutes: Array<{ current: AtlasCurrent; geometry: AtlasCurrentGeometry; line: Graphics }> = [];
   private continentLabels: Array<{ c: AtlasContinent; group: Container }> = [];
   private lastLabelCount = 0;
+  /** False until the unified region-name placement has run once for the
+   * current label set, so a fresh atlas places names before its first settle. */
+  private clusterPlaced = false;
   private settleTimer: ReturnType<typeof setTimeout> | null = null;
 
   /** Zoom-OUT floor — data/screen-driven (see `fitToContent`), replaces the
@@ -701,8 +757,10 @@ export class AtlasStage {
       app.canvas.style.height = '100%';
       target.appendChild(app.canvas);
     }
-    app.stage.addChild(this.worldRoot, this.uiLayer);
-    this.uiLayer.addChild(this.continentLabelLayer, this.clusterLabelLayer, this.labelLayer);
+    app.stage.addChild(this.openWaterLayer, this.worldRoot, this.uiLayer);
+    this.openWaterLayer.eventMode = 'none';
+    this.bearingLayer.eventMode = 'none';
+    this.uiLayer.addChild(this.continentLabelLayer, this.clusterLabelLayer, this.labelLayer, this.bearingLayer);
     this.app = app;
     this.canvasEl = app.canvas;
     // Camera input is handled on the DOM canvas (no ticker → on-demand frames).
@@ -914,7 +972,7 @@ export class AtlasStage {
       group.addChild(bg, text);
       if (captionText) group.addChild(captionText);
       this.clusterLabelLayer.addChild(group);
-      this.clusterLabels.push({ c, band, group, halfW, halfH });
+      this.clusterLabels.push({ c, band, group, halfW, halfH, offX: 0, offY: 0, shown: false });
     }
   }
 
@@ -2646,6 +2704,193 @@ export class AtlasStage {
    * =false) runs on every camera delta: it only sets layer alphas, culls off-
    * screen sprites and translates labels — no re-tessellation, no allocation.
    */
+  /** Reusable off-sheet tick marks. Rebuilding Text on every camera change
+   * would allocate through the whole pan; the pool is sized to
+   * {@link BEARING_MAX} and only its transforms change per frame. */
+  private bearingMarks: { group: Container; tick: Graphics; text: Text }[] = [];
+  /** Last water domain handed to {@link onBearings}, so the twin only re-renders
+   * when the reading actually changes rather than on every camera frame. */
+  private reportedWater: AtlasDomain | null = null;
+
+  /** Screen-space wash naming the water the camera is sitting in.
+   *
+   * Reads the SAME climate territories the far tier draws, picking the one
+   * whose centre is nearest the camera focus, and paints its tint over the
+   * viewport as `blend.near` comes up. That keeps one meaning for one colour:
+   * hue is manifold position, exactly as at the overview. When no climate data
+   * exists there is no wash — honest absence, not a default blue. */
+  private drawOpenWater(nearBlend: number, view: { width: number; height: number }): void {
+    let gfx = this.openWaterLayer.children[0] as Graphics | undefined;
+    if (!gfx) {
+      gfx = new Graphics();
+      gfx.label = 'open-water';
+      this.openWaterLayer.addChild(gfx);
+    }
+    gfx.clear();
+    if (nearBlend <= 0.02 || this.continents.length === 0 || this.exploreActive) {
+      this.openWaterLayer.alpha = 0;
+      this.lastOpenWater = null;
+      return;
+    }
+    const scale = this.scale || 1;
+    const focusX = (view.width / 2 - this.worldRoot.x) / scale;
+    const focusY = (view.height / 2 - this.worldRoot.y) / scale;
+    let nearest = this.continents[0]!;
+    let best = Infinity;
+    for (const c of this.continents) {
+      const cy = projectAtlasY(c.center.y, this.continentBand(c));
+      const d = Math.hypot(c.center.x - focusX, cy - focusY);
+      if (d < best) { best = d; nearest = c; }
+    }
+    this.openWaterLayer.alpha = 1;
+    // Hue is manifold POSITION, and position is continuous — so the water
+    // between two territories has to read as between them. Weighting every
+    // territory by inverse distance to where it actually sits (the centroid its
+    // own islands give it) is what makes that true; picking the nearest and
+    // painting its flat tint was four discrete colours claiming to be a blend.
+    // The blend stays inside the convex hull of the four frozen domain fills, so
+    // no fifth hue is ever minted, and mid-territory water is unchanged.
+    const mix = manifoldMixAt<AtlasDomain>(
+      [focusX, focusY],
+      this.continents.map((c) => ({
+        key: c.domain,
+        point: [c.center.x, projectAtlasY(c.center.y, this.continentBand(c))] as [number, number],
+      })),
+    );
+    const byDomain = new Map(this.continents.map((c) => [c.domain, c.tint]));
+    const blended = mix
+      ? blendTints(mix.weights.map((w) => ({ tint: byDomain.get(w.key) ?? nearest.tint, weight: w.weight })))
+      : null;
+    // The domain fills are themselves paper-pale, so a timid alpha reads as
+    // nothing at all (measured: two 8-bit steps against the paper). This is
+    // strong enough to name the water and still quiet enough to sit under ink.
+    gfx.rect(0, 0, view.width, view.height).fill({ color: blended ?? nearest.tint, alpha: 0.46 * nearBlend });
+    // The readable twin names ONE water — a name cannot be 62% one thing — so it
+    // reports the dominant region while the paint carries the real mixture.
+    this.lastOpenWater = mix?.dominant ?? nearest.domain;
+
+    // Graticule — the chart's own measuring apparatus, in the cartographic
+    // language `.impeccable.md` already names. Two jobs, neither decorative:
+    // it gives empty water a scale, and it gives PANNING something to move
+    // against. Dragging across open sea used to change nothing on screen at
+    // all, which reads as a frozen app rather than a still ocean. Spacing
+    // steps through a 1-2-5 decade ladder so the lines stay 80–190px apart at
+    // any zoom; it marks world coordinates and claims nothing about research.
+    const step = graticuleStep(scale);
+    const ink = ATLAS_DOMAIN_INK[nearest.domain];
+    const alpha = 0.09 * nearBlend;
+    const originX = -this.worldRoot.x / scale;
+    const originY = -this.worldRoot.y / scale;
+    const firstX = Math.ceil(originX / step) * step;
+    for (let wx = firstX; (wx - originX) * scale <= view.width; wx += step) {
+      const sx = Math.round(wx * scale + this.worldRoot.x) + 0.5;
+      gfx.moveTo(sx, 0).lineTo(sx, view.height);
+    }
+    const firstY = Math.ceil(originY / step) * step;
+    for (let wy = firstY; (wy - originY) * scale <= view.height; wy += step) {
+      const sy = Math.round(wy * scale + this.worldRoot.y) + 0.5;
+      gfx.moveTo(0, sy).lineTo(view.width, sy);
+    }
+    gfx.stroke({ color: ink, width: 1, alpha });
+  }
+
+  /** Off-sheet index marks for the nearest islands past each edge.
+   *
+   * Only drawn as the near tier takes over, because that is the only camera
+   * where the viewport can hold no island at all. Positions come from
+   * {@link offscreenBearings} over the same screen coordinates the island loop
+   * already computed, so a tick can never point at an island the map does not
+   * have. Focus filters are honoured: a hidden island casts no tick. */
+  private drawBearings(
+    candidates: { slug: string; name: string; domain: AtlasDomain; sx: number; sy: number }[],
+    view: { width: number; height: number },
+    nearBlend: number,
+  ): void {
+    // A FOCUSED lens makes its own marks the figure, so edge ticks would
+    // compete with it. The global research-comparison field is the default
+    // reading of the atlas, not a focus — bearings stay, or the default path
+    // would never get them at all.
+    const focusedLens = this.structureLens !== null && this.structureLens.mode !== 'global';
+    const active = nearBlend > 0.15 && !this.exploreActive && !focusedLens;
+    const marks = active
+      ? offscreenBearings(candidates, view, { max: BEARING_MAX, inset: this.bearingInsets })
+      : [];
+    this.bearingLayer.alpha = nearBlend;
+    this.bearingLayer.visible = marks.length > 0;
+    const changed =
+      marks.length !== this.lastBearings.length ||
+      marks.some((m, i) => m.slug !== this.lastBearings[i]?.slug) ||
+      this.lastOpenWater !== this.reportedWater;
+    this.lastBearings = marks;
+    if (changed) {
+      this.reportedWater = this.lastOpenWater;
+      this.onBearings?.(marks, this.lastOpenWater);
+    }
+
+    while (this.bearingMarks.length < marks.length) {
+      const group = new Container();
+      const tick = new Graphics();
+      const text = new Text({
+        text: '',
+        style: new TextStyle({ fill: 0x3a3025, fontSize: 10, fontFamily: 'system-ui, sans-serif' }),
+      });
+      text.anchor.set(0.5, 0.5);
+      text.resolution = 2;
+      group.addChild(tick, text);
+      this.bearingLayer.addChild(group);
+      this.bearingMarks.push({ group, tick, text });
+    }
+    for (let i = 0; i < this.bearingMarks.length; i++) {
+      const slot = this.bearingMarks[i]!;
+      const m = marks[i];
+      if (!m) { slot.group.visible = false; continue; }
+      slot.group.visible = true;
+      slot.group.x = Math.round(m.x);
+      slot.group.y = Math.round(m.y);
+      const ink = ATLAS_DOMAIN_INK[m.domain];
+      slot.tick.clear();
+      // A short arrowhead along the bearing, then the name set back from it so
+      // the label stays inside the sheet whichever edge the tick landed on.
+      const a = m.angle;
+      const nx = Math.cos(a);
+      const ny = Math.sin(a);
+      slot.tick
+        .moveTo(nx * 11, ny * 11)
+        .lineTo(nx * 2 - ny * 5, ny * 2 + nx * 5)
+        .lineTo(nx * 2 + ny * 5, ny * 2 - nx * 5)
+        .closePath()
+        .fill({ color: ink, alpha: 0.82 });
+      // Frontier titles are full sentences; an edge mark answers "what is that
+      // way", so it carries the head of the name and the roster keeps the rest.
+      slot.text.text = m.name.length > BEARING_NAME_MAX ? `${m.name.slice(0, BEARING_NAME_MAX)}…` : m.name;
+      slot.text.style.fill = ink;
+      // Set the name back along the bearing, inward from the arrowhead, so it
+      // stays on the sheet no matter which edge the tick landed on.
+      slot.text.x = Math.round(-nx * (14 + slot.text.width / 2));
+      slot.text.y = Math.round(-ny * 15);
+      slot.text.alpha = 0.9;
+    }
+  }
+
+  /** Would a HUD card cut this billboard badly enough to make it unreadable?
+   * `HUD_BISECT_SHARE` of the box is the threshold: a card grazing a corner is
+   * fine (the paper halo absorbs it), a card taking a third of the name is not. */
+  private hudBisects(group: Container, view: { width: number; height: number }): boolean {
+    if (this.hudObstacles.length === 0) return false;
+    const w = group.width;
+    const h = group.height;
+    if (w < 1 || h < 1) return false;
+    const x = group.x - w / 2;
+    const y = group.y - h / 2;
+    if (x > view.width || y > view.height || x + w < 0 || y + h < 0) return false;
+    for (const o of this.hudObstacles) {
+      const ox = Math.min(x + w, o.sx + o.halfW) - Math.max(x, o.sx - o.halfW);
+      const oy = Math.min(y + h, o.sy + o.halfH) - Math.max(y, o.sy - o.halfH);
+      if (ox > 0 && oy > 0 && (ox * oy) / (w * h) >= HUD_BISECT_SHARE) return true;
+    }
+    return false;
+  }
+
   applyTier(reflow = false): void {
     if (!this.app) return;
     const scale = this.scale;
@@ -2701,33 +2946,39 @@ export class AtlasStage {
       const sy = projectAtlasY(at.y, this.continentBand(c)) * scale + this.worldRoot.y;
       group.x = Math.round(sx);
       group.y = Math.round(sy);
-      group.visible = continentLabelsVisible && sx > -400 && sx < view.width + 400 && sy > -200 && sy < view.height + 200;
+      const onSheet = sx > -400 && sx < view.width + 400 && sy > -200 && sy < view.height + 200;
+      // The HUD cards are DOM painted over the canvas, so a territory name
+      // anchored under the brand block or the research panel was simply sliced
+      // in half — measured 2–3 of the 4 names cut at any given camera, which
+      // reads as a rendering fault rather than a watermark. A name that a card
+      // would bisect is withheld instead: these are ambient territory marks and
+      // an unreadable half of one carries nothing. It returns as soon as the
+      // camera moves it clear.
+      group.visible = continentLabelsVisible && onSheet && !this.hudBisects(group, view);
     }
 
-    // Region name billboards (screen space, constant size). Position always;
-    // de-collide so a crowd of ~30–50 regions never overlaps into mush — an
-    // overlapping label is simply HIDDEN (the soft wash already marks the region),
-    // a discrete label/no-label outcome, not a "bigger = better" rank. Priority is
-    // member count purely as display disambiguation (which name survives a crowd),
-    // the same discipline as island billboards (see deconflictLabels).
+    // Region name billboards (screen space, constant size). Anchors are
+    // computed here; the PLACEMENT decision happens after the island pass
+    // below, because a region name has to clear island coastlines and island
+    // names, not just other region names. Each frame re-anchors to the camera
+    // and re-applies the offset the last settle resolved.
     const farVisible = blend.far > 0.02;
     const clusterBoxes: LabelBox[] = [];
-    for (const { c, band, group, halfW, halfH } of this.clusterLabels) {
+    for (const entry of this.clusterLabels) {
+      const { c, band, group, halfW, halfH } = entry;
       const sx = c.center.x * scale + this.worldRoot.x;
       const sy = projectAtlasY(c.center.y, band) * scale + this.worldRoot.y;
-      group.x = Math.round(sx);
-      group.y = Math.round(sy);
+      group.x = Math.round(sx + entry.offX);
+      group.y = Math.round(sy + entry.offY);
       const onscreen = sx > -200 && sx < view.width + 200 && sy > -100 && sy < view.height + 100;
       if (farVisible && onscreen) {
+        // Priority is member count purely as display disambiguation (which
+        // name survives a crowd), the same discipline as island billboards.
         clusterBoxes.push({ id: c.id, priority: c.islandSlugs.length, sx, sy, halfW, halfH });
+        group.visible = entry.shown;
       } else {
+        entry.shown = false;
         group.visible = false;
-      }
-    }
-    if (clusterBoxes.length > 0) {
-      const verdict = deconflictLabels(clusterBoxes, 96, { pad: 10 });
-      for (const { c, group } of this.clusterLabels) {
-        group.visible = verdict.get(c.id) === 'label';
       }
     }
 
@@ -2746,6 +2997,11 @@ export class AtlasStage {
     let onScreen = 0;
     let visibleSatellites = 0;
     const boxes: LabelBox[] = [];
+    // Islands that left the viewport, gathered from the same screen positions
+    // the loop below computes so an edge tick can never disagree with the map.
+    const offSheet: { slug: string; name: string; domain: AtlasDomain; sx: number; sy: number }[] = [];
+    // Coastlines currently on screen, as boxes a region name must not cover.
+    const glyphObstacles: LabelObstacle[] = [];
     for (const nd of this.islands) {
       const o = nd.o;
       const parent = (o.role ?? 'anchor') === 'satellite' && o.parentSlug ? anchorScreen.get(o.parentSlug) : undefined;
@@ -2794,8 +3050,20 @@ export class AtlasStage {
       const r = ATLAS_STAGE_RADIUS[Math.max(0, Math.min(3, o.stage)) as 0 | 1 | 2 | 3];
       const sy = projectIslandY(o) * scale + this.worldRoot.y;
       const vis = sx > -80 && sx < view.width + 80 && sy > -80 && sy < view.height + 80;
+      // A tick stands only for an island the map would actually show: a focus
+      // filter that hides an island hides its bearing too, and a satellite the
+      // camera has not disclosed yet does not announce itself from off screen.
+      if (focusVisible && hierarchyAlpha > 0.24) {
+        offSheet.push({ slug: o.slug, name: o.name, domain: o.domain, sx, sy });
+      }
       // Sprite culling: hide when off-screen or when the island layer is invisible (far tier).
       nd.sprite.visible = vis && focusVisible && hierarchyAlpha > 0.02 && this.islandLayer.alpha > 0.02;
+      // A drawn coastline is something a region name has to keep off. The
+      // footprint is the island's world radius under the camera, squashed by
+      // the same y-tilt the coastline is drawn with.
+      if (nd.sprite.visible) {
+        glyphObstacles.push({ sx, sy, halfW: r * scale, halfH: r * scale * ATLAS_Y_TILT });
+      }
       nd.sprite.eventMode = !this.exploreActive && hierarchyAlpha > 0.24 ? 'static' : 'none';
       const encounterTarget = this.explorerEncounterSlug === o.slug;
       const encounterDim = this.exploreActive && this.explorerEncounterSlug && !encounterTarget
@@ -2904,6 +3172,9 @@ export class AtlasStage {
         if (asLabel) shown++;
       }
       this.lastLabelCount = shown;
+      for (const b of boxes) {
+        if (verdict.get(b.id) === 'label') glyphObstacles.push({ sx: b.sx, sy: b.sy, halfW: b.halfW, halfH: b.halfH });
+      }
     } else if (labelsVisible) {
       // cheap path: keep prior verdicts, just re-apply tier alpha
       for (const nd of this.islands) {
@@ -2918,10 +3189,48 @@ export class AtlasStage {
       this.lastLabelCount = 0;
     }
 
+    // ONE placement pass for the region names, now that both the coastlines
+    // and the surviving island names are known. Before this, region names were
+    // de-collided only against each other, so a name anchored at its cluster's
+    // spatial medoid landed on an island essentially every time (measured on
+    // the shipped atlas at 1440×900: 11/11 at the world tier, 12/13 at the
+    // default camera). Runs on settle like the island pass; between settles
+    // the stored offset just rides along with the camera.
+    if (clusterBoxes.length > 0 && (reflow || !this.clusterPlaced)) {
+      const placement = placeLabels(clusterBoxes, [...glyphObstacles, ...this.hudObstacles], {
+        pad: 10,
+        rings: 4,
+        ringStep: 10,
+        // A nudge may not push a name off the sheet: a clipped region name
+        // reads as a bug, and it is strictly worse than the coastline overlap
+        // it was escaping. Such a name simply stays put or demotes to a dot.
+        bounds: { minX: 6, minY: 6, maxX: view.width - 6, maxY: view.height - 6 },
+      });
+      for (const entry of this.clusterLabels) {
+        const p = placement.get(entry.c.id);
+        if (!p) continue;
+        const anchorX = entry.c.center.x * scale + this.worldRoot.x;
+        const anchorY = projectAtlasY(entry.c.center.y, entry.band) * scale + this.worldRoot.y;
+        entry.offX = p.sx - anchorX;
+        entry.offY = p.sy - anchorY;
+        entry.shown = p.verdict === 'label';
+        entry.group.x = Math.round(p.sx);
+        entry.group.y = Math.round(p.sy);
+        entry.group.visible = entry.shown;
+      }
+      this.clusterPlaced = true;
+    }
+
     // Fog-as-focus (W5 goal 2): only on settle, same cadence as label de-
     // collision above — re-centres the haze on wherever the camera stopped,
     // without paying a per-cell redraw on every intermediate drag/wheel delta.
     if (reflow && this.fogCells.length > 0) this.redrawFog();
+
+    // Open water: the near tier is the only camera that can hold no island at
+    // all, so it is the only one that needs to say which sea this is and what
+    // lies past each edge.
+    this.drawOpenWater(blend.near, view);
+    this.drawBearings(offSheet, view, blend.near);
 
     this.redraw();
     this.onMetrics?.({ renderMs: this.lastRenderMs, scale, tier, islands: this.islands.length, visible: onScreen, labels: this.lastLabelCount, satellites: satelliteCount, visibleSatellites });
@@ -2986,6 +3295,7 @@ export class AtlasStage {
     this.continentLabelLayer.removeChildren().forEach((c) => c.destroy());
     this.clusters = [];
     this.clusterLabels = [];
+    this.clusterPlaced = false;
     this.continents = [];
     this.fogCells = [];
     this.flows = [];

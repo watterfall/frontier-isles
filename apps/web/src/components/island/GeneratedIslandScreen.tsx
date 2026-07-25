@@ -13,6 +13,7 @@ import { IslandDistrictMap } from './IslandDistrictMap';
 import { projectBuildingFloors, projectIslandDistricts, type BuildingFloor, type BuildingFloorPlan, type IslandDistrict } from './islandDepth';
 import { frontierAtlasBySlug } from '@frontier-isles/data/atlas';
 import type { IslandInterior } from '@frontier-isles/data/frontiers';
+import type { IslandReference } from '@frontier-isles/data/literature';
 import { api, type ApiStructure } from '../../api/client';
 import { fallbackStructures } from '../../api/structureFallback';
 import { buildingVisitKey, type IslandDistrictId } from '../../state/explorationSession';
@@ -30,6 +31,20 @@ export async function loadFallbackInterior(slug: string): Promise<IslandInterior
     return interiorBySlug(slug);
   } catch {
     return undefined;
+  }
+}
+
+/** Real, linkable references for this island, projected from the xfrontier
+ * evidence set and deduplicated against the headline citation. The server may
+ * ship them on `atlas.literature`; when it does not (every current seed), load
+ * the offline projection so the library reads as evidence rather than as an
+ * empty shelf. Lazy on purpose — this is L1 content, not part of the L0 atlas. */
+export async function loadFallbackLiterature(slug: string): Promise<IslandReference[]> {
+  try {
+    const { literatureBySlug } = await import('@frontier-isles/data/literature');
+    return literatureBySlug(slug);
+  } catch {
+    return [];
   }
 }
 
@@ -145,6 +160,7 @@ export function GeneratedIslandScreen({
   const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
   const [detail, setDetail] = useState<IslandDetail | null>(null);
   const [localInterior, setLocalInterior] = useState<IslandInterior | undefined>(undefined);
+  const [localLiterature, setLocalLiterature] = useState<IslandReference[]>([]);
   const [scene, setScene] = useState<GeneratedScene | null>(null);
   const [input, setInput] = useState<LayoutInput | null>(null);
   const [claims, setClaims] = useState<ClaimState[] | undefined>(undefined);
@@ -274,6 +290,13 @@ export function GeneratedIslandScreen({
       const fallback = det.atlas?.interior ? undefined : await loadFallbackInterior(slug);
       if (cancelled) return;
       setLocalInterior(fallback);
+      // The reference shelf must never sit on the critical path: awaiting its
+      // chunk here delayed the whole island by one fetch, which is a visible
+      // stall for content that is additive. Fire it alongside and let the shelf
+      // fill in when it lands.
+      if (!det.atlas?.literature?.length) {
+        void loadFallbackLiterature(slug).then((refs) => { if (!cancelled) setLocalLiterature(refs); });
+      }
       setDetail(det);
       // A flagship island's interior may be absent from the server detail (a DB
       // seeded before interiors shipped) — fall back to the offline atlas so the
@@ -435,7 +458,8 @@ export function GeneratedIslandScreen({
   const citation = detail.atlas?.citation;
   const cluster = detail.atlas?.cluster[lang];
   const depth = detail.atlas?.depth;
-  const literature = detail.atlas?.literature ?? [];
+  // Server first, offline projection second — same precedence the interior uses.
+  const literature = detail.atlas?.literature?.length ? detail.atlas.literature : localLiterature;
   // Server interior first; fall back to the offline atlas when the server omits
   // it (pre-interior DB seed, or server absent) so the drawers still open.
   const interior = detail.atlas?.interior ?? localInterior;
