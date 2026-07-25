@@ -36,7 +36,7 @@ import {
   initialCeremony,
   ritFocusText,
 } from './state/ceremonyReducer';
-import { useIsMobile, useStageScale } from './useIsMobile';
+import { useIsMobile } from './useIsMobile';
 import type { ModelLaunchContext, ModelRunReceipt } from './models/types';
 import { modelFamily, normalizeModelLaunch } from './models/catalog';
 import {
@@ -84,7 +84,6 @@ export default function App() {
   const { t, i18n } = useTranslation();
   const lang = i18n.language === 'en' ? 'en' : 'zh';
   const isMobile = useIsMobile();
-  const scale = useStageScale();
   const worldTrailEnabled = worldTrailFeatureEnabled(import.meta.env.VITE_WORLD_TRAIL);
   const { islands, actor, harbor } = useAppData();
 
@@ -638,7 +637,7 @@ export default function App() {
     ? chartIslands.find((island) => island.slug === exploration.passageIntent?.targetIslandSlug) ?? null
     : null;
 
-  // ── desktop shell (1440×900 world, fitted edge-to-edge) ──────────────
+  // ── desktop shell (fluid world, fitted edge-to-edge) ─────────────────
   return (
     <main
       className="fi-app-shell"
@@ -652,8 +651,8 @@ export default function App() {
         <LangToggle />
       </div>
 
-      <div className="fi-stage-viewport" style={{ width: 1440 * scale, height: 900 * scale }} aria-hidden={modelLaunch ? true : undefined} inert={modelLaunch ? true : undefined}>
-        <div className="fi-stage" style={{ transform: `scale(${scale})` }}>
+      <div className="fi-stage-viewport" aria-hidden={modelLaunch ? true : undefined} inert={modelLaunch ? true : undefined}>
+        <div className="fi-stage">
           <div className="fi-stage-inner">
           {wipe.view === 'island' && (
             <div className="fi-screen-layer fi-screen-layer-island">

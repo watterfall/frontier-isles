@@ -36,7 +36,9 @@ button {
   position: fixed;
   inset: 0;
   display: grid;
-  place-items: center;
+  padding: 12px;
+  box-sizing: border-box;
+  place-items: stretch;
   overflow: hidden;
   background:
     radial-gradient(circle at 50% 42%, rgba(250,245,232,.78), transparent 58%),
@@ -46,16 +48,20 @@ button {
 
 .fi-stage-viewport {
   position: relative;
-  flex: none;
+  min-width: 0;
+  min-height: 0;
 }
 
+/* The stage is the world, not a preview of the world: it fills whatever the
+   viewport gives it behind one quiet paper margin. It was a fixed 1440×900
+   artboard scaled by a capped factor, which stranded 240×90px of dead paper
+   at 1920×1080 and — worse — kept the chart chrome in artboard coordinates
+   while the research panel and trail sat in viewport coordinates. One
+   coordinate system is what lets the HUD contract below actually hold. */
 .fi-stage {
   position: absolute;
-  inset: 0 auto auto 0;
-  width: 1440px;
-  height: 900px;
+  inset: 0;
   box-sizing: border-box;
-  transform-origin: top left;
   border: 1.5px solid var(--fi-ink);
   background: var(--fi-paper);
   box-shadow: 0 30px 90px rgba(58,48,36,.22), 0 2px 0 rgba(250,245,232,.8) inset;
@@ -208,15 +214,52 @@ html[data-fi-voyage='returning']::view-transition-new(root) {
 
 /* ── L0 instrument layer ─────────────────────────────────────────────── */
 
+/* ── HUD layout contract ───────────────────────────────────────────────
+   Every atlas instrument is its own paper card pinned over the map. Each
+   one used to carry a hand-tuned pixel offset, and two of them encoded the
+   research panel's width as a literal `500px`, so adding or resizing a
+   panel silently buried whichever instrument it landed on — measured at
+   1440×900: the trail sat 11px into the search field; at 1920×1080 the
+   panel covered 80% of the primary 建岛/碰撞 actions.
+
+   These variables are the single source of truth for the map's usable
+   rectangle. Instruments position against them, never against raw 100vw.
+   `:has()` reads each panel's own presence, so there is no JS mirror to
+   drift out of sync. */
+:root {
+  --fi-hud-gutter: 16px;
+  --fi-hud-panel-w: min(452px, calc(100vw - 32px));
+  /* Horizontal band the research panel takes out of the map on the right. */
+  --fi-hud-rail-right: 0px;
+  /* Vertical band the bottom-left model card takes out of the left rail. */
+  --fi-hud-dock-bottom: 0px;
+  /* Horizontal band that same card takes out of the bottom row. */
+  --fi-hud-dock-left: 0px;
+  /* Two stacked top bands. The trail names where you are; the control row
+     below it carries brand / search / actions. They never share a band. */
+  --fi-hud-band-1: 15px;
+  --fi-hud-band-2: 68px;
+  /* Centre of the map's usable width — what map-anchored instruments
+     (search, guidance, trail) centre on instead of the viewport centre. */
+  --fi-hud-map-centre: calc((100vw - var(--fi-hud-rail-right)) / 2);
+  /* Widest a map-anchored instrument may be before it would reach a rail. */
+  --fi-hud-map-w: calc(100vw - var(--fi-hud-rail-right) - var(--fi-hud-gutter) * 2);
+}
+
+body:has(.fi-connection-field) {
+  --fi-hud-rail-right: calc(var(--fi-hud-panel-w) + var(--fi-hud-gutter));
+}
+body:has(.fi-model-launch) { --fi-hud-dock-bottom: 94px; --fi-hud-dock-left: 362px; }
+
 /* ── Continuous world trail: place and epistemic context stay distinct ── */
 .fi-world-trail {
   position: fixed;
-  top: 15px;
-  left: 50%;
+  top: var(--fi-hud-band-1);
+  left: var(--fi-hud-map-centre);
   z-index: 232;
   display: grid;
-  width: min(620px, calc(100vw - 500px));
-  min-width: 430px;
+  width: min(620px, var(--fi-hud-map-w));
+  min-width: 0;
   grid-template-columns: minmax(0, 1.15fr) minmax(180px, .85fr);
   box-sizing: border-box;
   border-top: 1px solid color-mix(in srgb, var(--fi-ink) 74%, transparent);
@@ -371,7 +414,7 @@ html[data-fi-voyage='returning']::view-transition-new(root) {
 
 .fi-chart-brand {
   position: absolute;
-  top: 28px;
+  top: var(--fi-hud-band-2);
   left: 30px;
   display: flex;
   align-items: flex-start;
@@ -440,11 +483,15 @@ html[data-fi-voyage='returning']::view-transition-new(root) {
   animation: fi-live-pulse 2.8s ease-in-out infinite;
 }
 
+/* Map-anchored: centres on the map's usable width, not the viewport, so the
+   research panel never pushes it off-centre or sits on top of it. */
 .fi-chart-search-wrap {
   position: absolute;
-  top: 28px;
-  left: 50%;
-  width: 430px;
+  top: var(--fi-hud-band-2);
+  left: calc(50% - var(--fi-hud-rail-right) / 2);
+  /* 520px is the space the brand and the actions pair claim on either side of
+     the map centre; the field gives way to them rather than sliding under. */
+  width: min(430px, calc(100% - var(--fi-hud-rail-right) - 520px));
   transform: translateX(-50%);
   pointer-events: auto;
 }
@@ -558,10 +605,12 @@ html[data-fi-voyage='returning']::view-transition-new(root) {
 .fi-search-result-mark[data-domain='生命'] { background: var(--fi-domain-life-ink); }
 .fi-search-empty { margin: 0; padding: 22px 16px 24px; color: var(--fi-ink-2); text-align: center; font-family: var(--fi-font-display); font-size: 12px; }
 
+/* The primary 建岛/碰撞 pair. It clears the research panel by contract; at
+   1920×1080 the panel used to cover 80% of it. */
 .fi-chart-actions {
   position: absolute;
-  top: 28px;
-  right: 30px;
+  top: var(--fi-hud-band-2);
+  right: calc(var(--fi-hud-rail-right) + var(--fi-hud-gutter));
   display: flex;
   gap: 9px;
   pointer-events: auto;
@@ -613,9 +662,12 @@ html[data-fi-voyage='returning']::view-transition-new(root) {
 .fi-domain-key > button.is-active { border-color: var(--fi-ink); background: var(--fi-ink); color: var(--fi-paper); box-shadow: 2px 2px 0 rgba(58,48,36,.14); }
 .fi-domain-key i { width: 7px; height: 7px; border-radius: 50%; }
 
+/* The bottom navigation hint plus the 探索世界 launch. It centres in the band
+   left between the model card and the research panel, not on the map centre,
+   so its left edge stops clearing the card at narrow widths. */
 .fi-atlas-guidance {
   position: absolute;
-  left: 50%;
+  left: calc(var(--fi-hud-dock-left) + (100% - var(--fi-hud-dock-left) - var(--fi-hud-rail-right)) / 2);
   bottom: 27px;
   display: flex;
   align-items: center;
@@ -776,7 +828,7 @@ html[data-fi-voyage='returning']::view-transition-new(root) {
 }
 
 /* ── Connection field: global convergence → explanation → pair validation ── */
-.fi-connection-field { position: fixed; z-index: 224; top: 88px; right: 16px; bottom: 18px; width: min(452px, calc(100vw - 32px)); box-sizing: border-box; color: var(--fi-ink); pointer-events: auto; }
+.fi-connection-field { position: fixed; z-index: 224; top: 88px; right: var(--fi-hud-gutter); bottom: 18px; width: var(--fi-hud-panel-w); box-sizing: border-box; color: var(--fi-ink); pointer-events: auto; }
 .fi-connection-field:not([data-expanded='true']) { bottom: auto; }
 .fi-connection-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: stretch; border: .75px solid color-mix(in srgb, var(--fi-ink) 34%, transparent); background: var(--fi-paper-raised); box-shadow: 5px 6px 0 color-mix(in srgb, var(--fi-ink) 9%, transparent); }
 .fi-connection-expand { display: grid; min-width: 0; min-height: 56px; grid-template-columns: 24px minmax(0, 1fr) 18px; align-items: center; gap: 7px; padding: 7px 9px; border: 0; background: transparent; color: inherit; text-align: left; cursor: pointer; }
@@ -1255,6 +1307,18 @@ html[data-fi-voyage='returning']::view-transition-new(root) {
 .fi-atlas-edge-tools .fi-atlas-camera button { min-width: 0; min-height: 38px; font-size: 15px; }
 .fi-atlas-edge-tools .fi-atlas-camera .fi-camera-reset { grid-column: auto; grid-template-columns: 14px auto; padding: 0 4px; font-size: 11px; }
 .fi-atlas-edge-tools .fi-atlas-camera small { font-size: 7px; }
+/* Readable twin of the near-tier open-water reading. Appears only while the
+   canvas is actually drawing edge ticks, so the rail stays quiet at the tiers
+   where every island is already on screen. */
+.fi-open-water { margin: 0 0 9px; padding-top: 8px; border-top: .75px dashed rgba(58,52,43,.24); color: var(--fi-ink-2); }
+.fi-open-water > span { display: block; margin-bottom: 3px; color: var(--fi-ochre); font-family: var(--fi-font-mono); font-size: 6.5px; letter-spacing: .13em; text-transform: uppercase; }
+.fi-open-water > strong { display: block; margin-bottom: 5px; color: var(--fi-ink); font-family: var(--fi-font-display); font-size: 9px; }
+.fi-open-water ul { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.fi-open-water li button { display: grid; width: 100%; min-height: 26px; grid-template-columns: 18px minmax(0, 1fr); align-items: center; gap: 5px; padding: 3px 2px; border: 0; background: transparent; color: inherit; font: inherit; font-size: 7.5px; text-align: left; cursor: pointer; }
+.fi-open-water li button:hover { background: color-mix(in srgb, var(--fi-gamboge) 12%, transparent); }
+.fi-open-water li button > i { color: var(--fi-ochre); font-family: var(--fi-font-display); font-size: 8px; font-style: normal; }
+.fi-open-water li button > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
 .fi-atlas-edge-legend { border-top: .75px dashed rgba(58,52,43,.24); }
 .fi-atlas-edge-legend summary { min-height: 32px; box-sizing: border-box; padding: 9px 0 5px; color: var(--fi-ink-2); font-family: var(--fi-font-display); font-size: 8px; cursor: pointer; }
 .fi-atlas-edge-legend[open] summary { color: var(--fi-ink); }
@@ -1269,13 +1333,26 @@ html[data-fi-voyage='returning']::view-transition-new(root) {
 
 @keyframes fi-edge-tools-in { from { opacity: 0; transform: translate(-7px, -50%); } to { opacity: 1; transform: translate(0, -50%); } }
 
+/* Below 17:10 the rail cannot stay vertically centred without running into
+   the bottom-left model card, so it docks above it. It used to simply drop
+   `.fi-altitude-key`, which silently removed the altitude filter on the two
+   most common laptop sizes (1440×900 and 1280×800 are both 16:10); the rail
+   scrolls instead, so no instrument disappears to save space. */
 @media (max-aspect-ratio: 17/10) {
-  .fi-atlas-edge-tools { top: auto; bottom: 14px; left: 14px; width: 116px; transform: none; }
+  .fi-atlas-edge-tools {
+    top: auto;
+    bottom: calc(var(--fi-hud-dock-bottom) + 14px);
+    left: 14px;
+    width: 116px;
+    max-height: calc(100vh - var(--fi-hud-dock-bottom) - var(--fi-hud-band-2) - 42px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    transform: none;
+  }
   .fi-atlas-edge-head,
   .fi-atlas-edge-tools .fi-atlas-index { display: none; }
   .fi-atlas-edge-tools .fi-atlas-context { margin-bottom: 7px; }
   .fi-atlas-edge-tools .fi-domain-key > button { min-height: 28px; }
-  .fi-atlas-edge-tools .fi-altitude-key { display: none; }
   @keyframes fi-edge-tools-in { from { opacity: 0; transform: translateX(-7px); } to { opacity: 1; transform: translateX(0); } }
 }
 
@@ -1993,10 +2070,10 @@ html[data-fi-voyage='returning']::view-transition-new(root) {
 .fi-model-launch {
   position: fixed;
   bottom: 18px;
-  left: 16px;
+  left: var(--fi-hud-gutter);
   z-index: 226;
   display: grid;
-  width: min(330px, calc(100vw - 500px));
+  width: min(330px, var(--fi-hud-map-w));
   min-width: 270px;
   min-height: 68px;
   grid-template-columns: 50px minmax(0, 1fr) 18px;
