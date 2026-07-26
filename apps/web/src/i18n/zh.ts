@@ -490,7 +490,7 @@ export const zh = {
     hint: '共享同一数学骨架的两座岛之间可建新岛——公式即建岛印记。无桥处不可建。',
     footnote: '同方程桥 · 数据来自 xfrontier',
     button: '碰撞',
-    founded: '「{name}」于桥上升起',
+    founded: '「{{name}}」于桥上升起',
   },
 
   ceremony: {
