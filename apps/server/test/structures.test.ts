@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { parseStructureObject } from "@frontier-isles/opp";
+import { FRONTIERS } from "@frontier-isles/data";
 import { SEED_STRUCTURES } from "@frontier-isles/data/structures";
 import { openDb } from "../src/db.js";
 import { Store, opIdFor } from "../src/store.js";
@@ -53,7 +54,7 @@ describe("structures API (执行纲要 §九)", () => {
     const causal = body.structures.find((s: { id: string }) => s.id.endsWith("intervention-identifiability"));
     expect(causal).toMatchObject({
       theme: "causal-inference",
-      provenance: { source: "xfrontier.science", recordIds: [851], reviewedAt: "2026-07-18" },
+      provenance: { source: "xfrontier.science", recordIds: [851, 537], reviewedAt: "2026-07-26" },
     });
   });
 
@@ -97,12 +98,85 @@ describe("structures API (执行纲要 §九)", () => {
     expect(g.mappings.every((mapping: { correspondences?: unknown[] }) => mapping.correspondences?.length)).toBe(true);
   });
 
+  it("preserves mapping-level evidence URLs when seed mappings become ledger artifacts", async () => {
+    const structure = SEED_STRUCTURES.find((candidate) => candidate.id.endsWith("synchronization"))!;
+    const mapping = structure.mappings.find((candidate) => candidate.slug === "self-learning-matter")!;
+    const previousEvidence = mapping.evidenceRefs;
+    const evidenceRefs = ["https://doi.org/10.1038/example", "record:seed-review"];
+    mapping.evidenceRefs = evidenceRefs;
+
+    const isolatedStore = new Store(openDb(":memory:"));
+    try {
+      seed(isolatedStore);
+      const projected = isolatedStore.structureGraph().mappings.find((candidate) =>
+        candidate.structureId === structure.id &&
+        candidate.islandOp === opIdFor(mapping.slug),
+      );
+      expect(projected?.evidenceRefs).toEqual(evidenceRefs);
+    } finally {
+      if (previousEvidence) mapping.evidenceRefs = previousEvidence;
+      else delete mapping.evidenceRefs;
+    }
+  });
+
   it("reconciles the catalog idempotently on an already-seeded database", async () => {
     const before = await jsonOf(await app.request("/api/structures/graph"));
+    const seaBefore = store.seaData();
     expect(seed(store)).toBe(0);
     const after = await jsonOf(await app.request("/api/structures/graph"));
     expect(after.edges).toEqual(before.edges);
+    expect(store.seaData()).toEqual(seaBefore);
     expect(store.listStructures()).toHaveLength(SEED_STRUCTURES.length);
+  });
+
+  it("materializes the 36 missing wave-2 islands on upgrade exactly once", () => {
+    const expansion = FRONTIERS.filter((frontier) => frontier.id >= 141);
+    const expansionOps = new Set(expansion.map((frontier) => opIdFor(frontier.slug)));
+    const legacyEvents = new Map(
+      store.listProblemRows()
+        .filter((row) => !expansionOps.has(row.opId))
+        .map((row) => [row.opId, store.getEvents(row.opId)]),
+    );
+    const removeLegacyGap = store.db.transaction(() => {
+      for (const opId of expansionOps) {
+        store.db.prepare("DELETE FROM placements WHERE op_id = ?").run(opId);
+        store.db.prepare("DELETE FROM memberships WHERE op_id = ?").run(opId);
+        store.db.prepare("DELETE FROM capability_grants WHERE op_id = ?").run(opId);
+        store.db.prepare("DELETE FROM stations WHERE op_id = ?").run(opId);
+        store.db.prepare("DELETE FROM ledger_events WHERE op_id = ?").run(opId);
+        store.db.prepare("DELETE FROM problem_objects WHERE op_id = ?").run(opId);
+      }
+    });
+    removeLegacyGap();
+    expect(expansion).toHaveLength(36);
+    expect(store.listProblemRows()).toHaveLength(141);
+
+    expect(seed(store)).toBe(36);
+    expect(store.listProblemRows()).toHaveLength(177);
+    for (const frontier of expansion) {
+      expect(store.getProblemRow(frontier.slug)?.meta.name).toBe(frontier.title.zh);
+    }
+    for (const [opId, events] of legacyEvents) {
+      expect(store.getEvents(opId), `${opId} ledger unchanged`).toEqual(events);
+    }
+
+    const darkFiberOp = opIdFor("dark-fiber-ecological-sensing");
+    const restoredMapping = store.structureGraph().mappings.find((mapping) =>
+      mapping.islandOp === darkFiberOp &&
+      mapping.structureId === "struct://xfrontier/distributed-field-observability"
+    );
+    expect(restoredMapping?.evidenceRefs?.length).toBeGreaterThan(0);
+
+    const restoredEvents = new Map(
+      expansion.map((frontier) => {
+        const opId = opIdFor(frontier.slug);
+        return [opId, store.getEvents(opId)];
+      }),
+    );
+    expect(seed(store)).toBe(0);
+    for (const [opId, events] of restoredEvents) {
+      expect(store.getEvents(opId), `${opId} ledger stays idempotent`).toEqual(events);
+    }
   });
 });
 

@@ -1,8 +1,9 @@
 /**
  * Curated frontier islands — real research directions sourced from the
- * xfrontier atlas (1481 directions scored on 9 dimensions; see
+ * xfrontier atlas (1,477 directions scored on 9 dimensions in the reviewed
+ * 2026-07-26 local audit snapshot; see
  * /Users/jili/AIAI/frontier/audit/atlas_data.json + cluster_questions.json +
- * cluster_intros.json). 78 entries span 数理/物质/生命/交叉, selected for
+ * cluster_intros.json). 176 entries span 数理/物质/生命/交叉, selected for
  * paradigm-shift (s[0]) ∧ undervalued (s[8]) ∧ cluster diversity.
  *
  * Single source of truth consumed by apps/server/src/seed.ts (live data) and
@@ -14,6 +15,10 @@
  * auto-translated (architecture invariant 9). Citations are real DOIs/URLs —
  * provenance must be visible on the island (§6 leavability, "trust is visible").
  */
+
+import { EARTH_LIFE_EXPANSION } from '#frontiers-expansion-earth-life';
+import { MATTER_COMPUTATION_EXPANSION } from '#frontiers-expansion-matter-computation';
+import { SOCIETY_KNOWLEDGE_EXPANSION } from '#frontiers-expansion-society-knowledge';
 
 export type Domain = '数理' | '物质' | '生命' | '交叉';
 
@@ -128,7 +133,7 @@ export interface IslandInterior {
 }
 
 export interface FrontierEntry {
-  /** Chart id (1..78). Stable. */
+  /** Chart id (1..176). Stable. */
   id: number;
   /** xfrontier atlas record id (provenance back-reference). */
   atlasN: number;
@@ -8153,8 +8158,392 @@ export const FRONTIERS: FrontierEntry[] = [
       "y": 459,
       "scale": 0.95
     }
+  },
+  {
+    id: 129, atlasN: 533, slug: "dark-fiber-ecological-sensing",
+    title: { zh: "暗光纤地震—声学生态感知", en: "Dark-Fiber Seismo-Acoustic Ecological Sensing" },
+    qfocus: { zh: "既有海底与陆地通信光纤能否成为连续、可校准且不侵犯生态的地球—生命联合传感网？", en: "Can existing terrestrial and submarine telecom fiber become a continuous, calibrated, non-invasive joint sensor network for Earth and life?" },
+    domain: "交叉",
+    cluster: { code: "C29", zh: "地球·海洋·深时科学", en: "Earth · ocean · deep-time science" },
+    scores: [3, 4, 4, 4, 4, 3, 4, 4, 4],
+    citation: { url: "https://www.frontiersin.org/journals/marine-science/articles/10.3389/fmars.2022.901348/full", title: "Eavesdropping at the Speed of Light: Distributed Acoustic Sensing of Baleen Whales in the Arctic", venue: "Frontiers in Marine Science", year: 2022 },
+    brief: { zh: "把闲置或复用中的通信光纤变成数十公里长的分布式声学阵列，同时读取鲸歌、船噪、风暴与地震。", en: "Turn spare or shared telecom fiber into tens-of-kilometers-long distributed acoustic arrays that read whale calls, ship noise, storms, and earthquakes together." },
+    literature: [
+      { title: "Sensing whales, storms, ships and earthquakes using an Arctic fibre optic cable", venue: "Scientific Reports", year: 2022, url: "https://www.nature.com/articles/s41598-022-23606-x" },
+      { title: "Observations of fin whales and vessels offshore Oregon using fibre optic distributed acoustic sensing", venue: "Frontiers in Marine Science", year: 2025, url: "https://www.frontiersin.org/journals/marine-science/articles/10.3389/fmars.2025.1603541/full" },
+    ],
+    depth: {
+      overview: { zh: "分布式声学传感（DAS）把光纤沿线的微小应变转成密集时空信号，使一根通信缆同时成为地震仪、水听器与活动监测带。北极与俄勒冈的实测已显示它能从同一波场中分辨鲸类、船舶、风暴与地震，但“看见信号”还不等于可靠识别生态事件。", en: "Distributed acoustic sensing (DAS) converts minute strain along a fiber into dense spatiotemporal signals, making one telecom cable act as a seismometer, hydrophone, and activity transect at once. Arctic and Oregon deployments already distinguish whales, vessels, storms, and earthquakes in a shared wavefield, but detecting a signal is not yet the same as reliably identifying an ecological event." },
+      whyMatters: { zh: "它可复用跨洋与城市中的既有基础设施，为观测稀疏区提供低增量成本的长期感知；同时也把电信网络、生态隐私、噪声归因与数据治理第一次绑在同一条证据链上。", en: "It can reuse existing transoceanic and urban infrastructure for long-duration sensing in observation-poor regions at low marginal cost, while binding telecom networks, ecological privacy, noise attribution, and data governance into one evidence chain." },
+      ifAnswered: { zh: "若能建立跨光缆、跨季节可迁移的事件分类与不确定性标定，暗光纤可成为连续监测迁徙、海洋噪声和冰震的公共观测层。", en: "If event classification and uncertainty calibration transfer across cables and seasons, dark fiber could become a public observation layer for migration, ocean noise, and icequakes." },
+      approaches: [
+        { zh: "用阵列波束形成与传播速度反演，把鲸歌、船噪和地震按空间轨迹分离。", en: "Use array beamforming and propagation-speed inversion to separate whale calls, vessel noise, and earthquakes by spatial trajectory." },
+        { zh: "把少量水听器、视觉调查和船舶自动识别数据作为同步真值，训练可审计的弱监督分类器。", en: "Use sparse hydrophones, visual surveys, and vessel-identification data as synchronized ground truth for auditable weakly supervised classifiers." },
+        { zh: "在不同缆线、海况与安装耦合条件下做留一站点外推，报告检出率、误报率与盲区。", en: "Run leave-one-site-out transfer across cables, sea states, and coupling conditions, reporting detection rates, false alarms, and blind spots." },
+      ],
+      barrier: { zh: "光缆耦合、海床地形与运营状态会让信号分布强烈漂移；若缺少独立真值，模型可能把船噪或环境变化误读为生物活动。", en: "Cable coupling, seabed topography, and operating conditions strongly shift the signal distribution; without independent ground truth, models may mistake vessel noise or environmental change for biological activity." },
+      subQuestions: [
+        { zh: "在一条从未参与训练的光缆上，鲸类事件的预注册检出率和误报率能达到多少？", en: "On a cable never seen during training, what preregistered detection and false-alarm rates can whale-event classification achieve?" },
+        { zh: "多源事件重叠时，哪些波场特征仍能稳定区分生物、船舶与地质信号？", en: "When sources overlap, which wavefield features still stably distinguish biological, vessel, and geological signals?" },
+        { zh: "哪些生态位置或迁徙信息应在公开数据中降采样，避免连续感知反过来伤害物种？", en: "Which ecological locations or migration information should be coarsened in public data so continuous sensing does not harm species?" },
+      ],
+    },
+    stage: 1, members: 4, activity: 38,
+    chart: { x: 650, y: 500, scale: 0.82 },
+  },
+  {
+    id: 130, atlasN: 545, slug: "biotremology-vibrational-communication",
+    title: { zh: "振动通讯生物学", en: "Biotremology: Vibrational Communication Biology" },
+    qfocus: { zh: "昆虫、蛛形动物与植物的基质振动“方言”能否被因果解码，并转化为可验证的跨物种接口？", en: "Can the substrate-vibration “dialects” of insects, arachnids, and plants be causally decoded and turned into testable cross-species interfaces?" },
+    domain: "交叉",
+    cluster: { code: "C26", zh: "感官界面·跨物种", en: "Sensory interfaces · cross-species" },
+    scores: [4, 4, 3, 3, 4, 4, 3, 2, 5],
+    citation: { url: "https://www.annualreviews.org/content/journals/10.1146/annurev-ento-120220-095459", title: "Functional Diversity of Vibrational Signaling Systems in Insects", venue: "Annual Review of Entomology", year: 2023 },
+    brief: { zh: "把植物茎叶、土壤与蛛网中的表面波视为独立于空气声的感官通道，研究求偶、警戒与捕食中的编码规则。", en: "Treat surface waves in stems, soil, and webs as a sensory channel distinct from airborne sound, and study their codes in courtship, alarm, and predation." },
+    literature: [
+      { title: "Exploitation of Insect Vibrational Signals Reveals a New Method of Pest Management", venue: "PLoS ONE", year: 2012, url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC3310055/" },
+    ],
+    depth: {
+      overview: { zh: "许多小型动物主要通过基质传播振动，而不是通过空气声来求偶、报警或定位猎物。生物振动学试图把波形、传播介质与行为反应放入同一实验框架，区分真正的通信信号、被动线索与环境噪声。", en: "Many small animals court, warn, and locate prey mainly through substrate-borne vibration rather than airborne sound. Biotremology places waveform, transmission medium, and behavioral response in one experimental frame to distinguish genuine communication signals from passive cues and environmental noise." },
+      whyMatters: { zh: "这条通道长期被声学仪器与人类听觉偏见忽略，却可能提供低化学投入的害虫干预和非侵入式生态监测；风险是把相关行为误写成“语言”。", en: "Long overlooked by acoustic instruments and human hearing bias, this channel may enable low-chemical pest intervention and non-invasive ecological monitoring; the risk is recasting correlated behavior as “language.”" },
+      ifAnswered: { zh: "若能找到跨物种可重复的刺激—反应因果图，研究者可设计特异性振动诱捕、保护性干扰和可审计的跨物种接口。", en: "If reproducible stimulus-response causal graphs can be established across species, researchers could design species-specific vibrational lures, protective interference, and auditable cross-species interfaces." },
+      approaches: [
+        { zh: "用激光测振与高速行为跟踪同步记录信号、基质传递函数和个体反应。", en: "Synchronize laser vibrometry and high-speed behavioral tracking to record signals, substrate transfer functions, and individual responses." },
+        { zh: "通过可控回放、频带打乱与假刺激实验检验信号的必要性和充分性。", en: "Test necessity and sufficiency through controlled playback, band scrambling, and sham-stimulus experiments." },
+        { zh: "训练跨物种表征模型，但以留物种验证和行为干预结果而非分类准确率作为通过标准。", en: "Train cross-species representation models, but use held-out-species validation and behavioral intervention—not classification accuracy—as the pass criterion." },
+      ],
+      barrier: { zh: "基质的机械性质会重塑同一信号，且实验室回放很难复现野外植物、风与群体反馈形成的闭环。", en: "The substrate's mechanical properties reshape the same signal, and laboratory playback rarely recreates the closed loop formed by plants, wind, and group feedback in the field." },
+      subQuestions: [
+        { zh: "打乱哪些时频结构会让接收者反应消失，从而证明它不是一般性惊扰？", en: "Which time-frequency disruptions abolish receiver response, showing it is not a generic startle effect?" },
+        { zh: "同一信号跨不同植物基质传播后，接收者是否仍能识别其行为含义？", en: "After the same signal travels through different plant substrates, can receivers still recognize its behavioral meaning?" },
+        { zh: "振动干预在田间是否能降低目标害虫而不干扰传粉者与天敌？", en: "Can vibrational intervention reduce target pests in the field without disrupting pollinators and natural enemies?" },
+      ],
+    },
+    stage: 1, members: 3, activity: 32,
+    chart: { x: 790, y: 570, scale: 0.78 },
+  },
+  {
+    id: 131, atlasN: 534, slug: "aerial-electroecology",
+    title: { zh: "空中电生态学", en: "Aerial Electroecology" },
+    qfocus: { zh: "大气静电场是否构成可重复操纵的生态信息层，而不只是实验室中的微弱感官效应？", en: "Do atmospheric electric fields form a reproducibly manipulable ecological information layer rather than merely a weak laboratory sensory effect?" },
+    domain: "交叉",
+    cluster: { code: "C26", zh: "感官界面·跨物种", en: "Sensory interfaces · cross-species" },
+    scores: [4, 5, 3, 4, 2, 4, 2, 2, 5],
+    citation: { url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC5599473/", title: "The bee, the flower, and the electric field: electric ecology and aerial electroreception", venue: "Journal of Comparative Physiology A", year: 2017 },
+    brief: { zh: "蜜蜂、花朵与蜘蛛会改变或感受局地电场；这个隐形通道可能参与授粉线索与蛛丝放飞，但其野外作用尺度仍未确定。", en: "Bees, flowers, and spiders alter or sense local electric fields; this hidden channel may guide pollination and ballooning, but its field-scale role remains uncertain." },
+    literature: [
+      { title: "Electric Fields Elicit Ballooning in Spiders", venue: "Current Biology", year: 2018, url: "https://www.sciencedirect.com/science/article/pii/S0960982218306936" },
+    ],
+    depth: {
+      overview: { zh: "飞行动物、植物与大气之间持续交换电荷，形成强度和梯度随天气、接近与访花历史变化的局地电场。空中电生态学研究生物是否把这些场当作线索，以及电感知在真实多模态环境中贡献了多少独立信息。", en: "Flying animals, plants, and the atmosphere continually exchange charge, creating local fields whose strength and gradients vary with weather, approach, and visitation history. Aerial electroecology asks whether organisms use these fields as cues and how much independent information electroreception contributes in real multimodal environments." },
+      whyMatters: { zh: "它把大气物理与授粉、迁飞和感官生态直接连接，也提醒传感器、电网与气溶胶变化可能无意改写生态信号；但效果大小很容易被湿度、风和机械振动混淆。", en: "It directly connects atmospheric physics with pollination, dispersal, and sensory ecology, and raises the possibility that sensors, power infrastructure, or aerosols inadvertently rewrite ecological cues; yet effect sizes are easily confounded by humidity, wind, and mechanical vibration." },
+      ifAnswered: { zh: "若野外因果效应成立，电场可成为监测授粉状态、解释迁飞触发和设计低干扰生态实验的新观测量。", en: "If causal field effects hold in the wild, electric fields could become a new observable for pollination state, dispersal triggers, and low-disturbance ecological experiments." },
+      approaches: [
+        { zh: "用法拉第屏蔽、匹配假刺激和独立控制湿度/气流的实验分离电效应。", en: "Separate electric effects using Faraday shielding, matched sham stimulation, and independent humidity and airflow controls." },
+        { zh: "在花田与蜘蛛迁飞现场同步测量三维电场、天气和行为轨迹。", en: "Synchronously measure three-dimensional electric fields, weather, and behavioral trajectories in flower patches and spider-ballooning sites." },
+        { zh: "建立受体生物物理模型，预测触发阈值并用跨物种盲测检验。", en: "Build receptor biophysics models that predict response thresholds and test them in blinded cross-species experiments." },
+      ],
+      barrier: { zh: "自然电场微弱且快速变化，实验装置本身会改变场分布；没有严格假刺激与野外复现，行为相关性无法证明电感知的独立作用。", en: "Natural electric fields are weak and rapidly varying, while the apparatus itself perturbs the field; without strict sham controls and field replication, behavioral correlations cannot establish an independent electroreceptive role." },
+      subQuestions: [
+        { zh: "屏蔽电场而保留颜色、气味与气流后，访花选择效应是否仍可重复？", en: "After shielding the electric field while preserving color, odor, and airflow, does the flower-choice effect replicate?" },
+        { zh: "蜘蛛在自然天气波动下的放飞阈值能否由电场增量独立预测？", en: "Can electric-field increments independently predict spider ballooning thresholds under natural weather variability?" },
+        { zh: "城市电基础设施造成的场扰动是否会改变传粉或迁飞行为，其效应距离多远？", en: "Do field perturbations from urban electrical infrastructure alter pollination or dispersal behavior, and over what distance?" },
+      ],
+    },
+    stage: 1, members: 2, activity: 27,
+    chart: { x: 950, y: 570, scale: 0.74 },
+  },
+  {
+    id: 132, atlasN: 538, slug: "cable-bacteria-biogeophysical-signals",
+    title: { zh: "电缆细菌与沉积生物地球物理信号", en: "Cable Bacteria and Sedimentary Biogeophysical Signals" },
+    qfocus: { zh: "微生物长程电子传导能否从沉积物电位场反演出来，并成为生态状态的可靠观测量？", en: "Can microbial long-range electron transport be inferred from sediment potential fields and become a reliable observable of ecosystem state?" },
+    domain: "生命",
+    cluster: { code: "C30", zh: "微生物组·生态工程", en: "Microbiome · ecological engineering" },
+    scores: [3, 4, 4, 3, 2, 4, 3, 3, 5],
+    citation: { url: "https://www.sciencedirect.com/science/article/abs/pii/S0966842X23003360", title: "Cable bacteria: widespread filamentous electroactive microorganisms protecting environments", venue: "Trends in Microbiology", year: 2024 },
+    brief: { zh: "厘米尺度的丝状微生物借含镍蛋白导线跨越氧化还原分层传电子，在沉积物里留下可测电流、电位与化学指纹。", en: "Centimeter-scale filaments conduct electrons across redox layers through nickel-containing protein wires, leaving measurable currents, potentials, and chemical fingerprints in sediments." },
+    literature: [
+      { title: "Electrogenic sulfur oxidation mediated by cable bacteria and its ecological effects", venue: "Frontiers in Microbiology", year: 2024, url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC10821171/" },
+      { title: "Efficient long-range conduction in cable bacteria through nickel protein wires", venue: "Nature Communications", year: 2021, url: "https://www.nature.com/articles/s41467-021-24312-4" },
+      { title: "Long-distance electron transport in individual, living cable bacteria", venue: "PNAS", year: 2018, url: "https://www.pnas.org/doi/10.1073/pnas.1800367115" },
+    ],
+    depth: {
+      overview: { zh: "电缆细菌把硫化物氧化与远处的氧还原空间分离，通过整条丝体进行长距离电子传输。这种代谢会重塑沉积物的pH、铁硫循环与电位分布，使“谁在代谢什么”可能被地球物理传感器间接读出。", en: "Cable bacteria spatially separate sulfide oxidation from oxygen reduction and transport electrons along an entire filament. Their metabolism reshapes sediment pH, iron-sulfur cycling, and electric potentials, potentially allowing geophysical sensors to infer who is metabolizing what." },
+      whyMatters: { zh: "它连接微生物生理、元素循环与近地表电磁观测，也可能解释部分曾被视为纯地质的电信号；但非生物氧化还原梯度可产生相似图样。", en: "It links microbial physiology, elemental cycling, and near-surface electromagnetic observation, and may explain signals once treated as purely geological; however, abiotic redox gradients can generate similar patterns." },
+      ifAnswered: { zh: "若可从场信号稳健识别活跃电缆细菌，沉积层可成为无需频繁取芯的生态传感器，用于监测缺氧、污染修复和碳硫耦合。", en: "If active cable bacteria can be robustly identified from field signals, sediments could become ecological sensors that monitor hypoxia, remediation, and carbon-sulfur coupling without frequent coring." },
+      approaches: [
+        { zh: "同步部署微电极阵列、孔隙水化学与成像/组学，建立电位—代谢联合剖面。", en: "Co-deploy microelectrode arrays, pore-water chemistry, and imaging/omics to build joint potential-metabolism profiles." },
+        { zh: "通过灭活、电子受体阻断和复苏实验，区分生物传导与非生物电化学扩散。", en: "Use inactivation, electron-acceptor blockade, and recovery experiments to separate biological conduction from abiotic electrochemical diffusion." },
+        { zh: "把含镍蛋白导线的材料与遗传差异纳入导电模型，预测跨环境可迁移的信号尺度。", en: "Include material and genetic variation in nickel-containing protein wires in conduction models that predict transferable signal scales across environments." },
+      ],
+      barrier: { zh: "相似的电位与pH梯度可由扩散、矿物反应或其他电活性微生物产生，场数据的反演并不唯一。", en: "Similar potential and pH gradients can arise from diffusion, mineral reactions, or other electroactive microbes, so inversion from field data is non-unique." },
+      subQuestions: [
+        { zh: "在灭活对照中消失、复苏后恢复的哪组电—化学特征可作为因果指纹？", en: "Which electrochemical features disappear under inactivation controls and return after recovery, qualifying as causal fingerprints?" },
+        { zh: "天然电位场能否在未知沉积物矿物组成下定量预测电子通量？", en: "Can natural potential fields quantitatively predict electron flux when sediment mineral composition is unknown?" },
+        { zh: "电缆细菌活动变化是否能提前预警底层水缺氧或硫化物释放？", en: "Can changes in cable-bacteria activity provide early warning of bottom-water hypoxia or sulfide release?" },
+      ],
+    },
+    stage: 1, members: 3, activity: 35,
+    chart: { x: 640, y: 370, scale: 0.79 },
+  },
+  {
+    id: 133, atlasN: 541, slug: "thermodynamic-computing-hardware",
+    title: { zh: "热力学计算硬件", en: "Thermodynamic Computing Hardware" },
+    qfocus: { zh: "物理涨落与弛豫能否在端到端任务上稳定胜过数字模拟，成为概率AI的低功耗原生算力？", en: "Can physical fluctuations and relaxation reliably beat digital simulation on end-to-end tasks and become native low-power compute for probabilistic AI?" },
+    domain: "物质",
+    cluster: { code: "C31", zh: "物理计算·热力学与涨落", en: "Physical computing · thermodynamics and fluctuations" },
+    scores: [4, 5, 5, 2, 4, 2, 2, 3, 3],
+    citation: { url: "https://arxiv.org/abs/2312.04836", title: "Thermodynamic Computing System for AI Applications", venue: "arXiv", year: 2023 },
+    brief: { zh: "不再压制热噪声，而让连续变量电路的涨落与弛豫直接执行采样、生成和贝叶斯推断；目前仍是早期硬件路线。", en: "Instead of suppressing thermal noise, continuous-variable circuits use fluctuation and relaxation directly for sampling, generation, and Bayesian inference; the hardware route remains early-stage." },
+    literature: [
+      { title: "Thermodynamic computing system for AI applications", venue: "Nature Communications", year: 2025, url: "https://www.nature.com/articles/s41467-025-59011-x" },
+      { title: "Nonlinear thermodynamic computing out of equilibrium", venue: "Nature Communications", year: 2026, url: "https://www.nature.com/articles/s41467-025-67958-0" },
+    ],
+    depth: {
+      overview: { zh: "热力学计算把受控噪声、耗散和物理弛豫当作算法本体，让电路自然趋向目标概率分布，而不是在数字处理器上逐步模拟采样。原型与后续同行评议工作已证明系统可运行，但尚不能据此推断在完整AI工作负载上具有能效优势。", en: "Thermodynamic computing treats controlled noise, dissipation, and physical relaxation as the algorithm itself, allowing circuits to approach a target distribution naturally rather than simulating sampling step by step on a digital processor. Prototypes and subsequent peer-reviewed work show that systems can run, but do not yet establish an energy advantage on complete AI workloads." },
+      whyMatters: { zh: "生成模型和不确定性推断的成本大量来自采样；若物理系统原生执行这一步，算法与材料会首次共同定义计算。但接口、校准和读写能耗可能吞掉核心优势。", en: "Sampling accounts for much of the cost of generative models and uncertainty inference; if physics performs it natively, algorithms and materials would jointly define computation. Yet interface, calibration, and I/O energy may erase the core advantage." },
+      ifAnswered: { zh: "若在固定精度与端到端延迟下仍显示系统级能效增益，这类机器可作为扩散模型、组合采样与贝叶斯工作流的物理协处理器。", en: "If system-level efficiency gains survive at fixed accuracy and end-to-end latency, such machines could become physical coprocessors for diffusion models, combinatorial sampling, and Bayesian workflows." },
+      approaches: [
+        { zh: "把目标能量函数映射为连续变量电路的耦合与噪声参数，让弛豫直接产生样本。", en: "Map a target energy function onto coupling and noise parameters of continuous-variable circuits so relaxation directly produces samples." },
+        { zh: "以墙插能耗计量校准、读写和数字后处理，和GPU上的同精度采样基线对比。", en: "Meter calibration, I/O, and digital post-processing at the wall and compare against GPU sampling at matched accuracy." },
+        { zh: "研究非平衡非线性器件是否能缩短混合时间，同时给出稳态偏差界。", en: "Test whether nonlinear nonequilibrium devices shorten mixing time while bounding steady-state bias." },
+      ],
+      barrier: { zh: "早期原型的任务规模小，噪声分布和器件漂移需要持续校准；核心阵列的低能耗并不自动等于包含转换与控制后的系统优势。", en: "Early prototypes operate at small task scales and require continual calibration for noise distributions and device drift; low core-array energy does not automatically imply a system advantage after conversion and control." },
+      subQuestions: [
+        { zh: "在相同样本质量、吞吐与墙插能耗下，硬件何时首次超过优化GPU采样器？", en: "At matched sample quality, throughput, and wall-plug energy, when does the hardware first beat an optimized GPU sampler?" },
+        { zh: "器件失配与温漂会把目标分布扭曲多少，能否在不抵消能效的前提下校准？", en: "How much do device mismatch and thermal drift distort the target distribution, and can calibration avoid cancelling the efficiency gain?" },
+        { zh: "哪些概率任务能利用真实热涨落，哪些任务只是在把数字开销转移到模拟接口？", en: "Which probabilistic tasks exploit real thermal fluctuation, and which merely shift digital cost into an analog interface?" },
+      ],
+    },
+    stage: 1, members: 3, activity: 34,
+    chart: { x: 470, y: 500, scale: 0.81 },
+  },
+  {
+    id: 134, atlasN: 546, slug: "p-bit-probabilistic-computing",
+    title: { zh: "p-bit 概率计算", en: "p-bit Probabilistic Computing" },
+    qfocus: { zh: "热不稳定磁性概率位能否扩展成可编程、可校准且在实用组合优化上有优势的Ising机器？", en: "Can thermally unstable magnetic probabilistic bits scale into a programmable, calibrated Ising machine with an advantage on practical combinatorial optimization?" },
+    domain: "物质",
+    cluster: { code: "C31", zh: "物理计算·热力学与涨落", en: "Physical computing · thermodynamics and fluctuations" },
+    scores: [4, 4, 4, 1, 3, 1, 3, 3, 4],
+    citation: { url: "https://www.nature.com/articles/s41467-024-48152-0", title: "Experimental demonstration of an on-chip p-bit core based on stochastic magnetic tunnel junctions and 2D MoS2 transistors", venue: "Nature Communications", year: 2024 },
+    brief: { zh: "p-bit 在0和1之间受控随机翻转，耦合后以硬件原生方式执行Ising采样；芯片核心已有实验证明，系统规模与CMOS兼容性仍未成熟。", en: "A p-bit stochastically flips between 0 and 1 under control, and coupled p-bits perform native Ising sampling; an on-chip core has been demonstrated, while system scale and CMOS compatibility remain immature." },
+    depth: {
+      overview: { zh: "p-bit 是介于确定性数字位与相干量子位之间的随机计算元件：热不稳定磁隧道结持续翻转，外部耦合把其稳态塑造成Ising或玻尔兹曼分布。2024年的片上核心说明器件链条可集成，但还没有证明大规模应用优势。", en: "A p-bit is a stochastic computing element between a deterministic digital bit and a coherent qubit: a thermally unstable magnetic tunnel junction continually flips, while external coupling shapes its steady state into an Ising or Boltzmann distribution. A 2024 on-chip core shows that the device chain can be integrated, but not yet that large-scale applications gain an advantage." },
+      whyMatters: { zh: "它为采样、可逆逻辑和组合优化提供室温、非量子硬件路径；同时，互连和随机性校准可能比单个器件更难扩展。", en: "It offers a room-temperature, non-quantum hardware route for sampling, reversible logic, and combinatorial optimization; however, interconnect and randomness calibration may scale worse than the individual devices." },
+      ifAnswered: { zh: "若数千至百万p-bit能保持可编程耦合与可预测分布，p-bit阵列可成为量子退火与数字启发式之间的实用中间层。", en: "If thousands to millions of p-bits preserve programmable coupling and predictable distributions, p-bit arrays could form a practical layer between quantum annealing and digital heuristics." },
+      approaches: [
+        { zh: "集成随机磁隧道结与低功耗晶体管，测量单元随机性、相关性和老化。", en: "Integrate stochastic magnetic tunnel junctions with low-power transistors and measure unit randomness, correlation, and aging." },
+        { zh: "把约束满足与图优化映射为耦合矩阵，并与CPU/GPU启发式做等质量时间—能耗比较。", en: "Map constraint-satisfaction and graph-optimization problems to coupling matrices and compare time-to-quality and energy against CPU/GPU heuristics." },
+        { zh: "用小规模精确分布检验验证采样正确性，再逐级扩大阵列并追踪偏差。", en: "Validate sampling correctness against exact distributions at small scale, then grow arrays stepwise while tracking bias." },
+      ],
+      barrier: { zh: "已展示的是早期片上核心，而非大规模求解器；器件异质性、耦合带宽和外围电路可能抹去随机磁元件的优势。", en: "What has been demonstrated is an early on-chip core, not a large-scale solver; device heterogeneity, coupling bandwidth, and peripheral circuits may erase the stochastic magnetic element's advantage." },
+      subQuestions: [
+        { zh: "阵列规模扩大两个数量级后，采样分布与目标玻尔兹曼分布的偏差如何增长？", en: "After scaling the array by two orders of magnitude, how does divergence from the target Boltzmann distribution grow?" },
+        { zh: "在预注册的优化基准上，p-bit的时间—能耗—解质量前沿是否优于数字启发式？", en: "On preregistered optimization benchmarks, does the p-bit time-energy-solution-quality frontier beat digital heuristics?" },
+        { zh: "外围数模转换与耦合更新占总能耗多少，是否存在规模越大优势越小的交叉点？", en: "What fraction of total energy goes to conversion and coupling updates, and is there a crossover where scaling reduces the advantage?" },
+      ],
+    },
+    stage: 1, members: 2, activity: 29,
+    chart: { x: 370, y: 570, scale: 0.76 },
+  },
+  {
+    id: 135, atlasN: 532, slug: "aqueous-iontronic-memristors",
+    title: { zh: "水基离子学忆阻器", en: "Aqueous Iontronic Memristors" },
+    qfocus: { zh: "纳米流体通道中的离子记忆能否在生理环境里稳定编程，并真正连接活体神经与人工计算？", en: "Can ionic memory in nanofluidic channels be programmed stably in physiological environments and genuinely connect living neurons with artificial computation?" },
+    domain: "物质",
+    cluster: { code: "C02", zh: "生物计算·类器官智能", en: "Biocomputing · organoid intelligence" },
+    scores: [4, 5, 5, 2, 3, 2, 2, 3, 5],
+    citation: { url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC11067030/", title: "Brain-inspired computing with fluidic iontronic nanochannels", venue: "Proceedings of the National Academy of Sciences (PNAS)", year: 2024 },
+    brief: { zh: "在微纳流体通道里以离子而非电子实现忆阻、逻辑与突触可塑性，让“湿态计算”共享生物神经系统的载流语言。", en: "Realize memory, logic, and synaptic plasticity with ions rather than electrons in micro- and nanofluidic channels, giving wet-state computing the carrier language of biological nervous systems." },
+    literature: [
+      { title: "Nanofluidic logic with mechano-ionic memristive switches", venue: "Nature Electronics", year: 2024, url: "https://www.nature.com/articles/s41928-024-01137-9" },
+      { title: "Programmable memristors with two-dimensional nanofluidic channels", venue: "Nature Communications", year: 2025, url: "https://www.nature.com/articles/s41467-025-61649-6" },
+    ],
+    depth: {
+      overview: { zh: "离子学忆阻器利用纳米通道中的浓度极化、表面电荷和机械门控形成历史依赖的电导，因而能在水相中执行记忆与逻辑。它与脑中以离子为载流子的计算更接近，但“像突触”只是器件行为相似，不等于已实现神经功能。", en: "Iontronic memristors use concentration polarization, surface charge, and mechanical gating in nanochannels to create history-dependent conductance and thus memory and logic in water. They are closer to the ion-carrier computation of brains, but synapse-like device behavior does not mean neuronal function has been achieved." },
+      whyMatters: { zh: "如果存储、传感和计算可在同一生理兼容流体中完成，神经接口与软体机器人可减少电子—离子转换层；但速度、耐久与封装远落后于固态器件。", en: "If storage, sensing, and computation occur in one physiologically compatible fluid, neural interfaces and soft robots could reduce electron-ion conversion layers; however, speed, endurance, and packaging lag far behind solid-state devices." },
+      ifAnswered: { zh: "若器件在盐度、温度和生物污染变化下仍可重复编程，离子网络可成为活体—硬件双向接口和低频边缘计算的物理基底。", en: "If devices remain repeatedly programmable under changing salinity, temperature, and biofouling, ionic networks could become a physical substrate for bidirectional living-hardware interfaces and low-frequency edge computation." },
+      approaches: [
+        { zh: "用二维与机械门控纳米通道控制离子选择性、滞回和可编程状态数。", en: "Use two-dimensional and mechanically gated nanochannels to control ion selectivity, hysteresis, and the number of programmable states." },
+        { zh: "在生理盐水与温度循环中测量耐久、保持、器件间变异和能耗。", en: "Measure endurance, retention, device-to-device variation, and energy under physiological saline and temperature cycling." },
+        { zh: "将器件与培养神经元或离子传感器闭环连接，以功能任务而非波形相似评价接口。", en: "Close the loop between devices and cultured neurons or ionic sensors, evaluating functional tasks rather than waveform resemblance." },
+      ],
+      barrier: { zh: "离子迁移慢、状态受环境化学强烈影响，且长期封装和生物污染会改变通道；单器件现象尚未证明阵列级稳定计算。", en: "Ion transport is slow, state depends strongly on environmental chemistry, and long-term packaging and biofouling alter channels; single-device phenomena do not yet establish stable array-level computation." },
+      subQuestions: [
+        { zh: "在生理盐水连续运行一百万次后，电导状态的可分辨度和保持时间还剩多少？", en: "After one million cycles in physiological saline, how much conductance-state separability and retention remain?" },
+        { zh: "离子器件与活神经元闭环时，能否提高信息传递而不引入不可逆电化学损伤？", en: "In a closed loop with living neurons, can ionic devices improve information transfer without irreversible electrochemical damage?" },
+        { zh: "包含泵、读出与校准后，湿态阵列在哪类低频任务上仍优于固态替代方案？", en: "After including pumps, readout, and calibration, on which low-frequency tasks does a wet-state array still beat solid-state alternatives?" },
+      ],
+    },
+    stage: 1, members: 3, activity: 36,
+    chart: { x: 440, y: 620, scale: 0.83 },
+  },
+  {
+    id: 136, atlasN: 535, slug: "mechanical-metamaterial-computing",
+    title: { zh: "力学超材料计算与机械神经网络", en: "Mechanical-Metamaterial Computing and Mechanical Neural Networks" },
+    qfocus: { zh: "承力结构能否靠几何与形变原位完成可重编程计算，而非只展示一次性的机械逻辑玩具？", en: "Can load-bearing structures perform reprogrammable computation in situ through geometry and deformation rather than merely demonstrate one-off mechanical logic toys?" },
+    domain: "物质",
+    cluster: { code: "C31", zh: "物理计算·热力学与涨落", en: "Physical computing · thermodynamics and fluctuations" },
+    scores: [4, 4, 5, 3, 3, 4, 2, 3, 5],
+    citation: { url: "https://www.nature.com/articles/s41467-023-40989-1", title: "In-memory mechanical computing", venue: "Nature Communications", year: 2023 },
+    brief: { zh: "把逻辑、记忆和矩阵运算编码进结构的几何、屈曲与软模态，使材料在受力的同时传感并计算。", en: "Encode logic, memory, and matrix operations into geometry, buckling, and floppy modes so a material senses and computes while carrying load." },
+    literature: [
+      { title: "A mechanical metamaterial with reprogrammable logical functions", venue: "Nature Communications", year: 2021, url: "https://www.nature.com/articles/s41467-021-27608-7" },
+      { title: "Reprogrammable, in-materia matrix-vector multiplication with floppy modes", venue: "arXiv", year: 2024, url: "https://arxiv.org/html/2409.20425v1" },
+    ],
+    depth: {
+      overview: { zh: "力学超材料通过单元几何、屈曲路径和软模态把输入形变映射为逻辑、记忆或矩阵运算，计算发生在材料本身而非外置芯片。已有样机展示可重编程逻辑与机械存内计算，但规模通常很小、输入精心控制。", en: "Mechanical metamaterials map input deformation to logic, memory, or matrix operations through unit geometry, buckling paths, and floppy modes, so computation occurs in the material rather than an external chip. Prototypes show reprogrammable logic and mechanical in-memory computing, but usually at small scale with carefully controlled inputs." },
+      whyMatters: { zh: "原位计算可让软体机器人、假体与航天结构在无电子或极端环境中直接响应力学信息；代价是制造误差、疲劳与计算精度互相耦合。", en: "In-materia computation could let soft robots, prostheses, and space structures respond directly to mechanical information without electronics or in extreme environments; the cost is tight coupling among fabrication error, fatigue, and computational accuracy." },
+      ifAnswered: { zh: "若可训练权重、承载能力与耐久性可共同扩展，结构件将兼任传感器、控制器和存储器，减少感知—计算—执行之间的转换。", en: "If trainable weights, load capacity, and durability scale together, structural components could double as sensors, controllers, and memory, reducing conversions among sensing, computation, and actuation." },
+      approaches: [
+        { zh: "用多稳态单元与可重构连接编码逻辑门和非易失机械状态。", en: "Use multistable cells and reconfigurable connections to encode logic gates and nonvolatile mechanical states." },
+        { zh: "利用软模态实现材料内矩阵—向量乘法，并测量误差随尺寸和制造公差的增长。", en: "Use floppy modes for in-materia matrix-vector multiplication and measure how error grows with size and fabrication tolerance." },
+        { zh: "在循环载荷、冲击和温度变化下测试同一结构的承载—计算联合性能。", en: "Test joint load-bearing and computational performance under cyclic loads, impact, and temperature variation." },
+      ],
+      barrier: { zh: "几何误差和材料疲劳会直接变成计算漂移，重编程机构又增加复杂度；展示逻辑门不等于能扩展为鲁棒网络。", en: "Geometric error and material fatigue directly become computational drift, while reprogramming adds complexity; demonstrating logic gates is not the same as scaling to a robust network." },
+      subQuestions: [
+        { zh: "在十万次承载循环后，计算误差是否仍低于预注册阈值？", en: "After one hundred thousand load cycles, does computational error remain below a preregistered threshold?" },
+        { zh: "增加单元数时，制造公差导致的误差是线性、超线性还是可由训练补偿？", en: "As cell count grows, is fabrication-induced error linear, superlinear, or compensable by training?" },
+        { zh: "与传感器加微控制器的基线相比，原位计算在哪些极端环境任务上真正减少总质量和能耗？", en: "Compared with a sensor-plus-microcontroller baseline, in which extreme-environment tasks does in-materia computing truly reduce total mass and energy?" },
+      ],
+    },
+    stage: 1, members: 3, activity: 37,
+    chart: { x: 530, y: 520, scale: 0.85 },
+  },
+  {
+    id: 137, atlasN: 537, slug: "counterfactual-history-causal-cliometrics",
+    title: { zh: "反事实历史与因果计量史学", en: "Counterfactual History and Causal Cliometrics" },
+    qfocus: { zh: "当历史事件不可重复且处理对象只有一个时，什么证据足以让“若无此事会怎样”成为可反驳的因果判断？", en: "When history is unrepeatable and the treated case is singular, what evidence makes “what would have happened otherwise?” a refutable causal judgment?" },
+    domain: "交叉",
+    cluster: { code: "C19", zh: "计算社会科学·数字人文", en: "Computational social science · digital humanities" },
+    scores: [4, 4, 4, 3, 4, 5, 3, 2, 5],
+    citation: { url: "https://onlinelibrary.wiley.com/doi/10.1111/joes.12493", title: "Synthetic Control Method: A tool for comparative case studies in economic history", venue: "Journal of Economic Surveys", year: 2023 },
+    brief: { zh: "把档案叙事、合成控制与机制知识结合，为战争、制度与政策转折构造可审计的反事实，而不是把模型输出当成另一条历史。", en: "Combine archival narrative, synthetic control, and mechanism knowledge to construct auditable counterfactuals for wars, institutions, and policy turns without treating model output as an alternate history." },
+    literature: [
+      { title: "Using Synthetic Controls: Feasibility, Data Requirements, and Methodological Aspects", venue: "Journal of Economic Literature", year: 2021, url: "https://inferenceproject.yale.edu/sites/default/files/jel.20191450.pdf" },
+    ],
+    depth: {
+      overview: { zh: "因果计量史学用合成控制、事件研究与结构模型，把未发生的历史路径写成由对照案例和机制假设共同约束的估计。它不是把历史变成实验室，而是要求每个反事实明确数据、干预时点、可比性与失效条件。", en: "Causal cliometrics uses synthetic control, event studies, and structural models to estimate unrealized historical paths constrained jointly by comparison cases and mechanism assumptions. It does not turn history into a laboratory; it requires every counterfactual to state its data, intervention time, comparability, and failure conditions." },
+      whyMatters: { zh: "它可检验关于制度、战争和政策的宏大因果叙事，也暴露历史资料选择如何决定答案；危险是用精确数字掩盖不可识别的假设。", en: "It can test grand causal narratives about institutions, wars, and policy while exposing how archival selection determines answers; the danger is using precise numbers to hide unidentifiable assumptions." },
+      ifAnswered: { zh: "若反事实结论能跨档案集、供体池和识别策略保持稳定，历史争论可从观点对撞转向对假设与证据边界的共同审计。", en: "If counterfactual conclusions remain stable across archives, donor pools, and identification strategies, historical disputes could shift from competing opinions to shared audits of assumptions and evidence boundaries." },
+      approaches: [
+        { zh: "用合成控制从多个未受干预地区构造加权对照，并进行干预前拟合与安慰剂检验。", en: "Use synthetic control to form a weighted comparator from untreated regions, with pre-intervention fit and placebo tests." },
+        { zh: "把档案中的机制证据转成明确约束，排除统计上相似但历史上不可能的对照。", en: "Translate archival mechanism evidence into explicit constraints that exclude statistically similar but historically impossible comparators." },
+        { zh: "预注册供体池、时间窗和替代结局，报告所有合理分析的结论分布。", en: "Preregister donor pools, time windows, and alternative outcomes, and report the conclusion distribution over all reasonable analyses." },
+      ],
+      barrier: { zh: "独特事件常缺少可信对照，档案缺失又与权力和战争并非随机；模型无法从数据中自行识别这些不可观测偏差。", en: "Singular events often lack credible controls, while archival missingness is not random with respect to power and war; models cannot identify these unobserved biases from data alone." },
+      subQuestions: [
+        { zh: "改变供体池或干预时间一个合理幅度后，结论是否反转？", en: "Does the conclusion reverse after a reasonable change to the donor pool or intervention date?" },
+        { zh: "哪些机制证据能事前排除“看似相似”却不满足可比性的历史案例？", en: "Which mechanism evidence can prospectively exclude historically incomparable cases that look statistically similar?" },
+        { zh: "当两种识别策略给出相反反事实时，什么新档案或负向对照能判别它们？", en: "When two identification strategies yield opposite counterfactuals, what new archive or negative control could discriminate between them?" },
+      ],
+    },
+    stage: 1, members: 4, activity: 39,
+    chart: { x: 660, y: 750, scale: 0.86 },
+  },
+  {
+    id: 138, atlasN: 553, slug: "evolutionary-dynamics-norms-trust",
+    title: { zh: "规范与信任的演化动力学", en: "Evolutionary Dynamics of Norms and Trust" },
+    qfocus: { zh: "合作规范的涌现、级联与崩塌能否被前瞻预测，而不是只在事后用演化博弈解释？", en: "Can the emergence, cascade, and collapse of cooperative norms be predicted prospectively rather than explained after the fact with evolutionary games?" },
+    domain: "交叉",
+    cluster: { code: "C19", zh: "计算社会科学·数字人文", en: "Computational social science · digital humanities" },
+    scores: [3, 4, 3, 4, 4, 4, 3, 2, 4],
+    citation: { url: "https://www.nature.com/articles/s41467-021-25734-w", title: "Evidence from a long-term experiment that collective risks change social norms and promote cooperation", venue: "Nature Communications", year: 2021 },
+    brief: { zh: "把长期在线实验、演化博弈和多智能体模型连接起来，寻找合作与信任临界转变的可观测前兆及其适用边界。", en: "Connect long-running online experiments, evolutionary games, and multi-agent models to find observable precursors of cooperative and trust tipping points and their limits." },
+    literature: [
+      { title: "Interpretable Early Warnings using Machine Learning in an Online Game-experiment", venue: "Proceedings of the National Academy of Sciences (PNAS)", year: 2026, url: "https://arxiv.org/abs/2502.09880" },
+      { title: "Co-evolution of conditional cooperation and social norm", venue: "Scientific Reports", year: 2023, url: "https://www.nature.com/articles/s41598-023-43918-w" },
+    ],
+    depth: {
+      overview: { zh: "合作并非固定偏好，而会随风险、观察到的他人行为、惩罚制度和网络位置共同演化。这个方向用可重复在线博弈与机制模型追踪规范如何形成反馈，并测试所谓“早期预警”能否在转折发生前工作。", en: "Cooperation is not a fixed preference; it coevolves with risk, observed behavior, sanctioning institutions, and network position. This direction uses repeatable online games and mechanism models to track norm feedback and test whether claimed early warnings work before a transition occurs." },
+      whyMatters: { zh: "可信的前瞻模型可能帮助平台与公共机构在信任崩塌前干预；但同一指标在不同文化和激励结构下可能含义相反，模型也可能被治理者用于操控。", en: "A credible prospective model might help platforms and public institutions intervene before trust collapses; yet the same indicator may mean opposite things across cultures and incentive structures, and governance actors could use the model manipulatively." },
+      ifAnswered: { zh: "若规范转折的前兆可跨实验与真实社区复制，就能比较何种透明度、惩罚和互惠机制稳定合作，并明确不可迁移的情境。", en: "If precursors of norm shifts replicate across experiments and real communities, we could compare which transparency, sanction, and reciprocity mechanisms stabilize cooperation while marking contexts where transfer fails." },
+      approaches: [
+        { zh: "运行长期重复博弈，随机改变集体风险、信息可见度和惩罚规则。", en: "Run long-duration repeated games that randomize collective risk, information visibility, and sanction rules." },
+        { zh: "将演化博弈参数与可解释机器学习预警连接，在冻结模型后做真正前瞻预测。", en: "Connect evolutionary-game parameters to interpretable early-warning models and make genuinely prospective predictions after model freeze." },
+        { zh: "在多社区复现实验中检验文化、网络结构和退出选项的调节作用。", en: "Test moderation by culture, network structure, and exit options in multi-community replications." },
+      ],
+      barrier: { zh: "在线游戏中的行为未必迁移到高风险现实制度，且规范、信任与顺从难以从同一行为观测中区分。", en: "Behavior in online games may not transfer to high-stakes institutions, and norms, trust, and compliance are difficult to distinguish from the same behavioral observations." },
+      subQuestions: [
+        { zh: "冻结后的预警模型能否在新社区中提前预测合作崩塌，并保持校准的误报率？", en: "Can a frozen warning model anticipate cooperation collapse in a new community with a calibrated false-alarm rate?" },
+        { zh: "观察到更多他人行为何时增强规范，何时反而放大犬儒和搭便车？", en: "When does greater visibility of others strengthen a norm, and when does it amplify cynicism and free-riding?" },
+        { zh: "相同惩罚机制跨文化实施时，合作提升是否由信任增加而非被迫顺从驱动？", en: "Across cultures, is a cooperation increase under the same sanction driven by greater trust rather than coerced compliance?" },
+      ],
+    },
+    stage: 1, members: 4, activity: 41,
+    chart: { x: 830, y: 620, scale: 0.84 },
+  },
+  {
+    id: 139, atlasN: 552, slug: "social-physics-predictability-boundary",
+    title: { zh: "社会物理学 2.0：集体行为可预测性边界", en: "Social Physics 2.0: Limits of Collective-Behavior Predictability" },
+    qfocus: { zh: "熵、标度律与相变能否给出人类集体行为的可预测上界，并区分结构性极限与数据不足？", en: "Can entropy, scaling laws, and phase transitions bound the predictability of collective behavior and separate structural limits from insufficient data?" },
+    domain: "数理",
+    cluster: { code: "C19", zh: "计算社会科学·数字人文", en: "Computational social science · digital humanities" },
+    scores: [4, 4, 3, 3, 4, 3, 3, 2, 5],
+    citation: { url: "https://www.science.org/doi/10.1126/science.1177170", title: "Limits of Predictability in Human Mobility", venue: "Science", year: 2010 },
+    brief: { zh: "用序列熵与信息论上界追问出行和群体行为究竟能预测到什么程度，同时审计上界对采样、粒度与社会信息泄漏的敏感性。", en: "Use sequence entropy and information-theoretic bounds to ask how predictable mobility and collective behavior can be, while auditing sensitivity to sampling, granularity, and leaked social information." },
+    literature: [
+      { title: "Contrasting social and non-social sources of predictability in human mobility", venue: "Nature Communications", year: 2022, url: "https://www.nature.com/articles/s41467-022-29592-y" },
+      { title: "Predictability of Complex Systems", venue: "arXiv", year: 2025, url: "https://arxiv.org/abs/2510.16312" },
+    ],
+    depth: {
+      overview: { zh: "社会物理学用熵率、互信息、标度和临界模型，把“行为可预测吗”改写为带时间尺度、空间粒度和观测条件的上界问题。经典移动性研究给出高可预测性估计，后续工作则显示社交信息、数据生成过程与指标选择会显著改变答案。", en: "Social physics uses entropy rates, mutual information, scaling, and critical models to rewrite “is behavior predictable?” as a bound conditioned on timescale, spatial resolution, and observation. Classic mobility studies estimated high predictability, while later work shows that social information, data-generating processes, and metric choices can substantially change the answer." },
+      whyMatters: { zh: "明确上界可防止政策、流行病与交通模型许诺不可能的精度，也能揭示隐私泄漏的理论极限；但把有限样本熵当成人类行为常数会造成虚假普适性。", en: "Clear bounds can prevent policy, epidemic, and transport models from promising impossible accuracy and reveal theoretical privacy leakage; but treating finite-sample entropy as a constant of human behavior creates false universality." },
+      ifAnswered: { zh: "若能把不可约随机性、观测不足和制度变化分开，可预测性将成为带适用域的可审计属性，而不是一个跨场景通用的百分比。", en: "If irreducible randomness, observational insufficiency, and institutional change can be separated, predictability becomes an auditable property with a domain of validity rather than one universal percentage." },
+      approaches: [
+        { zh: "用多种熵率估计器与有限样本修正计算可预测上界，并公开估计偏差。", en: "Estimate predictability bounds with multiple entropy-rate estimators and finite-sample corrections, publishing estimator bias." },
+        { zh: "在保持轨迹相同的情况下逐步加入社交、天气与制度信息，分解预测增益来源。", en: "Hold trajectories fixed while incrementally adding social, weather, and institutional information to decompose sources of predictive gain." },
+        { zh: "以跨城市、跨冲击事件和跨粒度的留域外测试检验所谓普适标度。", en: "Test claimed universal scaling through held-out-city, held-out-shock, and cross-resolution evaluation." },
+      ],
+      barrier: { zh: "可预测性上界高度依赖离散化、采样频率和非平稳性；制度变化会让过去的信息论上界在未来失效。", en: "Predictability bounds depend strongly on discretization, sampling frequency, and nonstationarity; institutional change can invalidate an information-theoretic bound estimated from the past." },
+      subQuestions: [
+        { zh: "在统一采样和空间粒度后，不同城市的移动性上界是否仍显著不同？", en: "After harmonizing sampling and spatial resolution, do mobility bounds still differ substantially across cities?" },
+        { zh: "重大政策或灾害发生后，上界下降多少可归因于真实机制变化而非数据缺失？", en: "After a major policy shift or disaster, how much of a bound's decline comes from mechanism change rather than missing data?" },
+        { zh: "移除社交信息后预测能力损失多少，这一差值是否构成可操作的隐私风险下界？", en: "How much predictive power is lost when social information is removed, and does that gap form an actionable lower bound on privacy risk?" },
+      ],
+    },
+    stage: 1, members: 3, activity: 36,
+    chart: { x: 270, y: 540, scale: 0.8 },
+  },
+  {
+    id: 140, atlasN: 550, slug: "collective-reasoning-group-epistemology",
+    title: { zh: "集体推理与群体认识论", en: "Collective Reasoning and Group Epistemology" },
+    qfocus: { zh: "什么网络与审议结构能让群体稳定接近真相，而不是被同质化、地位与信息级联拖向一致性幻觉？", en: "Which network and deliberation structures make groups reliably approach truth rather than drift into an illusion of consensus through homophily, status, and information cascades?" },
+    domain: "交叉",
+    cluster: { code: "C22", zh: "集体智能·知识基础设施", en: "Collective intelligence · knowledge infrastructure" },
+    scores: [4, 4, 3, 4, 4, 4, 2, 3, 5],
+    citation: { url: "https://ndg.asc.upenn.edu/wp-content/uploads/2022/10/Centola_2022_TICS_Network_Science_of_Collective_Intelligence.pdf", title: "The network science of collective intelligence", venue: "Trends in Cognitive Sciences", year: 2022 },
+    brief: { zh: "研究信息网络、审议顺序与社会影响如何改变群体判断，把“众人是否更聪明”拆成可干预、可失败的结构条件。", en: "Study how information networks, deliberation order, and social influence alter group judgment, decomposing “are crowds wiser?” into manipulable structural conditions that can fail." },
+    literature: [
+      { title: "Network dynamics of social influence in the wisdom of crowds", venue: "PNAS", year: 2017, url: "https://www.pnas.org/doi/10.1073/pnas.1615978114" },
+      { title: "Deliberation and the wisdom of crowds", venue: "Economic Theory", year: 2024, url: "https://link.springer.com/article/10.1007/s00199-024-01595-4" },
+    ],
+    depth: {
+      overview: { zh: "群体智慧不只取决于成员平均能力，还取决于谁先发言、谁看见谁、意见是否独立以及少数证据能否穿过网络。群体认识论把这些结构与真值任务连接，要求用判断准确性、校准和少数派信息保留来评价审议。", en: "Collective intelligence depends not only on average member ability but on who speaks first, who sees whom, whether opinions remain independent, and whether minority evidence travels through the network. Group epistemology links these structures to truth-bearing tasks and evaluates deliberation by judgment accuracy, calibration, and preservation of minority information." },
+      whyMatters: { zh: "科学协作、陪审团、公民审议和人机团队都依赖群体判断；优化参与感或一致性可能反而降低真值质量，因此需要把社会体验与认识绩效同时测量。", en: "Science teams, juries, civic deliberation, and human-AI groups all depend on collective judgment; optimizing participation or consensus can reduce truth quality, so social experience and epistemic performance must be measured together." },
+      ifAnswered: { zh: "若能识别跨任务稳定的网络机制，平台可设计既保留独立信息又允许证据聚合的审议协议，并明确AI应在何时发言或保持沉默。", en: "If stable network mechanisms can be identified across tasks, platforms could design deliberation protocols that preserve independent information while aggregating evidence, including rules for when AI should speak or remain silent." },
+      approaches: [
+        { zh: "随机分配网络拓扑、发言顺序和意见可见度，在有客观答案的任务上测量准确性。", en: "Randomize network topology, speaking order, and opinion visibility in tasks with objective answers and measure accuracy." },
+        { zh: "比较先独立作答后审议、同步讨论与结构化异议等协议对校准和信息多样性的影响。", en: "Compare independent-first deliberation, simultaneous discussion, and structured dissent for effects on calibration and information diversity." },
+        { zh: "在人机群体中随机化AI置信度展示与介入时点，识别自动化偏见和互补条件。", en: "In human-AI groups, randomize AI confidence display and intervention timing to identify automation bias and complementarity conditions." },
+      ],
+      barrier: { zh: "在简单可判真任务上有效的网络结构未必迁移到开放科学问题；群体准确性提升也可能以不公平发言权或少数观点消失为代价。", en: "Network structures that work on simple truth-evaluable tasks may not transfer to open scientific problems, and accuracy gains may come at the cost of unequal voice or vanished minority views." },
+      subQuestions: [
+        { zh: "先独立判断再共享理由，是否在不同任务上都优于从一开始公开意见？", en: "Does judging independently before sharing reasons outperform opinion visibility from the start across different tasks?" },
+        { zh: "哪种网络稀疏度能同时保留少数真信息并避免错误级联？", en: "What network sparsity preserves truthful minority information while preventing error cascades?" },
+        { zh: "AI应在审议的哪个时点介入，才能增加互补信息而不造成锚定和权威服从？", en: "At what point in deliberation should AI intervene to add complementary information without causing anchoring or authority compliance?" },
+      ],
+    },
+    stage: 1, members: 4, activity: 43,
+    chart: { x: 890, y: 580, scale: 0.84 },
   }
 ];
+
+FRONTIERS.push(
+  ...EARTH_LIFE_EXPANSION,
+  ...MATTER_COMPUTATION_EXPANSION,
+  ...SOCIETY_KNOWLEDGE_EXPANSION,
+);
 
 export const FRONTIERS_BY_SLUG: Record<string, FrontierEntry> = Object.fromEntries(
   FRONTIERS.map((f) => [f.slug, f]),

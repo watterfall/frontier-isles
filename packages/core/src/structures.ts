@@ -11,7 +11,8 @@ import type { MappingArtifact } from "./mapping";
 export interface StructureEdge {
   structureId: string;
   islandOp: string;
-  /** number of rebuild events backing this structure⇄island edge. */
+  /** Number of unique actor + mapping-artifact rebuilds backing this edge.
+   * Exact event replays are folded so seed retries cannot inflate the weight. */
   weight: number;
   actors: string[];
 }
@@ -25,26 +26,30 @@ export interface StructureMappingRecord extends MappingArtifact {
   ts: string;
 }
 
-/** Resolve every real rebuild event into its human-authored mapping content.
- * Unlike `reduceStructureGraph`, repeated refinements are intentionally kept:
- * a reader may inspect how a correspondence and its boundary evolved. */
+/** Resolve real rebuild events into their human-authored mapping content.
+ * Distinct actors and content-addressed refinements are intentionally kept so a
+ * reader can inspect how a correspondence evolved. Exact replays by the same
+ * actor on the same island are folded to their earliest timestamp. */
 export function projectStructureMappings(
   events: readonly LedgerEvent[],
   resolveRef: (ref: string) => MappingArtifact | null,
 ): StructureMappingRecord[] {
-  const records: StructureMappingRecord[] = [];
+  const recordsByReplay = new Map<string, StructureMappingRecord>();
   for (const event of events) {
     if (event.action !== "rebuild" || !event.ref) continue;
     const mapping = resolveRef(event.ref);
     if (!mapping) continue;
-    records.push({
+    const record: StructureMappingRecord = {
       ...mapping,
       refHash: event.ref,
       actor: event.actor.id,
       ts: event.ts,
-    });
+    };
+    const replayKey = `${event.op}\u0000${event.actor.id}\u0000${event.ref}`;
+    const previous = recordsByReplay.get(replayKey);
+    if (!previous || record.ts < previous.ts) recordsByReplay.set(replayKey, record);
   }
-  return records.sort((a, b) =>
+  return [...recordsByReplay.values()].sort((a, b) =>
     a.structureId < b.structureId
       ? -1
       : a.structureId > b.structureId
@@ -68,18 +73,22 @@ export function projectStructureMappings(
 /**
  * Reduce the ledger into structure⇄island edges. An edge appears ONLY where a
  * `rebuild` event carries a resolvable mapping artifact — a "draw a link" tool
- * does not exist (inv 15). Repeat rebuilds of the same pair accumulate weight
- * and distinct actors.
+ * does not exist (inv 15). Distinct actors or mapping refs on the same pair
+ * accumulate weight; exact event replays do not.
  */
 export function reduceStructureGraph(
   events: readonly LedgerEvent[],
   resolveRef: (ref: string) => MappingArtifact | null,
 ): StructureEdge[] {
   const byKey = new Map<string, StructureEdge>();
+  const seenReplays = new Set<string>();
   for (const e of events) {
     if (e.action !== "rebuild" || !e.ref) continue;
     const m = resolveRef(e.ref);
     if (!m) continue;
+    const replayKey = `${e.op}\u0000${e.actor.id}\u0000${e.ref}`;
+    if (seenReplays.has(replayKey)) continue;
+    seenReplays.add(replayKey);
     const key = `${m.structureId} ${m.islandOp}`;
     const edge = byKey.get(key);
     if (edge) {

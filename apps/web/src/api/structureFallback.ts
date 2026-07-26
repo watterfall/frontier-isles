@@ -64,6 +64,7 @@ export function fallbackStructureGraph(): ApiStructureGraph {
     correspondences: mapping.correspondences,
     ...(mapping.prediction ? { prediction: mapping.prediction } : {}),
     ...(mapping.boundary ? { boundary: mapping.boundary } : {}),
+    ...(mapping.evidenceRefs?.length ? { evidenceRefs: mapping.evidenceRefs } : {}),
   })));
   return { edges, frontier: structureFrontier(edges, islands), mappings };
 }

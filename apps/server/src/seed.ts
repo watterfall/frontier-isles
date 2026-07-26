@@ -26,12 +26,12 @@ import { refHash } from "./refs.js";
 import { openDb } from "./db.js";
 
 /**
- * Idempotent seed reproducing the prototype (`design/handoff/问题群岛-原型 v3`):
+ * Idempotent seed of the prototype world + growing curated catalog:
  *   1. the sample island 「AI 之问」 from the opp fixture machine-curiosity.md,
  *      with a full ledger — genesis ceremony, the 7 question-wall questions,
  *      ghost events (night 12/41/63), 4 driftwood atoms, 3 morning-report
  *      drafts, 5 human + 4 AI-resident memberships, no capability grants.
- *   2. the other 19 chart islands as minimal problem objects (DATA array).
+ *   2. every curated FRONTIERS direction as a minimal problem object (DATA).
  *   3. station rows for every island.
  */
 
@@ -437,6 +437,12 @@ function seedCrossIslandRelations(store: Store): void {
     const ref = artifactRef(rel.anchor, rel.artifact);
     if (!ref) continue; // anchor artifact absent (island stage too low) — skip honestly
     const reactorOp = opIdFor(rel.reactor);
+    // The stable identity of this seeded relation is semantic, not its event
+    // hash: `day()` and the chain head can change across boots. Preserve an
+    // existing human or seeded record of the same reactor + verb + artifact.
+    if (store.getEvents(reactorOp).some((event) => event.action === rel.verb && event.ref === ref)) {
+      continue;
+    }
     const isBridge = rel.verb.startsWith("bridge_");
     const actor: Actor = isBridge ? ferryman : { id: `github:founder-${rel.reactor}`, kind: "human" };
     store.appendRaw(reactorOp, {
@@ -460,6 +466,7 @@ function seedCrossIslandRelations(store: Store): void {
  */
 function seedStructures(store: Store): void {
   const curator: Actor = { id: "github:shen-kuo", kind: "human" };
+  const existingIslandOps = new Set(store.listProblemRows().map((row) => row.opId));
   // Existing databases receive explanatory mapping refinements too. Identity
   // is the content-addressed mapping ref, not merely the structure/island pair:
   // a newly authored boundary is a real refinement behind the same compressed
@@ -481,12 +488,16 @@ function seedStructures(store: Store): void {
     store.insertStructure(object);
     s.mappings.forEach((m, i) => {
       const opId = opIdFor(m.slug);
+      // Never emit an orphan ledger event if a catalog definition accidentally
+      // names an island absent from this database.
+      if (!existingIslandOps.has(opId)) return;
       const mapping: MappingArtifact = {
         structureId: s.id,
         islandOp: opId,
         correspondences: m.correspondences,
         ...(m.prediction ? { prediction: m.prediction } : {}),
         ...(m.boundary ? { boundary: m.boundary } : {}),
+        ...(m.evidenceRefs?.length ? { evidenceRefs: m.evidenceRefs } : {}),
       };
       const ref = store.putRef("mapping", mapping);
       if (existingMappingRefs.has(ref)) return;
@@ -519,26 +530,43 @@ function seedStructures(store: Store): void {
   }
 }
 
-/** Idempotent: seeds only when the DB has no islands. Returns the count seeded. */
+/**
+ * Reconcile the bundled island catalog without rewriting any island already in
+ * the database. This matters on upgrades: a non-empty database may contain an
+ * older FRONTIERS snapshot, so `hasIslands()` alone is not a sufficient
+ * freshness check. Existing problem objects and ledgers remain authoritative;
+ * only missing catalog slugs are materialized.
+ *
+ * Sea relations reconcile by reactor + verb + anchor artifact. Structure
+ * mappings reconcile by their content-addressed ref, so both are safe on every
+ * boot after the island catalog itself is complete.
+ *
+ * Returns the number of missing islands materialized during this call.
+ */
 export function seed(store: Store): number {
-  if (store.hasIslands()) {
-    const tx = store.db.transaction(() => seedStructures(store));
-    tx();
-    return 0;
-  }
+  let seeded = 0;
   const tx = store.db.transaction(() => {
-    seedSampleIsland(store);
+    const existingSlugs = new Set(store.listProblemRows().map((row) => row.slug));
+
+    if (!existingSlugs.has("machine-curiosity")) {
+      seedSampleIsland(store);
+      existingSlugs.add("machine-curiosity");
+      seeded += 1;
+    }
     for (const c of DATA) {
       if (c.slug === "machine-curiosity") continue;
+      if (existingSlugs.has(c.slug)) continue;
       seedMinimalIsland(store, c);
+      existingSlugs.add(c.slug);
+      seeded += 1;
     }
-    // After every island exists, wire real cross-island relations (the sea plane).
+    // Reconcile real cross-island relations after every referenced island exists.
     seedCrossIslandRelations(store);
     // …then the structure ⇄ 现象 graph: rebuild edges onto the islands (§九).
     seedStructures(store);
   });
   tx();
-  return DATA.length + 1;
+  return seeded;
 }
 
 // CLI: `pnpm --filter @frontier-isles/server seed`
@@ -547,6 +575,6 @@ if (invokedDirectly) {
   const db = openDb(process.env.DB_FILE ?? "data/isles.db");
   const store = new Store(db);
   const n = seed(store);
-  console.log(n > 0 ? `[seed] seeded ${n} islands` : "[seed] islands already present — structure catalog reconciled");
+  console.log(n > 0 ? `[seed] materialized ${n} missing catalog islands` : "[seed] island + structure catalog already current");
   db.close();
 }

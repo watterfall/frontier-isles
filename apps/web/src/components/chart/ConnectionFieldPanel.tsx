@@ -18,6 +18,7 @@ import {
   projectReturnedMaterialReceipt,
   type ResearchActionReceipt,
 } from '../../state/routeOutcome';
+import { ConnectionTideChart } from './ConnectionTideChart';
 
 export interface ConnectionFieldPanelProps {
   field: ConnectionField;
@@ -45,7 +46,7 @@ const COPY = {
     intro: '还没有具体问题时，不必先选领域。先沿一个反复出现的主题进入，再看它在不同研究里如何变化。',
     guideTitle: '探索路径', guideBorrow: '选一个跨学科主题', guideBoundary: '看它如何进入不同领域', guideTest: '再进入一个具体研究',
     starterTitle: '从这些主题开始', starterHint: '有些已经跨越多个领域，有些仍是一块等待映射的空白。', browseAll: '查看全部主题与研究对照', browseCount: '项记录', studyContext: '这两项研究分别在问什么',
-    collapse: '收起', expand: '展开', show: '显示连线', hide: '隐藏连线',
+    collapse: '收起', expand: '展开', show: '显示连线', hide: '隐藏连线', tideOverview: '潮汐总览',
     search: '已经有具体问题？直接寻找', searchPlaceholder: '输入问题或现象', searchEmpty: '还没有与这个问题匹配的记录。',
     filter: '筛选这些对照', all: '全部', mechanism: '同一种办法', form: '模型、方程或可借用做法', evidence: '支持或反对的材料', lineage: '方法怎样被沿用',
     mechanisms: '同一种办法，用在不同问题上', direct: '两项研究之间的具体判断', problem: '项研究', problems: '项研究', record: '条记录', records: '条记录',
@@ -93,7 +94,7 @@ const COPY = {
     intro: 'You do not need to choose a field before you have a concrete problem. Start with a recurring theme, then see how it changes across studies.',
     guideTitle: 'Exploration route', guideBorrow: 'Choose a cross-disciplinary theme', guideBoundary: 'See how it enters different fields', guideTest: 'Then enter a concrete study',
     starterTitle: 'Start with these themes', starterHint: 'Some already cross several fields; others remain honest gaps waiting for a mapping.', browseAll: 'View every theme and research comparison', browseCount: 'records', studyContext: 'What each study is asking',
-    collapse: 'Collapse', expand: 'Expand', show: 'Show lines', hide: 'Hide lines',
+    collapse: 'Collapse', expand: 'Expand', show: 'Show lines', hide: 'Hide lines', tideOverview: 'Tide overview',
     search: 'Already have a concrete problem? Find it directly', searchPlaceholder: 'Search a problem or phenomenon', searchEmpty: 'No recorded comparison matches this problem yet.',
     filter: 'Filter these comparisons', all: 'All', mechanism: 'The same approach', form: 'Models, equations, or reusable approaches', evidence: 'Material that supports or challenges', lineage: 'How a method was reused',
     mechanisms: 'The same approach, used on different problems', direct: 'A concrete judgment between two studies', problem: 'study', problems: 'studies', record: 'record', records: 'records',
@@ -164,6 +165,16 @@ function RelationMark({ kind }: { kind: ConnectionPath['kind'] | 'mechanism' }) 
   return <i className="fi-connection-mark" data-kind={kind} aria-hidden="true"><span /></i>;
 }
 
+function externalEvidenceUrl(ref: string): string | null {
+  try {
+    const url = new URL(ref);
+    if ((url.protocol !== 'https:' && url.protocol !== 'http:') || url.username || url.password) return null;
+    return url.href;
+  } catch {
+    return null;
+  }
+}
+
 export function ConnectionFieldPanel(props: ConnectionFieldPanelProps) {
   const { field, lang, channel, focus, visible, departure, intent, actor, onChannel, onFocus, onVisible, onDeparture, onPassage, onEnter, onResponseRecorded, onBuildModel } = props;
   const c = COPY[lang];
@@ -217,9 +228,13 @@ export function ConnectionFieldPanel(props: ConnectionFieldPanelProps) {
           <span><small>{panelKicker}</small><strong>{panelTitle}</strong></span>
           <b>{expanded ? '−' : '+'}</b>
         </button>
-        <button type="button" className="fi-connection-visibility" aria-pressed={visible} onClick={() => onVisible(!visible)}>
-          {visible ? c.hide : c.show}
-        </button>
+        {focus
+          ? (
+              <button type="button" className="fi-connection-visibility" aria-pressed={visible} onClick={() => onVisible(!visible)}>
+                {visible ? c.hide : c.show}
+              </button>
+            )
+          : <span className="fi-connection-overview">{c.tideOverview}</span>}
       </header>
 
       {expanded && (
@@ -284,6 +299,7 @@ function GlobalLanding({ field, lang, channel, query, searchResults, copy, onQue
           <li><b>03</b><span>{copy.guideTest}</span></li>
         </ol>
       </section>
+      <ConnectionTideChart field={field} lang={lang} onFocus={onFocus} />
       <section className="fi-connection-starters" aria-labelledby="fi-connection-starters-title">
         <header><h2 id="fi-connection-starters-title">{copy.starterTitle}</h2><p>{copy.starterHint}</p></header>
         <ol>{recommended.map(renderTopic)}</ol>
@@ -468,7 +484,27 @@ function ConvergenceDetail({ group, field, lang, copy, departure, intent, onDepa
                   <p>{mapping.boundary ? localized(mapping.boundary, lang) : copy.boundaryMissing}</p>
                 </section>
                 {mapping.prediction && <section className="fi-connection-test"><h4>{copy.prediction}</h4><p>{localized(mapping.prediction, lang)}</p></section>}
-                {mapping.evidenceRefs?.length ? <section className="fi-connection-refs"><h4>{copy.evidenceRefs}</h4>{mapping.evidenceRefs.map((ref) => <code key={ref}>{ref}</code>)}</section> : null}
+                {mapping.evidenceRefs?.length ? (
+                  <section className="fi-connection-refs">
+                    <h4>{copy.evidenceRefs}</h4>
+                    {mapping.evidenceRefs.map((ref, refIndex) => {
+                      const href = externalEvidenceUrl(ref);
+                      return href
+                        ? (
+                            <a
+                              key={`${ref}:${refIndex}`}
+                              href={href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              aria-label={lang === 'zh' ? `在新标签页打开证据来源：${ref}` : `Open evidence source in a new tab: ${ref}`}
+                            >
+                              <code>{ref}</code>
+                            </a>
+                          )
+                        : <code key={`${ref}:${refIndex}`}>{ref}</code>;
+                    })}
+                  </section>
+                ) : null}
               </details>
               <footer>
                 <small>{copy.author}: {handleOf(mapping.actor)} · {counted(member.records.length, copy.record, copy.revisions)}</small>

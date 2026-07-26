@@ -172,12 +172,12 @@ describe("projectArchipelagos — naming", () => {
 
 describe("projectArchipelagos — curated overlay is a PURE re-label (hybrid honesty, inv 14/15)", () => {
   // A tiny place-plane overlay keyed by real curated cluster codes (frontiers.ts).
-  // Codes chosen because they still dominate a real spatial region at N=128
+  // Codes chosen because they still dominate a real spatial region at N=176
   // (C23 「AI数学·形式科学」 owns a clean cluster; C33 「基础物理」 leads another).
   // The 78-island example (C01/C34) no longer dominates any region once the §九
   // coverage expansion enlarged the 生命/交叉 areas — a data fact, not a bug.
   const CURATED = {
-    C23: { zh: "AI数学", en: "AI Mathematics", caption: { zh: "会证明的机器", en: "machines that prove" } },
+    C23: { zh: "形式公地", en: "Formal Commons", caption: { zh: "会证明的机器", en: "machines that prove" } },
     C33: { zh: "实在探针", en: "Probing Reality" },
   } as const;
 
@@ -233,11 +233,11 @@ describe("projectArchipelagos — curated overlay is a PURE re-label (hybrid hon
   });
 });
 
-describe("projectArchipelagos — 128-island real dataset (packages/data)", () => {
+describe("projectArchipelagos — 176-island real dataset (packages/data)", () => {
   const islands = realIslands();
   const { archipelagos, outliers } = projectArchipelagos(islands, []);
 
-  it("clusters the 78 real islands into 8–18 named archipelagos", () => {
+  it("clusters the 176 real islands into 8–18 named archipelagos", () => {
     expect(archipelagos.length).toBeGreaterThanOrEqual(8);
     expect(archipelagos.length).toBeLessThanOrEqual(18);
   });

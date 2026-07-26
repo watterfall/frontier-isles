@@ -30,6 +30,11 @@ const MAPS: Record<string, MappingArtifact> = {
     islandOp: "op://x/prob/heart",
     correspondences: [{ quantity: { zh: "a", en: "a" }, inThisSubstrate: { zh: "b", en: "b" } }],
   },
+  "sha256:k1b": {
+    structureId: "struct://x/kuramoto",
+    islandOp: "op://x/prob/firefly",
+    correspondences: [{ quantity: { zh: "a2", en: "a2" }, inThisSubstrate: { zh: "b2", en: "b2" } }],
+  },
   "sha256:g1": {
     structureId: "struct://x/kuramoto",
     islandOp: "op://x/prob/grid",
@@ -61,6 +66,18 @@ describe("reduceStructureGraph", () => {
     expect(edges[0]!.actors).toEqual(["github:a", "github:b"]);
   });
 
+  it("folds an exact same-actor + same-ref event replay instead of inflating edge weight", () => {
+    const replay = {
+      ...ev("op://x/prob/firefly", "sha256:k1"),
+      ts: "2026-07-13T00:00:00Z",
+    } as LedgerEvent;
+    const edges = reduceStructureGraph(
+      [replay, ev("op://x/prob/firefly", "sha256:k1")],
+      resolve,
+    );
+    expect(edges[0]).toMatchObject({ weight: 1, actors: ["github:a"] });
+  });
+
   it("is order-independent (inv 13)", () => {
     const a = reduceStructureGraph([ev("op://x/prob/firefly", "sha256:k1"), ev("op://x/prob/heart", "sha256:k2")], resolve);
     const b = reduceStructureGraph([ev("op://x/prob/heart", "sha256:k2"), ev("op://x/prob/firefly", "sha256:k1")], resolve);
@@ -83,13 +100,29 @@ describe("projectStructureMappings", () => {
     ]);
   });
 
-  it("keeps repeated human refinements instead of pretending one edge has one eternal explanation", () => {
+  it("keeps the same mapping separately when distinct humans rebuild it", () => {
     const records = projectStructureMappings([
       ev("op://x/prob/firefly", "sha256:k1", "github:a"),
       ev("op://x/prob/firefly", "sha256:k1", "github:b"),
     ], resolve);
     expect(records).toHaveLength(2);
     expect(records.map((record) => record.actor)).toEqual(["github:a", "github:b"]);
+  });
+
+  it("keeps content-addressed refinements but folds an exact replay to its earliest timestamp", () => {
+    const replay = {
+      ...ev("op://x/prob/firefly", "sha256:k1"),
+      ts: "2026-07-13T00:00:00Z",
+    } as LedgerEvent;
+    const records = projectStructureMappings([
+      replay,
+      ev("op://x/prob/firefly", "sha256:k1"),
+      ev("op://x/prob/firefly", "sha256:k1b"),
+    ], resolve);
+
+    expect(records).toHaveLength(2);
+    expect(records.find((record) => record.refHash === "sha256:k1")?.ts).toBe("2026-07-12T00:00:00Z");
+    expect(records.map((record) => record.refHash)).toEqual(["sha256:k1", "sha256:k1b"]);
   });
 });
 

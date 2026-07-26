@@ -7,7 +7,7 @@ import type {
   ApiStructureGraph,
   ApiStructureMapping,
 } from '../api/client';
-import type { Bilingual, IslandDatum } from '../api/fallback';
+import type { Bilingual, DomainKey, IslandDatum } from '../api/fallback';
 import { slugOfOp } from '../api/structureFallback';
 
 /** The semantic channels a reader can ask the field to reveal. */
@@ -85,6 +85,25 @@ export interface ConnectionField {
   /** Only topics independently rebuilt into at least two research problems. */
   convergences: ConnectionConvergence[];
   paths: ConnectionPath[];
+}
+
+export const CONNECTION_DOMAIN_ORDER = ['数理', '物质', '生命', '交叉'] as const satisfies readonly DomainKey[];
+
+export interface ConnectionCollisionLane {
+  id: string;
+  domains: readonly [DomainKey, DomainKey];
+  /** Only real direct paths are grouped here; proximity never creates a lane. */
+  paths: ConnectionPath[];
+  problemCount: number;
+  ratifiedCount: number;
+  proposedCount: number;
+  totalWeight: number;
+}
+
+export interface ConnectionTideSummary {
+  lanes: ConnectionCollisionLane[];
+  domains: Array<{ domain: DomainKey; problemCount: number; connectedProblemCount: number }>;
+  topics: { crossing: number; single: number; gap: number };
 }
 
 export type ConnectionFocus =
@@ -251,6 +270,72 @@ export function buildConnectionField(
   return { problems, topics, convergences, paths };
 }
 
+/**
+ * Project the field into a compact, truth-preserving "collision tide" summary.
+ * A lane exists only when a recorded direct path crosses top-level domains.
+ * Topic maturity remains a separate count so an unmapped structure can never
+ * masquerade as a direct island-to-island relation.
+ */
+export function buildConnectionTideSummary(field: ConnectionField): ConnectionTideSummary {
+  const domainRank = new Map(CONNECTION_DOMAIN_ORDER.map((domain, index) => [domain, index] as const));
+  const lanes = new Map<string, { domains: [DomainKey, DomainKey]; paths: ConnectionPath[] }>();
+  const connected = new Map(CONNECTION_DOMAIN_ORDER.map((domain) => [domain, new Set<string>()] as const));
+
+  for (const path of field.paths) {
+    const fromDomain = path.from.domain;
+    const toDomain = path.to.domain;
+    if (fromDomain === toDomain) continue;
+    const ordered = (domainRank.get(fromDomain) ?? 0) <= (domainRank.get(toDomain) ?? 0)
+      ? [fromDomain, toDomain] as [DomainKey, DomainKey]
+      : [toDomain, fromDomain] as [DomainKey, DomainKey];
+    const id = ordered.join('--');
+    const lane = lanes.get(id) ?? { domains: ordered, paths: [] };
+    lane.paths.push(path);
+    lanes.set(id, lane);
+    connected.get(fromDomain)?.add(path.from.slug);
+    connected.get(toDomain)?.add(path.to.slug);
+  }
+
+  const rows: ConnectionCollisionLane[] = [...lanes.entries()].map(([id, lane]) => {
+    const paths = [...lane.paths].sort((a, b) => {
+      const maturity = Number(b.maturity === 'ratified') - Number(a.maturity === 'ratified');
+      return maturity || b.weight - a.weight || a.id.localeCompare(b.id);
+    });
+    return {
+      id,
+      domains: lane.domains,
+      paths,
+      problemCount: new Set(paths.flatMap((path) => [path.from.slug, path.to.slug])).size,
+      ratifiedCount: paths.filter((path) => path.maturity === 'ratified').length,
+      proposedCount: paths.filter((path) => path.maturity === 'proposed').length,
+      totalWeight: paths.reduce((sum, path) => sum + path.weight, 0),
+    };
+  }).sort((a, b) =>
+    b.paths.length - a.paths.length
+    || b.totalWeight - a.totalWeight
+    || a.id.localeCompare(b.id, 'zh-CN'),
+  );
+
+  const problemCounts = new Map<DomainKey, number>(CONNECTION_DOMAIN_ORDER.map((domain) => [domain, 0]));
+  for (const problem of field.problems.values()) {
+    problemCounts.set(problem.domain, (problemCounts.get(problem.domain) ?? 0) + 1);
+  }
+
+  return {
+    lanes: rows,
+    domains: CONNECTION_DOMAIN_ORDER.map((domain) => ({
+      domain,
+      problemCount: problemCounts.get(domain) ?? 0,
+      connectedProblemCount: connected.get(domain)?.size ?? 0,
+    })),
+    topics: {
+      crossing: field.topics.filter((topic) => topic.members.length >= 2).length,
+      single: field.topics.filter((topic) => topic.members.length === 1).length,
+      gap: field.topics.filter((topic) => topic.members.length === 0).length,
+    },
+  };
+}
+
 export const pathInChannel = (path: ConnectionPath, channel: ConnectionChannel): boolean =>
   channel === 'all'
   || (channel === 'form' && (path.kind === 'mathematical' || path.kind === 'bridge'))
@@ -310,6 +395,21 @@ export function projectConnectionMap(
     convergences: convergenceRows,
     paths: pathRows,
   };
+}
+
+/**
+ * The atlas already renders real domain-pair flows at its far tier. Keep the
+ * exact island-to-island relation layer for a deliberate focus only; drawing
+ * every convergence and path over the global 177-island world produces a
+ * misleading hairball rather than additional knowledge.
+ */
+export function projectConnectionOverlay(
+  field: ConnectionField,
+  channel: ConnectionChannel,
+  focus: ConnectionFocus,
+  visible = true,
+): ConnectionMapView | null {
+  return visible && focus ? projectConnectionMap(field, channel, focus) : null;
 }
 
 export function searchConnectionProblems(field: ConnectionField, query: string, lang: 'zh' | 'en'): ConnectionProblem[] {

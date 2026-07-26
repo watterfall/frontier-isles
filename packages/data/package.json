@@ -3,6 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "imports": {
+    "#frontiers-expansion-earth-life": "./src/frontiers-expansion-earth-life.ts",
+    "#frontiers-expansion-matter-computation": "./src/frontiers-expansion-matter-computation.ts",
+    "#frontiers-expansion-society-knowledge": "./src/frontiers-expansion-society-knowledge.ts",
+    "#structures-expansion-wave2": "./src/structures-expansion-wave2.ts"
+  },
   "exports": {
     ".": "./src/index.ts",
     "./atlas": "./src/atlas.ts",

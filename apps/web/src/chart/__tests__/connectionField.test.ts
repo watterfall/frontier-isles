@@ -2,13 +2,21 @@ import { describe, expect, it } from 'vitest';
 import { DATA } from '../../api/fallback';
 import { fixtureSeaData } from '../../api/seaFallback';
 import { fallbackStructureGraph, fallbackStructures } from '../../api/structureFallback';
+import { BRIDGES } from '@frontier-isles/data/bridges';
 import { SEED_STRUCTURES } from '@frontier-isles/data/structures';
-import { buildConnectionField, projectConnectionMap, searchConnectionProblems } from '../connectionField';
+import {
+  buildConnectionField,
+  buildConnectionTideSummary,
+  projectConnectionMap,
+  projectConnectionOverlay,
+  searchConnectionProblems,
+} from '../connectionField';
 
+const sea = fixtureSeaData();
 const field = buildConnectionField(
   fallbackStructures(),
   fallbackStructureGraph(),
-  fixtureSeaData(),
+  sea,
   DATA,
 );
 
@@ -32,11 +40,19 @@ describe('buildConnectionField', () => {
   });
 
   it('keeps curated equations and ledger evidence/bridge/lineage as direct typed paths', () => {
-    expect(field.paths.filter((path) => path.kind === 'mathematical')).toHaveLength(3);
-    expect(field.paths.filter((path) => path.kind === 'bridge')).toHaveLength(2);
-    expect(field.paths.filter((path) => path.kind === 'evidence')).toHaveLength(2);
-    expect(field.paths.filter((path) => path.kind === 'contradiction')).toHaveLength(2);
-    expect(field.paths.filter((path) => path.kind === 'lineage')).toHaveLength(1);
+    expect(field.paths.filter((path) => path.kind === 'mathematical')).toHaveLength(BRIDGES.length);
+    expect(field.paths.filter((path) => path.kind === 'bridge')).toHaveLength(
+      sea.currents.filter((current) => current.kind === 'bridge').length,
+    );
+    expect(field.paths.filter((path) => path.kind === 'evidence')).toHaveLength(
+      sea.currents.filter((current) => current.kind === 'evidence' && current.sign === 'affirm').length,
+    );
+    expect(field.paths.filter((path) => path.kind === 'contradiction')).toHaveLength(
+      sea.currents.filter((current) => current.kind === 'evidence' && current.sign === 'contest').length,
+    );
+    expect(field.paths.filter((path) => path.kind === 'lineage')).toHaveLength(
+      sea.currents.filter((current) => current.kind === 'lineage').length,
+    );
     expect(field.paths.filter((path) => path.source === 'ledger').every((path) => path.records.length > 0)).toBe(true);
     expect(field.paths.filter((path) => path.source === 'curated-math').every((path) => path.records.length === 0)).toBe(true);
   });
@@ -57,6 +73,28 @@ describe('buildConnectionField', () => {
     expect(map.convergences).toHaveLength(EXPECTED_CONVERGENCES);
     expect(map.paths).toHaveLength(0);
     expect(map.convergences.find((group) => group.id.endsWith('network-cascade'))?.memberSlugs).toHaveLength(3);
+  });
+
+  it('keeps the global atlas at aggregate tide scale until a real focus is chosen', () => {
+    expect(projectConnectionOverlay(field, 'all', null)).toBeNull();
+    const path = field.paths[0]!;
+    const focused = projectConnectionOverlay(field, 'all', { type: 'path', id: path.id });
+    expect(focused?.mode).toBe('focus');
+    expect(focused?.paths.map((item) => item.id)).toEqual([path.id]);
+    expect(new Set(focused?.memberSlugs)).toEqual(new Set([path.from.slug, path.to.slug]));
+  });
+
+  it('builds a four-domain tide summary from direct paths without inventing edges', () => {
+    const summary = buildConnectionTideSummary(field);
+    const crossDomainPaths = field.paths.filter((path) => path.from.domain !== path.to.domain);
+    const summarizedPaths = summary.lanes.flatMap((lane) => lane.paths);
+    expect(summarizedPaths).toHaveLength(crossDomainPaths.length);
+    expect(new Set(summarizedPaths.map((path) => path.id))).toEqual(new Set(crossDomainPaths.map((path) => path.id)));
+    expect(summary.topics.crossing + summary.topics.single + summary.topics.gap).toBe(field.topics.length);
+    expect(summary.domains.reduce((sum, domain) => sum + domain.problemCount, 0)).toBe(field.problems.size);
+    expect(summary.lanes.every((lane) =>
+      lane.paths.every((path) => path.from.domain !== path.to.domain),
+    )).toBe(true);
   });
 
   it('focuses a concrete problem only on recorded touching relations', () => {

@@ -6301,6 +6301,2358 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       "scale": 0.95
     },
     "hasInterior": false
+  },
+  {
+    "id": 129,
+    "atlasN": 533,
+    "slug": "dark-fiber-ecological-sensing",
+    "title": {
+      "zh": "暗光纤地震—声学生态感知",
+      "en": "Dark-Fiber Seismo-Acoustic Ecological Sensing"
+    },
+    "qfocus": {
+      "zh": "既有海底与陆地通信光纤能否成为连续、可校准且不侵犯生态的地球—生命联合传感网？",
+      "en": "Can existing terrestrial and submarine telecom fiber become a continuous, calibrated, non-invasive joint sensor network for Earth and life?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C29",
+      "zh": "地球·海洋·深时科学",
+      "en": "Earth · ocean · deep-time science"
+    },
+    "scores": [
+      3,
+      4,
+      4,
+      4,
+      4,
+      3,
+      4,
+      4,
+      4
+    ],
+    "citation": {
+      "url": "https://www.frontiersin.org/journals/marine-science/articles/10.3389/fmars.2022.901348/full",
+      "title": "Eavesdropping at the Speed of Light: Distributed Acoustic Sensing of Baleen Whales in the Arctic",
+      "venue": "Frontiers in Marine Science",
+      "year": 2022
+    },
+    "brief": {
+      "zh": "把闲置或复用中的通信光纤变成数十公里长的分布式声学阵列，同时读取鲸歌、船噪、风暴与地震。",
+      "en": "Turn spare or shared telecom fiber into tens-of-kilometers-long distributed acoustic arrays that read whale calls, ship noise, storms, and earthquakes together."
+    },
+    "stage": 1,
+    "members": 4,
+    "activity": 38,
+    "chart": {
+      "x": 650,
+      "y": 500,
+      "scale": 0.82
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 130,
+    "atlasN": 545,
+    "slug": "biotremology-vibrational-communication",
+    "title": {
+      "zh": "振动通讯生物学",
+      "en": "Biotremology: Vibrational Communication Biology"
+    },
+    "qfocus": {
+      "zh": "昆虫、蛛形动物与植物的基质振动“方言”能否被因果解码，并转化为可验证的跨物种接口？",
+      "en": "Can the substrate-vibration “dialects” of insects, arachnids, and plants be causally decoded and turned into testable cross-species interfaces?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C26",
+      "zh": "感官界面·跨物种",
+      "en": "Sensory interfaces · cross-species"
+    },
+    "scores": [
+      4,
+      4,
+      3,
+      3,
+      4,
+      4,
+      3,
+      2,
+      5
+    ],
+    "citation": {
+      "url": "https://www.annualreviews.org/content/journals/10.1146/annurev-ento-120220-095459",
+      "title": "Functional Diversity of Vibrational Signaling Systems in Insects",
+      "venue": "Annual Review of Entomology",
+      "year": 2023
+    },
+    "brief": {
+      "zh": "把植物茎叶、土壤与蛛网中的表面波视为独立于空气声的感官通道，研究求偶、警戒与捕食中的编码规则。",
+      "en": "Treat surface waves in stems, soil, and webs as a sensory channel distinct from airborne sound, and study their codes in courtship, alarm, and predation."
+    },
+    "stage": 1,
+    "members": 3,
+    "activity": 32,
+    "chart": {
+      "x": 790,
+      "y": 570,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 131,
+    "atlasN": 534,
+    "slug": "aerial-electroecology",
+    "title": {
+      "zh": "空中电生态学",
+      "en": "Aerial Electroecology"
+    },
+    "qfocus": {
+      "zh": "大气静电场是否构成可重复操纵的生态信息层，而不只是实验室中的微弱感官效应？",
+      "en": "Do atmospheric electric fields form a reproducibly manipulable ecological information layer rather than merely a weak laboratory sensory effect?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C26",
+      "zh": "感官界面·跨物种",
+      "en": "Sensory interfaces · cross-species"
+    },
+    "scores": [
+      4,
+      5,
+      3,
+      4,
+      2,
+      4,
+      2,
+      2,
+      5
+    ],
+    "citation": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5599473/",
+      "title": "The bee, the flower, and the electric field: electric ecology and aerial electroreception",
+      "venue": "Journal of Comparative Physiology A",
+      "year": 2017
+    },
+    "brief": {
+      "zh": "蜜蜂、花朵与蜘蛛会改变或感受局地电场；这个隐形通道可能参与授粉线索与蛛丝放飞，但其野外作用尺度仍未确定。",
+      "en": "Bees, flowers, and spiders alter or sense local electric fields; this hidden channel may guide pollination and ballooning, but its field-scale role remains uncertain."
+    },
+    "stage": 1,
+    "members": 2,
+    "activity": 27,
+    "chart": {
+      "x": 950,
+      "y": 570,
+      "scale": 0.74
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 132,
+    "atlasN": 538,
+    "slug": "cable-bacteria-biogeophysical-signals",
+    "title": {
+      "zh": "电缆细菌与沉积生物地球物理信号",
+      "en": "Cable Bacteria and Sedimentary Biogeophysical Signals"
+    },
+    "qfocus": {
+      "zh": "微生物长程电子传导能否从沉积物电位场反演出来，并成为生态状态的可靠观测量？",
+      "en": "Can microbial long-range electron transport be inferred from sediment potential fields and become a reliable observable of ecosystem state?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C30",
+      "zh": "微生物组·生态工程",
+      "en": "Microbiome · ecological engineering"
+    },
+    "scores": [
+      3,
+      4,
+      4,
+      3,
+      2,
+      4,
+      3,
+      3,
+      5
+    ],
+    "citation": {
+      "url": "https://www.sciencedirect.com/science/article/abs/pii/S0966842X23003360",
+      "title": "Cable bacteria: widespread filamentous electroactive microorganisms protecting environments",
+      "venue": "Trends in Microbiology",
+      "year": 2024
+    },
+    "brief": {
+      "zh": "厘米尺度的丝状微生物借含镍蛋白导线跨越氧化还原分层传电子，在沉积物里留下可测电流、电位与化学指纹。",
+      "en": "Centimeter-scale filaments conduct electrons across redox layers through nickel-containing protein wires, leaving measurable currents, potentials, and chemical fingerprints in sediments."
+    },
+    "stage": 1,
+    "members": 3,
+    "activity": 35,
+    "chart": {
+      "x": 640,
+      "y": 370,
+      "scale": 0.79
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 133,
+    "atlasN": 541,
+    "slug": "thermodynamic-computing-hardware",
+    "title": {
+      "zh": "热力学计算硬件",
+      "en": "Thermodynamic Computing Hardware"
+    },
+    "qfocus": {
+      "zh": "物理涨落与弛豫能否在端到端任务上稳定胜过数字模拟，成为概率AI的低功耗原生算力？",
+      "en": "Can physical fluctuations and relaxation reliably beat digital simulation on end-to-end tasks and become native low-power compute for probabilistic AI?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C31",
+      "zh": "物理计算·热力学与涨落",
+      "en": "Physical computing · thermodynamics and fluctuations"
+    },
+    "scores": [
+      4,
+      5,
+      5,
+      2,
+      4,
+      2,
+      2,
+      3,
+      3
+    ],
+    "citation": {
+      "url": "https://arxiv.org/abs/2312.04836",
+      "title": "Thermodynamic Computing System for AI Applications",
+      "venue": "arXiv",
+      "year": 2023
+    },
+    "brief": {
+      "zh": "不再压制热噪声，而让连续变量电路的涨落与弛豫直接执行采样、生成和贝叶斯推断；目前仍是早期硬件路线。",
+      "en": "Instead of suppressing thermal noise, continuous-variable circuits use fluctuation and relaxation directly for sampling, generation, and Bayesian inference; the hardware route remains early-stage."
+    },
+    "stage": 1,
+    "members": 3,
+    "activity": 34,
+    "chart": {
+      "x": 470,
+      "y": 500,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 134,
+    "atlasN": 546,
+    "slug": "p-bit-probabilistic-computing",
+    "title": {
+      "zh": "p-bit 概率计算",
+      "en": "p-bit Probabilistic Computing"
+    },
+    "qfocus": {
+      "zh": "热不稳定磁性概率位能否扩展成可编程、可校准且在实用组合优化上有优势的Ising机器？",
+      "en": "Can thermally unstable magnetic probabilistic bits scale into a programmable, calibrated Ising machine with an advantage on practical combinatorial optimization?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C31",
+      "zh": "物理计算·热力学与涨落",
+      "en": "Physical computing · thermodynamics and fluctuations"
+    },
+    "scores": [
+      4,
+      4,
+      4,
+      1,
+      3,
+      1,
+      3,
+      3,
+      4
+    ],
+    "citation": {
+      "url": "https://www.nature.com/articles/s41467-024-48152-0",
+      "title": "Experimental demonstration of an on-chip p-bit core based on stochastic magnetic tunnel junctions and 2D MoS2 transistors",
+      "venue": "Nature Communications",
+      "year": 2024
+    },
+    "brief": {
+      "zh": "p-bit 在0和1之间受控随机翻转，耦合后以硬件原生方式执行Ising采样；芯片核心已有实验证明，系统规模与CMOS兼容性仍未成熟。",
+      "en": "A p-bit stochastically flips between 0 and 1 under control, and coupled p-bits perform native Ising sampling; an on-chip core has been demonstrated, while system scale and CMOS compatibility remain immature."
+    },
+    "stage": 1,
+    "members": 2,
+    "activity": 29,
+    "chart": {
+      "x": 370,
+      "y": 570,
+      "scale": 0.76
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 135,
+    "atlasN": 532,
+    "slug": "aqueous-iontronic-memristors",
+    "title": {
+      "zh": "水基离子学忆阻器",
+      "en": "Aqueous Iontronic Memristors"
+    },
+    "qfocus": {
+      "zh": "纳米流体通道中的离子记忆能否在生理环境里稳定编程，并真正连接活体神经与人工计算？",
+      "en": "Can ionic memory in nanofluidic channels be programmed stably in physiological environments and genuinely connect living neurons with artificial computation?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C02",
+      "zh": "生物计算·类器官智能",
+      "en": "Biocomputing · organoid intelligence"
+    },
+    "scores": [
+      4,
+      5,
+      5,
+      2,
+      3,
+      2,
+      2,
+      3,
+      5
+    ],
+    "citation": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11067030/",
+      "title": "Brain-inspired computing with fluidic iontronic nanochannels",
+      "venue": "Proceedings of the National Academy of Sciences (PNAS)",
+      "year": 2024
+    },
+    "brief": {
+      "zh": "在微纳流体通道里以离子而非电子实现忆阻、逻辑与突触可塑性，让“湿态计算”共享生物神经系统的载流语言。",
+      "en": "Realize memory, logic, and synaptic plasticity with ions rather than electrons in micro- and nanofluidic channels, giving wet-state computing the carrier language of biological nervous systems."
+    },
+    "stage": 1,
+    "members": 3,
+    "activity": 36,
+    "chart": {
+      "x": 440,
+      "y": 620,
+      "scale": 0.83
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 136,
+    "atlasN": 535,
+    "slug": "mechanical-metamaterial-computing",
+    "title": {
+      "zh": "力学超材料计算与机械神经网络",
+      "en": "Mechanical-Metamaterial Computing and Mechanical Neural Networks"
+    },
+    "qfocus": {
+      "zh": "承力结构能否靠几何与形变原位完成可重编程计算，而非只展示一次性的机械逻辑玩具？",
+      "en": "Can load-bearing structures perform reprogrammable computation in situ through geometry and deformation rather than merely demonstrate one-off mechanical logic toys?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C31",
+      "zh": "物理计算·热力学与涨落",
+      "en": "Physical computing · thermodynamics and fluctuations"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      3,
+      3,
+      4,
+      2,
+      3,
+      5
+    ],
+    "citation": {
+      "url": "https://www.nature.com/articles/s41467-023-40989-1",
+      "title": "In-memory mechanical computing",
+      "venue": "Nature Communications",
+      "year": 2023
+    },
+    "brief": {
+      "zh": "把逻辑、记忆和矩阵运算编码进结构的几何、屈曲与软模态，使材料在受力的同时传感并计算。",
+      "en": "Encode logic, memory, and matrix operations into geometry, buckling, and floppy modes so a material senses and computes while carrying load."
+    },
+    "stage": 1,
+    "members": 3,
+    "activity": 37,
+    "chart": {
+      "x": 530,
+      "y": 520,
+      "scale": 0.85
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 137,
+    "atlasN": 537,
+    "slug": "counterfactual-history-causal-cliometrics",
+    "title": {
+      "zh": "反事实历史与因果计量史学",
+      "en": "Counterfactual History and Causal Cliometrics"
+    },
+    "qfocus": {
+      "zh": "当历史事件不可重复且处理对象只有一个时，什么证据足以让“若无此事会怎样”成为可反驳的因果判断？",
+      "en": "When history is unrepeatable and the treated case is singular, what evidence makes “what would have happened otherwise?” a refutable causal judgment?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C19",
+      "zh": "计算社会科学·数字人文",
+      "en": "Computational social science · digital humanities"
+    },
+    "scores": [
+      4,
+      4,
+      4,
+      3,
+      4,
+      5,
+      3,
+      2,
+      5
+    ],
+    "citation": {
+      "url": "https://onlinelibrary.wiley.com/doi/10.1111/joes.12493",
+      "title": "Synthetic Control Method: A tool for comparative case studies in economic history",
+      "venue": "Journal of Economic Surveys",
+      "year": 2023
+    },
+    "brief": {
+      "zh": "把档案叙事、合成控制与机制知识结合，为战争、制度与政策转折构造可审计的反事实，而不是把模型输出当成另一条历史。",
+      "en": "Combine archival narrative, synthetic control, and mechanism knowledge to construct auditable counterfactuals for wars, institutions, and policy turns without treating model output as an alternate history."
+    },
+    "stage": 1,
+    "members": 4,
+    "activity": 39,
+    "chart": {
+      "x": 660,
+      "y": 750,
+      "scale": 0.86
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 138,
+    "atlasN": 553,
+    "slug": "evolutionary-dynamics-norms-trust",
+    "title": {
+      "zh": "规范与信任的演化动力学",
+      "en": "Evolutionary Dynamics of Norms and Trust"
+    },
+    "qfocus": {
+      "zh": "合作规范的涌现、级联与崩塌能否被前瞻预测，而不是只在事后用演化博弈解释？",
+      "en": "Can the emergence, cascade, and collapse of cooperative norms be predicted prospectively rather than explained after the fact with evolutionary games?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C19",
+      "zh": "计算社会科学·数字人文",
+      "en": "Computational social science · digital humanities"
+    },
+    "scores": [
+      3,
+      4,
+      3,
+      4,
+      4,
+      4,
+      3,
+      2,
+      4
+    ],
+    "citation": {
+      "url": "https://www.nature.com/articles/s41467-021-25734-w",
+      "title": "Evidence from a long-term experiment that collective risks change social norms and promote cooperation",
+      "venue": "Nature Communications",
+      "year": 2021
+    },
+    "brief": {
+      "zh": "把长期在线实验、演化博弈和多智能体模型连接起来，寻找合作与信任临界转变的可观测前兆及其适用边界。",
+      "en": "Connect long-running online experiments, evolutionary games, and multi-agent models to find observable precursors of cooperative and trust tipping points and their limits."
+    },
+    "stage": 1,
+    "members": 4,
+    "activity": 41,
+    "chart": {
+      "x": 830,
+      "y": 620,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 139,
+    "atlasN": 552,
+    "slug": "social-physics-predictability-boundary",
+    "title": {
+      "zh": "社会物理学 2.0：集体行为可预测性边界",
+      "en": "Social Physics 2.0: Limits of Collective-Behavior Predictability"
+    },
+    "qfocus": {
+      "zh": "熵、标度律与相变能否给出人类集体行为的可预测上界，并区分结构性极限与数据不足？",
+      "en": "Can entropy, scaling laws, and phase transitions bound the predictability of collective behavior and separate structural limits from insufficient data?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C19",
+      "zh": "计算社会科学·数字人文",
+      "en": "Computational social science · digital humanities"
+    },
+    "scores": [
+      4,
+      4,
+      3,
+      3,
+      4,
+      3,
+      3,
+      2,
+      5
+    ],
+    "citation": {
+      "url": "https://www.science.org/doi/10.1126/science.1177170",
+      "title": "Limits of Predictability in Human Mobility",
+      "venue": "Science",
+      "year": 2010
+    },
+    "brief": {
+      "zh": "用序列熵与信息论上界追问出行和群体行为究竟能预测到什么程度，同时审计上界对采样、粒度与社会信息泄漏的敏感性。",
+      "en": "Use sequence entropy and information-theoretic bounds to ask how predictable mobility and collective behavior can be, while auditing sensitivity to sampling, granularity, and leaked social information."
+    },
+    "stage": 1,
+    "members": 3,
+    "activity": 36,
+    "chart": {
+      "x": 270,
+      "y": 540,
+      "scale": 0.8
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 140,
+    "atlasN": 550,
+    "slug": "collective-reasoning-group-epistemology",
+    "title": {
+      "zh": "集体推理与群体认识论",
+      "en": "Collective Reasoning and Group Epistemology"
+    },
+    "qfocus": {
+      "zh": "什么网络与审议结构能让群体稳定接近真相，而不是被同质化、地位与信息级联拖向一致性幻觉？",
+      "en": "Which network and deliberation structures make groups reliably approach truth rather than drift into an illusion of consensus through homophily, status, and information cascades?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C22",
+      "zh": "集体智能·知识基础设施",
+      "en": "Collective intelligence · knowledge infrastructure"
+    },
+    "scores": [
+      4,
+      4,
+      3,
+      4,
+      4,
+      4,
+      2,
+      3,
+      5
+    ],
+    "citation": {
+      "url": "https://ndg.asc.upenn.edu/wp-content/uploads/2022/10/Centola_2022_TICS_Network_Science_of_Collective_Intelligence.pdf",
+      "title": "The network science of collective intelligence",
+      "venue": "Trends in Cognitive Sciences",
+      "year": 2022
+    },
+    "brief": {
+      "zh": "研究信息网络、审议顺序与社会影响如何改变群体判断，把“众人是否更聪明”拆成可干预、可失败的结构条件。",
+      "en": "Study how information networks, deliberation order, and social influence alter group judgment, decomposing “are crowds wiser?” into manipulable structural conditions that can fail."
+    },
+    "stage": 1,
+    "members": 4,
+    "activity": 43,
+    "chart": {
+      "x": 890,
+      "y": 580,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 141,
+    "atlasN": 1420,
+    "slug": "cold-atom-gravity-gradiometry",
+    "title": {
+      "zh": "冷原子量子重力梯度仪",
+      "en": "Cold-Atom Quantum Gravity Gradiometry"
+    },
+    "qfocus": {
+      "zh": "双云原子干涉能否在真实工地与野外抑制振动漂移，以可用速度可靠定位地下空洞和质量变化？",
+      "en": "Can dual-cloud atom interferometry reject vibration and drift in real field conditions well enough to locate subsurface voids and mass change at a useful survey rate?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C15",
+      "zh": "应用量子科学",
+      "en": "Applied quantum science"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      1,
+      3,
+      2,
+      4,
+      2,
+      4
+    ],
+    "citation": {
+      "url": "https://www.nature.com/articles/s41586-021-04315-3",
+      "title": "Quantum sensing for gravity cartography",
+      "venue": "Nature",
+      "year": 2022
+    },
+    "brief": {
+      "zh": "两组自由落体冷原子的差分物质波相位直接读取重力梯度，已从实验室走到户外地下测绘，但通量与环境鲁棒性仍决定实际价值。",
+      "en": "Differential matter-wave phase from two free-falling cold-atom clouds reads gravity gradients directly and has moved into outdoor subsurface mapping, though throughput and environmental robustness still determine practical value."
+    },
+    "stage": 2,
+    "members": 4,
+    "activity": 51,
+    "chart": {
+      "x": 438,
+      "y": 344,
+      "scale": 0.88
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 142,
+    "atlasN": 1472,
+    "slug": "volcano-muography-time-lapse",
+    "title": {
+      "zh": "火山缪子成像与时序监测",
+      "en": "Volcano Muography and Time-Lapse Monitoring"
+    },
+    "qfocus": {
+      "zh": "宇宙线缪子透射能否从静态密度图升级为对岩浆迁移有独立增益、误报可审计的准实时预警？",
+      "en": "Can cosmic-ray muon transmission progress from static density maps to near-real-time warning that adds independent information about magma migration with auditable false alarms?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C29",
+      "zh": "地球·海洋·深时科学",
+      "en": "Earth · ocean · deep-time science"
+    },
+    "scores": [
+      3,
+      5,
+      5,
+      2,
+      3,
+      2,
+      4,
+      3,
+      4
+    ],
+    "citation": {
+      "url": "https://doi.org/10.1029/2023JB028514",
+      "title": "Branched Conduit Structure Beneath the Active Craters of Sakurajima Volcano Inferred From Muography",
+      "venue": "JGR: Solid Earth",
+      "year": 2024
+    },
+    "brief": {
+      "zh": "把大气宇宙线产生的高穿透缪子当作天然 X 光，反演火山通道、火山口塞和穹丘的密度，并尝试用时序变化追踪岩浆。",
+      "en": "Use penetrating atmospheric muons as natural X-rays to invert the density of volcanic conduits, plugs, and domes, then track time-varying density as a proxy for magma movement."
+    },
+    "stage": 2,
+    "members": 4,
+    "activity": 47,
+    "chart": {
+      "x": 542,
+      "y": 318,
+      "scale": 0.86
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 143,
+    "atlasN": 1418,
+    "slug": "convergent-cross-mapping-causal-transfer",
+    "title": {
+      "zh": "收敛交叉映射的非线性因果迁移",
+      "en": "Nonlinear Causal Transfer with Convergent Cross Mapping"
+    },
+    "qfocus": {
+      "zh": "收敛交叉映射何时真的识别生态与气候反馈，何时只是共同驱动、同步或非平稳性制造的流形假因果？",
+      "en": "When does convergent cross mapping identify real ecological or climate feedback, and when does common forcing, synchrony, or nonstationarity manufacture manifold-based false causality?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C41",
+      "zh": "跨域方法移植",
+      "en": "Cross-Domain Method Transplant"
+    },
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      3,
+      5,
+      3,
+      4,
+      4
+    ],
+    "citation": {
+      "url": "https://doi.org/10.1088/1741-2552/ada0e7",
+      "title": "Non-parametric full cross mapping (NFCM): a highly-stable measure for causal brain network and a pilot application",
+      "venue": "Journal of Neural Engineering",
+      "year": 2025
+    },
+    "brief": {
+      "zh": "用 Takens 嵌入从时间序列重建吸引子流形，再以跨流形预测随样本量收敛来寻找非线性耦合；关键前沿是明确它的假阳性边界。",
+      "en": "Reconstruct attractor manifolds from time series via Takens embedding, then seek nonlinear coupling through cross-manifold prediction that converges with sample size; the frontier is to delimit its false-positive regime."
+    },
+    "stage": 1,
+    "members": 4,
+    "activity": 44,
+    "chart": {
+      "x": 252,
+      "y": 576,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 144,
+    "atlasN": 1475,
+    "slug": "enhanced-rock-weathering-mrv",
+    "title": {
+      "zh": "增强岩石风化的碳移除 MRV",
+      "en": "Carbon-Removal MRV for Enhanced Rock Weathering"
+    },
+    "qfocus": {
+      "zh": "在异质农田中，能否闭合阳离子、碱度与下游损失的质量平衡，区分真实 CO₂ 移除与土壤背景波动？",
+      "en": "In heterogeneous cropland, can cation, alkalinity, and downstream-loss mass balances distinguish real CO2 removal from soil background variability?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C13",
+      "zh": "气候·地球生物工程",
+      "en": "Climate · planetary bioengineering"
+    },
+    "scores": [
+      3,
+      4,
+      4,
+      3,
+      3,
+      3,
+      4,
+      3,
+      2
+    ],
+    "citation": {
+      "url": "https://pubs.acs.org/doi/10.1021/acs.est.5c09820",
+      "title": "Three Years of Field Trials Indicate a Sustained Enhanced Rock Weathering Signal with Limited CO2 Removal",
+      "venue": "Environmental Science & Technology",
+      "year": 2025
+    },
+    "brief": {
+      "zh": "把玄武岩等硅酸盐撒入农田容易，难的是在数年尺度上把有限风化信号从土壤异质性中分离，并给出可核查的净移除量。",
+      "en": "Spreading silicates such as basalt on cropland is easy; the hard part is separating a limited multi-year weathering signal from soil heterogeneity and reporting verifiable net removal."
+    },
+    "stage": 1,
+    "members": 4,
+    "activity": 46,
+    "chart": {
+      "x": 718,
+      "y": 458,
+      "scale": 0.86
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 145,
+    "atlasN": 1478,
+    "slug": "ocean-alkalinity-enhancement-in-situ-mrv",
+    "title": {
+      "zh": "海洋碱度增强与原位 MRV",
+      "en": "Ocean Alkalinity Enhancement and In-Situ MRV"
+    },
+    "qfocus": {
+      "zh": "在开放海洋的混合与生态背景噪声中，示踪剂和传感器能否独立核实新增碱度真正带来的持久 CO₂ 移除？",
+      "en": "Amid open-ocean mixing and ecological background noise, can tracers and sensors independently verify the durable CO2 removal caused by added alkalinity?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C13",
+      "zh": "气候·地球生物工程",
+      "en": "Climate · planetary bioengineering"
+    },
+    "scores": [
+      3,
+      5,
+      4,
+      2,
+      3,
+      2,
+      3,
+      2,
+      2
+    ],
+    "citation": {
+      "url": "https://www.whoi.edu/press-room/news-release/oae-prelim/",
+      "title": "Preliminary results from the first EPA-permitted ocean alkalinity enhancement (OAE) field trial (LOC-NESS)",
+      "venue": "Woods Hole Oceanographic Institution",
+      "year": 2025
+    },
+    "brief": {
+      "zh": "向海水增加碱度以促进吸收 CO₂，并以示踪释放和传感器阵列追踪真实固碳；当前证据仍以早期获批试验和 MRV 方法开发为主。",
+      "en": "Add alkalinity to seawater to promote CO2 uptake, then trace actual removal with controlled releases and sensor arrays; current evidence remains centered on early permitted trials and MRV-method development."
+    },
+    "stage": 1,
+    "members": 3,
+    "activity": 39,
+    "chart": {
+      "x": 792,
+      "y": 430,
+      "scale": 0.82
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 146,
+    "atlasN": 1385,
+    "slug": "population-edna-human-genetic-bycatch",
+    "title": {
+      "zh": "eDNA 群体基因组学与人类遗传副渔获",
+      "en": "Population-Genomic eDNA and Human Genetic Bycatch"
+    },
+    "qfocus": {
+      "zh": "环境样本能否可靠解析濒危种群遗传变化，同时用技术与治理护栏阻止可识别的人类基因组副渔获？",
+      "en": "Can environmental samples reliably resolve endangered-population genomic change while technical and governance guardrails prevent identifiable human genomic bycatch?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C05",
+      "zh": "环境组学·行星感知",
+      "en": "Environmental omics · planetary sensing"
+    },
+    "scores": [
+      4,
+      4,
+      4,
+      2,
+      4,
+      2,
+      3,
+      3,
+      4
+    ],
+    "citation": {
+      "url": "https://www.nature.com/articles/s41559-023-02056-2",
+      "title": "Inadvertent human genomic bycatch and intentional capture raise beneficial applications and ethical concerns with environmental DNA",
+      "venue": "Nature Ecology & Evolution",
+      "year": 2023
+    },
+    "brief": {
+      "zh": "鸟枪法环境 DNA 已能触及种内变异与全生物群落，却也会捕获附近人群的可识别遗传片段，把生态监测直接推入隐私与同意边界。",
+      "en": "Shotgun environmental DNA is reaching intraspecific variation and whole-biome assessment while also capturing identifiable genetic fragments from nearby people, placing ecological monitoring directly inside privacy and consent boundaries."
+    },
+    "stage": 1,
+    "members": 4,
+    "activity": 42,
+    "chart": {
+      "x": 858,
+      "y": 494,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 147,
+    "atlasN": 1493,
+    "slug": "biological-foundation-model-mechanistic-interpretability",
+    "title": {
+      "zh": "生物基础模型的机制可解释性",
+      "en": "Mechanistic Interpretability of Biological Foundation Models"
+    },
+    "qfocus": {
+      "zh": "稀疏自编码器从蛋白质或基因组模型中拆出的特征，能否前瞻预测未标注的结合位点与功能机制，而不只是重述训练数据相关性？",
+      "en": "Can features extracted from protein or genomic models by sparse autoencoders prospectively predict unannotated binding sites and functional mechanisms rather than merely restating training-data correlations?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C42",
+      "zh": "AI对齐·可解释·评测科学",
+      "en": "AI alignment · interpretability · evaluation science"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      4,
+      3,
+      4,
+      4,
+      5,
+      3
+    ],
+    "citation": {
+      "url": "https://www.nature.com/articles/s41592-025-02836-7",
+      "title": "InterPLM: discovering interpretable features in protein language models via sparse autoencoders",
+      "venue": "Nature Methods",
+      "year": 2025
+    },
+    "brief": {
+      "zh": "把为大语言模型开发的稀疏自编码器与字典学习移植到蛋白质和基因组基础模型，从叠加表示中拆出对应结合位点、结构基序与功能域的特征。",
+      "en": "Transfer sparse autoencoders and dictionary learning from language-model interpretability to protein and genomic foundation models, decomposing superposed representations into features associated with binding sites, structural motifs, and functional domains."
+    },
+    "stage": 2,
+    "members": 5,
+    "activity": 56,
+    "chart": {
+      "x": 612,
+      "y": 210,
+      "scale": 0.9
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 148,
+    "atlasN": 1387,
+    "slug": "field-deployable-whole-cell-biosensors",
+    "title": {
+      "zh": "可现场部署的工程活细胞生物传感器",
+      "en": "Field-Deployable Engineered Whole-Cell Biosensors"
+    },
+    "qfocus": {
+      "zh": "工程细菌能否在复杂环境样本中长期、特异且可封存地报告污染物，而不是只在缓冲液里产生漂亮信号？",
+      "en": "Can engineered bacteria report pollutants specifically, durably, and with containment in complex environmental samples rather than only producing clean signals in buffer?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C10",
+      "zh": "分布式生物传感·诊断",
+      "en": "Distributed biosensing · diagnostics"
+    },
+    "scores": [
+      3,
+      4,
+      5,
+      5,
+      4,
+      4,
+      3,
+      4,
+      3
+    ],
+    "citation": {
+      "url": "https://doi.org/10.1038/s41467-025-62256-1",
+      "title": "Multichannel bioelectronic sensing using engineered Escherichia coli",
+      "venue": "Nature Communications",
+      "year": 2025
+    },
+    "brief": {
+      "zh": "把污染物响应基因回路接到电输出、光纤或纸基读出，让细菌成为可编程环境探针；多通道器件已有进展，现场基质与生物安全仍是门槛。",
+      "en": "Couple pollutant-responsive gene circuits to electrical, fiber, or paper readout so bacteria become programmable environmental probes; multichannel devices are emerging, while field matrices and biosafety remain the gate."
+    },
+    "stage": 1,
+    "members": 4,
+    "activity": 48,
+    "chart": {
+      "x": 680,
+      "y": 260,
+      "scale": 0.86
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 149,
+    "atlasN": 1388,
+    "slug": "environmental-rna-ecosystem-activity",
+    "title": {
+      "zh": "环境 RNA 生态活性监测",
+      "en": "Environmental RNA Monitoring of Ecosystem Activity"
+    },
+    "qfocus": {
+      "zh": "eRNA 能否跨物种和水体稳定区分“仍然在场”与“正在应激或繁殖”，而不被快速降解和采样偏差支配？",
+      "en": "Can eRNA consistently distinguish “still present” from “currently stressed or reproducing” across species and waters without being dominated by rapid decay and sampling bias?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C05",
+      "zh": "环境组学·行星感知",
+      "en": "Environmental omics · planetary sensing"
+    },
+    "scores": [
+      3,
+      4,
+      4,
+      3,
+      3,
+      3,
+      3,
+      4,
+      4
+    ],
+    "citation": {
+      "url": "https://doi.org/10.1016/j.ecolind.2025.114328",
+      "title": "Environmental RNA as a transformative tool for aquatic ecosystem health assessment: progress and challenges",
+      "venue": "Ecological Indicators",
+      "year": 2025
+    },
+    "brief": {
+      "zh": "利用比 eDNA 更短命的环境转录本读取活体活动与应激状态，把生态普查从“谁在这里”推进到“它们过得怎样”。",
+      "en": "Use shorter-lived environmental transcripts than eDNA to read current activity and stress, moving ecological census from “who is here” to “how are they doing.”"
+    },
+    "stage": 1,
+    "members": 3,
+    "activity": 43,
+    "chart": {
+      "x": 744,
+      "y": 304,
+      "scale": 0.83
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 150,
+    "atlasN": 1492,
+    "slug": "brain-foundation-models-neural-digital-twins",
+    "title": {
+      "zh": "大脑的基础模型与神经数字孪生",
+      "en": "Foundation Models of the Brain and Neural Digital Twins"
+    },
+    "qfocus": {
+      "zh": "共享神经基础核能否在完全留出的动物、脑区与刺激类型上预测单细胞响应并提出可验证干预，而不是吸收装置和个体捷径？",
+      "en": "Can a shared neural foundation core predict single-cell responses and propose testable interventions for fully held-out animals, brain regions, and stimulus types rather than absorb apparatus and individual shortcuts?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C11",
+      "zh": "神经技术·计算认知",
+      "en": "Neurotechnology · computational cognition"
+    },
+    "scores": [
+      3,
+      4,
+      5,
+      2,
+      2,
+      2,
+      5,
+      2,
+      2
+    ],
+    "citation": {
+      "url": "https://www.nature.com/articles/s41586-025-08829-y",
+      "title": "Foundation model of neural activity predicts response to new stimulus types",
+      "venue": "Nature",
+      "year": 2025
+    },
+    "brief": {
+      "zh": "以多只小鼠视觉皮层约十三万五千个神经元对自然视频的响应训练可泛化基础核，为新刺激和新个体生成神经活动预测，并尝试反推细胞类型与连接。",
+      "en": "Train a generalizable foundation core on natural-video responses from roughly 135,000 mouse visual-cortex neurons, predicting neural activity for new stimuli and individuals while probing cell type and connectivity."
+    },
+    "stage": 1,
+    "members": 5,
+    "activity": 52,
+    "chart": {
+      "x": 808,
+      "y": 350,
+      "scale": 0.88
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 151,
+    "atlasN": 1446,
+    "slug": "ruminant-enteric-methane-mitigation",
+    "title": {
+      "zh": "反刍动物肠道甲烷减排",
+      "en": "Enteric Methane Mitigation in Ruminants"
+    },
+    "qfocus": {
+      "zh": "饲料添加剂、红藻与低甲烷育种能否在多年和放牧条件下持续减排，同时不损害动物健康、生产和全生命周期气候效益？",
+      "en": "Can feed additives, red seaweed, and low-methane breeding sustain reductions over years and under grazing without harming animal health, productivity, or life-cycle climate benefit?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C24",
+      "zh": "未来食品·农业科学",
+      "en": "Future food · agricultural science"
+    },
+    "scores": [
+      3,
+      4,
+      3,
+      2,
+      2,
+      3,
+      5,
+      3,
+      2
+    ],
+    "citation": {
+      "url": "https://www.frontiersin.org/journals/animal-science/articles/10.3389/fanim.2025.1689264/full",
+      "title": "Understanding heterogeneity in methane emissions from confinement-fed dairy and beef cattle supplemented with Bovaer: a meta-analysis",
+      "venue": "Frontiers in Animal Science",
+      "year": 2025
+    },
+    "brief": {
+      "zh": "直接抑制瘤胃产甲烷古菌可显著降低反刍排放，但个体差异、长期效应、放牧递送与全生命周期安全决定它能否成为真实气候工具。",
+      "en": "Directly suppressing rumen methanogens can materially reduce enteric emissions, but animal heterogeneity, persistence, grazing delivery, and life-cycle safety determine whether it becomes a real climate tool."
+    },
+    "stage": 2,
+    "members": 5,
+    "activity": 58,
+    "chart": {
+      "x": 664,
+      "y": 406,
+      "scale": 0.9
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 152,
+    "atlasN": 1494,
+    "slug": "bioelectric-morphogenesis-basal-cognition",
+    "title": {
+      "zh": "生物电形态发生与基础认知",
+      "en": "Bioelectric Morphogenesis and Basal Cognition"
+    },
+    "qfocus": {
+      "zh": "细胞群的电位与缝隙连接是否真的编码可改写的“解剖目标态”，并能在不改基因的情况下可预测地修复形态？",
+      "en": "Do voltage states and gap junctions in cell collectives encode a rewritable “anatomical setpoint” that can predictably repair form without changing genes?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C32",
+      "zh": "意识的本质与硬核理论",
+      "en": "Nature of consciousness and hard-problem theory"
+    },
+    "scores": [
+      5,
+      5,
+      4,
+      3,
+      5,
+      4,
+      3,
+      4,
+      4
+    ],
+    "citation": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/37059328/",
+      "title": "Morphoceuticals: Perspectives for discovery of drugs targeting anatomical control mechanisms in regenerative medicine, cancer and aging",
+      "venue": "Drug Discovery Today",
+      "year": 2023
+    },
+    "brief": {
+      "zh": "把离子通道与缝隙连接形成的组织电网络视为形态控制层，尝试以“形态药物”重写再生目标；现有证据仍以机制和纲领性综述为主。",
+      "en": "Treat tissue-scale networks of ion channels and gap junctions as a layer of morphological control and use “morphoceuticals” to rewrite regenerative targets; current evidence remains largely mechanistic and programmatic."
+    },
+    "stage": 1,
+    "members": 4,
+    "activity": 49,
+    "chart": {
+      "x": 728,
+      "y": 520,
+      "scale": 0.87
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 153,
+    "atlasN": 951,
+    "slug": "programmable-acoustic-holography",
+    "title": {
+      "zh": "可编程声学超表面与动态声全息",
+      "en": "Programmable Acoustic Metasurfaces and Dynamic Acoustic Holography"
+    },
+    "qfocus": {
+      "zh": "可重写材料图案与分区压电驱动能否在组织负载下实时合成稳定、可迁移的三维声场？",
+      "en": "Can rewritable material patterns and partitioned piezoelectric drive synthesize stable, transferable 3D acoustic fields in real time under tissue loading?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C16",
+      "zh": "可编程物质·超材料",
+      "en": "Programmable matter · metamaterials"
+    },
+    "scores": [
+      4,
+      4,
+      3,
+      2,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "citation": {
+      "url": "https://www.nature.com/articles/s41467-025-64154-y",
+      "title": "Reconfigurable dynamic acoustic holography with acoustically transparent and programmable metamaterial",
+      "venue": "Nature Communications",
+      "year": 2025
+    },
+    "brief": {
+      "zh": "在半结晶聚合物中写入可擦除的模量图案，再由分区压电换能器驱动，可把静态声学元件变成高像素密度的动态全息界面。关键不只是形成焦点，而是让同一硬件持续重写声镊、超声治疗和体内成像所需的复杂声场。",
+      "en": "Erasable modulus patterns written into a semicrystalline polymer and driven by a partitioned piezoelectric transducer turn a static acoustic element into a high-pixel-density dynamic holographic interface. The central challenge is not merely focusing sound, but repeatedly rewriting complex fields for acoustic manipulation, ultrasound therapy, and in-body imaging on the same hardware."
+    },
+    "stage": 2,
+    "members": 5,
+    "activity": 64,
+    "chart": {
+      "x": 160,
+      "y": 185,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 154,
+    "atlasN": 944,
+    "slug": "learning-shape-metamaterials",
+    "title": {
+      "zh": "会学习改变形状的力学超材料",
+      "en": "Mechanical Metamaterials That Learn to Change Shape"
+    },
+    "qfocus": {
+      "zh": "只用局部刚度更新的弹性网络，能否从少量示例学习多步、非互易且可泛化的形变映射？",
+      "en": "Can an elastic network using only local stiffness updates learn multistep, nonreciprocal, and generalizable deformation maps from a small set of examples?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C31",
+      "zh": "物理计算·热力学与涨落",
+      "en": "Physical computing · thermodynamics and fluctuations"
+    },
+    "scores": [
+      4,
+      4,
+      4,
+      2,
+      4,
+      3,
+      3,
+      3,
+      5
+    ],
+    "citation": {
+      "url": "https://www.nature.com/articles/s41567-026-03226-2",
+      "title": "Metamaterials that learn to change shape",
+      "venue": "Nature Physics",
+      "year": 2026
+    },
+    "brief": {
+      "zh": "对比学习可把输入与目标边界条件的差异转化为局部刚度更新，让弹性网络在材料本体中“训练”出复杂形变。它把学习规则、记忆和执行器合并进同一力学结构，但泛化、疲劳和可逆训练仍需系统检验。",
+      "en": "Contrastive learning can translate the difference between free and target boundary conditions into local stiffness updates, training complex deformations directly into an elastic network. It merges learning rule, memory, and actuator into one mechanical structure, while generalization, fatigue, and reversible training remain open tests."
+    },
+    "stage": 2,
+    "members": 4,
+    "activity": 61,
+    "chart": {
+      "x": 310,
+      "y": 470,
+      "scale": 0.82
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 155,
+    "atlasN": 955,
+    "slug": "geothermal-brine-critical-minerals",
+    "title": {
+      "zh": "地热卤水直接提锂与关键矿物联产",
+      "en": "Direct Lithium Extraction and Critical-Mineral Coproduction from Geothermal Brine"
+    },
+    "qfocus": {
+      "zh": "选择性吸附、离子交换或电化学分离能否在高温高盐真实卤水中连续提锂，同时不破坏地热回注？",
+      "en": "Can selective sorption, ion exchange, or electrochemical separation continuously recover lithium from hot hypersaline field brines without compromising geothermal reinjection?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C17",
+      "zh": "新能源范式",
+      "en": "New energy paradigms"
+    },
+    "scores": [
+      3,
+      5,
+      4,
+      3,
+      4,
+      3,
+      4,
+      4,
+      4
+    ],
+    "citation": {
+      "url": "https://www.sciencedirect.com/science/article/pii/S1674987126000915",
+      "title": "Worldwide geothermal systems as potential sources for critical metals like lithium, rare earth elements and others",
+      "venue": "Geoscience Frontiers (Elsevier)",
+      "year": 2026
+    },
+    "brief": {
+      "zh": "地热电站已把深部卤水带到地表，直接提锂可在同一流体回路中联产热、电和关键矿物。真正难点是钠、钙、镁远高于锂的竞争环境，以及硅垢、腐蚀、吸附剂再生和回注水化学之间的系统耦合。",
+      "en": "Geothermal plants already bring deep brines to the surface, so direct lithium extraction could coproduce heat, power, and critical minerals within one fluid loop. The hard problem is the system coupling among sodium, calcium, and magnesium competition, silica scaling, corrosion, sorbent regeneration, and reinjection chemistry."
+    },
+    "stage": 2,
+    "members": 6,
+    "activity": 68,
+    "chart": {
+      "x": 670,
+      "y": 170,
+      "scale": 0.8
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 156,
+    "atlasN": 960,
+    "slug": "molten-salt-online-chemistry",
+    "title": {
+      "zh": "熔盐堆在线燃料盐化学与连续后处理",
+      "en": "Online Fuel-Salt Chemistry and Continuous Reprocessing for Molten Salt Reactors"
+    },
+    "qfocus": {
+      "zh": "在线传感与选择性分离能否在不停车条件下约束燃料盐氧化还原态、裂变产物和锕系库存，并保持反应堆安全边界？",
+      "en": "Can online sensing and selective separation constrain fuel-salt redox state, fission products, and actinide inventory without shutdown while preserving reactor safety margins?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C17",
+      "zh": "新能源范式",
+      "en": "New energy paradigms"
+    },
+    "scores": [
+      4,
+      3,
+      4,
+      1,
+      3,
+      1,
+      3,
+      3,
+      4
+    ],
+    "citation": {
+      "url": "https://www.sciencedirect.com/science/article/pii/S0029549325006727",
+      "title": "Advancing molten salt reactor technologies: Prioritizing standardisation needs and bridging gaps",
+      "venue": "Nuclear Engineering and Design (Elsevier)",
+      "year": 2025
+    },
+    "brief": {
+      "zh": "液态燃料盐允许补料、取样和去除部分裂变产物，但也把核燃料管理变成高温、强辐照、腐蚀性熔体中的连续化学控制问题。方向的核心是把传感、盐净化、材料寿命、核材料衡算和瞬态安全放进同一个可验证系统。",
+      "en": "Liquid fuel salt permits feeding, sampling, and removal of selected fission products, but turns fuel management into continuous chemical control inside a hot, irradiated, corrosive melt. The frontier is to place sensing, salt cleanup, material lifetime, nuclear-material accountancy, and transient safety in one verifiable system."
+    },
+    "stage": 1,
+    "members": 3,
+    "activity": 46,
+    "chart": {
+      "x": 805,
+      "y": 330,
+      "scale": 0.76
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 157,
+    "atlasN": 1264,
+    "slug": "abiological-metalloenzyme-catalysis",
+    "title": {
+      "zh": "从头人工金属酶与非天然辅因子催化设计",
+      "en": "De Novo Metalloenzyme and Abiological-Cofactor Catalysis Design"
+    },
+    "qfocus": {
+      "zh": "能否从目标非天然反应出发，零样本设计兼具选择性、周转率与细胞内稳定性的金属配位蛋白？",
+      "en": "Can a target new-to-nature reaction be translated into a zero-shot metal-coordinating protein with useful selectivity, turnover, and intracellular stability?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C43",
+      "zh": "生成式生物·AI分子与蛋白设计",
+      "en": "Generative Biology · AI Molecular & Protein Design"
+    },
+    "scores": [
+      4,
+      5,
+      4,
+      2,
+      4,
+      2,
+      4,
+      3,
+      4
+    ],
+    "citation": {
+      "url": "https://www.nature.com/articles/s41929-025-01436-0",
+      "title": "De novo design and evolution of an artificial metathase for cytoplasmic olefin metathesis",
+      "venue": "Nature Catalysis",
+      "year": 2025
+    },
+    "brief": {
+      "zh": "把钌、铈或金—NHC 等非天然辅因子精确安放进从头蛋白骨架，可把有机金属反应库接到可编程、可进化的分子支架上。下一步不是再做单个“巧妙案例”，而是检验目标反应到活性位点、配位球和动态通道的设计闭环能否跨反应迁移。",
+      "en": "Precisely placing abiological cofactors such as ruthenium, cerium, or gold–NHC inside de novo protein scaffolds connects organometallic reaction space to programmable, evolvable molecular structures. The next step is not another isolated clever example, but a transferable loop from target reaction to active site, coordination sphere, and dynamic access channel."
+    },
+    "stage": 2,
+    "members": 6,
+    "activity": 69,
+    "chart": {
+      "x": 560,
+      "y": 520,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 158,
+    "atlasN": 1271,
+    "slug": "reversible-adiabatic-cmos",
+    "title": {
+      "zh": "可逆绝热CMOS：芯片级净能量回收计算",
+      "en": "Reversible Adiabatic CMOS with Net On-Chip Energy Recovery"
+    },
+    "qfocus": {
+      "zh": "计入谐振电源时钟、控制、面积与延迟后，可逆绝热 CMOS 完整数据通路能否实现可重复的净能耗优势？",
+      "en": "After resonant power clocks, control, area, and latency are included, can a complete reversible adiabatic CMOS datapath deliver a reproducible net-energy advantage?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C44",
+      "zh": "神经形态·物理智能硬件",
+      "en": "Neuromorphic · Physical-AI Hardware"
+    },
+    "scores": [
+      4,
+      3,
+      4,
+      1,
+      3,
+      1,
+      3,
+      2,
+      4
+    ],
+    "citation": {
+      "url": "https://www.eetimes.com/vaire-demos-energy-recovery-with-reversible-computing-test-chip/",
+      "title": "Vaire Demos Energy Recovery With Reversible Computing Test Chip",
+      "venue": "EE Times",
+      "year": 2025
+    },
+    "brief": {
+      "zh": "可逆逻辑通过“反计算”避免丢弃中间信息，绝热电路再用谐振电源时钟回收节点电荷。早期测试芯片已报告局部电路能量回收，但必须把时钟网络、I/O、面积和吞吐量全部计入，才能判断它是否优于成熟低功耗 CMOS。",
+      "en": "Reversible logic avoids discarding intermediate information through uncomputation, while adiabatic circuits recycle node charge with resonant power clocks. Early test chips report energy recovery in local circuits, but clock distribution, I/O, area, and throughput must all be counted before comparison with mature low-power CMOS."
+    },
+    "stage": 1,
+    "members": 2,
+    "activity": 43,
+    "chart": {
+      "x": 390,
+      "y": 135,
+      "scale": 0.8
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 159,
+    "atlasN": 938,
+    "slug": "photonic-probabilistic-vacuum-noise",
+    "title": {
+      "zh": "基于量子真空/热噪声的光子概率计算",
+      "en": "Photonic Probabilistic Computing on Quantum-Vacuum and Thermal Noise"
+    },
+    "qfocus": {
+      "zh": "量子真空涨落驱动的光子概率节点，能否在端到端采样质量、能耗和延迟上超过电子随机数加速器？",
+      "en": "Can photonic probabilistic nodes driven by quantum-vacuum fluctuations outperform electronic random-number accelerators in end-to-end sampling quality, energy, and latency?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C31",
+      "zh": "物理计算·热力学与涨落",
+      "en": "Physical computing · thermodynamics and fluctuations"
+    },
+    "scores": [
+      4,
+      5,
+      3,
+      2,
+      3,
+      2,
+      3,
+      3,
+      4
+    ],
+    "citation": {
+      "url": "https://www.nature.com/articles/s41467-024-51509-0",
+      "title": "Photonic probabilistic machine learning using quantum vacuum noise",
+      "venue": "Nature Communications",
+      "year": 2024
+    },
+    "brief": {
+      "zh": "光学参量振荡器可把真空涨落放大为概率神经元的随机种子，使采样不再由伪随机算法模拟。真正的比较必须纳入调制、探测、反馈和数据转换，而不能只计算光学核心的传播时间。",
+      "en": "Optical parametric oscillators can amplify vacuum fluctuations into random seeds for probabilistic neurons, replacing algorithmically simulated pseudorandomness with a physical source. A meaningful comparison must include modulation, detection, feedback, and data conversion rather than counting only optical-core propagation."
+    },
+    "stage": 2,
+    "members": 4,
+    "activity": 59,
+    "chart": {
+      "x": 520,
+      "y": 260,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 160,
+    "atlasN": 1005,
+    "slug": "atom-interferometry-screened-scalars",
+    "title": {
+      "zh": "长基线原子干涉计实验室检验暗能量屏蔽标量场",
+      "en": "Laboratory Tests of Dark-Energy Screened Scalars with Long-Baseline Atom Interferometry"
+    },
+    "qfocus": {
+      "zh": "米级至十米级原子干涉计能否用可调源质量，在系统误差受控时排除新的变色龙场或对称子场参数区间？",
+      "en": "Can meter- to ten-meter-scale atom interferometers use a configurable source mass to exclude new chameleon or symmetron parameter space with controlled systematics?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C33",
+      "zh": "基础物理·实在的本质",
+      "en": "Fundamental physics · the nature of reality"
+    },
+    "scores": [
+      5,
+      5,
+      4,
+      2,
+      4,
+      4,
+      3,
+      4,
+      4
+    ],
+    "citation": {
+      "url": "https://arxiv.org/pdf/2511.09750",
+      "title": "Searching for screened scalar forces with long-baseline atom interferometers",
+      "venue": "arXiv (Phys. Rev. D)",
+      "year": 2025
+    },
+    "brief": {
+      "zh": "变色龙场和对称子场可在高密度环境中被屏蔽，却在真空中的原子上产生微弱第五力。长基线原子干涉仪结合可移动源质量，能在实验室尺度调制信号并检验一部分暗能量启发的标量场参数空间。",
+      "en": "Chameleon and symmetron fields can be screened in dense environments while exerting a weak fifth force on atoms in vacuum. A long-baseline atom interferometer paired with a movable source mass can modulate the signal on laboratory scales and test scalar-field parameter space motivated by dark energy."
+    },
+    "stage": 1,
+    "members": 3,
+    "activity": 52,
+    "chart": {
+      "x": 730,
+      "y": 455,
+      "scale": 0.79
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 161,
+    "atlasN": 1279,
+    "slug": "thermodynamic-linear-algebra",
+    "title": {
+      "zh": "热力学线性代数：随机处理单元加速高维矩阵原语",
+      "en": "Thermodynamic Linear Algebra on Stochastic Processing Units"
+    },
+    "qfocus": {
+      "zh": "耦合随机电路的平衡分布能否在计入编码、读出和收敛后，以更低端到端成本求解高维高斯采样与矩阵原语？",
+      "en": "Can equilibrium distributions of coupled stochastic circuits solve high-dimensional Gaussian sampling and matrix primitives at lower end-to-end cost after encoding, readout, and convergence are included?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C44",
+      "zh": "神经形态·物理智能硬件",
+      "en": "Neuromorphic · Physical-AI Hardware"
+    },
+    "scores": [
+      3,
+      4,
+      4,
+      3,
+      3,
+      3,
+      3,
+      4,
+      3
+    ],
+    "citation": {
+      "url": "https://www.nature.com/articles/s41467-025-59011-x",
+      "title": "Thermodynamic computing system for AI applications",
+      "venue": "Nature Communications",
+      "year": 2025
+    },
+    "brief": {
+      "zh": "随机耦合的 RLC 或模拟节点会自然弛豫到一个稳态分布；若耦合矩阵被正确编码，稳态协方差可表示高斯采样、矩阵逆等线性代数结果。潜在复杂度优势只有在 ADC/DAC、编程、混合时间和样本相关性全部计入后才成立。",
+      "en": "Stochastically coupled RLC or analog nodes naturally relax to a stationary distribution. If the coupling matrix is encoded correctly, stationary covariance can represent Gaussian samples, matrix inverses, and related linear-algebra results. Any complexity advantage survives only if ADC/DAC, programming, mixing time, and sample correlation are fully counted."
+    },
+    "stage": 2,
+    "members": 5,
+    "activity": 66,
+    "chart": {
+      "x": 235,
+      "y": 335,
+      "scale": 0.82
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 162,
+    "atlasN": 1422,
+    "slug": "universal-ml-interatomic-potentials",
+    "title": {
+      "zh": "通用机器学习原子间势",
+      "en": "Universal Machine-Learning Interatomic Potentials"
+    },
+    "qfocus": {
+      "zh": "跨元素训练的等变原子势能否在未见化学体系、缺陷和反应路径上，以校准的不确定性保持接近 DFT 的可靠性？",
+      "en": "Can element-spanning equivariant interatomic potentials retain near-DFT reliability with calibrated uncertainty on unseen chemistries, defects, and reaction pathways?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C03",
+      "zh": "科学基础模型·AI4S",
+      "en": "Scientific foundation models · AI for science"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      4,
+      2,
+      3,
+      5,
+      4,
+      3
+    ],
+    "citation": {
+      "url": "https://www.nature.com/articles/s41524-025-01650-1",
+      "title": "Universal machine learning interatomic potentials are ready for phonons",
+      "venue": "npj Computational Materials",
+      "year": 2025
+    },
+    "brief": {
+      "zh": "等变神经网络从数千万个 DFT 构型学习跨元素势能面，可把接近第一性原理的模拟扩展到更大体系和更长时间。真正的“通用”不应由随机留出集定义，而要在新化学计量、缺陷、相变和稀有高能路径上做域外审计。",
+      "en": "Equivariant neural networks learn element-spanning potential-energy surfaces from tens of millions of DFT configurations, extending near-first-principles simulation to larger systems and longer times. True universality should not be defined by random holdouts, but audited on new stoichiometries, defects, phase transitions, and rare high-energy pathways."
+    },
+    "stage": 2,
+    "members": 7,
+    "activity": 73,
+    "chart": {
+      "x": 445,
+      "y": 420,
+      "scale": 0.86
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 163,
+    "atlasN": 787,
+    "slug": "in-orbit-pharma-crystallization",
+    "title": {
+      "zh": "在轨蛋白结晶与药物再制剂化",
+      "en": "In-Orbit Protein Crystallization for Drug Reformulation"
+    },
+    "qfocus": {
+      "zh": "微重力结晶能否对预先选定的生物药稳定地产生地面工艺无法获得、且足以改变给药方式的晶体性质？",
+      "en": "Can microgravity crystallization reproducibly produce, for prospectively selected biologics, crystal properties unattainable on Earth and sufficient to change the route of administration?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C46",
+      "zh": "空间生物经济·地外制造",
+      "en": "Space Bioeconomy · Off-Earth Manufacturing"
+    },
+    "scores": [
+      3,
+      4,
+      4,
+      2,
+      3,
+      2,
+      5,
+      4,
+      2
+    ],
+    "citation": {
+      "url": "https://www.nature.com/articles/s41526-019-0090-3",
+      "title": "Pembrolizumab microgravity crystallization experimentation",
+      "venue": "npj Microgravity",
+      "year": 2019
+    },
+    "brief": {
+      "zh": "微重力抑制浮力对流和沉降，可能形成更均一的蛋白晶体，并为高浓度悬液或皮下注射制剂提供新的粒径与形貌窗口。商业价值不来自“太空晶体更漂亮”，而来自返回后能否改善稳定性、可制造性和患者给药。",
+      "en": "Microgravity suppresses buoyancy-driven convection and sedimentation, potentially yielding more uniform protein crystals and a new size–morphology window for concentrated suspensions or subcutaneous formulations. Commercial value does not come from prettier space crystals, but from improved stability, manufacturability, and patient delivery after return."
+    },
+    "stage": 1,
+    "members": 3,
+    "activity": 48,
+    "chart": {
+      "x": 855,
+      "y": 190,
+      "scale": 0.72
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 164,
+    "atlasN": 1294,
+    "slug": "living-fungal-radiation-shields",
+    "title": {
+      "zh": "辐射营养真菌与黑色素活体自修复辐射屏蔽",
+      "en": "Radiosynthetic Fungi and Melanin Living Self-Repairing Radiation Shields"
+    },
+    "qfocus": {
+      "zh": "黑色素真菌或其生物复合材料能否在深空辐射谱下，以可控生长实现低补给质量的长期屏蔽与自修复？",
+      "en": "Can melanized fungi or their biocomposites provide long-duration shielding and self-repair with low resupply mass under a deep-space radiation spectrum and controlled growth?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C46",
+      "zh": "空间生物经济·地外制造",
+      "en": "Space Bioeconomy · Off-Earth Manufacturing"
+    },
+    "scores": [
+      4,
+      5,
+      4,
+      3,
+      3,
+      4,
+      4,
+      4,
+      4
+    ],
+    "citation": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12067201/",
+      "title": "Radiation protection and structural stability of fungal melanin polylactic acid biocomposites in low Earth orbit",
+      "venue": "PNAS",
+      "year": 2025
+    },
+    "brief": {
+      "zh": "富黑色素真菌能在辐射环境中生长，真菌黑色素—聚乳酸复合材料在轨暴露也显示出结构保护潜力。若材料可用少量种源和原位碳源生长、修补，它可能把被动屏蔽变成可再生系统；但低地球轨道证据不能直接外推到银河宇宙线和太阳粒子事件。",
+      "en": "Melanized fungi can grow in radiation environments, and fungal-melanin–PLA composites exposed in orbit show structural-protection potential. If material can grow and repair from a small inoculum and in situ carbon, passive shielding could become renewable. Evidence from low Earth orbit, however, cannot be directly extrapolated to galactic cosmic rays or solar particle events."
+    },
+    "stage": 2,
+    "members": 5,
+    "activity": 63,
+    "chart": {
+      "x": 125,
+      "y": 540,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 165,
+    "atlasN": 1173,
+    "slug": "bridging-ranking-crowd-fact-checking",
+    "title": {
+      "zh": "桥接排序与人机协同事实核查",
+      "en": "Bridging-Based Ranking and Human-LLM Fact-Checking"
+    },
+    "qfocus": {
+      "zh": "跨立场共同认可的排序信号，能否比多数票更可靠地筛出有帮助且真实的解释？",
+      "en": "Can cross-group agreement rank helpful, truthful explanations more reliably than majority vote?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C22",
+      "zh": "集体智能·知识基础设施",
+      "en": "Collective intelligence · knowledge infrastructure"
+    },
+    "scores": [
+      2,
+      4,
+      5,
+      5,
+      4,
+      5,
+      5,
+      4,
+      4
+    ],
+    "citation": {
+      "url": "https://tsjournal.org/index.php/jots/article/view/255",
+      "title": "Scaling Human Judgment in Community Notes with LLMs",
+      "venue": "Journal of Online Trust and Safety",
+      "year": 2025
+    },
+    "brief": {
+      "zh": "用意见相左群体的共同认可取代简单多数票，并让 LLM 写注、人类多元评审者保留裁决权。",
+      "en": "Replace simple majority vote with agreement across historically opposed groups, while LLMs draft notes and diverse humans retain judgment."
+    },
+    "stage": 2,
+    "members": 8,
+    "activity": 71,
+    "chart": {
+      "x": 180,
+      "y": 170,
+      "scale": 0.91
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 166,
+    "atlasN": 747,
+    "slug": "construct-validity-evaluation-science",
+    "title": {
+      "zh": "构念效度驱动的评测科学",
+      "en": "Construct-Valid Evaluation Science"
+    },
+    "qfocus": {
+      "zh": "一个 AI 基准究竟测到了它声称的能力，还是只测到了提示格式、污染与捷径？",
+      "en": "Does an AI benchmark measure its claimed capability, or merely prompt format, contamination, and shortcuts?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C42",
+      "zh": "AI对齐·可解释·评测科学",
+      "en": "AI alignment · interpretability · evaluation science"
+    },
+    "scores": [
+      4,
+      5,
+      4,
+      3,
+      4,
+      5,
+      4,
+      4,
+      4
+    ],
+    "citation": {
+      "url": "https://arxiv.org/abs/2511.04703",
+      "title": "Measuring what Matters: Construct Validity in Large Language Model Benchmarks",
+      "venue": "arXiv (Oxford / EPFL / UK AISI)",
+      "year": 2025
+    },
+    "brief": {
+      "zh": "把心理测量学的构念效度、聚合与区分证据引入 AI 基准，让能力分数变成可反驳的测量主张。",
+      "en": "Import convergent, discriminant, and construct validity from psychometrics so benchmark scores become refutable measurement claims."
+    },
+    "stage": 2,
+    "members": 6,
+    "activity": 66,
+    "chart": {
+      "x": 405,
+      "y": 105,
+      "scale": 0.86
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 167,
+    "atlasN": 1247,
+    "slug": "automated-partial-identification-bounds",
+    "title": {
+      "zh": "自动化偏识别与因果界",
+      "en": "Automated Partial Identification and Causal Bounds"
+    },
+    "qfocus": {
+      "zh": "当政策效应无法点识别时，算法能否给出由数据与假设共同允许的最紧诚实区间？",
+      "en": "When a policy effect is not point-identified, can an algorithm return the tightest honest interval allowed by data and assumptions?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C51",
+      "zh": "因果科学·可信推断",
+      "en": "Causal science · trustworthy inference"
+    },
+    "scores": [
+      3,
+      4,
+      5,
+      3,
+      3,
+      5,
+      4,
+      4,
+      4
+    ],
+    "citation": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11566246/",
+      "title": "An Automated Approach to Causal Inference in Discrete Settings",
+      "venue": "Journal of the American Statistical Association",
+      "year": 2024
+    },
+    "brief": {
+      "zh": "把因果假设和观测约束编译为多项式规划，自动求可证明锐利的效应上下界，而非强行报告单点答案。",
+      "en": "Compile causal assumptions and observational constraints into polynomial programs that return provably sharp effect bounds instead of forced point estimates."
+    },
+    "stage": 2,
+    "members": 5,
+    "activity": 59,
+    "chart": {
+      "x": 645,
+      "y": 185,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 168,
+    "atlasN": 1214,
+    "slug": "one-run-empirical-privacy-auditing",
+    "title": {
+      "zh": "单次训练运行的经验隐私审计",
+      "en": "One-Run Empirical Privacy Auditing"
+    },
+    "qfocus": {
+      "zh": "只观察一次真实训练，能否检出实现所泄露的隐私强度与声明的差距？",
+      "en": "Can one production training run expose a gap between implemented and claimed privacy?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C47",
+      "zh": "后量子·隐私计算工程",
+      "en": "Post-quantum · privacy-preserving computation"
+    },
+    "scores": [
+      4,
+      3,
+      5,
+      4,
+      3,
+      5,
+      4,
+      4,
+      4
+    ],
+    "citation": {
+      "url": "https://arxiv.org/pdf/2305.08846",
+      "title": "Privacy Auditing with One (1) Training Run",
+      "venue": "NeurIPS 2023 (best paper)",
+      "year": 2023
+    },
+    "brief": {
+      "zh": "把可控金丝雀样本嵌入一次训练，用攻击成功率给差分隐私参数建立经验下界，并与理论上界对照。",
+      "en": "Embed controlled canary records in one training run, derive an empirical lower bound on differential-privacy parameters from attack success, and compare it with the theoretical upper bound."
+    },
+    "stage": 2,
+    "members": 6,
+    "activity": 64,
+    "chart": {
+      "x": 875,
+      "y": 105,
+      "scale": 0.82
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 169,
+    "atlasN": 901,
+    "slug": "multi-agent-steganographic-collusion",
+    "title": {
+      "zh": "多智能体隐写合谋审计",
+      "en": "Auditing Steganographic Collusion among AI Agents"
+    },
+    "qfocus": {
+      "zh": "自主智能体能否在看似正常的消息里建立隐蔽信道，并在不冤枉正常协作的前提下被检出？",
+      "en": "Can autonomous agents build covert channels in innocuous messages, and can we detect them without misclassifying legitimate coordination?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C14",
+      "zh": "复杂系统·多智能体",
+      "en": "Complex systems · multi-agent systems"
+    },
+    "scores": [
+      4,
+      5,
+      5,
+      3,
+      3,
+      4,
+      3,
+      4,
+      4
+    ],
+    "citation": {
+      "url": "https://arxiv.org/abs/2402.07510",
+      "title": "Secret Collusion among AI Agents: Multi-Agent Deception via Steganography",
+      "venue": "arXiv (Google DeepMind, Oxford)",
+      "year": 2024
+    },
+    "brief": {
+      "zh": "把代理间文本当作潜在隐蔽信道，以互信息、因果干预和表征探针区分必要协作与操纵市场、评审或监督的秘密协议。",
+      "en": "Treat inter-agent text as a potential covert channel, using mutual information, causal interventions, and representation probes to separate necessary cooperation from secret protocols that manipulate markets, review, or oversight."
+    },
+    "stage": 2,
+    "members": 7,
+    "activity": 69,
+    "chart": {
+      "x": 1085,
+      "y": 195,
+      "scale": 0.88
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 170,
+    "atlasN": 1166,
+    "slug": "focused-research-organizations",
+    "title": {
+      "zh": "聚焦研究组织的公共品机制",
+      "en": "Focused Research Organizations for Scientific Public Goods"
+    },
+    "qfocus": {
+      "zh": "限时、封顶预算的非营利组织，能否完成既不适合论文激励也没有近期市场的关键研究公共品？",
+      "en": "Can time-limited, budget-capped nonprofits deliver research public goods that fit neither paper incentives nor near-term markets?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C20",
+      "zh": "去中心科学·开放科学机制",
+      "en": "Decentralized science · open science mechanisms"
+    },
+    "scores": [
+      4,
+      3,
+      3,
+      2,
+      4,
+      1,
+      3,
+      3,
+      2
+    ],
+    "citation": {
+      "url": "https://www.nature.com/articles/d41586-022-00018-5",
+      "title": "Unblock research bottlenecks with non-profit start-ups",
+      "venue": "Nature (comment)",
+      "year": 2022
+    },
+    "brief": {
+      "zh": "围绕一个可交付科研基础设施组建约五年、数千万级、到期解散的任务型团队，并用开放里程碑检验其是否真正解除瓶颈。",
+      "en": "Build an approximately five-year, tens-of-millions mission team around one deliverable research infrastructure, sunset it on schedule, and use open milestones to test whether it actually removes the bottleneck."
+    },
+    "stage": 1,
+    "members": 4,
+    "activity": 51,
+    "chart": {
+      "x": 250,
+      "y": 395,
+      "scale": 0.8
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 171,
+    "atlasN": 1466,
+    "slug": "machine-actionable-research-findings",
+    "title": {
+      "zh": "机器可执行的研究发现",
+      "en": "Machine-Actionable Research Findings"
+    },
+    "qfocus": {
+      "zh": "论文中的主张、证据与限定条件，能否成为带出处、可组合且可自动检验的数字对象？",
+      "en": "Can claims, evidence, and qualifications in papers become provenance-bearing, composable, and automatically testable digital objects?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C22",
+      "zh": "集体智能·知识基础设施",
+      "en": "Collective intelligence · knowledge infrastructure"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      4,
+      4,
+      4,
+      4,
+      3,
+      5
+    ],
+    "citation": {
+      "url": "https://doi.org/10.3233/faia250216",
+      "title": "Open Research Knowledge Graph: A Large-Scale Neuro-Symbolic Knowledge Organization System",
+      "venue": "Frontiers in Artificial Intelligence and Applications (IOS Press)",
+      "year": 2025
+    },
+    "brief": {
+      "zh": "把 PDF 中的结论拆为主张—方法—证据—限定关系，封装成有永久标识、出处链和可查询语义的知识图谱与纳米出版物。",
+      "en": "Decompose PDF conclusions into claim-method-evidence-qualification relations and package them as persistent, provenance-rich, queryable knowledge graphs and nanopublications."
+    },
+    "stage": 2,
+    "members": 9,
+    "activity": 74,
+    "chart": {
+      "x": 495,
+      "y": 455,
+      "scale": 0.93
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 172,
+    "atlasN": 715,
+    "slug": "untranslated-knowledge-observatory",
+    "title": {
+      "zh": "未翻译知识损失观测站",
+      "en": "Observatory for Untranslated Knowledge Loss"
+    },
+    "qfocus": {
+      "zh": "仅使用英语文献的全球结论漏掉了哪些证据，并在哪些地点系统性地改变了行动建议？",
+      "en": "What evidence disappears from global conclusions when only English literature is used, and where does that systematically change recommended action?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C19",
+      "zh": "计算社会科学·数字人文",
+      "en": "Computational social science · digital humanities"
+    },
+    "scores": [
+      3,
+      4,
+      4,
+      4,
+      4,
+      4,
+      3,
+      3,
+      5
+    ],
+    "citation": {
+      "url": "https://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.2000933",
+      "title": "Languages Are Still a Major Barrier to Global Science",
+      "venue": "PLOS Biology",
+      "year": 2016
+    },
+    "brief": {
+      "zh": "建立多语种检索、人工校验与结论敏感性分析，量化英语过滤造成的地理、物种和政策证据缺口。",
+      "en": "Combine multilingual retrieval, human verification, and conclusion-sensitivity analysis to quantify geographic, species, and policy evidence gaps caused by English-only filtering."
+    },
+    "stage": 1,
+    "members": 7,
+    "activity": 62,
+    "chart": {
+      "x": 735,
+      "y": 375,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 173,
+    "atlasN": 1172,
+    "slug": "collective-alignment-democratic-ai-governance",
+    "title": {
+      "zh": "集体对齐与民主化 AI 治理",
+      "en": "Collective Alignment and Democratic AI Governance"
+    },
+    "qfocus": {
+      "zh": "多元公众的审议意见，能否被可追踪地编译为模型规则，而不被多数、平台或整理者劫持？",
+      "en": "Can deliberated public input be traceably compiled into model rules without capture by a majority, platform, or synthesizer?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C22",
+      "zh": "集体智能·知识基础设施",
+      "en": "Collective intelligence · knowledge infrastructure"
+    },
+    "scores": [
+      4,
+      4,
+      3,
+      5,
+      5,
+      4,
+      3,
+      3,
+      3
+    ],
+    "citation": {
+      "url": "https://dl.acm.org/doi/10.1145/3630106.3658979",
+      "title": "Collective Constitutional AI: Aligning a Language Model with Public Input",
+      "venue": "ACM FAccT 2024",
+      "year": 2024
+    },
+    "brief": {
+      "zh": "把分层抽样、知情审议与意见聚合接到模型宪法和奖励规则上，并保留每条行为变化到公众输入的出处链。",
+      "en": "Connect stratified sampling, informed deliberation, and preference aggregation to model constitutions and reward rules, preserving provenance from each behavior change back to public input."
+    },
+    "stage": 1,
+    "members": 8,
+    "activity": 67,
+    "chart": {
+      "x": 965,
+      "y": 455,
+      "scale": 0.9
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 174,
+    "atlasN": 1365,
+    "slug": "organoid-provenance-dynamic-consent",
+    "title": {
+      "zh": "类器官出处与动态同意基础设施",
+      "en": "Organoid Provenance and Dynamic-Consent Infrastructure"
+    },
+    "qfocus": {
+      "zh": "从捐赠细胞到跨实验室和湿件云，类器官的同意限制能否随材料一起执行、撤回并被审计？",
+      "en": "From donor cell to cross-lab and wetware cloud use, can organoid consent restrictions travel with the material, be enforced, revoked, and audited?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C02",
+      "zh": "生物计算·类器官智能",
+      "en": "Biocomputing · organoid intelligence"
+    },
+    "scores": [
+      3,
+      4,
+      4,
+      4,
+      4,
+      4,
+      2,
+      4,
+      5
+    ],
+    "citation": {
+      "url": "https://onlinelibrary.wiley.com/doi/full/10.1111/bioe.13047",
+      "title": "Organoid biobanking, autonomy and the limits of consent",
+      "venue": "Bioethics (Wiley)",
+      "year": 2022
+    },
+    "brief": {
+      "zh": "为每个类器官谱系绑定机器可读的同意状态、用途限制、转移记录与撤回事件，让治理从一次签字变为持续授权。",
+      "en": "Bind each organoid lineage to machine-readable consent state, use restrictions, transfer records, and revocation events, turning governance from one signature into continuous authorization."
+    },
+    "stage": 1,
+    "members": 6,
+    "activity": 58,
+    "chart": {
+      "x": 185,
+      "y": 650,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 175,
+    "atlasN": 1245,
+    "slug": "causal-evaluation-human-ai-decisions",
+    "title": {
+      "zh": "人机决策的因果评测",
+      "en": "Causal Evaluation of Human-AI Decisions"
+    },
+    "qfocus": {
+      "zh": "AI 建议何时真的改善了人的决策，何时只是改变了选择者、信心或错误分布？",
+      "en": "When does AI advice actually improve human decisions, and when does it merely change selection, confidence, or the distribution of errors?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C51",
+      "zh": "因果科学·可信推断",
+      "en": "Causal science · trustworthy inference"
+    },
+    "scores": [
+      4,
+      5,
+      3,
+      3,
+      5,
+      4,
+      3,
+      4,
+      5
+    ],
+    "citation": {
+      "url": "https://academic.oup.com/jrsssa/article/186/2/167/7024674",
+      "title": "Experimental Evaluation of Algorithm-Assisted Human Decision-Making: Application to Pretrial Public Safety Assessment",
+      "venue": "JRSS-A",
+      "year": 2023
+    },
+    "brief": {
+      "zh": "随机化建议可见性与解释方式，并按人会不会遵循建议做主层分层，区分算法质量、采纳行为与最终决策效应。",
+      "en": "Randomize advice visibility and explanation, then use principal stratification by whether people would follow advice to separate algorithm quality, adoption behavior, and final decision effects."
+    },
+    "stage": 2,
+    "members": 7,
+    "activity": 65,
+    "chart": {
+      "x": 555,
+      "y": 665,
+      "scale": 0.89
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 176,
+    "atlasN": 806,
+    "slug": "physical-interposer-confidential-computing",
+    "title": {
+      "zh": "机密计算的物理中间人防线",
+      "en": "Physical-Interposer Defenses for Confidential Computing"
+    },
+    "qfocus": {
+      "zh": "当攻击者能夹在 CPU 与内存之间时，可信执行环境如何证明数据不仅被加密，而且没有被重放、替换或字典推断？",
+      "en": "When an attacker can sit between CPU and memory, how can a trusted execution environment prove data is not only encrypted but also protected from replay, substitution, and dictionary inference?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C47",
+      "zh": "后量子·隐私计算工程",
+      "en": "Post-quantum · privacy-preserving computation"
+    },
+    "scores": [
+      3,
+      4,
+      3,
+      3,
+      4,
+      5,
+      5,
+      4,
+      5
+    ],
+    "citation": {
+      "url": "https://batteringram.eu/",
+      "title": "Battering RAM: Low-Cost Interposer Attacks on Confidential Computing",
+      "venue": "Project site (KU Leuven / U. Birmingham)",
+      "year": 2025
+    },
+    "brief": {
+      "zh": "用低成本内存总线中间板复现攻击，并把机密计算的安全目标从“静态加密”提升到带新鲜度和完整性认证的端到端内存协议。",
+      "en": "Reproduce attacks with low-cost memory-bus interposers, then raise confidential computing from static encryption to an end-to-end memory protocol with authenticated integrity and freshness."
+    },
+    "stage": 2,
+    "members": 5,
+    "activity": 61,
+    "chart": {
+      "x": 940,
+      "y": 660,
+      "scale": 0.85
+    },
+    "hasInterior": false
   }
 ];
 

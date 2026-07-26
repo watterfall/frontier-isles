@@ -9,6 +9,18 @@ import { FRONTIERS } from "../src/frontiers";
  */
 describe("SEED_STRUCTURES", () => {
   const slugs = new Set(FRONTIERS.map((f) => f.slug));
+  const expansionMappedSlugs = new Set([
+    "dark-fiber-ecological-sensing",
+    "biotremology-vibrational-communication",
+    "aerial-electroecology",
+    "thermodynamic-computing-hardware",
+    "p-bit-probabilistic-computing",
+    "aqueous-iontronic-memristors",
+    "mechanical-metamaterial-computing",
+    "counterfactual-history-causal-cliometrics",
+    "social-physics-predictability-boundary",
+    "collective-reasoning-group-epistemology",
+  ]);
 
   it("has well-formed, uniquely-identified struct:// entries", () => {
     // No fixed total here on purpose: the catalog grows as isomorphisms are
@@ -67,5 +79,49 @@ describe("SEED_STRUCTURES", () => {
       if (s.mappings.length === 0) expect(s.status, s.id).toBe("proposed");
       else expect(s.status, s.id).toBe("active");
     }
+  });
+
+  it("the expansion's rebuilt mappings cite direct evidence instead of inheriting a field-level claim", () => {
+    const mapped = SEED_STRUCTURES.flatMap((structure) =>
+      structure.mappings.map((mapping) => ({ structure, mapping })),
+    );
+
+    for (const slug of expansionMappedSlugs) {
+      const matches = mapped.filter(({ mapping }) => mapping.slug === slug);
+      expect(matches.length, `${slug} has a grounded mapping`).toBeGreaterThan(0);
+      for (const { structure, mapping } of matches) {
+        expect(
+          mapping.evidenceRefs?.length,
+          `${structure.id} → ${slug} direct evidence`,
+        ).toBeGreaterThan(0);
+        for (const ref of mapping.evidenceRefs ?? []) {
+          expect(ref, `${structure.id} → ${slug} evidence URL`).toMatch(/^https:\/\//);
+          expect(ref).not.toBe("https://xfrontier.science/");
+        }
+      }
+    }
+  });
+
+  it("new directions connect both to legacy islands and across top-level domains", () => {
+    const domainBySlug = new Map(FRONTIERS.map((frontier) => [frontier.slug, frontier.domain]));
+    const structuresTouchingExpansion = SEED_STRUCTURES.filter((structure) =>
+      structure.mappings.some((mapping) => expansionMappedSlugs.has(mapping.slug)),
+    );
+    const legacyBridges = structuresTouchingExpansion.filter(
+      (structure) =>
+        structure.mappings.some((mapping) => expansionMappedSlugs.has(mapping.slug)) &&
+        structure.mappings.some((mapping) => !expansionMappedSlugs.has(mapping.slug)),
+    );
+    const crossDomain = structuresTouchingExpansion.filter((structure) => {
+      const domains = new Set(
+        structure.mappings
+          .map((mapping) => domainBySlug.get(mapping.slug))
+          .filter((domain): domain is NonNullable<typeof domain> => domain !== undefined),
+      );
+      return domains.size >= 2;
+    });
+
+    expect(legacyBridges.length).toBeGreaterThanOrEqual(5);
+    expect(crossDomain.length).toBeGreaterThanOrEqual(4);
   });
 });

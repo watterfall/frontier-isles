@@ -155,6 +155,9 @@ function despaceProjected<T extends AtlasIslandInput>(islands: T[], spacingBySlu
     minDist: 140,
     iterations: islands.length > 220 ? 80 : 320, // O(n²) pass — cap at scale-test sizes
     bounds: { minX: minX - slack, minY: minY - slack, maxX: maxX + slack, maxY: maxY + slack },
+    // This is a zoomable world whose bbox already grows with the authored
+    // archipelagos; a fixed-canvas packing cap would flatten its close/open rhythm.
+    capToPackingCapacity: false,
   });
   return islands.map((island, k) => ({
     ...island,
@@ -190,7 +193,9 @@ function shapeArchipelagoRhythm<T extends AtlasIslandInput>(
   world.y /= projected.length;
   const next = islands.map((island) => ({ ...island }));
   const spacingBySlug = new Map<string, number>();
-  const profiles = [0.9, 1.06, 1.26] as const;
+  // At the 176-island corpus size, a stronger close/open contrast keeps the
+  // authored clusters legible as settlements and outposts after relaxation.
+  const profiles = [0.75, 1.06, 1.4] as const;
 
   for (const [key, indices] of [...groups.entries()].sort(([a], [b]) => a.localeCompare(b))) {
     const center = indices.reduce(

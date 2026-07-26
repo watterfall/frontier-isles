@@ -12,6 +12,11 @@
  * rebuilt islands is a pure frontier, the map's honest dashed field.
  */
 
+import {
+  WAVE_2_STRUCTURES,
+  WAVE_2_STRUCTURE_PATCHES,
+} from '#structures-expansion-wave2';
+
 export interface StructureCorrespondence {
   /** A quantity in the abstract structure. */
   quantity: { zh: string; en: string };
@@ -28,6 +33,8 @@ export interface StructureMapping {
   /** The most important substrate-specific difference: where the analogy must
    * stop instead of quietly becoming an identity claim. */
   boundary?: { zh: string; en: string };
+  /** Direct evidence used to check this particular substrate mapping. */
+  evidenceRefs?: string[];
 }
 
 export type StructureTheme =
@@ -66,6 +73,12 @@ const XFRONTIER = (recordIds: number[]): StructureProvenance => ({
   url: 'https://xfrontier.science/',
   recordIds,
   reviewedAt: '2026-07-18',
+});
+
+/** Records re-checked for the 2026-07 direction-expansion pass. */
+const XFRONTIER_EXPANSION = (recordIds: number[]): StructureProvenance => ({
+  ...XFRONTIER(recordIds),
+  reviewedAt: '2026-07-26',
 });
 
 export const SEED_STRUCTURES: SeedStructure[] = [
@@ -230,7 +243,7 @@ export const SEED_STRUCTURES: SeedStructure[] = [
     },
     status: 'active',
     theme: 'causal-inference',
-    provenance: XFRONTIER([851]),
+    provenance: XFRONTIER_EXPANSION([851, 537]),
     mappings: [
       {
         slug: 'causal-rep-learning',
@@ -258,6 +271,37 @@ export const SEED_STRUCTURES: SeedStructure[] = [
           zh: '分布发生变化并不自动带来因果语义；只有在干预覆盖、独立性与模型条件成立时，潜变量才可能被识别。',
           en: 'A distribution shift does not automatically confer causal meaning; latent variables become identifiable only under intervention coverage, independence, and model assumptions.',
         },
+      },
+      {
+        slug: 'counterfactual-history-causal-cliometrics',
+        correspondences: [
+          {
+            quantity: { zh: '干预环境 e', en: 'interventional environment e' },
+            inThisSubstrate: {
+              zh: '在某个明确时间接受战争、制度变迁或政策冲击的历史对象',
+              en: 'a historical unit exposed at a stated time to war, institutional change, or a policy shock',
+            },
+          },
+          {
+            quantity: { zh: '未受干预的潜在结果', en: 'untreated potential outcome' },
+            inThisSubstrate: {
+              zh: '由干预前轨迹相似的对照对象加权合成、用于估计“若事件未发生会怎样”的反事实轨迹',
+              en: 'the counterfactual trajectory synthesized from weighted comparison units with matching pre-intervention histories',
+            },
+          },
+        ],
+        prediction: {
+          zh: '若反事实可识别，合成对照应在干预前复现处理对象的留出轨迹，并只在干预后持续分叉；把处理日期做安慰剂平移或逐一移除关键供体时，效应不应任意改变符号。',
+          en: 'If the counterfactual is identifiable, the synthetic control should reproduce held-out pre-treatment trajectories and diverge persistently only after treatment; placebo shifts of the treatment date and leave-one-donor-out tests should not arbitrarily reverse the effect.',
+        },
+        boundary: {
+          zh: '合成控制不是时间机器：它依赖供体支持、干预前拟合、无溢出和没有同步未观测冲击。即使效应可估，也不能仅凭一条差值识别完整历史机制。',
+          en: 'Synthetic control is not a time machine: it depends on donor support, pre-treatment fit, no spillovers, and no coincident unobserved shocks. Even an estimable effect does not identify the full historical mechanism from one gap.',
+        },
+        evidenceRefs: [
+          'https://doi.org/10.1198/jasa.2009.ap08746',
+          'https://inferenceproject.yale.edu/sites/default/files/jel.20191450.pdf',
+        ],
       },
     ],
   },
@@ -517,7 +561,7 @@ export const SEED_STRUCTURES: SeedStructure[] = [
     status: 'active',
     theme: 'living-computation',
     isomorphism: 'ISO-03',
-    provenance: XFRONTIER([1376, 574]),
+    provenance: XFRONTIER_EXPANSION([1376, 574, 541]),
     mappings: [
       {
         slug: 'active-inference',
@@ -599,6 +643,37 @@ export const SEED_STRUCTURES: SeedStructure[] = [
           zh: '这里的自由能是真的热力学自由能,单位是焦耳,可以用量热计测;主动推断里的 F 是一个信息论泛函,没有单位。这条映射之所以值得建,恰恰因为它是同一族结构里唯一能被物理测量的那一支——但也正因如此,它的结论不能反向搬回给认知模型。',
           en: 'The free energy here is genuine thermodynamic free energy, measured in joules with a calorimeter; the F of active inference is an information-theoretic functional with no units. This mapping earns its place precisely because it is the one branch of the family that physics can measure — and for the same reason its results cannot be carried back to the cognitive models.',
         },
+      },
+      {
+        slug: 'thermodynamic-computing-hardware',
+        correspondences: [
+          {
+            quantity: { zh: '候选分布 q(x)', en: 'candidate distribution q(x)' },
+            inThisSubstrate: {
+              zh: '由热噪声驱动、可从模拟电压与电流轨迹直接采样的硬件状态分布',
+              en: 'the hardware-state distribution sampled directly from thermally driven analogue voltage and current trajectories',
+            },
+          },
+          {
+            quantity: { zh: '能量—熵权衡', en: 'energy–entropy trade-off' },
+            inThisSubstrate: {
+              zh: '可编程能量景观与有效温度共同决定稳态概率质量落在哪里',
+              en: 'the programmable energy landscape and effective temperature jointly determining where stationary probability mass settles',
+            },
+          },
+        ],
+        prediction: {
+          zh: '若该硬件确实实现这一最小化，扫描耦合与有效温度时，实测稳态分布应沿校准后的自由能模型移动；冻结噪声或把系统推到模型未覆盖的强非平衡区后，采样质量优势应按预测消失。',
+          en: 'If the hardware implements this minimisation, sweeping coupling and effective temperature should move its measured stationary distribution along the calibrated free-energy model; freezing the noise or driving it far outside the modelled nonequilibrium regime should remove the sampling advantage as predicted.',
+        },
+        boundary: {
+          zh: '器件利用的是物理热涨落与能量景观；它不会因此证明认知系统在最小化变分自由能。强非平衡装置甚至可能没有单一平衡自由能势，必须逐台校准。',
+          en: 'The device exploits physical thermal fluctuations and an energy landscape; this does not establish that cognitive systems minimise variational free energy. A strongly nonequilibrium device may not even possess one equilibrium free-energy potential and must be calibrated device by device.',
+        },
+        evidenceRefs: [
+          'https://www.nature.com/articles/s41467-025-59011-x',
+          'https://www.nature.com/articles/s41467-025-67958-0',
+        ],
       },
     ],
   },
@@ -764,7 +839,7 @@ export const SEED_STRUCTURES: SeedStructure[] = [
     status: 'active',
     theme: 'living-computation',
     isomorphism: 'ISO-15',
-    provenance: XFRONTIER([910, 7]),
+    provenance: XFRONTIER_EXPANSION([910, 7, 550]),
     mappings: [
       {
         slug: 'erasure-conversion-qubits-turning-loss',
@@ -819,6 +894,37 @@ export const SEED_STRUCTURES: SeedStructure[] = [
           zh: '生物「码字」的代价不是均匀的：冗余会带来代谢负担与重组不稳定，所以最优冗余量由细胞适应度而非码论决定。',
           en: 'Biological codewords are not uniformly priced: redundancy carries metabolic burden and recombination instability, so the optimum is set by cellular fitness rather than by coding theory.',
         },
+      },
+      {
+        slug: 'collective-reasoning-group-epistemology',
+        correspondences: [
+          {
+            quantity: { zh: '带独立噪声的冗余副本', en: 'redundant copies with independent noise' },
+            inThisSubstrate: {
+              zh: '多名成员对同一问题各自形成、误差不完全相关的初始判断',
+              en: 'group members’ initial judgements of the same question whose errors are not perfectly correlated',
+            },
+          },
+          {
+            quantity: { zh: '有效码距', en: 'effective code distance' },
+            inThisSubstrate: {
+              zh: '少数错误意见不改变集体答案的容错余量；集中式社会影响会让错误相关，从而缩小这段余量',
+              en: 'the tolerance margin within which a minority of wrong judgements cannot flip the collective answer; centralised social influence correlates errors and shrinks that margin',
+            },
+          },
+        ],
+        prediction: {
+          zh: '若集体推理真的利用了纠错式冗余，在个体准确率相同的条件下，保留独立判断的去中心网络应比中心化网络产生更低的群体误差；随着意见相关性上升，这个增益应按有效独立样本数下降。',
+          en: 'If collective reasoning exploits error-correcting redundancy, decentralised networks that preserve independent judgements should achieve lower group error than centralised networks at the same individual accuracy; the gain should fall with opinion correlation according to effective independent sample size.',
+        },
+        boundary: {
+          zh: '人类判断不是预先设计的码字，真值也常常未知；成员会学习、说服和改变问题表述，因此这里只有“独立冗余可纠错”的骨架，没有码论式的最坏情况保证。',
+          en: 'Human judgements are not designed codewords and ground truth is often unknown. Members learn, persuade, and reframe the problem, so only the skeleton of correction by independent redundancy transfers—not coding-theoretic worst-case guarantees.',
+        },
+        evidenceRefs: [
+          'https://www.pnas.org/doi/10.1073/pnas.1615978114',
+          'https://ndg.asc.upenn.edu/wp-content/uploads/2022/10/Centola_2022_TICS_Network_Science_of_Collective_Intelligence.pdf',
+        ],
       },
     ],
   },
@@ -1164,7 +1270,7 @@ export const SEED_STRUCTURES: SeedStructure[] = [
     status: 'active',
     theme: 'living-computation',
     isomorphism: 'ISO-08',
-    provenance: XFRONTIER([574, 123]),
+    provenance: XFRONTIER_EXPANSION([574, 123, 552]),
     mappings: [
       {
         slug: 'fundamental-limits-information-thermodynamics',
@@ -1205,6 +1311,37 @@ export const SEED_STRUCTURES: SeedStructure[] = [
           zh: '香农容量假设信道统计已知且平稳。分子体系里噪声随浓度、温度、副反应漂移，容量本身是个移动目标。',
           en: 'Shannon capacity assumes known, stationary channel statistics. In molecular systems noise drifts with concentration, temperature and side reactions, so capacity itself is a moving target.',
         },
+      },
+      {
+        slug: 'social-physics-predictability-boundary',
+        correspondences: [
+          {
+            quantity: { zh: '序列熵率', en: 'sequence entropy rate' },
+            inThisSubstrate: {
+              zh: '个体位置轨迹在保留访问顺序后仍剩余的不可预测信息量',
+              en: 'the irreducible uncertainty remaining in an individual mobility trace after visit order is retained',
+            },
+          },
+          {
+            quantity: { zh: '由 Fano 不等式给出的可预测率上界', en: 'predictability ceiling from Fano’s inequality' },
+            inThisSubstrate: {
+              zh: '任何算法在相同空间离散与观测历史下能正确猜中下一个位置的理论最高比例',
+              en: 'the theoretical maximum fraction of next locations any algorithm can guess correctly under the same spatial discretisation and observed history',
+            },
+          },
+        ],
+        prediction: {
+          zh: '若这个边界有效，在相同轨迹表示上训练的模型，其留出下一位置准确率不应稳定超过由熵率推得的上界；改变空间粒度后，熵率与上界应一起按可复算方向移动。',
+          en: 'If the bound is valid, models trained on the same trajectory representation should not stably exceed the entropy-derived ceiling on held-out next-location accuracy; changing spatial granularity should move both entropy rate and the ceiling in a reproducible direction.',
+        },
+        boundary: {
+          zh: '上界依赖轨迹离散、有限样本与平稳性假设，只约束“按该表示预测位置”，不说明人的行为由简单规律决定，更不能从可预测性直接推出因果可控性。',
+          en: 'The ceiling depends on trajectory discretisation, finite samples, and stationarity. It constrains location prediction under that representation; it neither makes human behaviour simple nor turns predictability into causal controllability.',
+        },
+        evidenceRefs: [
+          'https://www.science.org/doi/10.1126/science.1177170',
+          'https://www.nature.com/articles/s41467-022-29592-y',
+        ],
       },
     ],
   },
@@ -1274,6 +1411,187 @@ export const SEED_STRUCTURES: SeedStructure[] = [
           zh: '装配指数只是把循环推后了一步，没有取消它：「可得砌块」这个集合仍要由人指定，而人只会用自己知道的化学去指定它。一个用完全陌生砌块的体系，其装配路径长度可能被系统性高估或低估，而我们没有办法从外部知道是哪一种。',
           en: 'The assembly index defers the circularity rather than dissolving it: the set of available building blocks is still specified by people, using the chemistry they already know. A system built from wholly unfamiliar blocks could have its path length systematically over- or under-counted, with no external way to tell which.',
         },
+      },
+    ],
+  },
+
+  // ── 2026-07 方向扩展：两条缺失但可落地的机制骨架 ───────────────────────
+  // 这些不是把新岛按主题打包。每条边都要求同一组可测变量、一个会失败的
+  // 预测，以及明确不能搬运的边界；没有这三样就宁可保持为地图缺口。
+
+  {
+    id: 'struct://xfrontier/distributed-field-observability',
+    title: { zh: '分布式物理场的可观测性', en: 'Observability through distributed physical fields' },
+    statement: {
+      zh: '局部事件在空间中激发一个可传播的物理场；只有传递函数、传感孔径与背景噪声被校准后，沿场分布的观测才足以反演事件的时间、位置或类别。',
+      en: 'A local event excites a physical field that propagates through space; only after the transfer function, sensing aperture, and background noise are calibrated can distributed observations recover the event’s time, location, or class.',
+    },
+    status: 'active',
+    theme: 'unknown-mapping',
+    provenance: XFRONTIER_EXPANSION([533, 545, 534]),
+    mappings: [
+      {
+        slug: 'dark-fiber-ecological-sensing',
+        correspondences: [
+          {
+            quantity: { zh: '源事件与传播场', en: 'source event and propagating field' },
+            inThisSubstrate: {
+              zh: '鲸歌、船舶、风暴或地震在海底激发并传播的弹性波场',
+              en: 'the elastic wavefield launched through the seafloor by whale calls, vessels, storms, or earthquakes',
+            },
+          },
+          {
+            quantity: { zh: '分布式传感孔径', en: 'distributed sensing aperture' },
+            inThisSubstrate: {
+              zh: '既有海底通信光纤上数千个连续应变采样通道',
+              en: 'thousands of contiguous strain-sampling channels along an existing subsea telecommunications fibre',
+            },
+          },
+        ],
+        prediction: {
+          zh: '若反演骨架成立，同一事件应在相邻光纤通道上形成与传播速度和几何一致的到时斜率，鲸、船与地震的独立标注应在留出区段上仍可定位；光纤与波前接近正交或海床耦合变差时，灵敏度应按模型下降。',
+          en: 'If the inversion skeleton holds, one event should produce arrival-time slopes across adjacent fibre channels consistent with propagation speed and geometry, and independently labelled whales, vessels, and earthquakes should remain localisable on held-out cable sections; sensitivity should fall as modelled when the fibre is poorly coupled to the seabed or nearly orthogonal to the wavefront.',
+        },
+        boundary: {
+          zh: '光纤测到的是沿线应变，不是鲸或地震本身。海床耦合、缆线方向、空间混叠和船噪都会改变可见性；分类器命中并不能替代源—场—传感器的校准。',
+          en: 'The fibre measures axial strain, not a whale or earthquake directly. Seabed coupling, cable orientation, spatial aliasing, and vessel noise all alter visibility; a classifier hit cannot replace calibration of source, field, and sensor.',
+        },
+        evidenceRefs: [
+          'https://www.nature.com/articles/s41598-022-23606-x',
+          'https://www.frontiersin.org/journals/marine-science/articles/10.3389/fmars.2022.901348/full',
+        ],
+      },
+      {
+        slug: 'biotremology-vibrational-communication',
+        correspondences: [
+          {
+            quantity: { zh: '编码源波形', en: 'encoded source waveform' },
+            inThisSubstrate: {
+              zh: '昆虫敲击、摩擦或振动身体后注入植物、土壤或巢体的时频模式',
+              en: 'the time–frequency pattern an insect injects into a plant, soil, or nest by tapping, stridulating, or vibrating its body',
+            },
+          },
+          {
+            quantity: { zh: '基底传递函数', en: 'substrate transfer function' },
+            inThisSubstrate: {
+              zh: '植物茎叶或其他承载介质对不同频率、距离和耦合位置的衰减与失真',
+              en: 'the attenuation and distortion imposed by a plant stem, leaf, or other carrier across frequency, distance, and coupling position',
+            },
+          },
+        ],
+        prediction: {
+          zh: '若振动是可观测的信息通道，在同一基底上回放保留原始时频结构的信号应诱发接收者的定向、求偶或避害反应，而等能量但打乱相位或频谱的对照不应；响应距离应随实测传递函数衰减。',
+          en: 'If vibration is an observable information channel, playback preserving the original time–frequency structure through the same substrate should elicit orientation, mating, or avoidance while equal-energy phase- or spectrum-scrambled controls should not; response range should decay with the measured transfer function.',
+        },
+        boundary: {
+          zh: '动物会主动选择基底、调节发声并结合化学与视觉语境，它们不是被动传感器阵列。这里只共享“源—场—接收器”的可观测性条件，不共享 DAS 的线性反演算法。',
+          en: 'Animals actively choose substrates, adjust signalling, and combine chemical and visual context; they are not passive sensor arrays. What transfers is the source–field–receiver observability condition, not DAS’s linear inversion machinery.',
+        },
+        evidenceRefs: ['https://pmc.ncbi.nlm.nih.gov/articles/PMC3310055/'],
+      },
+      {
+        slug: 'aerial-electroecology',
+        correspondences: [
+          {
+            quantity: { zh: '场源与外场', en: 'field source and ambient field' },
+            inThisSubstrate: {
+              zh: '带电生物、花朵与大气电势梯度在空气中形成的低频电场',
+              en: 'the low-frequency electric field formed in air by charged organisms, flowers, and the atmospheric potential gradient',
+            },
+          },
+          {
+            quantity: { zh: '场—受体转换', en: 'field-to-receptor transduction' },
+            inThisSubstrate: {
+              zh: '感受毛或其他机械受体把电场力转成可被神经系统读取的偏转',
+              en: 'sensory hairs or other mechanoreceptors converting electric force into deflection readable by the nervous system',
+            },
+          },
+        ],
+        prediction: {
+          zh: '若动物确实通过该场获得信息，在控制气流、光照与湿度后，单独改变电场强度或极性应可逆地改变感受毛偏转和行为；接地或静电屏蔽应消除效应。',
+          en: 'If animals obtain information through this field, changing field strength or polarity alone while controlling airflow, light, and humidity should reversibly alter sensory-hair deflection and behaviour; grounding or electrostatic shielding should abolish the effect.',
+        },
+        boundary: {
+          zh: '电场不是声波，空气中的电静力转换也不是海底应变传播；这条连接只保留“空间场经已知传递函数变得可观测”，不能搬运声学频谱或波速结论。',
+          en: 'An electric field is not an acoustic wave, and electrostatic transduction in air is not seafloor strain propagation. The link preserves only observability through a calibrated spatial field, not acoustic spectra or wave-speed conclusions.',
+        },
+        evidenceRefs: ['https://www.sciencedirect.com/science/article/pii/S0960982218306936'],
+      },
+    ],
+  },
+
+  {
+    id: 'struct://xfrontier/stateful-in-materia-computation',
+    title: { zh: '材料内的有状态计算', en: 'Stateful in-materia computation' },
+    statement: {
+      zh: '材料的内部物理状态同时保存输入历史并改变后续输入的变换；只有当状态更新、算子与读出都可复现、可重编程并通过留出任务检验时，迟滞才构成计算而不只是漂移。',
+      en: 'A material’s internal physical state both stores input history and changes the transformation applied to later inputs; hysteresis becomes computation rather than drift only when state updates, operators, and readouts are reproducible, reprogrammable, and validated on held-out tasks.',
+    },
+    status: 'active',
+    theme: 'living-computation',
+    provenance: XFRONTIER_EXPANSION([532, 535]),
+    mappings: [
+      {
+        slug: 'aqueous-iontronic-memristors',
+        correspondences: [
+          {
+            quantity: { zh: '内部记忆状态 x', en: 'internal memory state x' },
+            inThisSubstrate: {
+              zh: '纳流道中的离子分布、表面电荷与润湿构型，它们在输入撤去后仍保留一段时间',
+              en: 'ion distributions, surface charge, and wetting configurations in a nanofluidic channel that persist after the input is removed',
+            },
+          },
+          {
+            quantity: { zh: '状态依赖算子 y = f(u, x)', en: 'state-dependent operator y = f(u, x)' },
+            inThisSubstrate: {
+              zh: '同一电压或压力探针因历史状态不同而产生不同电流，把时间序列积分与非线性变换放进流体器件',
+              en: 'the same voltage or pressure probe producing a different current after different histories, placing temporal integration and nonlinear transformation inside the fluidic device',
+            },
+          },
+        ],
+        prediction: {
+          zh: '若内部状态承担计算，用两组可区分的脉冲历史写入后施加同一盲测探针，输出应稳定区分历史并预测序列任务标签；执行物理复位后差异应消失，再写入应恢复，而非随器件老化单调漂移。',
+          en: 'If internal state performs the computation, two distinguishable pulse histories followed by the same blind probe should yield stable outputs that predict sequence labels; a physical reset should erase the difference and rewriting should restore it, rather than the signal drifting monotonically with device ageing.',
+        },
+        boundary: {
+          zh: '迟滞、极化与慢漂移本身不等于记忆计算。必须证明状态可寻址、可复位、跨器件可复现，并在未见输入上优于无状态基线。',
+          en: 'Hysteresis, polarisation, and slow drift are not memory computation by themselves. The state must be addressable, resettable, reproducible across devices, and outperform a stateless baseline on unseen inputs.',
+        },
+        evidenceRefs: [
+          'https://pmc.ncbi.nlm.nih.gov/articles/PMC11067030/',
+          'https://www.nature.com/articles/s41928-024-01137-9',
+        ],
+      },
+      {
+        slug: 'mechanical-metamaterial-computing',
+        correspondences: [
+          {
+            quantity: { zh: '可编程内部状态 x', en: 'programmable internal state x' },
+            inThisSubstrate: {
+              zh: '屈曲单元、软模或可重构连接的稳定构型，它把所选逻辑或线性算子保存在几何中',
+              en: 'a stable configuration of buckled units, floppy modes, or reconfigurable links that stores a selected logic or linear operator in geometry',
+            },
+          },
+          {
+            quantity: { zh: '材料算子 f', en: 'material operator f' },
+            inThisSubstrate: {
+              zh: '输入力和位移经过弹性耦合后，在一次物理响应中变成逻辑输出或矩阵—向量乘积',
+              en: 'elastic coupling transforming input forces and displacements into a logic output or matrix–vector product in one physical response',
+            },
+          },
+        ],
+        prediction: {
+          zh: '若几何状态就是程序，只改变可重构单元而不增加电子控制器，应可切换真值表或矩阵算子，并在留出载荷上达到设计误差；复位到原构型后原算子应恢复。',
+          en: 'If geometry is the program, changing only reconfigurable units with no added electronic controller should switch the truth table or matrix operator and meet its design error on held-out loads; resetting the original configuration should restore the original operator.',
+        },
+        boundary: {
+          zh: '任何弹性体都会做固定的力—位移变换，但这不等于通用计算。摩擦、疲劳和制造偏差也会制造“记忆”；只有可重编程、可复位并在任务上读出的部分属于这条结构。',
+          en: 'Every elastic body performs a fixed force–displacement transform, but that is not general computation. Friction, fatigue, and fabrication error can also mimic memory; only the reprogrammable, resettable, task-readable part belongs to this structure.',
+        },
+        evidenceRefs: [
+          'https://www.nature.com/articles/s41467-023-40989-1',
+          'https://www.nature.com/articles/s41467-021-27608-7',
+        ],
       },
     ],
   },
@@ -1363,7 +1681,7 @@ export const SEED_STRUCTURES: SeedStructure[] = [
     status: 'active',
     theme: 'collective-dynamics',
     isomorphism: 'ISO-19',
-    provenance: XFRONTIER([1438, 900]),
+    provenance: XFRONTIER_EXPANSION([1438, 900, 546]),
     mappings: [
       {
         slug: 'idiographic-dynamic-network-psychology',
@@ -1411,6 +1729,34 @@ export const SEED_STRUCTURES: SeedStructure[] = [
           zh: '平均场近似假设每个单元感受到的是全局平均；LLM 群体的交互拓扑是两两配对且有记忆，因此临界指数不必与平均场值一致。',
           en: 'Mean field assumes each unit feels a global average; the LLM population interacts pairwise and with memory, so its critical exponents need not match mean-field values.',
         },
+      },
+      {
+        slug: 'p-bit-probabilistic-computing',
+        correspondences: [
+          {
+            quantity: { zh: '自旋 sᵢ ∈ {−1,+1}', en: 'spin sᵢ ∈ {−1,+1}' },
+            inThisSubstrate: {
+              zh: '随机磁隧道结在两个可读磁化状态间持续翻转的概率比特',
+              en: 'a probabilistic bit formed by a stochastic magnetic tunnel junction continually switching between two readable magnetisation states',
+            },
+          },
+          {
+            quantity: { zh: '耦合 Jᵢⱼ 与外场 hᵢ', en: 'coupling Jᵢⱼ and field hᵢ' },
+            inThisSubstrate: {
+              zh: '可编程互连与偏置电压，它们把目标概率模型写进 p-bit 网络的条件翻转率',
+              en: 'programmable interconnects and bias voltages that encode the target probabilistic model in the p-bit network’s conditional switching rates',
+            },
+          },
+        ],
+        prediction: {
+          zh: '若伊辛映射成立，在校准温度、耦合和偏置的工作区内，硬件测得的边缘概率与成对相关应随 J、h 按目标玻尔兹曼分布移动；关闭耦合后相关应退回器件独立噪声基线。',
+          en: 'If the Ising mapping holds, within the calibrated temperature, coupling, and bias regime, measured marginals and pair correlations should move with J and h according to the target Boltzmann distribution; disabling coupling should return correlations to the independent-device noise floor.',
+        },
+        boundary: {
+          zh: '真实 p-bit 异步、非平衡且存在器件差异；它可以近似采样一个伊辛分布，却不自动共享平衡态极限下的临界指数或遍历性保证。',
+          en: 'Real p-bits are asynchronous, nonequilibrium, and device-variable. They may approximate samples from an Ising distribution without inheriting equilibrium critical exponents or guarantees of ergodicity.',
+        },
+        evidenceRefs: ['https://www.nature.com/articles/s41467-024-48152-0'],
       },
     ],
   },
@@ -1878,3 +2224,16 @@ export const SEED_STRUCTURES: SeedStructure[] = [
     mappings: [],
   },
 ];
+
+for (const patch of WAVE_2_STRUCTURE_PATCHES) {
+  const structure = SEED_STRUCTURES.find((candidate) => candidate.id === patch.structureId);
+  if (!structure) {
+    throw new Error(`Wave 2 structure patch target does not exist: ${patch.structureId}`);
+  }
+  structure.mappings.push(...patch.mappings);
+  if (patch.mappings.length > 0) {
+    structure.status = 'active';
+  }
+}
+
+SEED_STRUCTURES.push(...WAVE_2_STRUCTURES);

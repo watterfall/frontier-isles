@@ -15,6 +15,7 @@ import {
 } from '../../chart/connectionField';
 import { LangToggle } from '../shell/LangToggle';
 import { WorldTrail } from '../shell/WorldTrail';
+import { ConnectionTideChart } from '../chart/ConnectionTideChart';
 import type { ModelRunReceipt } from '../../models/types';
 import { selectWorldTrail } from '../../state/worldTrail';
 import { selectRouteOutcome } from '../../state/routeOutcome';
@@ -238,7 +239,7 @@ export function MobileShell({ islands, modelRuns = [], onRecordModelRun = () => 
       )}
 
       <div className="fi-mobile-segments" role="tablist" aria-label={t('mobile.note')}>
-        <button type="button" role="tab" aria-selected={seg === 'connections'} onClick={() => setSeg('connections')}>{t('mobile.segConnections')} <span>{connectionField ? connectionField.topics.length + connectionField.paths.length : '…'}</span></button>
+        <button type="button" role="tab" aria-selected={seg === 'connections'} onClick={() => setSeg('connections')}>{t('mobile.segConnections')} <span>{connectionField ? (lang === 'zh' ? `${connectionField.topics.length}题 · ${connectionField.paths.length}线` : `${connectionField.topics.length} themes · ${connectionField.paths.length} routes`) : '…'}</span></button>
         <button type="button" role="tab" aria-selected={seg === 'models'} onClick={() => setSeg('models')}>{lang === 'zh' ? '搭模型' : 'Models'} <span>{modelRuns.length}</span></button>
         <button type="button" role="tab" aria-selected={seg === 'chart'} onClick={() => setSeg('chart')}>{t('mobile.segChart')}</button>
         <button type="button" role="tab" aria-selected={seg === 'list'} onClick={() => setSeg('list')}>{t('mobile.segList')} <span>{filtered.length}</span></button>
@@ -340,8 +341,8 @@ export function MobileShell({ islands, modelRuns = [], onRecordModelRun = () => 
       <nav className="fi-mobile-nav" aria-label={t('mobile.note')}>
         <button type="button" aria-current={seg === 'chart' ? 'page' : undefined} onClick={() => setSeg('chart')}><span aria-hidden="true">⌖</span>{t('mobile.tabs.chart')}</button>
         <button type="button" aria-current={seg === 'connections' ? 'page' : undefined} onClick={() => setSeg('connections')}><span aria-hidden="true">联</span>{t('mobile.tabs.bridge')}</button>
+        <button type="button" aria-current={seg === 'list' ? 'page' : undefined} onClick={() => setSeg('list')}><span aria-hidden="true">录</span>{t('mobile.segList')}</button>
         <button type="button" aria-current={seg === 'models' ? 'page' : undefined} onClick={() => setSeg('models')}><span aria-hidden="true">模</span>{lang === 'zh' ? '模型' : 'Model'}</button>
-        <button type="button" disabled><span aria-hidden="true">印</span>{t('mobile.tabs.mine')}</button>
       </nav>
     </main>
   );
@@ -576,6 +577,7 @@ function MobileConnectionField({ field, lang }: { field: ConnectionField | null;
         </article>
       ) : (
         <div className="fi-mobile-connection-global">
+          <ConnectionTideChart field={field} lang={lang} onFocus={navigate} variant="mobile" />
           <section className="fi-mobile-connection-starters">
             <h3>{copy.starter} <span>{copy.starterHint}</span></h3>
             {starters.map((item) => (

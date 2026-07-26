@@ -38,7 +38,7 @@ import type { IslandDatum } from '../../api/fallback';
 import type { AtlasControls, AtlasMetrics } from '../../chart/atlasControls';
 import {
   buildConnectionField,
-  projectConnectionMap,
+  projectConnectionOverlay,
   type ConnectionChannel,
   type ConnectionFocus,
 } from '../../chart/connectionField';
@@ -196,8 +196,8 @@ function AtlasChartScreenImpl(props: AtlasChartScreenProps) {
     setLensId(focus?.type === 'convergence' ? focus.id : null);
   }, [setLensId]);
   const connectionMap = useMemo(
-    () => connectionVisible && connectionField
-      ? projectConnectionMap(connectionField, connectionChannel, effectiveFocus)
+    () => connectionField
+      ? projectConnectionOverlay(connectionField, connectionChannel, effectiveFocus, connectionVisible)
       : null,
     [connectionVisible, connectionField, connectionChannel, effectiveFocus],
   );

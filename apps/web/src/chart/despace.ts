@@ -20,12 +20,21 @@ export interface Bounds {
 }
 
 export interface SpaceOptions {
-  /** Minimum centre-to-centre distance at scale 1 (px). Scaled per-pair by island size. */
+  /**
+   * Desired centre-to-centre distance at scale 1 (px), scaled per pair by
+   * island size. Dense catalogs are capped at the box's deterministic packing
+   * capacity rather than pretending an impossible spacing target can converge.
+   */
   minDist?: number;
   /** Relaxation iterations (deterministic; stops early once nothing moves). */
   iterations?: number;
   /** Keep-within box = chart viewBox minus margins for the top chrome + captions. */
   bounds?: Bounds;
+  /**
+   * Cap impossible pair targets at the fixed box's packing capacity. Disable
+   * only for an elastic/zoomable world whose bounds already grow with content.
+   */
+  capToPackingCapacity?: boolean;
 }
 
 export interface Placed {
@@ -41,6 +50,8 @@ const DEFAULT_BOUNDS: Bounds = { minX: 120, minY: 170, maxX: 1320, maxY: 760 };
 // keeps edges apart when minDist ≥ 150 (= sum of radii + a small gap).
 const DEFAULT_MIN_DIST = 150;
 const DEFAULT_ITERATIONS = 600;
+/** Leave a little room below ideal hex packing so boundary-clamped relaxation converges. */
+const PACKING_SAFETY = 0.96;
 /** Golden angle — a stable per-index direction to break exact coincidences without RNG. */
 const GOLDEN_ANGLE = 2.399963229728653;
 
@@ -60,6 +71,12 @@ export function spaceIslands<T extends Placed>(items: T[], opts: SpaceOptions = 
   const iterations = opts.iterations ?? DEFAULT_ITERATIONS;
   const b = opts.bounds ?? DEFAULT_BOUNDS;
   const n = items.length;
+  const boxArea = Math.max(0, b.maxX - b.minX) * Math.max(0, b.maxY - b.minY);
+  // Ideal hex packing gives area/point = √3·d²/2. The safety factor accounts
+  // for a finite rectangle and for preserving the authored neighbourhoods.
+  const densityCap = opts.capToPackingCapacity !== false && n > 1
+    ? Math.sqrt((2 * boxArea) / (Math.sqrt(3) * n)) * PACKING_SAFETY
+    : Infinity;
 
   const xs = Float64Array.from(items, (it) => it.x);
   const ys = Float64Array.from(items, (it) => it.y);
@@ -83,7 +100,7 @@ export function spaceIslands<T extends Placed>(items: T[], opts: SpaceOptions = 
           dy = Math.sin(ang);
           dist = 1;
         }
-        const need = minDist * ((ss[i]! + ss[j]!) / 2);
+        const need = Math.min(minDist * ((ss[i]! + ss[j]!) / 2), densityCap);
         if (dist < need) {
           const push = (need - dist) / 2;
           const ux = (dx / dist) * push;

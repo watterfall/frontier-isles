@@ -80,6 +80,11 @@ describe('ConnectionFieldPanel — source-preserving dossier', () => {
     expect(markup).toContain('沿着跨学科主题探索');
     expect(markup).toContain('探索路径');
     expect(markup).toContain('选一个跨学科主题');
+    expect(markup).toContain('碰撞潮汐');
+    expect(markup).toContain('领域相邻不会自动成为连接');
+    expect(markup).toContain('aria-label="四个领域之间已有直接研究关系的潮汐图"');
+    expect(markup).toContain('主题水位');
+    expect(markup).toContain('潮汐总览');
     expect(markup).toContain('从这些主题开始');
     expect(markup).toContain('耦合振子同步');
     expect(markup).toContain('异速生长标度律');
@@ -111,6 +116,33 @@ describe('ConnectionFieldPanel — source-preserving dossier', () => {
     const synchronizationMarkup = renderToStaticMarkup(<ConnectionFieldPanel {...props} focus={{ type: 'convergence', id: synchronization.id }} />);
     expect(synchronizationMarkup).toContain('目前只在 1 项研究中出现');
     expect(synchronizationMarkup).toContain('以这个问题继续');
+  });
+
+  it('links only safe web evidence while keeping non-URL references readable', () => {
+    const topic = base.topics.find((candidate) => candidate.members.length > 0)!;
+    const webRef = 'https://doi.org/10.1038/example';
+    const localRef = 'record:533';
+    const evidenceField: ConnectionField = {
+      ...base,
+      topics: base.topics.map((candidate) => candidate.id === topic.id
+        ? {
+            ...candidate,
+            members: candidate.members.map((member, index) => index === 0
+              ? { ...member, mapping: { ...member.mapping, evidenceRefs: [webRef, localRef] } }
+              : member),
+          }
+        : candidate),
+    };
+    const markup = renderToStaticMarkup(
+      <ConnectionFieldPanel {...props} field={evidenceField} focus={{ type: 'convergence', id: topic.id }} />,
+    );
+
+    expect(markup).toContain(`href="${webRef}"`);
+    expect(markup).toContain('target="_blank"');
+    expect(markup).toContain('rel="noopener noreferrer"');
+    expect(markup).toContain(`aria-label="在新标签页打开证据来源：${webRef}"`);
+    expect(markup).toContain(`<code>${localRef}</code>`);
+    expect(markup).not.toContain(`href="${localRef}"`);
   });
 
   it('keeps the full index secondary and makes the three research answers primary', () => {

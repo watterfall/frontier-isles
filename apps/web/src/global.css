@@ -250,6 +250,9 @@ body:has(.fi-connection-field) {
   --fi-hud-rail-right: calc(var(--fi-hud-panel-w) + var(--fi-hud-gutter));
 }
 body:has(.fi-model-launch) { --fi-hud-dock-bottom: 94px; --fi-hud-dock-left: 362px; }
+@media (min-width: 901px) and (max-width: 1120px) {
+  :root { --fi-hud-panel-w: clamp(360px, 38vw, 400px); }
+}
 
 /* ── Continuous world trail: place and epistemic context stay distinct ── */
 .fi-world-trail {
@@ -839,6 +842,7 @@ body:has(.fi-model-launch) { --fi-hud-dock-bottom: 94px; --fi-hud-dock-left: 362
 .fi-connection-expand b { font-family: var(--fi-font-mono); font-size: 13px; font-weight: 400; opacity: .62; }
 .fi-connection-visibility { width: 50px; padding: 5px; border: 0; border-left: .75px solid color-mix(in srgb, var(--fi-ink) 20%, transparent); background: transparent; color: var(--fi-ink-2); font-family: var(--fi-font-display); font-size: 7px; line-height: 1.25; cursor: pointer; }
 .fi-connection-visibility[aria-pressed='true'] { color: var(--fi-azurite); box-shadow: inset 0 -2px var(--fi-azurite); }
+.fi-connection-overview { display: grid; width: 50px; place-items: center; box-sizing: border-box; padding: 5px; border-left: .75px solid color-mix(in srgb, var(--fi-ink) 20%, transparent); color: var(--fi-ochre); font-family: var(--fi-font-display); font-size: 7px; line-height: 1.25; text-align: center; }
 .fi-connection-body { max-height: calc(100% - 58px); overflow-y: auto; overscroll-behavior: contain; border: .75px solid color-mix(in srgb, var(--fi-ink) 34%, transparent); border-top: 0; background: var(--fi-paper-raised); box-shadow: 5px 6px 0 color-mix(in srgb, var(--fi-ink) 9%, transparent); scrollbar-color: color-mix(in srgb, var(--fi-ink) 24%, transparent) transparent; }
 .fi-connection-intro { margin: 0; padding: 10px 12px; border-bottom: .75px dashed color-mix(in srgb, var(--fi-ink) 22%, transparent); color: var(--fi-ink-2); font-size: 10px; line-height: 1.55; }
 .fi-connection-search { position: relative; display: grid; gap: 4px; padding: 9px 12px; border-bottom: .75px solid color-mix(in srgb, var(--fi-ink) 18%, transparent); }
@@ -1061,6 +1065,117 @@ body:has(.fi-model-launch) { --fi-hud-dock-bottom: 94px; --fi-hud-dock-left: 362
 .fi-connection-guide li:last-child { padding-right: 0; }
 .fi-connection-guide li b { color: var(--fi-ochre); font-family: var(--fi-font-mono); font-size: 7px; font-weight: 500; }
 .fi-connection-guide li span { font-family: var(--fi-font-display); font-size: 8px; line-height: 1.4; }
+
+/* Collision tide: the global, data-counted overview before exact relations
+   expand on the atlas. It is a cartographic index, not a second graph layout. */
+.fi-connection-tide {
+  container-type: inline-size;
+  padding: 12px;
+  overflow: hidden;
+  border-bottom: 1px solid color-mix(in srgb, var(--fi-ink) 24%, transparent);
+  background: color-mix(in srgb, var(--fi-azurite) 2.5%, var(--fi-paper-raised));
+}
+.fi-connection-tide > header { display: grid; grid-template-columns: minmax(112px, .75fr) 1.25fr; align-items: start; gap: 12px; }
+.fi-connection-tide > header > span { display: grid; gap: 1px; }
+.fi-connection-tide > header small { color: var(--fi-ochre); font-family: var(--fi-font-mono); font-size: 7px; letter-spacing: .1em; text-transform: uppercase; }
+.fi-connection-tide > header h2 { margin: 0; font-family: var(--fi-font-display); font-size: 14px; letter-spacing: .04em; }
+.fi-connection-tide > header p { margin: 0; color: var(--fi-ink-2); font-size: 8.5px; line-height: 1.5; }
+.fi-connection-tide-meter { display: flex; height: 5px; gap: 2px; margin-top: 11px; background: color-mix(in srgb, var(--fi-ink) 7%, transparent); }
+.fi-connection-tide-meter span { min-width: 4px; }
+.fi-connection-tide-meter span[data-state='crossing'] { background: var(--fi-malachite); }
+.fi-connection-tide-meter span[data-state='single'] { background: var(--fi-azurite); }
+.fi-connection-tide-meter span[data-state='gap'] { background: repeating-linear-gradient(90deg, var(--fi-ochre) 0 2px, transparent 2px 4px); }
+.fi-connection-tide-meter-labels { display: flex; align-items: baseline; gap: 10px; margin-top: 5px; color: var(--fi-ink-2); font-family: var(--fi-font-mono); font-size: 6.5px; }
+.fi-connection-tide-meter-labels span { display: inline-flex; align-items: baseline; gap: 3px; }
+.fi-connection-tide-meter-labels b { color: var(--fi-ink); font-size: 7px; font-weight: 600; }
+.fi-connection-tide-meter-labels small { margin-left: auto; color: var(--fi-ochre); font-size: 7px; }
+.fi-connection-tide figure { margin: 8px 0 0; }
+.fi-connection-tide figure svg { display: block; width: 100%; height: auto; max-height: 156px; overflow: visible; color: var(--fi-ochre); }
+.fi-connection-tide figure figcaption { margin-top: -2px; color: var(--fi-ink-2); font-family: var(--fi-font-mono); font-size: 6.5px; line-height: 1.45; }
+.fi-connection-tide-contour { fill: none; stroke: color-mix(in srgb, var(--fi-azurite) 22%, transparent); stroke-width: .7; stroke-dasharray: 2 5; vector-effect: non-scaling-stroke; }
+.fi-connection-tide-lane { fill: none; stroke: var(--fi-ochre); opacity: .2; stroke-linecap: round; vector-effect: non-scaling-stroke; transition: opacity 180ms ease-out; }
+.fi-connection-tide-lane[data-proposed='true'] { stroke-dasharray: 4 5; }
+.fi-connection-tide-lane[data-selected='true'] { opacity: .9; }
+.fi-connection-tide-domain { --fi-tide-domain: var(--fi-ochre); color: var(--fi-tide-domain); }
+.fi-connection-tide-domain[data-domain='数理'],
+.fi-connection-tide [data-domain='数理'] { --fi-tide-domain: var(--fi-domain-math-ink); }
+.fi-connection-tide-domain[data-domain='物质'],
+.fi-connection-tide [data-domain='物质'] { --fi-tide-domain: var(--fi-domain-matter-ink); }
+.fi-connection-tide-domain[data-domain='生命'],
+.fi-connection-tide [data-domain='生命'] { --fi-tide-domain: var(--fi-domain-life-ink); }
+.fi-connection-tide-domain[data-domain='交叉'],
+.fi-connection-tide [data-domain='交叉'] { --fi-tide-domain: var(--fi-domain-cross-ink); }
+.fi-connection-tide-domain circle { fill: var(--fi-paper-raised); stroke: var(--fi-tide-domain); stroke-width: 1.3; vector-effect: non-scaling-stroke; }
+.fi-connection-tide-domain text { fill: var(--fi-tide-domain); font-family: var(--fi-font-display); font-size: 8px; font-weight: 700; }
+.fi-connection-tide-domain .fi-connection-tide-domain-count { fill: var(--fi-ink-2); font-family: var(--fi-font-mono); font-size: 6px; font-weight: 400; }
+.fi-connection-tide-lanes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; margin-top: 9px; }
+.fi-connection-tide-lanes > button {
+  display: grid;
+  min-width: 0;
+  min-height: 46px;
+  align-content: center;
+  gap: 2px;
+  padding: 5px 7px;
+  border: .75px solid color-mix(in srgb, var(--fi-ink) 18%, transparent);
+  background: transparent;
+  color: var(--fi-ink);
+  text-align: left;
+  cursor: pointer;
+}
+.fi-connection-tide-lanes > button[aria-pressed='true'] { border-color: var(--fi-ochre); background: color-mix(in srgb, var(--fi-gamboge) 8%, transparent); box-shadow: inset 2px 0 var(--fi-ochre); }
+.fi-connection-tide-lanes > button > span { display: flex; align-items: center; gap: 4px; min-width: 0; }
+.fi-connection-tide-lanes > button i { color: var(--fi-tide-domain); font-family: var(--fi-font-display); font-size: 8px; font-style: normal; font-weight: 700; }
+.fi-connection-tide-lanes > button b { color: var(--fi-ink-2); font-family: var(--fi-font-mono); font-size: 8px; font-weight: 400; }
+.fi-connection-tide-lanes > button small { overflow: hidden; color: var(--fi-ink-2); font-family: var(--fi-font-mono); font-size: 6.5px; text-overflow: ellipsis; white-space: nowrap; }
+.fi-connection-tide-routes { margin-top: 8px; border-top: .75px solid color-mix(in srgb, var(--fi-ink) 20%, transparent); }
+.fi-connection-tide-routes > button,
+.fi-connection-tide-routes details > button {
+  display: grid;
+  width: 100%;
+  min-height: 64px;
+  grid-template-columns: 34px minmax(0, 1fr) 12px;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 2px;
+  border: 0;
+  border-bottom: .75px solid color-mix(in srgb, var(--fi-ink) 13%, transparent);
+  background: transparent;
+  color: var(--fi-ink);
+  text-align: left;
+  cursor: pointer;
+}
+.fi-connection-tide-routes button > i { position: relative; display: block; width: 29px; height: 18px; }
+.fi-connection-tide-routes button > i::before { content: ''; position: absolute; top: 8px; right: 2px; left: 2px; border-top: 1.5px solid var(--fi-ochre); }
+.fi-connection-tide-routes button > i span { position: absolute; top: 5px; left: 12px; width: 6px; height: 6px; transform: rotate(45deg); border: 1px solid var(--fi-ochre); background: var(--fi-paper-raised); }
+.fi-connection-tide-routes button[data-kind='evidence'] > i::before,
+.fi-connection-tide-routes button[data-kind='contradiction'] > i::before { border-color: var(--fi-azurite); border-top-style: dotted; }
+.fi-connection-tide-routes button[data-kind='lineage'] > i::before { border-color: var(--fi-malachite); border-top-style: dashed; }
+.fi-connection-tide-routes button > span { display: grid; min-width: 0; gap: 2px; }
+.fi-connection-tide-routes button small { overflow: hidden; color: var(--fi-ochre); font-family: var(--fi-font-mono); font-size: 6.5px; text-overflow: ellipsis; white-space: nowrap; }
+.fi-connection-tide-routes button strong { overflow: hidden; font-family: var(--fi-font-display); font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.fi-connection-tide-routes button em { overflow: hidden; color: var(--fi-ink-2); font-size: 7.5px; font-style: normal; text-overflow: ellipsis; white-space: nowrap; }
+.fi-connection-tide-routes button > b { color: var(--fi-azurite); font-size: 9px; font-weight: 400; }
+.fi-connection-tide-routes details > summary { min-height: 40px; padding: 7px 2px; color: var(--fi-azurite); font-family: var(--fi-font-display); font-size: 7.5px; cursor: pointer; list-style: none; }
+.fi-connection-tide-routes details > summary::-webkit-details-marker { display: none; }
+.fi-connection-tide-routes details > summary::after { content: '＋'; float: right; color: var(--fi-ochre); }
+.fi-connection-tide-routes details[open] > summary::after { content: '−'; }
+.fi-connection-tide-empty { margin: 10px 0 0; color: var(--fi-ink-2); font-size: 8.5px; line-height: 1.5; }
+.fi-connection-tide button:focus-visible,
+.fi-connection-tide summary:focus-visible { outline: 2px solid var(--fi-azurite); outline-offset: -2px; }
+.fi-connection-tide[data-variant='mobile'] { margin: 0; padding: 14px 10px; border: .75px solid color-mix(in srgb, var(--fi-ink) 25%, transparent); }
+.fi-connection-tide[data-variant='mobile'] > header h2 { font-size: 18px; }
+.fi-connection-tide[data-variant='mobile'] > header p { font-size: 10.5px; }
+.fi-connection-tide[data-variant='mobile'] > header small,
+.fi-connection-tide[data-variant='mobile'] .fi-connection-tide-meter-labels { font-size: 8px; }
+.fi-connection-tide[data-variant='mobile'] figure figcaption,
+.fi-connection-tide[data-variant='mobile'] .fi-connection-tide-lanes > button small,
+.fi-connection-tide[data-variant='mobile'] .fi-connection-tide-routes button small { font-size: 8px; }
+.fi-connection-tide[data-variant='mobile'] .fi-connection-tide-lanes > button i { font-size: 10px; }
+.fi-connection-tide[data-variant='mobile'] .fi-connection-tide-routes button strong { font-size: 12px; }
+.fi-connection-tide[data-variant='mobile'] .fi-connection-tide-routes button em { font-size: 10px; }
+@container (max-width: 360px) {
+  .fi-connection-tide > header { grid-template-columns: 1fr; gap: 4px; }
+}
 .fi-connection-starters > header { padding: 11px 12px 7px; }
 .fi-connection-starters > header p { margin: 3px 0 0; color: var(--fi-ink-2); font-size: 8.5px; line-height: 1.45; }
 .fi-connection-starters ol { margin: 0; padding: 0 12px 12px; list-style: none; }
