@@ -651,7 +651,10 @@ function rankedClusterDescriptors(
       });
   }
   return [...freq.values()]
-    .sort((a, b) => b.c - a.c || a.zh.localeCompare(b.zh))
+    // `localeCompare` follows the host locale, so equal-frequency Chinese
+    // descriptors produced different names on macOS and CI's zh_CN runner.
+    // Code-point order keeps the projection byte-stable across environments.
+    .sort((a, b) => b.c - a.c || (a.zh < b.zh ? -1 : a.zh > b.zh ? 1 : 0))
     .map(({ zh, en }) => ({ zh, en }));
 }
 
