@@ -25,7 +25,7 @@ const COPY = {
   zh: {
     kicker: '跨域实况',
     title: '碰撞潮汐',
-    intro: '只画已有结构、桥梁与证据航线；领域相邻不会自动成为连接。',
+    intro: '数据标记只有已有结构、桥梁与证据航线（水纹是底纹，不承载数据）；领域相邻不会自动成为连接。',
     topicMeter: '主题水位',
     crossing: '已跨域',
     single: '单点',
@@ -50,7 +50,7 @@ const COPY = {
   en: {
     kicker: 'Cross-field readings',
     title: 'Collision tides',
-    intro: 'Only recorded structures, bridges, and evidence routes are drawn; proximity never becomes a connection.',
+    intro: 'Every data mark here is a recorded structure, bridge, or evidence route — the water texture carries none; proximity never becomes a connection.',
     topicMeter: 'Theme waterline',
     crossing: 'Cross-field',
     single: 'Single landing',

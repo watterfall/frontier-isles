@@ -492,7 +492,7 @@ export const en: Resources = {
     hint: 'Two islands sharing a mathematical skeleton can found a new island on their bridge — the formula becomes the founding seal. No bridge, no founding.',
     footnote: 'Same-equation bridges · data from xfrontier',
     button: 'Collide',
-    founded: '「{name}」rises on the bridge',
+    founded: '“{{name}}” rises on the bridge',
   },
 
   ceremony: {
@@ -549,8 +549,8 @@ export const en: Resources = {
     },
     ticker: 'Genesis scroll · {{n}} recorded',
     tickerTail: 'append-only · kept forever in the night layer',
-    names: { 机器好奇心: '机器好奇心', 'AI 之镜': 'AI 之镜', 未名之岛: '未名之岛' },
-    unnamed: '未名之岛',
+    names: { 机器好奇心: 'The machine’s curiosity', 'AI 之镜': 'AI’s Mirror', 未名之岛: 'Unnamed isle' },
+    unnamed: 'Unnamed isle',
     log: {
       unroll: 'Scroll unrolled · rite awaits ignition',
       ignite: 'Rite ignited · material in the scroll · timer 8:00',

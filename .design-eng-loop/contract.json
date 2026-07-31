@@ -4,7 +4,7 @@
   "pages": {},
   "cards": [],
   "out": "design-system",
-  "exporterCmd": "node ~/.claude/skills/design-eng-loop/scripts/ds-export-generic.mjs",
+  "exporterCmd": "node ~/.claude/skills-store/design-eng-loop/scripts/ds-export-generic.mjs",
   "designSync": { "projectId": "a3f16e64-aff5-4ab0-8115-37350edb87bf", "localDir": ".", "glob": "design-system/**/*.html" },
   "gateCmd": "pnpm -r typecheck && pnpm -r test",
   "prescreen": "i18n key-parity test green · CJK 0 leakage in en · every new visual traces to a ledger event or domain vector (invariant 14) · leavability round-trip test green",
@@ -24,8 +24,17 @@
     "H5 cartography / data-viz critic (honest-encoding hawk)"
   ],
   "scale": { "axisA": "0-4 per dim", "axisB_persona": "0-5 per dim" },
+  "scaleB": 5,
   "tEng": 3,
   "tTaste": 4.0,
+  "divThresh": 0.22,
+  "semanticInvariants": [
+    "Every visual traces to a ledger event or a domain vector — no improvised visual without a source (invariant 14, contract.md Tier-0).",
+    "Refutation is not validation: falsified/refuted material must never render in the same visual language as supported material (driftwood path).",
+    "Hue is not a value: sea/scene colour must be a function of position and domain, never of a label or a rank.",
+    "The four channels stay separable in one frame — altitude (rootedness), currents (relation), still water colour (domain), depth (abstraction) must never share a channel (invariant 12).",
+    "leavability round-trip holds: problem.md / ledger.jsonl survive the opp parser unchanged."
+  ],
   "epsilon": 0.3,
   "K": 2,
   "per_round_cap": 2,

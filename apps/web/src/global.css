@@ -1092,7 +1092,13 @@ body:has(.fi-model-launch) { --fi-hud-dock-bottom: 94px; --fi-hud-dock-left: 362
 .fi-connection-tide figure { margin: 8px 0 0; }
 .fi-connection-tide figure svg { display: block; width: 100%; height: auto; max-height: 156px; overflow: visible; color: var(--fi-ochre); }
 .fi-connection-tide figure figcaption { margin-top: -2px; color: var(--fi-ink-2); font-family: var(--fi-font-mono); font-size: 6.5px; line-height: 1.45; }
-.fi-connection-tide-contour { fill: none; stroke: color-mix(in srgb, var(--fi-azurite) 22%, transparent); stroke-width: .7; stroke-dasharray: 2 5; vector-effect: non-scaling-stroke; }
+/* Water texture, not a route. Deliberately outside the relation vocabulary: that grammar
+   spends colour on kind (azurite = evidence, ochre = bridge, malachite = lineage) and dash on
+   the same axis (dotted / solid / dashed), so ANY dashed azurite hairline reads as a data-
+   bearing mark. This was azurite + `stroke-dasharray: 2 5` — one notch from the evidence
+   current's own `1 5` — inside a figure that promises only recorded marks. Stone, solid,
+   hairline: belongs to the paper/terrain family, cannot be mistaken for a connection. */
+.fi-connection-tide-contour { fill: none; stroke: color-mix(in srgb, var(--fi-stone) 55%, transparent); stroke-width: .6; vector-effect: non-scaling-stroke; }
 .fi-connection-tide-lane { fill: none; stroke: var(--fi-ochre); opacity: .2; stroke-linecap: round; vector-effect: non-scaling-stroke; transition: opacity 180ms ease-out; }
 .fi-connection-tide-lane[data-proposed='true'] { stroke-dasharray: 4 5; }
 .fi-connection-tide-lane[data-selected='true'] { opacity: .9; }
@@ -1149,6 +1155,13 @@ body:has(.fi-model-launch) { --fi-hud-dock-bottom: 94px; --fi-hud-dock-left: 362
 .fi-connection-tide-routes button > i span { position: absolute; top: 5px; left: 12px; width: 6px; height: 6px; transform: rotate(45deg); border: 1px solid var(--fi-ochre); background: var(--fi-paper-raised); }
 .fi-connection-tide-routes button[data-kind='evidence'] > i::before,
 .fi-connection-tide-routes button[data-kind='contradiction'] > i::before { border-color: var(--fi-azurite); border-top-style: dotted; }
+/* Support and dispute must never share a glyph — the label alone is not a sign channel.
+   Same distinction the dossier marks already carry (.fi-connection-mark, ~L889) and the
+   sea currents encode as arrowhead-vs-tee: a supporting route points, a contradicting
+   route bars the flow. Scaled from the 42x20 dossier mark to this 29x18 chip, both
+   centred on the route line at top:8px. */
+.fi-connection-tide-routes button[data-kind='evidence'] > i span { top: 5px; right: 2px; left: auto; width: 6px; height: 6px; border: 0; transform: rotate(45deg); background: var(--fi-azurite); clip-path: polygon(0 0, 100% 50%, 0 100%); }
+.fi-connection-tide-routes button[data-kind='contradiction'] > i span { top: 2px; right: 4px; left: auto; width: 2px; height: 12px; border: 0; transform: none; background: var(--fi-azurite); }
 .fi-connection-tide-routes button[data-kind='lineage'] > i::before { border-color: var(--fi-malachite); border-top-style: dashed; }
 .fi-connection-tide-routes button > span { display: grid; min-width: 0; gap: 2px; }
 .fi-connection-tide-routes button small { overflow: hidden; color: var(--fi-ochre); font-family: var(--fi-font-mono); font-size: 6.5px; text-overflow: ellipsis; white-space: nowrap; }
