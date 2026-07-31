@@ -21,6 +21,7 @@
  */
 import { serve } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
+import type { Context } from "hono";
 import type { Server } from "node:http";
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
@@ -48,8 +49,30 @@ const app = createApp(store);
 // index.html for client-router paths. Skipped entirely when the build is absent
 // (dev), where Vite owns the web on :5173.
 if (existsSync(resolve(WEB_DIST))) {
-  app.use("/*", serveStatic({ root: WEB_DIST }));
-  app.get("/*", serveStatic({ path: "index.html", root: WEB_DIST }));
+  // `precompressed` serves the `.br`/`.gz` siblings written by the web build
+  // (apps/web/scripts/precompress.mjs) instead of re-compressing per request.
+  //
+  // Cache-Control is set explicitly because Hono's serveStatic sends none, and
+  // without a header or a validator a browser re-downloads every asset on every
+  // visit. Vite already content-hashes everything under /assets/, so those URLs
+  // are immutable by construction and can be cached for a year; index.html is
+  // the mutable pointer at them and must revalidate or a deploy would never
+  // reach a returning visitor.
+  const YEAR = 60 * 60 * 24 * 365;
+  const cacheHeaders = (path: string, c: Context) => {
+    c.header(
+      "Cache-Control",
+      /\/assets\/.+-[A-Za-z0-9_-]{8,}\.\w+/.test(path)
+        ? `public, max-age=${YEAR}, immutable`
+        : "no-cache",
+    );
+  };
+
+  app.use("/*", serveStatic({ root: WEB_DIST, precompressed: true, onFound: cacheHeaders }));
+  app.get(
+    "/*",
+    serveStatic({ path: "index.html", root: WEB_DIST, precompressed: true, onFound: cacheHeaders }),
+  );
   console.log(`[server] serving web from ${resolve(WEB_DIST)}`);
 }
 
