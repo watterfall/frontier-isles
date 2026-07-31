@@ -12,11 +12,11 @@ import { StationInteriorDrawer } from './StationInteriorDrawer';
 import { IslandDistrictMap } from './IslandDistrictMap';
 import { projectBuildingFloors, projectIslandDistricts, type BuildingFloor, type BuildingFloorPlan, type IslandDistrict } from './islandDepth';
 import { frontierAtlasBySlug } from '@frontier-isles/data/atlas';
-// Static here, dynamic from useAppData — both land on the same deferred chunk,
-// which the atlas boot has already fetched by the time an island can be opened,
-// so this costs nothing extra. It only has to stay OUT of the entry chunk, and
-// this whole screen is lazily mounted.
-import { FRONTIER_ATLAS_DETAIL } from '@frontier-isles/data/atlas-detail';
+// Read the cache the atlas boot already filled — do NOT import the data module
+// here. This screen is lazily mounted, so a static import would add the whole
+// 141KB module to the blocking chain the visitor waits on when opening an
+// island (and under a dev server, its transform too).
+import { atlasDetailOf } from '../../api/atlasDetail';
 import type { IslandInterior } from '@frontier-isles/data/frontiers';
 import type { IslandReference } from '@frontier-isles/data/literature';
 import { api, type ApiStructure } from '../../api/client';
@@ -497,7 +497,7 @@ export function GeneratedIslandScreen({
   const qfocusBilingual = atlasSummary?.qfocus ?? { zh: qfocus, en: qfocus };
   // Server detail first, deferred static atlas second — the offline twin for a
   // curated island whose API detail carries no atlas block.
-  const briefBilingual = detail.atlas?.brief ?? FRONTIER_ATLAS_DETAIL[slug]?.brief;
+  const briefBilingual = detail.atlas?.brief ?? atlasDetailOf(slug)?.brief;
   const visibleStations = [...new Set(scene.stations.filter((station) => station.visible).map((station) => station.kind))];
   const ledgerEvents = ledgerRef.current ?? [];
   const ledgerStats = {

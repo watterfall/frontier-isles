@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { applyAtlasDetail, type AtlasDetailMap } from '../api/atlasDetail';
+import { atlasDetailOf, briefOf, citationOf, loadAtlasDetail } from '../api/atlasDetail';
 import { DATA, type IslandDatum } from '../api/fallback';
 
 const island = (over: Partial<IslandDatum> = {}): IslandDatum => ({
@@ -13,40 +13,29 @@ const island = (over: Partial<IslandDatum> = {}): IslandDatum => ({
   st: 0,
   m: 1,
   a: 1,
-  slug: 'a',
+  slug: 'compositional-modeling',
   ...over,
 });
 
-const CITATION = { url: 'https://doi.org/x', title: 'T', venue: 'V', year: 2026 };
-
-describe('applyAtlasDetail', () => {
-  it('folds deferred brief and citation onto the matching island', () => {
-    const detail: AtlasDetailMap = { a: { brief: { zh: '简', en: 'Brief' }, citation: CITATION } };
-    const [merged] = applyAtlasDetail([island()], detail);
-    expect(merged?.brief).toEqual({ zh: '简', en: 'Brief' });
-    expect(merged?.citation).toEqual(CITATION);
+describe('deferred atlas detail', () => {
+  it('reads nothing before the deferred chunk has loaded', () => {
+    // Cache-miss path: a card renders correct-but-shorter rather than crashing.
+    expect(atlasDetailOf('no-such-island')).toBeUndefined();
+    expect(briefOf(island({ slug: 'no-such-island' }))).toBeUndefined();
+    expect(citationOf(island({ slug: 'no-such-island' }))).toBeUndefined();
   });
 
-  it('leaves an island the detail map has nothing for untouched, by reference', () => {
-    const untouched = island({ slug: 'missing' });
-    const out = applyAtlasDetail([untouched], { a: { brief: { zh: '简', en: 'B' } } });
-    expect(out[0]).toBe(untouched);
+  it('serves prose and citations once loaded', async () => {
+    await loadAtlasDetail();
+    expect(briefOf(island())).toBeDefined();
+    expect(briefOf(island())?.zh).toBeTruthy();
+    expect(citationOf(island())?.url).toMatch(/^https?:\/\//);
   });
 
-  // The islands array feeds a stage-boot effect: a gratuitously fresh array
-  // tears down the Pixi atlas mid-session. An empty or failed detail load must
-  // therefore be a true no-op, not a same-content copy.
-  it('returns the very same array when the detail map contributes nothing', () => {
-    const islands = [island(), island({ id: 2, slug: 'b' })];
-    expect(applyAtlasDetail(islands, {})).toBe(islands);
-    expect(applyAtlasDetail(islands, { zzz: { brief: { zh: '无', en: 'none' } } })).toBe(islands);
-  });
-
-  it('never overwrites prose an island already carries', () => {
+  it('never overwrites prose an island already carries', async () => {
+    await loadAtlasDetail();
     const bespoke = island({ brief: { zh: '手写', en: 'hand-written' } });
-    const out = applyAtlasDetail([bespoke], { a: { brief: { zh: '生成', en: 'generated' } } });
-    expect(out[0]?.brief).toEqual({ zh: '手写', en: 'hand-written' });
-    expect(out[0]).toBe(bespoke);
+    expect(briefOf(bespoke)).toEqual({ zh: '手写', en: 'hand-written' });
   });
 
   it('keeps the eager atlas free of the deferred fields, so the split stays real', () => {

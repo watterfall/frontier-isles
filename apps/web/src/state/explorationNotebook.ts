@@ -1,4 +1,5 @@
 import type { IslandDatum } from '../api/fallback';
+import { citationOf } from '../api/atlasDetail';
 import type { ModelRunReceipt, ModelFamilyId, ModelPrediction, ModelSubstrateId } from '../models/types';
 import {
   initialExplorationSession,
@@ -400,7 +401,8 @@ export function explorationNotebookMarkdown(
     if (island) lines.push(`- ${l.domain}: ${island.d}`, `- ${l.question}: ${island.q[lang]}`);
     const note = session.notes[slug]?.trim();
     if (note) lines.push(`- ${l.note}: ${note.replace(/\n/g, '\n  ')}`);
-    if (island?.citation) lines.push(`- ${l.source}: [${island.citation.venue} · ${island.citation.year}](${island.citation.url})`);
+    const cite = island ? citationOf(island) : undefined;
+    if (cite) lines.push(`- ${l.source}: [${cite.venue} · ${cite.year}](${cite.url})`);
   }
   lines.push('', `## ${l.districts}`);
   const districtRows = Object.entries(session.surveyedDistricts);

@@ -17,34 +17,44 @@ export type AtlasDetailMap = Record<
  * island without detail is a correct island with a shorter card — never a crash
  * or an empty map.
  */
+let cache: AtlasDetailMap = {};
+
 export async function loadAtlasDetail(): Promise<AtlasDetailMap> {
   try {
     const { FRONTIER_ATLAS_DETAIL } = await import('@frontier-isles/data/atlas-detail');
+    cache = FRONTIER_ATLAS_DETAIL;
     return FRONTIER_ATLAS_DETAIL;
   } catch {
     return {};
   }
 }
 
-/** Folds detail onto a positioned island list. Identity-preserving at BOTH
- *  levels, for the reason spelled out on useAppData's `reconcile`: an island the
- *  map has nothing for keeps its reference, and an empty map returns the very
- *  same array, so a failed or empty detail load cannot churn the islands array
- *  and tear down the Pixi atlas. */
-export function applyAtlasDetail(
-  islands: readonly IslandDatum[],
-  detail: AtlasDetailMap,
-): readonly IslandDatum[] {
-  let changed = false;
-  const next = islands.map((d) => {
-    const extra = d.slug ? detail[d.slug] : undefined;
-    if (!extra) return d;
-    // The bespoke sample island carries hand-written prose; never overwrite it.
-    const brief = d.brief ?? extra.brief;
-    const citation = d.citation ?? extra.citation;
-    if (brief === d.brief && citation === d.citation) return d;
-    changed = true;
-    return { ...d, brief, citation };
-  });
-  return changed ? next : islands;
+/**
+ * Synchronous read of whatever `loadAtlasDetail` has already put in the cache.
+ *
+ * For consumers that are NOT on the island state path and would otherwise have
+ * to import the data module themselves. That matters more than it looks: a
+ * static import from a lazily-mounted screen puts the whole 141KB module into
+ * that screen's blocking import chain, and under a dev server that transform
+ * happens while the visitor waits for the screen — a cost measured on CI, where
+ * it pushed the L1 mount past its budget. Reading the cache costs nothing
+ * because the atlas boot has already fetched it.
+ *
+ * Returns `undefined` before the boot load resolves; every caller treats the
+ * fields as optional, so that window renders a correct, shorter card.
+ */
+export function atlasDetailOf(slug: string): AtlasDetailMap[string] | undefined {
+  return cache[slug];
+}
+
+/** An island's own prose wins over the generated atlas — the bespoke sample
+ *  island carries hand-written text that must never be overwritten. */
+type DetailBearing = Pick<IslandDatum, 'brief' | 'citation' | 'slug'>;
+
+export function briefOf(d: DetailBearing): IslandDatum['brief'] {
+  return d.brief ?? (d.slug ? atlasDetailOf(d.slug)?.brief : undefined);
+}
+
+export function citationOf(d: DetailBearing): IslandDatum['citation'] {
+  return d.citation ?? (d.slug ? atlasDetailOf(d.slug)?.citation : undefined);
 }
