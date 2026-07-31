@@ -1,3 +1,12 @@
+// Values come from the headless `atlas-lod` entry, NOT the `/pixi` barrel.
+// `atlas-lod.ts` has no imports at all — it is pure explorer/LOD math that
+// merely lives under `src/pixi/` — while the barrel additionally pulls
+// AtlasStage → pixi.js → gsap. worldExplore is on the eager L0 path, so a
+// value import from the barrel silently drags the whole WebGL engine into the
+// entry chunk (measured: +786KB pixi.js +245KB gsap before minification),
+// breaking main.tsx's stated contract that pixi stays dynamically imported.
+// The four AtlasExplorer* types below genuinely live in atlas-stage.ts, but
+// `import type` is erased at compile time and loads nothing at runtime.
 import {
   ATLAS_EXPLORER_APPROACH_DISTANCE,
   ATLAS_EXPLORER_CURRENT_SAMPLE_DISTANCE,
@@ -9,10 +18,12 @@ import {
   facingToHeading,
   headingToFacing,
   vectorToFacing,
-  type AtlasExplorerBounds,
-  type AtlasExplorerCurrent,
-  type AtlasExplorerIsland,
-  type AtlasExplorerPose,
+} from '@frontier-isles/renderer/atlas-lod';
+import type {
+  AtlasExplorerBounds,
+  AtlasExplorerCurrent,
+  AtlasExplorerIsland,
+  AtlasExplorerPose,
 } from '@frontier-isles/renderer/pixi';
 
 export interface WorldMoveInput { x: number; y: number; z?: number }

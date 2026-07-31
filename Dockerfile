@@ -41,6 +41,16 @@ RUN mkdir -p /data
 EXPOSE 8080
 
 WORKDIR /app/apps/server
-# `pnpm start` → `tsx src/index.ts`; the entry auto-seeds an empty DB and, with
-# WEB_DIST present, serves the SPA + assets from the same port.
-CMD ["pnpm", "start"]
+# Equivalent to `pnpm start` (`tsx src/index.ts`) but WITHOUT the pnpm wrapper:
+# the entry auto-seeds an empty DB and, with WEB_DIST present, serves the SPA +
+# assets from the same port.
+#
+# Why not `pnpm start`: this app scales to zero, so every idle period ends in a
+# cold start that a real visitor waits through. Boot timestamps from `fly logs`
+# put ~6 of the ~10 seconds in pnpm alone — the gap between the runtime's
+# "Preparing to run" line and pnpm echoing its own banner — before tsx had done
+# any work. That overran fly-proxy's connect window ("gave up after 15 attempts
+# in 8.39s"), which is what turned a 10s boot into a 26.7s first byte. Invoking
+# node directly with tsx's loader hook removes a package-manager process and a
+# script-resolution pass from the critical path of every cold start.
+CMD ["node", "--import", "tsx", "src/index.ts"]

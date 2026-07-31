@@ -1,11 +1,18 @@
-import {
-  reduceNightScience,
-  type Actor,
-  type ActionType,
-  type ActorKind,
-  type FlowType,
-  type LedgerEvent,
-  type Status,
+// `reduceNightScience` is the only VALUE this module needs from opp, so it comes
+// from the `./ledger` subpath rather than the package barrel. The barrel also
+// value-exports the problem.md parser (`./markdown`), which pulls in `yaml` —
+// 72KB of a document parser that reached apps/web's entry chunk purely through
+// this one import, for a browser that never parses a problem.md. Same split the
+// renderer already makes with its headless `./atlas-lod` entry. The types below
+// stay on the barrel: `import type` is erased and costs nothing at runtime.
+import { reduceNightScience } from "@frontier-isles/opp/ledger";
+import type {
+  Actor,
+  ActionType,
+  ActorKind,
+  FlowType,
+  LedgerEvent,
+  Status,
 } from "@frontier-isles/opp";
 import type { AtomType } from "./atoms";
 import type { StationKind } from "./stations";
