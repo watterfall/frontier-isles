@@ -12,6 +12,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./atlas": "./src/atlas.ts",
+    "./atlas-detail": "./src/atlas-detail.ts",
     "./bridges": "./src/bridges.ts",
     "./frontiers": "./src/frontiers.ts",
     "./interior-bundle": "./src/interior-bundle.ts",

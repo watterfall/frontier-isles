@@ -81,9 +81,13 @@ export const DATA: IslandDatum[] = [
     out: f.outlier,
     res: f.resolved,
     slug: f.slug,
-    brief: f.brief,
+    // `cluster` stays: the L0 map groups islands by cluster code before it can
+    // paint. `brief` and `citation` do NOT — they are card prose and the
+    // reference shelf, and they arrive from the deferred
+    // `@frontier-isles/data/atlas-detail` chunk via useAppData (see
+    // ./atlasDetail.ts). Every reader of the two guards on their presence, so
+    // the pre-merge frame is a correct map with shorter cards.
     cluster: f.cluster,
-    citation: f.citation,
   })),
   // The bespoke sample island (full L1 scene + rich ledger) — not in FRONTIERS.
   // id sits OUTSIDE the frontier range: the 26→78 atlas expansion re-used 27,

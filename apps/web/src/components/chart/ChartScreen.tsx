@@ -28,7 +28,7 @@ import { IslandCard } from './IslandCard';
  */
 
 export interface ChartScreenProps {
-  islands: IslandDatum[];
+  islands: readonly IslandDatum[];
   /** My Harbor (depth-plan-v1 §3(d)) — the session actor's footprint. Only
    * the Pixi atlas reads it (fog + open-at-harbor); this SVG fallback
    * renders the plain chart either way (the fallback IS the removal test). */

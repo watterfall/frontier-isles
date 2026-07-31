@@ -16,9 +16,17 @@ import react from '@vitejs/plugin-react';
  * Nothing failed; the bundle just quietly grew. A type-only import is fine —
  * it is erased before this check ever sees a module.
  */
-const ENTRY_DENYLIST = ['pixi.js', 'gsap', 'yjs', 'y-websocket', 'yaml'];
+const ENTRY_DENYLIST = ['pixi.js', 'gsap', 'yjs', 'y-websocket', 'yaml', 'zod'];
 
-/** Fails the build when a denylisted package reaches the entry chunk. */
+/**
+ * Workspace modules under the same rule. `atlas-detail` is the deferred half of
+ * the L0 atlas (card prose + citations, ~127KB): the generator splits it out
+ * precisely so it does not block first paint, and a single eager import would
+ * silently undo that.
+ */
+const ENTRY_DENIED_MODULES = [/\/packages\/data\/src\/atlas-detail\.ts$/];
+
+/** Fails the build when a denylisted package or module reaches the entry chunk. */
 function guardEntryChunk(): Plugin {
   return {
     name: 'guard-entry-chunk',
@@ -30,6 +38,9 @@ function guardEntryChunk(): Plugin {
           const pkg = id.match(/node_modules\/(?:\.pnpm\/)?((?:@[^/]+\/)?[^/@]+)/)?.[1];
           if (pkg && ENTRY_DENYLIST.includes(pkg)) {
             leaked.set(pkg, (leaked.get(pkg) ?? 0) + mod.renderedLength);
+          } else if (ENTRY_DENIED_MODULES.some((re) => re.test(id))) {
+            const name = id.split('/').pop() ?? id;
+            leaked.set(name, (leaked.get(name) ?? 0) + mod.renderedLength);
           }
         }
         if (leaked.size > 0) {

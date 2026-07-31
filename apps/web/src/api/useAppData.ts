@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 import { api, type ApiHarbor, type ApiIsland } from './client';
 import { DATA, type IslandDatum } from './fallback';
+import { applyAtlasDetail, loadAtlasDetail, type AtlasDetailMap } from './atlasDetail';
 
 export type DataSource = 'loading' | 'api' | 'fallback';
 
 export interface AppData {
   /** L0 chart islands — always positioned from the prototype layout; server
-   *  values (members/activity/stage/status) overlay when the API responds. */
-  islands: IslandDatum[];
+   *  values (members/activity/stage/status) and the deferred atlas detail
+   *  (brief/citation) overlay when they arrive. */
+  islands: readonly IslandDatum[];
   source: DataSource;
   /** Ledger actor id for POSTed events (dev fallback when no auth). */
   actor: string;
@@ -24,10 +26,14 @@ const STAGE_INDEX: Record<string, number> = { empty: 0, hut: 1, academy: 2, scho
  * (and each unchanged island) keeps its old reference — a gratuitously fresh
  * islands array re-keys the stage-boot effect downstream and tears down the
  * whole Pixi atlas (visibly resetting an in-flight explore session). */
-function reconcile(list: ApiIsland[]): IslandDatum[] {
+function reconcile(list: ApiIsland[], detail: AtlasDetailMap): readonly IslandDatum[] {
   const byTitle = new Map(list.map((i) => [i.title, i]));
+  // The deferred card prose/citations fold in HERE rather than in a second
+  // setState: the islands array may only churn once at boot, and it already
+  // churns for the server overlay.
+  const base = applyAtlasDetail(DATA, detail);
   let changed = false;
-  const next = DATA.map((d) => {
+  const next = base.map((d) => {
     const s = byTitle.get(d.n.zh);
     if (!s) return d;
     const stage = typeof s.growth?.stage === 'string' ? STAGE_INDEX[s.growth.stage] : s.growth?.stage;
@@ -45,7 +51,7 @@ function reconcile(list: ApiIsland[]): IslandDatum[] {
     changed = true;
     return merged;
   });
-  return changed ? next : DATA;
+  return changed ? next : base;
 }
 
 /**
@@ -58,7 +64,15 @@ export function useAppData(): AppData {
   useEffect(() => {
     let alive = true;
     void (async () => {
-      const [list, me] = await Promise.all([api.listIslands(), api.me()]);
+      // The detail chunk rides alongside the API calls instead of after them:
+      // it is same-origin, immutable-cached static content, so it costs no extra
+      // wall-clock, and folding it into the same setState keeps the islands
+      // array to a single churn at boot.
+      const [list, me, detail] = await Promise.all([
+        api.listIslands(),
+        api.me(),
+        loadAtlasDetail(),
+      ]);
       if (!alive) return;
       // Dev bypass (DECISIONS §6): no session → log in as the seeded sample-island
       // master so ledger writes pass the capability gateway. Real auth replaces this.
@@ -69,9 +83,9 @@ export function useAppData(): AppData {
       const harbor = session ? await api.harbor() : null;
       if (!alive) return;
       if (list && list.length > 0) {
-        setState({ islands: reconcile(list), source: 'api', actor, harbor });
+        setState({ islands: reconcile(list, detail), source: 'api', actor, harbor });
       } else {
-        setState({ islands: DATA, source: 'fallback', actor, harbor });
+        setState({ islands: applyAtlasDetail(DATA, detail), source: 'fallback', actor, harbor });
       }
     })();
     return () => {

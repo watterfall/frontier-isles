@@ -12,6 +12,11 @@ import { StationInteriorDrawer } from './StationInteriorDrawer';
 import { IslandDistrictMap } from './IslandDistrictMap';
 import { projectBuildingFloors, projectIslandDistricts, type BuildingFloor, type BuildingFloorPlan, type IslandDistrict } from './islandDepth';
 import { frontierAtlasBySlug } from '@frontier-isles/data/atlas';
+// Static here, dynamic from useAppData — both land on the same deferred chunk,
+// which the atlas boot has already fetched by the time an island can be opened,
+// so this costs nothing extra. It only has to stay OUT of the entry chunk, and
+// this whole screen is lazily mounted.
+import { FRONTIER_ATLAS_DETAIL } from '@frontier-isles/data/atlas-detail';
 import type { IslandInterior } from '@frontier-isles/data/frontiers';
 import type { IslandReference } from '@frontier-isles/data/literature';
 import { api, type ApiStructure } from '../../api/client';
@@ -490,7 +495,9 @@ export function GeneratedIslandScreen({
   const hasReplay = timeline != null && (timeline.eventCountByNight[timeline.nights] ?? 0) > 0;
   const atlasSummary = frontierAtlasBySlug(slug);
   const qfocusBilingual = atlasSummary?.qfocus ?? { zh: qfocus, en: qfocus };
-  const briefBilingual = detail.atlas?.brief ?? atlasSummary?.brief;
+  // Server detail first, deferred static atlas second — the offline twin for a
+  // curated island whose API detail carries no atlas block.
+  const briefBilingual = detail.atlas?.brief ?? FRONTIER_ATLAS_DETAIL[slug]?.brief;
   const visibleStations = [...new Set(scene.stations.filter((station) => station.visible).map((station) => station.kind))];
   const ledgerEvents = ledgerRef.current ?? [];
   const ledgerStats = {

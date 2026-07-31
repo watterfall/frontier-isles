@@ -16,7 +16,7 @@ import {
 } from '../../chart/worldExplore';
 
 export interface WorldExploreScreenProps {
-  islands: IslandDatum[];
+  islands: readonly IslandDatum[];
   visitedIslandSlugs: readonly string[];
   sampledCurrents: readonly SampledCurrentRecord[];
   courseHistorySlugs: readonly string[];
