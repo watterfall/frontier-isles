@@ -255,7 +255,7 @@ function dominantDomain(mix: Record<string, number>): AtlasDomain {
  * op↔slug join is settled (currents key by `op://…`, atlas by `slug`); left
  * for a follow-up lane, not required for W1's headline (promote-to-default).
  */
-export function buildAtlasScene(source: readonly IslandDatum[] = DATA, extra: AtlasExtraIsland[] = []): AtlasSceneData {
+export function buildAtlasScene(source: IslandDatum[] = DATA, extra: AtlasExtraIsland[] = []): AtlasSceneData {
   const real = source.map(toAtlasInput);
   const authored: AtlasIslandInput[] = extra.length > 0 ? [...real, ...extra] : real;
   const groupBySlug = new Map<string, string>();

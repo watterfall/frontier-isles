@@ -51,7 +51,7 @@ import type { AtlasControls, AtlasMetrics } from './atlasControls';
 export interface AtlasChartHostProps {
   /** The app's current chart islands (fallback DATA reconciled with the live
    * API, plus any just-founded island) — same source `ChartScreen` renders. */
-  islands: readonly IslandDatum[];
+  islands: IslandDatum[];
   /** My Harbor (depth-plan-v1 §3(d)) — the session actor's footprint from
    * `api.harbor`. Present → the atlas opens at the harbor and far islands
    * carry fog; `null`/absent → the plain world-wide open (removal test). */

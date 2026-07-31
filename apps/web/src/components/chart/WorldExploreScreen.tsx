@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { AtlasExplorerCurrent, AtlasExplorerIsland, AtlasExplorerPose } from '@frontier-isles/renderer/pixi';
 import type { IslandDatum } from '../../api/fallback';
-import { briefOf, citationOf } from '../../api/atlasDetail';
 import type { SampledCurrentRecord } from '../../state/explorationSession';
 import {
   researchFieldRelation,
@@ -17,7 +16,7 @@ import {
 } from '../../chart/worldExplore';
 
 export interface WorldExploreScreenProps {
-  islands: readonly IslandDatum[];
+  islands: IslandDatum[];
   visitedIslandSlugs: readonly string[];
   sampledCurrents: readonly SampledCurrentRecord[];
   courseHistorySlugs: readonly string[];
@@ -394,8 +393,8 @@ export function WorldExploreScreen(props: WorldExploreScreenProps) {
           <small>{t('chart.explore.fieldNote')} · {inspected.d}</small>
           <h2>{inspected.n[lang]}</h2>
           <h3>{inspected.q[lang]}</h3>
-          {briefOf(inspected) && <p>{briefOf(inspected)![lang]}</p>}
-          {citationOf(inspected) && <a href={citationOf(inspected)!.url} target="_blank" rel="noreferrer">{citationOf(inspected)!.venue} · {citationOf(inspected)!.year}</a>}
+          {inspected.brief && <p>{inspected.brief[lang]}</p>}
+          {inspected.citation && <a href={inspected.citation.url} target="_blank" rel="noreferrer">{inspected.citation.venue} · {inspected.citation.year}</a>}
           <label className="fi-world-explore-personal-note">
             <span>{t('chart.explore.personalNote')}</span>
             <textarea
