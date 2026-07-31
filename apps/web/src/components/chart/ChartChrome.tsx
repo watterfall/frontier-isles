@@ -9,7 +9,7 @@ import type { IslandDatum } from '../../api/fallback';
 import type { AtlasControls, AtlasMetrics } from '../../chart/atlasControls';
 
 export interface ChartChromeProps {
-  islands: IslandDatum[];
+  islands: readonly IslandDatum[];
   onPick: (island: IslandDatum) => void;
   onBuild: () => void;
   onCollide: () => void;

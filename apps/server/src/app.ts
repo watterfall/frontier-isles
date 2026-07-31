@@ -5,7 +5,10 @@ import { getCookie, setCookie, deleteCookie } from "hono/cookie";
 import { ZodError } from "zod";
 import type { Actor, FlowType, Phase } from "@frontier-isles/opp";
 import type { BridgeArtifactType, GatewayAction, StationKind } from "@frontier-isles/core";
-import { BRIDGE_ARTIFACT_TYPES, TRANSPLANT_TARGETS, MappingArtifactSchema } from "@frontier-isles/core";
+import { BRIDGE_ARTIFACT_TYPES, TRANSPLANT_TARGETS } from "@frontier-isles/core";
+// Subpath, not the barrel: the schema is a zod value and the barrel is on
+// apps/web's eager path (see the note in packages/core/src/index.ts).
+import { MappingArtifactSchema } from "@frontier-isles/core/mapping";
 import {
   Store,
   GatewayDenied,

@@ -103,7 +103,7 @@ export default function App() {
 
   // ── founded island (from a completed ceremony) ───────────────────────
   const [founded, setFounded] = useState<{ name: string; q: string; slug: string } | null>(null);
-  const chartIslands = useMemo<IslandDatum[]>(
+  const chartIslands = useMemo<readonly IslandDatum[]>(
     () => founded
       // id 1002: above the frontier range, beside the sample island's 1001 —
       // a duplicate id breaks React list keys and every find-by-id lookup.
