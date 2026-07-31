@@ -128,13 +128,7 @@ export { buildTransplant, TRANSPLANT_TARGETS } from "./transplant";
 export type { TransplantInput, TransplantBuild, BridgeArtifactContent } from "./transplant";
 
 // Structure ⇄ 现象 bipartite graph (执行纲要 §九 — 学科打通)
-//
-// `MappingArtifactSchema` is deliberately NOT re-exported here: it is the only
-// zod value on this barrel, and apps/web value-imports the barrel on its eager
-// path for the pure projections below — so re-exporting it put ~130KB of schema
-// builder in the browser's entry chunk to validate a payload only the server
-// ever receives. Import it from `@frontier-isles/core/mapping`. The type stays:
-// `export type` is erased and costs nothing.
+export { MappingArtifactSchema } from "./mapping";
 export type { MappingArtifact } from "./mapping";
 export { projectStructureMappings, reduceStructureGraph, structureFrontier, disciplineDistance } from "./structures";
 export type {

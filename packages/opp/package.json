@@ -5,8 +5,7 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./ledger": "./src/ledger.ts",
-    "./night-science": "./src/night-science.ts"
+    "./ledger": "./src/ledger.ts"
   },
   "scripts": {
     "test": "vitest run",

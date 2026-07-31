@@ -139,6 +139,18 @@ export function verifyChain(events: readonly LedgerEvent[]): ChainVerification {
   return { ok: true };
 }
 
-// Moved to `./night-science` so consumers can import the reducer without this
-// module's zod schemas; re-exported here to keep this module's surface intact.
-export { reduceNightScience, type NightScienceCounts } from "./night-science";
+export interface NightScienceCounts {
+  A: number;
+  B: number;
+  D: number;
+}
+
+/**
+ * Aggregate night-science phase counts from the ledger. This is the only
+ * sanctioned way to produce the `.md` `night_science` block.
+ */
+export function reduceNightScience(events: readonly LedgerEvent[]): NightScienceCounts {
+  const counts: NightScienceCounts = { A: 0, B: 0, D: 0 };
+  for (const event of events) counts[event.phase] += 1;
+  return counts;
+}

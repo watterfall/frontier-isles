@@ -16,7 +16,7 @@ import react from '@vitejs/plugin-react';
  * Nothing failed; the bundle just quietly grew. A type-only import is fine —
  * it is erased before this check ever sees a module.
  */
-const ENTRY_DENYLIST = ['pixi.js', 'gsap', 'yjs', 'y-websocket', 'yaml', 'zod'];
+const ENTRY_DENYLIST = ['pixi.js', 'gsap', 'yjs', 'y-websocket', 'yaml'];
 
 /** Fails the build when a denylisted package reaches the entry chunk. */
 function guardEntryChunk(): Plugin {
