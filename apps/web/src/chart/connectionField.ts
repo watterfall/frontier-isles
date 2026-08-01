@@ -9,6 +9,7 @@ import type {
 } from '../api/client';
 import type { Bilingual, DomainKey, IslandDatum } from '../api/fallback';
 import { slugOfOp } from '../api/structureFallback';
+import { briefOf, citationOf } from '../api/atlasDetail';
 
 /** The semantic channels a reader can ask the field to reveal. */
 export type ConnectionChannel = 'all' | 'mechanism' | 'form' | 'evidence' | 'lineage';
@@ -175,9 +176,9 @@ export function buildConnectionField(
       slug,
       title: datum.n,
       question: datum.q,
-      brief: datum.brief,
+      brief: briefOf(datum),
       domain: datum.d,
-      citation: datum.citation,
+      citation: citationOf(datum),
       datum,
     });
   }

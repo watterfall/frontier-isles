@@ -8,6 +8,7 @@
  * `cardBoxPos` also unifies given a source x/y.
  */
 import { DOMAIN_META, STAGE_LABELS, type IslandDatum } from '../../api/fallback';
+import { briefOf, citationOf } from '../../api/atlasDetail';
 
 export interface ChartCardContent {
   id: string;
@@ -42,9 +43,9 @@ export function computeCardContent(
     domCol: hd.out ? '#8A6A1E' : DOMAIN_META[hd.d].col,
     stage: `${t(`chart.stages.${STAGE_LABELS[hd.st]}`)}${hd.dor ? ` · ${t('chart.card.dormant')}` : ''}${hd.out ? ` · ${t('chart.card.outlier')}` : ''}`,
     q: hd.q[lang],
-    brief: hd.brief?.[lang],
+    brief: briefOf(hd)?.[lang],
     cluster: hd.cluster?.[lang],
-    citation: hd.citation,
+    citation: citationOf(hd),
     act: hd.a,
     m: hd.m,
     hint: hd.out ? t('chart.card.hintOutlier') : t('chart.card.routeOpen'),

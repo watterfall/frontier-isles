@@ -16,15 +16,44 @@ import react from '@vitejs/plugin-react';
  * Nothing failed; the bundle just quietly grew. A type-only import is fine —
  * it is erased before this check ever sees a module.
  */
-const ENTRY_DENYLIST = ['pixi.js', 'gsap', 'yjs', 'y-websocket', 'yaml'];
+const ENTRY_DENYLIST = ['pixi.js', 'gsap', 'yjs', 'y-websocket', 'yaml', 'zod'];
 
-/** Fails the build when a denylisted package reaches the entry chunk. */
+/**
+ * Workspace modules that must stay alone in a chunk of their own, reachable
+ * only through `import()`. `atlas-detail` is the deferred half of the L0 atlas
+ * (card prose + citations, ~127KB): the generator splits it out precisely so it
+ * blocks nothing, and any static import silently undoes that by folding it into
+ * whatever chunk did the importing. That is not hypothetical — a static import
+ * from the lazily-mounted island screen put it in the chain a visitor waits on
+ * when opening an island, and on CI that pushed the L1 mount past its budget.
+ * Checking every chunk, not just the entry, is what catches that second case.
+ */
+const ISOLATED_MODULES = [/\/packages\/data\/src\/atlas-detail\.ts$/];
+
+/** Fails the build on a denylisted package in the entry chunk, or on an
+ *  isolated module that has been folded into somebody else's chunk. */
 function guardEntryChunk(): Plugin {
   return {
     name: 'guard-entry-chunk',
     generateBundle(_options, bundle) {
       for (const [file, out] of Object.entries(bundle)) {
-        if (out.type !== 'chunk' || !out.isEntry) continue;
+        if (out.type !== 'chunk') continue;
+        const ids = Object.keys(out.modules);
+
+        // An isolated module may share its chunk with nothing else.
+        const isolated = ids.filter((id) => ISOLATED_MODULES.some((re) => re.test(id)));
+        if (isolated.length > 0 && ids.length > 1) {
+          const name = isolated[0]?.split('/').pop() ?? 'module';
+          this.error(
+            `${name} is bundled into chunk ${file} alongside ${ids.length - 1} other ` +
+              `module(s). It must stay in a chunk of its own, reached only through a ` +
+              `dynamic import() — a static import folds it into the importer's chunk and ` +
+              `makes every visitor of that chunk wait for it. Read it through a cache the ` +
+              `boot path already fills (see apps/web/src/api/atlasDetail.ts).`,
+          );
+        }
+
+        if (!out.isEntry) continue;
         const leaked = new Map<string, number>();
         for (const [id, mod] of Object.entries(out.modules)) {
           const pkg = id.match(/node_modules\/(?:\.pnpm\/)?((?:@[^/]+\/)?[^/@]+)/)?.[1];

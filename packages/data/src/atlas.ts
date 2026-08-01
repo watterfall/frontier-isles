@@ -3,6 +3,10 @@
  *
  * This is the browser-safe L0 projection of FRONTIERS. Deep editorial content
  * and station interiors intentionally live behind the L1 data entry points.
+ *
+ * Card prose (`brief`) and the reference shelf (`citation`) live in the
+ * sibling `atlas-detail.ts`, which apps/web loads after first paint — see the
+ * header of scripts/generate-atlas.mjs for why the split runs along that line.
  */
 import type { FrontierEntry } from './frontiers';
 
@@ -15,8 +19,6 @@ export type FrontierAtlasEntry = Pick<FrontierEntry,
   | 'domain'
   | 'cluster'
   | 'scores'
-  | 'citation'
-  | 'brief'
   | 'stage'
   | 'members'
   | 'activity'
@@ -56,16 +58,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       5
     ],
-    "citation": {
-      "url": "https://doi.org/10.1017/fmp.2017.1",
-      "title": "A formal proof of the Kepler conjecture",
-      "venue": "Forum of Mathematics, Pi",
-      "year": 2017
-    },
-    "brief": {
-      "zh": "把范畴论迁移为科学建模的组合语法：语法与语义分离，AlgebraicJulia 把示意图变成可计算可组合对象。",
-      "en": "Category theory as a compositional grammar for modeling; AlgebraicJulia turns diagrams into computable composable objects."
-    },
     "stage": 2,
     "members": 6,
     "activity": 62,
@@ -105,16 +97,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       5
     ],
-    "citation": {
-      "url": "https://doi.org/10.1038/nphys2309",
-      "title": "On the reality of the quantum state",
-      "venue": "Nature Physics",
-      "year": 2012
-    },
-    "brief": {
-      "zh": "暗物质核反冲在亿年老矿物晶格留纳米损伤轨迹，克级样品获吨·年等效曝光。",
-      "en": "DM nuclear recoils leave nanoscale tracks in billion-year-old minerals; gram samples yield ton-year exposure."
-    },
     "stage": 1,
     "members": 3,
     "activity": 34,
@@ -154,16 +136,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       5
     ],
-    "citation": {
-      "url": "https://doi.org/10.1147/rd.53.0183",
-      "title": "Irreversibility and Heat Generation in the Computing Process",
-      "venue": "IBM Journal of R&D",
-      "year": 1961
-    },
-    "brief": {
-      "zh": "用随机热力学熵产界量化细胞感知/纠错/决策的能耗下限，真实生化网络逼近理论最优。",
-      "en": "Stochastic-thermodynamic bounds quantify the energy floor of cellular sensing/error-correction/deciding."
-    },
     "stage": 2,
     "members": 8,
     "activity": 71,
@@ -203,16 +175,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       4
     ],
-    "citation": {
-      "url": "https://doi.org/10.1017/fmp.2017.1",
-      "title": "A formal proof of the Kepler conjecture",
-      "venue": "Forum of Mathematics, Pi",
-      "year": 2017
-    },
-    "brief": {
-      "zh": "把数学翻译成机器可验证的形式语言，形成可机检的数学公地。",
-      "en": "Translate mathematics into machine-verifiable formal language; a machine-checkable commons."
-    },
     "stage": 2,
     "members": 6,
     "activity": 58,
@@ -252,16 +214,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       5
     ],
-    "citation": {
-      "url": "https://arxiv.org/abs/2506.07918",
-      "title": "CausalPFN: Amortized Causal Effect Estimation",
-      "venue": "arXiv (NeurIPS 2025)",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "用评分函数在干预前后的变化解耦因果变量，可识别性从强条件放宽到非参数未知干预。",
-      "en": "Score-function shifts disentangle causal variables; identifiability relaxed to nonparametric unknown interventions."
-    },
     "stage": 2,
     "members": 6,
     "activity": 42,
@@ -301,16 +253,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       5
     ],
-    "citation": {
-      "url": "https://doi.org/10.1038/nphys2309",
-      "title": "On the reality of the quantum state",
-      "venue": "Nature Physics",
-      "year": 2012
-    },
-    "brief": {
-      "zh": "用介观质量空间叠加看引力能否产生纠缠——若能则引力必须量子化。",
-      "en": "Mesoscopic-mass superpositions test whether gravity can entangle — if so, gravity is quantized."
-    },
     "stage": 2,
     "members": 6,
     "activity": 44,
@@ -351,16 +293,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       5
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41467-023-37019-5",
-      "title": "The dynamic nature of percolation on networks with triadic interactions",
-      "venue": "Nature Communications",
-      "year": 2023
-    },
-    "brief": {
-      "zh": "三元交互让节点增强或抑制另两个节点间的连边：Bianconi团队证明渗流序参量由此周期倍增、通往混沌，2025年多层推广发现Neimark-Sacker分岔。",
-      "en": "Triadic interactions let a node enhance or suppress the edge between two others: Bianconi's team showed the percolation order parameter then period-doubles into chaos, and a 2025 multilayer extension found Neimark-Sacker bifurcations."
-    },
     "stage": 2,
     "members": 10,
     "activity": 66,
@@ -400,16 +332,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       5
     ],
-    "citation": {
-      "url": "https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.129.080401",
-      "title": "Search for Spontaneous Radiation from Wave Function Collapse in the Majorana Demonstrator",
-      "venue": "Physical Review Letters",
-      "year": 2022
-    },
-    "brief": {
-      "zh": "用宏观叠加态搜寻Diósi-Penrose与CSL预言的额外噪声或自发X射线辐射，低本底探测器已排除最简版无参数DP模型，首次让量子诠释可被实验区分。",
-      "en": "Using macroscopic superpositions to hunt for the extra noise or spontaneous X-rays predicted by Diósi-Penrose and CSL, low-background detectors have already ruled out the simplest parameter-free DP model, letting quantum interpretations be distinguished experimentally for the first time."
-    },
     "stage": 2,
     "members": 8,
     "activity": 58,
@@ -449,16 +371,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       4
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s44260-025-00028-0",
-      "title": "Dynamical reversibility and a new theory of causal emergence based on SVD",
-      "venue": "npj Complexity",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "对马尔可夫转移矩阵做奇异值分解，用奇异谱集中度定义近似动力学可逆性，张江团队证明它与有效信息最大化等价，把涌现度量从选方案变成读谱。",
-      "en": "By taking the SVD of the Markov transition matrix and defining approximate dynamical reversibility from the concentration of its singular spectrum, Zhang Jiang's team proved this is equivalent to maximizing effective information, turning emergence measurement from choosing a scheme into reading a spectrum."
-    },
     "stage": 2,
     "members": 8,
     "activity": 64,
@@ -498,16 +410,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       4
     ],
-    "citation": {
-      "url": "https://www.science.org/doi/10.1126/sciadv.adu9368",
-      "title": "Emergent social conventions and collective bias in LLM populations",
-      "venue": "Science Advances",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "去中心化LLM智能体在命名博弈中两两交互即自发收敛到共享规约，并涌现集体偏见，少数坚定智能体可触发临界质量式翻转，结论在Llama-2/3与Claude-3.5上稳健。",
-      "en": "Decentralized LLM agents in a naming game converge on a shared convention through pairwise interaction alone, developing collective bias that no individual holds, with a committed minority able to tip the whole population—robust across Llama-2/3 and Claude-3.5."
-    },
     "stage": 2,
     "members": 9,
     "activity": 61,
@@ -547,16 +449,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       5
     ],
-    "citation": {
-      "url": "https://academic.oup.com/aje/article/194/7/2030/7775568",
-      "title": "Regression-Based Proximal Causal Inference",
-      "venue": "American Journal of Epidemiology",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "用一对负对照代理变量求解混杂桥函数，把因果效应从未测混杂中恢复出来，2025年《American Journal of Epidemiology》把它降维成可回归实现的流程。",
-      "en": "By solving confounding bridge functions from a pair of negative-control proxies, causal effects are recovered despite unmeasured confounding; a 2025 American Journal of Epidemiology paper reduced this to a regression-implementable workflow."
-    },
     "stage": 2,
     "members": 8,
     "activity": 52,
@@ -596,16 +488,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       5
     ],
-    "citation": {
-      "url": "https://openreview.net/forum?id=zwMfg9PfPs",
-      "title": "Out-of-Variable Generalisation for Discriminative Models",
-      "venue": "ICLR 2024 (OpenReview)",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "Guo与Schölkopf证明源环境残差分布泄露真实生成函数对未观测因果父变量的偏导数，把变量外泛化从工程无奈变成可分析的数学对象。",
-      "en": "Guo and Schölkopf proved the source-environment residual distribution leaks the partial derivative of the true generating function with respect to an unobserved causal parent, turning out-of-variable generalization from engineering fallback into an analyzable mathematical object."
-    },
     "stage": 1,
     "members": 6,
     "activity": 51,
@@ -645,16 +527,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       5
     ],
-    "citation": {
-      "url": "https://arxiv.org/abs/2402.15332",
-      "title": "Position: Categorical Deep Learning is an Algebraic Theory of All Architectures",
-      "venue": "ICML 2024 (arXiv)",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "用2-范畴上的单子同时刻画约束与实现，Gavranović、Veličković等在ICML 2024立场论文中演示从中重新导出RNN等架构，让架构设计从手工拼凑变成代数演算。",
-      "en": "Using monads valued in a 2-category to jointly capture constraints and implementations, Gavranović, Veličković and colleagues' ICML 2024 position paper demonstrated re-deriving architectures like RNNs from it, turning architecture design from hand-crafting into algebraic calculus."
-    },
     "stage": 2,
     "members": 10,
     "activity": 62,
@@ -694,16 +566,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       3
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41586-025-09833-y",
-      "title": "Olympiad-level formal mathematical reasoning with reinforcement learning",
-      "venue": "Nature",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "AlphaProof、AlphaGeometry等结合大模型、强化学习与Lean、Coq等证明助手，已达IMO竞赛水平，把数学证明变成可机器搜索验证的形式对象。",
-      "en": "Systems like AlphaProof and AlphaGeometry combine large models, reinforcement learning, and proof assistants like Lean and Coq, reaching IMO-competition level and turning mathematical proof into a machine-searchable, machine-verifiable formal object."
-    },
     "stage": 2,
     "members": 10,
     "activity": 65,
@@ -743,16 +605,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       5
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s42254-021-00400-8",
-      "title": "60 years of Landauer's principle",
-      "venue": "nature.com",
-      "year": 2021
-    },
-    "brief": {
-      "zh": "在单电子单分子尺度逼近Landauer极限，把信息当作真实热力学实体来精确计量，并实现以信息换功的信息引擎，是西拉德妖思想实验的现代实证版。",
-      "en": "Approaching the Landauer limit at the single-electron, single-molecule scale, information is precisely accounted as a real thermodynamic entity, realizing 'information engines' that convert information into work—the modern empirical version of Szilard's demon thought experiment."
-    },
     "stage": 2,
     "members": 10,
     "activity": 60,
@@ -792,16 +644,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       5
     ],
-    "citation": {
-      "url": "https://arxiv.org/abs/2405.01380",
-      "title": "Arrows of time in bouncing cosmologies",
-      "venue": "arXiv / Springer",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "把热力学、记忆与因果之矢统一回溯到大爆炸的极低熵初态（Penrose以近零外尔曲率刻画），如今借DESI、CMB精密观测重新可被部分约束。",
-      "en": "Tracing the thermodynamic, memory, and causal arrows back to the Big Bang's extremely low-entropy initial state (Penrose characterizes it via near-zero Weyl curvature), now partly constrainable anew through DESI and CMB precision observations."
-    },
     "stage": 1,
     "members": 6,
     "activity": 49,
@@ -841,16 +683,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       4
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41586-021-03250-7",
-      "title": "Measurement of gravitational coupling between millimetre-sized masses",
-      "venue": "Nature",
-      "year": 2021
-    },
-    "brief": {
-      "zh": "Westphal等2021年用扭秤测得两颗90毫克金球间的引力耦合，2024年磁悬浮亚毫克测试质量进一步逼近小源小测构型，为引力量子化检验铺路。",
-      "en": "Westphal and colleagues measured the gravitational coupling between two 90-milligram gold spheres via torsion balance in 2021, and a 2024 magnetically levitated sub-milligram test mass pushed further toward a small-source, small-test configuration, paving the way toward tests of gravity's quantum nature."
-    },
     "stage": 2,
     "members": 9,
     "activity": 62,
@@ -890,16 +722,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       5
     ],
-    "citation": {
-      "url": "https://pubmed.ncbi.nlm.nih.gov/39323264/",
-      "title": "Regression-Based Proximal Causal Inference",
-      "venue": "American Journal of Epidemiology",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "用一对阴性对照变量求解混杂桥函数，把观察性研究里未测的混杂因素从假设之外正面识别出来，2024至2026年核方法与神经网络让它从理论走向可用。",
-      "en": "Solving a confounding bridge function from a pair of negative-control variables positively identifies unmeasured confounding instead of assuming it away — kernel and neural solvers took the framework from theory to practice in 2024-2026."
-    },
     "stage": 2,
     "members": 10,
     "activity": 49,
@@ -939,16 +761,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       5
     ],
-    "citation": {
-      "url": "https://doi.org/10.1098/rsta.2021.0309",
-      "title": "An algebraic framework for structured epidemic modelling",
-      "venue": "Philosophical Transactions of the Royal Society A",
-      "year": 2022
-    },
-    "brief": {
-      "zh": "范畴论用双理论与结构化余跨把模型的语法和语义分离，让流行病学、生化网络等示意图变成严格可计算、可组合的对象。",
-      "en": "Category theory's double theories and structured cospans separate a model's syntax from its semantics, turning epidemiology and biochemical-network diagrams into rigorous, composable, directly computable objects."
-    },
     "stage": 2,
     "members": 9,
     "activity": 61,
@@ -988,16 +800,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       5
     ],
-    "citation": {
-      "url": "https://doi.org/10.1038/nrmicro.2016.93",
-      "title": "Extracellular electron transfer mechanisms",
-      "venue": "Nature Reviews Microbiology",
-      "year": 2016
-    },
-    "brief": {
-      "zh": "Geobacter 与电缆细菌沿厘米级蛋白纤维导电，导电率超 20 S/cm 媲美掺杂聚合物。",
-      "en": "Geobacter and cable bacteria conduct over cm-scale protein fibers at >20 S/cm, rivaling doped polymers."
-    },
     "stage": 3,
     "members": 14,
     "activity": 88,
@@ -1037,16 +839,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       4
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41586-025-09384-2",
-      "title": "Training of physical neural networks",
-      "venue": "Nature",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "耦合学习让自调电阻网络靠局部物理规则自行调参，把训练从算法搬进物质。",
-      "en": "Coupled learning lets a resistive network tune itself via local physical rules — training relocated into matter."
-    },
     "stage": 2,
     "members": 9,
     "activity": 66,
@@ -1086,16 +878,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       5
     ],
-    "citation": {
-      "url": "https://doi.org/10.1103/PhysRevLett.129.075001",
-      "title": "Lawson criterion for ignition exceeded",
-      "venue": "Physical Review Letters",
-      "year": 2022
-    },
-    "brief": {
-      "zh": "借油气 huff-and-puff 把水高压注入干热岩裂缝，靠岩石弹性回弹发电——地热重定义为储能+发电。",
-      "en": "Oil-and-gas huff-and-puff into hot-dry-rock fractures stores heat+pressure; geothermal reframed as storage+power."
-    },
     "stage": 2,
     "members": 9,
     "activity": 66,
@@ -1135,16 +917,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       4
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41586-025-09384-2",
-      "title": "Training of physical neural networks",
-      "venue": "Nature",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "阻变交叉阵列把 Ax=b 做成物理过程，迭代细化提升到 FP32 等效精度。",
-      "en": "Resistive crossbars solve Ax=b as a physical process; iterative refinement lifts to FP32-equivalent."
-    },
     "stage": 1,
     "members": 6,
     "activity": 52,
@@ -1184,16 +956,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       4
     ],
-    "citation": {
-      "url": "https://doi.org/10.1038/nrmicro.2016.93",
-      "title": "Extracellular electron transfer mechanisms",
-      "venue": "Nature Reviews Microbiology",
-      "year": 2016
-    },
-    "brief": {
-      "zh": "模仿光合作用直接把光与 CO₂ 变燃料，5-10 年内走向中试。",
-      "en": "Mimic photosynthesis to turn light and CO₂ into fuel; pilot scale in 5-10 years."
-    },
     "stage": 2,
     "members": 6,
     "activity": 47,
@@ -1234,16 +996,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       5
     ],
-    "citation": {
-      "url": "https://doi.org/10.1126/science.aaj2038",
-      "title": "DNA Fountain enables robust storage",
-      "venue": "Science",
-      "year": 2017
-    },
-    "brief": {
-      "zh": "把化学反应当信息载体来设计，催生「化学编程」新范式。",
-      "en": "Design chemical reactions as information carriers; spawn a chemical-programming paradigm."
-    },
     "stage": 0,
     "members": 2,
     "activity": 12,
@@ -1283,16 +1035,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       5
     ],
-    "citation": {
-      "url": "https://doi.org/10.1126/science.aaj2038",
-      "title": "DNA Fountain enables robust storage",
-      "venue": "Science",
-      "year": 2017
-    },
-    "brief": {
-      "zh": "用化学体系直接做模式识别与分类，概念颠覆但属早期。",
-      "en": "Pattern recognition and classification directly with chemical systems; early but disruptive."
-    },
     "stage": 0,
     "members": 1,
     "activity": 6,
@@ -1332,16 +1074,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       5
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41467-025-66154-4",
-      "title": "Observation of wave amplification and temporal topological state in a non-synthetic photonic time crystal",
-      "venue": "Nature Communications",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "把介电常数在时间上快速周期调制，打开动量带隙，让波在无源情况下被指数放大，还能携带时域拓扑相位。",
-      "en": "Periodically modulating permittivity in time opens a momentum (k-)gap that passively amplifies waves exponentially and carries a time-domain topological phase."
-    },
     "stage": 2,
     "members": 10,
     "activity": 66,
@@ -1381,16 +1113,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       5
     ],
-    "citation": {
-      "url": "https://arxiv.org/pdf/2504.21280",
-      "title": "Device-Algorithm Co-Design of Ferroelectric Compute-in-Memory In-Situ Annealer for Combinatorial Optimization Problems",
-      "venue": "arXiv (DG-FeFET CiM annealer)",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "双栅铁电晶体管交叉阵列把伊辛退火变成器件内原位物理过程，背栅电压充当温度，3000节点Max-Cut能耗降1500倍以上。",
-      "en": "A double-gate ferroelectric-FET crossbar runs Ising annealing as an in-situ physical process with the back-gate voltage acting as temperature, cutting energy over 1500-fold on a 3000-node Max-Cut problem."
-    },
     "stage": 2,
     "members": 8,
     "activity": 64,
@@ -1430,16 +1152,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       5
     ],
-    "citation": {
-      "url": "https://www.science.org/doi/10.1126/sciadv.aba4174",
-      "title": "Magnetic levitational bioassembly of 3D tissue construct in space",
-      "venue": "Science Advances",
-      "year": 2020
-    },
-    "brief": {
-      "zh": "强顺磁介质中的磁场把组织球悬浮并融合成三维构造体，在轨微重力让顺磁盐浓度降到无毒水平，是与喷墨打印并列的生物制造范式。",
-      "en": "A magnetic field in a strong paramagnetic medium levitates and fuses tissue spheroids into 3D constructs; orbital microgravity lets the paramagnetic salt concentration drop to non-toxic levels, making this a biofabrication paradigm parallel to inkjet printing."
-    },
     "stage": 2,
     "members": 8,
     "activity": 62,
@@ -1479,16 +1191,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       4
     ],
-    "citation": {
-      "url": "https://arxiv.org/abs/2506.09985",
-      "title": "V-JEPA 2: Self-Supervised Video Models Enable Understanding, Prediction and Planning",
-      "venue": "arXiv (Meta FAIR)",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "V-JEPA 2在百万小时互联网视频上预训练无动作潜空间预测器，仅用62小时机器人数据后训练出动作条件世界模型，零样本部署到两个实验室的机械臂。",
-      "en": "V-JEPA 2 pretrains an action-free latent-space predictor on over a million hours of internet video, then post-trains an action-conditioned world model with under 62 hours of robot data, and deploys it zero-shot on robot arms in two labs."
-    },
     "stage": 2,
     "members": 8,
     "activity": 58,
@@ -1528,16 +1230,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       5
     ],
-    "citation": {
-      "url": "https://arxiv.org/abs/2512.16881",
-      "title": "PolaRiS: Scalable Real-to-Sim Evaluations for Generalist Robot Policies",
-      "venue": "arXiv (cs.RO)",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "用高斯泼溅把真实场景短视频自动重建成可交互仿真，评测机器人策略，与真机表现的相关性远强于已有仿真基准。",
-      "en": "Gaussian splatting auto-converts a short video scan of a real scene into an interactive simulation for policy evaluation, correlating with real-robot performance far more strongly than existing sim benchmarks."
-    },
     "stage": 2,
     "members": 10,
     "activity": 62,
@@ -1577,16 +1269,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       5,
       4
     ],
-    "citation": {
-      "url": "https://arxiv.org/abs/2409.17595",
-      "title": "Magic state cultivation: growing T states as cheap as CNOT gates",
-      "venue": "arXiv (Google Quantum AI)",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "在表面码补丁内用容错测量加后选择逐步培育魔法态，物理门数约等于一次格点手术CNOT，逻辑错误率可低至2×10⁻⁹。",
-      "en": "Fault-tolerant measurement plus post-selection cultivates a magic state inside a surface-code patch using roughly a lattice-surgery CNOT's worth of gates, reaching a logical error rate as low as 2×10⁻⁹."
-    },
     "stage": 2,
     "members": 9,
     "activity": 58,
@@ -1626,16 +1308,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       5
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41567-024-02539-4",
-      "title": "A superconducting dual-rail cavity qubit with erasure-detected logical measurements",
-      "venue": "Nature Physics",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "重新设计量子比特(双轨腔、亚稳态中性原子)，让主导错误被实时探测为已知位置的擦除，纠正阈值因此提高2至5倍。",
-      "en": "Redesigning qubits (dual-rail cavities, metastable neutral atoms) so the dominant errors are detected in real time as known-location erasures raises the correction threshold 2-5x."
-    },
     "stage": 2,
     "members": 9,
     "activity": 62,
@@ -1675,16 +1347,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       5
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41467-024-47488-x",
-      "title": "Tunable stochastic memristors for energy-efficient encryption and computing",
-      "venue": "Nature Communications",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "同一忆阻器换个偏置就能在真随机数与物理不可克隆函数间切换，又能做布尔逻辑或类脑突触，把器件缺陷反用为安全与计算共享的资源。",
-      "en": "The same memristor switches between generating true random numbers and physically unclonable functions under one bias, and performs Boolean logic or synaptic behavior under another, repurposing a device 'defect' into a resource shared by security and compute."
-    },
     "stage": 2,
     "members": 10,
     "activity": 56,
@@ -1724,16 +1386,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       5
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s42003-022-03777-z",
-      "title": "Retrospective analysis of somatic mutations and clonal hematopoiesis in astronauts",
-      "venue": "Communications Biology",
-      "year": 2022
-    },
-    "brief": {
-      "zh": "血液干细胞里悄然扩张的CHIP突变克隆会放大辐射致癌与心血管风险，而宇航员比同龄人提前近二十年出现它。",
-      "en": "Quietly expanding CHIP mutant clones in blood stem cells amplify radiation-linked cancer and cardiovascular risk, and astronauts show these clones nearly two decades earlier than their peers."
-    },
     "stage": 1,
     "members": 6,
     "activity": 46,
@@ -1773,16 +1425,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       5,
       4
     ],
-    "citation": {
-      "url": "https://arxiv.org/abs/2506.14186",
-      "title": "Differentiable Simulation of Hard Contacts with Soft Gradients for Learning and Control",
-      "venue": "arXiv (cs.RO) · OpenReview",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "DiffMJX 把自适应时间积分耦合进 MuJoCo XLA,用'距离接触'直通估计在硬接触下拿到有信息的预接触梯度。",
-      "en": "DiffMJX couples adaptive time integration into MuJoCo XLA and uses a contacts-from-distance straight-through estimator to recover informative pre-contact gradients through hard contact."
-    },
     "stage": 2,
     "members": 9,
     "activity": 60,
@@ -1822,16 +1464,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       5
     ],
-    "citation": {
-      "url": "https://arxiv.org/pdf/2310.03011",
-      "title": "Quantum algorithms: A survey of applications and end-to-end complexities",
-      "venue": "arXiv 2310.03011",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "把 QRAM/态制备的装载成本计入全流程后,对数级量子加速常被近线性装载成本吞没,逼出'优势预算表'式全栈核算。",
-      "en": "Once the loading cost of QRAM or state preparation is counted across the full pipeline, logarithmic quantum speedups are often swallowed by near-linear loading cost, forcing a full-stack 'advantage budget sheet' accounting."
-    },
     "stage": 2,
     "members": 10,
     "activity": 54,
@@ -1871,16 +1503,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       5
     ],
-    "citation": {
-      "url": "https://www.biorxiv.org/content/10.1101/2025.10.10.681601v1",
-      "title": "A hierarchical nickel organic framework confers high conductivity over long distances in cable bacteria",
-      "venue": "bioRxiv",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "电缆菌周质纤维的内核被解出为镍-双硫烯(NiBiD)一维纳米带——已知第一例生物合成金属有机框架,导电率达半金属量级。",
-      "en": "The core of cable-bacteria periplasmic fibers has been resolved as a one-dimensional nickel-bis(dithiolene) (NiBiD) nanoribbon — the first known biosynthesized metal-organic framework, with semi-metal-level conductivity."
-    },
     "stage": 2,
     "members": 9,
     "activity": 56,
@@ -1920,16 +1542,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       5
     ],
-    "citation": {
-      "url": "https://www.sciencedirect.com/science/article/abs/pii/S037015731830036X",
-      "title": "Hyperuniform states of matter",
-      "venue": "Physics Reports",
-      "year": 2018
-    },
-    "brief": {
-      "zh": "超均匀性指结构因子在长波极限趋于零的一类隐藏结构,已从玻璃、视网膜锥细胞镶嵌延伸到素数分布,并转化为各向同性光子带隙的设计原理。",
-      "en": "Hyperuniformity — a structure whose structure factor vanishes in the long-wavelength limit — spans glass, the retinal cone mosaic, and prime-number distributions, and has already become a design principle for isotropic photonic band gaps."
-    },
     "stage": 2,
     "members": 9,
     "activity": 59,
@@ -1969,16 +1581,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       5
     ],
-    "citation": {
-      "url": "https://doi.org/10.1029/2025RG000902",
-      "title": "Evolution of Terrestrial Planetary Bodies",
-      "venue": "Reviews of Geophysics",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "极端太阳风暴在某年全球同步灌碳-14 进树轮/冰芯，成跨学科绝对年代锚。",
-      "en": "Extreme solar storms flood a single year with C-14 worldwide; a cross-disciplinary absolute-dating anchor."
-    },
     "stage": 3,
     "members": 16,
     "activity": 82,
@@ -2018,16 +1620,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       5
     ],
-    "citation": {
-      "url": "https://doi.org/10.1038/s41586-023-06583-7",
-      "title": "Unraveling the functional dark matter through global metagenomics",
-      "venue": "Nature",
-      "year": 2023
-    },
-    "brief": {
-      "zh": "重编码噬菌体把终止密码子重指派，标准预测器系统性地把其基因读成碎片。",
-      "en": "Recoded phages reassign stop codons; standard callers systematically shred their genes."
-    },
     "stage": 2,
     "members": 8,
     "activity": 64,
@@ -2067,16 +1659,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       4
     ],
-    "citation": {
-      "url": "https://www.cell.com/molecular-therapy-family/molecular-therapy/fulltext/S1525-0016(25)00721-X",
-      "title": "Epigenome editing based treatment",
-      "venue": "Molecular Therapy",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "RADARS 把 RNA 做成传感器，杂交后招募内源 ADAR 编辑终止密码子放行下游蛋白。",
-      "en": "RADARS turn RNA into a sensor; hybridization recruits endogenous ADAR to edit a stop codon and green-light a payload."
-    },
     "stage": 2,
     "members": 7,
     "activity": 60,
@@ -2116,16 +1698,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       4
     ],
-    "citation": {
-      "url": "https://doi.org/10.1016/j.conb.2021.10.010",
-      "title": "Neural population geometry",
-      "venue": "Current Opinion in Neurobiology",
-      "year": 2021
-    },
-    "brief": {
-      "zh": "用一个生成模型同时驱动感知与行动，最小化变分自由能而非最大化外部奖励。",
-      "en": "A single generative model drives perception and action; minimize variational free energy, not external reward."
-    },
     "stage": 2,
     "members": 6,
     "activity": 49,
@@ -2165,16 +1737,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       4
     ],
-    "citation": {
-      "url": "https://doi.org/10.1126/science.aad6253",
-      "title": "Design and synthesis of a minimal bacterial genome",
-      "venue": "Science",
-      "year": 2016
-    },
-    "brief": {
-      "zh": "删到最少基因逼近「生命的最小定义」，再自下而上重造细胞。",
-      "en": "Strip genes to the minimum, approaching a minimal definition of life, then rebuild cells bottom-up."
-    },
     "stage": 2,
     "members": 8,
     "activity": 58,
@@ -2214,16 +1776,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       4
     ],
-    "citation": {
-      "url": "https://doi.org/10.1126/science.aad6253",
-      "title": "Design and synthesis of a minimal bacterial genome",
-      "venue": "Science",
-      "year": 2016
-    },
-    "brief": {
-      "zh": "从读 DNA 走向写整条基因组，人造染色体将用于工业菌株与作物。",
-      "en": "From reading to writing whole genomes; artificial chromosomes for industrial strains and crops."
-    },
     "stage": 2,
     "members": 6,
     "activity": 51,
@@ -2263,16 +1815,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       5
     ],
-    "citation": {
-      "url": "https://www.frontiersin.org/journals/astronomy-and-space-sciences/articles/10.3389/fspas.2023.1203845/full",
-      "title": "Hard rock dark biosphere and habitability",
-      "venue": "Frontiers in Astronomy and Space Sciences",
-      "year": 2023
-    },
-    "brief": {
-      "zh": "地壳深处依赖化能自养而非阳光的暗生物圈微生物,以极慢代谢挑战生命的能量与时间下限,世代时间可能以千年计。",
-      "en": "Chemolithotrophic dark-biosphere microbes deep within Earth's crust, surviving on chemical energy rather than sunlight, challenge life's lower bounds on energy and time with generation times that may run into millennia."
-    },
     "stage": 1,
     "members": 6,
     "activity": 55,
@@ -2312,16 +1854,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       5
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s43705-023-00216-w",
-      "title": "Biogeochemical and historical drivers of microbial community composition and structure in sediments from Mercer Subglacial Lake, West Antarctica",
-      "venue": "ISME Communications",
-      "year": 2023
-    },
-    "brief": {
-      "zh": "南极冰盖底部冰岩界面与冰下湖的化能自养微生物,已在 Whillans 湖、Mercer 湖等少数钻取中被直接证实。",
-      "en": "Chemolithotrophic microbes at the ice-bedrock interface and in subglacial lakes beneath the Antarctic ice sheet have been directly confirmed in a handful of drillings, including Lake Whillans and Lake Mercer."
-    },
     "stage": 1,
     "members": 6,
     "activity": 46,
@@ -2361,16 +1893,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       5
     ],
-    "citation": {
-      "url": "https://www.cell.com/cell/fulltext/S0092-8674(25)00197-7",
-      "title": "Simultaneous CRISPR screening and spatial transcriptomics reveal intracellular, intercellular, and functional transcriptional circuits (Perturb-FISH)",
-      "venue": "Cell",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "Perturb-FISH、Perturb-DBiT、空间 Perturb-seq 把上千个 CRISPR 扰动的条码与空间位置、转录组同时读出,在原生组织里做因果筛选。",
-      "en": "Perturb-FISH, Perturb-DBiT, and spatial Perturb-seq jointly read out the barcodes of thousands of CRISPR perturbations alongside spatial position and the transcriptome, running causal screens inside native tissue."
-    },
     "stage": 1,
     "members": 5,
     "activity": 46,
@@ -2410,16 +1932,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       5
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41587-025-02915-2",
-      "title": "In vivo gene editing of human hematopoietic stem and progenitor cells using envelope-engineered virus-like particles",
-      "venue": "Nature Biotechnology",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "CD117/CD133 靶向 LNP 或包膜工程化病毒样颗粒把编辑器直接送到骨髓长期造血干细胞,体内完成镰刀型贫血、β-地贫的碱基/表观编辑。",
-      "en": "CD117/CD133-targeted LNPs or envelope-engineered virus-like particles deliver editors straight to long-term hematopoietic stem cells in the marrow, performing in vivo base or epigenetic edits for sickle-cell disease and beta-thalassemia."
-    },
     "stage": 2,
     "members": 8,
     "activity": 61,
@@ -2459,16 +1971,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       5
     ],
-    "citation": {
-      "url": "https://www.cell.com/patterns/fulltext/S2666-3899(25)00213-2",
-      "title": "Facing the possibility of consciousness in human brain organoids",
-      "venue": "Patterns (Cell Press)",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "把临床上测人脑意识容量的扰动复杂度指数(PCI)迁移到类器官微电极阵列,临界值约 0.31,试图给类器官智能划一条客观红线。",
-      "en": "The perturbational complexity index (PCI) used clinically to measure human capacity for consciousness, with a threshold around 0.31, is being transplanted onto organoid microelectrode arrays to draw an objective red line under organoid intelligence."
-    },
     "stage": 1,
     "members": 5,
     "activity": 54,
@@ -2508,16 +2010,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       5
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41565-025-01879-3",
-      "title": "Genetic encoding and expression of RNA origami cytoskeletons in synthetic cells",
-      "venue": "Nature Nanotechnology",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "在脂质囊泡内,单一 RNA 聚合酶转录即折叠出微米级 RNA 折纸纳米管,充当基因编码的细胞骨架,绕开 150 多个基因的翻译机器。",
-      "en": "Inside a lipid vesicle, a single RNA polymerase transcribes DNA templates that co-transcriptionally fold into micrometer-scale RNA-origami nanotubes serving as a genetically encoded cytoskeleton, bypassing the 150-plus-gene translation machinery."
-    },
     "stage": 2,
     "members": 10,
     "activity": 58,
@@ -2557,16 +2049,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       5
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41592-025-02772-6",
-      "title": "Deep-learning-based gene perturbation effect prediction does not yet outperform simple linear baselines",
-      "venue": "Nature Methods",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "Nature Methods 2025 用单/双扰动数据比较五个基础模型与 GEARS,结论是没有一个稳定跑赢简单线性/加性基线。",
-      "en": "A Nature Methods 2025 study compared five foundation models against GEARS on single- and double-perturbation data and found none reliably beat a simple linear or additive baseline."
-    },
     "stage": 2,
     "members": 9,
     "activity": 58,
@@ -2606,16 +2088,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       5
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41893-022-00997-3",
-      "title": "Sustained productivity and agronomic potential of perennial rice",
-      "venue": "Nature Sustainability",
-      "year": 2022
-    },
-    "brief": {
-      "zh": "云南大学团队用亚洲栽培稻与非洲野生稻杂交育成多年生水稻PR23，单次播种连续四年收获八季，产量与年年重播持平，年固碳约0.95吨/公顷。",
-      "en": "Yunnan University's team bred perennial rice PR23 by crossing Asian cultivated rice with African wild rice — eight harvests over four years from one planting, at yield parity with annual replanting, sequestering about 0.95 tonnes of carbon per hectare per year."
-    },
     "stage": 2,
     "members": 10,
     "activity": 57,
@@ -2655,16 +2127,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       5
     ],
-    "citation": {
-      "url": "https://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.3002222",
-      "title": "Functional unknomics: Systematic screening of conserved genes of unknown function",
-      "venue": "PLOS Biology",
-      "year": 2023
-    },
-    "brief": {
-      "zh": "剑桥MRC分子生物学实验室建立Unknome数据库，给保守蛋白家族打「知晓度分数」，对约260个未研究基因做果蝇RNAi/CRISPR筛选找到新功能。",
-      "en": "Cambridge's MRC Laboratory of Molecular Biology built the Unknome database, assigning conserved protein families a 'knownness score,' then ran RNAi/CRISPR screens in fruit flies on about 260 unstudied genes to uncover new functions."
-    },
     "stage": 2,
     "members": 10,
     "activity": 53,
@@ -2704,16 +2166,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       4
     ],
-    "citation": {
-      "url": "https://pubs.acs.org/doi/10.1021/acs.chemrev.1c00703",
-      "title": "Paleoproteomics | Chemical Reviews (comprehensive review of the field)",
-      "venue": "Chemical Reviews",
-      "year": 2022
-    },
-    "brief": {
-      "zh": "Svante Pääbo团队测出尼安德特人与丹尼索瓦人基因组，古蛋白质组学（胶原、牙釉蛋白）正把分子考古窗口向前推数百万年。",
-      "en": "Svante Pääbo's team sequenced the Neanderthal and Denisovan genomes, and paleoproteomics — reading collagen and enamel proteins — is now pushing the molecular archaeology window back by millions of years."
-    },
     "stage": 2,
     "members": 9,
     "activity": 59,
@@ -2753,16 +2205,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       5
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41579-018-0046-8",
-      "title": "Life at low energy: subsurface microbial communities and maintenance power",
-      "venue": "Nature Reviews Microbiology",
-      "year": 2018
-    },
-    "brief": {
-      "zh": "地下微生物或占全球微生物量约85%，靠岩-水反应获取能量，世代时间长达数百至上千年，逼近生命可维持的能量下限。",
-      "en": "Subsurface microbes may account for roughly 85 percent of global microbial biomass, drawing energy from rock-water reactions with generation times of hundreds to thousands of years — approaching life's energy floor."
-    },
     "stage": 1,
     "members": 6,
     "activity": 47,
@@ -2802,16 +2244,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       4
     ],
-    "citation": {
-      "url": "https://arxiv.org/abs/2507.11818",
-      "title": "SynCoGen: Synthesizable 3D Molecule Generation via Joint Reaction and Coordinate Modeling",
-      "venue": "arXiv / GenBio 2025",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "SynCoGen用掩码图扩散与流匹配联合采样砌块反应图与三维坐标，基于超120万合成感知砌块图训练，取得共生成SOTA。",
-      "en": "SynCoGen jointly samples building-block reaction graphs and 3D coordinates via masked graph diffusion plus flow matching, trained on over 1.2 million synthesis-aware building-block graphs, achieving state-of-the-art co-generation."
-    },
     "stage": 2,
     "members": 8,
     "activity": 59,
@@ -2851,16 +2283,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       4
     ],
-    "citation": {
-      "url": "https://pubs.rsc.org/en/content/articlehtml/2025/sc/d5sc01476j",
-      "title": "Directly optimizing for synthesizability in generative molecular design using retrosynthesis models (Saturn)",
-      "venue": "Chemical Science",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "Guo与Schwaller的Saturn把逆合成模型当活oracle接入优化回路，在严苛算力预算下生成确有合成路线的多参数最优分子。",
-      "en": "Guo and Schwaller's Saturn treats a retrosynthesis model as a live oracle inside the optimization loop, generating multi-parameter-optimal molecules with provable synthetic routes under a strict compute budget."
-    },
     "stage": 2,
     "members": 10,
     "activity": 56,
@@ -2900,16 +2322,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       4
     ],
-    "citation": {
-      "url": "https://doi.org/10.1016/j.tics.2003.10.013",
-      "title": "Sensory substitution and the human-machine interface",
-      "venue": "Trends in Cognitive Sciences",
-      "year": 2003
-    },
-    "brief": {
-      "zh": "把人类语言的自监督模型迁移到非人类发声，从「标签信号」升级为「建模潜在语法」。",
-      "en": "Transfer self-supervised language models to non-human vocalizations; model a latent grammar, not just tag signals."
-    },
     "stage": 2,
     "members": 9,
     "activity": 76,
@@ -2949,16 +2361,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       5
     ],
-    "citation": {
-      "url": "https://doi.org/10.1093/acprof:oso/9780195311105.003.0001",
-      "title": "Facing Up to the Problem of Consciousness",
-      "venue": "Journal of Consciousness Studies",
-      "year": 1995
-    },
-    "brief": {
-      "zh": "为昆虫/甲壳/头足类建立行为感受性标志物，以证据权重判定意识可能性。",
-      "en": "Behavioral sentience markers for insects/crustaceans/cephalopods; weight-of-evidence judges the possibility of consciousness."
-    },
     "stage": 2,
     "members": 7,
     "activity": 60,
@@ -2998,16 +2400,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       5
     ],
-    "citation": {
-      "url": "https://arxiv.org/abs/2311.03470",
-      "title": "Orion: A Fully Homomorphic Encryption Framework for Deep Learning",
-      "venue": "arXiv / ASPLOS",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "用 EasyCrypt 把 ML-KEM 安全验证到 LWE 假设，Jasmin 产出可证恒定时间汇编。",
-      "en": "EasyCrypt verifies ML-KEM security to the LWE assumption; Jasmin emits provably constant-time assembly."
-    },
     "stage": 2,
     "members": 6,
     "activity": 52,
@@ -3047,16 +2439,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       4
     ],
-    "citation": {
-      "url": "https://doi.org/10.1038/s41586-021-03819-2",
-      "title": "Highly accurate protein structure prediction with AlphaFold",
-      "venue": "Nature",
-      "year": 2021
-    },
-    "brief": {
-      "zh": "让 AI 从数据里「猜」出简洁公式与守恒律，参与提出新理论。",
-      "en": "Let AI guess concise formulas and conservation laws from data; AI helps propose new theories."
-    },
     "stage": 2,
     "members": 6,
     "activity": 54,
@@ -3096,16 +2478,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       4
     ],
-    "citation": {
-      "url": "https://doi.org/10.1016/j.jbi.2023.104405",
-      "title": "Creating an ignorance-base",
-      "venue": "Journal of Biomedical Informatics",
-      "year": 2023
-    },
-    "brief": {
-      "zh": "用传感器与 AI 重建动物的感官世界（Umwelt），让人类体验磁感/偏振/次声。",
-      "en": "Sensors + AI reconstruct animals' sensory worlds (Umwelt); let humans feel magnetoreception, polarization, infrasound."
-    },
     "stage": 0,
     "members": 2,
     "activity": 12,
@@ -3145,16 +2517,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       4
     ],
-    "citation": {
-      "url": "https://doi.org/10.1086/601720",
-      "title": "Undiscovered Public Knowledge",
-      "venue": "The Library Quarterly",
-      "year": 1986
-    },
-    "brief": {
-      "zh": "用结构空洞、蕴含缺口把文献中「已知的未知」形式化为可检索对象。",
-      "en": "Structural holes and entailment gaps formalize \"known unknowns\" in the literature into retrievable objects."
-    },
     "stage": 1,
     "members": 3,
     "activity": 39,
@@ -3194,16 +2556,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       5
     ],
-    "citation": {
-      "url": "https://doi.org/10.1007/s11098-008-9315-0",
-      "title": "Absence of evidence and evidence of absence",
-      "venue": "Philosophical Studies",
-      "year": 2009
-    },
-    "brief": {
-      "zh": "识别因缺仪器而几乎无人观测的现象，「造一台新仪器」作为开辟问题空间的杠杆。",
-      "en": "Identify phenomena unobserved for lack of instruments; \"build a new instrument\" as a lever to open problem space."
-    },
     "stage": 1,
     "members": 3,
     "activity": 57,
@@ -3244,16 +2596,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       5
     ],
-    "citation": {
-      "url": "https://arxiv.org/pdf/2509.13333",
-      "title": "Evaluation Awareness Scales Predictably in Open-Weights Large Language Models",
-      "venue": "arXiv",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "2025年研究(arXiv:2509.13333)证明评测意识随模型规模可预测增强，且已被线性探针读出并用激活引导中和。",
-      "en": "A 2025 study (arXiv:2509.13333) shows evaluation awareness predictably strengthens with model scale, and it has already been read out via linear probes and neutralized with activation steering."
-    },
     "stage": 2,
     "members": 9,
     "activity": 59,
@@ -3293,16 +2635,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       5
     ],
-    "citation": {
-      "url": "https://arxiv.org/abs/2506.13609",
-      "title": "Avoiding Obfuscation with Prover-Estimator Debate",
-      "venue": "arXiv (Google DeepMind / UK AISI)",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "Brown-Cohen、Irving、Piliouras提出prover-estimator辩论协议，稳定性假设下诚实方以相当算力即可获胜。",
-      "en": "Brown-Cohen, Irving, and Piliouras's prover-estimator debate protocol guarantees, under stability assumptions, that the honest side can win with compute comparable to its opponent's."
-    },
     "stage": 2,
     "members": 8,
     "activity": 61,
@@ -3342,16 +2674,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       5
     ],
-    "citation": {
-      "url": "https://www.sciencedirect.com/science/article/pii/S0149763425005251",
-      "title": "On biological and artificial consciousness: A case for biological computationalism",
-      "venue": "Neuroscience & Biobehavioral Reviews, Vol. 181",
-      "year": 2026
-    },
-    "brief": {
-      "zh": "Milinkovic与Aru 2026年在《神经科学与生物行为评论》提出生物计算主义，主张尺度不可分离性为生物计算独有。",
-      "en": "Milinkovic and Aru's 2026 paper in Neuroscience & Biobehavioral Reviews proposes biological computationalism, arguing scale-inseparability is unique to biological computation."
-    },
     "stage": 2,
     "members": 10,
     "activity": 60,
@@ -3391,16 +2713,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       5,
       5
     ],
-    "citation": {
-      "url": "https://arxiv.org/abs/2603.27597",
-      "title": "From indicators to biology: the calibration problem in artificial consciousness",
-      "venue": "arXiv:2603.27597",
-      "year": 2026
-    },
-    "brief": {
-      "zh": "Florentin Koch 2026年论文(arXiv:2603.27597)指出Butlin等人提出的14项意识指标从未被独立验证的基准真相校准。",
-      "en": "Florentin Koch's 2026 paper (arXiv:2603.27597) argues the 14 consciousness indicators proposed by Butlin et al. have never been calibrated against any independently validated ground truth."
-    },
     "stage": 2,
     "members": 9,
     "activity": 73,
@@ -3440,16 +2752,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       4
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41586-025-09761-x",
-      "title": "Discovering state-of-the-art reinforcement learning algorithms",
-      "venue": "Nature",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "TTT-Discover用gpt-oss-120b测试时强化学习，在Erdős重叠问题、GPU内核竞赛等多领域刷新SOTA，每题仅数百美元。",
-      "en": "TTT-Discover runs test-time reinforcement learning on the open-source gpt-oss-120b, refreshing SOTA across the Erdős overlap problem, GPU kernel contests, and more, at only hundreds of dollars per problem."
-    },
     "stage": 2,
     "members": 10,
     "activity": 65,
@@ -3489,16 +2791,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       5
     ],
-    "citation": {
-      "url": "https://arxiv.org/abs/2107.10919",
-      "title": "Additive manufacturing process design with differentiable simulations",
-      "venue": "arXiv preprint",
-      "year": 2021
-    },
-    "brief": {
-      "zh": "把整条制造仿真链写成可微计算图，用自动微分对上万个逐时刻工艺参数（如激光功率）求梯度，直接反演出达成目标热历史的工艺曲线。",
-      "en": "The entire manufacturing simulation chain is written as a differentiable computational graph; automatic differentiation over tens of thousands of per-timestep process parameters, such as laser power, directly inverts the process curve that achieves a target thermal history."
-    },
     "stage": 2,
     "members": 9,
     "activity": 59,
@@ -3538,16 +2830,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       5,
       5
     ],
-    "citation": {
-      "url": "https://doi.org/10.1017/psa.2023.8",
-      "title": "Deep Learning Opacity in Scientific Discovery",
-      "venue": "Philosophy of Science",
-      "year": 2023
-    },
-    "brief": {
-      "zh": "提出异者认识论：知识的合法性不来自可解释性，而来自独立验证机制下的可靠表现，如以AlphaFold为代表的不透明模型。",
-      "en": "Proposes xenoepistemics: the legitimacy of knowledge comes not from explainability but from reliable performance under an independent verification mechanism, as exemplified by opaque models like AlphaFold."
-    },
     "stage": 2,
     "members": 10,
     "activity": 69,
@@ -3587,16 +2869,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       5
     ],
-    "citation": {
-      "url": "https://arxiv.org/abs/2402.02364",
-      "title": "The Developmental Landscape of In-Context Learning",
-      "venue": "arXiv (cs.LG)",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "用奇异学习理论的局部学习系数量化损失地形退化，把能力涌现刻画成训练中可监测的离散相变，而非只解剖训练完成的成品。",
-      "en": "Using the local learning coefficient from singular learning theory to quantify loss-landscape degeneracy, characterizing capability emergence as discrete, monitorable phase transitions during training rather than only dissecting the finished model."
-    },
     "stage": 2,
     "members": 9,
     "activity": 53,
@@ -3636,16 +2908,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       5
     ],
-    "citation": {
-      "url": "https://arxiv.org/abs/2511.06701",
-      "title": "Structural Enforcement of Statistical Rigor in AI-Driven Discovery: A Functional Architecture",
-      "venue": "arXiv",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "用Haskell的Research monad强制假设测试前更新误差预算，并以855行零sorry的Lean4证明LORD++在线错误发现率控制定理。",
-      "en": "A Haskell Research monad forces an error budget to be updated before any hypothesis can be tested, and an 855-line, zero-sorry Lean 4 proof formally establishes the LORD++ online false-discovery-rate control theorem."
-    },
     "stage": 2,
     "members": 10,
     "activity": 59,
@@ -3685,16 +2947,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       5
     ],
-    "citation": {
-      "url": "https://doi.org/10.1007/s10608-025-10674-2",
-      "title": "A Systematic Scoping Review of Fully Idiographic Network Analysis in Mental Health",
-      "venue": "Cognitive Therapy and Research",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "用密集经验取样数据为单人(n=1)估计症状动态网络与向量自回归模型，把心理病理看作相互激发的症状系统而非群体平均背后的隐藏病灶。",
-      "en": "Using intensive experience-sampling data to estimate a person-specific (n=1) dynamic symptom network and vector-autoregressive model, treating psychopathology as a system of mutually exciting symptoms rather than a hidden lesion behind the population average."
-    },
     "stage": 2,
     "members": 10,
     "activity": 68,
@@ -3734,16 +2986,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       5
     ],
-    "citation": {
-      "url": "https://arxiv.org/abs/2411.09158",
-      "title": "The Optimist: Towards Fully Automated Graph Theory Research",
-      "venue": "arXiv (Davila)",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "《The Optimist》用混合整数规划自动生成最锐的不等式猜想，并计划与反驳方Pessimist组成对偶自博弈，推进全自动图论研究。",
-      "en": "The Optimist uses mixed-integer programming to auto-generate the sharpest inequality conjectures, and is designed to pair with a refuting Pessimist in a dueling self-play loop toward fully autonomous graph-theory research."
-    },
     "stage": 2,
     "members": 10,
     "activity": 54,
@@ -3783,16 +3025,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       5
     ],
-    "citation": {
-      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11633747/",
-      "title": "High-throughput single-cell sorting by stimulated Raman-activated cell ejection (S-RACE)",
-      "venue": "Science Advances",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "受激拉曼激活细胞弹射（S-RACE）以约每秒13-17个细胞、纯度超过96%，无标记读出代谢指纹并活体回收目标细胞。",
-      "en": "Stimulated Raman-activated cell ejection (S-RACE) reads metabolic fingerprints label-free at roughly 13-17 cells per second with over 96% purity, recovering target cells alive."
-    },
     "stage": 2,
     "members": 9,
     "activity": 62,
@@ -3832,16 +3064,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       5
     ],
-    "citation": {
-      "url": "https://www.cell.com/patterns/fulltext/S2666-3899(25)00213-2",
-      "title": "Facing the possibility of consciousness in human brain organoids",
-      "venue": "Patterns (Cell Press)",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "把意识科学中验证过的复杂度/整合度量（如Lempel-Ziv、扰动复杂度PCI）搬到DishBrain与人脑类器官上，作为无身体无行为系统的意识相关动力学代理。",
-      "en": "Complexity/integration metrics validated in consciousness science, such as Lempel-Ziv complexity and the perturbational complexity index, are repurposed on DishBrain and human brain organoids as proxies for consciousness-relevant dynamics in bodyless, behaviorless systems."
-    },
     "stage": 2,
     "members": 9,
     "activity": 62,
@@ -3881,16 +3103,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       4
     ],
-    "citation": {
-      "url": "https://www.pnas.org/doi/10.1073/pnas.1005484107",
-      "title": "Long-lived quantum coherence in photosynthetic complexes at physiological temperature",
-      "venue": "PNAS",
-      "year": 2010
-    },
-    "brief": {
-      "zh": "探索生物分子（如光合反应中心、酶活性位点）中的量子相干与隧穿效应能否用于计算。这是量子物理、生物物理与计算科学高度交叉的探索性方向，目前理论远远领先于实验证据。",
-      "en": "Explores whether quantum coherence and tunneling effects in biomolecules such as photosynthetic reaction centers and enzyme active sites can be harnessed for computation. It sits at a highly cross-disciplinary, still-exploratory frontier where theory currently runs far ahead of experimental evidence."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -3930,16 +3142,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       3
     ],
-    "citation": {
-      "url": "https://doi.org/10.1038/s42254-021-00314-5",
-      "title": "Physics-informed machine learning",
-      "venue": "Nature Reviews Physics",
-      "year": 2021
-    },
-    "brief": {
-      "zh": "把守恒律、边界条件和量纲关系嵌入科学基础大模型，以降低纯数据外推时产生的幻觉；这类模型有望成为工程仿真、材料筛选与气候推断的共同底座。",
-      "en": "Embedding conservation laws, boundary conditions, and dimensional constraints into scientific foundation models to reduce the hallucinations of pure data-driven extrapolation; such models may become a shared substrate for engineering simulation, materials screening, and climate inference."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -3979,16 +3181,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       2
     ],
-    "citation": {
-      "url": "https://www.science.org/doi/10.1126/science.ado9336",
-      "title": "Sequence modeling and design from molecular to genome scale with Evo",
-      "venue": "Science",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "全球环境测序里绝大多数基因功能未知——这片「功能暗物质」正被基因组语言模型（如 Evo、GenomeOcean）尝试直接从无参考序列中零样本读出，绕开必须比对已知数据库的老范式。",
-      "en": "Most genes revealed by global environmental sequencing have unknown function—this 'functional dark matter' is now being tackled by genomic language models (Evo, GenomeOcean, and others), which achieve zero-shot function prediction directly from reference-free sequence, bypassing the old paradigm of aligning to known databases."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -4028,16 +3220,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       4
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41598-025-03650-z",
-      "title": "First national survey of terrestrial biodiversity using airborne eDNA",
-      "venue": "Scientific Reports",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "空气中漂浮的DNA碎片可用于普查一片区域的物种构成，这种普查方式的可行性直到2025年前后才被实证确认，采样成本低到可全域铺开，但DNA的来源、扩散距离与降解动力学几乎空白。",
-      "en": "DNA fragments drifting in the air can be used to survey a region's species composition; this method's feasibility was only empirically confirmed around 2025. Sampling is cheap enough to deploy region-wide, but the source, dispersal distance, and degradation kinetics of airborne DNA remain nearly blank."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -4077,16 +3259,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       3
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41467-023-40265-2",
-      "title": "Phenotypically complex living materials containing engineered cyanobacteria",
-      "venue": "Nature Communications",
-      "year": 2023
-    },
-    "brief": {
-      "zh": "把活细胞嵌入水凝胶等材料基质，让材料具备生长、自愈、感知与响应环境的生命特性，模糊「材料」与「生物」的边界；自生长建材与活体器件是其诱人的应用前景。",
-      "en": "Living cells are embedded into material matrices such as hydrogels so that materials can grow, self-heal, sense, and respond to their environment, blurring the boundary between 'material' and 'organism'; self-growing building materials and living devices are its alluring near-term application."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -4126,16 +3298,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       4
     ],
-    "citation": {
-      "url": "https://pubs.acs.org/doi/10.1021/acsabm.1c01197",
-      "title": "Recent Advances in Stimuli-Responsive DNA-Based Hydrogels",
-      "venue": "ACS Applied Bio Materials",
-      "year": 2022
-    },
-    "brief": {
-      "zh": "可编程DNA水凝胶用DNA链的可编程碱基配对构建能感知特定分子、按指令变形甚至执行逻辑运算（链置换反应）的智能凝胶，把DNA从遗传信息载体重新定义为可编程的结构与计算基元。软体器件与分子传感前景诱人，但响应慢、稳定性差、合成成本高，目前多为概念验证。",
-      "en": "Programmable DNA hydrogels use DNA strands' programmable base pairing to build smart gels that sense specific molecules, deform on command, and even perform logic operations via strand-displacement reactions, redefining DNA from a genetic-information carrier into a programmable structural and computational primitive. Prospects for soft devices and molecular sensing are alluring, but the gels respond slowly, are unstable, and are costly to synthesize — mostly proof-of-concept for now."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -4175,16 +3337,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       4
     ],
-    "citation": {
-      "url": "https://advanced.onlinelibrary.wiley.com/doi/10.1002/advs.202303575",
-      "title": "Motile Living Biobots Self-Construct from Adult Human Somatic Progenitor Seed Cells",
-      "venue": "Advanced Science",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "Anthrobot 是用成人（乃至老年人）气道上皮细胞在体外自发组装成的会游动、有纤毛的多细胞「生物机器人」，无需基因改造或人工支架，成簇后还能促进划伤神经元层的再生。它把「机器人」从被制造的对象，变成细胞自组织涌现出的产物。",
-      "en": "Anthrobots are ciliated, motile multicellular \"biobots\" that adult (even elderly) human airway epithelial cells spontaneously self-assemble into in vitro — no genetic edits, no synthetic scaffold — and that, when clustered, bridge and heal wounded neuronal layers in a dish. They reframe a 'robot' from a manufactured object into an emergent product of cell self-organization."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -4224,16 +3376,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       3
     ],
-    "citation": {
-      "url": "https://www.science.org/doi/10.1126/scirobotics.abf1571",
-      "title": "A cellular platform for the development of synthetic living machines",
-      "venue": "Science Robotics",
-      "year": 2021
-    },
-    "brief": {
-      "zh": "从非洲爪蟾胚胎细胞出发，由进化算法设计、人工组装出能自主运动、自愈、甚至以「运动学复制」聚拢散细胞而增殖的细胞集合体，是被重编程的活体可编程物质。它既非传统生物也非传统机器，最大价值是逼问「什么算生命、什么算机器」的边界。正因「能自我复制的人造活体」触及伦理与生物安全红线，监管与公众接受度可能比技术本身更早成为天花板。",
-      "en": "Starting from Xenopus frog embryonic cells, evolutionary algorithms design and humans assemble cell clusters that move autonomously, self-heal, and even reproduce by 'kinematic replication' (gathering loose cells), forming reprogrammed living programmable matter. Neither traditional organism nor machine, its greatest value is forcing the question of what counts as 'life' versus 'machine.' Precisely because 'self-replicating artificial living things' touch ethical and biosafety red lines, regulation and public acceptance may become the ceiling sooner than the technology itself."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -4273,16 +3415,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       2
     ],
-    "citation": {
-      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12148494/",
-      "title": "How to build the virtual cell with artificial intelligence: Priorities and opportunities",
-      "venue": "Cell",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "用数据与机理模型重建一个能模拟代谢、基因表达、信号转导的「会活的」虚拟细胞，把多组学数据整合进统一可运行的模型，被视为计算生物学的圣杯。一旦成真可大规模替代湿实验筛选，价值巨大，但细胞内过程跨越巨大时空尺度、参数高度不可观测，「虚拟细胞」更可能先在局部模块成立，整体仍是长期渐近目标。",
-      "en": "Using data and mechanistic models to reconstruct a 'living' virtual cell that simulates metabolism, gene expression, and signal transduction, integrating multi-omics data into a unified runnable model, is regarded as the holy grail of computational biology. Once realized it could replace wet-lab screening at scale, an enormous payoff, but intracellular processes span vast spatiotemporal scales with highly unobservable parameters — the 'virtual cell' is more likely to hold first for local modules, with the whole remaining a long-term asymptotic goal."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -4322,16 +3454,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       4
     ],
-    "citation": {
-      "url": "https://doi.org/10.1021/acs.est.3c02238",
-      "title": "AirPen: A Wearable Monitor for Characterizing Exposures to Particulate Matter and Volatile Organic Compounds",
-      "venue": "Environmental Science & Technology",
-      "year": 2023
-    },
-    "brief": {
-      "zh": "用可穿戴空气、化学、紫外传感配合环境数据，追踪个人一生累积接触的污染物、过敏原、化学物质，即「暴露组」，把流行病学长期忽视的环境暴露维度个体化、连续化。它补上基因之外影响慢病的另一半拼图，但暴露组维度极高、个体轨迹复杂，从「相关」到「致病」需要海量长期队列——数据采集只是开始，因果推断才是真正的硬骨头。",
-      "en": "Using wearable air, chemical, and UV sensors together with environmental data to track the pollutants, allergens, and chemicals an individual accumulates over a lifetime — the 'exposome' — individualizing and continualizing the environmental-exposure dimension long neglected by epidemiology. It supplies the other half of the chronic-disease puzzle beyond genes, but the exposome is extremely high-dimensional with complex individual trajectories, and moving from 'correlation' to 'causation' needs huge long-term cohorts — data collection is only the start, and causal inference is the real hard bone."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -4371,16 +3493,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       5
     ],
-    "citation": {
-      "url": "https://doi.org/10.1093/chemse/bjt016",
-      "title": "Genetic, functional, and phenotypic diversity in TAS2R38-mediated bitter taste perception",
-      "venue": "Chemical Senses",
-      "year": 2013
-    },
-    "brief": {
-      "zh": "研究为何香菜、芦笋代谢物、PTC/PROP苦味等同一物质在不同人身上感知迥异，把基因型、文化背景与主观感知关联起来；门槛极低、易众包，是研究基因如何塑造「质性体验」的天然实验场。",
-      "en": "Studies why the same substance—cilantro, asparagus metabolites, PTC/PROP bitterness—is perceived so differently across people, linking genotype, cultural background and subjective perception; its low barrier and easy crowdsourcing make it a natural testbed for how genes shape 'qualitative experience'."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -4420,16 +3532,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       4
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s44159-025-00456-8",
-      "title": "Bringing comparative cognition approaches to AI systems",
-      "venue": "Nature Reviews Psychology",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "用统一计算框架比较人、动物与AI的学习、推理与心智能力，让AI既做研究工具（分析动物行为）又做比较对象（一种非生物智能），在更广的「心智空间」里重新定位人类智能。",
-      "en": "Uses a unified computational framework to compare learning, reasoning and mind across humans, animals and AI, with AI serving both as a research tool for analyzing animal behavior and as a comparison object—a non-biological intelligence—relocating human intelligence within a broader 'space of minds'."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -4469,16 +3571,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       3
     ],
-    "citation": {
-      "url": "https://www.annualreviews.org/content/journals/10.1146/annurev-environ-112321-081911",
-      "title": "Solar Geoengineering: History, Methods, Governance, Prospects",
-      "venue": "Annual Review of Environment and Resources",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "通过平流层气溶胶或增亮云层反射阳光来快速降温；本方向不做部署，只做严格的气候建模、风险评估与全球治理设计，核心是它一旦启动就可能不能停——终止冲击会让被压抑的升温报复性反弹，而最大风险其实是治理而非技术。",
-      "en": "Cools the planet quickly by reflecting sunlight via stratospheric aerosols or cloud brightening; this direction does not deploy but focuses on rigorous climate modeling, risk assessment, and global governance design. Its core issue: once started it may not be able to stop — termination shock would let suppressed warming rebound violently — and the biggest risk is actually governance, not technology."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -4518,16 +3610,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       3
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/nbt.4245",
-      "title": "A CRISPR–Cas9 gene drive targeting doublesex causes complete population suppression in caged Anopheles gambiae mosquitoes",
-      "venue": "Nature Biotechnology",
-      "year": 2018
-    },
-    "brief": {
-      "zh": "用CRISPR等技术让特定基因以远超50%的「超孟德尔」比例传给后代，可在野外种群中快速扩散，用于压制传疟蚊虫或清除入侵物种；本方向聚焦种群动力学建模与伦理治理而非急于释放，核心是它一旦成功就无法撤回——演化没有Ctrl+Z。",
-      "en": "Uses tools like CRISPR to pass a chosen gene to offspring at a 'super-Mendelian' rate well above 50%, letting it spread rapidly through wild populations to suppress malaria-carrying mosquitoes or clear invasive species; this direction focuses on population-dynamics modeling and ethical governance rather than rushing to release, because once it succeeds it cannot be recalled — evolution has no Ctrl+Z."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -4567,16 +3649,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       1
     ],
-    "citation": {
-      "url": "https://www.nationalacademies.org/news/fusion-energy-seizing-our-opportunity-for-a-clean-energy-future",
-      "title": "Fusion Energy: Seizing Our Opportunity for a Clean Energy Future",
-      "venue": "National Academies of Sciences, Engineering, and Medicine",
-      "year": 2023
-    },
-    "brief": {
-      "zh": "把可控核聚变从物理验证推向可并网发电的装置，涵盖托卡马克、仿星器及私营公司的高温超导磁体、磁惯性、激光惯性约束等路线；高温超导磁体与私营资本让「永远50年」的玩笑首次出现裂缝，但科学增益远不等于工程与商业可行。",
-      "en": "Pushes controlled nuclear fusion from physics validation toward grid-connectable power plants, covering tokamaks, stellarators, and private companies' high-temperature superconducting magnets, magneto-inertial, and laser inertial confinement routes; HTS magnets and private capital have put the first crack in the 'always 50 years away' joke, but scientific gain is far from engineering or commercial viability."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -4616,16 +3688,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       4
     ],
-    "citation": {
-      "url": "https://www.nationalacademies.org/read/26522/chapter/16",
-      "title": "Origins, Worlds, and Life: A Decadal Strategy for Planetary Science and Astrobiology 2023-2032",
-      "venue": "National Academies Press",
-      "year": 2022
-    },
-    "brief": {
-      "zh": "天体生物学研究生命如何从非生命化学体系中涌现、这一过程在宇宙中是否普遍，涵盖前生命化学、RNA世界假说与极端环境生命，并指向欧罗巴/恩克拉多斯羽流、火星样本返回等可检验的地外生物标志物。真正的困难是「只有一个样本」——我们仅知地球生命，缺乏判断哪些特征必然、哪些偶然的参照系。",
-      "en": "Astrobiology studies how life emerges from non-living chemistry and whether this is common across the universe, spanning prebiotic chemistry, the RNA-world hypothesis, and extremophiles, and pointing toward testable biosignatures at the Europa/Enceladus plumes and in Mars sample return. The real difficulty is the 'sample of one' — we know only Earth life, leaving no baseline for judging which features are necessary versus contingent."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -4665,16 +3727,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       4
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41586-023-05987-9",
-      "title": "Detection of phosphates originating from Enceladus's ocean",
-      "venue": "Nature",
-      "year": 2023
-    },
-    "brief": {
-      "zh": "研究木卫二、土卫二等冰封天体的冰壳之下是否存在液态咸水海洋，及其热源（潮汐加热、热液喷口）、化学梯度与潜在宜居性——土卫二南极羽流已直接采到含盐与有机物样本。相比火星表面，冰下海洋因兼具液态水、能量与化学不平衡而更可能孕育生命，但探测窗口被欧罗巴快船、JUICE等任务的多年飞掠周期锁死，穿透数千米厚冰壳直接取样仍遥不可及。",
-      "en": "Studies whether liquid salty oceans exist beneath the ice shells of Europa and Enceladus, along with their heat sources (tidal heating, hydrothermal vents), chemical gradients and habitability — the plume at Enceladus's south pole has already yielded direct samples containing salts and organics. Subsurface oceans are more likely to harbor life than the Martian surface since they combine liquid water, energy and chemical disequilibrium, but the observation window is locked to the multi-year flyby cycles of missions like Europa Clipper and JUICE, and drilling through a kilometers-thick ice shell to sample directly remains out of engineering reach."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -4714,16 +3766,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       4
     ],
-    "citation": {
-      "url": "https://doi.org/10.1038/s41588-022-01016-z",
-      "title": "Polygenic prediction of educational attainment within and between families from genome-wide association analyses in 3 million individuals",
-      "venue": "Nature Genetics",
-      "year": 2022
-    },
-    "brief": {
-      "zh": "社会基因组学用全基因组关联分析产出的多基因指数（PGI），把遗传信息接入教育、收入等社会分层研究，并用同胞内设计剥离环境混杂来检验「基因—社会地位」链条。它是解释力最强也最具争议的社会科学新工具之一——家庭内设计下预测力缩水、跨族群不可迁移，极易被误读为生物决定论。",
-      "en": "Sociogenomics feeds genome-wide association study (GWAS) polygenic indices (PGIs) into research on social stratification, education and income, using within-family designs to strip out environmental confounding and test the gene–social-status chain. It is among the most explanatory yet most contested new tools in social science — its predictive power shrinks under within-family designs, fails to transfer across ancestries, and is easily misread as biological determinism."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -4763,16 +3805,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       3
     ],
-    "citation": {
-      "url": "https://arxiv.org/abs/2508.15126",
-      "title": "aiXiv: A Next-Generation Open Access Ecosystem for Scientific Discovery Generated by AI Scientists",
-      "venue": "arXiv preprint 2508.15126",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "当 AI 智能体能自主提出假设、跑实验、写论文并互评后，一类专为「人机共同作者」设计的开放获取平台开始出现：论文先由多个 LLM 评审智能体打分排序，顶部成果再交人类复核。锚点案例是 2025 年预印本 aiXiv、斯坦福与 Together AI 主办的 Agents4Science 会议，以及 Sakana AI Scientist-v2——其全 AI 生成稿件已有一篇以均分 6.33 通过 ICLR 工作坊评审。",
-      "en": "As AI agents can autonomously propose hypotheses, run experiments, write papers, and review one another, a new class of open-access platform designed for human-AI co-authorship is emerging: papers are first scored and ranked by multiple LLM reviewer agents before top results go to human review. Anchor cases include the 2025 aiXiv preprint, the Stanford/Together AI Agents4Science conference, and Sakana's AI Scientist-v2, one of whose fully AI-generated papers passed ICLR workshop review with an average score of 6.33."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -4812,16 +3844,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       2
     ],
-    "citation": {
-      "url": "https://ddkang.github.io/papers/2024/zkml-eurosys.pdf",
-      "title": "ZKML: An Optimizing System for ML Inference in Zero-Knowledge Proofs",
-      "venue": "EuroSys 2024",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "零知识证明让「可验证」与「不公开」首次有望共存——证明某项训练/推理/分析结果确由声称的计算产生，却不泄露原始数据或模型权重。2025 年生产级 zkML 系统 DeepProve-1 已能为 GPT-2 完整推理生成密码学证明，但出证成本高、电路表达力有限（多数框架仅支持 ONNX 120+ 算子中的约 50 个），仍是通向「任意科研流水线一键出证」的硬约束。",
-      "en": "Zero-knowledge proofs make 'verifiable' and 'undisclosed' compatible for the first time — proving that a training/inference/analysis result truly came from the claimed computation without revealing the underlying data or model weights. In 2025, the production-grade zkML system DeepProve-1 could already generate a cryptographic proof for a full GPT-2 inference, but high proving costs and limited circuit expressiveness (most frameworks support only about 50 of ONNX's 120+ operators) remain hard constraints on the road to 'one-click proof for any scientific pipeline'."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -4861,16 +3883,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       2
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41586-023-06221-2",
-      "title": "Scientific discovery in the age of artificial intelligence",
-      "venue": "Nature",
-      "year": 2023
-    },
-    "brief": {
-      "zh": "人机协作的科学发现构建人负责提问、判断与设定目标，AI负责文献综合、假说生成与海量计算的共生科研模式，正走向成为默认的科研工作方式。真正的范式转变不是AI取代科学家，而是重新划分人机分工边界——最大风险是认知外包侵蚀科学家的独立判断。",
-      "en": "Human-AI collaborative scientific discovery builds a symbiotic mode in which humans handle questioning, judgment, and goal-setting while AI handles literature synthesis, hypothesis generation, and massive computation, and it is becoming the default way of doing research. The real paradigm shift is not AI replacing scientists but redrawing the human-machine division of labor — the biggest risk is that cognitive outsourcing erodes scientists' independent judgment."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -4910,16 +3922,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       4
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41562-024-02024-1",
-      "title": "When combinations of humans and AI are useful: A systematic review and meta-analysis",
-      "venue": "Nature Human Behaviour",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "人机互补性的实证科学用对照实验检验「人+AI」团队是否真优于二者中更强的一方。Vaccaro等2024年对上百项研究的元分析显示：平均而言人机组合反而不如更强的一方，仅创作类任务偶见增益。这把领域从「人机必然互补」的乐观假设推向如何工程化设计真正互补的问题。",
-      "en": "The empirical science of human-AI complementarity uses controlled experiments to test whether human-plus-AI teams truly beat the stronger party alone. Vaccaro et al.'s 2024 meta-analysis of over a hundred studies found that on average human-AI combinations underperformed the better party, with gains seen mainly in creative tasks. This shifts the field from assuming complementarity to engineering how to design it."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -4959,16 +3961,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       4
     ],
-    "citation": {
-      "url": "https://www.science.org/doi/10.1126/science.adq2852",
-      "title": "AI can help humans find common ground in democratic deliberation",
-      "venue": "Science",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "Google DeepMind 的 Habermas Machine（Tessler 等，2024，Science）由生成模型与个性化奖励模型组成，为6人小组撰写共识陈述。N=5734名参与者中，AI陈述被偏好的比例高于人类调解人（约56%），且在英国具代表性的「虚拟公民大会」中复现。",
-      "en": "Google DeepMind's Habermas Machine (Tessler et al., 2024, Science) pairs a generative model with a personalized reward model to draft consensus statements for 6-person groups. Among N=5,734 participants, AI statements were preferred over human mediators' about 56% of the time, and the result replicated in a demographically representative UK 'virtual citizens' assembly.'"
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -5008,16 +4000,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       3
     ],
-    "citation": {
-      "url": "https://www.science.org/doi/10.1126/science.adq2852",
-      "title": "AI can help humans find common ground in democratic deliberation",
-      "venue": "Science",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "2024年10月，DeepMind团队在Science发表Habermas Machine：AI调解人基于参与者意见与批评迭代生成共识陈述，N=5734实验中参与者认为其比人类调解人更清晰、更不偏颇，并在英国代表性样本中复现。同期Google Jigsaw开源Sensemaking工具、AI Objectives Institute的Talk to the City已在工会、DAO与国家级咨询中落地，形成从「倾听」到「调解」的审议栈。",
-      "en": "In October 2024, DeepMind published the Habermas Machine in Science: an AI mediator iteratively drafts consensus statements from participants' opinions and critiques; in an N=5,734 experiment, participants judged it clearer and less biased than human mediators, replicating in a representative UK sample. Around the same time, Google Jigsaw open-sourced its Sensemaking tools and the AI Objectives Institute's Talk to the City was deployed in unions, DAOs, and national consultations, forming a scalable deliberation stack from 'listening' to 'mediating.'"
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -5057,16 +4039,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       5
     ],
-    "citation": {
-      "url": "https://doi.org/10.1016/j.joule.2024.09.011",
-      "title": "Electro-agriculture: Revolutionizing farming for a sustainable future",
-      "venue": "Joule",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "电力农业由UC Riverside的Robert Jinkerson与华盛顿大学的Feng Jiao在2024年《Joule》展望论文中正式命名：用太阳能电解CO2与水生成醋酸盐，喂给作物作为碳源与能源。其实验基础——2022年《Nature Food》的无机-生物混合系统——已证明藻类、酵母、蘑菇乃至作物幼苗可在完全无光下靠醋酸盐生长，生物量能效约为光合的4倍。",
-      "en": "Electro-agriculture was formally named by UC Riverside's Robert Jinkerson and University of Washington electrochemist Feng Jiao in a 2024 Joule perspective paper: solar power electrolyzes CO2 and water into acetate, fed to crops as a carbon and energy source. Its experimental basis — a 2022 Nature Food hybrid inorganic-biological system — already showed algae, yeast, mushrooms, and even crop seedlings can grow on acetate in complete darkness, with biomass efficiency about four times that of photosynthesis."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -5106,16 +4078,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       3
     ],
-    "citation": {
-      "url": "https://www.fda.gov/news-events/press-announcements/fda-announces-plan-phase-out-animal-testing-requirement-monoclonal-antibodies-and-other-drugs",
-      "title": "FDA Announces Plan to Phase Out Animal Testing Requirement for Monoclonal Antibodies and Other Drugs",
-      "venue": "U.S. FDA press announcement",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "新方法学（NAMs）用人源类器官、器官芯片、体外免疫原性测定与 in-silico/AI 毒性模型组合，替代动物实验来预测药物毒性与免疫原性，把\"用小鼠猜人\"改成\"用人体相关模型直接读人\"。若跨实验室验证与开放毒性数据库到位，3–5 年内动物实验将从\"默认\"退为\"例外\"。",
-      "en": "New Approach Methodologies (NAMs) replace animal experiments with a stack of human organoids, organ-chips, in-vitro immunogenicity assays, and in-silico/AI toxicity models to predict drug toxicity and immunogenicity — swapping 'guessing humans from mice' for reading human-relevant systems directly. If cross-lab validation and open toxicity databases mature, within 3–5 years animal studies could become the exception rather than the default."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -5155,16 +4117,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       2
     ],
-    "citation": {
-      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12259695/",
-      "title": "Targeting the hallmarks of aging: mechanisms and therapeutic opportunities",
-      "venue": "Signal Transduction and Targeted Therapy",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "衰老生物学把衰老当作由细胞衰老、端粒损耗、表观遗传漂移、线粒体功能障碍等可识别「衰老标志」驱动、因而可干预的过程，探索 senolytics 清除衰老细胞、雷帕霉素、二甲双胍（TAME 试验）等候选干预，目标是延长「健康寿命」而非单纯延长寿命。",
-      "en": "Aging biology treats aging as a process driven by identifiable hallmarks — cellular senescence, telomere attrition, epigenetic drift, mitochondrial dysfunction — and therefore interventable, exploring candidates such as senolytics that clear senescent cells, rapamycin, and metformin (the TAME trial), aiming to extend healthspan rather than merely lifespan."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -5204,16 +4156,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       4
     ],
-    "citation": {
-      "url": "https://www.science.org/doi/10.1126/science.ade4401",
-      "title": "A principal odor map unifies diverse tasks in human olfactory perception",
-      "venue": "Science",
-      "year": 2023
-    },
-    "brief": {
-      "zh": "嗅觉数字化用图神经网络把分子结构直接映射到人类闻到的气味描述，建立一张连续的「主气味图谱」（POM），让机器在部分任务上比人更准地预测「这闻起来像什么」——嗅觉是最后一个尚未被数字化的感官。",
-      "en": "Digitizing olfaction uses graph neural networks to map molecular structure straight onto the odor words humans perceive, building a continuous 'principal odor map' (POM) on which machines outpredict people on some smell-labeling tasks — smell is the last human sense not yet digitized."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -5253,16 +4195,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       3
     ],
-    "citation": {
-      "url": "https://www.science.org/doi/10.1126/sciadv.aat2731",
-      "title": "Sampling molecular conformations and dynamics in a multiuser virtual reality framework",
-      "venue": "Science Advances",
-      "year": 2018
-    },
-    "brief": {
-      "zh": "具身分子动力学（iMD-VR）让研究者戴上 VR 头显、用双手直接「抓住」正在运行的分子动力学模拟，实时施力、拉动、引导蛋白质折叠或配体入位，把分子科学从「离线跑批、事后看图」变成「在三维原生空间里协作操纵活的模拟」。",
-      "en": "Interactive molecular dynamics in VR (iMD-VR) lets researchers put on a headset and physically grab a live molecular-dynamics simulation with their hands — applying forces in real time to pull, fold, or dock molecules — turning molecular science from 'run offline, inspect plots later' into collaboratively steering a living simulation in its native 3-D space."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -5302,16 +4234,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       3
     ],
-    "citation": {
-      "url": "https://www.science.org/doi/10.1126/science.adq2852",
-      "title": "AI can help humans find common ground in democratic deliberation",
-      "venue": "Science",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "AI 居间协商训练 LLM 充当协商中介：聚合个体观点与批评，迭代生成最大化群体认同的共同立场声明，用于气候、AI 治理等科学争议议题的公众协商——DeepMind 的「哈贝马斯机器」在《Science》给出首个大样本证据。",
-      "en": "AI-mediated deliberation trains LLMs as mediators that aggregate individual opinions and critiques into iteratively refined common-ground statements for public deliberation on contested science issues like climate and AI governance — DeepMind's 'Habermas Machine' delivered the first large-sample evidence in Science."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -5351,16 +4273,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       1,
       4
     ],
-    "citation": {
-      "url": "https://link.springer.com/article/10.1007/s11229-017-1544-3",
-      "title": "On serendipity in science: discovery at the intersection of chance and wisdom",
-      "venue": "Synthese",
-      "year": 2019
-    },
-    "brief": {
-      "zh": "把'运气'拆解为机遇、洞察与有准备的心智三要素，量化不同科研体制、资助方式与团队结构下意外发现的发生率与可培育条件，让偶然的科学发现从玄学变成可测量、可设计的对象。研究估计33%–50%的科学发现属于意外。",
-      "en": "Serendipity is decomposed into chance, sagacity, and the prepared mind, quantifying how the rate of accidental discovery and its cultivable conditions vary across research regimes, funding mechanisms, and team structures — turning serendipity from mysticism into something measurable and designable. Studies estimate that 33–50% of scientific discoveries are accidental."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -5400,16 +4312,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       4
     ],
-    "citation": {
-      "url": "https://onlinelibrary.wiley.com/doi/10.1002/leap.2018",
-      "title": "Does ChatGPT Ignore Article Retractions and Other Reliability Concerns?",
-      "venue": "Learned Publishing",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "2023年9月Crossref收购并开放Retraction Watch撤稿数据库后，撤稿的传播首次可全域追踪；但2025年研究发现GPT-4o-mini等主流大模型在6510份评估报告中对217篇被撤稿或存疑论文几乎零次提示其撤稿状态，被撤稿的科学正持续污染AI训练语料与生成内容。",
-      "en": "Since Crossref acquired and opened the Retraction Watch database in September 2023, the propagation of retractions can be tracked globally for the first time — yet 2025 research finds mainstream models like GPT-4o-mini flagged retraction status almost zero times across 217 retracted or disputed papers within 6,510 evaluation reports, so retracted science keeps contaminating AI training corpora and generated content."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -5449,16 +4351,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       4
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41586-023-06583-7",
-      "title": "Unraveling the functional dark matter through global metagenomics",
-      "venue": "Nature",
-      "year": 2023
-    },
-    "brief": {
-      "zh": "大多数微生物无法在实验室培养，属于'暗物质'；宏基因组测序结合AI蛋白结构与功能预测，正把这些无法培养的暗物质转化为可下游验证的新酶、新药候选，绕过培养瓶颈直接点亮未知生命的功能版图。",
-      "en": "Most microbes cannot be cultured in the lab and remain 'dark matter'; metagenomic sequencing combined with AI protein-structure and function prediction is now converting this uncultured dark matter into downstream-verifiable candidates for new enzymes and drugs, bypassing the culturing bottleneck to illuminate the functional map of unknown life."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -5498,16 +4390,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       4
     ],
-    "citation": {
-      "url": "https://pubmed.ncbi.nlm.nih.gov/31037068/",
-      "title": "Living at the Extremes: Extremophiles and the Limits of Life in a Planetary Context",
-      "venue": "Frontiers in Microbiology",
-      "year": 2019
-    },
-    "brief": {
-      "zh": "极端微生物在高温高压、强酸碱、强辐射或极端缺水下生存繁殖，探索生命的物理化学边界；它既外推'宜居'的定义、指引地外生命搜寻，也提供如PCR用Taq聚合酶般的耐极端工业酶，是基础研究催生大产业的经典案例。",
-      "en": "Extremophiles survive and reproduce under high temperature, high pressure, strong acidity/alkalinity, intense radiation, or extreme desiccation, probing the physicochemical boundaries of life; they both extend the definition of 'habitable' to guide the search for extraterrestrial life and supply extreme-tolerant industrial enzymes like the Taq polymerase behind PCR — a classic case of basic research spawning a major industry."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -5547,16 +4429,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       4
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/nature08227",
-      "title": "Early-warning signals for critical transitions",
-      "venue": "Nature",
-      "year": 2009
-    },
-    "brief": {
-      "zh": "复杂系统存在与具体机制无关的通用预警信号（临界慢化、方差与自相关上升），已在生态、气候、生理多领域验证；未知未知的预警学不预测具体冲击内容，而是监测系统-环境耦合中的失稳前兆，把'对未知未知的韧性'设计为可实现目标。",
-      "en": "Complex systems emit generic, mechanism-agnostic early-warning signals (critical slowing down, rising variance and autocorrelation) validated across ecology, climate, and physiology; the early-warning science of unknown unknowns doesn't predict any specific shock but instead monitors destabilization precursors in the system-environment coupling, making 'resilience to unknown unknowns' a designable goal."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -5596,16 +4468,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       4
     ],
-    "citation": {
-      "url": "https://www.sciencedirect.com/science/article/pii/S0014292125001941",
-      "title": "The TAP equation: Evaluating combinatorial innovation",
-      "venue": "European Economic Review",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "TAP方程用'每个新颖物催生更多新颖物'的组合式创新刻画可能性空间的扩张，预测其典型行为是长期平台后突然爆发式发散，为创新的爆发提供了可计算的动力学方程。",
-      "en": "The TAP equation captures combinatorial innovation—where every novelty begets more novelty—predicting that the possibility space typically plateaus for a long time before exploding into divergence, offering a computable dynamical equation for the explosion of innovation."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -5645,16 +4507,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       4
     ],
-    "citation": {
-      "url": "https://proceedings.neurips.cc/paper_files/paper/2024/hash/6df3a719d99bd2479c04114d357003d0-Abstract-Conference.html",
-      "title": "Artificial Generational Intelligence: Cultural Accumulation in Reinforcement Learning",
-      "venue": "NeurIPS 2024",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "把人类文明的代际累积搬进强化学习：智能体既独立探索又向上一代传承信息，分'情境内传承'（知识）与'权重内传承'（技能）两种世代，在相同经验预算下击败只活一世的个体。",
-      "en": "Ports human civilization's cross-generational accumulation into reinforcement learning: agents both explore independently and inherit information from prior generations across 'in-context' (knowledge) and 'in-weights' (skill) generations, outperforming single-lifetime agents given the same experience budget."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -5694,16 +4546,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       3
     ],
-    "citation": {
-      "url": "https://www.science.org/doi/10.1126/science.abi8794",
-      "title": "Probing topological spin liquids on a programmable quantum simulator",
-      "venue": "Science",
-      "year": 2021
-    },
-    "brief": {
-      "zh": "用可编程量子模拟器（冷原子、囚禁离子、超导阵列）直接制备并测量经典不可解的多体量子态，把量子硬件当作发现新物质相与非平衡动力学的实验望远镜。",
-      "en": "Uses programmable quantum simulators (cold atoms, trapped ions, superconducting arrays) to directly prepare and measure classically unsolvable many-body quantum states, treating quantum hardware as an experimental telescope for discovering new phases of matter and nonequilibrium dynamics."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -5743,16 +4585,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       4
     ],
-    "citation": {
-      "url": "https://www.aanda.org/articles/aa/full_html/2025/11/aa56339-25/aa56339-25.html",
-      "title": "Interpreting the detection of anomalies in SDSS spectra",
-      "venue": "Astronomy & Astrophysics",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "把不符合已知规律的离群点当作'规则不完整'的指示器，建立跨天文、基因组、极地科学的可复用异常发现基准与方法，在巡天洪流中守候未知。",
-      "en": "Treats outliers that violate known rules as indicators that 'the rules are incomplete', building reusable cross-domain anomaly-discovery benchmarks and methods across astronomy, genomics, and polar science—standing watch for the unknown amid the survey deluge."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -5792,16 +4624,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       4
     ],
-    "citation": {
-      "url": "https://www.science.org/doi/10.1126/science.1240474",
-      "title": "Atypical Combinations and Scientific Impact",
-      "venue": "Science",
-      "year": 2013
-    },
-    "brief": {
-      "zh": "用引文与共词网络定位学科间几乎无连接的结构洞，把这些裂缝本身做成可勘探的跨界机会图谱，引导研究者去填补跨界空白——在知识网络的洞里找机会。",
-      "en": "Uses citation and co-word networks to locate near-unconnected structural holes between disciplines, turning those fissures into a prospectable atlas of cross-boundary opportunity that guides researchers to fill cross-border gaps—finding opportunity in the holes of the knowledge network."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -5841,16 +4663,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       2
     ],
-    "citation": {
-      "url": "https://www.pnas.org/doi/10.1073/pnas.2106140118",
-      "title": "Deep learning for early warning signals of tipping points",
-      "venue": "PNAS",
-      "year": 2021
-    },
-    "brief": {
-      "zh": "通用预警信号基于「临界慢化」——系统在崩溃前恢复变慢、方差与自相关升高——这套普适前兆已被证实横跨气候、生态与人类系统；基于正规形标度律训练的深度学习探测器已能对从未见过的系统给出预警，方向正从「是否翻越」走向「何时翻越」的定量预报。",
-      "en": "Generic early-warning signals rest on critical slowing down — recovery from perturbation grows sluggish while variance and autocorrelation rise before a system tips — a precursor confirmed across climate, ecological and human systems; deep-learning detectors trained on normal-form scaling laws now generalize warnings to systems they have never seen, and the frontier is shifting from forecasting whether a system tips to when."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -5890,16 +4702,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       5
     ],
-    "citation": {
-      "url": "https://www.liebertpub.com/doi/10.1089/ast.2008.0251",
-      "title": "Signatures of a Shadow Biosphere",
-      "venue": "Astrobiology",
-      "year": 2009
-    },
-    "brief": {
-      "zh": "影子生物圈的探测学针对一个激进假说：地球生命可能不止起源一次，存在用不同生化、因而被常规检测系统性遗漏的影子生命。2024年研究在阿塔卡马荒漠地下约4米发现与地表完全隔离的微生物群落，深部地壳与含水层被视为潜在庇护所；最硬的张力是检测的循环依赖——仪器按已知生命标定，对真正异源的生命可能毫无响应。",
-      "en": "Detection science of the shadow biosphere tests a radical hypothesis: life may have arisen on Earth more than once, leaving 'shadow' life whose different biochemistry conventional assays systematically miss. A 2024 study found microbial communities fully isolated from the surface about four meters underground in Chile's Atacama, with the deep crust and aquifers seen as potential refugia; the hardest tension is detection's circularity — instruments calibrated to known life may give no response at all to a truly alien biochemistry."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -5939,16 +4741,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       5
     ],
-    "citation": {
-      "url": "https://www.pnas.org/doi/10.1073/pnas.2318905121",
-      "title": "Solvent constraints for biopolymer folding and evolution in extraterrestrial environments",
-      "venue": "PNAS",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "异类化学的可栖性边界系统探索非水溶剂（如氨、超临界CO₂）、替代元素骨架与非标准信息载体，标定生命所需化学的真实边界，而非把地球碳-水生化误当唯一解；核心问题是碳-水生化究竟是必然还是偶然。最硬的张力是实验可达性极低，理论枚举与可证伪实验之间存在巨大鸿沟。",
-      "en": "Habitability boundaries of alien chemistry systematically explore non-aqueous solvents (ammonia, supercritical CO₂), alternative elemental scaffolds, and non-standard information carriers to chart the true chemical boundary life requires, rather than mistaking Earth's carbon-water biochemistry for the only solution; the core question is whether carbon-water biochemistry is necessary or merely contingent. The hardest tension is very low experimental reach, leaving a wide gulf between theoretical enumeration and falsifiable experiment."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -5988,16 +4780,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       4
     ],
-    "citation": {
-      "url": "https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.132.081801",
-      "title": "Search for New Phenomena in Two-Body Invariant Mass Distributions Using Unsupervised Machine Learning for Anomaly Detection at √s=13 TeV with the ATLAS Detector",
-      "venue": "Physical Review Letters",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "把大型强子对撞机不预设超出标准模型假设、直接在数据里搜偏离的无监督异常检测，移植到生态告警流与巡天暂现源。2024年ATLAS已将「发现新粒子」重述为对平滑背景的偏离假设检验；天文侧的MCIF方法在ZTF模拟流中追踪约2000条候选即召回约75%稀有暂现。最硬的张力在去相关与虚警控制——异常分数极易被采样偏差、季节性与仪器漂移污染。",
-      "en": "Transplants the LHC's unsupervised anomaly detection — searching data for deviations without assuming a specific beyond-Standard-Model signal — into ecological alert streams and astronomical transient surveys. In 2024 ATLAS recast 'discovering a new particle' as testing for deviations from a smooth background; on the astronomy side, MCIF recovers about 75% of rare transients while flagging only ~2000 candidates in simulated ZTF streams. The hardest tension is decorrelation and false-alarm control — anomaly scores are easily polluted by sampling bias, seasonality, and instrument drift."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -6037,16 +4819,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       4
     ],
-    "citation": {
-      "url": "https://arxiv.org/abs/2402.15332",
-      "title": "Position: Categorical Deep Learning is an Algebraic Theory of All Architectures",
-      "venue": "ICML 2024 (PMLR 235)",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "应用范畴论把跨域方法移植重新定义为函子——一种保运算结构的映射，让'两个领域是同一个数学对象'从修辞变成可检验的命题。2024年Gavranović等在ICML的立场论文主张用2-范畴中的参数化映射统一几乎所有神经网络架构，是该方向的标志性里程碑。",
-      "en": "Applied category theory redefines cross-domain method transplant as a functor — a structure-preserving mapping — turning the claim that 'two domains are the same mathematical object' from rhetoric into a testable proposition. In 2024, Gavranović et al.'s ICML position paper argued for unifying nearly all neural network architectures via parametrized maps in a 2-category, a landmark for this direction."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -6086,16 +4858,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       3
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41586-025-08897-0",
-      "title": "End-to-end data-driven weather prediction (Aardvark Weather)",
-      "venue": "Nature",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "传统数值预报依赖资料同化把观测翻译成网格初值，这条管线占据业务中心数十年。2024–2025 年，Aardvark Weather（Nature 2025）与 ECMWF 的 GraphDOP 各自独立证明，单个神经网络可以直接从卫星亮温和常规观测学习并初始化预报，且用远少于传统方法的输入数据与算力在多变量上跑赢 GFS。",
-      "en": "Traditional NWP depends on data assimilation to translate observations into gridded initial states, a pipeline that has anchored operational forecasting for decades. In 2024-2025, Aardvark Weather (Nature 2025) and ECMWF's GraphDOP independently showed that a single neural network can learn and initialize forecasts directly from satellite brightness temperatures and routine observations, beating GFS on multiple variables with far less input data and compute."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -6135,16 +4897,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       5,
       5
     ],
-    "citation": {
-      "url": "https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2024GL110651",
-      "title": "Predictability Limit of the 2021 Pacific Northwest Heatwave From Deep-Learning Sensitivity Analysis",
-      "venue": "Geophysical Research Letters",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "伴随模式的开发需要数年人力，且线性化假设把适用范围压在约 3 天内。Vonich 与 Hakim（GRL 2024）把 GraphCast 当作可微分模拟器，对 2021 年太平洋西北热浪反传梯度寻找最优初值，10 天预报误差下降约 94%，并在 Pangu-Weather 上交叉验证；2025 年后续工作把大气可预报性极限的实证估计推向约 23 天。",
-      "en": "Building an adjoint model traditionally takes years of human effort, and the linearization assumption caps its validity at about 3 days. Vonich and Hakim (GRL 2024) treated GraphCast as a differentiable simulator, backpropagating gradients through the 2021 Pacific Northwest heatwave to find optimal initial conditions, cutting 10-day forecast error by about 94% and cross-validating on Pangu-Weather; 2025 follow-up work pushed the empirical estimate of the atmospheric predictability limit to about 23 days."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -6184,16 +4936,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       4
     ],
-    "citation": {
-      "url": "https://dl.acm.org/doi/pdf/10.1145/3658644.3690861",
-      "title": "Toward Practical Threshold FHE: Low Communication, Computation and Interaction",
-      "venue": "ACM CCS 2024",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "门限 FHE（ThFHE）把「谁能解密」这一 FHE 的阿喀琉斯之踵改造为分布式信任:全局密钥是各方本地密钥之和,从不在单点重建。这是机密智能合约的密码基座——Zama 的 MPC 密钥管理系统(KMS)即用门限密钥生成与门限解密支撑其 fhEVM。2024 年 CCS 出现首个仅需一次广播完成密钥生成的鲁棒门限 BFV 方案,2025 年 IACR ePrint 进一步给出高效异步解密。",
-      "en": "Threshold FHE (ThFHE) turns \"who can decrypt\" — FHE's Achilles' heel — into distributed trust: the global key is the sum of each party's local key share and is never reconstructed at a single point. It is the cryptographic substrate for confidential smart contracts — Zama's MPC key-management system (KMS) uses threshold key generation and threshold decryption to underpin its fhEVM. A 2024 CCS paper delivered the first robust threshold BFV scheme requiring only one broadcast for key generation, and a 2025 IACR ePrint paper further gives efficient asynchronous decryption."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -6233,16 +4975,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       2
     ],
-    "citation": {
-      "url": "https://esd.copernicus.org/articles/15/789/2024/",
-      "title": "Cross-system interactions for positive tipping cascades",
-      "venue": "Earth System Dynamics",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "锚点是 Eker、Lenton 等 2024 年《Earth System Dynamics》的「Cross-system interactions for positive tipping cascades」，系统梳理了社会-技术、社会-生态、社会-政治三类系统间如何互相点火良性级联、并主张多中心治理。配合 2023 年《Global Tipping Points》报告与 2025 年《Sustainability Science》的可操作方法论文，这一支正把「正向临界点」从口号做成可操作方法。",
-      "en": "The anchor is Eker, Lenton et al.'s 2024 Earth System Dynamics paper \"Cross-system interactions for positive tipping cascades,\" which maps how socio-technical, socio-ecological, and socio-political systems can ignite beneficial cascades in one another and argues for polycentric governance. Together with the 2023 Global Tipping Points report and a 2025 Sustainability Science paper on operational methods, this line of work is turning \"positive tipping points\" from a slogan into an operable method."
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -6282,16 +5014,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       4
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s42256-024-00937-0",
-      "title": "Deep learning for predicting rate-induced tipping",
-      "venue": "Nature Machine Intelligence",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "经典临界点理论假设系统在准静态强迫下越过分岔点。但 Ashwin、Wieczorek 等人发展的速率诱导临界点表明:即便终态仍在安全域内,只要参数变化速率超过临界速度,系统就会「跟不上」而崩溃。2024 年 Huang、Bathiany、Ashwin、Boers 在 Nature Machine Intelligence 首次给出预测 R-tipping 转移概率的深度学习框架,把可持续性问题从「别越线」改写为「别变得太快」。",
-      "en": "Classical tipping-point theory assumes a system crosses a bifurcation under quasi-static forcing. But rate-induced tipping, developed by Ashwin, Wieczorek and others, shows that even if the final state remains within the safe domain, the system can still \"fail to keep up\" and collapse once the rate of parameter change exceeds a critical speed. In 2024, Huang, Bathiany, Ashwin, and Boers gave the first deep-learning framework for predicting R-tipping transition probability in Nature Machine Intelligence, rewriting the sustainability question from \"don't cross the line\" to \"don't change too fast.\""
-    },
     "stage": 1,
     "members": 4,
     "activity": 30,
@@ -6331,16 +5053,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       4
     ],
-    "citation": {
-      "url": "https://www.frontiersin.org/journals/marine-science/articles/10.3389/fmars.2022.901348/full",
-      "title": "Eavesdropping at the Speed of Light: Distributed Acoustic Sensing of Baleen Whales in the Arctic",
-      "venue": "Frontiers in Marine Science",
-      "year": 2022
-    },
-    "brief": {
-      "zh": "把闲置或复用中的通信光纤变成数十公里长的分布式声学阵列，同时读取鲸歌、船噪、风暴与地震。",
-      "en": "Turn spare or shared telecom fiber into tens-of-kilometers-long distributed acoustic arrays that read whale calls, ship noise, storms, and earthquakes together."
-    },
     "stage": 1,
     "members": 4,
     "activity": 38,
@@ -6380,16 +5092,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       5
     ],
-    "citation": {
-      "url": "https://www.annualreviews.org/content/journals/10.1146/annurev-ento-120220-095459",
-      "title": "Functional Diversity of Vibrational Signaling Systems in Insects",
-      "venue": "Annual Review of Entomology",
-      "year": 2023
-    },
-    "brief": {
-      "zh": "把植物茎叶、土壤与蛛网中的表面波视为独立于空气声的感官通道，研究求偶、警戒与捕食中的编码规则。",
-      "en": "Treat surface waves in stems, soil, and webs as a sensory channel distinct from airborne sound, and study their codes in courtship, alarm, and predation."
-    },
     "stage": 1,
     "members": 3,
     "activity": 32,
@@ -6429,16 +5131,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       5
     ],
-    "citation": {
-      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5599473/",
-      "title": "The bee, the flower, and the electric field: electric ecology and aerial electroreception",
-      "venue": "Journal of Comparative Physiology A",
-      "year": 2017
-    },
-    "brief": {
-      "zh": "蜜蜂、花朵与蜘蛛会改变或感受局地电场；这个隐形通道可能参与授粉线索与蛛丝放飞，但其野外作用尺度仍未确定。",
-      "en": "Bees, flowers, and spiders alter or sense local electric fields; this hidden channel may guide pollination and ballooning, but its field-scale role remains uncertain."
-    },
     "stage": 1,
     "members": 2,
     "activity": 27,
@@ -6478,16 +5170,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       5
     ],
-    "citation": {
-      "url": "https://www.sciencedirect.com/science/article/abs/pii/S0966842X23003360",
-      "title": "Cable bacteria: widespread filamentous electroactive microorganisms protecting environments",
-      "venue": "Trends in Microbiology",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "厘米尺度的丝状微生物借含镍蛋白导线跨越氧化还原分层传电子，在沉积物里留下可测电流、电位与化学指纹。",
-      "en": "Centimeter-scale filaments conduct electrons across redox layers through nickel-containing protein wires, leaving measurable currents, potentials, and chemical fingerprints in sediments."
-    },
     "stage": 1,
     "members": 3,
     "activity": 35,
@@ -6527,16 +5209,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       3
     ],
-    "citation": {
-      "url": "https://arxiv.org/abs/2312.04836",
-      "title": "Thermodynamic Computing System for AI Applications",
-      "venue": "arXiv",
-      "year": 2023
-    },
-    "brief": {
-      "zh": "不再压制热噪声，而让连续变量电路的涨落与弛豫直接执行采样、生成和贝叶斯推断；目前仍是早期硬件路线。",
-      "en": "Instead of suppressing thermal noise, continuous-variable circuits use fluctuation and relaxation directly for sampling, generation, and Bayesian inference; the hardware route remains early-stage."
-    },
     "stage": 1,
     "members": 3,
     "activity": 34,
@@ -6576,16 +5248,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       4
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41467-024-48152-0",
-      "title": "Experimental demonstration of an on-chip p-bit core based on stochastic magnetic tunnel junctions and 2D MoS2 transistors",
-      "venue": "Nature Communications",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "p-bit 在0和1之间受控随机翻转，耦合后以硬件原生方式执行Ising采样；芯片核心已有实验证明，系统规模与CMOS兼容性仍未成熟。",
-      "en": "A p-bit stochastically flips between 0 and 1 under control, and coupled p-bits perform native Ising sampling; an on-chip core has been demonstrated, while system scale and CMOS compatibility remain immature."
-    },
     "stage": 1,
     "members": 2,
     "activity": 29,
@@ -6625,16 +5287,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       5
     ],
-    "citation": {
-      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11067030/",
-      "title": "Brain-inspired computing with fluidic iontronic nanochannels",
-      "venue": "Proceedings of the National Academy of Sciences (PNAS)",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "在微纳流体通道里以离子而非电子实现忆阻、逻辑与突触可塑性，让“湿态计算”共享生物神经系统的载流语言。",
-      "en": "Realize memory, logic, and synaptic plasticity with ions rather than electrons in micro- and nanofluidic channels, giving wet-state computing the carrier language of biological nervous systems."
-    },
     "stage": 1,
     "members": 3,
     "activity": 36,
@@ -6674,16 +5326,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       5
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41467-023-40989-1",
-      "title": "In-memory mechanical computing",
-      "venue": "Nature Communications",
-      "year": 2023
-    },
-    "brief": {
-      "zh": "把逻辑、记忆和矩阵运算编码进结构的几何、屈曲与软模态，使材料在受力的同时传感并计算。",
-      "en": "Encode logic, memory, and matrix operations into geometry, buckling, and floppy modes so a material senses and computes while carrying load."
-    },
     "stage": 1,
     "members": 3,
     "activity": 37,
@@ -6723,16 +5365,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       5
     ],
-    "citation": {
-      "url": "https://onlinelibrary.wiley.com/doi/10.1111/joes.12493",
-      "title": "Synthetic Control Method: A tool for comparative case studies in economic history",
-      "venue": "Journal of Economic Surveys",
-      "year": 2023
-    },
-    "brief": {
-      "zh": "把档案叙事、合成控制与机制知识结合，为战争、制度与政策转折构造可审计的反事实，而不是把模型输出当成另一条历史。",
-      "en": "Combine archival narrative, synthetic control, and mechanism knowledge to construct auditable counterfactuals for wars, institutions, and policy turns without treating model output as an alternate history."
-    },
     "stage": 1,
     "members": 4,
     "activity": 39,
@@ -6772,16 +5404,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       4
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41467-021-25734-w",
-      "title": "Evidence from a long-term experiment that collective risks change social norms and promote cooperation",
-      "venue": "Nature Communications",
-      "year": 2021
-    },
-    "brief": {
-      "zh": "把长期在线实验、演化博弈和多智能体模型连接起来，寻找合作与信任临界转变的可观测前兆及其适用边界。",
-      "en": "Connect long-running online experiments, evolutionary games, and multi-agent models to find observable precursors of cooperative and trust tipping points and their limits."
-    },
     "stage": 1,
     "members": 4,
     "activity": 41,
@@ -6821,16 +5443,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       5
     ],
-    "citation": {
-      "url": "https://www.science.org/doi/10.1126/science.1177170",
-      "title": "Limits of Predictability in Human Mobility",
-      "venue": "Science",
-      "year": 2010
-    },
-    "brief": {
-      "zh": "用序列熵与信息论上界追问出行和群体行为究竟能预测到什么程度，同时审计上界对采样、粒度与社会信息泄漏的敏感性。",
-      "en": "Use sequence entropy and information-theoretic bounds to ask how predictable mobility and collective behavior can be, while auditing sensitivity to sampling, granularity, and leaked social information."
-    },
     "stage": 1,
     "members": 3,
     "activity": 36,
@@ -6870,16 +5482,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       5
     ],
-    "citation": {
-      "url": "https://ndg.asc.upenn.edu/wp-content/uploads/2022/10/Centola_2022_TICS_Network_Science_of_Collective_Intelligence.pdf",
-      "title": "The network science of collective intelligence",
-      "venue": "Trends in Cognitive Sciences",
-      "year": 2022
-    },
-    "brief": {
-      "zh": "研究信息网络、审议顺序与社会影响如何改变群体判断，把“众人是否更聪明”拆成可干预、可失败的结构条件。",
-      "en": "Study how information networks, deliberation order, and social influence alter group judgment, decomposing “are crowds wiser?” into manipulable structural conditions that can fail."
-    },
     "stage": 1,
     "members": 4,
     "activity": 43,
@@ -6919,16 +5521,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       4
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41586-021-04315-3",
-      "title": "Quantum sensing for gravity cartography",
-      "venue": "Nature",
-      "year": 2022
-    },
-    "brief": {
-      "zh": "两组自由落体冷原子的差分物质波相位直接读取重力梯度，已从实验室走到户外地下测绘，但通量与环境鲁棒性仍决定实际价值。",
-      "en": "Differential matter-wave phase from two free-falling cold-atom clouds reads gravity gradients directly and has moved into outdoor subsurface mapping, though throughput and environmental robustness still determine practical value."
-    },
     "stage": 2,
     "members": 4,
     "activity": 51,
@@ -6968,16 +5560,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       4
     ],
-    "citation": {
-      "url": "https://doi.org/10.1029/2023JB028514",
-      "title": "Branched Conduit Structure Beneath the Active Craters of Sakurajima Volcano Inferred From Muography",
-      "venue": "JGR: Solid Earth",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "把大气宇宙线产生的高穿透缪子当作天然 X 光，反演火山通道、火山口塞和穹丘的密度，并尝试用时序变化追踪岩浆。",
-      "en": "Use penetrating atmospheric muons as natural X-rays to invert the density of volcanic conduits, plugs, and domes, then track time-varying density as a proxy for magma movement."
-    },
     "stage": 2,
     "members": 4,
     "activity": 47,
@@ -7017,16 +5599,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       4
     ],
-    "citation": {
-      "url": "https://doi.org/10.1088/1741-2552/ada0e7",
-      "title": "Non-parametric full cross mapping (NFCM): a highly-stable measure for causal brain network and a pilot application",
-      "venue": "Journal of Neural Engineering",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "用 Takens 嵌入从时间序列重建吸引子流形，再以跨流形预测随样本量收敛来寻找非线性耦合；关键前沿是明确它的假阳性边界。",
-      "en": "Reconstruct attractor manifolds from time series via Takens embedding, then seek nonlinear coupling through cross-manifold prediction that converges with sample size; the frontier is to delimit its false-positive regime."
-    },
     "stage": 1,
     "members": 4,
     "activity": 44,
@@ -7066,16 +5638,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       2
     ],
-    "citation": {
-      "url": "https://pubs.acs.org/doi/10.1021/acs.est.5c09820",
-      "title": "Three Years of Field Trials Indicate a Sustained Enhanced Rock Weathering Signal with Limited CO2 Removal",
-      "venue": "Environmental Science & Technology",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "把玄武岩等硅酸盐撒入农田容易，难的是在数年尺度上把有限风化信号从土壤异质性中分离，并给出可核查的净移除量。",
-      "en": "Spreading silicates such as basalt on cropland is easy; the hard part is separating a limited multi-year weathering signal from soil heterogeneity and reporting verifiable net removal."
-    },
     "stage": 1,
     "members": 4,
     "activity": 46,
@@ -7115,16 +5677,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       2
     ],
-    "citation": {
-      "url": "https://www.whoi.edu/press-room/news-release/oae-prelim/",
-      "title": "Preliminary results from the first EPA-permitted ocean alkalinity enhancement (OAE) field trial (LOC-NESS)",
-      "venue": "Woods Hole Oceanographic Institution",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "向海水增加碱度以促进吸收 CO₂，并以示踪释放和传感器阵列追踪真实固碳；当前证据仍以早期获批试验和 MRV 方法开发为主。",
-      "en": "Add alkalinity to seawater to promote CO2 uptake, then trace actual removal with controlled releases and sensor arrays; current evidence remains centered on early permitted trials and MRV-method development."
-    },
     "stage": 1,
     "members": 3,
     "activity": 39,
@@ -7164,16 +5716,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       4
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41559-023-02056-2",
-      "title": "Inadvertent human genomic bycatch and intentional capture raise beneficial applications and ethical concerns with environmental DNA",
-      "venue": "Nature Ecology & Evolution",
-      "year": 2023
-    },
-    "brief": {
-      "zh": "鸟枪法环境 DNA 已能触及种内变异与全生物群落，却也会捕获附近人群的可识别遗传片段，把生态监测直接推入隐私与同意边界。",
-      "en": "Shotgun environmental DNA is reaching intraspecific variation and whole-biome assessment while also capturing identifiable genetic fragments from nearby people, placing ecological monitoring directly inside privacy and consent boundaries."
-    },
     "stage": 1,
     "members": 4,
     "activity": 42,
@@ -7213,16 +5755,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       5,
       3
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41592-025-02836-7",
-      "title": "InterPLM: discovering interpretable features in protein language models via sparse autoencoders",
-      "venue": "Nature Methods",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "把为大语言模型开发的稀疏自编码器与字典学习移植到蛋白质和基因组基础模型，从叠加表示中拆出对应结合位点、结构基序与功能域的特征。",
-      "en": "Transfer sparse autoencoders and dictionary learning from language-model interpretability to protein and genomic foundation models, decomposing superposed representations into features associated with binding sites, structural motifs, and functional domains."
-    },
     "stage": 2,
     "members": 5,
     "activity": 56,
@@ -7262,16 +5794,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       3
     ],
-    "citation": {
-      "url": "https://doi.org/10.1038/s41467-025-62256-1",
-      "title": "Multichannel bioelectronic sensing using engineered Escherichia coli",
-      "venue": "Nature Communications",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "把污染物响应基因回路接到电输出、光纤或纸基读出，让细菌成为可编程环境探针；多通道器件已有进展，现场基质与生物安全仍是门槛。",
-      "en": "Couple pollutant-responsive gene circuits to electrical, fiber, or paper readout so bacteria become programmable environmental probes; multichannel devices are emerging, while field matrices and biosafety remain the gate."
-    },
     "stage": 1,
     "members": 4,
     "activity": 48,
@@ -7311,16 +5833,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       4
     ],
-    "citation": {
-      "url": "https://doi.org/10.1016/j.ecolind.2025.114328",
-      "title": "Environmental RNA as a transformative tool for aquatic ecosystem health assessment: progress and challenges",
-      "venue": "Ecological Indicators",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "利用比 eDNA 更短命的环境转录本读取活体活动与应激状态，把生态普查从“谁在这里”推进到“它们过得怎样”。",
-      "en": "Use shorter-lived environmental transcripts than eDNA to read current activity and stress, moving ecological census from “who is here” to “how are they doing.”"
-    },
     "stage": 1,
     "members": 3,
     "activity": 43,
@@ -7360,16 +5872,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       2
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41586-025-08829-y",
-      "title": "Foundation model of neural activity predicts response to new stimulus types",
-      "venue": "Nature",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "以多只小鼠视觉皮层约十三万五千个神经元对自然视频的响应训练可泛化基础核，为新刺激和新个体生成神经活动预测，并尝试反推细胞类型与连接。",
-      "en": "Train a generalizable foundation core on natural-video responses from roughly 135,000 mouse visual-cortex neurons, predicting neural activity for new stimuli and individuals while probing cell type and connectivity."
-    },
     "stage": 1,
     "members": 5,
     "activity": 52,
@@ -7409,16 +5911,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       2
     ],
-    "citation": {
-      "url": "https://www.frontiersin.org/journals/animal-science/articles/10.3389/fanim.2025.1689264/full",
-      "title": "Understanding heterogeneity in methane emissions from confinement-fed dairy and beef cattle supplemented with Bovaer: a meta-analysis",
-      "venue": "Frontiers in Animal Science",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "直接抑制瘤胃产甲烷古菌可显著降低反刍排放，但个体差异、长期效应、放牧递送与全生命周期安全决定它能否成为真实气候工具。",
-      "en": "Directly suppressing rumen methanogens can materially reduce enteric emissions, but animal heterogeneity, persistence, grazing delivery, and life-cycle safety determine whether it becomes a real climate tool."
-    },
     "stage": 2,
     "members": 5,
     "activity": 58,
@@ -7458,16 +5950,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       4
     ],
-    "citation": {
-      "url": "https://pubmed.ncbi.nlm.nih.gov/37059328/",
-      "title": "Morphoceuticals: Perspectives for discovery of drugs targeting anatomical control mechanisms in regenerative medicine, cancer and aging",
-      "venue": "Drug Discovery Today",
-      "year": 2023
-    },
-    "brief": {
-      "zh": "把离子通道与缝隙连接形成的组织电网络视为形态控制层，尝试以“形态药物”重写再生目标；现有证据仍以机制和纲领性综述为主。",
-      "en": "Treat tissue-scale networks of ion channels and gap junctions as a layer of morphological control and use “morphoceuticals” to rewrite regenerative targets; current evidence remains largely mechanistic and programmatic."
-    },
     "stage": 1,
     "members": 4,
     "activity": 49,
@@ -7507,16 +5989,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       4
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41467-025-64154-y",
-      "title": "Reconfigurable dynamic acoustic holography with acoustically transparent and programmable metamaterial",
-      "venue": "Nature Communications",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "在半结晶聚合物中写入可擦除的模量图案，再由分区压电换能器驱动，可把静态声学元件变成高像素密度的动态全息界面。关键不只是形成焦点，而是让同一硬件持续重写声镊、超声治疗和体内成像所需的复杂声场。",
-      "en": "Erasable modulus patterns written into a semicrystalline polymer and driven by a partitioned piezoelectric transducer turn a static acoustic element into a high-pixel-density dynamic holographic interface. The central challenge is not merely focusing sound, but repeatedly rewriting complex fields for acoustic manipulation, ultrasound therapy, and in-body imaging on the same hardware."
-    },
     "stage": 2,
     "members": 5,
     "activity": 64,
@@ -7556,16 +6028,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       5
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41567-026-03226-2",
-      "title": "Metamaterials that learn to change shape",
-      "venue": "Nature Physics",
-      "year": 2026
-    },
-    "brief": {
-      "zh": "对比学习可把输入与目标边界条件的差异转化为局部刚度更新，让弹性网络在材料本体中“训练”出复杂形变。它把学习规则、记忆和执行器合并进同一力学结构，但泛化、疲劳和可逆训练仍需系统检验。",
-      "en": "Contrastive learning can translate the difference between free and target boundary conditions into local stiffness updates, training complex deformations directly into an elastic network. It merges learning rule, memory, and actuator into one mechanical structure, while generalization, fatigue, and reversible training remain open tests."
-    },
     "stage": 2,
     "members": 4,
     "activity": 61,
@@ -7605,16 +6067,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       4
     ],
-    "citation": {
-      "url": "https://www.sciencedirect.com/science/article/pii/S1674987126000915",
-      "title": "Worldwide geothermal systems as potential sources for critical metals like lithium, rare earth elements and others",
-      "venue": "Geoscience Frontiers (Elsevier)",
-      "year": 2026
-    },
-    "brief": {
-      "zh": "地热电站已把深部卤水带到地表，直接提锂可在同一流体回路中联产热、电和关键矿物。真正难点是钠、钙、镁远高于锂的竞争环境，以及硅垢、腐蚀、吸附剂再生和回注水化学之间的系统耦合。",
-      "en": "Geothermal plants already bring deep brines to the surface, so direct lithium extraction could coproduce heat, power, and critical minerals within one fluid loop. The hard problem is the system coupling among sodium, calcium, and magnesium competition, silica scaling, corrosion, sorbent regeneration, and reinjection chemistry."
-    },
     "stage": 2,
     "members": 6,
     "activity": 68,
@@ -7654,16 +6106,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       4
     ],
-    "citation": {
-      "url": "https://www.sciencedirect.com/science/article/pii/S0029549325006727",
-      "title": "Advancing molten salt reactor technologies: Prioritizing standardisation needs and bridging gaps",
-      "venue": "Nuclear Engineering and Design (Elsevier)",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "液态燃料盐允许补料、取样和去除部分裂变产物，但也把核燃料管理变成高温、强辐照、腐蚀性熔体中的连续化学控制问题。方向的核心是把传感、盐净化、材料寿命、核材料衡算和瞬态安全放进同一个可验证系统。",
-      "en": "Liquid fuel salt permits feeding, sampling, and removal of selected fission products, but turns fuel management into continuous chemical control inside a hot, irradiated, corrosive melt. The frontier is to place sensing, salt cleanup, material lifetime, nuclear-material accountancy, and transient safety in one verifiable system."
-    },
     "stage": 1,
     "members": 3,
     "activity": 46,
@@ -7703,16 +6145,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       4
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41929-025-01436-0",
-      "title": "De novo design and evolution of an artificial metathase for cytoplasmic olefin metathesis",
-      "venue": "Nature Catalysis",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "把钌、铈或金—NHC 等非天然辅因子精确安放进从头蛋白骨架，可把有机金属反应库接到可编程、可进化的分子支架上。下一步不是再做单个“巧妙案例”，而是检验目标反应到活性位点、配位球和动态通道的设计闭环能否跨反应迁移。",
-      "en": "Precisely placing abiological cofactors such as ruthenium, cerium, or gold–NHC inside de novo protein scaffolds connects organometallic reaction space to programmable, evolvable molecular structures. The next step is not another isolated clever example, but a transferable loop from target reaction to active site, coordination sphere, and dynamic access channel."
-    },
     "stage": 2,
     "members": 6,
     "activity": 69,
@@ -7752,16 +6184,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       2,
       4
     ],
-    "citation": {
-      "url": "https://www.eetimes.com/vaire-demos-energy-recovery-with-reversible-computing-test-chip/",
-      "title": "Vaire Demos Energy Recovery With Reversible Computing Test Chip",
-      "venue": "EE Times",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "可逆逻辑通过“反计算”避免丢弃中间信息，绝热电路再用谐振电源时钟回收节点电荷。早期测试芯片已报告局部电路能量回收，但必须把时钟网络、I/O、面积和吞吐量全部计入，才能判断它是否优于成熟低功耗 CMOS。",
-      "en": "Reversible logic avoids discarding intermediate information through uncomputation, while adiabatic circuits recycle node charge with resonant power clocks. Early test chips report energy recovery in local circuits, but clock distribution, I/O, area, and throughput must all be counted before comparison with mature low-power CMOS."
-    },
     "stage": 1,
     "members": 2,
     "activity": 43,
@@ -7801,16 +6223,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       4
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41467-024-51509-0",
-      "title": "Photonic probabilistic machine learning using quantum vacuum noise",
-      "venue": "Nature Communications",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "光学参量振荡器可把真空涨落放大为概率神经元的随机种子，使采样不再由伪随机算法模拟。真正的比较必须纳入调制、探测、反馈和数据转换，而不能只计算光学核心的传播时间。",
-      "en": "Optical parametric oscillators can amplify vacuum fluctuations into random seeds for probabilistic neurons, replacing algorithmically simulated pseudorandomness with a physical source. A meaningful comparison must include modulation, detection, feedback, and data conversion rather than counting only optical-core propagation."
-    },
     "stage": 2,
     "members": 4,
     "activity": 59,
@@ -7850,16 +6262,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       4
     ],
-    "citation": {
-      "url": "https://arxiv.org/pdf/2511.09750",
-      "title": "Searching for screened scalar forces with long-baseline atom interferometers",
-      "venue": "arXiv (Phys. Rev. D)",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "变色龙场和对称子场可在高密度环境中被屏蔽，却在真空中的原子上产生微弱第五力。长基线原子干涉仪结合可移动源质量，能在实验室尺度调制信号并检验一部分暗能量启发的标量场参数空间。",
-      "en": "Chameleon and symmetron fields can be screened in dense environments while exerting a weak fifth force on atoms in vacuum. A long-baseline atom interferometer paired with a movable source mass can modulate the signal on laboratory scales and test scalar-field parameter space motivated by dark energy."
-    },
     "stage": 1,
     "members": 3,
     "activity": 52,
@@ -7899,16 +6301,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       3
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41467-025-59011-x",
-      "title": "Thermodynamic computing system for AI applications",
-      "venue": "Nature Communications",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "随机耦合的 RLC 或模拟节点会自然弛豫到一个稳态分布；若耦合矩阵被正确编码，稳态协方差可表示高斯采样、矩阵逆等线性代数结果。潜在复杂度优势只有在 ADC/DAC、编程、混合时间和样本相关性全部计入后才成立。",
-      "en": "Stochastically coupled RLC or analog nodes naturally relax to a stationary distribution. If the coupling matrix is encoded correctly, stationary covariance can represent Gaussian samples, matrix inverses, and related linear-algebra results. Any complexity advantage survives only if ADC/DAC, programming, mixing time, and sample correlation are fully counted."
-    },
     "stage": 2,
     "members": 5,
     "activity": 66,
@@ -7948,16 +6340,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       3
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41524-025-01650-1",
-      "title": "Universal machine learning interatomic potentials are ready for phonons",
-      "venue": "npj Computational Materials",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "等变神经网络从数千万个 DFT 构型学习跨元素势能面，可把接近第一性原理的模拟扩展到更大体系和更长时间。真正的“通用”不应由随机留出集定义，而要在新化学计量、缺陷、相变和稀有高能路径上做域外审计。",
-      "en": "Equivariant neural networks learn element-spanning potential-energy surfaces from tens of millions of DFT configurations, extending near-first-principles simulation to larger systems and longer times. True universality should not be defined by random holdouts, but audited on new stoichiometries, defects, phase transitions, and rare high-energy pathways."
-    },
     "stage": 2,
     "members": 7,
     "activity": 73,
@@ -7997,16 +6379,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       2
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/s41526-019-0090-3",
-      "title": "Pembrolizumab microgravity crystallization experimentation",
-      "venue": "npj Microgravity",
-      "year": 2019
-    },
-    "brief": {
-      "zh": "微重力抑制浮力对流和沉降，可能形成更均一的蛋白晶体，并为高浓度悬液或皮下注射制剂提供新的粒径与形貌窗口。商业价值不来自“太空晶体更漂亮”，而来自返回后能否改善稳定性、可制造性和患者给药。",
-      "en": "Microgravity suppresses buoyancy-driven convection and sedimentation, potentially yielding more uniform protein crystals and a new size–morphology window for concentrated suspensions or subcutaneous formulations. Commercial value does not come from prettier space crystals, but from improved stability, manufacturability, and patient delivery after return."
-    },
     "stage": 1,
     "members": 3,
     "activity": 48,
@@ -8046,16 +6418,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       4
     ],
-    "citation": {
-      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12067201/",
-      "title": "Radiation protection and structural stability of fungal melanin polylactic acid biocomposites in low Earth orbit",
-      "venue": "PNAS",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "富黑色素真菌能在辐射环境中生长，真菌黑色素—聚乳酸复合材料在轨暴露也显示出结构保护潜力。若材料可用少量种源和原位碳源生长、修补，它可能把被动屏蔽变成可再生系统；但低地球轨道证据不能直接外推到银河宇宙线和太阳粒子事件。",
-      "en": "Melanized fungi can grow in radiation environments, and fungal-melanin–PLA composites exposed in orbit show structural-protection potential. If material can grow and repair from a small inoculum and in situ carbon, passive shielding could become renewable. Evidence from low Earth orbit, however, cannot be directly extrapolated to galactic cosmic rays or solar particle events."
-    },
     "stage": 2,
     "members": 5,
     "activity": 63,
@@ -8095,16 +6457,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       4
     ],
-    "citation": {
-      "url": "https://tsjournal.org/index.php/jots/article/view/255",
-      "title": "Scaling Human Judgment in Community Notes with LLMs",
-      "venue": "Journal of Online Trust and Safety",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "用意见相左群体的共同认可取代简单多数票，并让 LLM 写注、人类多元评审者保留裁决权。",
-      "en": "Replace simple majority vote with agreement across historically opposed groups, while LLMs draft notes and diverse humans retain judgment."
-    },
     "stage": 2,
     "members": 8,
     "activity": 71,
@@ -8144,16 +6496,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       4
     ],
-    "citation": {
-      "url": "https://arxiv.org/abs/2511.04703",
-      "title": "Measuring what Matters: Construct Validity in Large Language Model Benchmarks",
-      "venue": "arXiv (Oxford / EPFL / UK AISI)",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "把心理测量学的构念效度、聚合与区分证据引入 AI 基准，让能力分数变成可反驳的测量主张。",
-      "en": "Import convergent, discriminant, and construct validity from psychometrics so benchmark scores become refutable measurement claims."
-    },
     "stage": 2,
     "members": 6,
     "activity": 66,
@@ -8193,16 +6535,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       4
     ],
-    "citation": {
-      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11566246/",
-      "title": "An Automated Approach to Causal Inference in Discrete Settings",
-      "venue": "Journal of the American Statistical Association",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "把因果假设和观测约束编译为多项式规划，自动求可证明锐利的效应上下界，而非强行报告单点答案。",
-      "en": "Compile causal assumptions and observational constraints into polynomial programs that return provably sharp effect bounds instead of forced point estimates."
-    },
     "stage": 2,
     "members": 5,
     "activity": 59,
@@ -8242,16 +6574,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       4
     ],
-    "citation": {
-      "url": "https://arxiv.org/pdf/2305.08846",
-      "title": "Privacy Auditing with One (1) Training Run",
-      "venue": "NeurIPS 2023 (best paper)",
-      "year": 2023
-    },
-    "brief": {
-      "zh": "把可控金丝雀样本嵌入一次训练，用攻击成功率给差分隐私参数建立经验下界，并与理论上界对照。",
-      "en": "Embed controlled canary records in one training run, derive an empirical lower bound on differential-privacy parameters from attack success, and compare it with the theoretical upper bound."
-    },
     "stage": 2,
     "members": 6,
     "activity": 64,
@@ -8291,16 +6613,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       4
     ],
-    "citation": {
-      "url": "https://arxiv.org/abs/2402.07510",
-      "title": "Secret Collusion among AI Agents: Multi-Agent Deception via Steganography",
-      "venue": "arXiv (Google DeepMind, Oxford)",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "把代理间文本当作潜在隐蔽信道，以互信息、因果干预和表征探针区分必要协作与操纵市场、评审或监督的秘密协议。",
-      "en": "Treat inter-agent text as a potential covert channel, using mutual information, causal interventions, and representation probes to separate necessary cooperation from secret protocols that manipulate markets, review, or oversight."
-    },
     "stage": 2,
     "members": 7,
     "activity": 69,
@@ -8340,16 +6652,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       2
     ],
-    "citation": {
-      "url": "https://www.nature.com/articles/d41586-022-00018-5",
-      "title": "Unblock research bottlenecks with non-profit start-ups",
-      "venue": "Nature (comment)",
-      "year": 2022
-    },
-    "brief": {
-      "zh": "围绕一个可交付科研基础设施组建约五年、数千万级、到期解散的任务型团队，并用开放里程碑检验其是否真正解除瓶颈。",
-      "en": "Build an approximately five-year, tens-of-millions mission team around one deliverable research infrastructure, sunset it on schedule, and use open milestones to test whether it actually removes the bottleneck."
-    },
     "stage": 1,
     "members": 4,
     "activity": 51,
@@ -8389,16 +6691,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       5
     ],
-    "citation": {
-      "url": "https://doi.org/10.3233/faia250216",
-      "title": "Open Research Knowledge Graph: A Large-Scale Neuro-Symbolic Knowledge Organization System",
-      "venue": "Frontiers in Artificial Intelligence and Applications (IOS Press)",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "把 PDF 中的结论拆为主张—方法—证据—限定关系，封装成有永久标识、出处链和可查询语义的知识图谱与纳米出版物。",
-      "en": "Decompose PDF conclusions into claim-method-evidence-qualification relations and package them as persistent, provenance-rich, queryable knowledge graphs and nanopublications."
-    },
     "stage": 2,
     "members": 9,
     "activity": 74,
@@ -8438,16 +6730,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       5
     ],
-    "citation": {
-      "url": "https://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.2000933",
-      "title": "Languages Are Still a Major Barrier to Global Science",
-      "venue": "PLOS Biology",
-      "year": 2016
-    },
-    "brief": {
-      "zh": "建立多语种检索、人工校验与结论敏感性分析，量化英语过滤造成的地理、物种和政策证据缺口。",
-      "en": "Combine multilingual retrieval, human verification, and conclusion-sensitivity analysis to quantify geographic, species, and policy evidence gaps caused by English-only filtering."
-    },
     "stage": 1,
     "members": 7,
     "activity": 62,
@@ -8487,16 +6769,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       3,
       3
     ],
-    "citation": {
-      "url": "https://dl.acm.org/doi/10.1145/3630106.3658979",
-      "title": "Collective Constitutional AI: Aligning a Language Model with Public Input",
-      "venue": "ACM FAccT 2024",
-      "year": 2024
-    },
-    "brief": {
-      "zh": "把分层抽样、知情审议与意见聚合接到模型宪法和奖励规则上，并保留每条行为变化到公众输入的出处链。",
-      "en": "Connect stratified sampling, informed deliberation, and preference aggregation to model constitutions and reward rules, preserving provenance from each behavior change back to public input."
-    },
     "stage": 1,
     "members": 8,
     "activity": 67,
@@ -8536,16 +6808,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       5
     ],
-    "citation": {
-      "url": "https://onlinelibrary.wiley.com/doi/full/10.1111/bioe.13047",
-      "title": "Organoid biobanking, autonomy and the limits of consent",
-      "venue": "Bioethics (Wiley)",
-      "year": 2022
-    },
-    "brief": {
-      "zh": "为每个类器官谱系绑定机器可读的同意状态、用途限制、转移记录与撤回事件，让治理从一次签字变为持续授权。",
-      "en": "Bind each organoid lineage to machine-readable consent state, use restrictions, transfer records, and revocation events, turning governance from one signature into continuous authorization."
-    },
     "stage": 1,
     "members": 6,
     "activity": 58,
@@ -8585,16 +6847,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       5
     ],
-    "citation": {
-      "url": "https://academic.oup.com/jrsssa/article/186/2/167/7024674",
-      "title": "Experimental Evaluation of Algorithm-Assisted Human Decision-Making: Application to Pretrial Public Safety Assessment",
-      "venue": "JRSS-A",
-      "year": 2023
-    },
-    "brief": {
-      "zh": "随机化建议可见性与解释方式，并按人会不会遵循建议做主层分层，区分算法质量、采纳行为与最终决策效应。",
-      "en": "Randomize advice visibility and explanation, then use principal stratification by whether people would follow advice to separate algorithm quality, adoption behavior, and final decision effects."
-    },
     "stage": 2,
     "members": 7,
     "activity": 65,
@@ -8634,16 +6886,6 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       4,
       5
     ],
-    "citation": {
-      "url": "https://batteringram.eu/",
-      "title": "Battering RAM: Low-Cost Interposer Attacks on Confidential Computing",
-      "venue": "Project site (KU Leuven / U. Birmingham)",
-      "year": 2025
-    },
-    "brief": {
-      "zh": "用低成本内存总线中间板复现攻击，并把机密计算的安全目标从“静态加密”提升到带新鲜度和完整性认证的端到端内存协议。",
-      "en": "Reproduce attacks with low-cost memory-bus interposers, then raise confidential computing from static encryption to an end-to-end memory protocol with authenticated integrity and freshness."
-    },
     "stage": 2,
     "members": 5,
     "activity": 61,
