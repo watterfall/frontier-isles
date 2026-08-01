@@ -7,6 +7,17 @@ import type { Container } from 'pixi.js';
 // fight over the vessel or camera transforms.
 gsap.registerPlugin(PixiPlugin);
 
+// An authored duration is a wall-clock promise to the reader, not a frame
+// budget. GSAP's default lag smoothing clamps any frame slower than 500ms to a
+// 33ms advance, so a slow renderer stretches a transition by however many
+// frames it takes: measured at CI's software-GL frame rate (~1.1s/frame), the
+// 0.83s dock timeline needed 26 frames — 27.5s of real time in which the
+// island screen simply never arrived, with nothing on screen to explain the
+// wait. Advancing by real elapsed time keeps every named moment inside its
+// authored duration; a starved machine sees fewer, larger steps instead of a
+// transition that outlives the reader's patience.
+gsap.ticker.lagSmoothing(0);
+
 /** Register only constructors already imported by the stage's Pixi chunk. */
 export function registerAtlasMotionPixi(pixi: Parameters<typeof PixiPlugin.registerPIXI>[0]): void {
   PixiPlugin.registerPIXI(pixi);
