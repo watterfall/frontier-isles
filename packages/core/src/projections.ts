@@ -1,11 +1,11 @@
 // `reduceNightScience` is the only VALUE this module needs from opp, so it comes
-// from the `./ledger` subpath rather than the package barrel. The barrel also
-// value-exports the problem.md parser (`./markdown`), which pulls in `yaml` —
-// 72KB of a document parser that reached apps/web's entry chunk purely through
-// this one import, for a browser that never parses a problem.md. Same split the
-// renderer already makes with its headless `./atlas-lod` entry. The types below
-// stay on the barrel: `import type` is erased and costs nothing at runtime.
-import { reduceNightScience } from "@frontier-isles/opp/ledger";
+// from the dependency-free `./night-science` module rather than the package
+// barrel. The barrel value-exports the problem.md parser (`yaml`, 72KB) and the
+// ledger schemas (`zod`, 130KB) — both of which reached apps/web's entry chunk
+// purely through this one import, for a browser that parses neither. Same split
+// the renderer already makes with its headless `./atlas-lod` entry. The types
+// below stay on the barrel: `import type` is erased and costs nothing.
+import { reduceNightScience } from "@frontier-isles/opp/night-science";
 import type {
   Actor,
   ActionType,

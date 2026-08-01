@@ -66,7 +66,7 @@ const clamp = (v: number, lo: number, hi: number) => (v < lo ? lo : v > hi ? hi 
  * so the `noUncheckedIndexedAccess`-flavoured `number | undefined` stays out of
  * the arithmetic.
  */
-export function spaceIslands<T extends Placed>(items: T[], opts: SpaceOptions = {}): T[] {
+export function spaceIslands<T extends Placed>(items: readonly T[], opts: SpaceOptions = {}): T[] {
   const minDist = opts.minDist ?? DEFAULT_MIN_DIST;
   const iterations = opts.iterations ?? DEFAULT_ITERATIONS;
   const b = opts.bounds ?? DEFAULT_BOUNDS;

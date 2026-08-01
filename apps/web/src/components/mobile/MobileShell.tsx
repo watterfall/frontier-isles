@@ -25,7 +25,7 @@ const ModelWorkbench = lazy(() =>
 );
 
 export interface MobileShellProps {
-  islands: IslandDatum[];
+  islands: readonly IslandDatum[];
   modelRuns?: readonly ModelRunReceipt[];
   onRecordModelRun?: (receipt: ModelRunReceipt) => void;
   worldTrailEnabled?: boolean;
@@ -49,7 +49,7 @@ const MOBILE_CURRENTS = [...new Map(SEA_SEED_RELATIONS.filter((relation) => rela
 
 /** Lightweight phone projection: same geometry-only anchor rule as desktop,
  * but no import of the full archipelago engine into the mobile first bundle. */
-export function buildMobileHierarchy(islands: IslandDatum[]): Map<number, MobileHierarchy> {
+export function buildMobileHierarchy(islands: readonly IslandDatum[]): Map<number, MobileHierarchy> {
   const byId = new Map<number, MobileHierarchy>();
   const order = [...islands].sort((a, b) => (a.y - b.y) || (a.id - b.id));
   order.forEach((island, index) => {
