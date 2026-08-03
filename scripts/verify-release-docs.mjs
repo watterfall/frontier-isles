@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 const manifestUrl = new URL('../docs/release-manifest.json', import.meta.url);
 const roadmapUrl = new URL('../docs/ROADMAP.md', import.meta.url);
 const experienceUrl = new URL('../apps/web/src/performance/experience.ts', import.meta.url);
+const viteConfigUrl = new URL('../apps/web/vite.config.ts', import.meta.url);
 const shaPattern = /^[0-9a-f]{40}$/;
 const isoDatePattern = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -38,6 +39,25 @@ assert(manifest.production.counts.frontierProjections > 0, 'frontier projection 
 assert(manifest.bundleBaseline.entryJs.rawKb <= manifest.bundleBaseline.entryJs.rawBudgetKib * 1.024, 'entry baseline exceeds its KiB budget');
 assert(manifest.bundleBaseline.css.rawKb <= manifest.bundleBaseline.css.rawBudgetKib * 1.024, 'CSS baseline exceeds its KiB budget');
 
+// The assertions above compare the manifest against itself, which passes just
+// as happily when the recorded measurement is months out of date and the real
+// build gate has since moved. Tie both numbers to the constants the build
+// actually enforces, the same way the runtime budgets below are tied to
+// experience.ts — a budget raised in one place must be re-measured in the other.
+const viteConfig = await readFile(viteConfigUrl, 'utf8');
+const enforcedBudgets = [
+  ['entryJs', 'ENTRY_JS_MAX_BYTES'],
+  ['css', 'CSS_MAX_BYTES'],
+];
+for (const [key, constant] of enforcedBudgets) {
+  const kib = viteConfig.match(new RegExp(`${constant}\\s*=\\s*([\\d_]+)\\s*\\*\\s*1024`))?.[1];
+  assert(kib, `${constant} must exist in apps/web/vite.config.ts as "<KiB> * 1024"`);
+  assert(
+    Number(kib.replaceAll('_', '')) === manifest.bundleBaseline[key].rawBudgetKib,
+    `${key} budget disagrees: vite.config.ts enforces ${kib}KiB, manifest records ${manifest.bundleBaseline[key].rawBudgetKib}KiB`,
+  );
+}
+
 const runtimeTargets = [
   ['l0-atlas-ready', manifest.runtimeBudgetTargets?.l0AtlasReady],
   ['l1-island-ready', manifest.runtimeBudgetTargets?.l1IslandReady],
@@ -51,8 +71,25 @@ for (const [name, target] of runtimeTargets) {
   assert(Number(sourceBudget.replaceAll('_', '')) === target.budgetMs, `${name} manifest and executable budgets must match`);
 }
 
+// Snapshot freshness is a RELEASE question, not a type question. This script
+// runs inside `pnpm typecheck` (and therefore inside CI on every branch), so a
+// wall-clock assert here would fail every unrelated PR — and every `git bisect`
+// checkout of an older commit — the day the window elapsed. Structural checks
+// above are deterministic and stay unconditional; the age window is opt-in and
+// belongs to whoever is actually cutting a release.
+const FRESHNESS_MAX_DAYS = 45;
 const ageDays = (Date.now() - Date.parse(`${manifest.statusAsOf}T00:00:00Z`)) / 86_400_000;
-assert(ageDays >= -1 && ageDays <= 45, 'status snapshot is stale; refresh release evidence before merging');
+if (process.env.FI_RELEASE_FRESHNESS === '1') {
+  assert(
+    ageDays >= -1 && ageDays <= FRESHNESS_MAX_DAYS,
+    `status snapshot is ${ageDays.toFixed(0)} days old (limit ${FRESHNESS_MAX_DAYS}); refresh release evidence before shipping`,
+  );
+} else if (ageDays > FRESHNESS_MAX_DAYS) {
+  console.warn(
+    `release docs: status snapshot is ${ageDays.toFixed(0)} days old (limit ${FRESHNESS_MAX_DAYS}). ` +
+      'Refresh docs/release-manifest.json before the next deploy; run with FI_RELEASE_FRESHNESS=1 to make this fatal.',
+  );
+}
 assert(roadmap.includes('docs/release-manifest.json'), 'ROADMAP must link the machine-readable manifest');
 assert(roadmap.includes(manifest.main.commit), 'ROADMAP must name the verified main commit');
 assert(roadmap.includes(manifest.production.sourceCommit), 'ROADMAP must name the deployed source commit');

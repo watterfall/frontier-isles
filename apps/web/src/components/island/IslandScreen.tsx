@@ -69,6 +69,11 @@ export interface IslandScreenProps {
   qftLocalChangeCount: number;
   onRetryQft: () => void;
   peers: number;
+  /** Closes the `l1-island-ready` interval. Required on the cold shared-link
+   *  route, which mounts this screen directly and never runs `beginVoyage`'s
+   *  `afterCommit` shortcut — without it the interval never completes and the
+   *  budget for the flagship island goes silently unenforced. */
+  onReady?: () => void;
 }
 
 export function IslandScreen(props: IslandScreenProps) {
@@ -97,6 +102,16 @@ export function IslandScreen(props: IslandScreenProps) {
     };
   }, []);
 
+  // This screen is bespoke and paints synchronously; the ledger pull above only
+  // enriches the night replay. Release the readiness gate on the first painted
+  // frame, once per mount — `completeExperience` ignores a second call, so the
+  // in-app voyage shortcut and this path cannot double-publish.
+  const { onReady } = props;
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => onReady?.());
+    return () => window.cancelAnimationFrame(frame);
+  }, [onReady]);
+
   // Frozen once per mount rather than re-evaluated every render, so the
   // model doesn't drift mid-session (projectNightTimeline is otherwise
   // clock-free/pure — see packages/core/src/night-timeline.ts).
@@ -122,6 +137,15 @@ export function IslandScreen(props: IslandScreenProps) {
     () => computeGhostReveals(ledgerEvents, nightModel),
     [ledgerEvents, nightModel],
   );
+
+  // Visible research state is projected from recorded events (repo invariant),
+  // so the evidence beat may not claim "not yet adjudicated" while validate /
+  // refute events for this island sit in the very ledger loaded above.
+  const adjudication = useMemo(() => {
+    const validates = (ledgerEvents ?? []).filter((event) => event.action === 'validate').length;
+    const refutes = (ledgerEvents ?? []).filter((event) => event.action === 'refute').length;
+    return { validates, refutes, decided: validates + refutes > 0 };
+  }, [ledgerEvents]);
 
   const nightSigns = useMemo(
     () => computeNightSigns(ledgerEvents, nightModel),
@@ -170,7 +194,7 @@ export function IslandScreen(props: IslandScreenProps) {
               <section data-beat="question"><header><b>02</b><span>{t('island.researchPassage.question')}</span></header><p>{SAMPLE_QFOCUS[lang]}</p></section>
               <section data-beat="evidence">
                 <header><b>03</b><span>{t('island.researchPassage.evidence')}</span></header>
-                <div className="fi-island-evidence-row"><span>AI · {t('island.aiResidents')}</span><span className="fi-presence-dot">{peers > 0 ? t('island.presencePeers', { n: 5 + peers, peers }) : `${t('island.presence')} ${t('island.presenceBreak')}`}</span><span>{t('island.presenceNote')}</span><span>{t('island.researchPassage.evidenceBoundary')}</span></div>
+                <div className="fi-island-evidence-row"><span>AI · {t('island.aiResidents')}</span><span className="fi-presence-dot">{peers > 0 ? t('island.presencePeers', { n: 5 + peers, peers }) : `${t('island.presence')} ${t('island.presenceBreak')}`}</span><span>{t('island.presenceNote')}</span><span>{adjudication.decided ? t('island.researchPassage.evidenceAdjudicated', adjudication) : t('island.researchPassage.evidenceBoundary')}</span></div>
               </section>
               <section data-beat="next">
                 <header><b>04</b><span>{t('island.researchPassage.next')}</span></header>

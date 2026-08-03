@@ -247,6 +247,9 @@ function AtlasChartScreenImpl(props: AtlasChartScreenProps) {
   // `controls` covers the Pixi boot window; the no-GPU fallback docks
   // directly, and an unknown slug reports back instead of erroring.
   const enteredDeepLink = useRef<string | null>(null);
+  // The request stays retryable across a stage rebuild, so it is keyed by the
+  // `controls` instance it was sent to — not merely by slug.
+  const deepLinkRequest = useRef<{ slug: string; controls: AtlasControls } | null>(null);
   useEffect(() => {
     if (!deepLinkSlug || enteredDeepLink.current === deepLinkSlug) return;
     const island = islands.find((entry) => entry.slug === deepLinkSlug);
@@ -261,6 +264,13 @@ function AtlasChartScreenImpl(props: AtlasChartScreenProps) {
       return;
     }
     if (!controls) return;
+    // `enter()` now cancels the in-flight camera motion before retargeting, so
+    // re-sending the SAME request restarts the 420ms flight from t0 and
+    // `onArrived` (which does the docking) never runs under churn faster than
+    // that. This effect re-runs on every `islands`/`onIsland` identity change —
+    // routine during boot roster reconciliation — so send once per stage.
+    if (deepLinkRequest.current?.slug === deepLinkSlug && deepLinkRequest.current.controls === controls) return;
+    deepLinkRequest.current = { slug: deepLinkSlug, controls };
     controls.enter(deepLinkSlug);
   }, [controls, deepLinkSlug, islands, noGpu, onDeepLinkUnknown, onIsland]);
 

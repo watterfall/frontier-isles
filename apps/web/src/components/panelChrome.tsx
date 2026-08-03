@@ -11,10 +11,33 @@ import { forwardRef, useEffect, useRef, type CSSProperties, type KeyboardEvent a
  * animates in/out (QftPanel's sliding scroll), pass its `open` flag so the
  * grab/restore tracks the flag instead of mount/unmount.
  */
+/**
+ * Open dialogs, innermost last. Escape has to be handled on `document` — a
+ * submitting control can unmount or become disabled mid-interaction and drop
+ * focus to `<body>`, where a subtree handler never fires — but only the TOP
+ * dialog may consume the key. Without this stack every mounted panel installs
+ * its own document listener, so one Escape closes all of them at once and a
+ * nested control (or the atlas connection-focus reset) never sees its own.
+ */
+const openDialogs: Array<{ close: () => void }> = [];
+let escapeListenerBound = false;
+
+function onDocumentEscape(event: KeyboardEvent): void {
+  // A descendant that owns Escape can claim it by calling preventDefault.
+  if (event.key !== 'Escape' || event.defaultPrevented) return;
+  const top = openDialogs.at(-1);
+  if (!top) return;
+  event.preventDefault();
+  top.close();
+}
+
 export function useDialogChrome<T extends HTMLElement = HTMLDivElement>(onClose: () => void, open = true) {
   const dialogRef = useRef<T | null>(null);
   const closeRef = useRef<HTMLButtonElement | null>(null);
   const priorFocus = useRef<HTMLElement | null>(null);
+  // Read through a ref so a new `onClose` identity never re-orders the stack.
+  const closeHandler = useRef(onClose);
+  closeHandler.current = onClose;
 
   useEffect(() => {
     if (!open) return;
@@ -26,19 +49,23 @@ export function useDialogChrome<T extends HTMLElement = HTMLDivElement>(onClose:
     };
   }, [open]);
 
-  // Escape belongs to the modal lifecycle, not to whichever descendant still
-  // owns focus. A submitting control may become disabled and drop focus to
-  // <body>; the dialog must remain dismissible in that state.
   useEffect(() => {
     if (!open) return;
-    const onEscape = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return;
-      event.preventDefault();
-      onClose();
+    const entry = { close: () => closeHandler.current() };
+    openDialogs.push(entry);
+    if (!escapeListenerBound) {
+      document.addEventListener('keydown', onDocumentEscape);
+      escapeListenerBound = true;
+    }
+    return () => {
+      const index = openDialogs.indexOf(entry);
+      if (index >= 0) openDialogs.splice(index, 1);
+      if (openDialogs.length === 0 && escapeListenerBound) {
+        document.removeEventListener('keydown', onDocumentEscape);
+        escapeListenerBound = false;
+      }
     };
-    document.addEventListener('keydown', onEscape);
-    return () => document.removeEventListener('keydown', onEscape);
-  }, [onClose, open]);
+  }, [open]);
 
   const onDialogKey = (event: ReactKeyboardEvent<HTMLElement>): void => {
     if (event.key !== 'Tab') return;

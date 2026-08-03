@@ -1,9 +1,14 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
-test.beforeEach(async ({ page }) => {
+// Reduced motion is opted into per test, never suite-wide. `page.emulateMedia`
+// genuinely takes effect (the project-level `use.reducedMotion` did not), so a
+// blanket beforeEach silently switches off every animated branch this app
+// ships — View Transitions, the 420ms camera flight, the `transition` overrides
+// — leaving the default experience with no browser coverage at all.
+async function useReducedMotion(page: Page) {
   await page.emulateMedia({ reducedMotion: 'reduce' });
-});
+}
 
 async function openAtlas(page: Page) {
   await page.goto('/');
@@ -91,6 +96,7 @@ test.describe('desktop L0 → L1 experience', () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
   test('publishes bounded readiness metrics and carries shared chrome into night mode', async ({ page }) => {
+    await useReducedMotion(page);
     await page.route('**/api/islands/compositional-modeling', async (route) => {
       await new Promise((resolve) => setTimeout(resolve, 180));
       await route.continue();
@@ -99,17 +105,20 @@ test.describe('desktop L0 → L1 experience', () => {
     expect(await page.evaluate(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)).toBe(true);
     await expect(page.locator('[data-screen-label="L1 生成岛"]')).toBeVisible({ timeout: 15_000 });
 
+    // A cold shared link renders the island directly and never mounts the atlas
+    // renderer, so only the L1 interval may be published here. Asserting an
+    // `l0-atlas-ready` on this route would certify a renderer that never existed.
     await expect.poll(
       async () => (await experienceMetrics(page)).map((metric) => metric.name),
       { timeout: 15_000 },
-    ).toEqual(['l0-atlas-ready', 'l1-island-ready']);
+    ).toEqual(['l1-island-ready']);
     const metrics = await experienceMetrics(page);
     for (const metric of metrics) {
       expect(metric.durationMs, `${metric.name} duration`).toBeGreaterThan(0);
       expect(metric.durationMs, `${metric.name} budget`).toBeLessThanOrEqual(metric.budgetMs);
       expect(metric.withinBudget).toBe(true);
     }
-    expect(metrics[1]?.context).toMatchObject({ slug: 'compositional-modeling' });
+    expect(metrics[0]?.context).toMatchObject({ slug: 'compositional-modeling' });
 
     const dayChrome = await page.locator('.fi-lang-toggle').evaluate((element) => {
       const style = getComputedStyle(element);
@@ -132,7 +141,36 @@ test.describe('desktop L0 → L1 experience', () => {
     expect(chromeAudit.violations, JSON.stringify(chromeAudit.violations, null, 2)).toEqual([]);
   });
 
+  // Runs at DEFAULT motion on purpose: this is the only browser coverage of the
+  // animated voyage — `runVoyageTransition`'s startViewTransition branch, its
+  // 700ms readiness race, the ownership-guarded cleanup of `data-fi-voyage`,
+  // and the 420ms camera flight that ends in `onArrived`.
+  test('completes an animated atlas → island voyage and cleans up its transition', async ({ page }) => {
+    await openAtlas(page);
+    expect(await page.evaluate(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)).toBe(false);
+
+    const search = page.locator('.fi-chart-search input[role="combobox"]');
+    await search.fill('组合');
+    const firstResult = page.locator('#atlas-search-results button[role="option"]').first();
+    await expect(firstResult).toBeVisible({ timeout: 15_000 });
+    await firstResult.click();
+
+    await expect(page.locator('[data-screen-label^="L1"]')).toBeVisible({ timeout: 15_000 });
+    // The transition owns this flag for its lifetime and must hand it back.
+    await expect
+      .poll(async () => page.evaluate(() => document.documentElement.dataset.fiVoyage ?? null), { timeout: 15_000 })
+      .toBeNull();
+    await expect
+      .poll(async () => (await experienceMetrics(page)).map((metric) => metric.name), { timeout: 15_000 })
+      .toEqual(['l0-atlas-ready', 'l1-island-ready']);
+    for (const metric of await experienceMetrics(page)) {
+      expect(metric.withinBudget, `${metric.name} within budget`).toBe(true);
+    }
+    await expectNoHorizontalOverflow(page);
+  });
+
   test('carries one scientific narrative from atlas hierarchy into island survey and QFT focus', async ({ page }) => {
+    await useReducedMotion(page);
     await openAtlas(page);
     const crossFieldDesk = page.locator('.fi-connection-expand');
     await expect(crossFieldDesk).toHaveAttribute('aria-expanded', 'false', { timeout: 15_000 });
@@ -189,6 +227,10 @@ test.describe('desktop L0 → L1 experience', () => {
     await rewriteBox.fill(rewrittenQuestion);
     await secondQuestion.getByRole('button', { name: '保存为本页改写' }).click();
     await expect(secondQuestion).toContainText(rewrittenQuestion);
+    // Saving unmounts the form together with the focused submit button; focus
+    // must return to the control that opened it, or it drops to <body> and the
+    // next Tab walks straight out of the modal.
+    await expect(secondQuestion.getByRole('button', { name: '改写此问' })).toBeFocused();
     const recordStatus = qft.locator('.fi-qft-footer[role="status"]');
     await expect(qft.locator('.fi-qft-footer').filter({ hasText: '1 条本页工作笔记未写入账本' })).toBeVisible();
 
@@ -210,6 +252,17 @@ test.describe('desktop L0 → L1 experience', () => {
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
       .analyze();
     expect(qftAudit.violations, JSON.stringify(qftAudit.violations, null, 2)).toEqual([]);
+
+    // Escape belongs to the TOP dialog only. Station shortcut 8 opens the
+    // driftwood modal over the still-open QFT scroll; one Escape may close the
+    // modal and must leave the scroll open (a per-panel document listener used
+    // to close every mounted panel at once).
+    await page.keyboard.press('8');
+    const driftwood = page.locator('#fi-drift-title');
+    await expect(driftwood).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(driftwood).toHaveCount(0);
+    await expect(qft).toHaveAttribute('data-open', 'true');
 
     await page.keyboard.press('Escape');
     await expect(qft).not.toHaveAttribute('data-open', 'true');
@@ -246,7 +299,9 @@ test.describe('mobile companion surface', () => {
 
     const mobilePassage = page.locator('.fi-mobile-island-note .fi-science-passage');
     await expect(mobilePassage.locator(':scope > section')).toHaveCount(4);
-    await expect(mobilePassage.locator('[data-beat="evidence"]')).toContainText('尚未裁定支持或反驳');
+    // The mobile note is projected from atlas data with no ledger in scope, so
+    // it points at the ledger instead of asserting an adjudication state.
+    await expect(mobilePassage.locator('[data-beat="evidence"]')).toContainText('裁定状态以桌面端账本为准');
     await expect.poll(async () => Number.parseFloat(await mobilePassage.locator('[data-beat="signal"] p').evaluate((element) => getComputedStyle(element).fontSize))).toBeGreaterThanOrEqual(13);
     await mobilePassage.locator('[data-beat="next"] button').click();
     await expect(page.locator('.fi-mobile-segments button').first()).toHaveAttribute('aria-selected', 'true');
