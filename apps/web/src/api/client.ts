@@ -210,6 +210,17 @@ export type ApiWriteOutcome<T> =
   | { ok: false; status: number; code?: string; error: string };
 
 /**
+ * Whether a failed write is worth offering a retry for. A 4xx is the gateway
+ * saying no (missing evidence, absent actor, unknown island) — the same request
+ * will be refused forever, so a retry button there only wastes the user's time.
+ * Transport failures (`status: 0` from {@link reqOutcome}'s catch) and 5xx are
+ * transient by nature.
+ */
+export function isRetryableWrite(outcome: { ok: false; status: number }): boolean {
+  return outcome.status === 0 || outcome.status >= 500;
+}
+
+/**
  * A pending morning-report draft (GET `/api/islands/:slug/morning-report`) —
  * reduced server-side from the ledger via `projectMorningReport`, keyed by
  * its own content-addressed `refHash` (never an array index).
@@ -517,9 +528,15 @@ export const api = {
       }),
     }),
 
-  /** Append a ledger event (vote, transplant, focus, …). */
-  postEvent: (slug: string, event: LedgerEventInput) =>
-    req<unknown>(`/api/islands/${slug}/events`, {
+  /** Append a ledger event (vote, transplant, focus, …).
+   *  Returns an outcome, not `T | null`: the gateway rejects writes for reasons
+   *  the user must be able to act on differently (422 `evidence_required`, 401
+   *  `actor required`, 404 unknown island are permanent; a timeout is worth a
+   *  retry). A bare `null` collapses all of them into one dead retry button,
+   *  and makes a legitimately empty 2xx body look like a failure worth
+   *  rolling back — while the event IS in the append-only ledger. */
+  postEvent: (slug: string, event: LedgerEventInput): Promise<ApiWriteOutcome<unknown>> =>
+    reqOutcome<unknown>(`/api/islands/${slug}/events`, {
       method: 'POST',
       body: JSON.stringify({ ...event, actor: toActor(event.actor) }),
     }),

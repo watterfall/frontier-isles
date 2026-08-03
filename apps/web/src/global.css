@@ -235,7 +235,10 @@ html[data-fi-voyage='returning']::view-transition-new(root) {
 .fi-session-login { text-decoration: none; }
 .fi-session-login svg { fill: currentColor; }
 .fi-session-status { width: 6px; height: 6px; border-radius: 50%; background: var(--fi-status-success); }
-.fi-session-logout { min-width: 44px; min-height: 32px; padding: 0 4px; border: 0; background: none; color: var(--fi-text-secondary); font-size: var(--fi-type-caption); }
+/* Reaches the 44px hit height by absorbing the pill's 6px vertical padding
+   rather than stacking on top of it, so the badge stays exactly as tall as the
+   language toggle next to it. */
+.fi-session-logout { min-width: 44px; min-height: 44px; align-self: stretch; margin-block: -6px; padding: 0 4px; border: 0; background: none; color: var(--fi-text-secondary); font-size: var(--fi-type-caption); }
 
 .fi-toast {
   position: absolute;
@@ -256,10 +259,13 @@ html[data-fi-voyage='returning']::view-transition-new(root) {
 }
 .fi-toast[data-open='true'] { opacity: 1; }
 
-.fi-global-controls button,
-.fi-global-controls a,
+/* Direct children only. A descendant selector also caught the logout button
+   NESTED inside the .fi-session-badge pill, stacking a second 44px box inside a
+   44px pill and pushing the badge to ~56px beside the 44px language toggle. */
+.fi-global-controls > button,
+.fi-global-controls > a,
 .fi-global-controls > span {
-  min-height: 42px;
+  min-height: 44px;
   box-sizing: border-box;
   backdrop-filter: blur(8px);
 }
@@ -2077,7 +2083,10 @@ body:has(.fi-model-launch) { --fi-hud-dock-bottom: 94px; --fi-hud-dock-left: 362
 .fi-science-passage header { display: flex; align-items: baseline; gap: 6px; margin-bottom: 5px; color: var(--gold2, var(--fi-ochre)); font-family: var(--fi-font-mono); font-size: var(--fi-type-micro); letter-spacing: .08em; text-transform: uppercase; }
 .fi-science-passage header b { font-weight: 500; opacity: .7; }
 .fi-science-passage p { display: -webkit-box; overflow: hidden; margin: 0; color: var(--ink2, var(--fi-ink-2)); font-size: var(--fi-type-caption); line-height: 1.48; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
-.fi-science-passage [data-beat='question'] p { color: var(--inkT, var(--fi-ink)); font-family: var(--fi-font-display); font-size: var(--fi-type-body); font-weight: 700; line-height: 1.4; }
+/* The 3-line clamp above is for supporting prose. The QFocus question is the
+   island's whole point and has no expand affordance, so it is never clamped —
+   a mid-sentence ellipsis here truncates the one thing the screen exists for. */
+.fi-science-passage [data-beat='question'] p { display: block; overflow: visible; color: var(--inkT, var(--fi-ink)); font-family: var(--fi-font-display); font-size: var(--fi-type-body); font-weight: 700; line-height: 1.4; -webkit-line-clamp: none; }
 .fi-science-passage .fi-island-evidence-row { display: grid; gap: 4px; margin: 0; font-size: var(--fi-type-caption); }
 .fi-science-passage .fi-island-evidence-row a { justify-self: start; }
 .fi-mobile-island-note .fi-science-passage { display: block; }
@@ -2969,6 +2978,7 @@ body:has(.fi-qft-root[data-open='true']) :is(.fi-global-controls, .fi-world-trai
 .fi-qft-advocate p { margin: 0; color: color-mix(in srgb, var(--fi-azurite) 70%, var(--ink, var(--fi-ink))); font-size: var(--fi-type-caption); line-height: 1.6; }
 .fi-qft-inline-close { display: grid; width: 36px; height: 36px; place-items: center; color: var(--fi-azurite); font-size: var(--fi-type-ui); }
 .fi-qft-focus-banner { margin: 0 0 13px; padding: 11px 13px; border-left: 3px solid var(--fi-malachite); background: color-mix(in srgb, var(--fi-malachite) 8%, transparent); color: color-mix(in srgb, var(--fi-malachite) 72%, var(--ink, var(--fi-ink))); font-size: var(--fi-type-caption); line-height: 1.55; }
+.fi-qft-focus-divergence { display: block; margin-top: 6px; color: var(--ink2, var(--fi-ink-2)); font-family: var(--fi-font-mono); font-size: var(--fi-type-micro); line-height: 1.5; }
 .fi-qft-questions { margin: 0; padding: 0; border-top: 1.5px solid var(--ink, var(--fi-ink)); list-style: none; }
 .fi-qft-questions > li { padding: 14px 2px 13px; border-bottom: 1px solid color-mix(in srgb, var(--ink, var(--fi-ink)) 26%, transparent); }
 .fi-qft-questions > li[data-focused='true'] { margin: 0 -10px; padding-right: 12px; padding-left: 12px; background: color-mix(in srgb, var(--gold, var(--fi-gamboge)) 10%, transparent); box-shadow: inset 3px 0 var(--gold2, var(--fi-ochre)); }
@@ -2998,6 +3008,7 @@ body:has(.fi-qft-root[data-open='true']) :is(.fi-global-controls, .fi-world-trai
 .fi-qft-focus-action strong { font-family: var(--fi-font-display); font-size: var(--fi-type-body); }
 .fi-qft-focus-action i { font-size: 18px; font-style: normal; }
 .fi-qft-footer { margin-top: 12px; color: var(--ink2, var(--fi-ink-2)); font-family: var(--fi-font-mono); font-size: var(--fi-type-caption); text-align: center; }
+.fi-qft-record-reason { color: var(--fi-ochre-text); }
 
 @media (max-width: 720px) {
   .fi-qft-panel { width: 100vw; }
@@ -3098,12 +3109,6 @@ body:has(.fi-qft-root[data-open='true']) :is(.fi-global-controls, .fi-world-trai
 .fi-connection-field.fi-connection-field .fi-connection-tide-meter-labels > small,
 .fi-connection-field.fi-connection-field .fi-connection-tide-routes button small {
   color: var(--fi-ochre-text);
-}
-
-.fi-global-controls button,
-.fi-global-controls a,
-.fi-global-controls > span {
-  min-height: 44px;
 }
 
 /* 901–1180 is the hybrid tablet/compact-desktop band. Do not key this only to

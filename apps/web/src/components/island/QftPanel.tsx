@@ -23,7 +23,17 @@ export interface QftPanelProps {
 export type QftLedgerOperation = 'vote' | 'focus';
 export type QftSyncState =
   | { status: 'idle' }
-  | { status: 'saving' | 'saved' | 'failed'; operation: QftLedgerOperation; questionIdx: number };
+  | {
+      status: 'saving' | 'saved' | 'failed';
+      operation: QftLedgerOperation;
+      questionIdx: number;
+      /** Server-supplied rejection text (`failed` only) — shown verbatim so a
+       *  permanent refusal reads as a reason, not as an unexplained failure. */
+      reason?: string;
+      /** `false` when the gateway refused the write for good (4xx): the retry
+       *  control is withheld instead of offering a button that cannot succeed. */
+      retryable?: boolean;
+    };
 
 function ScrollRod() {
   return (
@@ -56,11 +66,25 @@ export function QftPanel({ open, onClose, qs, voted, focusIdx, advOn, onCloseAdv
     ? openQuestions.reduce((best, item) => (item.question.votes > best.question.votes ? item : best)).idx
     : null;
   const focusIsCurrent = focusCandidate !== null && focusIdx === focusCandidate;
+  // The recorded focus survives a local 开/闭 toggle (the toggle is a page note,
+  // the focus is a ledger event). Say so rather than letting the banner and the
+  // question's own 封闭 tag silently contradict each other.
+  const focusedQuestionClosed = focusIdx !== null && qs[focusIdx]?.open === false;
 
+  // Saving or cancelling unmounts the form together with whichever control has
+  // focus, leaving `document.activeElement` on <body> — outside the dialog, so
+  // the Tab wrap in useDialogChrome never runs and the next Tab walks into the
+  // page behind the modal. Hand focus back to the control that opened the form.
+  const rewriteTriggers = useRef(new Map<number, HTMLButtonElement | null>());
   const beginRewrite = (idx: number) => {
     setRewriteIdx(idx);
     setRewriteText(qs[idx]?.text[lang] ?? '');
     setRewriteError('');
+  };
+  const endRewrite = (idx: number) => {
+    setRewriteIdx(null);
+    setRewriteError('');
+    window.requestAnimationFrame(() => rewriteTriggers.current.get(idx)?.focus());
   };
   const isSaving = syncState.status === 'saving';
   const recordMessage = syncState.status === 'idle'
@@ -135,6 +159,7 @@ export function QftPanel({ open, onClose, qs, voted, focusIdx, advOn, onCloseAdv
           {focusedOn && (
             <p className="fi-qft-focus-banner" role="status">
               {t('panel.focusBanner')}<b>{focusText}</b>{t('panel.focusBannerTail')}
+              {focusedQuestionClosed && <small className="fi-qft-focus-divergence">{t('panel.focusClosedNote')}</small>}
             </p>
           )}
 
@@ -167,7 +192,7 @@ export function QftPanel({ open, onClose, qs, voted, focusIdx, advOn, onCloseAdv
                   <div className="fi-qft-question-actions">
                     <span className="fi-qft-question-kind">{AUTHQ[idx]?.[lang]}</span>
                     <button type="button" className="fi-btn-reset fi-hit fi-qft-toggle" data-open={q.open || undefined} aria-pressed={q.open} onClick={() => onToggle(idx)}>{q.open ? t('panel.open') : t('panel.closed')}</button>
-                    <button type="button" className="fi-btn-reset fi-hit fi-qft-toggle" aria-expanded={rewriteIdx === idx} onClick={() => beginRewrite(idx)}>{t('panel.rewrite')}</button>
+                    <button ref={(node) => { rewriteTriggers.current.set(idx, node); }} type="button" className="fi-btn-reset fi-hit fi-qft-toggle" aria-expanded={rewriteIdx === idx} onClick={() => beginRewrite(idx)}>{t('panel.rewrite')}</button>
                     {q.rw && <span className="fi-qft-rewritten">{t('panel.rewritten')}</span>}
                     <span className="fi-qft-vote-count"><b>{q.votes}</b><small>{t('panel.votes')}</small></span>
                     <button type="button" className="fi-btn-reset fi-hit fi-qft-vote" data-voted={didVote || undefined} aria-pressed={didVote} disabled={didVote || !q.open || isSaving} onClick={() => onVote(idx)}>{didVote ? t('panel.voted') : t('panel.vote')}</button>
@@ -181,13 +206,12 @@ export function QftPanel({ open, onClose, qs, voted, focusIdx, advOn, onCloseAdv
                         return;
                       }
                       onRewrite(idx, next);
-                      setRewriteIdx(null);
-                      setRewriteError('');
+                      endRewrite(idx);
                     }}>
                       <textarea autoFocus value={rewriteText} maxLength={240} onChange={(event) => { setRewriteText(event.target.value); if (event.target.value.trim()) setRewriteError(''); }} aria-label={t('panel.rewritePrompt')} aria-invalid={!!rewriteError} aria-describedby={rewriteError ? `fi-qft-rewrite-error-${idx}` : undefined} style={{ flex: '1 1 100%', minHeight: 72, padding: '8px 10px', border: '1px solid var(--fi-ochre)', background: 'var(--card, var(--fi-paper-raised))', color: 'inherit', font: 'inherit', lineHeight: 1.5, resize: 'vertical' }} />
                       {rewriteError && <p id={`fi-qft-rewrite-error-${idx}`} className="fi-qft-footer" role="alert" style={{ flex: '1 1 100%', margin: 0, textAlign: 'left' }}>{rewriteError}</p>}
                       <button type="submit" className="fi-btn-reset fi-hit fi-qft-toggle">{t('panel.saveRewrite')}</button>
-                      <button type="button" className="fi-btn-reset fi-hit fi-qft-vote" onClick={() => { setRewriteIdx(null); setRewriteError(''); }}>{t('panel.cancelRewrite')}</button>
+                      <button type="button" className="fi-btn-reset fi-hit fi-qft-vote" onClick={() => endRewrite(idx)}>{t('panel.cancelRewrite')}</button>
                     </form>
                   )}
                 </li>
@@ -196,7 +220,13 @@ export function QftPanel({ open, onClose, qs, voted, focusIdx, advOn, onCloseAdv
           </ol>
 
           <button ref={focusActionRef} id="fi-qft-focus-action" type="button" className="fi-btn-reset fi-qft-focus-action" disabled={focusCandidate === null || focusIsCurrent || isSaving} onClick={() => onFocus()}><span>{t('panel.stampFocus')}</span><strong>{focusIsCurrent ? t('panel.focused') : t('panel.doFocus')}</strong><i aria-hidden="true">→</i></button>
-          <p className="fi-qft-footer" role="status" data-state={syncState.status}>{recordMessage}{syncState.status === 'failed' && <> · <button type="button" className="fi-btn-reset fi-hit fi-qft-toggle" onClick={onRetry}>{t('panel.record.retry')}</button></>}</p>
+          <p className="fi-qft-footer" role="status" data-state={syncState.status}>
+            {recordMessage}
+            {syncState.status === 'failed' && syncState.reason && <> · <span className="fi-qft-record-reason">{syncState.reason}</span></>}
+            {syncState.status === 'failed' && (syncState.retryable === false
+              ? <> · {t('panel.record.rejected')}</>
+              : <> · <button type="button" className="fi-btn-reset fi-hit fi-qft-toggle" onClick={onRetry}>{t('panel.record.retry')}</button></>)}
+          </p>
           {localChangeCount > 0 && <p className="fi-qft-footer">{t('panel.record.localChanges', { count: localChangeCount })}</p>}
           <footer className="fi-qft-footer">{t('panel.footer')}</footer>
         </article>

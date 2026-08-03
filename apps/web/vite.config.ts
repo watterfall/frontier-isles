@@ -17,8 +17,19 @@ import react from '@vitejs/plugin-react';
  * it is erased before this check ever sees a module.
  */
 const ENTRY_DENYLIST = ['pixi.js', 'gsap', 'yjs', 'y-websocket', 'yaml', 'zod'];
+/**
+ * Hard build budgets, in KiB. These must equal `bundleBaseline.*.rawBudgetKib`
+ * in docs/release-manifest.json — `scripts/verify-release-docs.mjs` asserts the
+ * two agree, so a budget raised here without a re-measured baseline there fails
+ * the gate instead of quietly passing against a stale number.
+ *
+ * Keep real headroom above the recorded measurement. A budget sitting ~100
+ * bytes over the current build is not a budget: the next single rule fails
+ * `pnpm build` for whoever happens to write it, with no signal that anything
+ * regressed.
+ */
 const ENTRY_JS_MAX_BYTES = 900 * 1024;
-const CSS_MAX_BYTES = 220 * 1024;
+const CSS_MAX_BYTES = 244 * 1024;
 
 /**
  * Workspace modules that must stay alone in a chunk of their own, reachable

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SEA_SEED_RELATIONS } from '@frontier-isles/data/sea';
 import { api } from '../../api/client';
@@ -127,6 +127,7 @@ export function MobileShell({ islands, initialIslandSlug = null, modelRuns = [],
   const [expandedAnchor, setExpandedAnchor] = useState<string | null>(null);
   const handledDeepLink = useRef<string | null>(null);
   const [carriedQuestion, setCarriedQuestion] = useState('');
+  const clearCarriedQuestion = useCallback(() => setCarriedQuestion(''), []);
   const [connectionField, setConnectionField] = useState<ConnectionField | null>(null);
   const showingAtlasTools = seg === 'chart' || seg === 'list';
   const worldTrail = useMemo(() => selectWorldTrail({
@@ -280,7 +281,7 @@ export function MobileShell({ islands, initialIslandSlug = null, modelRuns = [],
 
       <section className="fi-mobile-content">
         {seg === 'connections' ? (
-          <MobileConnectionField field={connectionField} lang={lang} carriedQuestion={carriedQuestion} />
+          <MobileConnectionField field={connectionField} lang={lang} carriedQuestion={carriedQuestion} onCarriedApplied={clearCarriedQuestion} />
         ) : seg === 'models' ? (
           <Suspense fallback={<p className="fi-mobile-connection-empty">{lang === 'zh' ? '正在准备模型台…' : 'Preparing the model bench…'}</p>}>
             <ModelWorkbench lang={lang} embedded previousRuns={modelRuns} onSave={onRecordModelRun} />
@@ -426,14 +427,21 @@ const MOBILE_CONNECTION_COPY = {
 const mobileCounted = (count: number, singular: string, plural: string): string =>
   `${count} ${count === 1 ? singular : plural}`;
 
-function MobileConnectionField({ field, lang, carriedQuestion }: { field: ConnectionField | null; lang: 'zh' | 'en'; carriedQuestion: string }) {
+function MobileConnectionField({ field, lang, carriedQuestion, onCarriedApplied }: { field: ConnectionField | null; lang: 'zh' | 'en'; carriedQuestion: string; onCarriedApplied: () => void }) {
   const copy = MOBILE_CONNECTION_COPY[lang];
   const [focus, setFocus] = useState<ConnectionFocus>(null);
   const [focusTrail, setFocusTrail] = useState<Array<NonNullable<ConnectionFocus>>>([]);
   const [query, setQuery] = useState('');
+  // 「携问题继续」 hands one question over exactly once. Clearing it on arrival
+  // is what keeps it a handover instead of a latch: this component remounts on
+  // every 连接 tab visit, and an uncleared value would force-fill the search box
+  // with a stale question for the rest of the session, with no way back to a
+  // clean cross-field search.
   useEffect(() => {
-    if (carriedQuestion) setQuery(carriedQuestion);
-  }, [carriedQuestion]);
+    if (!carriedQuestion) return;
+    setQuery(carriedQuestion);
+    onCarriedApplied();
+  }, [carriedQuestion, onCarriedApplied]);
   const results = field ? searchConnectionProblems(field, query, lang) : [];
   const convergence = focus?.type === 'convergence'
     ? field?.topics.find((item) => item.id === focus.id) ?? null
@@ -671,7 +679,7 @@ function MobileIslandNote({ island, altitude, role, satelliteCount, expanded, la
       <div className="fi-science-passage" aria-label={t('island.researchPassage.label')} style={{ marginTop: 9 }}>
         <section data-beat="signal"><header><b>01</b><span>{t('island.researchPassage.signal')}</span></header><p>{island.brief?.[lang] || t('island.researchPassage.signalFallback')}</p></section>
         <section data-beat="question"><header><b>02</b><span>{t('island.researchPassage.question')}</span></header><p>{island.q[lang]}</p></section>
-        <section data-beat="evidence"><header><b>03</b><span>{t('island.researchPassage.evidence')}</span></header><div className="fi-island-evidence-row">{island.citation ? <a href={island.citation.url} target="_blank" rel="noopener noreferrer">↗ {island.citation.venue} · {island.citation.year}</a> : <span>{t('island.researchPassage.noEvidence')}</span>}<span>{t('island.researchPassage.evidenceBoundary')}</span></div></section>
+        <section data-beat="evidence"><header><b>03</b><span>{t('island.researchPassage.evidence')}</span></header><div className="fi-island-evidence-row">{island.citation ? <a href={island.citation.url} target="_blank" rel="noopener noreferrer">↗ {island.citation.venue} · {island.citation.year}</a> : <span>{t('island.researchPassage.noEvidence')}</span>}<span>{t('island.researchPassage.evidenceBoundaryReadOnly')}</span></div></section>
         <section data-beat="next"><header><b>04</b><span>{t('island.researchPassage.next')}</span></header><p>{t('island.researchPassage.mobileNext')}</p><button type="button" onClick={onFollowQuestion}><span>{t('mobile.segConnections')}</span><strong>{t('island.researchPassage.mobileCarry')}</strong><i aria-hidden="true">→</i></button></section>
       </div>
       <footer><span>{t('chart.card.members', { n: island.m })}</span>{satelliteCount > 0 && <button type="button" onClick={onToggleGroup}>{expanded ? t('chart.hierarchyLevels.anchor') : `${t('chart.hierarchyLevels.satellite')} ${satelliteCount}`}</button>}<button type="button" onClick={onSelectList}>{t('mobile.segList')} →</button></footer>

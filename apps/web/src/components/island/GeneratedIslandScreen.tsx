@@ -672,7 +672,12 @@ export function GeneratedIslandScreen({
                       stated as text so the sea's data channels are always decodable. */}
                   {seaStats?.substrate != null && <span>≈ {t('island.seaData.depth')} {seaStats.substrate.toFixed(2)} · {t(abstractKey(seaStats.substrate))}</span>}
                   {relParts.length > 0 && <span>⇄ {relParts.join(' · ')}</span>}
-                  <span>{t('island.researchPassage.evidenceBoundary')}</span>
+                  {/* Projected from the same ledger `ledgerStats` counts above:
+                      claiming "not yet adjudicated" over recorded validate /
+                      refute events would contradict this screen's own data. */}
+                  <span>{ledgerStats.validates + ledgerStats.refutes > 0
+                    ? t('island.researchPassage.evidenceAdjudicated', { validates: ledgerStats.validates, refutes: ledgerStats.refutes })
+                    : t('island.researchPassage.evidenceBoundary')}</span>
                 </div>
               </section>
               {nextDistrict && (

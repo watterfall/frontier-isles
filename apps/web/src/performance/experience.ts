@@ -69,6 +69,17 @@ export function beginExperience(
   pending.set(name, { startMark, startedAt, context: { ...context } });
 }
 
+/**
+ * Drops a started interval without publishing it. Use when the thing being
+ * measured will not happen at all on this route — a cold shared link renders
+ * the island directly and never mounts the atlas, so `l0-atlas-ready` has
+ * nothing to time. Completing it there would publish (and let a test assert) a
+ * readiness event for a renderer that was never created.
+ */
+export function abandonExperience(name: ExperienceName): void {
+  clearPending(name);
+}
+
 /** Finishes a readiness gate and publishes the same measure to DevTools, a
  * bounded window registry, and a CustomEvent. No network telemetry is sent. */
 export function completeExperience(name: ExperienceName): ExperienceMetric | null {

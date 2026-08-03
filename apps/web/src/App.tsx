@@ -13,7 +13,7 @@ import { SessionBadge } from './components/shell/SessionBadge';
 import { WorldTrail } from './components/shell/WorldTrail';
 import { MobileShell } from './components/mobile/MobileShell';
 import { useAppData } from './api/useAppData';
-import { api } from './api/client';
+import { api, isRetryableWrite } from './api/client';
 import { usePresence } from './presence/usePresence';
 import { QUESTIONS, SAMPLE_SLUG, STN, type IslandDatum, type QuestionDatum } from './api/fallback';
 import { localizeStationZh } from './i18n/stations';
@@ -51,7 +51,7 @@ import {
   worldTrailFeatureEnabled,
   type ResearchActionReceipt,
 } from './state/routeOutcome';
-import { beginExperience, completeExperience } from './performance/experience';
+import { abandonExperience, beginExperience, completeExperience } from './performance/experience';
 
 const GeneratedIslandScreen = lazy(() =>
   import('./components/island/GeneratedIslandScreen').then((module) => ({
@@ -241,9 +241,12 @@ export default function App() {
   // A browser-level shared link is a destination, not an atlas interaction.
   // Start its readiness interval without mounting cold WebGL first; voyages
   // chosen inside the running app still keep the authored camera handoff.
+  // `AtlasChartScreen` is never rendered on this route, so the L0 interval
+  // main.tsx opened is abandoned rather than completed — publishing it would
+  // attest to an atlas renderer that this navigation never created.
   useEffect(() => {
     if (!initialDesktopDeepLink) return;
-    completeExperience('l0-atlas-ready');
+    abandonExperience('l0-atlas-ready');
     beginExperience('l1-island-ready', { slug: initialDesktopDeepLink, source: 'atlas' });
     dispatchExploration({ type: 'dock', slug: initialDesktopDeepLink, source: 'atlas' });
   }, [initialDesktopDeepLink]);
@@ -574,13 +577,13 @@ export default function App() {
       setQs((prev) => prev.map((q, j) => (j === idx ? { ...q, votes: q.votes + 1 } : q)));
       setVoted((prev) => ({ ...prev, [idx]: true }));
       setQftSyncState({ status: 'saving', operation: 'vote', questionIdx: idx });
-      let recorded = false;
-      try {
-        recorded = !!(await api.postEvent(SAMPLE_SLUG, { actor, credit: ['conceptualization'], phase: 'A', action: 'propose_subquestion', payload: { question: idx, signal: 'vote' } }));
-      } catch {
-        recorded = false;
-      }
-      if (recorded) {
+      // `signal` is the discriminator, present on BOTH QFT writes with different
+      // values. The gateway has no `vote` action and rejects `validate` without
+      // claim evidence (422), so a wall vote and a QFocus election necessarily
+      // share `propose_subquestion` — the payload is what keeps them apart, and
+      // it only does that if every writer sets the same key (see DECISIONS.md).
+      const outcome = await api.postEvent(SAMPLE_SLUG, { actor, credit: ['conceptualization'], phase: 'A', action: 'propose_subquestion', payload: { question: idx, signal: 'vote' } });
+      if (outcome.ok) {
         setQftSyncState({ status: 'saved', operation: 'vote', questionIdx: idx });
       } else {
         setQs((prev) => prev.map((q, j) => (j === idx ? { ...q, votes: Math.max(0, q.votes - 1) } : q)));
@@ -589,7 +592,7 @@ export default function App() {
           delete next[idx];
           return next;
         });
-        setQftSyncState({ status: 'failed', operation: 'vote', questionIdx: idx });
+        setQftSyncState({ status: 'failed', operation: 'vote', questionIdx: idx, reason: outcome.error, retryable: isRetryableWrite(outcome) });
       }
       qftWritePending.current = false;
     },
@@ -608,23 +611,21 @@ export default function App() {
     qftWritePending.current = true;
     setFocusIdx(top);
     setQftSyncState({ status: 'saving', operation: 'focus', questionIdx: top });
-    let recorded = false;
-    try {
-      recorded = !!(await api.postEvent(SAMPLE_SLUG, { actor, credit: ['conceptualization'], phase: 'A', action: 'propose_subquestion', payload: { focus: top, outcome: 'focused' } }));
-    } catch {
-      recorded = false;
-    }
-    if (recorded) setQftSyncState({ status: 'saved', operation: 'focus', questionIdx: top });
+    const outcome = await api.postEvent(SAMPLE_SLUG, { actor, credit: ['conceptualization'], phase: 'A', action: 'propose_subquestion', payload: { focus: top, signal: 'focus' } });
+    if (outcome.ok) setQftSyncState({ status: 'saved', operation: 'focus', questionIdx: top });
     else {
       setFocusIdx(previousFocus);
-      setQftSyncState({ status: 'failed', operation: 'focus', questionIdx: top });
+      setQftSyncState({ status: 'failed', operation: 'focus', questionIdx: top, reason: outcome.error, retryable: isRetryableWrite(outcome) });
     }
     qftWritePending.current = false;
   }, [qs, actor, focusIdx]);
 
+  // Closing a question is a working note; the focus it may invalidate is not —
+  // that one is already in the append-only ledger. Keep the recorded focus
+  // visible and let the panel say the two disagree, rather than clearing the
+  // banner locally and leaving the screen contradicting the ledger silently.
   const onToggleQ = useCallback((idx: number) => {
     setQs((prev) => prev.map((q, j) => (j === idx ? { ...q, open: !q.open } : q)));
-    setFocusIdx((prev) => (prev === idx ? null : prev));
     setQftLocalChangeCount((count) => count + 1);
   }, []);
 
@@ -809,6 +810,7 @@ export default function App() {
                   qftLocalChangeCount={qftLocalChangeCount}
                   onRetryQft={onRetryQft}
                   peers={peers}
+                  onReady={signalIslandReady}
                 />
               )}
               {exploration.passageIntent && selSlug === exploration.passageIntent.targetIslandSlug && (

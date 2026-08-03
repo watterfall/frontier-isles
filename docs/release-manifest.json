@@ -34,14 +34,14 @@
     "reason": "Production is healthy but still reports the older 2026-07-26 source; the 2026-08-01 main baseline has no deploy proof."
   },
   "bundleBaseline": {
-    "entryJs": { "rawKb": 867.27, "gzipKb": 300.85, "rawBudgetKib": 900 },
-    "css": { "rawKb": 205.73, "gzipKb": 31.38, "rawBudgetKib": 220 },
+    "entryJs": { "rawKb": 878.02, "gzipKb": 302.73, "rawBudgetKib": 900 },
+    "css": { "rawKb": 225.39, "gzipKb": 34.88, "rawBudgetKib": 244 },
     "atlasDetail": { "rawKb": 127.22, "gzipKb": 57.64, "loading": "deferred-isolated" },
     "interiorArchive": { "rawKb": 1210.0, "gzipKb": 487.71, "loading": "lazy-stale-server-fallback" }
   },
   "runtimeBudgetTargets": {
     "scope": "Local browser diagnostics; not production RUM and not evidence that the current working tree is deployed.",
-    "l0AtlasReady": { "measure": "fi:l0-atlas-ready", "budgetMs": 12000, "start": "navigation or return intent", "end": "atlas renderer ready" },
+    "l0AtlasReady": { "measure": "fi:l0-atlas-ready", "budgetMs": 12000, "start": "navigation or return intent", "end": "atlas renderer ready", "note": "Not published on a cold shared link: that route mounts the island directly and never creates the atlas renderer, so the interval is abandoned rather than completed." },
     "l1IslandReady": { "measure": "fi:l1-island-ready", "budgetMs": 15000, "start": "dock intent", "end": "island scene committed plus two animation frames" }
   },
   "proofBoundaries": [
