@@ -34,8 +34,8 @@
     "reason": "Production is healthy but still reports the older 2026-07-26 source; the 2026-08-01 main baseline has no deploy proof."
   },
   "bundleBaseline": {
-    "entryJs": { "rawKb": 878.02, "gzipKb": 302.73, "rawBudgetKib": 900 },
-    "css": { "rawKb": 225.39, "gzipKb": 34.88, "rawBudgetKib": 244 },
+    "entryJs": { "rawKb": 878.02, "gzipKb": 302.74, "rawBudgetKib": 900 },
+    "css": { "rawKb": 225.62, "gzipKb": 34.95, "rawBudgetKib": 244 },
     "atlasDetail": { "rawKb": 127.22, "gzipKb": 57.64, "loading": "deferred-isolated" },
     "interiorArchive": { "rawKb": 1210.0, "gzipKb": 487.71, "loading": "lazy-stale-server-fallback" }
   },
