@@ -1,14 +1,14 @@
 # Frontier Isles · Roadmap Assessment
 
-## 2026-08-03 · Verified release checkpoint
+## 2026-08-04 · Verified release checkpoint
 
-The machine-checked snapshot is [`docs/release-manifest.json`](release-manifest.json). It separates the last CI-verified main evidence, production evidence, and the later hardening slice instead of compressing them into one “done” claim.
+The machine-checked snapshot is [`docs/release-manifest.json`](release-manifest.json). It separates CI evidence, production evidence, and what could not be verified, instead of compressing them into one “done” claim.
 
 | Surface | Current truth |
 |---|---|
-| **Last CI-verified main baseline** | `20b6b1cc06b05bd6bd885f8ba86a63e689b8b47f` (2026-08-01) passed GitHub Actions run `30703885602`: tests, typecheck, build, and full-stack Playwright. |
-| **Production** | Healthy Fly release v2 from `e652af3a8110383debffb7a9123b777663c89872` (2026-07-26); verified 2026-08-03 with 177 islands, 101 mappings, and 36 frontier projections. |
-| **Deployment boundary** | **当前 main 尚未部署。** Production health proves the older release only; this hardening iteration is local and uncommitted until separately reported. |
+| **CI-verified main** | `39a2d2d8f1862784997800efdfcd7a1a82aece6f` (2026-08-04) passed GitHub Actions run `30848378259`: tests, typecheck, build, and full-stack Playwright. |
+| **Production** | Fly release v4 built from that same commit; verified 2026-08-04 with 177 islands, 101 mappings, and 36 frontier projections. |
+| **Deployment boundary** | **当前 main 已部署。** Proven by rendered-DOM assertions against the live URL plus asset-hash identity with the local build — not by the deploy command's exit code. The only commit after `39a2d2d` is this checkpoint's own documentation update, which ships no artifact; a later code commit makes this record stale until re-verified. Two areas stay unverifiable in production and are listed as such in the manifest: the session badge / logout hit target and the QFT write path both need a login, and production has no OAuth secrets, so it serves read-only. |
 | **2026-08-03 hardening slice** | Release-truth gate; measured JS/CSS budgets; 1440/1024-touch/390 responsive accessibility smoke; tablet touch targets; research-metadata readability; semantic day/night roles for shared chrome/loading states; and local `fi:l0-atlas-ready` / `fi:l1-island-ready` measures with executable 12s/15s browser budgets. The stronger deep-link smoke closed two boot races; the final inquiry pass also added mobile deep-link selection, per-operation QFT rollback/retry, empty-rewrite validation, and a mobile-first vertical science passage. This snapshot does not infer later commit, push, CI, or deploy state. |
 
 The detailed 2026-07-18 product assessment below is retained as a historical implementation baseline. “Current working tree” statements inside that dated narrative refer to that checkpoint, not automatically to today.

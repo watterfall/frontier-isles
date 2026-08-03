@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
-  "statusAsOf": "2026-08-03",
-  "scope": "Last CI-verified committed baseline before the 2026-08-03 hardening iteration; later commit and push state is deliberately excluded.",
+  "statusAsOf": "2026-08-04",
+  "scope": "CI-verified main, deployed and verified against the live URL by rendered-DOM assertions (not by the deploy command's exit code).",
   "main": {
     "branch": "main",
-    "commit": "20b6b1cc06b05bd6bd885f8ba86a63e689b8b47f",
-    "committedAt": "2026-08-01T22:29:45+08:00",
+    "commit": "39a2d2d8f1862784997800efdfcd7a1a82aece6f",
+    "committedAt": "2026-08-04T04:01:57+08:00",
     "ci": {
       "provider": "github-actions",
-      "runId": 30703885602,
-      "url": "https://github.com/watterfall/frontier-isles/actions/runs/30703885602",
+      "runId": 30848378259,
+      "url": "https://github.com/watterfall/frontier-isles/actions/runs/30848378259",
       "conclusion": "success",
       "gates": ["test", "typecheck", "build", "e2e"]
     }
@@ -17,21 +17,35 @@
   "production": {
     "app": "frontier-isles",
     "url": "https://frontier-isles.fly.dev",
-    "releaseVersion": 2,
-    "deploymentTag": "deployment-01KYETX45CTE420KHM8M0HWKSN",
-    "sourceCommit": "e652af3a8110383debffb7a9123b777663c89872",
-    "createdAt": "2026-07-26T09:09:40Z",
-    "healthCheckedAt": "2026-08-03",
+    "releaseVersion": 4,
+    "deploymentTag": "deployment-01KZ4KV0RSA6WY8TFRXRBH2DN0",
+    "sourceCommit": "39a2d2d8f1862784997800efdfcd7a1a82aece6f",
+    "createdAt": "2026-08-03T20:09:51Z",
+    "healthCheckedAt": "2026-08-04",
     "health": "passing",
     "counts": {
       "islands": 177,
       "mappings": 101,
       "frontierProjections": 36
+    },
+    "liveVerification": {
+      "method": "Rendered-DOM assertions against the live URL, plus asset-hash identity with the local build (index-CW4pdzal.js / index-DiWBanHf.css) so a cached or unchanged deploy cannot pass.",
+      "verified": [
+        "cold shared link publishes only l1-island-ready (no phantom l0-atlas-ready) at 1039ms",
+        "QFocus question renders unclamped and untruncated",
+        "mobile evidence beat states the read-only adjudication boundary",
+        "carried question fills the cross-field search once and does not re-latch",
+        "login pill height matches the language toggle (44px)"
+      ],
+      "notVerifiableOnProduction": [
+        "Session-badge rendering and the logout hit target: production has no GITHUB_CLIENT_ID/SECRET, so /api/me resolves null and the login pill renders instead of the badge. Both were measured behind the local dev-bypass session (badge 44px, logout 44x44) and are guarded by the desktop chrome e2e.",
+        "QFT vote/focus ledger writes: the same missing secrets make production read-only, so the write path has no production login to exercise."
+      ]
     }
   },
   "deploymentBoundary": {
-    "mainCommitIsDeployed": false,
-    "reason": "Production is healthy but still reports the older 2026-07-26 source; the 2026-08-01 main baseline has no deploy proof."
+    "mainCommitIsDeployed": true,
+    "reason": "当前 main 已部署: release 4 was built from 39a2d2d after its CI run passed, and the live site serves this build's asset hashes. Any commit after it is this checkpoint's own documentation update, which ships no artifact — if a later commit changes code, this record is stale until re-verified."
   },
   "bundleBaseline": {
     "entryJs": { "rawKb": 878.02, "gzipKb": 302.74, "rawBudgetKib": 900 },
