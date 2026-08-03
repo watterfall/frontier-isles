@@ -206,13 +206,17 @@ html[data-fi-voyage='returning']::view-transition-new(root) {
   bottom: 84px;
 }
 
+/* Height and vertical padding are named so a nested control can derive its own
+   overhang from them instead of hardcoding a second copy (see .fi-session-logout). */
 .fi-shell-pill {
+  --fi-shell-pill-h: 44px;
+  --fi-shell-pill-pad-y: 6px;
   display: inline-flex;
-  min-height: 44px;
+  min-height: var(--fi-shell-pill-h);
   box-sizing: border-box;
   align-items: center;
   gap: 8px;
-  padding: 6px 14px;
+  padding: var(--fi-shell-pill-pad-y) 14px;
   border: var(--fi-stroke-main) solid var(--fi-border-primary);
   border-radius: var(--fi-radius-pill);
   background: var(--fi-surface-raised);
@@ -235,10 +239,24 @@ html[data-fi-voyage='returning']::view-transition-new(root) {
 .fi-session-login { text-decoration: none; }
 .fi-session-login svg { fill: currentColor; }
 .fi-session-status { width: 6px; height: 6px; border-radius: 50%; background: var(--fi-status-success); }
-/* Reaches the 44px hit height by absorbing the pill's 6px vertical padding
-   rather than stacking on top of it, so the badge stays exactly as tall as the
-   language toggle next to it. */
-.fi-session-logout { min-width: 44px; min-height: 44px; align-self: stretch; margin-block: -6px; padding: 0 4px; border: 0; background: none; color: var(--fi-text-secondary); font-size: var(--fi-type-caption); }
+/* A 44px hit target nested inside a 44px pill must overhang, or the taller
+   child grows the flex line and the badge outgrows the language toggle beside
+   it (that is how it reached ~56px). The pill's inner height is its 44px minus
+   its own border and vertical padding, so the overhang per side is exactly half
+   the shortfall — derived from the tokens rather than guessed, because eyeballing
+   -6px left it 2px too tall. */
+.fi-session-logout {
+  --fi-hit: 44px;
+  min-width: var(--fi-hit);
+  min-height: var(--fi-hit);
+  align-self: center;
+  margin-block: calc((var(--fi-shell-pill-h) - var(--fi-stroke-main) * 2 - var(--fi-shell-pill-pad-y) * 2 - var(--fi-hit)) / 2);
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  color: var(--fi-text-secondary);
+  font-size: var(--fi-type-caption);
+}
 
 .fi-toast {
   position: absolute;

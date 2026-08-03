@@ -134,6 +134,31 @@ test.describe('desktop L0 → L1 experience', () => {
     expect(nightChrome.color).not.toBe(dayChrome.color);
     await expectNoHorizontalOverflow(page);
 
+    // Every shell pill is one control row: same height, whatever it contains.
+    // The session badge nests a button inside a pill, and a nested 44px hit
+    // target grows the flex line unless its overhang is derived from the pill's
+    // own border + padding — which is easy to get 2px wrong by eye and has no
+    // other guard. SessionBadge defers its /api/me probe, so wait for the pill.
+    const sessionPill = page.locator('.fi-session-badge, .fi-session-login').first();
+    await expect(sessionPill).toBeVisible({ timeout: 20_000 });
+    const pillBoxes = await page.evaluate(() => {
+      const height = (selector: string) => {
+        const element = document.querySelector(selector);
+        return element ? Math.round(element.getBoundingClientRect().height * 10) / 10 : null;
+      };
+      const logout = document.querySelector('.fi-session-logout')?.getBoundingClientRect();
+      return {
+        lang: height('.fi-lang-toggle'),
+        session: height('.fi-session-badge') ?? height('.fi-session-login'),
+        logout: logout ? { w: Math.round(logout.width), h: Math.round(logout.height) } : null,
+      };
+    });
+    expect(pillBoxes.session, JSON.stringify(pillBoxes)).toBe(pillBoxes.lang);
+    if (pillBoxes.logout) {
+      expect(pillBoxes.logout.h, 'logout hit height').toBeGreaterThanOrEqual(44);
+      expect(pillBoxes.logout.w, 'logout hit width').toBeGreaterThanOrEqual(44);
+    }
+
     const chromeAudit = await new AxeBuilder({ page })
       .include('.fi-global-controls')
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
