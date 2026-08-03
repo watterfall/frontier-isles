@@ -1,6 +1,10 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
+test.beforeEach(async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+});
+
 async function openAtlas(page: Page) {
   await page.goto('/');
   await expect(page.locator('[data-screen-label="L0 图集海图"]')).toBeVisible();
@@ -92,6 +96,7 @@ test.describe('desktop L0 → L1 experience', () => {
       await route.continue();
     });
     await page.goto('/#island=compositional-modeling');
+    expect(await page.evaluate(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)).toBe(true);
     await expect(page.locator('[data-screen-label="L1 生成岛"]')).toBeVisible({ timeout: 15_000 });
 
     await expect.poll(
@@ -158,7 +163,6 @@ test.describe('desktop L0 → L1 experience', () => {
       await route.continue();
     });
     await page.goto('/#island=machine-curiosity');
-    await page.emulateMedia({ reducedMotion: 'reduce' });
     await expect(page.locator('[data-screen-label="L1 样板岛"]')).toBeVisible({ timeout: 15_000 });
     const qftTrigger = page.locator('.fi-science-passage [data-beat="next"] button');
     await qftTrigger.click();

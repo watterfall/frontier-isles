@@ -82,6 +82,7 @@ async function flyIntoSurveyRange(page: Page): Promise<{ pose: ExplorerPose; tar
 }
 
 test('continuous world exploration survives an island round trip', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
   page.on('console', (message) => {
