@@ -90,13 +90,22 @@ export default function App() {
   const isMobile = useIsMobile();
   const worldTrailEnabled = worldTrailFeatureEnabled(import.meta.env.VITE_WORLD_TRAIL);
   const { islands, actor, harbor } = useAppData();
+  const [initialDeepLink] = useState(() => parseWorldLink(window.location.hash).island);
+  const [reducedMotionDeepLink] = useState<string | null>(() => {
+    if (isMobile || !initialDeepLink || !islands.some((island) => island.slug === initialDeepLink)) return null;
+    try {
+      return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? initialDeepLink : null;
+    } catch {
+      return null;
+    }
+  });
 
   // ── screen / transition ──────────────────────────────────────────────
-  const [wipe, dispatchWipe] = useReducer(wipeReducer, initialWipe('chart'));
+  const [wipe, dispatchWipe] = useReducer(wipeReducer, initialWipe(reducedMotionDeepLink ? 'island' : 'chart'));
   const [exploration, dispatchExploration] = useReducer(explorationReducer, undefined, loadExplorationNotebook);
 
   // The field notebook is local-first and versioned. Navigation phase is not
-  // persisted, so reload always starts safely at L0 while retaining research.
+  // persisted; only an explicit reduced-motion deep link may start at L1.
   useEffect(() => {
     saveExplorationNotebook(exploration);
   }, [exploration]);
@@ -120,7 +129,7 @@ export default function App() {
   const [night, setNight] = useState(false);
   const [tval, setTval] = useState(86);
   const [sel, setSel] = useState<StationKind | null>(null);
-  const [selSlug, setSelSlug] = useState<string | null>(null);
+  const [selSlug, setSelSlug] = useState<string | null>(reducedMotionDeepLink);
   const [panel, setPanel] = useState(false);
   // The browser compositor snapshots the destination-centred L0 before React
   // swaps to L1. This preserves the canvas visually without a second Pixi app,
@@ -135,7 +144,7 @@ export default function App() {
   // below stays silent so the shared link survives the whole flight in; the
   // pending mark clears when any island actually docks (or the slug proves
   // unknown to the roster).
-  const [pendingLink, setPendingLink] = useState<string | null>(() => parseWorldLink(window.location.hash).island);
+  const [pendingLink, setPendingLink] = useState<string | null>(reducedMotionDeepLink ? null : initialDeepLink);
   const modelReturnFocus = useRef('global');
   const activeVoyage = useRef<NativeViewTransition | null>(null);
   const islandReadyResolver = useRef<(() => void) | null>(null);
@@ -233,6 +242,16 @@ export default function App() {
     atlasReadyResolver.current?.();
     atlasReadyResolver.current = null;
   }, []);
+
+  // Reduced-motion shared links skip the atlas camera entirely. Besides being
+  // the honest no-motion behavior, this keeps a cold WebGL boot from blocking
+  // the requested destination on low-frame-rate devices.
+  useEffect(() => {
+    if (!reducedMotionDeepLink) return;
+    completeExperience('l0-atlas-ready');
+    beginExperience('l1-island-ready', { slug: reducedMotionDeepLink, source: 'atlas' });
+    dispatchExploration({ type: 'dock', slug: reducedMotionDeepLink, source: 'atlas' });
+  }, [reducedMotionDeepLink]);
 
   // One scaffold for both voyage directions: the reduced-motion probe, the
   // capability fallback, the data-fi-voyage lifecycle, the readiness gate
