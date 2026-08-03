@@ -126,6 +126,8 @@ export function ChartChrome({ islands, onPick, onBuild, onCollide, filter = '全
             onFocus={() => setSearchOpen(true)}
             onBlur={() => window.setTimeout(() => setSearchOpen(false), 140)}
             placeholder={t('chart.searchPlaceholder')}
+            role="combobox"
+            aria-autocomplete="list"
             aria-expanded={searchOpen && query.length > 0}
             aria-controls="atlas-search-results"
           />

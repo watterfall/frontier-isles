@@ -51,6 +51,7 @@ const props: ConnectionFieldPanelProps = {
   onPassage: () => {},
   onEnter: () => {},
   onResponseRecorded: () => {},
+  defaultExpanded: true,
 };
 
 describe('ConnectionFieldPanel — source-preserving dossier', () => {
@@ -102,6 +103,13 @@ describe('ConnectionFieldPanel — source-preserving dossier', () => {
     expect(markup).not.toContain('多问题汇聚');
     expect(markup).not.toContain('直接关系');
     expect(markup).not.toMatch(/\bw\d+\b/);
+  });
+
+  it('keeps the atlas primary by folding the cross-field desk on first arrival', () => {
+    const markup = renderToStaticMarkup(<ConnectionFieldPanel {...props} focus={null} channel="all" defaultExpanded={false} />);
+    expect(markup).toContain('aria-expanded="false"');
+    expect(markup).not.toContain('class="fi-connection-body"');
+    expect(markup).toContain('沿着跨学科主题探索');
   });
 
   it('treats unmapped and single-landing themes as honest exploration states, not fake comparisons', () => {

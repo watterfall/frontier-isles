@@ -47,6 +47,7 @@ packages/data      generated atlas projection, curated relations, and on-demand 
 - [`docs/depth-plan-v2.md`](docs/depth-plan-v2.md) — v2 「海即数据」 sea-plane: the sea as a data field (invariants 14–16)
 - [`docs/DECISIONS.md`](docs/DECISIONS.md) — build-slice decisions and their reasoning
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) — dated status, debt, verification history, and prioritized work
+- [`docs/release-manifest.json`](docs/release-manifest.json) — machine-checked baseline, CI, production, and bundle-boundary snapshot
 - [`docs/history/`](docs/history/) — archived execution plans, findings, and progress logs; never startup context
 - [`design/handoff/`](design/handoff/) — Claude Design prototypes (v3 is the visual authority) and design-session transcripts
 - [`design-system/`](design-system/) — exported foundation + v2 dimension cards; [`.design-eng-loop/`](.design-eng-loop/) — the design↔code co-evolution contract

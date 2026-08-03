@@ -24,6 +24,8 @@
   --fi-azurite-deep: #1E4266;    /* 石青深 · 屋瓦/按压态 */
   --fi-malachite: #3E9B7E;       /* 石绿 · 生长/成功/生命 */
   --fi-ochre: #B5673A;           /* 赭石 · 次行动/桥/物质 */
+  --fi-malachite-text: #246B55;  /* 石绿正文 · AA on raised paper */
+  --fi-ochre-text: #8F4A2B;      /* 赭石正文 · AA on raised paper */
   --fi-seal-doi: #863A16;        /* DOI 印章专属墨 · 深赭,区别于四个域墨(尤其物质 #9C5932) — R7 ride-along A + §3.15 AA pass; 对应 renderer DOI_SEAL_INK */
   --fi-gamboge: #E3A93C;         /* 藤黄 · 点睛/聚焦/离群发光 */
   --fi-lantern: #F5B94B;         /* 灯笼暖光 · 夜晚点亮 */
@@ -36,6 +38,25 @@
   --fi-font-display: 'Noto Serif SC', 'Songti SC', serif;
   --fi-font-body: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', system-ui, sans-serif;
   --fi-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* 字阶 · dense research UI keeps metadata compact without falling below 10px. */
+  --fi-type-micro: 0.625rem;
+  --fi-type-caption: 0.6875rem;
+  --fi-type-ui: 0.75rem;
+  --fi-type-body: 0.875rem;
+  --fi-type-reading: 1rem;
+
+  /* 语义角色 · components consume intent, while the scene palette may replace
+     --pp/--card/--ink* underneath. This keeps day/night and shared chrome on
+     one contract without flattening the hand-drawn mineral palette. */
+  --fi-surface-canvas: var(--pp, var(--fi-paper));
+  --fi-surface-raised: var(--card, var(--fi-paper-raised));
+  --fi-text-primary: var(--inkT, var(--fi-ink));
+  --fi-text-secondary: var(--ink2, var(--fi-ink-2));
+  --fi-border-primary: var(--ink, var(--fi-ink));
+  --fi-accent-emphasis: var(--gold2, var(--fi-ochre-text));
+  --fi-status-success: var(--fi-malachite-text);
+  --fi-shadow-subtle: var(--shadow, rgba(58,48,36,.12));
 
   /* 间距 · 8pt 网格 */
   --fi-space-1: 4px;

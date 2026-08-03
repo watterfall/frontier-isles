@@ -2127,7 +2127,15 @@ export class AtlasStage {
 
   enter(slug: string): void {
     const node = this.islands.find((candidate) => candidate.o.slug === slug);
-    if (node) this.flyToIsland(node.o);
+    if (!node) return;
+    // An explicit destination (deep link, search, research card) owns the
+    // camera. Atlas boot may still be easing toward My Harbor when controls
+    // become available; silently rejecting enter() in that window consumed the
+    // deep link without ever docking. Retarget exactly as a mid-flight lens
+    // change does, then fly from the current visible pose.
+    this.touched = true;
+    this.cancelCameraMotion();
+    this.flyToIsland(node.o);
   }
 
   focusDomain(domain: AtlasDomain | null): void {

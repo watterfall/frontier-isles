@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "statusAsOf": "2026-08-03",
+  "scope": "Last CI-verified committed baseline before the 2026-08-03 hardening iteration; later commit and push state is deliberately excluded.",
+  "main": {
+    "branch": "main",
+    "commit": "20b6b1cc06b05bd6bd885f8ba86a63e689b8b47f",
+    "committedAt": "2026-08-01T22:29:45+08:00",
+    "ci": {
+      "provider": "github-actions",
+      "runId": 30703885602,
+      "url": "https://github.com/watterfall/frontier-isles/actions/runs/30703885602",
+      "conclusion": "success",
+      "gates": ["test", "typecheck", "build", "e2e"]
+    }
+  },
+  "production": {
+    "app": "frontier-isles",
+    "url": "https://frontier-isles.fly.dev",
+    "releaseVersion": 2,
+    "deploymentTag": "deployment-01KYETX45CTE420KHM8M0HWKSN",
+    "sourceCommit": "e652af3a8110383debffb7a9123b777663c89872",
+    "createdAt": "2026-07-26T09:09:40Z",
+    "healthCheckedAt": "2026-08-03",
+    "health": "passing",
+    "counts": {
+      "islands": 177,
+      "mappings": 101,
+      "frontierProjections": 36
+    }
+  },
+  "deploymentBoundary": {
+    "mainCommitIsDeployed": false,
+    "reason": "Production is healthy but still reports the older 2026-07-26 source; the 2026-08-01 main baseline has no deploy proof."
+  },
+  "bundleBaseline": {
+    "entryJs": { "rawKb": 867.27, "gzipKb": 300.85, "rawBudgetKib": 900 },
+    "css": { "rawKb": 205.73, "gzipKb": 31.38, "rawBudgetKib": 220 },
+    "atlasDetail": { "rawKb": 127.22, "gzipKb": 57.64, "loading": "deferred-isolated" },
+    "interiorArchive": { "rawKb": 1210.0, "gzipKb": 487.71, "loading": "lazy-stale-server-fallback" }
+  },
+  "runtimeBudgetTargets": {
+    "scope": "Local browser diagnostics; not production RUM and not evidence that the current working tree is deployed.",
+    "l0AtlasReady": { "measure": "fi:l0-atlas-ready", "budgetMs": 12000, "start": "navigation or return intent", "end": "atlas renderer ready" },
+    "l1IslandReady": { "measure": "fi:l1-island-ready", "budgetMs": 15000, "start": "dock intent", "end": "island scene committed plus two animation frames" }
+  },
+  "proofBoundaries": [
+    "The CI result proves only the recorded committed main baseline.",
+    "The production health and counts prove the older deployed release, not current main.",
+    "Local browser and build checks for later hardening work must be reported separately from CI and deployment."
+  ]
+}

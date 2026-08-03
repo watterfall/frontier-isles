@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DATA } from '../../../api/fallback';
-import { buildMobileHierarchy } from '../MobileShell';
+import { buildMobileHierarchy, resolveMobileIslandId } from '../MobileShell';
 
 describe('buildMobileHierarchy — compact nested atlas projection', () => {
   it('reduces the 177-island phone overview to eight geometry anchors', () => {
@@ -23,5 +23,17 @@ describe('buildMobileHierarchy — compact nested atlas projection', () => {
     const original = buildMobileHierarchy(DATA);
     const changed = buildMobileHierarchy(DATA.map((island, index) => ({ ...island, a: index % 2 ? 0 : 100 })));
     expect([...changed].map(([id, item]) => [id, item.role, item.parentSlug])).toEqual([...original].map(([id, item]) => [id, item.role, item.parentSlug]));
+  });
+});
+
+describe('resolveMobileIslandId — shareable mobile landing', () => {
+  it('selects the island named by the shared hash, including a satellite', () => {
+    const satellite = DATA.find((island) => buildMobileHierarchy(DATA).get(island.id)?.role === 'satellite')!;
+    expect(resolveMobileIslandId(DATA, satellite.slug)).toBe(satellite.id);
+  });
+
+  it('falls back to the first atlas island for an unknown or empty slug', () => {
+    expect(resolveMobileIslandId(DATA, 'not-an-island')).toBe(DATA[0]?.id);
+    expect(resolveMobileIslandId(DATA, null)).toBe(DATA[0]?.id);
   });
 });

@@ -17,6 +17,8 @@ import react from '@vitejs/plugin-react';
  * it is erased before this check ever sees a module.
  */
 const ENTRY_DENYLIST = ['pixi.js', 'gsap', 'yjs', 'y-websocket', 'yaml', 'zod'];
+const ENTRY_JS_MAX_BYTES = 900 * 1024;
+const CSS_MAX_BYTES = 220 * 1024;
 
 /**
  * Workspace modules that must stay alone in a chunk of their own, reachable
@@ -30,14 +32,27 @@ const ENTRY_DENYLIST = ['pixi.js', 'gsap', 'yjs', 'y-websocket', 'yaml', 'zod'];
  */
 const ISOLATED_MODULES = [/\/packages\/data\/src\/atlas-detail\.ts$/];
 
-/** Fails the build on a denylisted package in the entry chunk, or on an
- *  isolated module that has been folded into somebody else's chunk. */
+/** Fails the build on a denylisted package in the entry chunk, on an isolated
+ *  module folded into somebody else's chunk, or when the measured entry/CSS
+ *  budgets regress beyond the dated baseline in docs/release-manifest.json. */
 function guardEntryChunk(): Plugin {
   return {
     name: 'guard-entry-chunk',
     generateBundle(_options, bundle) {
       for (const [file, out] of Object.entries(bundle)) {
-        if (out.type !== 'chunk') continue;
+        if (out.type === 'asset') {
+          if (file.endsWith('.css')) {
+            const bytes = typeof out.source === 'string' ? Buffer.byteLength(out.source) : out.source.byteLength;
+            if (bytes > CSS_MAX_BYTES) {
+              this.error(
+                `CSS asset ${file} is ${(bytes / 1024).toFixed(1)}KiB; the release budget is ` +
+                  `${CSS_MAX_BYTES / 1024}KiB. Consolidate selectors/tokens or update the budget ` +
+                  `with measured evidence in docs/release-manifest.json.`,
+              );
+            }
+          }
+          continue;
+        }
         const ids = Object.keys(out.modules);
 
         // An isolated module may share its chunk with nothing else.
@@ -54,6 +69,14 @@ function guardEntryChunk(): Plugin {
         }
 
         if (!out.isEntry) continue;
+        const entryBytes = Buffer.byteLength(out.code);
+        if (entryBytes > ENTRY_JS_MAX_BYTES) {
+          this.error(
+            `entry chunk ${file} is ${(entryBytes / 1024).toFixed(1)}KiB; the release budget is ` +
+              `${ENTRY_JS_MAX_BYTES / 1024}KiB. Keep new runtimes behind import() or update the ` +
+              `budget with measured evidence in docs/release-manifest.json.`,
+          );
+        }
         const leaked = new Map<string, number>();
         for (const [id, mod] of Object.entries(out.modules)) {
           const pkg = id.match(/node_modules\/(?:\.pnpm\/)?((?:@[^/]+\/)?[^/@]+)/)?.[1];

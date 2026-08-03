@@ -442,17 +442,17 @@ export function GeneratedIslandScreen({
 
   if (failed) {
     return (
-      <div style={{ position: 'absolute', inset: 0, background: '#F2EAD8', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, color: '#6B6154' }}>
-        <span style={{ fontFamily: "'Noto Serif SC',serif", fontSize: 16 }}>{t('island.notReachable')}</span>
-        <button onClick={onBack} style={{ cursor: 'pointer', background: '#2B2620', color: '#F2EAD8', border: 'none', borderRadius: 6, padding: '8px 16px', fontSize: 13 }}>{t(backTarget === 'explore' ? 'island.backExplore' : 'island.back')}</button>
+      <div className="fi-island-state fi-island-state-failed" role="alert">
+        <span>{t('island.notReachable')}</span>
+        <button type="button" onClick={onBack}>{t(backTarget === 'explore' ? 'island.backExplore' : 'island.back')}</button>
       </div>
     );
   }
 
   if (!detail || !scene || !input) {
     return (
-      <div style={{ position: 'absolute', inset: 0, background: '#F2EAD8', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B6154' }}>
-        <span style={{ fontFamily: "'Noto Serif SC',serif", fontSize: 16 }}>{t('island.loading')}</span>
+      <div className="fi-island-state" role="status">
+        <span>{t('island.loading')}</span>
       </div>
     );
   }
@@ -533,6 +533,9 @@ export function GeneratedIslandScreen({
     activeStructure,
     completedPassageCount,
   });
+  const nextDistrict = districtProjection.districts.find((district) => district.state === 'available')
+    ?? districtProjection.districts.find((district) => district.state === 'surveyed')
+    ?? districtProjection.districts[0];
   // Arrival choreography: every beat is bound to recorded state. Sealed
   // districts never get a beat (they stay foundation-only), and the stele /
   // lamp beats exist only when the ledger actually projected them. Reduced
@@ -638,28 +641,51 @@ export function GeneratedIslandScreen({
               {cluster && <span>{cluster}</span>}
             </div>
             <h1>{title}</h1>
-            <p className="fi-island-qfocus"><span>QFocus</span>{qfocus}</p>
-            {brief && <p className="fi-island-brief">{brief}</p>}
-            <div className="fi-island-evidence-row">
-              {/* Record freshness: spoken only from real ledger events. A
-                  curated island (editorial content, no record) is labelled as
-                  curation — never given an invented "updated" time. */}
-              {freshness ? (
-                <span title={freshness.lastTs}>
-                  ◷ {freshness.nights === 0
-                    ? t('island.freshness.tonight')
-                    : freshness.nights === 1
-                      ? t('island.freshness.lastNight')
-                      : t('island.freshness.nightsAgo', { nights: freshness.nights })}
-                </span>
-              ) : (citation || depth) ? (
-                <span>▤ {t('island.freshness.curated')}</span>
-              ) : null}
-              {citation && <a href={citation.url} target="_blank" rel="noopener noreferrer">↗ {citation.venue} · {citation.year}</a>}
-            {/* 海即数据 decoder: sea darkness = abstractness, agitation = contention;
-                stated as text so the sea's data channels are always decodable. */}
-              {seaStats?.substrate != null && <span>≈ {t('island.seaData.depth')} {seaStats.substrate.toFixed(2)} · {t(abstractKey(seaStats.substrate))}</span>}
-              {relParts.length > 0 && <span>⇄ {relParts.join(' · ')}</span>}
+            <div className="fi-science-passage" aria-label={t('island.researchPassage.label')}>
+              <section data-beat="signal">
+                <header><b>01</b><span>{t('island.researchPassage.signal')}</span></header>
+                <p>{brief || t('island.researchPassage.signalFallback')}</p>
+              </section>
+              <section data-beat="question">
+                <header><b>02</b><span>{t('island.researchPassage.question')}</span></header>
+                <p>{qfocus}</p>
+              </section>
+              <section data-beat="evidence">
+                <header><b>03</b><span>{t('island.researchPassage.evidence')}</span></header>
+                <div className="fi-island-evidence-row">
+                  {/* Record freshness: spoken only from real ledger events. A
+                      curated island (editorial content, no record) is labelled as
+                      curation — never given an invented "updated" time. */}
+                  {freshness ? (
+                    <span title={freshness.lastTs}>
+                      ◷ {freshness.nights === 0
+                        ? t('island.freshness.tonight')
+                        : freshness.nights === 1
+                          ? t('island.freshness.lastNight')
+                          : t('island.freshness.nightsAgo', { nights: freshness.nights })}
+                    </span>
+                  ) : (citation || depth) ? (
+                    <span>▤ {t('island.freshness.curated')}</span>
+                  ) : <span>{t('island.researchPassage.noEvidence')}</span>}
+                  {citation && <a href={citation.url} target="_blank" rel="noopener noreferrer">↗ {citation.venue} · {citation.year}</a>}
+                  {/* 海即数据 decoder: sea darkness = abstractness, agitation = contention;
+                      stated as text so the sea's data channels are always decodable. */}
+                  {seaStats?.substrate != null && <span>≈ {t('island.seaData.depth')} {seaStats.substrate.toFixed(2)} · {t(abstractKey(seaStats.substrate))}</span>}
+                  {relParts.length > 0 && <span>⇄ {relParts.join(' · ')}</span>}
+                  <span>{t('island.researchPassage.evidenceBoundary')}</span>
+                </div>
+              </section>
+              {nextDistrict && (
+                <section data-beat="next">
+                  <header><b>04</b><span>{t('island.researchPassage.next')}</span></header>
+                  <p>{nextDistrict.description[lang]}</p>
+                  {onSurveyDistrict && nextDistrict.state === 'available' && (
+                    <button type="button" onClick={() => onSurveyDistrict(nextDistrict.id)}>
+                      <span>{nextDistrict.name[lang]}</span><strong>{t('island.researchPassage.survey')}</strong><i aria-hidden="true">→</i>
+                    </button>
+                  )}
+                </section>
+              )}
             </div>
             {depth && (
               <details className="fi-island-depth" style={{ marginTop: 8, maxWidth: 540 }}>

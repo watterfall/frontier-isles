@@ -13,6 +13,7 @@ import { MorningReport } from './MorningReport';
 import { DriftwoodModal } from './DriftwoodModal';
 import { NightTimeline } from './NightTimeline';
 import { QftPanel } from './QftPanel';
+import type { QftSyncState } from './QftPanel';
 import { api } from '../../api/client';
 import { SAMPLE_SLUG, SAMPLE_TITLE, SAMPLE_QFOCUS, type QuestionDatum } from '../../api/fallback';
 
@@ -62,7 +63,11 @@ export interface IslandScreenProps {
   onCloseAdv: () => void;
   onToggleQ: (idx: number) => void;
   onVoteQ: (idx: number) => void;
+  onRewriteQ: (idx: number, text: string) => void;
   onFocus: () => void;
+  qftSyncState: QftSyncState;
+  qftLocalChangeCount: number;
+  onRetryQft: () => void;
   peers: number;
 }
 
@@ -160,8 +165,19 @@ export function IslandScreen(props: IslandScreenProps) {
           <section className="fi-island-dossier fi-island-dossier-sample">
             <div className="fi-island-dossier-meta"><span>L1 · ISLAND</span><span>{t('island.academy')}</span><span>{t('island.residents')}</span></div>
             <h1>{SAMPLE_TITLE[lang]}</h1>
-            <p className="fi-island-qfocus"><span>QFocus</span>{SAMPLE_QFOCUS[lang]}</p>
-            <div className="fi-island-evidence-row"><span>AI · {t('island.aiResidents')}</span><span className="fi-presence-dot">{peers > 0 ? t('island.presencePeers', { n: 5 + peers, peers }) : `${t('island.presence')} ${t('island.presenceBreak')}`}</span><span>{t('island.presenceNote')}</span></div>
+            <div className="fi-science-passage" aria-label={t('island.researchPassage.label')}>
+              <section data-beat="signal"><header><b>01</b><span>{t('island.researchPassage.signal')}</span></header><p>{t('island.researchPassage.sampleSignal')}</p></section>
+              <section data-beat="question"><header><b>02</b><span>{t('island.researchPassage.question')}</span></header><p>{SAMPLE_QFOCUS[lang]}</p></section>
+              <section data-beat="evidence">
+                <header><b>03</b><span>{t('island.researchPassage.evidence')}</span></header>
+                <div className="fi-island-evidence-row"><span>AI · {t('island.aiResidents')}</span><span className="fi-presence-dot">{peers > 0 ? t('island.presencePeers', { n: 5 + peers, peers }) : `${t('island.presence')} ${t('island.presenceBreak')}`}</span><span>{t('island.presenceNote')}</span><span>{t('island.researchPassage.evidenceBoundary')}</span></div>
+              </section>
+              <section data-beat="next">
+                <header><b>04</b><span>{t('island.researchPassage.next')}</span></header>
+                <p>{t('island.researchPassage.sampleNext')}</p>
+                <button type="button" onClick={() => props.onStation('questions')}><span>{t('island.interior.questions.title')}</span><strong>{t('island.researchPassage.enterQuestions')}</strong><i aria-hidden="true">→</i></button>
+              </section>
+            </div>
           </section>
         </div>
         <div className="fi-island-hud-mode"><DayNightLever night={night} onToggle={props.onToggleNight} /></div>
@@ -197,7 +213,11 @@ export function IslandScreen(props: IslandScreenProps) {
         onCloseAdv={props.onCloseAdv}
         onToggle={props.onToggleQ}
         onVote={props.onVoteQ}
+        onRewrite={props.onRewriteQ}
         onFocus={props.onFocus}
+        syncState={props.qftSyncState}
+        localChangeCount={props.qftLocalChangeCount}
+        onRetry={props.onRetryQft}
       />
     </div>
   );

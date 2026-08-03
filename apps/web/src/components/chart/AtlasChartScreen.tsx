@@ -261,7 +261,6 @@ function AtlasChartScreenImpl(props: AtlasChartScreenProps) {
       return;
     }
     if (!controls) return;
-    enteredDeepLink.current = deepLinkSlug;
     controls.enter(deepLinkSlug);
   }, [controls, deepLinkSlug, islands, noGpu, onDeepLinkUnknown, onIsland]);
 
@@ -298,6 +297,11 @@ function AtlasChartScreenImpl(props: AtlasChartScreenProps) {
           harbor={harbor}
           connectionField={worldExplore?.active ? null : connectionMap}
           onPick={(island) => {
+            // Confirm a Pixi deep link only after the camera actually arrives.
+            // The reconciled live roster can rebuild AtlasStage during boot; a
+            // request sent to the retiring stage must remain retryable on the
+            // replacement controls instead of being consumed early.
+            if (deepLinkSlug && island.slug === deepLinkSlug) enteredDeepLink.current = deepLinkSlug;
             const pending = pendingPassage.current;
             if (pending && pending.island.slug === island.slug) {
               pendingPassage.current = null;

@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AUTHQ, SAMPLE_QFOCUS, type QuestionDatum } from '../../api/fallback';
 import { PanelCloseButton, PanelScrim, useDialogChrome } from '../panelChrome';
@@ -12,14 +13,23 @@ export interface QftPanelProps {
   onCloseAdv: () => void;
   onToggle: (idx: number) => void;
   onVote: (idx: number) => void;
+  onRewrite: (idx: number, text: string) => void;
   onFocus: () => void;
+  syncState?: QftSyncState;
+  localChangeCount?: number;
+  onRetry: () => void;
 }
+
+export type QftLedgerOperation = 'vote' | 'focus';
+export type QftSyncState =
+  | { status: 'idle' }
+  | { status: 'saving' | 'saved' | 'failed'; operation: QftLedgerOperation; questionIdx: number };
 
 function ScrollRod() {
   return (
-    <div style={{ position: 'relative', height: 20, background: 'linear-gradient(180deg,#5B4632,#3E2F20)', borderRadius: 10, border: '1px solid #2B2015', margin: '0 6px' }}>
-      <span style={{ position: 'absolute', left: -9, top: 1, width: 16, height: 16, borderRadius: '50%', background: 'radial-gradient(circle at 35% 35%,#7A5B3E,#3E2F20)', border: '1px solid #2B2015' }} />
-      <span style={{ position: 'absolute', right: -9, top: 1, width: 16, height: 16, borderRadius: '50%', background: 'radial-gradient(circle at 35% 35%,#7A5B3E,#3E2F20)', border: '1px solid #2B2015' }} />
+    <div className="fi-qft-rod" aria-hidden="true">
+      <span />
+      <span />
     </div>
   );
 }
@@ -30,130 +40,168 @@ function ScrollRod() {
  * via `visibility: hidden` (delayed until the slide-out ends) + a -1 scrim
  * tabIndex — otherwise its ~20 buttons would remain keyboard-reachable offscreen.
  */
-export function QftPanel({ open, onClose, qs, voted, focusIdx, advOn, onCloseAdv, onToggle, onVote, onFocus }: QftPanelProps) {
+export function QftPanel({ open, onClose, qs, voted, focusIdx, advOn, onCloseAdv, onToggle, onVote, onRewrite, onFocus, syncState = { status: 'idle' }, localChangeCount = 0, onRetry }: QftPanelProps) {
   const { t, i18n } = useTranslation();
   const { dialogRef, closeRef, onDialogKey } = useDialogChrome<HTMLDivElement>(onClose, open);
   const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
   const focusedOn = focusIdx !== null;
   const focusText = focusIdx !== null ? qs[focusIdx]?.text[lang] ?? '' : '';
+  const [rewriteIdx, setRewriteIdx] = useState<number | null>(null);
+  const [rewriteText, setRewriteText] = useState('');
+  const [rewriteError, setRewriteError] = useState('');
+  const focusActionRef = useRef<HTMLButtonElement>(null);
+  const rewriteCount = qs.filter((question) => question.rw).length;
+  const openQuestions = qs.map((question, idx) => ({ question, idx })).filter(({ question }) => question.open);
+  const focusCandidate = openQuestions.length > 0
+    ? openQuestions.reduce((best, item) => (item.question.votes > best.question.votes ? item : best)).idx
+    : null;
+  const focusIsCurrent = focusCandidate !== null && focusIdx === focusCandidate;
+
+  const beginRewrite = (idx: number) => {
+    setRewriteIdx(idx);
+    setRewriteText(qs[idx]?.text[lang] ?? '');
+    setRewriteError('');
+  };
+  const isSaving = syncState.status === 'saving';
+  const recordMessage = syncState.status === 'idle'
+    ? t('panel.record.idle')
+    : t(`panel.record.${syncState.status}.${syncState.operation}`);
 
   return (
-    <div onKeyDown={onDialogKey}>
+    <div className="fi-qft-root" data-open={open || undefined} onKeyDown={onDialogKey}>
       <PanelScrim
         onClose={onClose}
         label={t('panel.close')}
         tabIndex={open ? 0 : -1}
-        style={{ background: 'rgba(24,20,14,0.32)', opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none', transition: 'opacity .5s' }}
+        style={{ opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none' }}
       />
       <div
         ref={dialogRef}
+        className="fi-qft-panel"
+        data-open={open || undefined}
         data-screen-label="L2 问题墙 QFT 面板"
         role="dialog"
         aria-modal="true"
         aria-hidden={!open}
         aria-labelledby="fi-qft-title"
-        style={{ position: 'absolute', top: 0, right: 0, bottom: 0, width: 560, transform: `translateX(${open ? '0%' : '108%'})`, visibility: open ? 'visible' : 'hidden', transition: `transform .55s cubic-bezier(0.22,1,0.36,1), visibility 0s ${open ? '0s' : '.55s'}`, display: 'flex', flexDirection: 'column', filter: 'drop-shadow(-14px 0 30px rgba(24,20,14,0.3))' }}
+        style={{ transform: `translateX(${open ? '0%' : '108%'})`, visibility: open ? 'visible' : 'hidden', transition: `transform .55s cubic-bezier(0.22,1,0.36,1), visibility 0s ${open ? '0s' : '.55s'}` }}
       >
         <ScrollRod />
-        <div style={{ position: 'relative', flex: 1, background: '#FAF5E8', backgroundImage: 'repeating-linear-gradient(0deg,rgba(43,38,32,0.016) 0 1px,transparent 1px 3px)', borderLeft: '1.5px solid #3A342B', borderRight: '1.5px solid #3A342B', overflowY: 'auto', padding: '22px 26px' }}>
-          <div style={{ position: 'absolute', right: 2, top: 56, fontFamily: "'Noto Serif SC',serif", fontSize: 150, fontWeight: 900, color: 'rgba(181,103,58,0.05)', pointerEvents: 'none', lineHeight: 1 }} aria-hidden="true">问</div>
+        <article className="fi-qft-scroll">
+          <div className="fi-qft-watermark" aria-hidden="true">问</div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <header className="fi-qft-head">
             <div>
-              <div style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 10.5, letterSpacing: '0.15em', color: '#9C5932' }}>{t('panel.kicker')}</div>
-              <div id="fi-qft-title" style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 900, fontSize: 22, color: '#2B2620', marginTop: 3 }}>{t('panel.title')}</div>
+              <span className="fi-qft-kicker">{t('panel.kicker')}</span>
+              <h2 id="fi-qft-title">{t('panel.title')}</h2>
+              <p>{t('panel.subtitle')}</p>
             </div>
             <PanelCloseButton
               ref={closeRef}
               onClose={onClose}
               label={t('panel.close')}
-              boxStyle={{ width: 30, height: 30, border: '1.5px solid #3A342B', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2B2620', fontSize: 14, background: '#F2EAD8' }}
+              boxStyle={{ width: 32, height: 32, border: '1.5px solid currentColor', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}
             />
-          </div>
+          </header>
 
-          {/* 印记进度 发/改/聚 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 9, margin: '16px 0' }}>
-            <span style={sealDark}>{t('panel.stampDiverge')}</span>
-            <span style={{ fontSize: 11.5, color: '#6B6154', whiteSpace: 'nowrap' }}>{t('panel.stampDivergeLabel')}</span>
-            <span style={{ flex: 1, borderTop: '1px dashed #A89C88' }} />
-            <span style={sealDark}>{t('panel.stampRewrite')}</span>
-            <span style={{ fontSize: 11.5, color: '#6B6154', whiteSpace: 'nowrap' }}>{t('panel.stampRewriteLabel')}</span>
-            <span style={{ flex: 1, borderTop: '1px dashed #A89C88' }} />
-            <span style={{ ...sealBase, background: focusedOn ? '#A25C34' : 'transparent', color: focusedOn ? '#F6F2E6' : '#9C5932', border: '1.5px solid #B5673A' }}>{t('panel.stampFocus')}</span>
-            <span style={{ fontSize: 11.5, color: '#9C5932', whiteSpace: 'nowrap' }}>{focusedOn ? t('panel.focused') : t('panel.focusVoting')}</span>
-          </div>
+          <ol className="fi-qft-process" aria-label={t('panel.processLabel')}>
+            <li data-state="complete"><b>{t('panel.stampDiverge')}</b><span><strong>{t('panel.stampDivergeLabel')}</strong><small>{t('panel.divergeNote')}</small></span></li>
+            <li data-state="complete"><b>{t('panel.stampRewrite')}</b><span><strong>{t('panel.stampRewriteLabel', { count: rewriteCount })}</strong><small>{t('panel.rewriteNote')}</small></span></li>
+            <li data-state={focusedOn ? 'complete' : 'current'}><b>{t('panel.stampFocus')}</b><span><strong>{focusedOn ? t('panel.focused') : t('panel.focusVoting')}</strong><small>{t('panel.focusNote')}</small></span></li>
+          </ol>
 
-          {/* QFocus 钉 */}
-          <div style={{ border: '1.5px solid #E3A93C', background: 'rgba(227,169,60,0.1)', borderRadius: 6, padding: '12px 14px', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-            <span style={{ ...sealBase, background: '#A25C34', color: '#F6F2E6' }}>{t('panel.pinSeal')}</span>
+          <section className="fi-qft-pin">
+            <span className="fi-qft-seal">{t('panel.pinSeal')}</span>
             <div>
-              <div style={{ fontSize: 10.5, color: '#8A6A1E', fontFamily: "'JetBrains Mono',ui-monospace,monospace", letterSpacing: '0.1em' }}>{t('panel.pinKicker')}</div>
-              <div style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 700, fontSize: 16, color: '#2B2620', marginTop: 2 }}>{SAMPLE_QFOCUS[lang]}</div>
+              <small>{t('panel.pinKicker')}</small>
+              <strong>{SAMPLE_QFOCUS[lang]}</strong>
             </div>
-          </div>
+          </section>
 
-          <div style={{ margin: '14px 0 10px', fontSize: 12, color: '#6B6154' }}>
+          <p className="fi-qft-material">
             {t('panel.material')}
-            <span style={{ color: '#2E5E8C', textDecoration: 'underline', textUnderlineOffset: 3, cursor: 'pointer' }}>{t('panel.materialLink')}</span>
+            <span>{t('panel.materialLink')}</span>
             {t('panel.materialTail')}
-          </div>
+          </p>
 
           {advOn && (
-            <div style={{ position: 'relative', border: '1.2px dashed #5A6C9E', background: 'rgba(90,108,158,0.07)', borderRadius: 6, padding: '10px 40px 10px 46px', marginBottom: 12 }}>
-              <span style={{ position: 'absolute', left: 12, top: 12, width: 24, height: 24, borderRadius: 3, background: '#5A6C9E', color: '#F6F2E6', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Noto Serif SC',serif", fontSize: 12 }}>{t('panel.advSeal')}</span>
-              <div style={{ fontSize: 10, color: '#5A6C9E', fontFamily: "'JetBrains Mono',ui-monospace,monospace", letterSpacing: '0.1em' }}>{t('panel.advKicker')}</div>
-              <div style={{ fontSize: 12.5, color: '#3E4A6B', lineHeight: 1.6, marginTop: 2 }}>{t('panel.advBody')}</div>
-              <button type="button" className="fi-btn-reset fi-hit" aria-label={t('panel.close')} onClick={onCloseAdv} style={{ cursor: 'pointer', position: 'absolute', right: 8, top: 8, width: 20, height: 20, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: 4, color: '#5A6C9E', fontSize: 11 }}>✕</button>
-            </div>
+            <aside className="fi-qft-advocate">
+              <span>{t('panel.advSeal')}</span>
+              <div><small>{t('panel.advKicker')}</small><p>{t('panel.advBody')}</p></div>
+              <button type="button" className="fi-btn-reset fi-hit fi-qft-inline-close" aria-label={t('panel.close')} onClick={onCloseAdv}>✕</button>
+            </aside>
           )}
 
           {focusedOn && (
-            <div style={{ border: '1.5px solid #3E9B7E', background: 'rgba(62,155,126,0.1)', borderRadius: 6, padding: '10px 14px', marginBottom: 12, fontSize: 12.5, color: '#2B5C49' }}>
+            <p className="fi-qft-focus-banner" role="status">
               {t('panel.focusBanner')}<b>{focusText}</b>{t('panel.focusBannerTail')}
-            </div>
+            </p>
           )}
 
-          {/* 7 问题卡 */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <button
+            type="button"
+            className="fi-btn-reset fi-hit fi-qft-toggle"
+            aria-controls="fi-qft-focus-action"
+            onClick={() => focusActionRef.current?.scrollIntoView({ block: 'center' })}
+            style={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, textAlign: 'left' }}
+          >
+            <span>{t('panel.scrollCue', { count: qs.length })}</span><strong aria-hidden="true">↓ {t('panel.stampFocus')}</strong>
+          </button>
+
+          <ol className="fi-qft-questions" aria-label={t('panel.questionsLabel')}>
             {qs.map((q, idx) => {
               const focused = focusIdx === idx;
               const didVote = !!voted[idx];
               return (
-                <div key={q.i} style={{ border: `1.5px solid ${focused ? '#E3A93C' : 'rgba(58,52,43,0.35)'}`, background: focused ? 'rgba(227,169,60,0.1)' : '#FDFAF1', borderRadius: 6, padding: '12px 14px' }}>
-                  <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                    <span style={{ width: 22, height: 22, borderRadius: '50%', border: '1.2px solid #6B6154', color: '#6B6154', fontSize: 11, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flex: 'none', fontFamily: "'JetBrains Mono',ui-monospace,monospace" }}>{q.i}</span>
-                    <div style={{ flex: 1 }}>
+                <li key={q.i} data-focused={focused || undefined} data-rewritten={q.rw || undefined}>
+                  <div className="fi-qft-question-main">
+                    <span className="fi-qft-question-number">{String(q.i).padStart(2, '0')}</span>
+                    <div>
                       {q.rw && (
-                        <div style={{ fontSize: 12, color: '#776F61', textDecoration: 'line-through', marginBottom: 2 }}>
-                          {q.orig?.[lang]} <span style={{ textDecoration: 'none', color: '#8A6A1E' }}>{t('panel.rewriteTag')}</span>
-                        </div>
+                        <p className="fi-qft-original">{q.orig?.[lang]} <span>{t('panel.rewriteTag')}</span></p>
                       )}
-                      <div style={{ fontFamily: "'Noto Serif SC',serif", fontWeight: 600, fontSize: 14.5, color: '#2B2620', lineHeight: 1.5 }}>{q.text[lang]}</div>
-                      {focused && <div style={{ marginTop: 4, fontSize: 11, color: '#8A6A1E' }}>{t('panel.focusCandidate')}</div>}
+                      <p className="fi-qft-question-text">{q.text[lang]}</p>
+                      {focused && <small className="fi-qft-candidate">{t('panel.focusCandidate')}</small>}
                     </div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 9, paddingLeft: 32 }}>
-                    <span style={{ fontSize: 9.5, padding: '2px 7px', borderRadius: 999, border: '1px solid rgba(139,148,178,0.55)', color: '#697392', whiteSpace: 'nowrap' }}>{AUTHQ[idx]?.[lang]}</span>
-                    <button type="button" className="fi-btn-reset fi-hit" aria-pressed={q.open} onClick={() => onToggle(idx)} style={{ cursor: 'pointer', fontSize: 11, padding: '2.5px 10px', borderRadius: 999, border: `1.2px solid ${q.open ? '#3E9B7E' : '#B5673A'}`, background: q.open ? 'rgba(62,155,126,0.1)' : '#A25C34', color: q.open ? '#2A775D' : '#F6F2E6', userSelect: 'none' }}>{q.open ? t('panel.open') : t('panel.closed')}</button>
-                    {q.rw && <span style={{ fontSize: 11, padding: '2.5px 10px', borderRadius: 999, background: 'rgba(227,169,60,0.18)', color: '#8A6A1E', border: '1.2px solid #E3A93C' }}>{t('panel.rewritten')}</span>}
-                    <span style={{ flex: 1 }} />
-                    <span style={{ fontSize: 9, letterSpacing: 2, color: '#2E5E8C', whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: 110 }} aria-hidden="true">{'●'.repeat(Math.min(q.votes, 12))}</span>
-                    <span style={{ fontFamily: "'JetBrains Mono',ui-monospace,monospace", fontSize: 12, color: '#2E5E8C', minWidth: 16, textAlign: 'right' }}>{q.votes}</span>
-                    <button type="button" className="fi-btn-reset fi-hit" aria-pressed={didVote} onClick={() => onVote(idx)} style={{ cursor: 'pointer', fontSize: 11.5, padding: '3.5px 12px', borderRadius: 5, border: `1.2px solid ${didVote ? '#A89C88' : '#2E5E8C'}`, color: didVote ? '#776F61' : '#2E5E8C', background: didVote ? 'transparent' : 'rgba(46,94,140,0.08)', userSelect: 'none' }}>{didVote ? t('panel.voted') : t('panel.vote')}</button>
+                  <div className="fi-qft-question-actions">
+                    <span className="fi-qft-question-kind">{AUTHQ[idx]?.[lang]}</span>
+                    <button type="button" className="fi-btn-reset fi-hit fi-qft-toggle" data-open={q.open || undefined} aria-pressed={q.open} onClick={() => onToggle(idx)}>{q.open ? t('panel.open') : t('panel.closed')}</button>
+                    <button type="button" className="fi-btn-reset fi-hit fi-qft-toggle" aria-expanded={rewriteIdx === idx} onClick={() => beginRewrite(idx)}>{t('panel.rewrite')}</button>
+                    {q.rw && <span className="fi-qft-rewritten">{t('panel.rewritten')}</span>}
+                    <span className="fi-qft-vote-count"><b>{q.votes}</b><small>{t('panel.votes')}</small></span>
+                    <button type="button" className="fi-btn-reset fi-hit fi-qft-vote" data-voted={didVote || undefined} aria-pressed={didVote} disabled={didVote || !q.open || isSaving} onClick={() => onVote(idx)}>{didVote ? t('panel.voted') : t('panel.vote')}</button>
                   </div>
-                </div>
+                  {rewriteIdx === idx && (
+                    <form className="fi-qft-question-actions" aria-label={t('panel.rewritePrompt')} onSubmit={(event) => {
+                      event.preventDefault();
+                      const next = rewriteText.trim();
+                      if (!next) {
+                        setRewriteError(t('panel.rewriteRequired'));
+                        return;
+                      }
+                      onRewrite(idx, next);
+                      setRewriteIdx(null);
+                      setRewriteError('');
+                    }}>
+                      <textarea autoFocus value={rewriteText} maxLength={240} onChange={(event) => { setRewriteText(event.target.value); if (event.target.value.trim()) setRewriteError(''); }} aria-label={t('panel.rewritePrompt')} aria-invalid={!!rewriteError} aria-describedby={rewriteError ? `fi-qft-rewrite-error-${idx}` : undefined} style={{ flex: '1 1 100%', minHeight: 72, padding: '8px 10px', border: '1px solid var(--fi-ochre)', background: 'var(--card, var(--fi-paper-raised))', color: 'inherit', font: 'inherit', lineHeight: 1.5, resize: 'vertical' }} />
+                      {rewriteError && <p id={`fi-qft-rewrite-error-${idx}`} className="fi-qft-footer" role="alert" style={{ flex: '1 1 100%', margin: 0, textAlign: 'left' }}>{rewriteError}</p>}
+                      <button type="submit" className="fi-btn-reset fi-hit fi-qft-toggle">{t('panel.saveRewrite')}</button>
+                      <button type="button" className="fi-btn-reset fi-hit fi-qft-vote" onClick={() => { setRewriteIdx(null); setRewriteError(''); }}>{t('panel.cancelRewrite')}</button>
+                    </form>
+                  )}
+                </li>
               );
             })}
-          </div>
+          </ol>
 
-          <button type="button" className="fi-btn-reset" onClick={onFocus} style={{ marginTop: 16, cursor: 'pointer', display: 'block', width: '100%', background: '#E3A93C', border: '1.5px solid #8A6A1E', borderRadius: 6, padding: 12, textAlign: 'center', fontFamily: "'Noto Serif SC',serif", fontWeight: 700, fontSize: 15, color: '#3A2E14', userSelect: 'none' }}>{t('panel.doFocus')}</button>
-          <div style={{ marginTop: 12, fontSize: 10.5, color: '#776F61', fontFamily: "'JetBrains Mono',ui-monospace,monospace", textAlign: 'center' }}>{t('panel.footer')}</div>
-        </div>
+          <button ref={focusActionRef} id="fi-qft-focus-action" type="button" className="fi-btn-reset fi-qft-focus-action" disabled={focusCandidate === null || focusIsCurrent || isSaving} onClick={() => onFocus()}><span>{t('panel.stampFocus')}</span><strong>{focusIsCurrent ? t('panel.focused') : t('panel.doFocus')}</strong><i aria-hidden="true">→</i></button>
+          <p className="fi-qft-footer" role="status" data-state={syncState.status}>{recordMessage}{syncState.status === 'failed' && <> · <button type="button" className="fi-btn-reset fi-hit fi-qft-toggle" onClick={onRetry}>{t('panel.record.retry')}</button></>}</p>
+          {localChangeCount > 0 && <p className="fi-qft-footer">{t('panel.record.localChanges', { count: localChangeCount })}</p>}
+          <footer className="fi-qft-footer">{t('panel.footer')}</footer>
+        </article>
         <ScrollRod />
       </div>
     </div>
   );
 }
-
-const sealBase = { width: 26, height: 26, borderRadius: 3, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Noto Serif SC',serif", fontSize: 13, flex: 'none' } as const;
-const sealDark = { ...sealBase, background: '#2B2620', color: '#F2EAD8' } as const;

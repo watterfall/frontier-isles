@@ -26,12 +26,21 @@ export function useDialogChrome<T extends HTMLElement = HTMLDivElement>(onClose:
     };
   }, [open]);
 
-  const onDialogKey = (event: ReactKeyboardEvent<HTMLElement>): void => {
-    if (event.key === 'Escape') {
+  // Escape belongs to the modal lifecycle, not to whichever descendant still
+  // owns focus. A submitting control may become disabled and drop focus to
+  // <body>; the dialog must remain dismissible in that state.
+  useEffect(() => {
+    if (!open) return;
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
       event.preventDefault();
       onClose();
-      return;
-    }
+    };
+    document.addEventListener('keydown', onEscape);
+    return () => document.removeEventListener('keydown', onEscape);
+  }, [onClose, open]);
+
+  const onDialogKey = (event: ReactKeyboardEvent<HTMLElement>): void => {
     if (event.key !== 'Tab') return;
     const focusable = [...(dialogRef.current?.querySelectorAll<HTMLElement>(
       'button:not([disabled]), a[href], input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',

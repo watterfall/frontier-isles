@@ -47,7 +47,7 @@ jobs:
       - name: Install Playwright Chromium
         run: pnpm --filter @frontier-isles/web exec playwright install --with-deps chromium
 
-      - name: E2E world-exploration smoke
+      - name: E2E world + responsive accessibility smoke
         run: pnpm test:e2e
 
       - name: Upload Playwright artifacts on failure

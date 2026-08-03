@@ -1,5 +1,5 @@
 import { createPortal } from 'react-dom';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { api, type ApiCurrentRecord } from '../../api/client';
 import type { Bilingual } from '../../api/fallback';
 import type {
@@ -37,6 +37,8 @@ export interface ConnectionFieldPanelProps {
   onEnter: (problem: ConnectionProblem) => void;
   onResponseRecorded?: (receipt: ResearchActionReceipt) => void;
   onBuildModel?: (launch: ModelLaunchContext) => void;
+  /** Test/story harness override. Production intentionally starts folded. */
+  defaultExpanded?: boolean;
 }
 
 const COPY = {
@@ -176,15 +178,23 @@ function externalEvidenceUrl(ref: string): string | null {
 }
 
 export function ConnectionFieldPanel(props: ConnectionFieldPanelProps) {
-  const { field, lang, channel, focus, visible, departure, intent, actor, onChannel, onFocus, onVisible, onDeparture, onPassage, onEnter, onResponseRecorded, onBuildModel } = props;
+  const { field, lang, channel, focus, visible, departure, intent, actor, onChannel, onFocus, onVisible, onDeparture, onPassage, onEnter, onResponseRecorded, onBuildModel, defaultExpanded = false } = props;
   const c = COPY[lang];
-  const [expanded, setExpanded] = useState(true);
+  // The atlas is the first read. The cross-field desk begins as a compact
+  // invitation and opens only when the visitor asks for it or when a concrete
+  // relation is selected from the chart. This keeps a deep research surface
+  // available without letting it visually outrank the world on arrival.
+  const [expanded, setExpanded] = useState(defaultExpanded);
   const [query, setQuery] = useState('');
   const [focusTrail, setFocusTrail] = useState<Array<NonNullable<ConnectionFocus>>>([]);
   const searchResults = useMemo(() => searchConnectionProblems(field, query, lang), [field, query, lang]);
   const activeGroup = focus?.type === 'convergence' ? field.topics.find((group) => group.id === focus.id) ?? null : null;
   const activePath = focus?.type === 'path' ? field.paths.find((path) => path.id === focus.id) ?? null : null;
   const activeProblem = focus?.type === 'problem' ? field.problems.get(focus.slug) ?? null : null;
+
+  useEffect(() => {
+    if (focus) setExpanded(true);
+  }, [focus]);
 
   const navigate = (next: ConnectionFocus) => {
     if (focus) setFocusTrail((trail) => [...trail, focus]);

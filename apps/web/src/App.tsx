@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import type { StationKind } from '@frontier-isles/core';
 import { AtlasChartScreen } from './components/chart/AtlasChartScreen';
 import { IslandScreen } from './components/island/IslandScreen';
+import type { QftSyncState } from './components/island/QftPanel';
 import { CeremonyOverlay } from './components/ceremony/CeremonyOverlay';
 import { CollisionOverlay } from './components/ceremony/CollisionOverlay';
 import { Toast } from './components/shell/Toast';
@@ -50,6 +51,7 @@ import {
   worldTrailFeatureEnabled,
   type ResearchActionReceipt,
 } from './state/routeOutcome';
+import { beginExperience, completeExperience } from './performance/experience';
 
 const GeneratedIslandScreen = lazy(() =>
   import('./components/island/GeneratedIslandScreen').then((module) => ({
@@ -148,6 +150,9 @@ export default function App() {
   const [qs, setQs] = useState<QuestionDatum[]>(() => QUESTIONS.map((q) => ({ ...q })));
   const [voted, setVoted] = useState<Record<number, boolean>>({});
   const [focusIdx, setFocusIdx] = useState<number | null>(null);
+  const [qftSyncState, setQftSyncState] = useState<QftSyncState>({ status: 'idle' });
+  const [qftLocalChangeCount, setQftLocalChangeCount] = useState(0);
+  const qftWritePending = useRef(false);
 
   const peers = usePresence(`island:${selSlug ?? SAMPLE_SLUG}`, wipe.view === 'island' && (selSlug === SAMPLE_SLUG || !selSlug));
 
@@ -216,11 +221,13 @@ export default function App() {
 
   // ── handlers ─────────────────────────────────────────────────────────
   const signalIslandReady = useCallback(() => {
+    completeExperience('l1-island-ready');
     islandReadyResolver.current?.();
     islandReadyResolver.current = null;
   }, []);
 
   const signalAtlasReady = useCallback(() => {
+    completeExperience('l0-atlas-ready');
     atlasReadyResolver.current?.();
     atlasReadyResolver.current = null;
   }, []);
@@ -248,6 +255,7 @@ export default function App() {
       const startViewTransition = (document as ViewTransitionDocument).startViewTransition;
       if (reduced || !startViewTransition) {
         commit();
+        afterCommit?.(() => {});
         requestAnimationFrame(() => setVoyageActive(false));
         return;
       }
@@ -296,6 +304,7 @@ export default function App() {
     (d: IslandDatum, source: 'atlas' | 'explore' = 'atlas', worldPose?: WorldExplorerPose) => {
       if (voyageActive) return;
       const slug = d.slug ?? SAMPLE_SLUG;
+      beginExperience('l1-island-ready', { slug, source });
       runVoyageTransition({
         direction: 'entering',
         readyResolver: islandReadyResolver,
@@ -310,12 +319,12 @@ export default function App() {
           });
         },
         // The bespoke sample island renders synchronously — release at once.
-        afterCommit: (resolveReady) => {
-          if (slug === SAMPLE_SLUG) requestAnimationFrame(resolveReady);
+        afterCommit: () => {
+          if (slug === SAMPLE_SLUG) requestAnimationFrame(signalIslandReady);
         },
       });
     },
-    [runVoyageTransition, voyageActive],
+    [runVoyageTransition, signalIslandReady, voyageActive],
   );
 
   const onIsland = useCallback(
@@ -395,6 +404,7 @@ export default function App() {
     // a second transition whose cleanup races the first one's shared flag.
     if (voyageActive) return;
     const returnToWorld = exploration.returnTo === 'explore';
+    beginExperience('l0-atlas-ready', { cause: returnToWorld ? 'world-return' : 'island-return' });
     runVoyageTransition({
       direction: 'returning',
       readyResolver: atlasReadyResolver,
@@ -442,6 +452,10 @@ export default function App() {
     const onPop = () => {
       if (voyageActive) return;
       const link = parseWorldLink(window.location.hash);
+      if (isMobile) {
+        setPendingLink(link.island);
+        return;
+      }
       if (link.island) {
         if (wipe.view === 'island' && selSlug === link.island) return;
         const island = chartIslands.find((d) => (d.slug ?? SAMPLE_SLUG) === link.island);
@@ -452,7 +466,7 @@ export default function App() {
     };
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
-  }, [beginVoyage, chartIslands, goChart, selSlug, voyageActive, wipe.view]);
+  }, [beginVoyage, chartIslands, goChart, isMobile, selSlug, voyageActive, wipe.view]);
 
   // ‹ › island stepping (L1 hud). The roster order is the list twin's order;
   // each step is a normal voyage, so the worldLink hash follows along and any
@@ -538,24 +552,81 @@ export default function App() {
   }, [wipe.view, ceremony.rit, onStation]);
 
   const onVoteQ = useCallback(
-    (idx: number) => {
-      if (voted[idx]) return;
+    async (idx: number) => {
+      if (voted[idx] || qftWritePending.current) return;
+      qftWritePending.current = true;
       setQs((prev) => prev.map((q, j) => (j === idx ? { ...q, votes: q.votes + 1 } : q)));
       setVoted((prev) => ({ ...prev, [idx]: true }));
-      void api.postEvent(SAMPLE_SLUG, { actor, credit: ['validation'], phase: 'A', action: 'validate', payload: { question: idx } });
+      setQftSyncState({ status: 'saving', operation: 'vote', questionIdx: idx });
+      let recorded = false;
+      try {
+        recorded = !!(await api.postEvent(SAMPLE_SLUG, { actor, credit: ['conceptualization'], phase: 'A', action: 'propose_subquestion', payload: { question: idx, signal: 'vote' } }));
+      } catch {
+        recorded = false;
+      }
+      if (recorded) {
+        setQftSyncState({ status: 'saved', operation: 'vote', questionIdx: idx });
+      } else {
+        setQs((prev) => prev.map((q, j) => (j === idx ? { ...q, votes: Math.max(0, q.votes - 1) } : q)));
+        setVoted((prev) => {
+          const next = { ...prev };
+          delete next[idx];
+          return next;
+        });
+        setQftSyncState({ status: 'failed', operation: 'vote', questionIdx: idx });
+      }
+      qftWritePending.current = false;
     },
     [voted, actor],
   );
 
-  const onFocus = useCallback(() => {
-    const top = qs.reduce((b, q, j) => (q.votes > (qs[b]?.votes ?? -1) ? j : b), 0);
+  const onFocus = useCallback(async (retryIdx?: number) => {
+    if (qftWritePending.current) return;
+    const open = qs.map((q, idx) => ({ q, idx })).filter(({ q }) => q.open);
+    if (open.length === 0) return;
+    const top = retryIdx !== undefined && open.some(({ idx }) => idx === retryIdx)
+      ? retryIdx
+      : open.reduce((best, item) => (item.q.votes > best.q.votes ? item : best)).idx;
+    if (focusIdx === top) return;
+    const previousFocus = focusIdx;
+    qftWritePending.current = true;
     setFocusIdx(top);
-    void api.postEvent(SAMPLE_SLUG, { actor, credit: ['conceptualization'], phase: 'A', action: 'propose_subquestion', payload: { focus: top } });
-  }, [qs, actor]);
+    setQftSyncState({ status: 'saving', operation: 'focus', questionIdx: top });
+    let recorded = false;
+    try {
+      recorded = !!(await api.postEvent(SAMPLE_SLUG, { actor, credit: ['conceptualization'], phase: 'A', action: 'propose_subquestion', payload: { focus: top, outcome: 'focused' } }));
+    } catch {
+      recorded = false;
+    }
+    if (recorded) setQftSyncState({ status: 'saved', operation: 'focus', questionIdx: top });
+    else {
+      setFocusIdx(previousFocus);
+      setQftSyncState({ status: 'failed', operation: 'focus', questionIdx: top });
+    }
+    qftWritePending.current = false;
+  }, [qs, actor, focusIdx]);
 
   const onToggleQ = useCallback((idx: number) => {
     setQs((prev) => prev.map((q, j) => (j === idx ? { ...q, open: !q.open } : q)));
+    setFocusIdx((prev) => (prev === idx ? null : prev));
+    setQftLocalChangeCount((count) => count + 1);
   }, []);
+
+  const onRewriteQ = useCallback((idx: number, text: string) => {
+    setQs((prev) => prev.map((q, j) => (j === idx ? {
+      ...q,
+      orig: q.orig ?? q.text,
+      text: { ...q.text, [lang]: text },
+      rw: true,
+    } : q)));
+    setQftLocalChangeCount((count) => count + 1);
+  }, [lang]);
+
+  const onRetryQft = useCallback(() => {
+    if (qftSyncState.status !== 'failed') return;
+    if (qftSyncState.operation === 'vote') void onVoteQ(qftSyncState.questionIdx);
+    else void onFocus(qftSyncState.questionIdx);
+  }, [onFocus, onVoteQ, qftSyncState]);
 
   const transplant = useCallback(
     (dest: '实验坊' | '白板厅') => {
@@ -628,7 +699,7 @@ export default function App() {
     recentResearchAction,
   }), [exploration.completedPassages, exploration.modelRuns, recentResearchAction, trailIslands]);
 
-  if (isMobile) return <MobileShell islands={chartIslands} modelRuns={exploration.modelRuns} onRecordModelRun={recordModelRun} worldTrailEnabled={worldTrailEnabled} />;
+  if (isMobile) return <MobileShell islands={chartIslands} initialIslandSlug={pendingLink} modelRuns={exploration.modelRuns} onRecordModelRun={recordModelRun} worldTrailEnabled={worldTrailEnabled} />;
 
   const passageSource = exploration.passageIntent
     ? chartIslands.find((island) => island.slug === exploration.passageIntent?.islandSlug) ?? null
@@ -641,6 +712,7 @@ export default function App() {
   return (
     <main
       className="fi-app-shell"
+      data-theme={wipe.view === 'island' && night ? 'night' : 'day'}
       data-voyage={voyageActive ? 'entering' : undefined}
       data-world-explore={exploration.phase === 'explore' || undefined}
       data-model-open={modelLaunch ? true : undefined}
@@ -715,7 +787,11 @@ export default function App() {
                   onCloseAdv={() => setAdvOn(false)}
                   onToggleQ={onToggleQ}
                   onVoteQ={onVoteQ}
+                  onRewriteQ={onRewriteQ}
                   onFocus={onFocus}
+                  qftSyncState={qftSyncState}
+                  qftLocalChangeCount={qftLocalChangeCount}
+                  onRetryQft={onRetryQft}
                   peers={peers}
                 />
               )}

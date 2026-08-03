@@ -32,7 +32,9 @@ const markup = (open: boolean) => renderToStaticMarkup(
     onCloseAdv={() => {}}
     onToggle={() => {}}
     onVote={() => {}}
+    onRewrite={() => {}}
     onFocus={() => {}}
+    onRetry={() => {}}
   />,
 );
 
@@ -65,5 +67,22 @@ describe('QftPanel — a11y pass (ROADMAP §3.13/§3.15)', () => {
   it('AA pale-ink fixes hold (no #A89C88 text color remains — dashes/borders may keep it)', () => {
     const html = markup(true);
     expect(html).not.toContain('color:#A89C88');
+  });
+
+  it('presents one scientific scroll with diverge, rewrite, and focus as an explicit path', () => {
+    const html = markup(true);
+    expect(html).toContain('class="fi-qft-process"');
+    expect(html).toContain('class="fi-qft-questions"');
+    expect(html).toContain(zh.panel.divergeNote);
+    expect(html).toContain(zh.panel.rewriteNote);
+    expect(html).toContain(zh.panel.focusNote);
+    expect((html.match(/class="fi-qft-question-main"/g) ?? []).length).toBe(QS.length);
+  });
+
+  it('states the ledger boundary instead of promising local notes were persisted', () => {
+    const html = markup(true);
+    expect(html).toContain(zh.panel.record.idle);
+    expect(html).toContain(zh.panel.footer);
+    expect(html).not.toContain('过程永久保留');
   });
 });

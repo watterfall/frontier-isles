@@ -10,26 +10,13 @@ export function LangToggle() {
   return (
     <button
       type="button"
+      className="fi-shell-pill fi-lang-toggle"
       onClick={() => setLang(next)}
-      aria-label="toggle language"
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 6,
-        background: 'rgba(250,245,232,0.95)',
-        border: '1.5px solid #3A342B',
-        borderRadius: 999,
-        padding: '6px 14px',
-        fontSize: 12.5,
-        color: '#2B2620',
-        cursor: 'pointer',
-        fontFamily: "'PingFang SC',sans-serif",
-        boxShadow: '2px 2px 0 rgba(58,48,36,0.12)',
-      }}
+      aria-label={cur === 'zh' ? '切换至 English' : 'Switch to 中文'}
     >
-      <span style={{ fontWeight: cur === 'zh' ? 700 : 400, color: cur === 'zh' ? '#9C5932' : '#776F61' }}>中</span>
-      <span style={{ color: '#776F61' }} aria-hidden="true">/</span>
-      <span style={{ fontWeight: cur === 'en' ? 700 : 400, color: cur === 'en' ? '#9C5932' : '#776F61', fontFamily: "'JetBrains Mono',ui-monospace,monospace" }}>EN</span>
+      <span className="fi-lang-option" data-active={cur === 'zh'}>中</span>
+      <span className="fi-lang-divider" aria-hidden="true">/</span>
+      <span className="fi-lang-option fi-lang-option-en" data-active={cur === 'en'}>EN</span>
     </button>
   );
 }
