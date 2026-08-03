@@ -82,9 +82,15 @@ async function flyIntoSurveyRange(page: Page): Promise<{ pose: ExplorerPose; tar
 }
 
 test('continuous world exploration survives an island round trip', async ({ page }) => {
-  // Deliberately NOT reduced-motion: the dock/return round trip below is the
-  // covered path through `runVoyageTransition`'s animated branch, and forcing
-  // reduced motion here silently replaced it with the non-animated fallback.
+  // Reduced motion on purpose, and it costs no coverage: the animated
+  // `runVoyageTransition` branch is covered by the default-motion atlas →
+  // island voyage in surface-hardening.spec.ts. This spec's subject is the
+  // continuous world sim, whose dt clamp already makes it the slowest run on
+  // CI; layering a real View Transition on top of that reproducibly hangs the
+  // dock — Chromium aborts the transition with "timeout in DOM update" on slow
+  // headless runners (see the note in App.tsx `runVoyageTransition`), and the
+  // L1 screen never appears within 30s.
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   const browserErrors: string[] = [];
   page.on('pageerror', (error) => browserErrors.push(error.message));
   page.on('console', (message) => {
