@@ -82,6 +82,8 @@ type ViewTransitionDocument = Document & {
   startViewTransition?: (update: () => void | Promise<void>) => NativeViewTransition;
 };
 
+const DEEP_LINK_CAMERA_GRACE_MS = 4_000;
+
 export default function App() {
   const { t, i18n } = useTranslation();
   const lang = i18n.language === 'en' ? 'en' : 'zh';
@@ -302,7 +304,7 @@ export default function App() {
 
   const beginVoyage = useCallback(
     (d: IslandDatum, source: 'atlas' | 'explore' = 'atlas', worldPose?: WorldExplorerPose) => {
-      if (voyageActive) return;
+      if (voyageActive || activeVoyage.current) return;
       const slug = d.slug ?? SAMPLE_SLUG;
       beginExperience('l1-island-ready', { slug, source });
       runVoyageTransition({
@@ -433,6 +435,21 @@ export default function App() {
     setPendingLink(null);
     history.replaceState(null, '', window.location.pathname + window.location.search);
   }, []);
+
+  // Shared URLs must still dock when a cold or degraded WebGL atlas cannot
+  // finish its camera choreography. Give the atlas the first opportunity to
+  // animate, then let URL navigation win after a bounded grace period.
+  useEffect(() => {
+    if (isMobile || !pendingLink || wipe.view !== 'chart' || voyageActive) return;
+    const island = chartIslands.find((d) => (d.slug ?? SAMPLE_SLUG) === pendingLink);
+    if (!island) return;
+
+    const timer = window.setTimeout(() => {
+      if (activeVoyage.current || document.documentElement.dataset.fiVoyage) return;
+      beginVoyage(island);
+    }, DEEP_LINK_CAMERA_GRACE_MS);
+    return () => window.clearTimeout(timer);
+  }, [beginVoyage, chartIslands, isMobile, pendingLink, voyageActive, wipe.view]);
 
   // Mirror state → hash. Popstate-driven moves arrive with the hash already
   // correct, so this effect only writes for user-initiated voyages — Back then
