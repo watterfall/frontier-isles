@@ -17,5 +17,15 @@ export type { NightOptions, NightDeps, NightResult } from "./night.js";
 export { fetchWorks, userAgent, PKG, VERSION } from "./crossref.js";
 export { createMcpWriter } from "./mcpClient.js";
 export type { ScoutWriter, McpWriterOptions } from "./mcpClient.js";
-export { createScoutMissionContract, runNightShiftMission } from "./mission.js";
-export type { ScoutMissionContractOptions, ScoutMissionRunOptions } from "./mission.js";
+export { createScoutMissionContract, runNightShiftMission, runNightShiftMissionPersisted } from "./mission.js";
+export type { PersistedScoutMissionRunOptions, ScoutMissionContractOptions, ScoutMissionRunOptions } from "./mission.js";
+export {
+  MissionRecoveryRequiredError,
+  MissionRunRecordError,
+  createMissionRunRecord,
+  hashMissionRequest,
+  loadMissionRunRecord,
+  parseMissionRunRecord,
+  saveMissionRunRecord,
+} from "./mission-store.js";
+export type { MissionRunRecord, MissionRunRecordState } from "./mission-store.js";

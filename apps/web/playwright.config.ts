@@ -2,6 +2,10 @@ import { defineConfig, devices } from '@playwright/test';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = fileURLToPath(new URL('../..', import.meta.url));
+// A release gate must own the services it verifies. Developers may opt into
+// borrowing an already-running local stack for interactive diagnosis, but a
+// plain `pnpm test:e2e` starts and tears down a fresh pair of processes.
+const reuseExistingServers = process.env.PLAYWRIGHT_REUSE_EXISTING_SERVERS === '1';
 
 export default defineConfig({
   testDir: './e2e',
@@ -36,18 +40,24 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: 'pnpm --filter @frontier-isles/server dev',
+      // E2E does not edit server source. Avoid the extra `tsx watch`
+      // supervisor so Playwright owns one stable, non-restarting process tree.
+      command: 'pnpm --filter @frontier-isles/server start',
       cwd: repoRoot,
       url: 'http://127.0.0.1:8787/api/health',
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: reuseExistingServers,
       timeout: 120_000,
+      stdout: 'pipe',
+      stderr: 'pipe',
     },
     {
       command: 'pnpm --filter @frontier-isles/web exec vite --host 127.0.0.1',
       cwd: repoRoot,
       url: 'http://127.0.0.1:5173',
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: reuseExistingServers,
       timeout: 120_000,
+      stdout: 'pipe',
+      stderr: 'pipe',
     },
   ],
 });

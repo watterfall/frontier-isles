@@ -460,18 +460,30 @@ The first reversible runtime slice is now implemented locally:
 - the deterministic runner records ordered plan/step/policy/stop events, meters effects before IO, enforces expiry and budgets, counts attempts, supports retry and idempotent reuse, polls pause/revoke between turns, and resumes a paused bundle without resetting its prior trace or authority use;
 - the existing night scout runs unchanged inside an A3 compatibility mission: the real night CLI routes through it, dry-run is E1, live driftwood/digest creation is mission-granted E2, and the MCP capability gateway remains the final write/degradation boundary;
 - mission modules are exported only through explicit `@frontier-isles/core/mission*` subpaths, not the eager core barrel.
+- persisted bundles are structurally parsed before becoming resume authority, and the Scout can optionally save a canonical SHA-256 `running`/`settled` record through atomic replacement plus an exclusive lock;
+- a settled paused Scout run resumes under the identical contract, terminal results are reused without repeated IO, and a surviving `running` record safely refuses automatic replay because an in-flight E2 write may have completed;
+- resource scopes use exact-or-delimited-child matching, pause/revoke is re-polled after asynchronous planning, and uncertain E2/E3 failures are never retried automatically.
+- the manual workbench now shares one extracted deterministic runtime with a bounded `ModelSpecV1` compiler, and a provider-free A2 proof performs plan/run/evaluate/revise across at least five steps under hard 12-run/30-second ceilings;
+- the A2 proof retains a failed prediction, two revisions, replayable model observations, and a receipt explicitly marked `ledgerEffect: none`;
+- the lazy Model Lab now exposes that real A2 loop through a progressively disclosed Mission Control that declares A2/E1 authority, four-run/30-second UI budgets, zero network/write/grant authority, trace/replay evidence, and the non-ledger boundary before and after execution;
+- shared-field experiments remain a manual peer path: the UI does not imply autonomous support where only the synchronization mission exists.
 
 Fresh local proof for this checkpoint:
 
-- `pnpm test`: 926 tests passed;
+- `pnpm test`: 950 tests passed across all eight tested workspaces;
 - `pnpm typecheck`: release-document, atlas-generation, data-import, and TypeScript gates passed;
-- `pnpm build`: passed; eager entry remains 878.02 kB raw / 302.74 kB gzip, CSS remains 225.62 kB, and the 1,210.00 kB interior bundle remains lazy;
+- `pnpm build`: passed; eager entry remains effectively flat at 878.05 kB raw / 302.75 kB gzip, CSS is 233.23 kB / 35.99 kB gzip, and the 1,210.00 kB / 482.99 kB gzip interior bundle remains lazy;
+- the visible Mission Control grows the lazy `ModelWorkbench` chunk to 35.60 kB raw / 13.01 kB gzip, while the nested `modelMission` runtime remains a separate 72.66 kB / 18.22 kB gzip chunk and does not enter the eager application entry;
+- Playwright now owns fresh services by default, starts the API without a watch supervisor, and pipes service logs; reuse requires the explicit `PLAYWRIGHT_REUSE_EXISTING_SERVERS=1` diagnostic opt-in;
+- the changed harness passed three consecutive complete local browser runs: 7/7 with one worker in 53.9s, then 7/7 with two workers in 46.4s and 40.6s; ports 5173 and 8787 were reclaimed after every run;
+- the expanded browser suite passed 8/8 with two workers in 48.3s, including the real A2 run/trace/replay path and mobile 44px/overflow/axe checks; ports 5173 and 8787 were reclaimed;
+- desktop and 390x844 mobile visual checks covered collapsed, authorization, and completed states; the mobile document stayed at 390px scroll width, with no horizontal overflow;
 - `git diff --check`: passed.
 
-This is not yet the complete immediate proof slice. Still open:
+The runtime and durable Scout foundation are complete locally, but the broader AI-native product proof remains open:
 
-- durable/content-addressed run persistence and crash-process recovery (current resume consumes a supplied paused bundle);
-- the A2 Model Lab plan/run/evaluate/revise mission and its 12-run/30-second ceiling;
-- Mission Control UI for live trace, budget, pause/stop/revoke, and promotion routing;
+- automated reconciliation of an ambiguous `running` record remains intentionally absent; the safe behavior is stop-and-inspect, not blind replay;
+- notebook-v5 storage/export/import for the completed receipt and replay bundle; the current visible result is session-local and disappears on reset/reload;
+- long-running Mission Control behavior for live pause/stop/revoke and promotion routing; the current deterministic UI mission finishes synchronously and performs no ledger write;
 - live model providers, generated-code sandboxing, multi-agent delegation, E3 production research writes, commit/push, and deployment;
-- a fresh deterministic local browser gate; the pre-existing Playwright service-lifecycle issue remains a separate W0 blocker.
+- exact-SHA CI proof for the uncommitted harness change; the local W0 browser/service gate is now green, while sandboxed Chromium remains unable to launch on this macOS host because Mach-port registration is denied.

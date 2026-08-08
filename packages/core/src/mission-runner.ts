@@ -9,6 +9,7 @@ import {
   type MissionContractV1,
   type MissionEffectRequest,
   type MissionMeteredUsage,
+  type MissionPolicyDecision,
   type MissionPolicyReason,
   type MissionStopReason,
   type MissionUsage,
@@ -136,7 +137,9 @@ const safeError = (error: unknown): string => error instanceof Error ? error.mes
 
 /** Detach trace state from planner/executor-owned objects and require JSON-safe data. */
 const snapshotForTrace = <T>(value: T): T => {
-  if (value === undefined) return value;
+  if (value === undefined) {
+    throw new MissionTraceError("Mission trace values must be JSON-serializable: undefined has no JSON representation");
+  }
   let parsed: T;
   try {
     const serialized = JSON.stringify(value);
@@ -247,6 +250,13 @@ export async function runMission<TInput = unknown, TOutput = unknown>(
       return finish("failed", `planner: ${safeError(error)}`);
     }
 
+    // Planning may be asynchronous. Re-poll at the last safe boundary so a
+    // pause or revocation issued while the planner was running prevents the
+    // next effect from starting.
+    const postPlanControl = options.control?.() ?? "continue";
+    if (postPlanControl === "pause") return finish("paused");
+    if (postPlanControl === "revoke") return finish("revoked");
+
     if (decision.type === "stop") return finish(decision.reason, decision.summary);
     if (decision.type === "revise") {
       usage = addMissionUsage(usage, { steps: 1 });
@@ -283,7 +293,12 @@ export async function runMission<TInput = unknown, TOutput = unknown>(
     const executionNow = readNow();
     if (executionNow.getTime() >= Date.parse(contract.expiresAt)) return finish("expired");
     if (usage.wallMs >= contract.budgets.maxWallMs) return finish("budget_exhausted");
-    const policy = authorizeMissionEffect(contract, request, { usage, grantUses }, executionNow);
+    let policy: MissionPolicyDecision;
+    try {
+      policy = authorizeMissionEffect(contract, request, { usage, grantUses }, executionNow);
+    } catch (error) {
+      return finish("failed", `policy: ${safeError(error)}`);
+    }
     if (!policy.allowed) {
       appendAt(readNow(), "policy_denied", { ...stepDetail(step), reason: policy.reason });
       return finish(policy.reason === "budget_exhausted" ? "budget_exhausted" : "policy_denied");
@@ -313,6 +328,12 @@ export async function runMission<TInput = unknown, TOutput = unknown>(
       // The external effect may already have completed. Never retry when its
       // output cannot be recorded because that could duplicate the effect.
       if (error instanceof MissionTraceError) return finish("failed", failure.error);
+      // E2/E3 cross a shared or production-write boundary. A thrown error does
+      // not prove that the destination rejected the write, so an automatic
+      // replay could duplicate it even though the trace has an idempotency key.
+      if (step.request.effect === "E2" || step.request.effect === "E3") {
+        return finish("failed", "shared effect outcome is uncertain; automatic retry denied");
+      }
       if (usage.attempts >= contract.budgets.maxAttempts) return finish("repeated_failure");
     }
   }

@@ -6,6 +6,8 @@
  * workers and tools that execute them.
  */
 
+import { z } from "zod";
+
 export const MISSION_CONTRACT_VERSION = 1 as const;
 export const MISSION_EFFECTS = ["E0", "E1", "E2", "E3", "E4"] as const;
 export const MISSION_AUTONOMY_LEVELS = ["A0", "A1", "A2", "A3", "A4"] as const;
@@ -139,6 +141,55 @@ export class MissionContractError extends Error {
   }
 }
 
+const RuntimeMissionContractSchema = z.object({
+  version: z.number(),
+  id: z.string(),
+  agentId: z.string(),
+  ownerId: z.string(),
+  objective: z.string(),
+  autonomyLevel: z.enum(MISSION_AUTONOMY_LEVELS),
+  scope: z.object({
+    resourcePrefixes: z.array(z.string()),
+    islands: z.array(z.string()).optional(),
+    structures: z.array(z.string()).optional(),
+  }).strict(),
+  grants: z.array(z.object({
+    id: z.string(),
+    effect: z.enum(MISSION_EFFECTS),
+    actions: z.array(z.string()),
+    resourcePrefixes: z.array(z.string()).optional(),
+    maxUses: z.number(),
+    expiresAt: z.string(),
+    delegable: z.boolean().optional(),
+  }).strict()),
+  budgets: z.object({
+    maxSteps: z.number(),
+    maxAttempts: z.number(),
+    maxWallMs: z.number(),
+    maxWrites: z.number(),
+    maxNetworkRequests: z.number(),
+    maxModelRuns: z.number(),
+    maxStorageBytes: z.number(),
+    maxCostMicros: z.number(),
+  }).strict(),
+  stopConditions: z.array(z.enum(MISSION_STOP_REASONS)),
+  createdAt: z.string(),
+  expiresAt: z.string(),
+}).strict();
+
+const parseMissionContractStructure = (value: unknown): MissionContractV1 => {
+  const parsed = RuntimeMissionContractSchema.safeParse(value);
+  if (!parsed.success) {
+    throw new MissionContractError(parsed.error.issues.map((issue) => {
+      const path = issue.path.length > 0 ? issue.path.join(".") : "contract";
+      return `${path}: ${issue.message}`;
+    }));
+  }
+  // E4 and delegable=true are accepted structurally so the semantic validator
+  // below can report the explicit authority violations.
+  return parsed.data as unknown as MissionContractV1;
+};
+
 export const EMPTY_MISSION_USAGE: MissionUsage = Object.freeze({
   steps: 0,
   attempts: 0,
@@ -178,13 +229,22 @@ const isIsoDate = (value: string): boolean =>
 const isNonEmpty = (value: string): boolean => typeof value === "string" && value.trim().length > 0;
 
 const matchesPrefix = (resource: string, prefixes: readonly string[]): boolean =>
-  prefixes.some((prefix) => prefix.length > 0 && resource.startsWith(prefix));
+  prefixes.some((prefix) => {
+    if (prefix.length === 0) return false;
+    if (resource === prefix) return true;
+    // A trailing namespace/path separator intentionally scopes a whole branch.
+    // Otherwise only slash-delimited descendants match; a sibling such as
+    // `island:test-evil` must not inherit authority from `island:test`.
+    if (prefix.endsWith(":") || prefix.endsWith("/")) return resource.startsWith(prefix);
+    return resource.startsWith(`${prefix}/`);
+  });
 
 const isGovernanceAction = (action: string): boolean =>
   (MISSION_GOVERNANCE_ACTIONS as readonly string[]).includes(action);
 
-/** Validate and clone a contract so callers cannot mutate the authority object. */
-export function normalizeMissionContract(contract: MissionContractV1): MissionContractV1 {
+/** Parse, validate, and clone a contract so callers cannot mutate the authority object. */
+export function normalizeMissionContract(value: unknown): MissionContractV1 {
+  const contract = parseMissionContractStructure(value);
   const issues: string[] = [];
   if (contract.version !== MISSION_CONTRACT_VERSION) issues.push("version must be 1");
   if (!isNonEmpty(contract.id)) issues.push("id is required");

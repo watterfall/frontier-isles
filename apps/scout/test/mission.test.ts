@@ -1,9 +1,20 @@
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import type { MissionContractV1 } from "@frontier-isles/core/mission";
 import {
   createScoutMissionContract,
   runNightShiftMission,
+  runNightShiftMissionPersisted,
 } from "../src/mission.js";
+import {
+  MissionRecoveryRequiredError,
+  createMissionRunRecord,
+  hashMissionRequest,
+  loadMissionRunRecord,
+  saveMissionRunRecord,
+} from "../src/mission-store.js";
 import type { NightDeps, NightOptions } from "../src/night.js";
 import type { ScoutWriter } from "../src/mcpClient.js";
 import type { CrossRefWork } from "../src/pipeline.js";
@@ -140,5 +151,83 @@ describe("night scout mission adapter", () => {
     expect(bundle.stopReason).toBe("budget_exhausted");
     expect(counts.network).toBe(0);
     expect(writer.writes).toBe(0);
+  });
+
+  it("preflights the three unavoidable network calls before any IO", async () => {
+    const writer = fakeWriter();
+    const counts = { network: 0 };
+    const base = missionContract();
+    const underBudget: MissionContractV1 = {
+      ...base,
+      budgets: { ...base.budgets, maxNetworkRequests: 2 },
+    };
+    const bundle = await runNightShiftMission(OPTIONS, deps(writer, counts), { contract: underBudget, now });
+
+    expect(bundle.stopReason).toBe("budget_exhausted");
+    expect(counts.network).toBe(0);
+    expect(writer.writes).toBe(0);
+  });
+
+  it("persists a pause, resumes it once, and reuses the terminal result without repeating IO", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "frontier-isles-scout-resume-"));
+    const stateFile = join(directory, "run.json");
+    try {
+      const firstWriter = fakeWriter();
+      const firstCounts = { network: 0 };
+      const paused = await runNightShiftMissionPersisted(OPTIONS, deps(firstWriter, firstCounts), {
+        stateFile,
+        contract: missionContract(),
+        now,
+        control: () => "pause",
+      });
+      expect(paused.status).toBe("paused");
+      expect(firstCounts.network).toBe(0);
+
+      const secondWriter = fakeWriter();
+      const secondCounts = { network: 0 };
+      const completed = await runNightShiftMissionPersisted(OPTIONS, deps(secondWriter, secondCounts), {
+        stateFile,
+        now,
+      });
+      expect(completed.status).toBe("completed");
+      expect(secondCounts.network).toBe(4);
+      expect(secondWriter.writes).toBe(4);
+      expect((await loadMissionRunRecord(stateFile))?.state).toBe("settled");
+
+      const replayWriter = fakeWriter();
+      const replayCounts = { network: 0 };
+      const replayed = await runNightShiftMissionPersisted(OPTIONS, deps(replayWriter, replayCounts), {
+        stateFile,
+        now,
+      });
+      expect(replayed).toEqual(completed);
+      expect(replayCounts.network).toBe(0);
+      expect(replayWriter.writes).toBe(0);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it("refuses automatic replay when a running marker survives a process", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "frontier-isles-scout-running-"));
+    const stateFile = join(directory, "run.json");
+    try {
+      await saveMissionRunRecord(stateFile, createMissionRunRecord({
+        state: "running",
+        requestHash: hashMissionRequest({ kind: "night-scout/v1", options: OPTIONS }),
+        attemptId: "attempt:crashed",
+        updatedAt: instant.toISOString(),
+        contract: missionContract(),
+      }));
+      const writer = fakeWriter();
+      const counts = { network: 0 };
+
+      await expect(runNightShiftMissionPersisted(OPTIONS, deps(writer, counts), { stateFile, now }))
+        .rejects.toBeInstanceOf(MissionRecoveryRequiredError);
+      expect(counts.network).toBe(0);
+      expect(writer.writes).toBe(0);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
   });
 });

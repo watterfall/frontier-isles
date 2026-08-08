@@ -7,6 +7,7 @@
     ".": "./src/index.ts",
     "./mapping": "./src/mapping.ts",
     "./mission": "./src/mission.ts",
+    "./mission-bundle": "./src/mission-bundle.ts",
     "./mission-runner": "./src/mission-runner.ts"
   },
   "scripts": {

@@ -111,6 +111,8 @@ describe("mission effect policy", () => {
     });
     expect(authorizeMissionEffect(c, request, state({ "grant:propose": 2 }), active).reason).toBe("grant_exhausted");
     expect(authorizeMissionEffect(c, { ...request, resource: "island:other" }, state(), active).reason).toBe("resource_out_of_scope");
+    expect(authorizeMissionEffect(c, { ...request, resource: "island:machine-curiosity-evil/model" }, state(), active).reason)
+      .toBe("resource_out_of_scope");
     expect(authorizeMissionEffect(c, { ...request, resource: undefined }, state(), active).reason).toBe("resource_out_of_scope");
   });
 

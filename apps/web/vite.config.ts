@@ -117,6 +117,12 @@ function guardEntryChunk(): Plugin {
 // so these are best-effort routes (see src/api/client.ts).
 export default defineConfig({
   plugins: [react(), guardEntryChunk()],
+  // The A2 runner remains behind a nested import(), but its contract validator
+  // eventually reaches zod. Keep that ESM leaf out of dev pre-bundling so its
+  // first on-demand load cannot trigger dependency discovery and a full-page
+  // reload. This does not move zod into the production entry; guardEntryChunk
+  // still enforces that boundary below.
+  optimizeDeps: { exclude: ['zod'] },
   server: {
     port: 5173,
     proxy: {

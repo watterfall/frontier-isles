@@ -4,12 +4,13 @@
  *   pnpm --filter @frontier-isles/scout night -- --island machine-curiosity [--rows 8] [--top 3] [--dry-run]
  *
  * Env: CROSSREF_MAILTO (polite pool), SCOUT_SERVER (default http://localhost:8787),
- *      SCOUT_DB_FILE (passed to the spawned MCP child).
+ *      SCOUT_DB_FILE (passed to the spawned MCP child), SCOUT_MISSION_STATE
+ *      (optional durable mission record path).
  */
 
 import { fetchWorks } from "./crossref.js";
 import { createMcpWriter } from "./mcpClient.js";
-import { runNightShiftMission } from "./mission.js";
+import { runNightShiftMission, runNightShiftMissionPersisted } from "./mission.js";
 import { type NightDeps, type NightOptions } from "./night.js";
 
 function arg(name: string): string | undefined {
@@ -51,7 +52,10 @@ async function main(): Promise<void> {
   };
 
   console.log(`🔭 文献侦察夜班 · ${opts.island}${opts.dryRun ? " (dry-run)" : ""}`);
-  const bundle = await runNightShiftMission(opts, deps);
+  const stateFile = arg("mission-state") ?? process.env.SCOUT_MISSION_STATE;
+  const bundle = stateFile
+    ? await runNightShiftMissionPersisted(opts, deps, { stateFile })
+    : await runNightShiftMission(opts, deps);
   const result = bundle.completed.at(-1)?.output;
   if (bundle.status !== "completed" || !result) {
     throw new Error(`Night mission stopped: ${bundle.stopReason}${bundle.summary ? ` · ${bundle.summary}` : ""}`);

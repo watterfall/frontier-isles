@@ -10,8 +10,17 @@ import {
   type AgentRunBundle,
   type MissionControl,
 } from "@frontier-isles/core/mission-runner";
+import { canonicalStringify } from "@frontier-isles/opp";
 import { runNightShift, type NightDeps, type NightOptions, type NightResult } from "./night.js";
 import type { ScoutWriter } from "./mcpClient.js";
+import {
+  MissionRecoveryRequiredError,
+  createMissionRunRecord,
+  hashMissionRequest,
+  loadMissionRunRecord,
+  saveMissionRunRecord,
+  withMissionRunLock,
+} from "./mission-store.js";
 
 export interface ScoutMissionContractOptions {
   readonly missionId?: string;
@@ -25,6 +34,11 @@ export interface ScoutMissionRunOptions {
   readonly contract?: MissionContractV1;
   readonly now?: () => Date;
   readonly control?: () => MissionControl;
+  readonly resumeFrom?: AgentRunBundle<NightResult>;
+}
+
+export interface PersistedScoutMissionRunOptions extends ScoutMissionRunOptions {
+  readonly stateFile: string;
 }
 
 const isoPlus = (date: Date, milliseconds: number): string =>
@@ -105,6 +119,7 @@ export async function runNightShiftMission(
     contract,
     now,
     control: mission.control,
+    resumeFrom: mission.resumeFrom,
     planner: ({ completed, failures }) => {
       if (completed.length > 0) return { type: "stop", reason: "completed", summary: "night shift complete" };
       if (failures.length > 0) return { type: "stop", reason: "failed", summary: failures.at(-1)?.error };
@@ -118,7 +133,9 @@ export async function runNightShiftMission(
             action,
             resource: `island:${options.island}`,
             estimatedUsage: {
-              networkRequests: 2,
+              // problem.md + ledger.jsonl + CrossRef; resolved prior refs add
+              // further calls that remain guarded by live metering.
+              networkRequests: 3,
               writes: options.dryRun ? 0 : options.topK + 1,
             },
           },
@@ -143,6 +160,69 @@ export async function runNightShiftMission(
       };
       return runNightShift(options, meteredDeps);
     },
+  });
+}
+
+/**
+ * Run or resume one scout mission under a durable two-state record.
+ * A surviving `running` record is intentionally never replayed automatically:
+ * the prior process may have completed an external effect without tracing it.
+ */
+export async function runNightShiftMissionPersisted(
+  options: NightOptions,
+  deps: NightDeps,
+  mission: PersistedScoutMissionRunOptions,
+): Promise<AgentRunBundle<NightResult>> {
+  return withMissionRunLock(mission.stateFile, async (attemptId) => {
+    const now = mission.now ?? (() => new Date());
+    const requestHash = hashMissionRequest({ kind: "night-scout/v1", options });
+    const existing = await loadMissionRunRecord<NightResult>(mission.stateFile);
+
+    if (existing && existing.requestHash !== requestHash) {
+      throw new MissionRecoveryRequiredError("Mission state belongs to different scout options");
+    }
+    if (existing?.state === "running") {
+      throw new MissionRecoveryRequiredError(
+        "Mission state is still running; reconcile possible in-flight effects before retrying",
+      );
+    }
+    if (existing && mission.contract && canonicalStringify(existing.contract) !== canonicalStringify(normalizeMissionContract(mission.contract))) {
+      throw new MissionRecoveryRequiredError("Supplied mission contract does not match persisted authority");
+    }
+    if (existing?.bundle && existing.bundle.status !== "paused") return existing.bundle;
+
+    const contract = existing?.contract
+      ?? mission.contract
+      ?? createScoutMissionContract(options, { createdAt: now() });
+    const paused = existing?.bundle;
+    await saveMissionRunRecord(mission.stateFile, createMissionRunRecord({
+      state: "running",
+      requestHash,
+      attemptId,
+      updatedAt: now().toISOString(),
+      contract,
+      bundle: paused,
+    }));
+
+    const bundle = await runNightShiftMission(options, {
+      ...deps,
+      // Persisted missions keep one scientific date window across restarts.
+      now: new Date(contract.createdAt),
+    }, {
+      ...mission,
+      contract,
+      now,
+      resumeFrom: paused,
+    });
+    await saveMissionRunRecord(mission.stateFile, createMissionRunRecord({
+      state: "settled",
+      requestHash,
+      attemptId,
+      updatedAt: now().toISOString(),
+      contract,
+      bundle,
+    }));
+    return bundle;
   });
 }
 

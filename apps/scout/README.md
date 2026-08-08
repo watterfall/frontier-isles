@@ -18,6 +18,11 @@ Driftwood Garden — the AI's night-wilds landing, private by default.
 - **No new verbs.** It uses existing OPP/gateway actions only (`create_driftwood`,
   `night_digest`). Findings are `thought` atoms; credit is `credit:ai/literature`.
 - Summaries are **template-generated, never an LLM call**.
+- Every scheduled run now enters through a bounded **A3 MissionContract**. Reads
+  and local computation are E0/E1; driftwood/digest proposals require the
+  contract's scoped E2 grant, while the MCP gateway remains authoritative.
+- Automatic retries are limited to replay-safe E0/E1 work. An uncertain E2/E3
+  write stops for reconciliation instead of risking a duplicate proposal.
 
 ## Usage
 
@@ -30,11 +35,23 @@ pnpm --filter @frontier-isles/scout night -- --island machine-curiosity --dry-ru
 
 # more CrossRef rows / different top-K
 pnpm --filter @frontier-isles/scout night -- --island machine-curiosity --rows 12 --top 5
+
+# optional durable state: atomic checkpoint, paused-run resume, terminal reuse
+pnpm --filter @frontier-isles/scout night -- --island machine-curiosity \
+  --mission-state .frontier-isles/scout/machine-curiosity.json
 ```
 
 Flags: `--island <slug>` (default `machine-curiosity`), `--rows <N>` (CrossRef
 rows, default 8), `--top <K>` (proposals, default 3), `--dry-run`,
-`--server <url>` (default `http://localhost:8787`).
+`--server <url>` (default `http://localhost:8787`), and optional
+`--mission-state <path>`.
+
+The state file is content-addressed and atomically replaced under an exclusive
+sidecar lock. A settled paused run resumes under the identical contract; a
+terminal run is returned without repeating IO. If a `running` marker or stale
+`.lock` survives a crashed process, the CLI stops and requires gateway/state
+reconciliation. Do not delete either marker merely to force a retry: the prior
+process may have completed a write before it died.
 
 ## Night pipeline (data sources)
 
@@ -52,6 +69,7 @@ rows, default 8), `--top <K>` (proposals, default 3), `--dry-run`,
 | `CROSSREF_MAILTO` | Contact for the CrossRef **polite pool**. Unset → request omits it and a warning is printed. |
 | `SCOUT_SERVER` | Server base URL (overridden by `--server`; default `http://localhost:8787`). |
 | `SCOUT_DB_FILE` | `DB_FILE` handed to the spawned MCP child (share the server's DB). |
+| `SCOUT_MISSION_STATE` | Optional durable mission-record path (overridden by `--mission-state`). |
 
 ## Tests
 

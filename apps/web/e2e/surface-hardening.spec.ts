@@ -166,6 +166,47 @@ test.describe('desktop L0 → L1 experience', () => {
     expect(chromeAudit.violations, JSON.stringify(chromeAudit.violations, null, 2)).toEqual([]);
   });
 
+  test('runs a bounded A2 model inquiry and exposes its non-ledger trace', async ({ page }) => {
+    await useReducedMotion(page);
+    await openAtlas(page);
+
+    const launch = page.locator('[data-model-launch="global"]');
+    await expect(launch).toBeVisible({ timeout: 15_000 });
+    await launch.click();
+
+    const workbench = page.locator('.fi-model-workbench');
+    await expect(workbench).toBeVisible({ timeout: 15_000 });
+    await page.locator('.fi-app-shell').evaluate((element) => element.setAttribute('data-theme', 'night'));
+    await expect(page.locator('.fi-app-shell')).toHaveAttribute('data-theme', 'night');
+    const mission = workbench.locator('.fi-model-mission');
+    await mission.locator(':scope > summary').click();
+    await expect(mission).toHaveAttribute('open', '');
+    await expect(mission).toContainText('A2 · 计划—运行—判断—修订');
+    await expect(mission).toContainText('0 次网络请求');
+    await expect(mission).toContainText('0 次共享写入');
+
+    await mission.getByRole('button', { name: '授权并运行这次受限调查' }).click();
+    await expect(mission).toHaveAttribute('data-phase', 'complete', { timeout: 15_000 });
+    await expect(mission.locator('.fi-model-mission-trials > ol > li')).toHaveCount(3);
+    await expect(mission.locator('.fi-model-mission-trials em[data-reached="true"]')).toHaveCount(1);
+    await expect(mission.locator('.fi-model-mission-result')).toContainText('计划修订');
+    await expect(mission.locator('.fi-model-mission-result')).toContainText('全部一致');
+    await expect(mission).toContainText('不会自动写入研究账本');
+
+    await mission.locator('.fi-model-mission-trace > summary').click();
+    expect(await mission.locator('.fi-model-mission-trace li').count()).toBeGreaterThanOrEqual(9);
+    await expectNoHorizontalOverflow(page);
+    const audit = await new AxeBuilder({ page })
+      .include('.fi-model-mission')
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      .analyze();
+    expect(audit.violations, JSON.stringify(audit.violations, null, 2)).toEqual([]);
+
+    await mission.getByRole('button', { name: '清除本次轨迹' }).click();
+    await expect(mission).toHaveAttribute('data-phase', 'idle');
+    await expect(mission.locator('.fi-model-mission-trials')).toHaveCount(0);
+  });
+
   // Runs at DEFAULT motion on purpose: this is the only browser coverage of the
   // animated voyage — `runVoyageTransition`'s startViewTransition branch, its
   // 700ms readiness race, the ownership-guarded cleanup of `data-fi-voyage`,
@@ -352,6 +393,15 @@ test.describe('mobile companion surface', () => {
     await search.fill('边界');
     await expect(page.locator('.fi-mobile-search button')).toBeVisible();
     await expectVisibleTargetsAtLeast(mobileControls, 44);
+
+    await page.getByRole('button', { name: '模型', exact: true }).click();
+    const mission = page.locator('.fi-model-workbench[data-embedded="true"] .fi-model-mission');
+    await expect(mission).toBeVisible();
+    await mission.locator(':scope > summary').click();
+    await expect(mission).toHaveAttribute('open', '');
+    await expect(mission).toContainText('A2 · 计划—运行—判断—修订');
+    await expectNoHorizontalOverflow(page);
+    await expectVisibleTargetsAtLeast(mission.locator('summary, button'), 44);
 
     await expectWcagAA(page);
   });

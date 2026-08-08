@@ -85,14 +85,23 @@ describe("runMission", () => {
   it("retries a failed step and reuses a successful idempotency key without another effect", async () => {
     let executions = 0;
     let requestedReuse = false;
+    const localStep: MissionStep<{ query: string }> = {
+      ...step,
+      request: {
+        effect: "E1",
+        action: "model.run",
+        resource: "island:test/model",
+        estimatedUsage: { modelRuns: 1 },
+      },
+    };
     const bundle = await runMission({
       contract: contract(),
       now: () => new Date(instant),
       planner: ({ completed }) => {
-        if (completed.length === 0) return { type: "execute", step };
+        if (completed.length === 0) return { type: "execute", step: localStep };
         if (!requestedReuse) {
           requestedReuse = true;
-          return { type: "execute", step };
+          return { type: "execute", step: localStep };
         }
         return { type: "stop", reason: "completed" };
       },
@@ -107,6 +116,23 @@ describe("runMission", () => {
     expect(bundle.usage).toMatchObject({ steps: 3, attempts: 2 });
     expect(bundle.failures).toHaveLength(1);
     expect(bundle.events.map((event) => event.type)).toContain("step_reused");
+  });
+
+  it("does not automatically retry an uncertain shared effect", async () => {
+    let executions = 0;
+    const bundle = await runMission({
+      contract: contract(),
+      now: () => new Date(instant),
+      planner: () => ({ type: "execute", step }),
+      executor: async () => {
+        executions += 1;
+        throw new Error("connection dropped after submit");
+      },
+    });
+
+    expect(executions).toBe(1);
+    expect(bundle.status).toBe("failed");
+    expect(bundle.summary).toContain("shared effect outcome is uncertain");
   });
 
   it("stops before an external effect when live metering would exceed budget", async () => {
@@ -160,6 +186,18 @@ describe("runMission", () => {
     expect(bundle.failures[0]?.error).toContain("JSON-serializable");
   });
 
+  it("rejects undefined output because it cannot survive durable JSON trace storage", async () => {
+    const bundle = await runMission({
+      contract: contract(),
+      now: () => new Date(instant),
+      planner: () => ({ type: "execute", step }),
+      executor: async () => undefined,
+    });
+
+    expect(bundle.stopReason).toBe("failed");
+    expect(bundle.failures[0]?.error).toContain("undefined has no JSON representation");
+  });
+
   it("honors pause control between turns", async () => {
     const bundle = await runMission({
       contract: contract(),
@@ -171,6 +209,49 @@ describe("runMission", () => {
     expect(bundle.status).toBe("paused");
     expect(bundle.stopReason).toBe("paused");
     expect(bundle.usage.attempts).toBe(0);
+  });
+
+  it("re-polls control after planning and revokes before the effect starts", async () => {
+    let polls = 0;
+    let invoked = false;
+    const bundle = await runMission({
+      contract: contract(),
+      now: () => new Date(instant),
+      control: () => ++polls === 1 ? "continue" : "revoke",
+      planner: () => ({ type: "execute", step }),
+      executor: async () => {
+        invoked = true;
+        return "unreachable";
+      },
+    });
+
+    expect(bundle.stopReason).toBe("revoked");
+    expect(invoked).toBe(false);
+    expect(bundle.usage.attempts).toBe(0);
+  });
+
+  it("records malformed planner usage as a failed bundle instead of rejecting", async () => {
+    let invoked = false;
+    const bundle = await runMission({
+      contract: contract(),
+      now: () => new Date(instant),
+      planner: () => ({
+        type: "execute",
+        step: {
+          ...step,
+          request: { ...step.request, estimatedUsage: { networkRequests: -1 } },
+        },
+      }),
+      executor: async () => {
+        invoked = true;
+        return "unreachable";
+      },
+    });
+
+    expect(bundle.status).toBe("failed");
+    expect(bundle.summary).toContain("policy: Mission usage networkRequests must be finite and non-negative");
+    expect(invoked).toBe(false);
+    expect(bundle.events.at(-1)).toMatchObject({ type: "mission_stopped", detail: { reason: "failed" } });
   });
 
   it("resumes a paused bundle with continuous trace, usage, and grant state", async () => {

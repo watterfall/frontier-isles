@@ -2,28 +2,23 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { MODEL_FAMILIES, modelFamily, normalizeModelLaunch } from '../../models/catalog';
 import {
-  advanceOscillators,
-  createOscillatorState,
-  oscillatorOrder,
-  type OscillatorState,
-} from '../../models/oscillators';
-import {
-  advanceScalarField,
-  createScalarField,
-  scalarFieldStats,
-  type FieldSubstrateId,
-  type ScalarFieldState,
-} from '../../models/scalarField';
+  TARGET_STEPS,
+  advanceModelRuntime,
+  createModelRuntime,
+  modelMetric,
+  modelObservation,
+  modelPredictionMatches,
+} from '../../models/runtime';
 import type {
   ModelFamilyId,
   ModelLanguage,
   ModelLaunchContext,
   ModelPrediction,
-  ModelRunObservation,
   ModelRunReceipt,
   ModelSubstrateId,
 } from '../../models/types';
 import { OscillatorVisual, ScalarFieldVisual } from './ModelVisuals';
+import { ModelMissionControl } from './ModelMissionControl';
 import { WorldTrail } from '../shell/WorldTrail';
 import type { WorldTrailProjection } from '../../state/worldTrail';
 import type { RouteOutcomeViewModel } from '../../state/routeOutcome';
@@ -38,10 +33,6 @@ interface ModelWorkbenchProps {
   worldTrail?: WorldTrailProjection;
   routeOutcome?: RouteOutcomeViewModel | null;
 }
-
-type Runtime =
-  | { kind: 'synchronization'; state: OscillatorState; initial: number; steps: number }
-  | { kind: 'shared-field'; state: ScalarFieldState; initial: number; steps: number };
 
 const COPY = {
   zh: {
@@ -90,54 +81,6 @@ const COPY = {
   },
 } as const;
 
-const TARGET_STEPS: Record<ModelFamilyId, number> = { synchronization: 360, 'shared-field': 90 };
-
-function createRuntime(familyId: ModelFamilyId, substrateId: ModelSubstrateId, count: number, spread: number, seed: number): Runtime {
-  if (familyId === 'synchronization') {
-    const state = createOscillatorState(count, spread, seed);
-    return { kind: familyId, state, initial: oscillatorOrder(state.phases), steps: 0 };
-  }
-  const state = createScalarField(substrateId as FieldSubstrateId);
-  const stats = scalarFieldStats(state);
-  const initial = substrateId === 'diffusion' ? stats.spread : stats.residual;
-  return { kind: familyId, state, initial, steps: 0 };
-}
-
-function advanceRuntime(runtime: Runtime, coupling: number, rate: number, steps: number): Runtime {
-  if (runtime.kind === 'synchronization') {
-    return {
-      ...runtime,
-      state: advanceOscillators(runtime.state, coupling, steps),
-      steps: runtime.steps + steps,
-    };
-  }
-  const state = advanceScalarField(runtime.state, rate, steps);
-  return { ...runtime, state, steps: runtime.steps + steps };
-}
-
-function metricOf(runtime: Runtime, substrateId: ModelSubstrateId): number {
-  if (runtime.kind === 'synchronization') return oscillatorOrder(runtime.state.phases);
-  const stats = scalarFieldStats(runtime.state);
-  return substrateId === 'diffusion' ? stats.spread : stats.residual;
-}
-
-function observationOf(runtime: Runtime, substrateId: ModelSubstrateId): ModelRunObservation {
-  return {
-    metric: runtime.kind === 'synchronization' ? 'coherence' : substrateId === 'diffusion' ? 'spread' : 'residual',
-    initial: runtime.initial,
-    final: metricOf(runtime, substrateId),
-    steps: runtime.steps,
-  };
-}
-
-function predictionMatches(familyId: ModelFamilyId, prediction: ModelPrediction, initial: number, final: number): boolean {
-  const delta = final - initial;
-  const threshold = familyId === 'synchronization' ? 0.08 : Math.max(0.005, Math.abs(initial) * 0.08);
-  if (prediction === 'stay') return Math.abs(delta) <= threshold;
-  if (familyId === 'shared-field') return prediction === 'increase' ? delta < -threshold : delta > threshold;
-  return prediction === 'increase' ? delta > threshold : delta < -threshold;
-}
-
 function receiptId(): string {
   try {
     return globalThis.crypto?.randomUUID?.() ?? `model-run-${Date.now()}`;
@@ -170,7 +113,7 @@ export function ModelWorkbench({ lang, launch, previousRuns = [], onSave, onClos
   const [coupling, setCoupling] = useState(1.6);
   const [rate, setRate] = useState(0.7);
   const [seed, setSeed] = useState(17);
-  const [runtime, setRuntime] = useState<Runtime>(() => createRuntime(launchFamily.id, launchFamily.substrates[0]!.id, 40, 0.32, 17));
+  const [runtime, setRuntime] = useState(() => createModelRuntime(launchFamily.id, launchFamily.substrates[0]!.id, 40, 0.32, 17));
   const [prediction, setPrediction] = useState<ModelPrediction | null>(null);
   const [boundary, setBoundary] = useState('');
   const [status, setStatus] = useState<'idle' | 'running' | 'paused' | 'complete'>('idle');
@@ -181,7 +124,7 @@ export function ModelWorkbench({ lang, launch, previousRuns = [], onSave, onClos
   const family = modelFamily(familyId);
   const substrate = family.substrates.find((item) => item.id === substrateId) ?? family.substrates[0]!;
   const targetSteps = TARGET_STEPS[familyId];
-  const currentMetric = metricOf(runtime, substrate.id);
+  const currentMetric = modelMetric(runtime, substrate.id);
   const completed = status === 'complete' || runtime.steps >= targetSteps;
   const canSave = completed && prediction !== null && boundary.trim().length >= 8 && !saved;
   const predictionLabels = familyId === 'synchronization'
@@ -199,7 +142,7 @@ export function ModelWorkbench({ lang, launch, previousRuns = [], onSave, onClos
   };
 
   const replaceRuntime = (nextFamily: ModelFamilyId, nextSubstrate: ModelSubstrateId, nextCount = count, nextSpread = spread, nextSeed = seed) => {
-    setRuntime(createRuntime(nextFamily, nextSubstrate, nextCount, nextSpread, nextSeed));
+    setRuntime(createModelRuntime(nextFamily, nextSubstrate, nextCount, nextSpread, nextSeed));
     resetReflection();
   };
 
@@ -222,7 +165,7 @@ export function ModelWorkbench({ lang, launch, previousRuns = [], onSave, onClos
     const timer = window.setInterval(() => {
       setRuntime((current) => {
         const remaining = Math.max(0, targetSteps - current.steps);
-        return remaining ? advanceRuntime(current, coupling, rate, Math.min(chunk, remaining)) : current;
+        return remaining ? advanceModelRuntime(current, coupling, rate, Math.min(chunk, remaining)) : current;
       });
     }, 45);
     return () => window.clearInterval(timer);
@@ -267,7 +210,7 @@ export function ModelWorkbench({ lang, launch, previousRuns = [], onSave, onClos
   const run = () => {
     if (!prediction || completed) return;
     if (reducedMotion) {
-      setRuntime((current) => advanceRuntime(current, coupling, rate, Math.max(0, targetSteps - current.steps)));
+      setRuntime((current) => advanceModelRuntime(current, coupling, rate, Math.max(0, targetSteps - current.steps)));
       setStatus('complete');
       return;
     }
@@ -277,7 +220,7 @@ export function ModelWorkbench({ lang, launch, previousRuns = [], onSave, onClos
   const step = () => {
     if (!prediction || completed) return;
     const chunk = familyId === 'synchronization' ? 6 : 1;
-    setRuntime((current) => advanceRuntime(current, coupling, rate, Math.min(chunk, targetSteps - current.steps)));
+    setRuntime((current) => advanceModelRuntime(current, coupling, rate, Math.min(chunk, targetSteps - current.steps)));
     setStatus(runtime.steps + chunk >= targetSteps ? 'complete' : 'paused');
   };
 
@@ -285,7 +228,7 @@ export function ModelWorkbench({ lang, launch, previousRuns = [], onSave, onClos
 
   const save = () => {
     if (!canSave || !prediction) return;
-    const observation = observationOf(runtime, substrate.id);
+    const observation = modelObservation(runtime, substrate.id);
     onSave({
       id: receiptId(),
       familyId,
@@ -305,9 +248,9 @@ export function ModelWorkbench({ lang, launch, previousRuns = [], onSave, onClos
     setSaved(true);
   };
 
-  const observation = observationOf(runtime, substrate.id);
+  const observation = modelObservation(runtime, substrate.id);
   const metricLabel = observation.metric === 'coherence' ? copy.coherence : observation.metric === 'spread' ? copy.spreadMetric : copy.residual;
-  const matches = prediction ? predictionMatches(familyId, prediction, observation.initial, observation.final) : false;
+  const matches = prediction ? modelPredictionMatches(familyId, prediction, observation.initial, observation.final) : false;
 
   const workbench = (
     <section
@@ -352,6 +295,18 @@ export function ModelWorkbench({ lang, launch, previousRuns = [], onSave, onClos
           ))}
         </div>
       </section>
+
+      <ModelMissionControl
+        key={`${familyId}:${substrate.id}:${seed}:${count}:${spread}`}
+        lang={lang}
+        familyId={familyId}
+        substrateId={substrate.id}
+        substrateTitle={substrate.title[lang]}
+        seed={seed}
+        count={count}
+        spread={spread}
+        onChooseSynchronization={() => chooseFamily('synchronization')}
+      />
 
       <div className="fi-model-bench">
         <aside className="fi-model-build-sheet">
