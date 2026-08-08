@@ -87,10 +87,17 @@ if (corpus) {
   console.log(`provenance: ${FRONTIERS.length - orphans.length}/${FRONTIERS.length} trace to a live xfrontier record ` +
     `(wave-3 orphans ${orphansW3.length}, pre-existing ${orphans.length - orphansW3.length})`);
 
-  // Islands are not the only thing pinning a corpus record id. `structures.ts`
-  // cites record ids as provenance for each isomorphism and each mapping, and
-  // some of those are NOT islands — so checking `FRONTIERS[].atlasN` alone
-  // leaves them unresolved forever.
+  // Islands are not the only thing pinning a corpus record id. Every seed
+  // structure cites record ids as provenance, and some are NOT islands — so
+  // checking `FRONTIERS[].atlasN` alone leaves those unresolved forever.
+  //
+  // Read them off the MODULE, never off structures.ts as a file: SEED_STRUCTURES
+  // splices in `structures-expansion-wave2.ts` through a `#` subpath import, and
+  // a file-scoped regex therefore sees 40 of the 61 ids. Both this repo and the
+  // upstream corpus session made exactly that mistake, independently, and both
+  // still got the right final answer — because all 21 ids it drops happen to be
+  // island atlasN values already in the set. A count that is right by luck reads
+  // exactly like a count that is right.
   const { SEED_STRUCTURES: STRUCTS } = await import('../src/structures.ts');
   const structIds = new Set();
   for (const s of STRUCTS) {
@@ -100,8 +107,9 @@ if (corpus) {
   }
   const structOnly = [...structIds].filter((n) => !FRONTIERS.some((f) => f.atlasN === n));
   const structDead = [...structIds].filter((n) => !live.has(n));
-  console.log(`            + ${structIds.size} record ids cited by structures.ts ` +
-    `(${structOnly.length} of them not an island) — ${structIds.size - structDead.length} live`);
+  console.log(`            + ${structIds.size} record ids cited by SEED_STRUCTURES ` +
+    `(${STRUCTS.length} structures incl. the wave-2 module; ${structOnly.length} id not an island) ` +
+    `— ${structIds.size - structDead.length} live`);
   for (const n of structDead) {
     warn.push(`structures.ts cites XF-${String(n).padStart(6, '0')}, which is not in the current corpus`);
   }
