@@ -4,7 +4,7 @@
 Implement and expose the first reversible AI-native proof slice: versioned mission/policy/trace contracts, a deterministic bounded mission runner, durable Scout recovery, and a visible provider-free A2 Model Lab mission, without changing research-promotion or deployment behavior.
 
 ## Current Phase
-Phase 14 complete locally — next reversible slice is notebook-v5 mission evidence persistence
+Phase 15 complete locally — next reversible slice is the architectural/comprehension review before provider-backed planning
 
 ## Phases
 
@@ -106,12 +106,12 @@ Phase 14 complete locally — next reversible slice is notebook-v5 mission evide
 - **Status:** complete
 
 ### Phase 15: Notebook-v5 Mission Evidence Persistence
-- [ ] Reconcile the current exploration notebook schema with the A2 receipt and replay bundle without weakening legacy reads
-- [ ] Define versioned migration, size, provenance, and invalid-record behavior before storage writes
-- [ ] Persist and reload a completed local mission as evidence, never as promoted ledger truth
-- [ ] Add export/import and corruption-recovery coverage across desktop and mobile surfaces
-- [ ] Re-run repository, browser, and bundle gates before considering provider-backed planning
-- **Status:** pending
+- [x] Reconcile the current exploration notebook schema with the A2 receipt and replay bundle without weakening legacy reads
+- [x] Define versioned migration, size, provenance, and invalid-record behavior before storage writes
+- [x] Persist and reload a completed local mission as evidence, never as promoted ledger truth
+- [x] Add export/import and corruption-recovery coverage across desktop and mobile surfaces
+- [x] Re-run repository, browser, and bundle gates before considering provider-backed planning
+- **Status:** complete
 
 ## Key Questions
 1. What is the next vertical slice that most directly strengthens the promise that a learner can inspect, test, and explain a connection or model?
@@ -135,6 +135,11 @@ Phase 14 complete locally — next reversible slice is notebook-v5 mission evide
 | Keep Mission Control inside the lazy ModelWorkbench and dynamically import the A2 runner | The control becomes visible without pulling mission validation or `zod` into the eager application entry |
 | Present Mission Control as a progressively disclosed field instrument | Authority, budgets, and non-ledger status remain legible without turning the research atlas into a generic AI dashboard |
 | Persist deterministic mission evidence before adding live providers | Notebook-v5 creates a reviewable provenance boundary before planner variability or external credentials enter the product |
+| Store a hand-parsed notebook projection instead of the runtime receipt | The notebook loads eagerly and the entry chunk denylists `zod`; borrowing only the receipt's types keeps the build guard satisfied by construction |
+| Re-assert `model_observation` / `ledger_effect=none` on every read | Storage is the one place a record could acquire authority it was never granted, so the parser refuses the record rather than trusting the stored claim |
+| Persist evidence, never resume authority | The projection deliberately drops the contract, event log, and step inputs a runner would need to continue, so a stored record cannot restart a mission |
+| Reject an inconsistent record instead of repairing it | A partially readable trial list would understate what the investigator did, which is worse than showing nothing |
+| Rewrite the "current page session only" copy in the same change | Persisting the record makes the previous claim false, and a stale reassurance is a correctness bug, not a wording preference |
 
 ## Errors Encountered
 | Error | Attempt | Resolution |

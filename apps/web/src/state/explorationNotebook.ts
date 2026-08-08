@@ -2,6 +2,11 @@ import type { IslandDatum } from '../api/fallback';
 import { citationOf } from '../api/atlasDetail';
 import type { ModelRunReceipt, ModelFamilyId, ModelPrediction, ModelSubstrateId } from '../models/types';
 import {
+  dedupeMissionEvidence,
+  parseMissionEvidence,
+  type ModelLabMissionEvidenceV1,
+} from './missionEvidence';
+import {
   initialExplorationSession,
   type IslandDistrictId,
   type CompletedPassage,
@@ -13,7 +18,13 @@ import {
 } from './explorationSession';
 
 export const EXPLORATION_NOTEBOOK_STORAGE_KEY = 'frontier-isles:field-notebook:v1';
-const NOTEBOOK_VERSION = 4;
+const NOTEBOOK_VERSION = 5;
+/**
+ * Every payload version this build still reads. Migration is additive: a field
+ * introduced by a later version is simply absent in an older payload and falls
+ * back to its empty value, so upgrading never discards an existing notebook.
+ */
+const SUPPORTED_NOTEBOOK_VERSIONS: readonly number[] = [1, 2, 3, 4, NOTEBOOK_VERSION];
 const MAX_RECORDS = 1000;
 
 export interface StorageLike {
@@ -22,7 +33,7 @@ export interface StorageLike {
 }
 
 interface StoredExplorationNotebook {
-  version: 1 | 2 | 3 | typeof NOTEBOOK_VERSION;
+  version: 1 | 2 | 3 | 4 | typeof NOTEBOOK_VERSION;
   savedAt: string;
   worldPose: WorldExplorerPose | null;
   courseIslandSlug: string | null;
@@ -37,6 +48,8 @@ interface StoredExplorationNotebook {
   surveyedDistricts?: Record<string, IslandDistrictId[]>;
   visitedBuildingFloors?: Record<string, string[]>;
   modelRuns?: ModelRunReceipt[];
+  /** Added in v5. Absent in v1–v4 payloads, which then load with no missions. */
+  missionRuns?: ModelLabMissionEvidenceV1[];
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -250,7 +263,7 @@ export function loadExplorationNotebook(storage: StorageLike | null = browserSto
     const raw = storage.getItem(EXPLORATION_NOTEBOOK_STORAGE_KEY);
     if (!raw) return initial;
     const value = JSON.parse(raw) as unknown;
-    if (!isRecord(value) || ![1, 2, 3, NOTEBOOK_VERSION].includes(Number(value.version))) return initial;
+    if (!isRecord(value) || !SUPPORTED_NOTEBOOK_VERSIONS.includes(Number(value.version))) return initial;
     const currents = Array.isArray(value.sampledCurrents)
       ? value.sampledCurrents.map(currentOf).filter((item): item is SampledCurrentRecord => !!item)
       : [];
@@ -266,6 +279,14 @@ export function loadExplorationNotebook(storage: StorageLike | null = browserSto
       ? value.modelRuns.map(modelRunOf).filter((item): item is ModelRunReceipt => !!item)
       : [];
     const modelRuns = [...new Map(parsedModelRuns.map((receipt) => [receipt.id, receipt])).values()].slice(-200);
+    // One corrupt mission record drops itself, not the surrounding notebook.
+    const missionRuns = dedupeMissionEvidence(
+      Array.isArray(value.missionRuns)
+        ? value.missionRuns
+          .map(parseMissionEvidence)
+          .filter((record): record is ModelLabMissionEvidenceV1 => !!record)
+        : [],
+    );
     return {
       ...initial,
       worldPose: poseOf(value.worldPose),
@@ -281,6 +302,7 @@ export function loadExplorationNotebook(storage: StorageLike | null = browserSto
       surveyedDistricts: districtsOf(value.surveyedDistricts),
       visitedBuildingFloors: floorVisitsOf(value.visitedBuildingFloors),
       modelRuns,
+      missionRuns,
     };
   } catch {
     return initial;
@@ -310,6 +332,7 @@ export function saveExplorationNotebook(
     surveyedDistricts: session.surveyedDistricts,
     visitedBuildingFloors: session.visitedBuildingFloors,
     modelRuns: session.modelRuns,
+    missionRuns: session.missionRuns,
   };
   try {
     storage.setItem(EXPLORATION_NOTEBOOK_STORAGE_KEY, JSON.stringify(durable));
@@ -327,6 +350,10 @@ const labels = {
     districts: '岛内勘察图', floors: '建筑楼层札记', building: '建筑',
     passages: '连接记录', route: '比较对象', kind: '性质', charted: '复核已有连接', frontier: '建立新连接', mapping: '变量对应', boundary: '重要差异 / 类比边界', prediction: '可证伪预测', evidence: '证据或记录', ledgerRef: '账本映射', completed: '完成时间',
     models: '我亲手运行的模型', modelLocal: '以下是个人学习记录，不是研究证据，也不会自动生成关系图连线。', modelFamily: '规律', substrate: '具体问题', parameters: '参数', observation: '观察结果', steps: '步', modelSource: '进入来源',
+    missions: '受限调查记录（AI 自主运行）', missionLocal: '以下由调查者在本地自主运行并自行修订。它们保留为模型观察，不是研究证据，也不会写入账本或生成关系图连线。',
+    missionStop: '停止原因', missionRevisions: '计划修订', missionFailed: '失败预测', missionRuns: '模型运行次数', missionWall: '耗时', missionReplay: '确定性复演', missionReplayOk: '全部一致', missionReplayBad: '存在差异',
+    missionTrials: '逐次试验', missionCoupling: '耦合 K', missionReached: '达到目标', missionNotReached: '未达到', missionMatched: '预测相符', missionMismatched: '预测落空',
+    missionGoalReached: '达到目标', missionPlateau: '序列用尽', missionBudget: '预算耗尽',
   },
   en: {
     title: 'Frontier Isles · Field Notebook', local: 'This notebook is stored in this browser and can leave as Markdown. It is not yet synced to an account or island ledger.',
@@ -335,6 +362,10 @@ const labels = {
     districts: 'Island district surveys', floors: 'Building floor notes', building: 'Building',
     passages: 'Connection records', route: 'Compared problems', kind: 'Kind', charted: 'reviewed connection', frontier: 'new connection', mapping: 'Variable correspondence', boundary: 'Important difference / analogy boundary', prediction: 'Falsifiable prediction', evidence: 'Evidence or record', ledgerRef: 'Ledger mapping', completed: 'Completed',
     models: 'Models I ran myself', modelLocal: 'These are personal learning records, not research evidence, and they do not automatically create graph connections.', modelFamily: 'Rule', substrate: 'Concrete problem', parameters: 'Parameters', observation: 'Observation', steps: 'steps', modelSource: 'Entry context',
+    missions: 'Bounded inquiries (run autonomously)', missionLocal: 'The investigator ran and revised these locally. They remain model observations — not research evidence — and they neither write to the ledger nor create graph connections.',
+    missionStop: 'Stop reason', missionRevisions: 'Plan revisions', missionFailed: 'Failed predictions', missionRuns: 'Model runs', missionWall: 'Elapsed', missionReplay: 'Deterministic replay', missionReplayOk: 'all matched', missionReplayBad: 'difference found',
+    missionTrials: 'Trials', missionCoupling: 'Coupling K', missionReached: 'target reached', missionNotReached: 'not reached', missionMatched: 'prediction held', missionMismatched: 'prediction failed',
+    missionGoalReached: 'Goal reached', missionPlateau: 'Sequence exhausted', missionBudget: 'Budget exhausted',
   },
 } as const;
 
@@ -363,6 +394,19 @@ const modelMetricNames: Record<'zh' | 'en', Record<ModelRunReceipt['observation'
   zh: { coherence: '整体同步程度', spread: '空间极差', residual: '局部方程残差' },
   en: { coherence: 'group coherence', spread: 'spatial range', residual: 'local-equation residual' },
 };
+
+/**
+ * Only the reasons this mission family can actually stop on get a translated
+ * name. Anything else keeps its machine token rather than being softened into
+ * prose that would misreport why the investigator halted.
+ */
+function missionStopName(reason: ModelLabMissionEvidenceV1['stopReason'], lang: 'zh' | 'en'): string {
+  const l = labels[lang];
+  if (reason === 'goal_reached') return l.missionGoalReached;
+  if (reason === 'plateau') return l.missionPlateau;
+  if (reason === 'budget_exhausted') return l.missionBudget;
+  return reason;
+}
 
 const districtNames: Record<'zh' | 'en', Record<IslandDistrictId, string>> = {
   zh: { harbor: '问题定位', inquiry: '问题与差异', archive: '证据与测量', works: '方法与试验', observatory: '结果与下一步' },
@@ -456,6 +500,26 @@ export function explorationNotebookMarkdown(
       `- ${l.boundary}: ${run.boundary.replace(/\n/g, '\n  ')}`,
       ...(run.sourceStructureId ? [`- ${l.modelSource}: \`${run.sourceStructureId}\``] : []),
       `- ${l.completed}: ${run.createdAt}`,
+    );
+  }
+  lines.push('', `## ${l.missions}`, '', `> ${l.missionLocal}`);
+  if (session.missionRuns.length === 0) lines.push(l.none);
+  for (const [index, mission] of session.missionRuns.entries()) {
+    lines.push(
+      '',
+      `### ${String(index + 1).padStart(2, '0')} · ${mission.objectiveId}`,
+      `- ${l.missionStop}: ${missionStopName(mission.stopReason, lang)} (\`${mission.status}\`)`,
+      `- ${l.missionRevisions}: ${mission.revisions} · ${l.missionFailed}: ${mission.failedPredictions} · ${l.missionRuns}: ${mission.modelRuns}`,
+      `- ${l.missionWall}: ${(mission.wallMs / 1000).toFixed(1)}s · ${l.missionReplay}: ${mission.replayOk ? l.missionReplayOk : l.missionReplayBad}`,
+      `- ${l.missionTrials}:`,
+      ...mission.trials.map((trial) => (
+        `  - ${String(trial.trial).padStart(2, '0')} · ${l.missionCoupling}=${trial.coupling} · `
+        + `${modelMetricNames[lang][trial.metric]} ${trial.initial.toFixed(4)} → ${trial.final.toFixed(4)} · `
+        + `${trial.predictionMatched ? l.missionMatched : l.missionMismatched} · `
+        + `${trial.targetReached ? l.missionReached : l.missionNotReached}`
+      )),
+      `- ${l.completed}: ${mission.endedAt}`,
+      `- \`${mission.epistemicStatus}\` · \`ledger_effect=${mission.ledgerEffect}\``,
     );
   }
   return `${lines.join('\n')}\n`;

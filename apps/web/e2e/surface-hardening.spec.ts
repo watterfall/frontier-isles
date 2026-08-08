@@ -205,6 +205,28 @@ test.describe('desktop L0 → L1 experience', () => {
     await mission.getByRole('button', { name: '清除本次轨迹' }).click();
     await expect(mission).toHaveAttribute('data-phase', 'idle');
     await expect(mission.locator('.fi-model-mission-trials')).toHaveCount(0);
+
+    // Clearing the live trace discards the in-page run, not the notebook record.
+    const history = mission.locator('.fi-model-mission-history');
+    await expect(history).toBeVisible();
+    await expect(history.locator('ol > li')).toHaveCount(1);
+    await expect(history).toContainText('达到目标');
+
+    // The record is evidence only after it survives a real reload.
+    await page.reload();
+    await openAtlas(page);
+    const relaunch = page.locator('[data-model-launch="global"]');
+    await expect(relaunch).toBeVisible({ timeout: 15_000 });
+    await relaunch.click();
+    const reopened = page.locator('.fi-model-workbench .fi-model-mission');
+    await expect(reopened).toBeVisible({ timeout: 15_000 });
+    await reopened.locator(':scope > summary').click();
+    await expect(reopened).toHaveAttribute('data-phase', 'idle');
+    await expect(reopened.locator('.fi-model-mission-history ol > li')).toHaveCount(1);
+    await expect(reopened).toContainText('存入本浏览器的考察札记');
+    // Surviving a reload must not promote it past a local model observation.
+    await expect(reopened).toContainText('不会自动写入研究账本');
+    await expectNoHorizontalOverflow(page);
   });
 
   // Runs at DEFAULT motion on purpose: this is the only browser coverage of the
@@ -400,6 +422,16 @@ test.describe('mobile companion surface', () => {
     await mission.locator(':scope > summary').click();
     await expect(mission).toHaveAttribute('open', '');
     await expect(mission).toContainText('A2 · 计划—运行—判断—修订');
+    await expectNoHorizontalOverflow(page);
+    await expectVisibleTargetsAtLeast(mission.locator('summary, button'), 44);
+
+    // The compact surface writes to the same notebook, so the saved-inquiry
+    // list has to fit the 390px shell rather than only the desktop sheet.
+    await mission.getByRole('button', { name: '授权并运行这次受限调查' }).click();
+    await expect(mission).toHaveAttribute('data-phase', 'complete', { timeout: 20_000 });
+    await expect(mission.locator('.fi-model-mission-history ol > li')).toHaveCount(1);
+    await expect(mission).toContainText('存入本浏览器的考察札记');
+    await expect(mission).toContainText('不会自动写入研究账本');
     await expectNoHorizontalOverflow(page);
     await expectVisibleTargetsAtLeast(mission.locator('summary, button'), 44);
 
