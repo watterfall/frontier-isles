@@ -10,13 +10,23 @@
  *
  * Run:  node --experimental-strip-types scripts/audit-atlas.mjs [evidence-dir]
  * Exits non-zero if any island is ungrounded, incomplete, or unreachable.
- * The corpus directory is only needed for the provenance and evidence checks;
- * without it those are skipped and the rest still runs.
+ * The corpus directory is only needed to check that a cited id still EXISTS
+ * upstream, and for the evidence checks; without it those are skipped and the
+ * rest still runs. Whether a cited id was RETIRED is checked either way, from
+ * the ledger frozen into `src/corpus-retirements.ts` — that check used to live
+ * entirely behind the corpus path, which made it a memory rather than a gate.
  */
 import { readFile } from 'node:fs/promises';
 import { FRONTIERS } from '../src/frontiers.ts';
 import { FRONTIER_ATLAS } from '../src/atlas.ts';
 import { FRONTIER_ATLAS_DETAIL } from '../src/atlas-detail.ts';
+import {
+  CORPUS_RETIREMENTS,
+  CORPUS_RETIREMENTS_SNAPSHOT_DATE,
+  CORPUS_RETIREMENTS_VERIFIED_AGAINST,
+  CORPUS_RETIREMENT_LEDGER_VERSION,
+  retirementFor,
+} from '../src/corpus-retirements.ts';
 
 /** ids at or above this belong to wave 3; below is the pre-wave-3 atlas. */
 const WAVE_3_FIRST = 177;
@@ -74,56 +84,111 @@ ok(new Set(FRONTIERS.map((f) => f.slug)).size === FRONTIERS.length, 'duplicate s
 ok(new Set(FRONTIERS.map((f) => f.atlasN)).size === FRONTIERS.length, 'duplicate atlasN');
 
 // ── provenance ──────────────────────────────────────────────────────────────
+// Islands are not the only thing pinning a corpus record id. Every seed
+// structure cites record ids as provenance, and some are NOT islands — so
+// checking `FRONTIERS[].atlasN` alone leaves those unresolved forever.
+//
+// Read them off the MODULE, never off structures.ts as a file. SEED_STRUCTURES
+// composes in `structures-expansion-wave2.ts` through a `#` subpath import, so
+// 21 of the 61 ids are not in structures.ts AT ALL — and that file defines its
+// own lowercase `provenance()` helper rather than reusing `XFRONTIER`, so a
+// name-based pattern misses them a second time even if you do open it.
+//
+// The first reason is the one that matters: a flawless AST parser over
+// structures.ts still cannot reach ids that live in another file. Source-level
+// extraction is not merely fragile against composition, it is CLOSED to it.
+//
+// Both this repo and the upstream corpus session made this mistake
+// independently and both still got the right total, because every id the
+// file-scoped read drops happens to be an island atlasN already in the union.
+// Worse, the two wrong counts agreeing looked like corroboration when it was a
+// shared defect. A count that is right by luck reads exactly like a right one.
+// Only the STRUCTURE carries `provenance.recordIds`. This loop used to also read
+// `mapping.provenance`, which is not on the type and is undefined for all 135
+// mappings at runtime — dead code that made the audit look like it covered a
+// plane it never touched. Mappings ground themselves the other way, through
+// `evidenceRefs` (resolvable URLs); 85 of 135 carry them, the 50 without are the
+// original seed mappings that predate the rule.
+const { SEED_STRUCTURES: STRUCTS } = await import('../src/structures.ts');
+const structIds = new Set();
+for (const s of STRUCTS) for (const n of s.provenance?.recordIds ?? []) structIds.add(n);
+const citedIds = new Set([...FRONTIERS.map((f) => f.atlasN), ...structIds]);
+
+/** Set when a cited record is retired or missing upstream — i.e. when this
+ *  atlas's grounding is not fully intact. The verdict reads this flag rather
+ *  than pattern-matching its own warning prose: a reworded message must not be
+ *  able to silently restore a claim the evidence no longer supports. */
+let provenanceOpen = false;
+
+// ── retirement (runs WITHOUT a corpus checkout) ─────────────────────────────
+// The frozen ledger is the whole point: before this, a cited-but-retired record
+// could only be noticed on the one machine holding a full corpus. Everywhere
+// else the check degraded to "not run", which is a memory, not a gate.
+const retiredCited = [...citedIds]
+  .map((n) => retirementFor(n))
+  .filter(Boolean)
+  .sort((a, b) => a.n - b.n);
+console.log(`retirements: frozen ledger v${CORPUS_RETIREMENT_LEDGER_VERSION} ` +
+  `(snapshot ${CORPUS_RETIREMENTS_SNAPSHOT_DATE}, ids resolved against ${CORPUS_RETIREMENTS_VERIFIED_AGAINST}) ` +
+  `— ${retiredCited.length}/${citedIds.size} cited ids retired upstream`);
+for (const entry of retiredCited) {
+  provenanceOpen = true;
+  const island = FRONTIERS.find((f) => f.atlasN === entry.n);
+  const who = island ? `#${island.id} ${island.slug}` : 'a structure (no island)';
+  const age = island && !isWave3(island) ? 'PRE-EXISTING · ' : '';
+  // Name the reason and quote the note, because "retired" alone cannot be acted
+  // on. `too_mature_or_applied` in particular means the work moved into
+  // deployment — NOT that the question was answered — so the lighthouse flag
+  // would assert something the upstream ledger does not say. Three dispositions
+  // are open here and all three are editorial; this audit reports, never picks.
+  warn.push(`${age}${who} cites XF-${String(entry.n).padStart(6, '0')}, retired upstream as ` +
+    `\`${entry.reason}\` — "${entry.note}". Editorial call, three ways: (a) retire the island, since the ` +
+    `upstream reason is exactly this map's inclusion criterion; (b) keep it and surface the retirement ` +
+    `reason to the reader; (c) flag \`resolved: true\` — but note the ledger says deployed, not answered, ` +
+    `so on this record (c) would misreport it.`);
+}
+
 if (corpus) {
   const live = new Set(corpus.records.map((r) => r.n));
   const orphans = FRONTIERS.filter((f) => !live.has(f.atlasN));
   const orphansW3 = orphans.filter(isWave3);
   ok(orphansW3.length === 0,
     `${orphansW3.length} wave-3 islands cite an atlasN absent from the corpus: ${orphansW3.map((f) => f.atlasN).join(',')}`);
-  for (const f of orphans.filter((f) => !isWave3(f))) {
-    warn.push(`PRE-EXISTING · #${f.id} ${f.slug} cites XF-${String(f.atlasN).padStart(6, '0')}, which the atlas has ` +
-      `withdrawn. Editorial call: flag \`resolved: true\` (the settled-question lighthouse) or retire the island.`);
-  }
+  if (orphans.length) provenanceOpen = true;
   console.log(`provenance: ${FRONTIERS.length - orphans.length}/${FRONTIERS.length} trace to a live xfrontier record ` +
     `(wave-3 orphans ${orphansW3.length}, pre-existing ${orphans.length - orphansW3.length})`);
 
-  // Islands are not the only thing pinning a corpus record id. Every seed
-  // structure cites record ids as provenance, and some are NOT islands — so
-  // checking `FRONTIERS[].atlasN` alone leaves those unresolved forever.
-  //
-  // Read them off the MODULE, never off structures.ts as a file. SEED_STRUCTURES
-  // composes in `structures-expansion-wave2.ts` through a `#` subpath import, so
-  // 21 of the 61 ids are not in structures.ts AT ALL — and that file defines its
-  // own lowercase `provenance()` helper rather than reusing `XFRONTIER`, so a
-  // name-based pattern misses them a second time even if you do open it.
-  //
-  // The first reason is the one that matters: a flawless AST parser over
-  // structures.ts still cannot reach ids that live in another file. Source-level
-  // extraction is not merely fragile against composition, it is CLOSED to it.
-  //
-  // Both this repo and the upstream corpus session made this mistake
-  // independently and both still got the right total, because every id the
-  // file-scoped read drops happens to be an island atlasN already in the union.
-  // Worse, the two wrong counts agreeing looked like corroboration when it was a
-  // shared defect. A count that is right by luck reads exactly like a right one.
-  const { SEED_STRUCTURES: STRUCTS } = await import('../src/structures.ts');
-  const structIds = new Set();
-  for (const s of STRUCTS) {
-    for (const p of [s.provenance, ...(s.mappings ?? []).map((m) => m.provenance)]) {
-      for (const n of p?.recordIds ?? []) structIds.add(n);
-    }
-  }
   const structOnly = [...structIds].filter((n) => !FRONTIERS.some((f) => f.atlasN === n));
   const structDead = [...structIds].filter((n) => !live.has(n));
   console.log(`            + ${structIds.size} record ids cited by SEED_STRUCTURES ` +
     `(${STRUCTS.length} structures incl. the wave-2 module; ${structOnly.length} id not an island) ` +
     `— ${structIds.size - structDead.length} live`);
   for (const n of structDead) {
+    provenanceOpen = true;
     warn.push(`structures.ts cites XF-${String(n).padStart(6, '0')}, which is not in the current corpus`);
   }
+
+  // Drift, both directions. A frozen snapshot always goes stale; the failure
+  // mode to avoid is preferring one side SILENTLY. So report the disagreement
+  // and let a human resnap — shown, not trusted, not hidden.
+  const deadUnexplained = [...citedIds].filter((n) => !live.has(n) && !retirementFor(n));
+  for (const n of deadUnexplained) {
+    warn.push(`DRIFT · XF-${String(n).padStart(6, '0')} is cited here and absent from the live corpus, but the ` +
+      `frozen ledger (v${CORPUS_RETIREMENT_LEDGER_VERSION}) does not list it. The snapshot is behind — resnap ` +
+      `\`src/corpus-retirements.ts\` from ${corpusDir}/retired-domain-directions.json.`);
+  }
+  const unretired = CORPUS_RETIREMENTS.filter((entry) => live.has(entry.n));
+  for (const entry of unretired) {
+    warn.push(`DRIFT · XF-${String(entry.n).padStart(6, '0')} is listed retired in the frozen ledger but is live in ` +
+      `the corpus at ${corpusDir}. Either it was reinstated upstream or the snapshot is wrong; resnap and re-read.`);
+  }
+  if (!deadUnexplained.length && !unretired.length) {
+    console.log(`            frozen ledger agrees with the live corpus on all ${CORPUS_RETIREMENTS.length} retirements`);
+  }
 } else {
-  skipped.push(`provenance (no corpus at ${corpusDir} — pass XFRONTIER_AUDIT_DIR or an argv path)`);
-  console.log('provenance: SKIPPED (no corpus at ' + corpusDir + ')');
+  skipped.push(`liveness of cited ids — whether each id EXISTS upstream (no corpus at ${corpusDir}; ` +
+    `pass XFRONTIER_AUDIT_DIR or an argv path). Retirements were still checked, from the frozen ledger.`);
+  console.log('provenance: id existence SKIPPED (no corpus at ' + corpusDir + '); retirements checked from the frozen ledger');
 }
 
 // ── cluster + domain shape ──────────────────────────────────────────────────
@@ -309,8 +374,13 @@ if (fail.length) {
 // gate table, a future agent) has to be able to trust it literally — printing
 // "every island is grounded" four lines under "#60 cites a withdrawn record"
 // is how an invariant quietly stops meaning anything.
+// `provenanceOpen` is a flag set where the evidence is examined, NOT a regex
+// over the warnings printed above: matching your own prose means rewording a
+// message can silently restore a claim. `corpus` is still required because the
+// frozen ledger proves only that an id was not RETIRED — proving it was ever
+// ISSUED needs the record table.
 const claims = ['complete', 'bilingual', 'reachable on the map'];
-if (!warn.some((w) => /withdrawn|absent from the corpus/.test(w)) && corpus) claims.unshift('grounded');
+if (!provenanceOpen && corpus) claims.unshift('grounded');
 const verdict = `✓ PASS — every island is ${claims.join(', ')}.`;
 console.log(verdict);
 if (warn.length || skipped.length) {

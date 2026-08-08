@@ -13,6 +13,18 @@ import type { StructureCorrespondence, StructureMapping } from './structures';
  * when the island's substrate really contains the counterpart; same cluster, or
  * "it reads similar", is never enough. 34 of the
  * 419 cluster-generated candidates were kept.
+ *
+ * What that 90% rejection rate does and does not say. It says cluster adjacency
+ * is a WEAK PROXY for "this record instantiates that skeleton" — nine in ten
+ * candidates generated from shared-cluster membership had no counterpart in the
+ * substrate once read.
+ *
+ * It does NOT say cluster claims carry no information. The upstream corpus ran a
+ * pre-registered reconciliation on its own structure→domain claims and measured
+ * 65.4% against a weighted-random baseline of 12.8% — but that asks which DOMAINS
+ * a skeleton appears in, while this number asks which RECORD instantiates it.
+ * Two different questions; both results hold. Anyone setting the two side by side
+ * will assume they contradict, and by then neither of us is here to say otherwise.
  */
 export interface Wave3StructurePatch {
   structureId: string;
