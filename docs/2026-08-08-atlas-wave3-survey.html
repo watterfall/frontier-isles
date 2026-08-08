@@ -342,6 +342,28 @@ td .zh { font-family: var(--cjk); }
     </table>
   </div>
 
+  <h3 style="font-family:var(--serif);font-size:19px;font-weight:600;margin:34px 0 6px">读得进去，但连不出去</h3>
+  <p class="sec-sub">岛数翻倍了，把岛<em>连起来</em>的那几层没有。这是本次交付最大的未完成项，写在这里而不是留给下一个人去发现。</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>关系层</th><th>覆盖 / 371</th><th>其中本轮新岛</th><th>缺了它，岛上会怎样</th></tr></thead>
+      <tbody>
+        <tr><td class="zh">航线（桥梁）</td><td class="num">16</td><td class="num">0 / 195</td><td class="zh">没有渡船可乘，是死路</td></tr>
+        <tr><td class="zh">结构映射（同构）</td><td class="num">77</td><td class="num">0 / 195</td><td class="zh">不参与「结构⇄现象」二部图</td></tr>
+        <tr><td class="zh">洋流（账本关系）</td><td class="num">31</td><td class="num">0 / 195</td><td class="zh">海面上看不到它与别处的往来</td></tr>
+        <tr><td class="zh">丰富内景</td><td class="num">48</td><td class="num">0 / 195</td><td class="zh">进岛是生成场景而非问题墙/文献阁</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="verdict finding">
+    <span class="verdict-mark">⚠</span>
+    <div>
+      <p><strong>256 / 371（69%）的岛不在任何一层关系里</strong>——点进去有完整的双语简报和真实文献，但它与图集其余部分没有任何连接。</p>
+      <p>需要说清的两点：其一，这不是本轮制造的问题，扩张前就已有 <strong>61/176（35%）</strong>是孤立的；其二，本轮把它<strong>翻了倍</strong>。这几层是人工撰写的、本来就滞后于内容浪次，所以审核里它是警告而非失败——但必须被<em>计数</em>，不能靠记得。<code>pnpm audit:atlas</code> 现在每次都会报这个比例。</p>
+      <p>补齐它是与本次扩张体量相当的一件内容工程，本轮**没有尝试**，如实列为下一步第一优先。</p>
+    </div>
+  </div>
+
   <div class="verdict finding">
     <span class="verdict-mark">⚠</span>
     <div>
