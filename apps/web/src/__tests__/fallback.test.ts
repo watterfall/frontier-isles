@@ -8,8 +8,8 @@ import { DATA, QUESTIONS, STN, RITQ, DRIFT, BRIEF, AUTHQ } from '../api/fallback
 const ALL_INTERIORS = { ...INTERIORS, ...INTERIORS_2 };
 
 describe('fallback data matches the curated atlas', () => {
-  it('has 177 chart islands (176 curated frontiers + 1 bespoke sample)', () => {
-    expect(DATA).toHaveLength(177);
+  it('has 372 chart islands (371 curated frontiers + 1 bespoke sample)', () => {
+    expect(DATA).toHaveLength(372);
   });
 
   it('has 7 Question-Wall questions', () => {
@@ -66,7 +66,7 @@ describe('fallback data matches the curated atlas', () => {
   });
 
   it('keeps L0 summaries free of L1 depth, literature, and interior payloads', () => {
-    expect(FRONTIER_ATLAS).toHaveLength(176);
+    expect(FRONTIER_ATLAS).toHaveLength(371);
     for (const frontier of FRONTIER_ATLAS) {
       expect('depth' in frontier, `${frontier.slug} leaked depth into L0`).toBe(false);
       expect('literature' in frontier, `${frontier.slug} leaked literature into L0`).toBe(false);

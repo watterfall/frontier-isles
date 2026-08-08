@@ -100,7 +100,7 @@ export const MATTER_COMPUTATION_EXPANSION: FrontierEntry[] = [
     stage: 2,
     members: 5,
     activity: 64,
-    chart: { x: 160, y: 185, scale: 0.84 },
+    chart: { x: 153, y: 190, scale: 0.84 },
   },
   {
     id: 154,
@@ -188,7 +188,7 @@ export const MATTER_COMPUTATION_EXPANSION: FrontierEntry[] = [
     stage: 2,
     members: 4,
     activity: 61,
-    chart: { x: 310, y: 470, scale: 0.82 },
+    chart: { x: 306, y: 477, scale: 0.82 },
   },
   {
     id: 155,
@@ -282,7 +282,7 @@ export const MATTER_COMPUTATION_EXPANSION: FrontierEntry[] = [
     stage: 2,
     members: 6,
     activity: 68,
-    chart: { x: 670, y: 170, scale: 0.8 },
+    chart: { x: 686, y: 143, scale: 0.8 },
   },
   {
     id: 156,
@@ -370,7 +370,7 @@ export const MATTER_COMPUTATION_EXPANSION: FrontierEntry[] = [
     stage: 1,
     members: 3,
     activity: 46,
-    chart: { x: 805, y: 330, scale: 0.76 },
+    chart: { x: 829, y: 316, scale: 0.76 },
   },
   {
     id: 157,
@@ -464,7 +464,7 @@ export const MATTER_COMPUTATION_EXPANSION: FrontierEntry[] = [
     stage: 2,
     members: 6,
     activity: 69,
-    chart: { x: 560, y: 520, scale: 0.78 },
+    chart: { x: 540, y: 530, scale: 0.78 },
   },
   {
     id: 158,
@@ -564,7 +564,7 @@ export const MATTER_COMPUTATION_EXPANSION: FrontierEntry[] = [
     stage: 1,
     members: 2,
     activity: 43,
-    chart: { x: 390, y: 135, scale: 0.8 },
+    chart: { x: 388, y: 138, scale: 0.8 },
   },
   {
     id: 159,
@@ -652,7 +652,7 @@ export const MATTER_COMPUTATION_EXPANSION: FrontierEntry[] = [
     stage: 2,
     members: 4,
     activity: 59,
-    chart: { x: 520, y: 260, scale: 0.84 },
+    chart: { x: 519, y: 258, scale: 0.84 },
   },
   {
     id: 160,
@@ -740,7 +740,7 @@ export const MATTER_COMPUTATION_EXPANSION: FrontierEntry[] = [
     stage: 1,
     members: 3,
     activity: 52,
-    chart: { x: 730, y: 455, scale: 0.79 },
+    chart: { x: 727, y: 466, scale: 0.79 },
   },
   {
     id: 161,
@@ -834,7 +834,7 @@ export const MATTER_COMPUTATION_EXPANSION: FrontierEntry[] = [
     stage: 2,
     members: 5,
     activity: 66,
-    chart: { x: 235, y: 335, scale: 0.82 },
+    chart: { x: 232, y: 334, scale: 0.82 },
   },
   {
     id: 162,
@@ -928,7 +928,7 @@ export const MATTER_COMPUTATION_EXPANSION: FrontierEntry[] = [
     stage: 2,
     members: 7,
     activity: 73,
-    chart: { x: 445, y: 420, scale: 0.86 },
+    chart: { x: 438, y: 435, scale: 0.86 },
   },
   {
     id: 163,
@@ -1022,7 +1022,7 @@ export const MATTER_COMPUTATION_EXPANSION: FrontierEntry[] = [
     stage: 1,
     members: 3,
     activity: 48,
-    chart: { x: 855, y: 190, scale: 0.72 },
+    chart: { x: 868, y: 176, scale: 0.72 },
   },
   {
     id: 164,

@@ -129,7 +129,7 @@ describe("structures API (执行纲要 §九)", () => {
     expect(store.listStructures()).toHaveLength(SEED_STRUCTURES.length);
   });
 
-  it("materializes the 36 missing wave-2 islands on upgrade exactly once", () => {
+  it("materializes the 231 missing expansion islands on upgrade exactly once", () => {
     const expansion = FRONTIERS.filter((frontier) => frontier.id >= 141);
     const expansionOps = new Set(expansion.map((frontier) => opIdFor(frontier.slug)));
     const legacyEvents = new Map(
@@ -148,11 +148,15 @@ describe("structures API (执行纲要 §九)", () => {
       }
     });
     removeLegacyGap();
-    expect(expansion).toHaveLength(36);
+    // ids >= 141 are every expansion island: wave 2 (141-176) + wave 3 (177-371).
+    // What is under test is the upgrade path itself — an older database missing
+    // the whole expansion range gets it materialised in one seed, with the
+    // pre-expansion ledger untouched — so the range grows with each wave.
+    expect(expansion).toHaveLength(231);
     expect(store.listProblemRows()).toHaveLength(141);
 
-    expect(seed(store)).toBe(36);
-    expect(store.listProblemRows()).toHaveLength(177);
+    expect(seed(store)).toBe(231);
+    expect(store.listProblemRows()).toHaveLength(372);
     for (const frontier of expansion) {
       expect(store.getProblemRow(frontier.slug)?.meta.name).toBe(frontier.title.zh);
     }

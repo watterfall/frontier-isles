@@ -2121,5 +2121,2345 @@ export const FRONTIER_ATLAS_DETAIL: Record<string, FrontierAtlasDetail> = {
       "venue": "Project site (KU Leuven / U. Birmingham)",
       "year": 2025
     }
+  },
+  "symmetry-origin-hierarchical-emergence-via-equivariance": {
+    "brief": {
+      "zh": "取一个随机过程，先确定其动力学与哪个群等变，再沿该群的子群格逐层导出信息闭合的粗粒化变量，并检验贝叶斯信念能否在每个粒度上自洽更新；先在 Hopfield 网络与 Ehrenfest 扩散这类精确对称模型上与已知序参量对齐。",
+      "en": "Take a stochastic process, identify the group under which its dynamics are equivariant, derive informationally closed coarse-grained variables level by level along that group's subgroup lattice, and test whether Bayesian beliefs update autonomously at each resolution — first calibrating against known order parameters in exactly symmetric models such as Hopfield networks and Ehrenfest diffusion."
+    },
+    "citation": {
+      "url": "https://arxiv.org/abs/2512.00984",
+      "title": "Symmetries at the origin of hierarchical emergence",
+      "venue": "arXiv",
+      "year": 2025
+    }
+  },
+  "topology-state-coevolution-adaptive-networks": {
+    "brief": {
+      "zh": "只取节点状态显式改变连边、且新拓扑再反馈到状态的双向闭环模型，把易感者重连对流行阈值的改动与意见—连边共演化的碎片化放进同一框架比较，并检验拟合出的重连规则是否只是隐藏同质性的替身。",
+      "en": "Admit only two-way closed-loop models in which node states explicitly change edges and the new topology feeds back on states; compare, in one framework, how susceptible rewiring shifts the epidemic threshold and how opinion–edge coevolution fragments a network — then test whether a fitted rewiring rule is merely a stand-in for hidden homophily."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1103/PhysRevLett.96.208701",
+      "title": "Epidemic Dynamics on an Adaptive Network",
+      "venue": "Physical Review Letters",
+      "year": 2006
+    }
+  },
+  "multi-agent-credit-assignment-under-shared": {
+    "brief": {
+      "zh": "在合作式 MARL 中并排实现三种归因机制——COMA 的反事实基线、集体 actor–critic 的差分回报、Dr.Reinforce 对奖励函数直接求差——在同一批 StarCraft、网格、车队与巡逻任务上比较它们随智能体数量增长时的偏差与方差。",
+      "en": "Implement three attribution mechanisms side by side in cooperative MARL — COMA's counterfactual baseline, difference rewards in collective actor–critic, and Dr.Reinforce differencing the reward function directly — and compare their bias and variance as agent count grows across one common set of StarCraft, gridworld, fleet, and patrolling tasks."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1007/s00521-022-07960-5",
+      "title": "Difference rewards policy gradients",
+      "venue": "Neural Computing and Applications",
+      "year": 2022
+    }
+  },
+  "graph-neural-networks-characterizing-algebraic": {
+    "brief": {
+      "zh": "把「两个箭图是否突变等价」这类等价判定改写成图分类任务，训练 GNN 分开等价类，再用可解释性工具把网络的隐式判据拆出来，交由人类补上充要性证明。",
+      "en": "Recast equivalence decisions such as whether two quivers are mutation-equivalent as graph classification, train a GNN to separate the classes, then use explainability tools to extract the network's implicit criterion and hand it to humans to supply the necessity-and-sufficiency proof."
+    },
+    "citation": {
+      "url": "https://arxiv.org/abs/2411.07467",
+      "title": "Machines and Mathematical Mutations: Using GNNs to Characterize Quiver Mutation Classes",
+      "venue": "arXiv / ICML 2025",
+      "year": 2024
+    }
+  },
+  "automated-repair-evolving-formal-proof": {
+    "brief": {
+      "zh": "从示例补丁归纳 proof-term 变换、沿类型等价迁移函数与证明、为规范不变但实现演化的库自动推断新不变量，并逐类报告自动转换覆盖率、失败证明与人工补丁量。",
+      "en": "Induce proof-term transformations from example patches, migrate functions and proofs along type equivalences, infer new invariants for libraries whose specification holds but whose implementation evolves — and report, per change class, automatic conversion coverage, failed proofs and the volume of manual patching."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1145/3591221",
+      "title": "Mostly Automated Proof Repair for Verified Libraries",
+      "venue": "Proceedings of the ACM on Programming Languages",
+      "year": 2023
+    }
+  },
+  "beam-bottle-discrepancy-free-neutron-lifetime": {
+    "brief": {
+      "zh": "在两类装置上分别做盲化测量与完整损失预算：重标定束流法的中子通量监视器与质子计数效率，用磁—重力陷阱和原位计数压低储存端损失，再交由第三方装置独立复现。",
+      "en": "Run blinded measurements with complete loss budgets on both kinds of apparatus: recalibrate the beam method's neutron flux monitor and proton counting efficiency, suppress storage losses with a magneto-gravitational trap and in-situ counting, then hand the result to independent apparatus for replication."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1103/PhysRevLett.128.212503",
+      "title": "Experimental Search for Neutron to Mirror Neutron Oscillations as an Explanation of the Neutron Lifetime Anomaly",
+      "venue": "Physical Review Letters",
+      "year": 2022
+    }
+  },
+  "synthetic-control-methods-transplanted-ecological-interventions": {
+    "brief": {
+      "zh": "为每个保护区、复野或流域治理单元从未处理区域挑供体池，用干预前时序拟合权重，报告空间与时间安慰剂检验、凸包可支持性与敏感性分析，并预注册结果指标。",
+      "en": "Draw a donor pool of untreated units for each protected area, rewilding site, or watershed programme, fit weights on pre-intervention time series, and report spatial and temporal placebo tests, convex-hull support, and sensitivity analyses against pre-registered outcome measures."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1016/j.cub.2024.07.031",
+      "title": "Conservation opportunities through improved management of recently established protected areas in Southeast Asia",
+      "venue": "Current Biology",
+      "year": 2024
+    }
+  },
+  "ambient-seismic-interferometry-transplanted-subglacial": {
+    "brief": {
+      "zh": "沿冰川测线布廉价被动节点做噪声互相关与尾波干涉，长期跟踪波速变化与 HVSR 谱比，并用深度散射网络无监督聚类识别底部事件，把源变化与介质变化分开记账。",
+      "en": "Deploy cheap passive nodes along a glacier line for ambient-noise cross-correlation and coda-wave interferometry, track velocity change and HVSR spectral ratios over long spans, and cluster continuous waveforms with a deep scattering network to catch basal events — keeping source change and medium change on separate books."
+    },
+    "citation": {
+      "url": "https://tc.copernicus.org/articles/19/1469/2025/",
+      "title": "Spectral characteristics of seismic ambient vibrations reveal changes in the subglacial environment of Glacier de la Plaine Morte, Switzerland",
+      "venue": "The Cryosphere",
+      "year": 2025
+    }
+  },
+  "occupancy-models-transplanted-pathogen-surveillance": {
+    "brief": {
+      "zh": "在废水、医院与野生动物监测里保留重复采样层级，用动态占域模型同时估检出概率与患病率，显式建模多种诊断方法之间的相关性，并用外部阳性与阴性对照标定。",
+      "en": "Preserve the repeat-sampling hierarchy in wastewater, hospital, and wildlife surveillance; estimate detection probability and prevalence jointly with dynamic occupancy models; model correlation among diagnostic methods explicitly; and calibrate with external positive and negative controls."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1111/1365-2664.13477",
+      "title": "Not all surveillance data are created equal—A multi-method dynamic occupancy approach to determine rabies elimination from wildlife",
+      "venue": "Journal of Applied Ecology",
+      "year": 2019
+    }
+  },
+  "item-response-theory-transplanted-ai": {
+    "brief": {
+      "zh": "为每道基准题拟合难度与区分度，做逐样本诊断与数据集复杂度分析，再用计算机自适应测验选题，把评测成本压下来的同时报告能力估计的标准误与题库的差异项目功能。",
+      "en": "Fit difficulty and discrimination for every benchmark item, run instance-level diagnostics and dataset-complexity analysis, then select items by computerized adaptive testing — cutting evaluation cost while reporting the standard error of the ability estimate and the item bank's differential item functioning."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1038/s41746-026-02671-w",
+      "title": "Leveraging computerized adaptive testing for cost-effective evaluation of large language models in medical benchmarking",
+      "venue": "npj Digital Medicine",
+      "year": 2026
+    }
+  },
+  "saes-scientific-instrument-turning-interpretability": {
+    "brief": {
+      "zh": "对 ESM-2 等基础模型的表征训练稀疏自编码器，把特征与催化位点、锌指域、GO 注释对齐，再挑出无对应注释的特征做湿实验或结构验证，逐个判定是新发现还是重述。",
+      "en": "Train sparse autoencoders on representations from foundation models such as ESM-2, align features with catalytic sites, zinc-finger domains, and GO annotation, then take the features with no annotation match into wet-lab or structural validation, adjudicating discovery versus restatement one by one."
+    },
+    "citation": {
+      "url": "https://www.pnas.org/doi/10.1073/pnas.2506316122",
+      "title": "Sparse autoencoders uncover biologically interpretable features in protein language model representations",
+      "venue": "PNAS",
+      "year": 2025
+    }
+  },
+  "cross-layer-transcoders-attribution-graphs-dissecting": {
+    "brief": {
+      "zh": "用跨层转码器整体替换稠密 MLP，把稀疏特征跨层对齐，再以雅可比归因连成局部计算图，然后逐节点消融，检验图上标注的路径是否真的承载该次推理。",
+      "en": "Replace dense MLPs wholesale with cross-layer transcoders, align sparse features across layers, wire them into a local compute graph by Jacobian attribution, then ablate node by node to test whether the annotated paths actually carry that inference."
+    },
+    "citation": {
+      "url": "https://arxiv.org/html/2501.18823v1",
+      "title": "Transcoders Beat Sparse Autoencoders for Interpretability",
+      "venue": "arXiv",
+      "year": 2025
+    }
+  },
+  "dendritic-computing-neuromorphic-circuits": {
+    "brief": {
+      "zh": "用易失与非易失忆阻器共集成可编程树突分支，接入高密度 RRAM 阵列，在等精度数字基线下逐项计入 ADC、路由与外围功耗，测量树突模块在未见任务上的独立贡献。",
+      "en": "Co-integrate volatile and non-volatile memristors into programmable dendritic branches, attach them to a high-density RRAM array, account item by item for ADC, routing and peripheral power against an iso-precision digital baseline, and measure what the dendritic module independently contributes on unseen tasks."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1038/s41467-026-73669-x",
+      "title": "Homeostatic dendritic neuron based on co-integrated volatile and non-volatile memristors for neuromorphic processing",
+      "venue": "Nature Communications",
+      "year": 2026
+    }
+  },
+  "computational-chemical-space-monitoring-novel-entities-boundary": {
+    "brief": {
+      "zh": "用机器学习对 >35 万种在用化学品做高通量危害与暴露筛查，按“驱动—压力—状态—影响”聚成空间显式的多指标，并对每个预测标注外推距离与训练数据偏倚，而不是交出一个无置信度的单一数字。",
+      "en": "Screen more than 350,000 chemicals in use for hazard and exposure at high throughput with machine learning, aggregate the results into spatially explicit indicators along the driver-pressure-state-impact chain, and annotate every prediction with its extrapolation distance and the bias in its training data instead of shipping a single number without confidence."
+    },
+    "citation": {
+      "url": "https://pubs.acs.org/doi/full/10.1021/acs.est.5c14324",
+      "title": "Challenges and Initiatives to Operationalize the Planetary Boundaries for Novel Entities",
+      "venue": "Environmental Science & Technology",
+      "year": 2025
+    }
+  },
+  "equation-free-causal-reconstruction-empirical-dynamic": {
+    "brief": {
+      "zh": "用 rEDM 与开源 GCCM 在真实社会-生态数据上重构吸引子并跑交叉映射，同时构造已知答案的同步性混淆与短序列对照，给出方向判定的置信度与可证伪的拒绝准则，再把结果交给可控性分析做前处理。",
+      "en": "Reconstruct attractors and run cross mapping on real socio-ecological data with rEDM and the open-source GCCM, alongside synchrony-confound and short-series controls whose answers are known; deliver a confidence level and a falsifiable rejection criterion for each directional call, then hand the result to controllability analysis as its front end."
+    },
+    "citation": {
+      "url": "https://arxiv.org/abs/2412.11252",
+      "title": "Robust methods to detect coupling among nonlinear dynamic time series",
+      "venue": "arXiv",
+      "year": 2024
+    }
+  },
+  "renewable-energy-drought-dunkelflaute-risk": {
+    "brief": {
+      "zh": "在数十个历史气象年的再分析数据上并行跑阈值法与能量缺口法两套 Dunkelflaute 度量，接进电力部门模型算出长时储能与跨国互联的需求区间，并把代码与数据公开，让度量选择造成的差异可被独立复算。",
+      "en": "Run threshold-based and energy-deficit Dunkelflaute metrics side by side over reanalysis covering dozens of historical weather years, feed both into a power-sector model to bracket long-duration storage and interconnection needs, and publish code and data so the spread caused by the metric choice can be recomputed independently."
+    },
+    "citation": {
+      "url": "https://www.nature.com/articles/s41467-026-72681-5",
+      "title": "Long-duration electricity storage needs for coping with Dunkelflaute events in Europe",
+      "venue": "Nature Communications",
+      "year": 2026
+    }
+  },
+  "falsifiable-early-warning-science": {
+    "brief": {
+      "zh": "把临界慢化从事后叙事改造成预测协议：预注册预警判据，在合成与真实序列上算样本外技巧与假阳性率，用贝叶斯先验校正“观测到信号”到“临界将至”的跳跃，并把结果汇进社区基准库与假阳性排行榜。",
+      "en": "Convert critical slowing down from post-hoc narrative into a predictive protocol: preregister the warning criterion, compute out-of-sample skill and false-alarm rates on synthetic and real series, use Bayesian priors to correct the leap from \"a signal was observed\" to \"a tipping point is near,\" and pool results into a community benchmark suite and false-alarm leaderboard."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1038/s41558-025-02328-8",
+      "title": "Ambiguity of early warning signals for climate tipping points",
+      "venue": "Nature Climate Change",
+      "year": 2025
+    }
+  },
+  "worst-case-verification-grid-optimization-proxies": {
+    "brief": {
+      "zh": "用混合整数规划与对偶界为 OPF 神经代理算最坏违约与最优性差证书，把验证结果回灌成训练约束形成训练—验证—修复闭环，并让验证域按实际运行包络而非人为超立方体来划。",
+      "en": "Certify worst-case violation and optimality gap for OPF neural proxies with mixed-integer programming and dual bounds, feed the verification result back as a training constraint to close a train-verify-repair loop, and draw the verification domain from the actual operating envelope rather than an arbitrary hyperrectangle."
+    },
+    "citation": {
+      "url": "https://arxiv.org/abs/2510.23806",
+      "title": "Maximal Load Shedding Verification for Neural Network Models of AC Line Switching",
+      "venue": "arXiv",
+      "year": 2025
+    }
+  },
+  "bio-inspired-structural-materials-lightweight-high-strength": {
+    "brief": {
+      "zh": "把珍珠母「砖-泥」叠层、螺旋铺层与骨单位构型参数化，用 AI 逆向设计搜索强度—韧性帕累托前沿，再以增材制造打印实体，按尺度效应做力学与缺陷统计验证。",
+      "en": "Parameterize nacre's brick-and-mortar layering, helicoidal stacking, and osteon geometry, search the strength-toughness Pareto front by AI inverse design, then print the designs by additive manufacturing and validate mechanics and defect statistics across scales."
+    },
+    "citation": {
+      "url": "https://pubs.rsc.org/en/content/articlehtml/2024/bm/d4bm00903g",
+      "title": "From bone to nacre – development of biomimetic materials for bone implants: a review",
+      "venue": "Biomaterials Science",
+      "year": 2024
+    }
+  },
+  "long-term-evolutionary-stability-engineered-living": {
+    "brief": {
+      "zh": "把工程基因组的演化稳定性测量方法搬到材料上：标定功能回路的演化半衰期，用反馈型遗传控制器延长输出寿命，并把遗传稳定、货架稳定、生态遏制与力学稳定分四条曲线分别报告。",
+      "en": "Carry methods for measuring the evolutionary stability of engineered genomes over to materials: calibrate the evolutionary half-life of the functional circuit, extend output longevity with feedback genetic controllers, and report genetic stability, shelf stability, ecological containment, and mechanical stability as four separate curves."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1038/s41467-025-63627-4",
+      "title": "Genetic controllers for enhancing the evolutionary longevity of synthetic gene circuits in bacteria",
+      "venue": "Nature Communications",
+      "year": 2025
+    }
+  },
+  "engineered-living-photonic-materials": {
+    "brief": {
+      "zh": "用工程细菌自组装聚硅酸盐生物玻璃涂层并量化其聚焦增强，用自生长光子复合物把颜色与力学同时编程，再逐项标定折射率组织的均一性、可重复性与长期漂移。",
+      "en": "Have engineered bacteria self-assemble polysilicate bioglass coatings and quantify the resulting light-focusing enhancement, program color and mechanics together in self-growing photonic composites, then calibrate the uniformity, repeatability, and long-term drift of the refractive-index organization item by item."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1073/pnas.2409335121",
+      "title": "Engineered bacteria that self-assemble bioglass polysilicate coatings display enhanced light focusing",
+      "venue": "Proceedings of the National Academy of Sciences",
+      "year": 2024
+    }
+  },
+  "enzyme-immobilized-cell-free-catalytic-materials": {
+    "brief": {
+      "zh": "用无载体多酶复合固定化与甲壳素功能化载体分别搭建级联，把传质限制、辅因子再生与失活机制拆开测，并按产物、循环次数与总体得率三项一起报账。",
+      "en": "Build cascades both by carrier-free immobilization of multi-enzyme complexes and on chitin-functionalized supports, measure mass-transfer limitation, cofactor regeneration, and deactivation mechanisms separately, and settle the account on three figures together: product, cycle number, overall yield."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1021/acssuschemeng.4c07695",
+      "title": "Chitin-Functionalized Cell-Free System Enables Sustainable Biocatalysis and Gene Expression",
+      "venue": "ACS Sustainable Chemistry & Engineering",
+      "year": 2024
+    }
+  },
+  "cell-free-biomanufacturing-factories": {
+    "brief": {
+      "zh": "以细胞裂解液为反应介质直接表达目标产物，像人丝聚蛋白单体那样对单一产物系统调参反应条件，把产量、批间一致性与放大行为作为并列指标一起测定。",
+      "en": "Express the target product directly in a cell lysate reaction medium, tune the reaction conditions systematically for one product as was done for monomeric human filaggrin, and measure yield, batch-to-batch consistency, and scale-up behavior as co-equal metrics."
+    },
+    "citation": {
+      "url": "https://doi.org/10.3389/fbioe.2020.590341",
+      "title": "Tuning the Cell-Free Protein Synthesis System for Biomanufacturing of Monomeric Human Filaggrin",
+      "venue": "Frontiers in Bioengineering and Biotechnology",
+      "year": 2020
+    }
+  },
+  "mechanochemically-controlled-molecular-machines": {
+    "brief": {
+      "zh": "用单分子力谱给合成寡聚轮烷施加已知载荷，测折叠时输出的力与状态切换阈值；再用轮烷执行器把外力转成小分子货物释放，把「力—构象—功能」标定成一条可复现的输入输出曲线。",
+      "en": "Apply known loads to synthetic oligorotaxanes with single-molecule force spectroscopy, measuring the force they exert on folding and the thresholds at which states switch; then use a rotaxane actuator to convert force into small-molecule cargo release, calibrating force–conformation–function into a reproducible input–output curve."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1038/s41586-024-07154-0",
+      "title": "Force-controlled release of small molecules with a rotaxane actuator",
+      "venue": "Nature",
+      "year": 2024
+    }
+  },
+  "single-molecule-detection-measurement": {
+    "brief": {
+      "zh": "用单分子荧光、smFRET 与光镊、磁镊、原子力力谱直接测个体分子的构象与相互作用，通过跨实验室盲测标定距离与动力学参数的可比性，并把装置成本压到常规实验室可采购的量级。",
+      "en": "Measure individual molecules' conformations and interactions with single-molecule fluorescence, smFRET and optical, magnetic and atomic-force spectroscopy; calibrate the comparability of distances and kinetic parameters through cross-laboratory blind studies; and drive instrument cost down to what an ordinary lab can purchase."
+    },
+    "citation": {
+      "url": "https://www.nature.com/articles/s41592-023-01807-0",
+      "title": "Reliability and accuracy of single-molecule FRET studies for characterization of structural dynamics and distances in proteins",
+      "venue": "Nature Methods",
+      "year": 2023
+    }
+  },
+  "single-molecule-protein-sequencing": {
+    "brief": {
+      "zh": "让单条多肽穿过纳米孔，或经荧光逐残基降解，把电流与光信号解码成残基顺序，并把翻译后修饰的位置一并读出；再用已知序列的标准蛋白标定错误率与可分辨的残基字母表。",
+      "en": "Drive single polypeptides through a nanopore or degrade them residue by residue under fluorescence, decode current and optical signals into residue order, read out the positions of post-translational modifications along with it, and calibrate error rate and resolvable residue alphabet against standard proteins of known sequence."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1038/s41587-025-02587-y",
+      "title": "Toward single-molecule protein sequencing using nanopores",
+      "venue": "Nature Biotechnology",
+      "year": 2025
+    }
+  },
+  "molecular-recorders-inside-tissues": {
+    "brief": {
+      "zh": "用连续基因组编辑在细胞里逐次写入多符号条码，把信号与发生时刻编成可解码的记录，再以单细胞测序重建组织内的事件顺序，并标定写入速率、时间分辨率与漏记率。",
+      "en": "Write multi-symbol barcodes into cells by sequential genome editing, encoding signals and their timing into a decodable record, then reconstruct the order of events inside a tissue by single-cell sequencing while calibrating writing rate, time resolution and missed-event rate."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1038/s41586-022-04922-8",
+      "title": "A time-resolved, multi-symbol molecular recorder via sequential genome editing",
+      "venue": "Nature",
+      "year": 2022
+    }
+  },
+  "dna-origami-nanopores-programmable-molecular-gates": {
+    "brief": {
+      "zh": "设计柔顺折纸纳米执行器与腔径可调的三角 DNA 纳米孔，把孔径做成可切换状态，插入人工膜后同时测跨膜运输通量与分子检测信号，标定尺寸选择性的上下限与门控可重复性。",
+      "en": "Design compliant origami nanoactuators and triangular DNA nanopores with tunable lumens so aperture becomes a switchable state; insert them into artificial membranes and measure cross-membrane transport flux together with the molecular sensing signal, calibrating the limits of size selectivity and the repeatability of gating."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1038/s41467-024-51630-0",
+      "title": "A lumen-tunable triangular DNA nanopore for molecular sensing and cross-membrane transport",
+      "venue": "Nature Communications",
+      "year": 2024
+    }
+  },
+  "organic-electrochemical-transistors-barrier-tissue-integrity": {
+    "brief": {
+      "zh": "在 OECT 沟道上培养 Caco-2 等屏障细胞单层，用离子—电子混合导体把旁细胞离子通量放大成漏极电流，再以电流驱动构型提高时间分辨率，并与 TEER 同步对照检验灵敏度与可逆性。",
+      "en": "Culture a barrier monolayer such as Caco-2 on the OECT channel, let the mixed ionic-electronic conductor amplify paracellular ion flux into drain current, raise time resolution with a current-driven configuration, and cross-check sensitivity and reversibility against simultaneous TEER."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1002/adhm.201900128",
+      "title": "Monitoring of Cell Layer Integrity with a Current‐Driven Organic Electrochemical Transistor",
+      "venue": "Advanced Healthcare Materials",
+      "year": 2019
+    }
+  },
+  "electromicrobiology-centimeter-scale-living-nickel-protein-wires": {
+    "brief": {
+      "zh": "把完整电缆菌菌丝跨接到微电极上测纳安级电流与温度依赖，提纯周质导电纤维并解析镍的配位环境，比较离体前后的电导衰减，据此判定传导机理并筛选稳定化条件。",
+      "en": "Bridge intact cable-bacteria filaments across microelectrodes to measure nanoampere currents and their temperature dependence, purify the periplasmic conductive fibres and resolve the nickel coordination environment, compare conductance decay before and after extraction, and use that to settle the conduction mechanism and screen stabilizing conditions."
+    },
+    "citation": {
+      "url": "https://www.nature.com/articles/s41467-021-24312-4",
+      "title": "Efficient long-range conduction in cable bacteria through nickel protein wires",
+      "venue": "Nature Communications",
+      "year": 2021
+    }
+  },
+  "synthetic-electromicrobiology-programmable-extracellular-electron": {
+    "brief": {
+      "zh": "在大肠杆菌里重建 Mtr 细胞色素通路并叠加黄素生物合成，用计时电流法逐段定位限速环节，围绕 II 型分泌系统与 MtrB 折叠做改造，把电流拉近天然希瓦氏菌的量级。",
+      "en": "Rebuild the Mtr cytochrome pathway in E. coli, stack flavin biosynthesis on top, localize the rate-limiting step segment by segment with chronoamperometry, engineer around the type II secretion system and MtrB folding, and pull current toward the order of magnitude of native Shewanella."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1002/advs.202412230",
+      "title": "Flavin Biosynthesis Enhances Extracellular Electron Transfer in Bioengineered Escherichia coli",
+      "venue": "Advanced Science",
+      "year": 2025
+    }
+  },
+  "electro-fermentation-cellular-redox-state-control": {
+    "brief": {
+      "zh": "在链延长与共产氢乙醇等体系里设定电极电位，测产物分布与选择性变化，同步做转录组与 NADH/NAD⁺ 比值测定，把三种候选机理拆开，并评估混菌群落在长周期下的稳定性。",
+      "en": "Set electrode potential in systems such as chain elongation and H2-ethanol co-production, measure shifts in product distribution and selectivity, run transcriptomics and NADH/NAD⁺ ratio measurements in parallel to pry apart the three candidate mechanisms, and assess mixed-community stability over long runs."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1016/j.cej.2021.132223",
+      "title": "Electro-fermentation enhances H2 and ethanol co-production by regulating electron transfer and substrate transmembrane transport",
+      "venue": "Chemical Engineering Journal",
+      "year": 2022
+    }
+  },
+  "relativistic-geodesy-optical-atomic-clocks": {
+    "brief": {
+      "zh": "把可运输光钟搬到现场与经典大地测量并排比对，用长距离频率链路把两台钟的频率差反演为重力位差与高程，并对系统偏移、链路可用性与经典基准的不确定度逐项建立误差预算。",
+      "en": "Take transportable optical clocks into the field alongside classical geodesy, invert the frequency difference between two clocks over a long-distance frequency link into geopotential difference and height, and build an item-by-item error budget covering systematic offsets, link availability, and the uncertainty of the classical reference itself."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1103/PhysRevApplied.21.L061001",
+      "title": "Long-distance chronometric leveling with a portable optical clock",
+      "venue": "Physical Review Applied",
+      "year": 2024
+    }
+  },
+  "spin-chemistry-radical-pair-quantum-biology": {
+    "brief": {
+      "zh": "在活体系统中用静磁场叠加射频磁场调制自由基对动力学，读出反应产物比例的变化，并把自旋相干、产物比例、下游生理或行为后果这三步分别做成可独立证伪的测量。",
+      "en": "Modulate radical-pair dynamics in a living system with a static magnetic field plus radiofrequency fields, read out the shift in reaction-product ratios, and turn spin coherence, product ratio, and downstream physiological or behavioural consequence into three separately falsifiable measurements."
+    },
+    "citation": {
+      "url": "https://www.nature.com/articles/s41586-026-10282-4",
+      "title": "Magnetic resonance control of spin-correlated radical pair dynamics in vivo",
+      "venue": "Nature",
+      "year": 2026
+    }
+  },
+  "transversal-gate-algorithmic-fault-tolerance-logical-qubit": {
+    "brief": {
+      "zh": "在可重构中性原子阵列上把横向门、关联解码与中电路逻辑比特复用装成一条流水线，跑含数十个逻辑比特、数百次逻辑隐形传态的深电路，测量关联解码的复杂度如何随算法深度增长。",
+      "en": "Assemble transversal gates, correlated decoding, and mid-circuit logical-qubit reuse into one pipeline on a reconfigurable neutral-atom array, run deep circuits with dozens of logical qubits and hundreds of logical teleportations, and measure how correlated-decoding complexity grows with algorithm depth."
+    },
+    "citation": {
+      "url": "https://www.nature.com/articles/s41586-025-09848-5",
+      "title": "A fault-tolerant neutral-atom architecture for universal quantum computation",
+      "venue": "Nature",
+      "year": 2025
+    }
+  },
+  "multistable-programming-origami-kirigami-structures": {
+    "brief": {
+      "zh": "设计折线或切口拓扑，使同一试件拥有多个可逆稳定构型、每个构型对应可测的刚度、泊松比或振动衰减；再逐项压折痕疲劳、制造公差与状态寻址，把演示件推向可复现的工程件。",
+      "en": "Design crease or cut topologies so that one specimen holds several reversible stable configurations, each mapping to a measurable stiffness, Poisson's ratio, or vibration attenuation; then work down crease fatigue, manufacturing tolerance, and state addressing one by one to push demonstrators toward reproducible engineering parts."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1038/s41467-023-42323-1",
+      "title": "A reprogrammable mechanical metamaterial with origami functional-group transformation and ring reconfiguration",
+      "venue": "Nature Communications",
+      "year": 2023
+    }
+  },
+  "active-matter-self-propelled-particles": {
+    "brief": {
+      "zh": "用自驱动胶体、细菌悬液与微管—马达体系做可控的最小模型，测量集体流动、群集与相分离的相图，并以时间不可逆性作为跨尺度的耗散度量，把微观耗能与宏观有序连起来。",
+      "en": "Use self-propelled colloids, bacterial suspensions, and microtubule–motor systems as controllable minimal models, map the phase diagrams of collective flow, swarming, and phase separation, and use time irreversibility as a cross-scale measure of dissipation linking microscopic energy consumption to macroscopic order."
+    },
+    "citation": {
+      "url": "https://journals.aps.org/prx/abstract/10.1103/PhysRevX.12.010501",
+      "title": "Symmetry, Thermodynamics, and Topology in Active Matter",
+      "venue": "Physical Review X",
+      "year": 2022
+    }
+  },
+  "non-hermitian-reconfigurable-metasurfaces-exceptional-point-engineering": {
+    "brief": {
+      "zh": "把超表面的损耗与增益、以及单元间耦合做成可电控量，用 MEMS 或偏振自由度把系统推到奇异点附近，标定本征值与本征态同时简并的位置，并测量穿越拓扑相变时的响应。",
+      "en": "Make a metasurface's loss and gain, along with the coupling between elements, electrically tunable; drive the system near an exceptional point using MEMS or polarization degrees of freedom; locate where eigenvalues and eigenstates coalesce; and measure the response while crossing the topological phase transition."
+    },
+    "citation": {
+      "url": "https://arxiv.org/pdf/2506.17906",
+      "title": "Exceptional point in a PT symmetric non-Hermitian terahertz plasmonic metasurface",
+      "venue": "arXiv (physics.optics)",
+      "year": 2025
+    }
+  },
+  "momentum-bandgap-topology-k-gap-amplification-photonic": {
+    "brief": {
+      "zh": "用可快速调制的传输线或谐振超材料造出介电常数随时间周期变化的介质，测落在 k 隙内的波是否被指数放大，并在两个拓扑相异的时间晶体之间做出时间界面，比较时间反射波与时间折射波的相位差。",
+      "en": "Build a medium whose permittivity varies periodically in time from a fast-modulated transmission line or resonant metamaterial, test whether waves falling inside the k-gap are amplified exponentially, then create a temporal interface between two topologically distinct time crystals and compare the phase difference between time-reflected and time-refracted waves."
+    },
+    "citation": {
+      "url": "https://www.nature.com/articles/s41467-025-66154-4",
+      "title": "Observation of wave amplification and temporal topological state in a non-synthetic photonic time crystal",
+      "venue": "Nature Communications",
+      "year": 2025
+    }
+  },
+  "closed-loop-geothermal-supercritical-co-working": {
+    "brief": {
+      "zh": "在真实储层条件下循环超临界 CO₂ 取热：测密度差驱动的自然虹吸能省下多少泵耗，跟踪 CO₂—卤水—矿物反应究竟是稳定封存还是堵塞流道，并把闭环受限的换热面积折算成功率密度与度电成本。",
+      "en": "Circulate supercritical CO₂ for heat extraction under real reservoir conditions: measure how much pumping load the density-driven self-siphon saves, track whether CO₂–brine–mineral reactions stabilize storage or clog flow paths, and convert the heat-exchange area a closed loop allows into power density and cost per kilowatt-hour."
+    },
+    "citation": {
+      "url": "https://www.powermag.com/eavors-first-of-its-kind-closed-loop-geothermal-project-produces-grid-power-in-germany/",
+      "title": "Eavor's First-of-Its-Kind Closed-Loop Geothermal Project Produces Grid Power in Germany",
+      "venue": "POWER Magazine",
+      "year": 2025
+    }
+  },
+  "circular-metal-fuels-iron-powder-energy": {
+    "brief": {
+      "zh": "在专用旋流燃烧器上实测铁粉的稳定放热区间与产物形貌，把燃烧后粉末送入多轮氢还原或电化学浆料还原，逐轮跟踪烧结、转化率与氧化物回收纯度，并把制氢损耗一并记进闭环效率账。",
+      "en": "Measure stable heat release and product morphology of iron powder in a dedicated swirl burner, feed the combusted powder through multiple hydrogen-reduction cycles or electrochemical slurry reduction, track sintering, conversion and oxide-recovery purity cycle by cycle, and book hydrogen-production losses inside the loop efficiency."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1016/j.fuel.2026.138291",
+      "title": "Direct electrochemical reduction of iron oxide for metal energy storage - a microfluidic study on the impact of cell design for slurry electrolysis",
+      "venue": "Fuel",
+      "year": 2026
+    }
+  },
+  "reservoir-thermal-energy-storage-cooling": {
+    "brief": {
+      "zh": "把冷 RTES 接进数据中心冷却回路，用 GenX 与 ReEDS 这类开源容量扩展模型算出它对 PJM 电网承接新增算力负荷的成本削减，再用多年注采试验去核对模型假定的回收率。",
+      "en": "Couple cold RTES into data-center cooling loops, quantify the grid-cost reduction for serving new compute load in PJM with open capacity-expansion models such as GenX and ReEDS, then check the assumed recovery rate against multi-year injection–withdrawal field tests."
+    },
+    "citation": {
+      "url": "https://pangea.stanford.edu/ERE/db/GeoConf/papers/SGW/2026/Halloran.pdf",
+      "title": "Grid Impact of Reservoir Thermal Energy Storage for Data Centers",
+      "venue": "51st Stanford Geothermal Workshop",
+      "year": 2026
+    }
+  },
+  "bioaerosol-atmosphere-coupling-living-microbes": {
+    "brief": {
+      "zh": "在偏远台站同步采集生物气溶胶与成冰核谱，用热处理区分热不稳定的生物源，测定其季节通量与陆海来源，再把该通量作为源项写进云微物理参数化并检验云相态预报。",
+      "en": "Sample bioaerosols and ice-nucleating-particle spectra together at remote stations, separate heat-labile biological sources by heat treatment, quantify their seasonal flux and terrestrial-versus-marine origin, then insert that flux as a source term in cloud microphysics and test whether cloud-phase forecasts improve."
+    },
+    "citation": {
+      "url": "https://acp.copernicus.org/articles/25/11919/2025/",
+      "title": "Bioaerosols as indicators of central Arctic ice nucleating particle sources",
+      "venue": "Atmospheric Chemistry and Physics",
+      "year": 2025
+    }
+  },
+  "de-novo-design-transmembrane-pores": {
+    "brief": {
+      "zh": "在成分明确的脂质体系里联合测结构、插入效率、单通道电流、离子与溶质选择性和泄漏，把孔径、形状与寡聚计量做成可编程变量，逐步逼近带门控的定向转运。",
+      "en": "In lipid systems of defined composition, jointly measure structure, insertion efficiency, single-channel current, ion and solute selectivity, and leakage; make pore diameter, shape, and oligomeric stoichiometry programmable variables, and work stepwise toward gated, directional transport."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1126/science.adn3796",
+      "title": "Sculpting conducting nanopore size and shape through de novo protein design",
+      "venue": "Science",
+      "year": 2024
+    }
+  },
+  "generative-emulation-protein-equilibrium-ensembles": {
+    "brief": {
+      "zh": "用 BioEmu 式生成器在一小时内产出上千个统计独立构象，再把相对自由能、隐蔽口袋占据率与长时程分子动力学逐项对表，为系综建立可证伪的概率校准，而不是只看构象是否合理。",
+      "en": "Use a BioEmu-style generator to produce thousands of statistically independent conformations per hour, then check relative free energies, cryptic-pocket occupancies and long-timescale molecular dynamics item by item, building falsifiable probabilistic calibration for the ensemble rather than judging whether conformations merely look reasonable."
+    },
+    "citation": {
+      "url": "https://www.science.org/doi/10.1126/science.adv9817",
+      "title": "Scalable emulation of protein equilibrium ensembles with generative deep learning",
+      "venue": "Science",
+      "year": 2025
+    }
+  },
+  "inverse-design-sequence-ensemble-function": {
+    "brief": {
+      "zh": "指定紧致度、长程接触或相分离阈值，用可迁移生成模型反解序列，再以 SAXS、NMR 与单分子 FRET 三种正交观测约束同一系综，并把设计变体推到传感或结合功能上验收。",
+      "en": "Specify a target compaction, long-range contact pattern or phase-separation threshold, solve for sequences with a transferable generative model, constrain the same ensemble with three orthogonal observables — SAXS, NMR and single-molecule FRET — and accept the variants only after testing them on sensing or binding function."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1038/s43588-025-00881-y",
+      "title": "Generalized design of sequence–ensemble–function relationships for intrinsically disordered proteins",
+      "venue": "Nature Computational Science",
+      "year": 2025
+    }
+  },
+  "crowdsourced-open-protein-design-competitions-shared": {
+    "brief": {
+      "zh": "先把靶点、阴阳性对照与评分规则固定下来，再开放征集设计，用统一的自动化 BLI 流水线盲测表达与亲和力并全量公开数据，让计算指标与湿实验结果在同一批样本上对齐。",
+      "en": "Fix the target, the positive and negative controls and the scoring rules first, then open submissions, blind-test expression and affinity on one shared automated BLI pipeline, and release the full dataset — so computational metrics and wet-lab outcomes are aligned on the same batch of samples."
+    },
+    "citation": {
+      "url": "https://www.biorxiv.org/content/10.1101/2025.04.17.648362v2",
+      "title": "Crowdsourced Protein Design: Lessons From the Adaptyv EGFR Binder Competition",
+      "venue": "bioRxiv",
+      "year": 2025
+    }
+  },
+  "open-source-silicon-roots-trust": {
+    "brief": {
+      "zh": "把 RTL、固件与规范全部公开，对开源信任根做侧信道与故障注入加固，并发展硅—RTL 等价性验证：以去封装成像、旁路特征比对与可复现构建记录检验出厂芯片是否就是公开设计。",
+      "en": "Publish RTL, firmware and specifications in full, harden the open root of trust against side channels and fault injection, and develop silicon-to-RTL equivalence verification — decapsulation imaging, side-channel signature comparison and reproducible build records that test whether the shipped part is the published design."
+    },
+    "citation": {
+      "url": "https://dl.acm.org/doi/10.1145/3690823",
+      "title": "Unleashing OpenTitan's Potential: a Silicon-Ready Embedded Secure Element for Root of Trust and Cryptographic Offloading",
+      "venue": "ACM Transactions on Embedded Computing Systems",
+      "year": 2024
+    }
+  },
+  "side-channel-fault-hardened-post-quantum-implementations": {
+    "brief": {
+      "zh": "在同一份可配置 Kyber 硬件上同时做攻与防：按器件、编译器与探针分别测 TVLA 泄漏、模板攻击成功率、故障覆盖与随机数质量，并把一阶、高阶与组合攻击的结果连同面积、延迟、能耗一并公开。",
+      "en": "Run attack and defense on one configurable Kyber implementation: measure TVLA leakage, template-attack success, fault coverage, and randomness quality separately per device, compiler, and probe, and publish first-order, higher-order, and combined-attack results alongside area, latency, and energy."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1145/3587037",
+      "title": "A Configurable CRYSTALS-Kyber Hardware Implementation with Side-Channel Protection",
+      "venue": "ACM Transactions on Embedded Computing Systems",
+      "year": 2024
+    }
+  },
+  "silent-preprocessing-mpc-via-pseudorandom-correlation": {
+    "brief": {
+      "zh": "以 FOLEAGE 的 F4-OLE 实现为基线，把布尔与任意有限域的 PCG 接进主流 MPC 框架做端到端计时，同时复算 LPN/QA-SD 参数的攻防边界，并把种子扩展做成可整体换底的接口。",
+      "en": "Take FOLEAGE's F4-OLE implementation as the baseline, wire Boolean and any-finite-field PCGs into mainstream MPC frameworks for end-to-end timing, recompute the attack-defense boundary of LPN/QA-SD parameters, and expose seed expansion behind an interface whose assumption can be swapped wholesale."
+    },
+    "citation": {
+      "url": "https://eprint.iacr.org/2025/169",
+      "title": "Efficient Pseudorandom Correlation Generators for Any Finite Field",
+      "venue": "IACR ePrint 2025/169 (EUROCRYPT 2025)",
+      "year": 2025
+    }
+  },
+  "calibrated-uncertainty-help-seeking-robot-policies": {
+    "brief": {
+      "zh": "把 KnowNo 式 conformal 校准接到多步真机任务上，分别记录校准误差、选择性风险、任务成功、求助率、响应时延与人类负荷，并在分布漂移、连续决策、无人应答与人类建议出错四种情形下测降级行为。",
+      "en": "Attach KnowNo-style conformal calibration to multi-step real-robot tasks; report calibration error, selective risk, task success, help rate, response latency, and human workload separately; and test degraded behavior under distribution shift, long decision chains, no one available to answer, and wrong human advice."
+    },
+    "citation": {
+      "url": "https://proceedings.mlr.press/v229/ren23a.html",
+      "title": "Robots That Ask For Help: Uncertainty Alignment for Large Language Model Planners",
+      "venue": "Conference on Robot Learning",
+      "year": 2023
+    }
+  },
+  "post-deployment-continual-adaptation-retention-testing": {
+    "brief": {
+      "zh": "把 Never Stop Learning 式的少样本现场适配放进长周期评测协议：连续报告前向迁移、后向迁移与最坏旧任务下降，计量适应样本与能耗，并在传感器老化、不可逆环境改变与旧知识本应被遗忘的案例上验证回滚。",
+      "en": "Put Never-Stop-Learning-style few-shot field adaptation inside a long-horizon evaluation protocol: report forward transfer, backward transfer, and worst-case old-task drop continuously, meter adaptation samples and energy, and validate rollback on sensor ageing, irreversible environment change, and cases where old knowledge ought to be forgotten."
+    },
+    "citation": {
+      "url": "https://doi.org/10.15607/RSS.2025.XXI.026",
+      "title": "Action Flow Matching for Lifelong Learning",
+      "venue": "Robotics: Science and Systems",
+      "year": 2025
+    }
+  },
+  "autonomous-real-robot-evaluation-networks-distributed": {
+    "brief": {
+      "zh": "沿 AutoEval 把成功判别器与重置策略做成 24 小时无人值守的排队评测站，再按 RoboArena 的方式在多机构 DROID 平台上组织双盲对战，把偏序结果与绝对成功率各自的置信区间一并公开。",
+      "en": "Follow AutoEval in turning a success classifier and reset policy into a round-the-clock unattended evaluation queue, then organize double-blind matchups across multi-institution DROID platforms as RoboArena did, publishing confidence intervals for both the resulting ordering and absolute success rates."
+    },
+    "citation": {
+      "url": "https://arxiv.org/abs/2503.24278",
+      "title": "AutoEval: Autonomous Evaluation of Generalist Robot Manipulation Policies in the Real World",
+      "venue": "CoRL 2025 (PMLR v305)",
+      "year": 2025
+    }
+  },
+  "tactile-force-vla-contact-physics-foundation-models": {
+    "brief": {
+      "zh": "把高分辨率触觉与 6 轴力反馈接成 VLA 的一等模态，用混合位置-力控制器和少量示范激活 VLM 的物理先验，再在换触觉皮肤、传感器磨损与新装配任务下测“轻轻插”“用力拧”这类力觉语言还剩多少零样本泛化。",
+      "en": "Bring high-resolution tactile sensing and six-axis force feedback in as first-class VLA modalities, activate the VLM's physics prior with a hybrid position-force controller and a few demonstrations, then measure how much zero-shot generalization of force language like \"insert gently\" or \"twist firmly\" survives a skin swap, sensor wear, and an unseen assembly task."
+    },
+    "citation": {
+      "url": "https://arxiv.org/abs/2507.09160",
+      "title": "Tactile-VLA: Unlocking VLA's Physical Knowledge for Tactile Generalization",
+      "venue": "arXiv / ICLR 2026 submission",
+      "year": 2025
+    }
+  },
+  "genetic-firewalls-non-standard-amino-acid-obligate-commensalism": {
+    "brief": {
+      "zh": "以 Syn61 式压缩密码子底盘为起点，把义密码子重指派与非天然氨基酸义务共生叠成两层遏制，用长期传代与高密度逃逸筛选测出逃逸率上限，同时记账重编码带来的生长与产率代价。",
+      "en": "Start from a Syn61-style compressed-codon chassis, stack sense-codon reassignment onto non-standard-amino-acid obligate commensalism, measure an upper bound on escape by long passaging and high-density escape screens, and account for the growth and yield costs recoding imposes."
+    },
+    "citation": {
+      "url": "https://www.nature.com/articles/s41564-025-01999-5",
+      "title": "Engineered orthogonal and obligate bacterial commensalism mediated by a non-standard amino acid",
+      "venue": "Nature Microbiology",
+      "year": 2025
+    }
+  },
+  "cybergenetics-real-time-feedback-control-living": {
+    "brief": {
+      "zh": "搭一台显微镜或酶标仪级的闭环装置：每隔几分钟用荧光读出表达，在线辨识随生长漂移的模型，再用光遗传学作动器施加负反馈，把控制目标从群体均值逐步推进到上千个单细胞各自的轨迹。",
+      "en": "Build a closed-loop rig at microscope or plate-reader scale: read expression by fluorescence every few minutes, identify online a model that drifts with growth, and apply negative feedback through an optogenetic actuator — moving the control target from the population mean to the individual trajectories of thousands of single cells."
+    },
+    "citation": {
+      "url": "https://www.nature.com/articles/s41467-024-46361-1",
+      "title": "Deep model predictive control of gene expression in thousands of single cells",
+      "venue": "Nature Communications",
+      "year": 2024
+    }
+  },
+  "living-molecular-diagnostics-in-body-dna": {
+    "brief": {
+      "zh": "把天然可转化的不动杆菌工程化成活体传感器：让它在原位摄取肿瘤释放的游离 DNA，用只切野生型 PAM 的 CRISPR 保留突变序列，以抗性菌落作可数读出，并把捕获效率与判别灵敏度分开标定。",
+      "en": "Engineer a naturally competent Acinetobacter into a living sensor: let it take up tumor-shed cell-free DNA in situ, use a CRISPR system that cuts only the wild-type PAM so mutant sequence survives, read out as countable resistant colonies, and calibrate uptake efficiency separately from discrimination sensitivity."
+    },
+    "citation": {
+      "url": "https://www.science.org/doi/10.1126/science.adf3974",
+      "title": "Engineered bacteria detect tumor DNA",
+      "venue": "Science",
+      "year": 2023
+    }
+  },
+  "cybergenetics-closed-loop-feedback-control-living": {
+    "brief": {
+      "zh": "按内模原理把积分环写成可基因编码的模块：用抗量对的隔离反应在细胞内算出跟踪误差的积分，级联成生物版 PID，再加前馈环压瞬态过冲，并逐项测量控制器占用的转录翻译资源与引入的耦合噪声。",
+      "en": "Follow the internal model principle to encode the integrator as a genetic module: let an antithetic pair's sequestration reaction compute the integral of tracking error inside the cell, cascade it into a biological PID, add a feed-forward loop to suppress transient overshoot, and itemize the transcription-translation resources the controller consumes and the coupling noise it injects."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1038/s41467-023-36863-9",
+      "title": "A cybergenetic framework for engineering intein-mediated integral feedback control systems",
+      "venue": "Nature Communications",
+      "year": 2023
+    }
+  },
+  "fungal-mycelial-physical-reservoir-computing": {
+    "brief": {
+      "zh": "把活菌丝网络或 PEDOT:PSS 浸润的菌丝复合材料接上电极阵列，测其非线性电导与类动作电位放电，只训练输出端的线性读出；同时用生长条件调制形态，记录批内与批间的状态漂移，做成可标定基准。",
+      "en": "Wire a living mycelium network — or a PEDOT:PSS-infused mycelium composite — to an electrode array, measure its nonlinear conductance and action-potential-like spiking, and train only the output linear readout. In parallel, tune morphology through growth conditions and log within- and between-batch state drift into a calibratable benchmark."
+    },
+    "citation": {
+      "url": "https://royalsocietypublishing.org/doi/abs/10.1098/rsos.211926",
+      "title": "Language of fungi derived from their electrical spiking activity",
+      "venue": "Royal Society Open Science",
+      "year": 2022
+    }
+  },
+  "preventive-complexity-cap-governance-real-time-red": {
+    "brief": {
+      "zh": "把'如果有意识怎么办'改写成可执行的监管仪表：定义监测哪些信号、在哪个阈值停手、由谁执法；用类器官的电生理与发育指标去校准候选上限，并检验同一套阈值能否跨机构、跨法域复现。",
+      "en": "Rewrite 'what if it is conscious' into an executable regulatory instrument: define which signals are monitored, at which threshold work stops, and who enforces it. Calibrate candidate ceilings against organoid electrophysiology and developmental markers, then test whether the same threshold reproduces across institutions and jurisdictions."
+    },
+    "citation": {
+      "url": "https://www.sciencedirect.com/science/article/pii/S0171933524000876",
+      "title": "Beyond consciousness: Ethical, legal, and social issues in human brain organoid research and application",
+      "venue": "Neuroscience Research (ScienceDirect)",
+      "year": 2024
+    }
+  },
+  "decentralized-biobanking-organoid-donor-provenance": {
+    "brief": {
+      "zh": "用去中心化身份与 NFT 把捐赠者、样本、类器官绑成可追溯的三元组，让新增用途触发再次征询而非沿用广义同意；在真实生物库里测同意响应率、溯源完整度，以及可撤回与不可篡改之间怎么落地。",
+      "en": "Bind donor, specimen and organoid into a traceable triple through decentralized identity and NFTs, so a new use triggers re-consent instead of coasting on broad consent. Then measure, in a real biobank, consent response rates, provenance completeness, and how revocability is reconciled with immutability."
+    },
+    "citation": {
+      "url": "https://www.frontiersin.org/journals/blockchain/articles/10.3389/fbloc.2025.1510429/full",
+      "title": "Decentralized biobanking platform for organoid research networks",
+      "venue": "Frontiers in Blockchain",
+      "year": 2025
+    }
+  },
+  "hyperspectral-mapping-biodiversity-functional-traits": {
+    "brief": {
+      "zh": "用成像光谱在野外样地上标定叶片化学与功能性状的反演模型，系统改变空间与光谱分辨率来检验性状多样性指标的稳定性，并引入众源物种观测扩大训练标签的覆盖。",
+      "en": "Calibrate leaf-chemistry and functional-trait retrieval models on field plots with imaging spectroscopy, vary spatial and spectral resolution systematically to test how stable the trait-diversity metrics are, and bring in crowd-sourced species observations to widen training-label coverage."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1038/s41467-026-72111-6",
+      "title": "Leveraging remote sensing and crowd-sourced biodiversity data for enhanced plant functional trait mapping",
+      "venue": "Nature Communications",
+      "year": 2026
+    }
+  },
+  "animals-planetary-sensors-internet-animals": {
+    "brief": {
+      "zh": "把 Movebank 上免费汇集的运动轨迹当作传感器时序来处理：与天气、海况、疫病记录做时空对齐，为「动物能预警灾害」这类断言先建起带对照的预测基准，再谈信号。",
+      "en": "Treat the movement tracks pooled freely in Movebank as sensor time series: align them in space and time with weather, ocean-state, and disease records, and build a controlled predictive benchmark for claims like \"animals forewarn disasters\" before calling anything a signal."
+    },
+    "citation": {
+      "url": "https://www.mpg.de/25661928/1104-ornr-icarus-returns-to-space-987453-x",
+      "title": "Icarus returns to space",
+      "venue": "Max Planck Society",
+      "year": 2025
+    }
+  },
+  "ecosystem-chemical-exposome-environmental-metabolomics": {
+    "brief": {
+      "zh": "用直接进样与液相色谱两套非靶向 HRMS 工作流联合刻画溶解有机质，把分子式清单推向结构级注释，并按多实验室协作方案在同一批样品上检验可比性与假阳性率。",
+      "en": "Characterize dissolved organic matter with integrated direct-infusion and liquid-chromatography non-target HRMS workflows, push the formula list toward structure-level annotation, and test comparability and false-positive rate on shared samples under a multi-laboratory protocol."
+    },
+    "citation": {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12918520/",
+      "title": "Comparability of Liquid Chromatography Tandem Mass Spectrometry Analysis of Dissolved Organic Matter across Laboratories",
+      "venue": "Environmental Science & Technology (PMC)",
+      "year": 2025
+    }
+  },
+  "lifetime-performance-metrology-biohybrid-robots": {
+    "brief": {
+      "zh": "把肌肉薄膜类研究已经同时报出的力密度、细胞投入、寿命、速度与疲劳整理成一份可复现的测试规程，规定统一基线与工况，让不同驱动形式的数字第一次可以并排放。",
+      "en": "Turn the force density, cell investment, lifetime, speed, and fatigue that muscle thin-film studies already report together into one reproducible test protocol, fix a common baseline and operating conditions, and let numbers from different actuation routes sit side by side for the first time."
+    },
+    "citation": {
+      "url": "https://doi.org/10.64898/2026.05.05.723017",
+      "title": "2D Skeletal Muscle Thin Film Actuators Enhance Efficiency of Biohybrid Robots",
+      "venue": "bioRxiv",
+      "year": 2026
+    }
+  },
+  "fungal-mycelium-controlled-biohybrid-robots": {
+    "brief": {
+      "zh": "用抗震、抗电磁干扰的电极界面实时采集杏鲍菇菌丝的自发尖峰电压，转成数字控制信号驱动软体与轮式机器人，并以紫外光等刺激—响应任务建立可证伪的控制基准。",
+      "en": "Read the spontaneous spiking voltages of king oyster mycelium in real time through a vibration- and EMI-resistant electrode interface, convert them into digital control signals that drive a soft and a wheeled robot, and build a falsifiable control benchmark from stimulus-response tasks such as ultraviolet light."
+    },
+    "citation": {
+      "url": "https://www.science.org/doi/10.1126/scirobotics.adk8019",
+      "title": "Sensorimotor control of robots mediated by electrophysiological measurements of fungal mycelia",
+      "venue": "Science Robotics",
+      "year": 2024
+    }
+  },
+  "innervated-trainable-biohybrid-actuators-neuromuscular-junction": {
+    "brief": {
+      "zh": "把小鼠运动神经元与骨骼肌共培养在3D打印水凝胶支架上，用机载μLED经神经肌肉接头发令，并以反复收缩「训练」肌肉增力自愈，逐项测寿命、功率密度与可放大性。",
+      "en": "Co-culture mouse motor neurons with skeletal muscle on 3D-printed hydrogel scaffolds, command them through the neuromuscular junction with onboard μLEDs, exercise the tissue so it strengthens and self-heals, and measure lifetime, power density and scalability item by item."
+    },
+    "citation": {
+      "url": "https://www.science.org/doi/10.1126/scirobotics.adu5830",
+      "title": "Optogenetic neuromuscular actuation of a miniature electronic biohybrid robot",
+      "venue": "Science Robotics",
+      "year": 2025
+    }
+  },
+  "chemical-navigation-robots-guided-insect-olfactory": {
+    "brief": {
+      "zh": "用蚕蛾或沙漠蝗的触角当传感器，以触角电位实时采样，把信号直接接进无人机与地面机器人的转向决策，形成主动嗅探—定位闭环，并逐条量化器官衰减、湿度与风场的影响。",
+      "en": "Use silkmoth or desert-locust antennae as the sensor, sample electroantennogram signals in real time, feed them straight into the steering decisions of a drone and a ground robot to close an active sniffing-and-localization loop, and quantify organ decay, humidity and wind-field effects one by one."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1016/j.asems.2026.100195",
+      "title": "The Sniffbot: A biohybrid robot for active sensing-based odor localization and discrimination",
+      "venue": "Advanced Sensor and Energy Materials",
+      "year": 2026
+    }
+  },
+  "bio-inspired-swarm-robotics": {
+    "brief": {
+      "zh": "把蚁群、鸟群、鱼群的局部交互规则写进大量简单机器人，测量协同搬运与编队在通信带宽受限、定位有误差、个体不断失效时的退化曲线，并为涌现行为找到可检验的规格。",
+      "en": "Encode the local interaction rules of ant colonies, bird flocks and fish schools into many simple robots, measure how cooperative transport and formation degrade under limited communication bandwidth, localization error and continuous unit failure, and give emergent behavior a specification that can actually be checked."
+    },
+    "citation": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10089591/",
+      "title": "From animal collective behaviors to swarm robotic cooperation",
+      "venue": "National Science Review",
+      "year": 2023
+    }
+  },
+  "field-deployable-crispr-environmental-biosensing": {
+    "brief": {
+      "zh": "用 ADAPT 自动设计物种特异导向 RNA，在船上与河边现场跑 Cas12/Cas13 等温反应，并对同批样本并跑 qPCR 与宏条形码，建立抑制物、脱靶与批间漂移的定量误差预算。",
+      "en": "Auto-design species-specific guide RNAs with ADAPT, run Cas12/Cas13 isothermal reactions on deck and at the riverbank, and benchmark the same samples against qPCR and metabarcoding to build an error budget for inhibitors, off-target guides, and batch drift."
+    },
+    "citation": {
+      "url": "https://www.nature.com/articles/s41893-025-01752-0",
+      "title": "A field-deployable CRISPR-based biosensing platform for monitoring marine ecosystems",
+      "venue": "Nature Sustainability",
+      "year": 2025
+    }
+  },
+  "tear-sensing-smart-contact-lenses": {
+    "brief": {
+      "zh": "在软性镜片上集成泪糖与眼压传感、NFC 无电池供能与天线，在真实佩戴时长下做泪糖—血糖同步采样，把时滞与个体增益拟合成可校准的转换模型，同时测角膜温升与氧透过。",
+      "en": "Integrate tear-glucose and intraocular-pressure sensing, an NFC battery-free power link, and an antenna onto a soft lens; sample tear and blood glucose in parallel over realistic wear times; fit lag and per-person gain into a calibratable conversion model while measuring corneal temperature rise and oxygen permeability."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1038/s41467-024-47123-9",
+      "title": "In-depth correlation analysis between tear glucose and blood glucose using a wireless smart contact lens",
+      "venue": "Nature Communications",
+      "year": 2024
+    }
+  },
+  "freeze-dried-cell-free-biosensors-field-deployment": {
+    "brief": {
+      "zh": "把转录因子或核糖开关调控的无细胞表达线路冻干到纸基上，在海藻、水样等真实基质里现场复苏显色，用遗传、代谢与工艺三层调参把信号分辨率与定量区间调到可读，并逐体系追踪保存寿命和批间漂移。",
+      "en": "Freeze-dry transcription-factor or riboswitch-controlled cell-free expression circuits onto paper, rehydrate them for colour development directly in real matrices such as seaweed and water samples, tune signal resolution and quantitative range through genetic, metabolic, and process engineering, and track shelf life and batch drift system by system."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1016/j.foodres.2026.119766",
+      "title": "Field-deployable, lyophilized cell-free biosensor for robust and selective detection of inorganic arsenic in complex seaweed matrices",
+      "venue": "Food Research International",
+      "year": 2026
+    }
+  },
+  "distributed-diagnostic-data-networks": {
+    "brief": {
+      "zh": "给分散的 POCT 设备加上连接与脱敏上报，按厂商、批次与使用者分层建模检测质量，把原始阳性率校正成可比的地理信号，并同步写定同意范围、访问分级与谁可动用这张地图的规则。",
+      "en": "Add connectivity and de-identified reporting to scattered POCT devices, model test quality stratified by manufacturer, lot, and operator, correct raw positivity into a comparable geographic signal, and write in parallel the rules of consent scope, tiered access, and who may act on the map."
+    },
+    "citation": {
+      "url": "https://www.nature.com/articles/s41467-025-58527-6",
+      "title": "Machine learning in point-of-care testing: innovations, challenges, and opportunities",
+      "venue": "Nature Communications",
+      "year": 2025
+    }
+  },
+  "transcranial-acoustoelectric-brain-imaging-tabi": {
+    "brief": {
+      "zh": "用神经导航把聚焦超声对准目标脑区，在头皮电极上锁相提取与超声同频的声电分量，先在含颅骨的物理头模里用已知电流源标定定位精度，再把信噪比预算逐级推到动物与清醒人体。",
+      "en": "Aim focused ultrasound at a target region under neuronavigation, extract the acousto-electric component phase-locked to the ultrasound at scalp electrodes, first calibrate localization accuracy against known current sources in a skull-bearing physical phantom, then push the signal-to-noise budget stepwise to animals and awake humans."
+    },
+    "citation": {
+      "url": "https://ieeexplore.ieee.org/document/10803963/",
+      "title": "Neuronavigation-Guided Transcranial Acoustoelectric Brain Imaging: A New Modality for High Resolution Electrical Brain Mapping",
+      "venue": "IEEE Transactions on Biomedical Engineering",
+      "year": 2025
+    }
+  },
+  "connectomics-whole-brain-atlases": {
+    "brief": {
+      "zh": "用电镜超薄切片把脑组织重建成带突触极性的完整线路图，以 AI 自动分割加人工校对压低错误率，再把重建环路与同一物种的功能记录和扰动实验对照，检验「从连接预测活动」能走多远。",
+      "en": "Reconstruct brain tissue into a complete wiring diagram with synaptic polarity from electron-microscope ultrathin sections, drive error rates down with AI segmentation plus human proofreading, then confront the reconstructed circuits with functional recordings and perturbation experiments in the same species to test how far prediction of activity from connectivity can go."
+    },
+    "citation": {
+      "url": "https://www.nature.com/articles/s41586-024-07558-y",
+      "title": "Neuronal wiring diagram of an adult brain",
+      "venue": "Nature",
+      "year": 2024
+    }
+  },
+  "functional-ultrasound-brain-machine-interface-fus-bmi": {
+    "brief": {
+      "zh": "用超快平面波超声流式采集后顶叶皮层的血流信号，训练跨会话预训练的解码器做闭环运动方向控制，同时推进穿颅探头与颅骨像差校正，把演示从透声颅窗推向完整颅骨。",
+      "en": "Stream cerebral blood-flow signals from posterior parietal cortex with ultrafast plane-wave ultrasound, train cross-session pretrained decoders for closed-loop directional control, and in parallel advance through-skull probes and skull aberration correction to move demonstrations from an acoustic cranial window to the intact skull."
+    },
+    "citation": {
+      "url": "https://www.nature.com/articles/s41593-023-01500-7",
+      "title": "Decoding motor plans using a closed-loop ultrasonic brain–machine interface",
+      "venue": "Nature Neuroscience",
+      "year": 2024
+    }
+  },
+  "tonal-full-spectrum-mandarin-speech-neuroprostheses": {
+    "brief": {
+      "zh": "在高密度 ECoG 上把声调与音段设为两条并列的解码轴，训练可实时输出汉字的端到端模型，用语言模型对同音字做上下文消歧，并以字准确率与字/分钟双指标报告速度与精度的取舍。",
+      "en": "On high-density ECoG, treat tone and segment as two parallel decode axes, train end-to-end models that emit Chinese characters in real time, use a language model to disambiguate homophones from context, and report the speed-accuracy tradeoff with both character accuracy and characters per minute."
+    },
+    "citation": {
+      "url": "https://www.science.org/doi/10.1126/sciadv.adz9968",
+      "title": "Real-time decoding of full-spectrum Chinese using brain-computer interface",
+      "venue": "Science Advances",
+      "year": 2025
+    }
+  },
+  "mechanistic-science-ultra-processed-foods-food": {
+    "brief": {
+      "zh": "在代谢病房里把超加工的各个候选机制逐一拆开做随机对照——固定营养成分，只改变食物基质的物理结构、进食速度或能量密度——测量自由进食量、体重与代谢指标的因果贡献。",
+      "en": "Take the candidate mechanisms of ultra-processing apart one at a time in randomized metabolic-ward trials — holding nutrient composition fixed while varying only the physical structure of the food matrix, eating rate, or energy density — and measure the causal contribution to ad libitum intake, weight and metabolic markers."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1016/j.cmet.2019.05.020",
+      "title": "Ultra-Processed Diets Cause Excess Calorie Intake and Weight Gain: An Inpatient Randomized Controlled Trial of Ad Libitum Food Intake",
+      "venue": "Cell Metabolism",
+      "year": 2019
+    }
+  },
+  "texture-digestibility-edible-mycelial-biomass": {
+    "brief": {
+      "zh": "以菌种、培养底物与后处理为变量制备完整菌丝生物量，测微结构、复水与质构，同时用 INFOGEST 体外消化对照肉鱼蛋白，并逐项报告真蛋白、细胞壁几丁质与 RNA、过敏原、毒素控制。",
+      "en": "Produce whole mycelial biomass with strain, cultivation substrate and post-processing as variables; measure microstructure, rehydration and texture; benchmark against meat and fish protein with INFOGEST in vitro digestion; and report true protein, cell-wall chitin, and RNA, allergen and toxin control item by item."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1016/j.ifset.2025.104409",
+      "title": "Development of new meat analogues from filamentous fungi cultivated on oenological by-products: A quality perspective",
+      "venue": "Innovative Food Science & Emerging Technologies",
+      "year": 2026
+    }
+  },
+  "plant-nanobionics-in-planta-sensing": {
+    "brief": {
+      "zh": "用电晕相分子识别设计近红外荧光碳纳米管，嵌入活体植物无损上报过氧化氢、铁与激素信号，再以多路复用加机器学习区分胁迫类型，推向田间连续读数与早期病害预警。",
+      "en": "Design near-infrared fluorescent carbon nanotubes by corona phase molecular recognition, embed them in living plants to report hydrogen peroxide, iron and hormone signals non-destructively, then use multiplexing plus machine learning to classify stress type and push toward continuous field readout and early disease warning."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1038/s41467-025-60182-w",
+      "title": "Machine learning-powered activatable NIR-II fluorescent nanosensor for in vivo monitoring of plant stress responses",
+      "venue": "Nature Communications",
+      "year": 2025
+    }
+  },
+  "molecular-farming-animal-proteins-crops": {
+    "brief": {
+      "zh": "把猪或牛肌红蛋白、凝乳酶这类动物蛋白基因转入大豆、豌豆、红花，让种子里直接积累血红素铁与动物蛋白，再用田间试验检验可溶蛋白中的占比与农艺产量能否同时守住。",
+      "en": "Engineer animal-protein genes — porcine or bovine myoglobin, chymosin — into soy, pea and safflower so heme iron and animal protein accumulate directly in the seed, then use field trials to test whether the share of soluble protein and the agronomic yield can both be held."
+    },
+    "citation": {
+      "url": "https://www.nasdaq.com/press-release/moolec-science-secures-core-us-patent-piggy-sooytm-soybean-expressing-30-animal",
+      "title": "Moolec Science Secures Core U.S. Patent for Piggy Sooy, Soybean Expressing Up to 30% of Animal Protein",
+      "venue": "Moolec Science / Nasdaq",
+      "year": 2025
+    }
+  },
+  "cross-disease-endpoints-geroscience-trials": {
+    "brief": {
+      "zh": "预先定义复合终点的组成事件、严重度、竞争风险、权重与时间窗，并逐项报告每个组成项的效应，把多病发生、功能、死亡与机制标志物放在同一套判据下检验。",
+      "en": "Pre-define the component events, severity, competing risks, weights and time windows of a composite endpoint, report the effect on each component separately, and test multimorbidity incidence, function, mortality and mechanistic biomarkers under one set of criteria."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1093/gerona/glae297",
+      "title": "An Expert Consensus Statement on Biomarkers of Aging for Use in Intervention Studies",
+      "venue": "The Journals of Gerontology, Series A: Biological Sciences and Medical Sciences",
+      "year": 2024
+    }
+  },
+  "science-social-determinants-health": {
+    "brief": {
+      "zh": "把收入、教育、住房、社区与环境暴露当作可测量的健康变量接入流行病学与行政数据，估计它们对疾病和寿命的贡献，并检验哪些已被实施的干预留下了可复核的健康效应。",
+      "en": "Bring income, education, housing, community and environmental exposure into epidemiological and administrative data as measurable health variables, estimate their contribution to disease and lifespan, and test which already-implemented interventions left a verifiable health effect."
+    },
+    "citation": {
+      "url": "https://www.annualreviews.org/content/journals/10.1146/annurev-economics-081624-083218",
+      "title": "Poverty and Health",
+      "venue": "Annual Review of Economics",
+      "year": 2025
+    }
+  },
+  "measuring-physiological-resilience-through-challenge-recovery": {
+    "brief": {
+      "zh": "用预先固定剂量的混合餐、内分泌或手术等压力源密集采样响应曲线，把幅度、恢复时间与跨系统协调登记为彼此独立的指标，再逐一对照并发症与一年生活质量这类硬结局做验证。",
+      "en": "Sample response curves densely under pre-specified stressors — a fixed-dose mixed meal, an endocrine challenge, surgery — registering amplitude, recovery time, and cross-system coordination as separate indices, then validate each against hard outcomes such as complications and one-year quality of life."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1093/gerona/glaf056",
+      "title": "Characterization of Dynamic Adaptation to Stressors Using Multisystem Stimulus-Response Data: The Study of Physical Resilience in Aging Pilot",
+      "venue": "The Journals of Gerontology, Series A: Biological Sciences and Medical Sciences",
+      "year": 2025
+    }
+  },
+  "chronobiology-circadian-rhythmome": {
+    "brief": {
+      "zh": "测量个体钟相位而不是只按墙上时钟给药：用可穿戴与少量采血重建 BMAL1/CLOCK/PER/CRY 反馈环的相位标志物，再在化疗这类剂量—毒性窗狭窄的场景做择时随机对照。",
+      "en": "Measure a person's clock phase instead of dosing by wall-clock time: reconstruct phase markers of the BMAL1/CLOCK/PER/CRY feedback loop from wearables and sparse blood draws, then run timed randomized trials where the dose–toxicity window is narrow, as in chemotherapy."
+    },
+    "citation": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12250606/",
+      "title": "Circadian Clock Deregulation and Metabolic Reprogramming: A System Biology Approach",
+      "venue": "International Journal of Molecular Sciences",
+      "year": 2025
+    }
+  },
+  "mrna-next-generation-vaccine-platforms": {
+    "brief": {
+      "zh": "把工程重心从改序列转到改载体：系统筛选可器官靶向、可耐受储运的脂质纳米颗粒配方，同时压缩从活检到放行的个体化新抗原制造链，并在临床上把免疫原性与反应原性分开计量。",
+      "en": "Move the engineering effort from editing sequence to editing carrier: systematically screen lipid nanoparticle formulations for organ targeting and storage tolerance, compress the personalized neoantigen chain from biopsy to release, and meter immunogenicity separately from reactogenicity in the clinic."
+    },
+    "citation": {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11788159/",
+      "title": "Computational biology and artificial intelligence in mRNA vaccine design for cancer immunotherapy",
+      "venue": "Frontiers in Immunology",
+      "year": 2025
+    }
+  },
+  "validating-oral-microbial-migration-systemic-effects": {
+    "brief": {
+      "zh": "用菌株级测序追踪同一克隆从牙周袋到肠黏膜的迁移，同步测屏障通透性与免疫指标，并以预注册的牙周干预随机试验检验系统临床终点，而不是只报告标志物改善。",
+      "en": "Track a single clone from the periodontal pocket to the gut mucosa by strain-level sequencing, measure barrier permeability and immune readouts alongside it, and test systemic clinical endpoints in preregistered randomized periodontal interventions rather than reporting only marker improvements."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1016/j.cell.2020.05.048",
+      "title": "The Intermucosal Connection between the Mouth and Gut in Commensal Pathobiont-Driven Colitis",
+      "venue": "Cell",
+      "year": 2020
+    }
+  },
+  "gut-mycobiome-cross-kingdom-interactions": {
+    "brief": {
+      "zh": "以绝对负荷而非相对丰度定量真菌，配技术阴性对照与重复采样区分定植与过客，再用培养基因组做共培养与定植实验验证细菌—真菌营养竞争是否真实发生，而不是停在相关性。",
+      "en": "Quantify fungi by absolute load rather than relative abundance, separate residents from passengers with technical negative controls and repeat sampling, then use cultivated genomes in co-culture and colonization experiments to test whether bacterial–fungal nutrient competition actually occurs instead of stopping at correlation."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1016/j.cell.2024.04.043",
+      "title": "A genomic compendium of cultivated human gut fungi characterizes the gut mycobiome and its relevance to common diseases",
+      "venue": "Cell",
+      "year": 2024
+    }
+  },
+  "one-health-cross-domain-pathogen-surveillance": {
+    "brief": {
+      "zh": "把野生动物哨点、废水监测与基因组溯源接到同一套共享数据结构上，预设触发阈值与响应流程，再用历史溢出事件回测这套系统能提前多少天报警，把预警时效当作可考核指标。",
+      "en": "Connect wildlife sentinels, wastewater surveillance and genomic tracing to one shared data structure with trigger thresholds and response procedures fixed in advance, then backtest against historical spillovers to measure how many days of warning the system would have bought — making lead time an auditable metric."
+    },
+    "citation": {
+      "url": "https://www.thelancet.com/journals/lanmic/article/PIIS2666-5247(24)00192-7/fulltext",
+      "title": "Global wastewater surveillance for pathogens with pandemic potential: opportunities and challenges",
+      "venue": "The Lancet Microbe",
+      "year": 2024
+    }
+  },
+  "post-antibiotic-community-recovery-colonization-resistance": {
+    "brief": {
+      "zh": "在同一批受试者上分别测组成、功能、耐药组、黏膜定植与病原抗性五条曲线，比较自体 FMT、益生菌与自然恢复，并按抗菌谱与基线群落分层报告个体轨迹。",
+      "en": "Track composition, function, resistome, mucosal colonization and pathogen resistance as five separate curves in the same subjects, compare autologous FMT, probiotics and spontaneous recovery, and report individual trajectories stratified by antibiotic spectrum and baseline community."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1038/s41467-024-55800-y",
+      "title": "Klebsiella oxytoca facilitates microbiome recovery via antibiotic degradation and restores colonization resistance in a diet-dependent manner",
+      "venue": "Nature Communications",
+      "year": 2025
+    }
+  },
+  "neural-markers-consciousness-no-report-paradigms": {
+    "brief": {
+      "zh": "在同一批被试上跑可报告与无报告两版任务，先在可报告条件下校准瞳孔与眼动等替代指标，再比较两版解码出的意识相关活动在前额叶与后部皮层上的差别。",
+      "en": "Run reportable and no-report versions of the same task in the same participants, calibrate proxy indices such as pupil size and eye movements under the reportable condition first, then compare where the decoded awareness-related activity differs across prefrontal and posterior cortex."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1016/j.cub.2025.10.026",
+      "title": "Neural correlates of consciousness in an auditory no-report fMRI study",
+      "venue": "Current Biology",
+      "year": 2025
+    }
+  },
+  "interoception-minimal-sense-self": {
+    "brief": {
+      "zh": "把实时心跳或呼吸同步到虚拟身体，用异步与伪反馈作对照，同步记录心肺信号与心跳诱发电位，并把所有权、能动性、自我定位与内感受准确度分开报告。",
+      "en": "Synchronize a virtual body to a live heartbeat or breath, control it with asynchronous and sham feedback, record cardiac and respiratory signals alongside heartbeat-evoked potentials, and report ownership, agency, self-location and interoceptive accuracy as separate quantities."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1523/JNEUROSCI.0311-16.2016",
+      "title": "Transient Modulations of Neural Responses to Heartbeats Covary with Bodily Self-Consciousness",
+      "venue": "Journal of Neuroscience",
+      "year": 2016
+    }
+  },
+  "raman-activated-sorting-linking-single-cell-function": {
+    "brief": {
+      "zh": "以重水或 ¹³C 标记原位样品，采集单细胞拉曼谱作为代谢指纹，按目标活性设阈值分选，再对同一个细胞做单细胞基因组或直接培养，把功能与基因组挂在一起。",
+      "en": "Label in-situ samples with D₂O or ¹³C, read single-cell Raman spectra as metabolic fingerprints, sort against a threshold on the target activity, then run single-cell genomics or direct cultivation on that same cell so function and genome are linked."
+    },
+    "citation": {
+      "url": "https://www.nature.com/articles/s41596-020-00427-8",
+      "title": "Optofluidic Raman-activated cell sorting for targeted genome retrieval or cultivation of microbial cells with specific functions",
+      "venue": "Nature Protocols",
+      "year": 2021
+    }
+  },
+  "machine-learning-illuminates-metabolic-dark": {
+    "brief": {
+      "zh": "在 GNPS 等公共库的原始谱图上自监督预训练质谱基础模型，用生成式分子先验列出并排序可能存在的代谢物，再与 MS/MS 检索结合，把有峰无名的信号连成可检索的分子网络。",
+      "en": "Pre-train a mass-spectrometry foundation model self-supervised on raw spectra from public repositories such as GNPS, use a generative molecular prior to enumerate and rank plausible metabolites, then fuse this with MS/MS library search so unnamed peaks join a searchable molecular network."
+    },
+    "citation": {
+      "url": "https://www.nature.com/articles/s41586-025-09969-x",
+      "title": "Language model-guided anticipation and discovery of mammalian metabolites (DeepMet)",
+      "venue": "Nature",
+      "year": 2025
+    }
+  },
+  "comparative-genomic-discovery-orphan-structured-rnas": {
+    "brief": {
+      "zh": "在细菌、古菌与宏基因组的基因间区做比较基因组与协变分析挑出候选折叠，再以转录边界、结构探针、配体选择性、突变—补偿与报告基因分级验证，并保留未解与否定结果。",
+      "en": "Run comparative-genomic covariation searches over intergenic regions of bacteria, archaea and metagenomes to isolate candidate folds, then validate in tiers — transcript boundaries, structure probing, ligand selectivity, mutation-compensation, reporter genes — while keeping unresolved and negative results on the record."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1016/j.molcel.2016.11.019",
+      "title": "Metabolism of Free Guanidine in Bacteria Is Regulated by a Widespread Riboswitch Class",
+      "venue": "Molecular Cell",
+      "year": 2017
+    }
+  },
+  "structure-level-resolution-positional-lipid-isomers": {
+    "brief": {
+      "zh": "用 Paternò–Büchi 衍生化或臭氧诱导解离生成双键位置诊断离子，配合离子淌度与 LipidOz 类自动化处理，分层报告脂肪链、sn 位点与顺反构型，再以合成标准品和互补碎裂复核。",
+      "en": "Generate double-bond diagnostic ions by Paternò–Büchi derivatization or ozone-induced dissociation, pair them with ion mobility and automated processing such as LipidOz, report chain composition, sn position and cis/trans in tiers, and cross-check with synthetic standards and complementary fragmentation."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1038/s42004-023-00867-9",
+      "title": "LipidOz enables automated elucidation of lipid carbon–carbon double bond positions from ozone-induced dissociation mass spectrometry data",
+      "venue": "Communications Chemistry",
+      "year": 2023
+    }
+  },
+  "melanized-fungal-living-radiation-shielding-biocomposites": {
+    "brief": {
+      "zh": "在轨与地面平行培养富黑色素暗色真菌，测定单位面积质量下的剂量衰减曲线，再把过量表达黑色素的工程菌与菌丝复合材料结合，检验其在真空、极端温差与微重力下的存活与生物安全边界。",
+      "en": "Culture melanin-rich dark fungi in orbit and on the ground in parallel, measure dose attenuation as a function of areal mass, then combine melanin-overproducing engineered strains with mycelium composites and test their survival and biosafety limits under vacuum, extreme temperature swings and microgravity."
+    },
+    "citation": {
+      "url": "https://www.nature.com/articles/s41526-025-00488-7",
+      "title": "Synthetic biology for space exploration",
+      "venue": "npj Microgravity",
+      "year": 2025
+    }
+  },
+  "space-weathering-aware-lunar-dust-toxicology": {
+    "brief": {
+      "zh": "对模拟物做人工太阳风风化并保存表面化学，按粒子数、面积与质量三种口径做多尺度剂量学，以气液界面肺模型与长期吸入动物数据桥接体外结果，并同时报告眼、皮肤与免疫端点。",
+      "en": "Weather simulants with artificial solar wind while preserving their surface chemistry, run multi-scale dosimetry by particle number, area and mass, bridge in-vitro results with air–liquid-interface lung models and long-term inhalation animal data, and report ocular, dermal and immune endpoints alongside the pulmonary ones."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1029/2023GH000840",
+      "title": "Artificial Space Weathering to Mimic Solar Wind Enhances the Toxicity of Lunar Dust Simulants in Human Lung Cells",
+      "venue": "GeoHealth",
+      "year": 2024
+    }
+  },
+  "spaceflight-multi-omics-medical-atlas-civilian": {
+    "brief": {
+      "zh": "把历次任务的基因组、表观组、转录组、蛋白组、代谢组与微生物组连同匹配血样并入同一图谱与生物库，按任务时长与暴露条件分层，检验端粒延长与细胞因子漂移等特征的可重复性。",
+      "en": "Merge genome, epigenome, transcriptome, proteome, metabolome and microbiome data from successive missions, together with matched blood specimens, into one atlas and biobank; stratify by mission duration and exposure conditions; and test the reproducibility of signatures such as telomere elongation and cytokine drift."
+    },
+    "citation": {
+      "url": "https://www.nature.com/articles/s41586-024-07639-y",
+      "title": "The Space Omics and Medical Atlas (SOMA) and international astronaut biobank",
+      "venue": "Nature",
+      "year": 2024
+    }
+  },
+  "subcellular-spatial-transcriptomics-reading-rna": {
+    "brief": {
+      "zh": "用 PHOTON 的近紫外解笼锁在核仁、线粒体与应激颗粒分区捕获内源转录组，用 cycleHCR 在厚组织中三维共成像 RNA 与蛋白，把定位与 m6A 修饰、RNA 结合蛋白对上，再接代谢标记把静态地图推成迁移与降解的动力学。",
+      "en": "Capture endogenous transcriptomes compartment by compartment in nucleolus, mitochondria, and stress granules using PHOTON's near-UV uncaging; co-image RNA and protein in three dimensions in thick tissue with cycleHCR; tie localization to m6A marks and RNA-binding proteins; then add metabolic labeling to turn a static map into the dynamics of trafficking and decay."
+    },
+    "citation": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12078482/",
+      "title": "Subcellular level spatial transcriptomics with PHOTON",
+      "venue": "Cell Reports Methods (PMC)",
+      "year": 2025
+    }
+  },
+  "non-destructive-longitudinal-transcriptome-sampling-living": {
+    "brief": {
+      "zh": "在 Live-seq 与纳米吸管平台上重复取样，逐次记录抽取体积与细胞身份，用 spike-in、终点整细胞 RNA-seq 与未取样对照校准覆盖与扰动，并连续报告累计存活、增殖、功能与批次失败，不把轨迹外推到未实测时间点。",
+      "en": "Sample repeatedly on Live-seq and nanostraw platforms, logging extracted volume and cell identity at each pass; calibrate coverage and perturbation with spike-ins, terminal whole-cell RNA-seq, and unsampled controls; report cumulative survival, proliferation, function, and batch failures continuously; and never extrapolate a trajectory to time points that were not measured."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1038/s41586-022-05046-9",
+      "title": "Live-seq enables temporal transcriptomic recording of single cells",
+      "venue": "Nature",
+      "year": 2022
+    }
+  },
+  "joint-spatial-multi-omics-aligning-epigenome": {
+    "brief": {
+      "zh": "沿用 Rong Fan 实验室的确定性微流控条码，在一张组织切片上同时捕获染色质可及性或组蛋白修饰与 mRNA，把 3–5 天的标准流程移植到新组织，并检验表观与转录状态的空间共变是否稳定。",
+      "en": "Adopt the Rong Fan lab's deterministic microfluidic barcoding to capture chromatin accessibility or histone marks together with mRNA on a single tissue section, port the 3–5 day standard protocol to new tissues, and test whether the spatial covariation of epigenetic and transcriptional state holds up."
+    },
+    "citation": {
+      "url": "https://www.nature.com/articles/s41596-025-01145-9",
+      "title": "Spatially resolved genome-wide joint profiling of epigenome and transcriptome with spatial-ATAC-RNA-seq and spatial-CUT&Tag-RNA-seq",
+      "venue": "Nature Protocols",
+      "year": 2025
+    }
+  },
+  "situ-spatial-translatomics-imaging-mrna": {
+    "brief": {
+      "zh": "用 RIBOmap 的三探针设计只扩增核糖体结合转录本，在细胞与组织中对数千基因成像翻译活动；再接 TEMPOmap 的代谢标记读出 RNA 的合成—降解时间轴，并把定量校准做成可交接的标准。",
+      "en": "Use RIBOmap's tri-probe design to amplify only ribosome-bound transcripts, imaging translational activity across thousands of genes in cells and tissue; add TEMPOmap's metabolic labeling to read RNA's synthesis-to-decay timeline, and turn quantitative calibration into a transferable standard."
+    },
+    "citation": {
+      "url": "https://www.nature.com/articles/s41592-025-02867-0",
+      "title": "Scalable spatial single-cell transcriptomics and translatomics in 3D thick tissue blocks (Deep-RIBOmap)",
+      "venue": "Nature Methods",
+      "year": 2025
+    }
+  },
+  "in-situ-spatial-glycomics-tissues": {
+    "brief": {
+      "zh": "在 FFPE 切片上用酶切释放并 MALDI 成像 N-糖链，配合片上衍生把分辨率推到近细胞级；同时用串联 MS、糖苷酶与凝集素做正交结构验证，并系统报告切片厚度与质量分析器带来的差异。",
+      "en": "Release N-glycans enzymatically on FFPE sections and image them by MALDI, pushing resolution to near-cellular with on-slide derivatization; validate structure orthogonally by tandem MS, glycosidases and lectins, and report systematically how section thickness and mass analyzer change the result."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1021/jasms.4c00494",
+      "title": "The Impact of the Mass Analyzer and Tissue Section Thickness on Spatial N-Glycomics with MALDI-MSI",
+      "venue": "Journal of the American Society for Mass Spectrometry",
+      "year": 2025
+    }
+  },
+  "causal-identification-under-nonrandom-missingness": {
+    "brief": {
+      "zh": "把缺失指示画进因果图，明确哪些变量在缺失发生后仍被观测；在结果独立或处理独立缺失等附加条件下推导识别，构造回归、加权与双重稳健估计，并对相竞争的缺失机制做敏感性与部分识别。",
+      "en": "Draw the missingness indicators into the causal graph and state which variables remain observed once data are missing; derive identification under added conditions such as outcome-independent or treatment-independent missingness, build regression, weighting and doubly robust estimators, and run sensitivity and partial-identification analyses over competing missingness mechanisms."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1111/stan.12343",
+      "title": "Nonparametric causal inference with confounders missing not at random",
+      "venue": "Statistica Neerlandica",
+      "year": 2024
+    }
+  },
+  "hit-and-run-vivo-epigenetic-silencing-heritable": {
+    "brief": {
+      "zh": "用 LNP 瞬时递送锌指或 dCas9 融合的甲基转移酶加 KRAB 类抑制子，在靶基因上写入甲基化与抑制性组蛋白标记，然后追踪编辑器降解后沉默的维持、在强制器官再生下的存活，以及可逆重写的条件。",
+      "en": "Deliver zinc-finger or dCas9 fusions of methyltransferases plus KRAB-type repressors transiently by LNP to write methylation and repressive histone marks on a target gene, then track how silencing is maintained after the editor degrades, whether it survives forced organ regeneration, and under what conditions it can be reversibly rewritten."
+    },
+    "citation": {
+      "url": "https://www.nature.com/articles/s41586-024-07087-8",
+      "title": "Durable and efficient gene silencing in vivo by hit-and-run epigenome editing",
+      "venue": "Nature",
+      "year": 2024
+    }
+  },
+  "vivo-epigenetic-reactivation-silenced-alleles": {
+    "brief": {
+      "zh": "对沉默父源 UBE3A 的反义转录本 Ube3a-ATS 做靶向 DNA 甲基化以解除压制，测量重激活的幅度与停药后的维持时长，并把同一逻辑移到普拉德-威利、脆性 X 等被关掉的位点与真实 CNS 递送条件下。",
+      "en": "Apply targeted DNA methylation to Ube3a-ATS, the antisense transcript that silences paternal UBE3A, to lift the repression; measure how strongly reactivation rises and how long it holds after dosing stops, then carry the same logic to loci shut off in Prader-Willi and Fragile X under real CNS delivery conditions."
+    },
+    "citation": {
+      "url": "https://www.nature.com/articles/s41467-025-64932-8",
+      "title": "Rescue of imprinted genes by epigenome editing in human cellular models of Prader-Willi syndrome",
+      "venue": "Nature Communications",
+      "year": 2025
+    }
+  },
+  "programmable-rna-trans-splicing-exon-replacement": {
+    "brief": {
+      "zh": "用双 CRISPR 引导把转剪接分子拉到目标前体 mRNA 的 3′ 端，量化正确连接比例、完整异构体、蛋白与功能恢复，并逐项排查顺式剪接竞争、异常嵌合转录本、核内可达性与脱靶剪接。",
+      "en": "Use dual CRISPR guides to recruit the trans-splicing molecule to the 3′ end of a target pre-mRNA, quantify correct junction rate, full-length isoform, protein and functional restoration, and check item by item for cis-splicing competition, aberrant chimeric transcripts, nuclear accessibility and off-target splicing."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1016/j.cels.2025.101487",
+      "title": "Rewriting endogenous human transcripts with dual CRISPR-guided 3′ trans-splicing",
+      "venue": "Cell Systems",
+      "year": 2026
+    }
+  },
+  "durable-vivo-epigenetic-silencing-without": {
+    "brief": {
+      "zh": "把催化失活的甲基化写入器装进肝靶向 LNP 瞬时递送，同时给整合的 HBV 与 cccDNA 盖上抑制标记；在真感染模型与临床中追踪病毒 RNA 的抑制深度、跨细胞分裂的维持，以及是否脱靶重编程人基因组。",
+      "en": "Package a catalytically dead methylation writer into liver-targeted LNPs for transient delivery, laying repressive marks on integrated HBV and on cccDNA at once; then track depth of viral RNA repression, maintenance across cell divisions, and any off-target reprogramming of the human genome in truly infected models and in the clinic."
+    },
+    "citation": {
+      "url": "https://tunetx.com/aasld-2024-tune-therapeutics-shows-near-complete-hepb-repression-with-tune-401-epigenetic-silencer/",
+      "title": "AASLD 2024: Tune Therapeutics Shows Near-Complete HepB Virus Repression with TUNE-401 Epigenetic Silencer",
+      "venue": "Tune Therapeutics",
+      "year": 2024
+    }
+  },
+  "virus-like-particle-transient-delivery-editor": {
+    "brief": {
+      "zh": "用改造的逆转录病毒 Gag 支架把先导编辑器或表观编辑器打包成蛋白—RNA 复合物，工程化包膜蛋白的组织趋向性，量化单次注射的编辑效率、颗粒产量与人群预存免疫的影响。",
+      "en": "Package prime editors or epigenome editors as protein-RNA complexes on engineered retroviral Gag scaffolds, engineer envelope proteins for tissue tropism, and quantify single-injection editing efficiency, particle yield, and the effect of pre-existing immunity in the population."
+    },
+    "citation": {
+      "url": "https://www.nature.com/articles/s41467-025-63167-x",
+      "title": "Programmable epigenome editing by transient delivery of CRISPR epigenome editor ribonucleoproteins (RENDER)",
+      "venue": "Nature Communications",
+      "year": 2025
+    }
+  },
+  "autoformalization-machine-verifiable-scientific-reasoning": {
+    "brief": {
+      "zh": "训练能把自然语言命题自动形式化成 Lean 的模型，用证明检查器而非模型自述作奖励信号；在长时程任务上测形式化保真度——翻错了却仍能通过验证的命题，才是这条线真正要评测的东西。",
+      "en": "Train models that autoformalize natural-language statements into Lean, using the proof checker rather than the model's self-report as the reward signal, and measure formalization fidelity on long-horizon tasks — because the statements that are mistranslated yet still verify are what this line must actually evaluate."
+    },
+    "citation": {
+      "url": "https://arxiv.org/pdf/2606.05400",
+      "title": "LeanMarathon: Toward Reliable AI Co-Mathematicians through Long-Horizon Lean Autoformalization",
+      "venue": "arXiv:2606.05400",
+      "year": 2026
+    }
+  },
+  "real-time-all-optical-closed-loop-neuroscience": {
+    "brief": {
+      "zh": "用双光子钙成像实时读出数百神经元，在线判定该扰动谁，再用全息光遗传在毫秒窗口内投递刺激；把脱靶激活单独标定成误差项，让'扰动改变了行为'的结论能与光学伪影分开。",
+      "en": "Read hundreds of neurons in real time with two-photon calcium imaging, decide online which to perturb, and deliver holographic optogenetic stimulation inside a millisecond window — while calibrating off-target excitation separately as an error term, so that 'the perturbation changed behavior' can be told apart from an optical artifact."
+    },
+    "citation": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12570328/",
+      "title": "A real-time all-optical interface for dynamic perturbation of neural activity during behavior",
+      "venue": "Cell Reports Methods",
+      "year": 2025
+    }
+  },
+  "neural-operator-multi-physics-foundation-models": {
+    "brief": {
+      "zh": "在 the Well 这类共享数据集上跨 PDE 族预训练一个算子学习器，测它对未见方程的少样本迁移；同时把长时程外推中的守恒量偏差单列成指标，而不是只报单步误差。",
+      "en": "Pretrain one operator learner across PDE families on shared datasets such as the Well, measure its few-shot transfer to unseen equations, and report drift in conserved quantities under long-horizon rollout as its own metric rather than quoting single-step error alone."
+    },
+    "citation": {
+      "url": "https://arxiv.org/abs/2511.15684",
+      "title": "Walrus: A Cross-Domain Foundation Model for Continuum Dynamics",
+      "venue": "arXiv:2511.15684 (McCabe et al.)",
+      "year": 2025
+    }
+  },
+  "novelty-falsifiability-metrics-ai-generated-hypotheses": {
+    "brief": {
+      "zh": "建可基准化的评测：用按发表时间切割的论文集当新颖度标尺，把可证伪性写成智能体回路里的一等目标，再用真实湿实验回测——看 AI 假说的新颖度检验后掉多少，与人类的掉幅比。",
+      "en": "Build benchmarkable evaluation: use a paper corpus cut by publication date as the novelty yardstick, make falsifiability a first-class objective inside the agent loop, then back-test with real wet-lab experiments — measuring how far AI hypotheses' novelty falls after testing, against how far human ones fall."
+    },
+    "citation": {
+      "url": "https://www.nature.com/articles/s41586-026-10644-y",
+      "title": "Accelerating scientific discovery with Co-Scientist",
+      "venue": "Nature",
+      "year": 2026
+    }
+  },
+  "credibility-audits-acceleration-benchmarks-autonomous": {
+    "brief": {
+      "zh": "对自主发现的声明做对抗性再分析：重做 PXRD 的 Rietveld 精修、比对 ICSD、把已知无序相与真正的新相分开；同时用加速因子与增益因子量化流水线到底快多少，并把审计前置成闭环内的一环。",
+      "en": "Subject discovery claims to adversarial re-analysis: redo the Rietveld refinement of the PXRD, check against the ICSD, and separate known disordered phases from genuinely new ones. In parallel, quantify how much faster the pipeline really is using acceleration and enhancement factors, and move auditing upstream into the loop itself."
+    },
+    "citation": {
+      "url": "https://pubs.rsc.org/en/content/articlehtml/2025/dd/d5dd00337g",
+      "title": "Benchmarking self-driving labs",
+      "venue": "Digital Discovery (RSC)",
+      "year": 2025
+    }
+  },
+  "autonomous-chromatographic-method-development": {
+    "brief": {
+      "zh": "把流动相、梯度与柱温交给闭环优化器：用贝叶斯优化或强化学习在无人干预下跑真实进样，先在有限混合物上确立分离目标的奖励口径，再逐项加入柱老化、复杂基质与跨仪器迁移的验证。",
+      "en": "Hand mobile phase, gradient and column temperature to a closed-loop optimizer: run real injections operator-free under Bayesian optimization or reinforcement learning, first fixing how the separation objective is rewarded on limited mixtures, then adding validation for column aging, complex matrices and cross-instrument transfer one at a time."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1016/j.chroma.2025.465845",
+      "title": "Reinforcement learning for automated method development in liquid chromatography: insights in the reward scheme and experimental budget selection",
+      "venue": "Journal of Chromatography A",
+      "year": 2025
+    }
+  },
+  "active-mechanism-discovery-via-disagreement-driven": {
+    "brief": {
+      "zh": "维护一组相互竞争的机理假设（如 ATLAS 的稀疏解耦 RNN 组），用进化搜索挑出成员间预测最分歧的实验，据结果淘汰或精炼假设，并在 ActiveSciBench 这类闭环基准上核算省样本倍数。",
+      "en": "Maintain a set of competing mechanistic hypotheses — ATLAS uses an ensemble of sparse disentangled RNNs — search by evolutionary algorithm for the experiment where members most disagree, eliminate or refine hypotheses on the outcome, and score the sample savings on closed-loop benchmarks such as ActiveSciBench."
+    },
+    "citation": {
+      "url": "https://arxiv.org/abs/2606.12386",
+      "title": "ATLAS: Active Theory Learning for Automated Science",
+      "venue": "arXiv",
+      "year": 2026
+    }
+  },
+  "calibrated-autonomy-human-handoff-self-driving": {
+    "brief": {
+      "zh": "用 AFMBench 这类真实仪器任务集测出智能体在哪些步骤会「梦游」式偏离指令，再给闭环装上共形预测的 learning-to-defer 拒答器，给出分布无关的覆盖保证，并把每次交接记入可审计日志。",
+      "en": "Use real-instrument task suites like AFMBench to locate the steps at which an agent sleepwalks away from its instructions, then fit the loop with a conformal-prediction learning-to-defer rejector that carries a distribution-free coverage guarantee, and log every handoff for audit."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1038/s41467-025-64105-7",
+      "title": "Evaluating large language model agents for automation of atomic force microscopy (AILA / AFMBench)",
+      "venue": "Nature Communications",
+      "year": 2025
+    }
+  },
+  "one-week-automated-genome-wide-optical-pooled": {
+    "brief": {
+      "zh": "把成像、条形码扩增、原位测序读出与 AI 解读串成机器人流水线（OttoSeq、Otto2、Brieflow、MozzareLLM），一轮跑完两万余个基因敲除，再核对条形码检出率与功能聚类的可复现性。",
+      "en": "Chain imaging, barcode amplification, in-situ sequencing readout, and AI interpretation into one robotic pipeline — OttoSeq, Otto2, Brieflow, MozzareLLM — run twenty-thousand-plus knockouts per campaign, then audit barcode detection rate and the reproducibility of the functional clusters."
+    },
+    "citation": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/35022620/",
+      "title": "Pooled genetic perturbation screens with image-based phenotypes",
+      "venue": "Nature Protocols",
+      "year": 2022
+    }
+  },
+  "executable-asset-administration-shells-plug-and-simulate": {
+    "brief": {
+      "zh": "按 IEC 63278 把设备封装成带主动行为的 Type 3 资产壳，用 IDTA 02005-1-0「仿真模型供给」子模型以 FMI/FMU 规范化打包模型，再在 BaSyx 一类开源运行时里自动发现、装配并联合仿真整条产线。",
+      "en": "Wrap equipment as active Type 3 asset shells under IEC 63278, package models as FMI/FMUs through the IDTA 02005-1-0 \"Provision of Simulation Models\" submodel, and let an open-source runtime such as BaSyx discover, assemble and co-simulate an entire production line automatically."
+    },
+    "citation": {
+      "url": "https://arxiv.org/pdf/2406.14470",
+      "title": "Model-driven realization of IDTA submodel specifications: The good, the bad, the incompatible?",
+      "venue": "arXiv preprint",
+      "year": 2024
+    }
+  },
+  "neural-operator-surrogate-twins-laser-manufacturing": {
+    "brief": {
+      "zh": "在随激光移动的参考系内做时间平均，把瞬态多物理场改写成准稳态算子学习问题，用单一 FNO 把工艺参数映射到三维温度场与熔池边界，并在粗网格上训练后超分辨到细网格推理。",
+      "en": "Time-average in the frame moving with the laser, recast the transient multiphysics as a quasi-steady operator-learning problem, map process parameters onto the 3D temperature field and melt-pool boundary with a single FNO, and super-resolve to fine-grid inference after training on coarse grids."
+    },
+    "citation": {
+      "url": "https://arxiv.org/abs/2602.06241",
+      "title": "A Fast and Generalizable Fourier Neural Operator-Based Surrogate for Melt-Pool Prediction in Laser Processing",
+      "venue": "arXiv preprint",
+      "year": 2026
+    }
+  },
+  "virtual-experiments-computable-papers": {
+    "brief": {
+      "zh": "把模型、代码、数据连同运行环境一起打包进论文，用 Jupyter、Code Ocean、Whole Tale 等载体让读者一键复算图表，并像 ENCORE 那样把复现流程做成作者写作时就承担的固定工序。",
+      "en": "Package models, code, data and the runtime environment into the paper itself, let readers recompute figures in one click through carriers such as Jupyter, Code Ocean and Whole Tale, and turn the reproduction workflow into a fixed authoring step, as ENCORE does."
+    },
+    "citation": {
+      "url": "https://www.nature.com/articles/s41467-024-52446-8",
+      "title": "ENCORE: a practical implementation to improve reproducibility and transparency of computational research",
+      "venue": "Nature Communications",
+      "year": 2024
+    }
+  },
+  "material-informed-gaussian-splatting-twins-camera-as-twin": {
+    "brief": {
+      "zh": "用多视角图像做 3D 高斯泼溅重建，以视觉模型提取语义材质掩膜，把高斯转成带材质标签的网格并赋予基于物理的材料属性，再在图形引擎里仿真雷达反射率，并以激光雷达为真值校验。",
+      "en": "Reconstruct the scene with 3D Gaussian Splatting from multi-view images, extract semantic material masks with a vision model, convert the splats into a material-labeled mesh carrying physics-based properties, then simulate radar reflectivity in a graphics engine and validate it against LiDAR ground truth."
+    },
+    "citation": {
+      "url": "https://arxiv.org/pdf/2601.03200",
+      "title": "A High-Fidelity Digital Twin for Robotic Manipulation Based on 3D Gaussian Splatting",
+      "venue": "arXiv preprint",
+      "year": 2026
+    }
+  },
+  "mechanistic-digital-twins-tumor-therapy": {
+    "brief": {
+      "zh": "用患者的纵向 MRI 反复校准细胞增殖、迁移、组织力学与药效参数，让模型在同一个体上比较不同新辅助化疗方案的反事实结局，并把当前的回顾性与 in-silico 验证推进到前瞻性设计。",
+      "en": "Recalibrate cell proliferation, migration, tissue mechanics and pharmacodynamic parameters from a patient's longitudinal MRI, let the model compare counterfactual outcomes of alternative neoadjuvant chemotherapy regimens in that same individual, and push today's retrospective and in-silico validation toward a prospective design."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1038/s41746-025-01579-1",
+      "title": "MRI-based digital twins to improve treatment response of breast cancer by optimizing neoadjuvant chemotherapy regimens",
+      "venue": "npj Digital Medicine",
+      "year": 2025
+    }
+  },
+  "climate-attribution-extreme-event-science": {
+    "brief": {
+      "zh": "按事先注册的概率归因协议，用大样本模式跑「有无人为变暖」两个反事实世界，对同一事件比较多套模式与多种事件定义，并在事发数日内把结论连同区间与方法敏感性一起发布。",
+      "en": "Follow a pre-registered probabilistic attribution protocol, run large model ensembles over the two counterfactual worlds with and without anthropogenic warming, compare multiple models and multiple event definitions for the same event, and publish within days of the event with intervals and method sensitivity attached."
+    },
+    "citation": {
+      "url": "https://www.annualreviews.org/content/journals/10.1146/annurev-environ-112621-083538",
+      "title": "Attribution of Extreme Events to Climate Change",
+      "venue": "Annual Review of Environment and Resources",
+      "year": 2023
+    }
+  },
+  "rapid-urban-evolution-data-driven": {
+    "brief": {
+      "zh": "在多个城市沿城乡梯度重复采样蚊、杂草与鼠类，按白三叶氰化物多态这类可测性状建立时间序列，把抗药与抗除草剂性状的等位基因频率变化，与热岛强度、农药施用记录和生境碎片化程度对上。",
+      "en": "Sample mosquitoes, weeds, and rats repeatedly along urban–rural gradients across many cities, build time series on measurable traits such as the white-clover cyanide polymorphism, and match allele-frequency shifts in pesticide- and herbicide-resistance traits against heat-island intensity, spray records, and habitat fragmentation."
+    },
+    "citation": {
+      "url": "https://www.science.org/doi/10.1126/science.abk0989",
+      "title": "Global urban environmental change drives adaptation in white clover",
+      "venue": "Science",
+      "year": 2022
+    }
+  },
+  "lifecycle-carbon-accounting-prescribed-fire": {
+    "brief": {
+      "zh": "为每一次计划燃烧建一本条件化的全生命周期账：实测处理时排放，估计处理在有效期内真正遭遇野火的概率与随之改变的火烧严重度，追踪植被与土壤碳约 2—4 年的恢复过程，并把非二氧化碳强迫单列。",
+      "en": "Keep a conditional lifecycle ledger for every prescribed burn: measure treatment-time emissions, estimate the probability that the treatment actually meets a wildfire within its effective window and the fire severity that follows, track the roughly two-to-four-year recovery of vegetation and soil carbon, and account for non-CO₂ forcing separately."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1016/j.foreco.2023.121589",
+      "title": "Carbon dynamics of prescribed fire in pine- and oak-dominated forests on the mid-Atlantic coastal plain, USA",
+      "venue": "Forest Ecology and Management",
+      "year": 2024
+    }
+  },
+  "citizen-multi-station-optical-telemetry-observations": {
+    "brief": {
+      "zh": "用多站流星相机同步记录再入火球并交会反演轨道要素，同时用业余 UHF 站接住失联前的姿态、温度、旋转与多普勒遥测，把光学轨迹与在轨状态拼成同一条时间线，并如实标注覆盖缺口。",
+      "en": "Record reentry fireballs synchronously with multi-station meteor cameras and triangulate orbital elements, while amateur UHF stations capture attitude, temperature, rotation and Doppler telemetry up to loss of signal, stitching optical trajectory and on-orbit state into one timeline with coverage gaps honestly marked."
+    },
+    "citation": {
+      "url": "https://doi.org/10.20637/0002001420",
+      "title": "Recent Reentries of Artificial Satellites Captured by Simultaneous Meteor Observations",
+      "venue": "Proceedings of the 11th Space Debris Workshop",
+      "year": 2025
+    }
+  },
+  "diy-muon-tomography-seeing-through": {
+    "brief": {
+      "zh": "用 CosmicWatch 式的盖革计数器加 Arduino 装置组成多方位阵列，在岩体外长时间累积缪子通量，再按缪子成像的重建算法反演密度场，并用已知空腔与钻孔资料标定伪影。",
+      "en": "Build multi-azimuth arrays from CosmicWatch-style Geiger-counter-plus-Arduino rigs, accumulate muon flux around a rock mass over long exposures, invert the density field with muography reconstruction algorithms, and calibrate artifacts against known cavities and borehole records."
+    },
+    "citation": {
+      "url": "https://arxiv.org/abs/1801.03029",
+      "title": "The CosmicWatch Desktop Muon Detector: a self-contained, pocket sized particle detector",
+      "venue": "Nuclear Instruments and Methods A / arXiv",
+      "year": 2018
+    }
+  },
+  "citizen-discovered-optical-phenomena-upper-atmosphere": {
+    "brief": {
+      "zh": "汇集 Aurorasaurus 这类平台上带地理标签与时标的公众影像，用多机位三角交会定高、用相机响应反推做事后绝对定标，再叠加地磁背景，把栅栏与沙丘结构变成可反演的发射层参数。",
+      "en": "Pool geotagged, time-stamped public imagery from platforms like Aurorasaurus, fix altitude by multi-station triangulation, apply post-hoc absolute calibration by recovering camera response, and overlay geomagnetic context to turn picket-fence and dune structures into retrievable emission-layer parameters."
+    },
+    "citation": {
+      "url": "https://science.nasa.gov/citizen-science/aurorasaurus/",
+      "title": "Aurorasaurus — NASA participatory (citizen) science project",
+      "venue": "NASA Science",
+      "year": 2025
+    }
+  },
+  "personal-space-weather-stations-distributed": {
+    "brief": {
+      "zh": "把统一的开源 Grape 接收机发到志愿者屋顶，连续记录标准时间频率台信号的多普勒与相位漂移，围绕日食与地磁暴组织齐射式同步观测，再按统一数据规约合成电离层扰动场。",
+      "en": "Distribute identical open-source Grape receivers to volunteer rooftops, continuously log Doppler and phase drift of standard time-and-frequency stations, organize volley-style synchronized campaigns around eclipses and geomagnetic storms, and combine the records into disturbance fields under one data protocol."
+    },
+    "citation": {
+      "url": "https://science.nasa.gov/solar-system/skywatching/2024-eclipse-ionospheric-discovery-with-hamsci/",
+      "title": "Harnessing the 2024 Eclipse for Ionospheric Discovery with HamSCI",
+      "venue": "NASA Science",
+      "year": 2024
+    }
+  },
+  "planetary-science-small-body-exploration": {
+    "brief": {
+      "zh": "以轨道器测绘选点、着陆器原位取样、密封返回舱送回实验室，把龙宫这类返回样品与 Ivuna 型碳质陨石逐项比对，分离母体信号与地球污染，并全程守住行星保护的防污染链。",
+      "en": "Select sites by orbiter mapping, sample in situ with a lander, return sealed capsules to the laboratory, and compare returned material such as Ryugu item by item against Ivuna-type carbonaceous meteorites to separate parent-body signal from terrestrial contamination — holding the planetary-protection chain intact throughout."
+    },
+    "citation": {
+      "url": "https://arxiv.org/abs/2604.22182",
+      "title": "The science from asteroid sample return missions",
+      "venue": "Contemporary Physics (arXiv)",
+      "year": 2026
+    }
+  },
+  "community-governed-corpora-endangered-languages": {
+    "brief": {
+      "zh": "按 DGS 语料库的做法把 FAIR 的可发现性与 CARE 的社区权利同时写进流程：匿名化、质量控制、分级许可，再像 DAILP 与 Moklen 社区数字库那样，把社区决策转成可执行的元数据字段与访问策略。",
+      "en": "Follow the DGS corpus in writing FAIR discoverability and CARE community rights into the same workflow — anonymization, quality control, tiered licensing — then, as DAILP and the Moklen community repository do, translate community decisions into enforceable metadata fields and access policies."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1177/07410883261440225",
+      "title": "Seeking Indigenous Data Sovereignty in the Age of Data Scraping: The Digital Archive of Indigenous Language Persistence (DAILP)",
+      "venue": "Written Communication",
+      "year": 2026
+    }
+  },
+  "publish-review-curate-ecosystems-their-validity-science": {
+    "brief": {
+      "zh": "把已经积累的公开评审当作数据：对同一预印本收集 PREreview、Review Commons、PCI 等多家服务的评估，测量彼此的一致性，再以后续复现、撤稿与引用为外部标准检验分层措辞的预测效度。",
+      "en": "Treat the accumulated public reviews as data: gather assessments of the same preprint from PREreview, Review Commons, PCI and others, measure their mutual agreement, then test the predictive validity of tiered wording against external standards such as later replication, retraction and citation."
+    },
+    "citation": {
+      "url": "https://metaror.org/article/preprint-review-services-disrupting-the-scholarly-communication-landscape-2/",
+      "title": "Preprint review services: Disrupting the scholarly communication landscape?",
+      "venue": "MetaROR",
+      "year": 2024
+    }
+  },
+  "verifiable-builds-dependency-provenance-research": {
+    "brief": {
+      "zh": "给每个发布制品绑定精确源码、锁定依赖、构建器环境、校验和与签名，用 GNU Guix 做位级可复现构建，把源码存入 Software Heritage，再由第三方独立重建并比对产物哈希。",
+      "en": "Bind each released artifact to exact source, locked dependencies, builder environment, checksums and signatures; produce bit-reproducible builds with GNU Guix; archive the source in Software Heritage; then have third parties rebuild independently and compare artifact hashes."
+    },
+    "citation": {
+      "url": "https://doi.org/10.48550/arXiv.2508.03856",
+      "title": "Evaluating Software Supply Chain Security in Research Software",
+      "venue": "arXiv",
+      "year": 2025
+    }
+  },
+  "open-data-fair-infrastructure": {
+    "brief": {
+      "zh": "为数据集与科研软件配持久标识符和领域元数据标准，把仓储接入可机读的检索与许可层，再按对 A 的重新检视区分技术可访问与受控可获得，并以下游复用是否真的发生来验收。",
+      "en": "Attach persistent identifiers and domain metadata standards to datasets and research software, wire repositories into a machine-readable discovery and licensing layer, separate technical accessibility from actual obtainability as the rethinking of the A urges, and accept the work only if downstream reuse actually happens."
+    },
+    "citation": {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9363602/",
+      "title": "Rethinking the A in FAIR Data: Issues of Data Access and Accessibility in Research",
+      "venue": "Harvard Data Science Review",
+      "year": 2022
+    }
+  },
+  "partial-lotteries-mechanism-design-experiments-research": {
+    "brief": {
+      "zh": "把资助分配本身当成实验对象：评审只负责淘汰明显不合格者，中段申请交给受控随机化，再以公平性、申请人多样性、评审成本与竞争损耗为因变量做跨机构对照评估。",
+      "en": "Make grant allocation itself the experimental object: let review only screen out the clearly unqualified, hand the indistinguishable middle to controlled randomization, and evaluate across funders with fairness, applicant diversity, review cost and competition losses as dependent variables."
+    },
+    "citation": {
+      "url": "https://arxiv.org/abs/2403.16934",
+      "title": "The Costs of Competition in Distributing Scarce Research Funds",
+      "venue": "arXiv",
+      "year": 2024
+    }
+  },
+  "goal-alignment-conflict-resolution-human": {
+    "brief": {
+      "zh": "在部分目标一致、AI 可能隐瞒信息的协作任务里，操纵目标对齐度、自主度与冲突解决规则（人让步／系统让步／透明化），同时记录感知合作度与任务真实正确率，并让模拟与真人被试互为对照。",
+      "en": "In collaborative tasks with partially aligned goals where the AI may withhold information, manipulate goal alignment, autonomy and the conflict-resolution rule (human concedes / system concedes / transparency), recording both perceived cooperation and actual task accuracy, with simulated and human participants cross-checking each other."
+    },
+    "citation": {
+      "url": "https://doi.org/10.18653/v1/2026.findings-acl.1340",
+      "title": "Imperfectly Cooperative Human-AI Interactions: Comparing the Impacts of Human and AI Attributes in Simulated and User Studies",
+      "venue": "Findings of the Association for Computational Linguistics: ACL 2026",
+      "year": 2026
+    }
+  },
+  "interaction-trace-measurement-human-ai-team": {
+    "brief": {
+      "zh": "把人机协作中双方可观测的请求、工具调用、澄清、纠错、修订与交接抽成带时间戳的事件序列，预注册它们如何映射到协作构念，再在控制任务难度与团队构成的实验中检验序列是否预测结果。",
+      "en": "Abstract the mutually observable requests, tool calls, clarifications, corrections, revisions and handoffs of human–AI work into timestamped event sequences, pre-register how they map onto collaboration constructs, then test whether sequence predicts outcome in experiments that control task difficulty and team composition."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1145/3772318.3791059",
+      "title": "Seeing Eye to Eye: Enabling Cognitive Alignment Through Shared First-Person Perspective in Human–AI Collaboration",
+      "venue": "Proceedings of the 2026 CHI Conference on Human Factors in Computing Systems",
+      "year": 2026
+    }
+  },
+  "cognitive-forcing-functions-intercepting-ai": {
+    "brief": {
+      "zh": "设计在 AI 可能出错处强制独立取证、先行判断、分阶段披露或冲突复核的界面，并在同一实验里同时记录错采纳、错拒绝、最终准确率、完成时间与认知负荷，找出摩擦真正有效的边界条件。",
+      "en": "Design interfaces that force independent evidence gathering, prior judgment, staged disclosure or conflict review precisely where AI advice may be wrong, and record wrong adoption, wrong rejection, final accuracy, time and cognitive load in the same experiment to locate the boundary conditions under which friction actually helps."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1145/3710946",
+      "title": "Cognitive Forcing for Better Decision-Making: Reducing Overreliance on AI Systems Through Partial Explanations",
+      "venue": "Proceedings of the ACM on Human-Computer Interaction",
+      "year": 2025
+    }
+  },
+  "shared-mental-models-human-ai": {
+    "brief": {
+      "zh": "分别测量人对 AI、AI 对人，以及双方对任务、角色、能力边界和当前状态的表征，把一致性与正确性当作两个独立指标同时检验，并追踪它们在交互中如何更新。",
+      "en": "Measure separately the human's model of the AI, the AI's model of the human, and both sides' representations of task, role, capability boundary and current state — testing consistency and correctness as two independent criteria, and tracking how each updates through interaction."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1145/3492832",
+      "title": "Let's Think Together! Assessing Shared Mental Models, Performance, and Trust in Human-Agent Teams",
+      "venue": "Proceedings of the ACM on Human-Computer Interaction",
+      "year": 2022
+    }
+  },
+  "creative-fixation-diversity-under-generative": {
+    "brief": {
+      "zh": "在同一实验里同时记录个体作品的质量与新颖性、同一人内部的发散度、群体输出的分布、范例锚定强度，以及撤掉辅助后的迁移，并完整登记模型、提示、采样与筛选过程。",
+      "en": "Record, within one experiment, individual quality and novelty, within-person divergence, the distribution of group output, strength of exemplar anchoring, and transfer once assistance is withdrawn — while fully logging model, prompt, sampling and selection procedure."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1126/sciadv.adn5290",
+      "title": "Generative AI enhances individual creativity but reduces the collective diversity of novel content",
+      "venue": "Science Advances",
+      "year": 2024
+    }
+  },
+  "participatory-governance-ontologies-taxonomies": {
+    "brief": {
+      "zh": "把本体的提案权、讨论权、表决权、维护权与否决权写成公开规则，逐条记录术语定义、异议、变更理由、版本映射与弃用路径，并评估资源较弱的受影响群体是否真的进得来。",
+      "en": "Write proposal, discussion, voting, maintenance and veto rights into public rules; record term definitions, dissent, change rationale, version mappings and deprecation paths item by item; and assess whether affected groups with fewer resources can in fact take part."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1371/journal.pone.0285093",
+      "title": "Coordinating virus research: The Virus Infectious Disease Ontology",
+      "venue": "PLOS ONE",
+      "year": 2024
+    }
+  },
+  "eavesdropping-vibrational-communication-substrate-dark": {
+    "brief": {
+      "zh": "用激光多普勒测振仪与廉价压电、加速度计在植物茎、土壤与蛛网上采集振动，同步录制行为视频，先标定基质的传递函数，再把配对的信号—行为样本汇入开放振动信号库。",
+      "en": "Record vibration on plant stems, soil, and webs with laser Doppler vibrometers and cheap piezo or accelerometer contacts, film behavior in sync, calibrate the substrate's transfer function first, then pool the paired signal–behavior samples into an open vibrational signal library."
+    },
+    "citation": {
+      "url": "https://www.sciencedirect.com/science/article/pii/S0960982221009805",
+      "title": "Biotremology: Have a look and find something wonderful!",
+      "venue": "Current Biology",
+      "year": 2021
+    }
+  },
+  "biomimetic-olfactory-receptors-odor-decoding": {
+    "brief": {
+      "zh": "用人源气味受体的结构与工程化突变体逐个测出分子—受体的激活谱，把组合编码转成可预测的响应矩阵，再检验这套矩阵能否预测人类对新分子的气味判断。",
+      "en": "Measure molecule-by-receptor activation profiles from human odorant-receptor structures and engineered mutants, convert combinatorial coding into a predictive response matrix, then test whether that matrix predicts how people judge the smell of unseen molecules."
+    },
+    "citation": {
+      "url": "https://www.nature.com/articles/s41586-024-08126-0",
+      "title": "Engineered odorant receptors illuminate the basis of odour discrimination",
+      "venue": "Nature",
+      "year": 2024
+    }
+  },
+  "measuring-animal-olfactory-landscapes-navigation": {
+    "brief": {
+      "zh": "在自由行为的果蝇、线虫或野外草食动物旁布设空间气体传感阵列与风场测量，连续重建气味场，用独立方法校准传感器的响应与吸附，再把重建场与轨迹逐帧配准。",
+      "en": "Deploy spatial gas-sensor arrays and wind measurement beside freely behaving flies, worms, or field herbivores, reconstruct the odor field continuously, calibrate sensor response and adsorption by independent means, then register the reconstructed field to the trajectory frame by frame."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1038/s41586-022-05423-4",
+      "title": "Odour motion sensing enhances navigation of complex plumes",
+      "venue": "Nature",
+      "year": 2022
+    }
+  },
+  "scientific-data-sonification-research-accessible": {
+    "brief": {
+      "zh": "用 Astronify、STRAUSS 这类开源工具把光变曲线与光谱映射成声音，固定映射参数做受控检测实验，量化不同信噪比下的可听检测率，并把盲与低视力研究者纳入被试而非只当受众。",
+      "en": "Map light curves and spectra to sound with open tools such as Astronify and STRAUSS, fix the mapping parameters, run controlled detection experiments quantifying audible detection rates across signal-to-noise ratios, and enroll blind and low-vision researchers as participants rather than only as audience."
+    },
+    "citation": {
+      "url": "https://arxiv.org/pdf/2403.18082",
+      "title": "A Universe of Sound: Processing NASA Data into Sonifications to Explore Participant Response",
+      "venue": "arXiv (Frontiers in Communication)",
+      "year": 2024
+    }
+  },
+  "conservation-science-software-based-born-digital-art": {
+    "brief": {
+      "zh": "像 Tate 那样把作品拆成重要属性、原始位流、运行环境、外设与网络依赖分别归档，配以艺术家访谈与逐次迁移记录，再在虚拟化或模拟环境里验证复演，而不是只留截图。",
+      "en": "Decompose the work as Tate does — significant properties, original bitstream, runtime environment, peripherals, network dependencies — archive each separately with artist interviews and a record of every migration, then verify re-performance in virtualization or emulation instead of keeping screenshots."
+    },
+    "citation": {
+      "url": "https://doi.org/10.25969/mediarep/13189",
+      "title": "Preservation of Software-based Art at Tate",
+      "venue": "Digital Art through the Looking Glass",
+      "year": 2019
+    }
+  },
+  "data-physicalization-graspable-embodied-data": {
+    "brief": {
+      "zh": "用 3D 打印、织物与可变形材料把同一份数据同时做成物件与屏幕图表，在博物馆与课堂做配对任务测试，把理解增益、留存与误读分开计量，并公开工艺流水线以便他处重制。",
+      "en": "Render the same dataset both as a physical object — 3D-printed, textile, shape-changing — and as a screen chart, run paired task tests in museums and classrooms, meter comprehension gain, retention, and misreading separately, and publish the fabrication pipeline so others can rebuild it."
+    },
+    "citation": {
+      "url": "https://interactions.acm.org/archive/view/september-october-2025/where-the-embodiment-is-designing-felt-representations-of-data",
+      "title": "Where the Embodiment Is: Designing Felt Representations of Data",
+      "venue": "ACM interactions XXXII.5",
+      "year": 2025
+    }
+  },
+  "distortion-metrology-ai-science-intermediaries": {
+    "brief": {
+      "zh": "按 Peters 与 Chin-Yee 的方法把论文原结论与模型摘要逐条比对过度泛化率，按 EBU 的方法组织多语种记者盲评溯源缺陷，把两条线固化成可随模型换代重跑的审计管线并公开工具包。",
+      "en": "Compare source conclusions against model summaries claim by claim for overgeneralization as Peters and Chin-Yee did, organize multilingual journalist blind review of sourcing flaws as the EBU did, and harden both lines into an audit pipeline that re-runs with each model generation, shipped as an open toolkit."
+    },
+    "citation": {
+      "url": "https://royalsocietypublishing.org/rsos/article/12/4/241776/235656/Generalization-bias-in-large-language-model",
+      "title": "Generalization bias in large language model summarization of scientific research",
+      "venue": "Royal Society Open Science",
+      "year": 2025
+    }
+  },
+  "comprehension-experiments-scientific-diagrams": {
+    "brief": {
+      "zh": "预先登记目标概念、受众先验与图解约定，把箭头样式、布局与图文关系当作单一变量做随机对照，同时记录正确理解与系统性误读，并分近迁移与远迁移分别测量。",
+      "en": "Pre-register the target concept, audience priors, and diagram conventions, randomize arrow style, layout, and image–text relation one variable at a time, record correct understanding and systematic misreading together, and measure near and far transfer separately."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1187/cbe.17-04-0069",
+      "title": "Arrows in Biology: Lack of Clarity and Consistency Points to Confusion for Learners",
+      "venue": "CBE—Life Sciences Education",
+      "year": 2018
+    }
+  },
+  "computational-research-integrity-forensics": {
+    "brief": {
+      "zh": "维护并扩展可复现的检测器族——短语指纹、参考文献指纹、图像溯源图——每周扫全库，把命中结果公开发布并对接 PubPeer 群体复核，同时用已撤稿语料标定假阳性与假阴性率。",
+      "en": "Maintain and extend a family of reproducible detectors — phrase fingerprints, reference-list fingerprints, image provenance graphs — scan the whole corpus weekly, publish hits openly and route them to PubPeer crowd review, and calibrate false-positive and false-negative rates against retracted corpora."
+    },
+    "citation": {
+      "url": "https://www.springernature.com/gp/group/media/press-releases/non-standard-phrases-tool/27793146",
+      "title": "Springer Nature expands its portfolio of research integrity tools to detect non-standard phrases",
+      "venue": "Springer Nature",
+      "year": 2025
+    }
+  },
+  "data-leakage-auditing-reforms-consensus-ml-based": {
+    "brief": {
+      "zh": "按 8 类泄漏的分类逐条重审已发表的机器学习结论：重跑代码、重划训练/测试边界、核对数据生成过程，并用 REFORMS 清单与模型信息表要求作者事前逐项证明无泄漏。",
+      "en": "Re-audit published machine-learning claims against the eight-type leakage taxonomy: re-run the code, redraw the train/test boundary, check it against the data-generating process, and use the REFORMS checklist and model info sheets to make authors demonstrate leakage-freedom item by item beforehand."
+    },
+    "citation": {
+      "url": "https://www.science.org/doi/10.1126/sciadv.adk3452",
+      "title": "REFORMS: Consensus-based Recommendations for Machine-learning-based Science",
+      "venue": "Science Advances",
+      "year": 2024
+    }
+  },
+  "ai-forensics-research-integrity-detecting": {
+    "brief": {
+      "zh": "用撤稿论文训练分类器，把折磨式措辞库、图像重复比对与作者—机构网络异常合成一条筛查流水线，在投稿入口给出可复核的可疑度证据，并把误报率与人工复核成本一并报告。",
+      "en": "Train classifiers on retracted papers, and fuse tortured-phrase dictionaries, image-duplication matching and author–institution network anomalies into one screening pipeline that emits auditable suspicion evidence at the submission gate — reporting false-positive rates and human review cost alongside every hit."
+    },
+    "citation": {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12853418/",
+      "title": "Machine learning based screening of potential paper mill publications in cancer research: methodological and cross sectional study",
+      "venue": "The BMJ",
+      "year": 2026
+    }
+  },
+  "auditing-ai-contamination-model-collapse-risk": {
+    "brief": {
+      "zh": "把已发表文献当成公共水源持续监测：按学科与年份估计代写比例，建立纯净数据溯源与污染前快照，再在受控实验里检验用被稀释语料训练出的模型与综述是否真的退化。",
+      "en": "Monitor the published literature as a shared water supply: estimate the undisclosed machine-written share by field and year, build provenance for clean data and pre-contamination snapshots, then test in controlled runs whether models and reviews trained on the diluted corpus actually degrade."
+    },
+    "citation": {
+      "url": "https://www.science.org/doi/10.1126/sciadv.adt3813",
+      "title": "Delving into LLM-assisted writing in biomedical publications through excess vocabulary",
+      "venue": "Science Advances",
+      "year": 2025
+    }
+  },
+  "forensics-llm-contamination-scientific-corpus": {
+    "brief": {
+      "zh": "复用 berenslab/llm-excess-vocab 的开源流程，把标志词表按年份与语料重新估计，量化风格漂移与刻意规避带来的偏差，并把方法从摘要推广到评审意见等其他文本流。",
+      "en": "Reuse the open berenslab/llm-excess-vocab pipeline, re-estimate marker-word sets per year and per corpus, quantify the bias introduced by stylistic drift and deliberate evasion, and extend the method from abstracts to other text streams such as referee reports."
+    },
+    "citation": {
+      "url": "https://www.science.org/doi/10.1126/sciadv.adt3813",
+      "title": "Delving into LLM-assisted writing in biomedical publications through excess vocabulary",
+      "venue": "Science Advances",
+      "year": 2025
+    }
+  },
+  "geographic-sampling-debt-biodiversity-science": {
+    "brief": {
+      "zh": "把出现记录密度按可达性、类群投入与数字化史分解，用协变量潜在相互作用模型补上被共同缺测的物种与互作，再用新采的野外样本而非同一档案做外部检验。",
+      "en": "Decompose occurrence-record density into accessibility, taxonomic effort and digitization history, use covariate-informed latent interaction models to fill in jointly under-sampled species and interactions, then validate against freshly collected field samples rather than the same archive."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1093/biosci/biac116",
+      "title": "Measuring What We Don't Know: Biodiversity Catalogs Reveal Bias in Taxonomic Effort",
+      "venue": "BioScience",
+      "year": 2023
+    }
+  },
+  "auditing-missingness-mechanisms-scientific-data": {
+    "brief": {
+      "zh": "先按来源把缺失拆成失访、检测限、仪器与管线故障和结构性不适用，预先声明估计目标与辅助变量，再用 tipping-point 与最坏情形分析报出结论在一组合理机制下的变化区间。",
+      "en": "First split missingness by origin into loss to follow-up, detection limit, instrument or pipeline failure, and structural not-applicable; declare the estimand and auxiliary variables in advance; then use tipping-point and worst-case analyses to report the interval over which conclusions move across a plausible set of mechanisms."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1080/00273171.2022.2158776",
+      "title": "A Realistic Evaluation of Methods for Handling Missing Data When There is a Mixture of MCAR, MAR, and MNAR Mechanisms in the Same Dataset",
+      "venue": "Multivariate Behavioral Research",
+      "year": 2023
+    }
+  },
+  "automated-conjecture-unknown-terrain-ai": {
+    "brief": {
+      "zh": "在数论、纽结、图的大规模数据上训练模型，用显著性分析读出变量间的意外依赖，把候选猜想送进 Lean 形式化验证闭环，并用拓扑数据分析在定理空间里定位无人涉足的空洞。",
+      "en": "Train models on large collections of number-theoretic objects, knots and graphs, use saliency analysis to surface unexpected dependencies between quantities, feed candidate statements into a Lean formalization loop, and apply topological data analysis to locate untouched voids in theorem space."
+    },
+    "citation": {
+      "url": "https://arxiv.org/pdf/2412.12361",
+      "title": "The Ramanujan Library — Automated Discovery on the Hypergraph of Integer Relations",
+      "venue": "arXiv",
+      "year": 2024
+    }
+  },
+  "patient-clinician-co-prioritization-unanswered-research": {
+    "brief": {
+      "zh": "按 James Lind Alliance 流程汇集患者、照护者与临床人员提出的不确定性，逐条做证据核查剔除已被回答者，合并去重后在共识会议上排出前十，并公开每一步的筛除记录与参与者构成。",
+      "en": "Follow the James Lind Alliance process: gather uncertainties submitted by patients, carers and clinicians, evidence-check each one to remove those already answered, merge duplicates, rank a top ten at a consensus workshop, and publish the removal log and participant composition at every step."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1016/S2215-0366(18)30296-7",
+      "title": "Identifying research priorities for digital technology in mental health care: results of the James Lind Alliance Priority Setting Partnership",
+      "venue": "The Lancet Psychiatry",
+      "year": 2018
+    }
+  },
+  "value-of-information-sensor-placement-under-model": {
+    "brief": {
+      "zh": "把先验、观测模型、效用函数、维护成本与候选故障集写成显式记分，用期望信息价值给每个候选位置、尺度与采样时刻打分，再与随机布点、均匀覆盖和工程经验基线在同一现场数据上对照。",
+      "en": "Write the prior, observation model, utility function, maintenance cost and candidate fault set into an explicit score, rank each candidate location, scale and sampling time by expected value of information, then benchmark against random placement, uniform coverage and engineering heuristics on the same field data."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1177/14759217241275643",
+      "title": "A value-of-information-based optimal sensor placement design framework for cost-effective structural health monitoring (with application to miter gate monitoring)",
+      "venue": "Structural Health Monitoring",
+      "year": 2024
+    }
+  },
+  "morphology-control-evolution-physical-robots": {
+    "brief": {
+      "zh": "像 PLOS ONE 的 mother robot 那样自动组装并逐个实测候选个体，在实体迭代中同时改动腿的几何与控制器参数，把磨损、批次差异与地面变化当作选择压力记录下来，并分离形态与控制各自的贡献。",
+      "en": "Automatically assemble and physically evaluate each candidate as the PLOS ONE mother robot does, change leg geometry and controller parameters together across physical iterations, log wear, batch variation and ground change as part of the selection pressure, and separate the contribution of morphology from that of control."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1162/evco_a_00291",
+      "title": "Environmental Adaptation of Robot Morphology and Control Through Real-World Evolution",
+      "venue": "Evolutionary Computation",
+      "year": 2021
+    }
+  },
+  "fluctuation-driven-hypothesis-sampling-thermodynamic-hardware": {
+    "brief": {
+      "zh": "把目标分布编码进 p-bit 阵列的耦合矩阵，用器件自身的热涨落取代伪随机数完成采样，标定涨落统计与有效温度，再以稀疏 Ising 机训练深度玻尔兹曼网络来检验样本质量。",
+      "en": "Encode the target distribution into the coupling matrix of a p-bit array, replace pseudo-random numbers with the device's own thermal fluctuations as the sampling source, calibrate fluctuation statistics and effective temperature, then train deep Boltzmann networks on sparse Ising machines to test sample quality."
+    },
+    "citation": {
+      "url": "https://www.nature.com/articles/s41467-025-59011-x",
+      "title": "Thermodynamic computing system for AI applications",
+      "venue": "Nature Communications",
+      "year": 2025
+    }
+  },
+  "comparative-curiosity-information-seeking-across": {
+    "brief": {
+      "zh": "设计信息不改变收益的非工具性选择任务，测量猕猴、大猿与儿童为查看结果愿付的奖励代价，把结果熵与惊奇度作为自变量，并预注册包含无物种差异在内的负结果。",
+      "en": "Design non-instrumental choice tasks where information cannot change the payoff, measure how much reward macaques, great apes and children will forgo to see an outcome, treat outcome entropy and surprise as independent variables, and preregister null results including no species difference."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1371/journal.pone.0285946",
+      "title": "Comparative curiosity: How do great apes and children deal with uncertainty?",
+      "venue": "PLOS ONE",
+      "year": 2023
+    }
+  },
+  "self-driving-labs-actively-mapping-hypothesis": {
+    "brief": {
+      "zh": "给机器人化学与材料平台换上以期望信息增益为准的采集函数，用代理模型的不确定性量化决定下一个实验，接自动表征反馈闭环，并像 Science 报道的有机激光发射体工作那样把多个远程实验室异步接进同一循环。",
+      "en": "Fit robotic chemistry and materials platforms with an acquisition function keyed to expected information gain, let surrogate-model uncertainty quantification pick the next experiment, close the loop through automated characterization, and wire several remote labs asynchronously into one cycle as in the Science work on organic laser emitters."
+    },
+    "citation": {
+      "url": "https://www.science.org/doi/10.1126/science.adk9227",
+      "title": "Delocalized, asynchronous, closed-loop discovery of organic laser emitters",
+      "venue": "Science",
+      "year": 2024
+    }
+  },
+  "kinetix-open-ended-physics-task-universe-general": {
+    "brief": {
+      "zh": "用 Jax2D 在单块 GPU 上每秒模拟数百万步，程序化生成覆盖运动、抓取、经典 RL 环境到电子游戏的海量关卡，在混合质量的随机关卡上训练单个智能体，再用人工设计的未见关卡测零样本迁移与微调增益。",
+      "en": "Simulate millions of steps per second on one GPU with Jax2D, procedurally generate a vast level distribution spanning locomotion, grasping, classic RL environments and video games, train a single agent on mixed-quality random levels, then measure zero-shot transfer and fine-tuning gain on unseen human-designed levels."
+    },
+    "citation": {
+      "url": "https://arxiv.org/abs/2410.23208",
+      "title": "Kinetix: Investigating the Training of General Agents through Open-Ended Physics-Based Control Tasks",
+      "venue": "ICLR 2025",
+      "year": 2025
+    }
+  },
+  "crowdsourced-anomalies-letting-public-catch": {
+    "brief": {
+      "zh": "用 Astronomaly 式的个性化主动异常检测给巡天图像排序，把最高分候选推给 Galaxy Zoo 志愿者判读，用他们的反馈在线更新排序模型，并为每个候选留下可追溯、可独立复核的发现记录。",
+      "en": "Rank survey images with Astronomaly-style personalized active anomaly detection, push the top-scoring candidates to Galaxy Zoo volunteers for judgement, update the ranking model online from their feedback, and keep a traceable, independently checkable record for every candidate."
+    },
+    "citation": {
+      "url": "https://theoryandpractice.citizenscienceassociation.org/articles/10.5334/cstp.740",
+      "title": "Through the Citizen Scientists' Eyes: Insights into Using Citizen Science with Machine Learning for Effective Identification of Unknown-Unknowns in Big Data",
+      "venue": "Citizen Science: Theory and Practice",
+      "year": 2024
+    }
+  },
+  "injected-signal-benchmarks-scientific-anomaly-detection": {
+    "brief": {
+      "zh": "把盲化的模拟事件按真实观测条件插进数据或硬件——像 LIGO 那样实际位移测试质量，像 Palomar Transient Factory 那样插入约 700 万人工点源——端到端测召回、误报、参数恢复偏差与随星等和宿主背景变化的选择函数。",
+      "en": "Insert blinded simulated events into data or hardware under real observing conditions — physically displacing test masses as Advanced LIGO does, or inserting roughly seven million artificial point sources as the Palomar Transient Factory did — and measure recall, false alarms, parameter-recovery bias and the selection function against magnitude and host background, end to end."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1103/PhysRevD.95.062002",
+      "title": "Validating gravitational-wave detections: The Advanced LIGO hardware injection system",
+      "venue": "Physical Review D",
+      "year": 2017
+    }
+  },
+  "reverse-translation-exceptional-cancer-responders": {
+    "brief": {
+      "zh": "锁定在总体阴性试验中获得超长期应答的个例，取治疗前样本做全基因组与多组学，提出候选机制，再把候选变异回查到其他癌种，并在同方案非响应者中做对照与前瞻性富集试验。",
+      "en": "Identify individuals with exceptionally durable responses inside otherwise negative trials, sequence pre-treatment samples with whole-genome and multi-omic assays, propose a candidate mechanism, look the candidate variant back up across other tumour types, and test it against non-responders on the same regimen and in a prospective enrichment trial."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1016/j.ccell.2020.10.015",
+      "title": "Molecular Features of Cancers Exhibiting Exceptional Responses to Treatment",
+      "venue": "Cancer Cell",
+      "year": 2021
+    }
+  },
+  "rare-cell-state-discovery-single-cell-omics": {
+    "brief": {
+      "zh": "用 RaceID、GiniClust 或 scCAD 在大簇内部分解出被淹没的离群细胞，提出候选亚群，再以单分子 FISH、免疫荧光与体内样本原位确认，并报告测序深度、阈值敏感性与跨批次复现。",
+      "en": "Decompose large clusters with RaceID, GiniClust or scCAD to recover submerged outlier cells, propose candidate subpopulations, confirm them in situ with single-molecule FISH, immunofluorescence and in vivo samples, and report sequencing depth, threshold sensitivity and cross-batch reproducibility."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1038/s41467-024-51891-9",
+      "title": "scCAD: Cluster decomposition-based anomaly detection for rare cell identification in single-cell expression data",
+      "venue": "Nature Communications",
+      "year": 2024
+    }
+  },
+  "online-false-discovery-control-perpetual-discovery": {
+    "brief": {
+      "zh": "把发现流写成有序假设序列，用 alpha-investing 逐步分配显著性预算，以 SAFFRON 的候选阈值自适应估计 null 比例来拿回功效，并预先冻结事件单位、顺序、停止规则与依赖处理方式。",
+      "en": "Cast the discovery stream as an ordered hypothesis sequence, allocate the significance budget stepwise by alpha-investing, recover power with SAFFRON's candidate-threshold adaptive estimate of the null proportion, and freeze the event unit, ordering, stopping rule and dependence assumptions in advance."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1177/09622802221129051",
+      "title": "Online control of the False Discovery Rate in group-sequential platform trials",
+      "venue": "Statistical Methods in Medical Research",
+      "year": 2022
+    }
+  },
+  "calibrated-multi-expert-review-machine-generated-hypotheses": {
+    "brief": {
+      "zh": "把评分协议本身当作研究对象：盲化假说来源，预注册新颖性、可行性、证据支持与可检验性的量表与裁决规则，跨学科多轮独立打分，报告逐项分布并保留异议，再用后续实验检验预测效度。",
+      "en": "Treat the rating protocol itself as the object of study: blind the source of each hypothesis, pre-register scales and adjudication rules for novelty, feasibility, evidential support and testability, score independently across disciplines in multiple rounds, report per-item distributions and preserve dissent, then test predictive validity with follow-up experiments."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1186/s12859-025-06350-7",
+      "title": "SKiM-GPT: combining biomedical literature-based discovery with large language model hypothesis evaluation",
+      "venue": "BMC Bioinformatics",
+      "year": 2025
+    }
+  },
+  "functional-unknomics": {
+    "brief": {
+      "zh": "用文献量、跨物种保守性与亚细胞定位为每个蛋白计算可自定义权重的已知度分，取最低分且人—蝇保守的基因做果蝇 RNAi 表型筛选，把无知变成可排序、可分配资源的对象。",
+      "en": "Compute a knownness score for every protein from literature volume, cross-species conservation and subcellular localization with user-tunable weights, take the lowest-scoring human–fly conserved genes into a Drosophila RNAi phenotype screen, and turn ignorance into a rankable, fundable object."
+    },
+    "citation": {
+      "url": "https://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.3002222",
+      "title": "Functional unknomics: Systematic screening of conserved genes of unknown function",
+      "venue": "PLOS Biology",
+      "year": 2023
+    }
+  },
+  "computational-excavation-null-results-dark": {
+    "brief": {
+      "zh": "用大模型从实验记录、注册库与未发表材料中抽取零结果的设计、效应量与不确定度，结构化为可检索条目并回注荟萃分析，同时给出这条阴性结果值不值得存档的信息量判据。",
+      "en": "Use large models to extract design, effect size and uncertainty of null results from lab records, registries and unpublished material, structure them into searchable entries reinjected into meta-analysis, and attach an informativeness criterion deciding whether a given negative is worth archiving."
+    },
+    "citation": {
+      "url": "https://arxiv.org/abs/2604.06236",
+      "title": "LLMs Have Made Failure Worth Publishing",
+      "venue": "arXiv",
+      "year": 2026
+    }
+  },
+  "prospective-wet-lab-validation-literature-generated-hypotheses": {
+    "brief": {
+      "zh": "预注册生成时间点与筛选判据，在实验开始前冻结候选清单，用高通量筛选或独立实验室的湿实验检验富集程度，并公开完整候选分母、阴性结果、成本与放弃原因。",
+      "en": "Pre-register the generation date and selection criteria, freeze the candidate list before any experiment begins, test enrichment against high-throughput screens or independent-lab bench work, and publish the full candidate denominator together with negative results, cost and reasons for abandonment."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1038/s41586-026-10644-y",
+      "title": "Accelerating scientific discovery with Co-Scientist",
+      "venue": "Nature",
+      "year": 2026
+    }
+  },
+  "claim-level-scientific-knowledge-graphs-contradiction": {
+    "brief": {
+      "zh": "把论文分解为最小断言单元并附上证据与溯源，构建机器可读的主张图谱，用语言智能体在规模上比对同一主张的不同版本，并在判定冲突前先按实验条件对齐。",
+      "en": "Decompose papers into minimal assertion units carrying evidence and provenance, build a machine-readable claim graph, use language agents to compare versions of the same assertion at scale, and align on experimental conditions before declaring a conflict."
+    },
+    "citation": {
+      "url": "https://arxiv.org/abs/2409.13740",
+      "title": "Language agents achieve superhuman synthesis of scientific knowledge (PaperQA2)",
+      "venue": "arXiv",
+      "year": 2024
+    }
+  },
+  "detection-calibrated-evidence-ecological-absence": {
+    "brief": {
+      "zh": "预先规定重复层级、闭合窗口与阴阳性对照，用占域模型同时估计检出率与占域率，把取水过滤、首次 PCR 等步骤拆成连续检出层，再用传统调查或已知样地做外部校准。",
+      "en": "Pre-specify replicate levels, the closure window and positive/negative controls, estimate detection and occupancy jointly with an occupancy model, split water filtering and first-round PCR into successive detection layers, and calibrate externally against traditional surveys or known plots."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1038/s41598-019-40233-1",
+      "title": "Evaluation of detection probabilities at the water-filtering and initial PCR steps in environmental DNA metabarcoding using a multispecies site occupancy model",
+      "venue": "Scientific Reports",
+      "year": 2019
+    }
+  },
+  "exclusion-lineage-source-cohorts-analysis": {
+    "brief": {
+      "zh": "为每个样本保留稳定 ID、规则版本、退出阶段、责任主体与机器或人工理由，发布可聚合的排除谱系与结局特异分母，并做纳入者—排除者比较和敏感性分析。",
+      "en": "Retain for every sample a stable ID, rule version, stage of exit, responsible party and machine-or-human reason; publish an aggregatable exclusion lineage with outcome-specific denominators; and run included-versus-excluded comparisons and sensitivity analyses."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1371/journal.pmed.1001885",
+      "title": "The REporting of studies Conducted using Observational Routinely-collected health Data (RECORD) Statement",
+      "venue": "PLOS Medicine",
+      "year": 2015
+    }
+  },
+  "quantifying-evidence-absence": {
+    "brief": {
+      "zh": "用贝叶斯因子、等价检验与零目击记录的灭绝模型，为负结论配上阈值、先验与置信区间，把 X 不存在或无效写成可证伪的正式结论并报告其强度。",
+      "en": "Attach thresholds, priors and confidence intervals to negative conclusions using Bayes factors, equivalence tests and extinction models built on zero-sighting records, so that X does not exist or has no effect becomes a formal, falsifiable claim reported with its strength."
+    },
+    "citation": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12567074/",
+      "title": "Saying 'no' with confidence: statistical approaches to test for the absence of an effect",
+      "venue": "Biology Letters (Royal Society)",
+      "year": 2025
+    }
+  },
+  "dark-diversity-ecology": {
+    "brief": {
+      "zh": "为每个样点从区域物种库中推断生态上适宜的物种集合，把实际到场比例算成群落完整度，再与人类足迹指数等压力变量对齐，检验缺席亏空的空间梯度。",
+      "en": "For each site, infer from the regional species pool the set that is ecologically suited to it, compute the share actually present as community completeness, then align that against pressure variables such as the Human Footprint Index to test the spatial gradient of the absence deficit."
+    },
+    "citation": {
+      "url": "https://www.nature.com/articles/s41586-025-08814-5",
+      "title": "Global impoverishment of natural vegetation revealed by dark diversity",
+      "venue": "Nature",
+      "year": 2025
+    }
+  },
+  "shadow-diversity-invisible-unknowns-life": {
+    "brief": {
+      "zh": "用生物多样性数据库的无知地图标注分类、调查与时间完整度，以 Chao 估计量和物种累积曲线外推未见类群，再把估计值连同它的偏倚一起接入灭绝风险评估。",
+      "en": "Use maps of ignorance over biodiversity databases to flag taxonomic, survey, and temporal completeness, extrapolate unseen taxa with Chao estimators and species-accumulation curves, then feed the estimate — together with its bias — into extinction-risk assessment."
+    },
+    "citation": {
+      "url": "https://www.cambridge.org/core/journals/cambridge-prisms-extinction/article/diversity-of-ignorance-and-the-ignorance-of-diversity-origins-and-implications-of-shadow-diversity-for-conservation-biology-and-extinction/77D08B360E77D80E363F0E48E9F4D8EE",
+      "title": "The diversity of ignorance and the ignorance of diversity: origins and implications of shadow diversity for conservation biology and extinction",
+      "venue": "Cambridge Prisms: Extinction",
+      "year": 2024
+    }
+  },
+  "abiotic-null-models-isotopic-fractionation": {
+    "brief": {
+      "zh": "在热液与蛇纹石化等可复现条件下测非生物甲烷的分馏幅度，把温度、底物、矿物与流体时序做成参数化空模型，为同一环境给出可被推翻的非生物上限。",
+      "en": "Measure fractionation of abiotic methane under reproducible hydrothermal and serpentinization conditions, parameterize null models over temperature, substrate, mineralogy, and fluid chronology, and issue a falsifiable abiotic ceiling for that same setting."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1073/pnas.1907871116",
+      "title": "Abiotic methane synthesis and serpentinization in olivine-hosted fluid inclusions",
+      "venue": "Proceedings of the National Academy of Sciences",
+      "year": 2019
+    }
+  },
+  "abiotic-null-library-mineral-biomorphs": {
+    "brief": {
+      "zh": "按地质可达的溶液组成、pH 与过饱和度批量培养二氧化硅—碳酸盐 biomorph 与化学花园，记录形态的群体分布与成岩后变化，建成可供盲法比对的对照库。",
+      "en": "Culture silica–carbonate biomorphs and chemical gardens in bulk across geologically reachable solution compositions, pH, and supersaturation; record population-level morphological distributions and post-diagenetic change to build a library fit for blind comparison."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1126/science.1090163",
+      "title": "Self-Assembled Silica-Carbonate Structures and Detection of Ancient Microfossils",
+      "venue": "Science",
+      "year": 2003
+    }
+  },
+  "molecular-chirality-homochirality-life-signatures": {
+    "brief": {
+      "zh": "把机载光谱偏振与实验室手性分析放到同一条标定链上：以消旋材料与已知生命梯度校准，同步给出分子身份、空间共定位与环境背景，并把信噪比与污染写进不确定度。",
+      "en": "Put airborne spectropolarimetry and laboratory chirality analysis on one calibration chain: anchor on racemic and abiotic materials plus known gradients of life, report molecular identity, spatial co-location, and environmental context together, and fold signal-to-noise and contamination into the uncertainty."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1073/pnas.0810215106",
+      "title": "Detection of circular polarization in light scattered from photosynthetic microbes",
+      "venue": "Proceedings of the National Academy of Sciences",
+      "year": 2009
+    }
+  },
+  "molecular-diversity-biosignature-ecodiversity-metrics": {
+    "brief": {
+      "zh": "把生态学的多样性与均匀度指标套到质谱成分谱上，用生物与非生物样品建对照基线，在模拟太空降解下校准稳健性，并做成可上机的实时判读层，回头重算已归档的飞掠与巡视数据。",
+      "en": "Apply ecology's diversity and evenness indices to mass-spectral composition data, build baselines from biological and abiotic samples, calibrate robustness under simulated space degradation, and wire the result into an onboard real-time readout that can also reanalyze archived flyby and rover datasets."
+    },
+    "citation": {
+      "url": "https://www.nature.com/articles/s41550-026-02864-z",
+      "title": "Molecular diversity as a biosignature",
+      "venue": "Nature Astronomy",
+      "year": 2026
+    }
+  },
+  "ionic-liquid-biospheres-solvent-agnostic-habitability-class": {
+    "brief": {
+      "zh": "沿 Bains-Petkowski-Seager 的候选溶剂评估框架，为温暖贫水岩质行星算出离子液体的稳定区间，并配套一份只属于它、能被 JWST 或 HWO 观测推翻的生物标志物与光谱清单。",
+      "en": "Follow the Bains–Petkowski–Seager framework for evaluating candidate solvents to compute where ionic liquids stay stable on warm, water-depleted rocky planets, and pair it with a biosignature and spectral checklist unique to that class and refutable by JWST or HWO."
+    },
+    "citation": {
+      "url": "https://www.pnas.org/doi/10.1073/pnas.2425520122",
+      "title": "Warm, water-depleted rocky exoplanets with surface ionic liquids: A proposed class for planetary habitability",
+      "venue": "PNAS",
+      "year": 2025
+    }
+  },
+  "physics-auditing-ai-forecasts-extreme-event": {
+    "brief": {
+      "zh": "系统诊断谱模糊与平衡关系破坏，用热浪、寒潮、大西洋飓风等真实高影响事件与影响导向指标横向评测 AI 与数值模式，并持续注入模型未见过的新事件以防基准被过拟合。",
+      "en": "Diagnose spectral blurring and broken balance relations systematically, benchmark AI against numerical models on real high-impact events — heatwaves, cold snaps, Atlantic hurricanes — with impact-oriented metrics, and keep injecting events the models have not seen so the benchmark itself cannot be overfitted."
+    },
+    "citation": {
+      "url": "https://arxiv.org/abs/2605.01126",
+      "title": "Extreme Weather Bench: A framework and benchmark for evaluation of high-impact weather",
+      "venue": "arXiv",
+      "year": 2026
+    }
+  },
+  "soil-moisture-inundation-observation-gnss-reflectometry": {
+    "brief": {
+      "zh": "以 CYGNSS 反射率对表 SMAP 土壤湿度，用机器学习产出 5 km 全球湿度场，再以地面站与 SAR、光学水体图分区验证淹没反演，逐地表类型报告误差与检测下限。",
+      "en": "Compare CYGNSS reflectivity against SMAP soil moisture, produce a 5 km global moisture field with machine learning, then validate inundation retrievals region by region against ground stations and SAR and optical water maps, reporting error and detection limit per land-cover class."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1016/j.srs.2024.100177",
+      "title": "Global soil moisture mapping at 5 km by combining GNSS reflectometry and machine learning in view of HydroGNSS",
+      "venue": "Science of Remote Sensing",
+      "year": 2024
+    }
+  },
+  "community-governance-geospatial-training-data": {
+    "brief": {
+      "zh": "把数据权威、允许用途、敏感位置精度、二次训练与模型输出限制、利益回馈、撤回机制与审计日志逐项记录成可执行策略，并由相关社区而非平台单方定义与执行。",
+      "en": "Record data authority, permitted uses, sensitive-location precision, limits on secondary training and model outputs, benefit sharing, withdrawal mechanisms and audit logs as enforceable policy — defined and enforced by the communities concerned rather than unilaterally by the platform."
+    },
+    "citation": {
+      "url": "https://doi.org/10.5334/dsj-2020-043",
+      "title": "The CARE Principles for Indigenous Data Governance",
+      "venue": "Data Science Journal",
+      "year": 2020
+    }
+  },
+  "data-assimilation-glacier-velocity-mass": {
+    "brief": {
+      "zh": "用集合卡尔曼滤波把卫星高程、速度与厚度同化进三维冰流与表面质量平衡模型，分别记账遥感误差、先验与过程模型结构误差，再以未参与同化的质量平衡桩和雷达剖面检验。",
+      "en": "Assimilate satellite elevation, velocity and thickness into a three-dimensional ice-flow and surface-mass-balance model with an ensemble Kalman filter, account separately for remote-sensing error, prior error and process-model structural error, and test against mass-balance stakes and radar profiles held out of the assimilation."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1029/2025GL120119",
+      "title": "Ice-Dynamic Constraints on Glacier Climatic Mass Balance Using Inverse Techniques",
+      "venue": "Geophysical Research Letters",
+      "year": 2026
+    }
+  },
+  "open-community-scale-surface-embedding-fields": {
+    "brief": {
+      "zh": "以自监督双编码器融合 Sentinel-2 光学与 Sentinel-1 雷达时序，产出全球 10 米、逐年、CC0 的像元嵌入，让稀疏标签加线性分类器即可制图，并同步建立嵌入偏置的审计基准。",
+      "en": "Fuse Sentinel-2 optical and Sentinel-1 radar time series with a self-supervised dual encoder into global, 10 m, annual, CC0 per-pixel embeddings so sparse labels plus a linear classifier suffice to map — and build alongside them a benchmark for auditing embedding bias."
+    },
+    "citation": {
+      "url": "https://arxiv.org/abs/2506.20380",
+      "title": "TESSERA: Temporal Embeddings of Surface Spectra for Earth Representation and Analysis",
+      "venue": "arXiv preprint / CVPR 2026",
+      "year": 2025
+    }
+  },
+  "simulation-validation-self-correction-experimental-protocols": {
+    "brief": {
+      "zh": "把协议先送进物理仿真排除不可行动作，再用多智能体互检计量与顺序错误，执行中接实时过程反馈做局部重规划；并用隐藏错误注入和独立验证器度量这套自校正究竟拦住了什么。",
+      "en": "Run the protocol through physical simulation first to eliminate infeasible actions, have multiple agents cross-check quantities and ordering, and replan locally from real-time process feedback during execution; then measure what the self-correction actually catches using hidden error injection and independent verifiers."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1038/s41467-024-45444-3",
+      "title": "An integrated self-optimizing programmable chemical synthesis and reaction engine",
+      "venue": "Nature Communications",
+      "year": 2024
+    }
+  },
+  "trust-rulers-ai-scientists-reproducibility": {
+    "brief": {
+      "zh": "建可执行的评测基建：让智能体从零复现 SOTA 论文并按细化 rubric 打分，用随机基因一类零模型基线检验结论是否高于偶然，并把代码复现与外部同行复核固化成发布前的门槛。",
+      "en": "Build executable evaluation infrastructure: have agents replicate SOTA papers from scratch and score them against fine-grained rubrics, test whether conclusions exceed chance using null-model baselines such as randomized genes, and harden code replication and external peer review into a pre-release gate."
+    },
+    "citation": {
+      "url": "https://arxiv.org/pdf/2504.01848",
+      "title": "PaperBench: Evaluating AI's Ability to Replicate AI Research",
+      "venue": "arXiv (OpenAI)",
+      "year": 2025
+    }
+  },
+  "information-firewall-rediscovery-benchmarks": {
+    "brief": {
+      "zh": "只给智能体研究问题、原始数据和一个隐藏真值的可执行环境，禁网检索，用专家分解的加权 rubric 打分并加一个验真判官识别造假输出；任务只取训练截止之后的论文以防污染。",
+      "en": "Give the agent only the research question, the raw data and an executable environment with hidden ground truth; forbid web retrieval, score with expert-decomposed weighted rubrics, add a verification judge that catches fabricated output, and draw tasks only from papers published after the training cutoff."
+    },
+    "citation": {
+      "url": "https://arxiv.org/abs/2606.24530",
+      "title": "NatureBench: Can Coding Agents Match the Published SOTA of Nature-Family Papers?",
+      "venue": "arXiv",
+      "year": 2026
+    }
+  },
+  "embodied-self-driving-labs-closing-discovery": {
+    "brief": {
+      "zh": "让自由穿行的机器人化学家接管常规操作，在 AI 假说与真实试管之间闭环；同时把协议做成可迁移、跨平台可互操作的形式，并度量它在多实验室之间实际能重跑到什么程度。",
+      "en": "Let a roaming robotic chemist take over routine bench operations, closing the loop between AI hypotheses and real test tubes; at the same time cast protocols in a transferable, cross-platform interoperable form, and measure how far they actually rerun across multiple laboratories."
+    },
+    "citation": {
+      "url": "https://royalsocietypublishing.org/rsos/article/12/7/250646/235354/Autonomous-self-driving-laboratories-a-review-of",
+      "title": "Autonomous 'self-driving' laboratories: a review of technology and policy implications",
+      "venue": "Royal Society Open Science",
+      "year": 2025
+    }
   }
 };

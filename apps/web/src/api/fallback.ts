@@ -96,7 +96,7 @@ export const DATA: IslandDatum[] = [
     id: 1001,
     n: { zh: 'AI 之问', en: 'The Question of AI' },
     q: { zh: 'AI 能否提出一个人类没想到的好问题？', en: 'Can AI ask a good question no human has thought of?' },
-    d: '交叉', x: 802, y: 522, s: 1.0, st: 2, m: 9, a: 76, sample: true, slug: 'machine-curiosity',
+    d: '交叉', x: 784, y: 492, s: 1.0, st: 2, m: 9, a: 76, sample: true, slug: 'machine-curiosity',
     brief: { zh: '机器能否拥有并表达好奇心——对什么感到惊讶、为什么？', en: 'Can a machine hold and express curiosity — what surprises it, and why?' },
   },
 ];

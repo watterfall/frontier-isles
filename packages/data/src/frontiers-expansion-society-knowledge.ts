@@ -96,7 +96,7 @@ export const SOCIETY_KNOWLEDGE_EXPANSION: FrontierEntry[] = [
     stage: 2,
     members: 8,
     activity: 71,
-    chart: { x: 180, y: 170, scale: 0.91 },
+    chart: { x: 187, y: 165, scale: 0.91 },
   },
   {
     id: 166,
@@ -186,7 +186,7 @@ export const SOCIETY_KNOWLEDGE_EXPANSION: FrontierEntry[] = [
     stage: 2,
     members: 6,
     activity: 66,
-    chart: { x: 405, y: 105, scale: 0.86 },
+    chart: { x: 407, y: 102, scale: 0.86 },
   },
   {
     id: 167,
@@ -270,7 +270,7 @@ export const SOCIETY_KNOWLEDGE_EXPANSION: FrontierEntry[] = [
     stage: 2,
     members: 5,
     activity: 59,
-    chart: { x: 645, y: 185, scale: 0.84 },
+    chart: { x: 626, y: 166, scale: 0.84 },
   },
   {
     id: 168,
@@ -366,7 +366,7 @@ export const SOCIETY_KNOWLEDGE_EXPANSION: FrontierEntry[] = [
     stage: 2,
     members: 6,
     activity: 64,
-    chart: { x: 875, y: 105, scale: 0.82 },
+    chart: { x: 876, y: 105, scale: 0.82 },
   },
   {
     id: 169,
@@ -552,7 +552,7 @@ export const SOCIETY_KNOWLEDGE_EXPANSION: FrontierEntry[] = [
     stage: 1,
     members: 4,
     activity: 51,
-    chart: { x: 250, y: 395, scale: 0.8 },
+    chart: { x: 247, y: 391, scale: 0.8 },
   },
   {
     id: 171,
@@ -642,7 +642,7 @@ export const SOCIETY_KNOWLEDGE_EXPANSION: FrontierEntry[] = [
     stage: 2,
     members: 9,
     activity: 74,
-    chart: { x: 495, y: 455, scale: 0.93 },
+    chart: { x: 497, y: 463, scale: 0.93 },
   },
   {
     id: 172,
@@ -732,7 +732,7 @@ export const SOCIETY_KNOWLEDGE_EXPANSION: FrontierEntry[] = [
     stage: 1,
     members: 7,
     activity: 62,
-    chart: { x: 735, y: 375, scale: 0.78 },
+    chart: { x: 731, y: 357, scale: 0.78 },
   },
   {
     id: 173,
@@ -822,7 +822,7 @@ export const SOCIETY_KNOWLEDGE_EXPANSION: FrontierEntry[] = [
     stage: 1,
     members: 8,
     activity: 67,
-    chart: { x: 965, y: 455, scale: 0.9 },
+    chart: { x: 964, y: 439, scale: 0.9 },
   },
   {
     id: 174,
@@ -1002,7 +1002,7 @@ export const SOCIETY_KNOWLEDGE_EXPANSION: FrontierEntry[] = [
     stage: 2,
     members: 7,
     activity: 65,
-    chart: { x: 555, y: 665, scale: 0.89 },
+    chart: { x: 547, y: 666, scale: 0.89 },
   },
   {
     id: 176,
@@ -1092,6 +1092,6 @@ export const SOCIETY_KNOWLEDGE_EXPANSION: FrontierEntry[] = [
     stage: 2,
     members: 5,
     activity: 61,
-    chart: { x: 940, y: 660, scale: 0.85 },
+    chart: { x: 970, y: 681, scale: 0.85 },
   },
 ];

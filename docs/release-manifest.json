@@ -48,10 +48,12 @@
     "reason": "当前 main 已部署: release 4 was built from 39a2d2d after its CI run passed, and the live site serves this build's asset hashes. Any commit after it is this checkpoint's own documentation update, which ships no artifact — if a later commit changes code, this record is stale until re-verified."
   },
   "bundleBaseline": {
-    "entryJs": { "rawKb": 878.02, "gzipKb": 302.74, "rawBudgetKib": 900 },
-    "css": { "rawKb": 225.62, "gzipKb": 34.95, "rawBudgetKib": 244 },
-    "atlasDetail": { "rawKb": 127.22, "gzipKb": 57.64, "loading": "deferred-isolated" },
-    "interiorArchive": { "rawKb": 1210.0, "gzipKb": 487.71, "loading": "lazy-stale-server-fallback" }
+    "measuredAt": "wave-3 atlas expansion (176 → 371 islands)",
+    "entryJs": { "rawKb": 1024.38, "gzipKb": 354.3, "rawBudgetKib": 1024 },
+    "css": { "rawKb": 234.58, "gzipKb": 36.14, "rawBudgetKib": 244 },
+    "atlasDetail": { "rawKb": 287.17, "gzipKb": 125.68, "loading": "deferred-isolated" },
+    "interiorArchive": { "rawKb": 1210.0, "gzipKb": 482.99, "loading": "lazy-stale-server-fallback" },
+    "entryBudgetRationale": "Raised 900 → 1024 KiB when wave 3 doubled the curated atlas (176 → 371 islands). The growth is L0 atlas DATA, not a new runtime: atlas.ts is loaded eagerly on purpose so the first frame is a real map with no round trip, and every island's question (`qfocus`) must be present offline because the chart's hover card and the connection-field search both read it from the L0 projection via api/fallback.ts. Deferring qfocus to atlas-detail was measured (it is 36% of the L0 payload, and moving it lands the entry chunk at 914KiB) but rejected: it leaves the no-server readable twin with a questionless island card, which the resilience invariant forbids. Headroom after the raise is 23.6KiB (2.3%), matching the ratio the previous 878/900 baseline ran at."
   },
   "runtimeBudgetTargets": {
     "scope": "Local browser diagnostics; not production RUM and not evidence that the current working tree is deployed.",

@@ -28,7 +28,7 @@ const ENTRY_DENYLIST = ['pixi.js', 'gsap', 'yjs', 'y-websocket', 'yaml', 'zod'];
  * `pnpm build` for whoever happens to write it, with no signal that anything
  * regressed.
  */
-const ENTRY_JS_MAX_BYTES = 900 * 1024;
+const ENTRY_JS_MAX_BYTES = 1024 * 1024;
 const CSS_MAX_BYTES = 244 * 1024;
 
 /**

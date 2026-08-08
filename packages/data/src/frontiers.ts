@@ -1,10 +1,19 @@
 /**
  * Curated frontier islands — real research directions sourced from the
- * xfrontier atlas (1,477 directions scored on 9 dimensions in the reviewed
- * 2026-07-26 local audit snapshot; see
+ * xfrontier atlas (1,848 directions scored on 9 dimensions; see
  * /Users/jili/AIAI/frontier/audit/atlas_data.json + cluster_questions.json +
- * cluster_intros.json). 176 entries span 数理/物质/生命/交叉, selected for
- * paradigm-shift (s[0]) ∧ undervalued (s[8]) ∧ cluster diversity.
+ * cluster_intros.json, and the read-only xfrontier MCP surface over the same
+ * dataset). 371 entries span 数理/物质/生命/交叉.
+ *
+ * Selection history: 26 → 78 → 128 → 176 chose on
+ * paradigm-shift (s[0]) ∧ undervalued (s[8]) ∧ cluster diversity. Wave 3
+ * (ids 177-371) instead LEVELS every one of the 53 clusters to seven islands,
+ * because domain is a lossy editorial bucket — 交叉 owns 20 of the 53 clusters,
+ * so any domain-proportional quota just re-encodes that taxonomy artifact.
+ * Wave 3 also tightens the merit gate with the two conditions the scoring
+ * rubric itself states: substrate reality s[6] >= 3 (the rubric warns
+ * "cold + no substrate = trap", so coldness alone buys traps) and a reachable
+ * compressible core s[7] >= 2. See test/frontier-expansion-wave3.test.ts.
  *
  * Single source of truth consumed by apps/server/src/seed.ts (live data) and
  * apps/web/src/api/fallback.ts (offline render). Per the two-plane principle:
@@ -19,6 +28,10 @@
 import { EARTH_LIFE_EXPANSION } from '#frontiers-expansion-earth-life';
 import { MATTER_COMPUTATION_EXPANSION } from '#frontiers-expansion-matter-computation';
 import { SOCIETY_KNOWLEDGE_EXPANSION } from '#frontiers-expansion-society-knowledge';
+import { WAVE3_CROSSING } from '#frontiers-wave3-crossing';
+import { WAVE3_LIFE } from '#frontiers-wave3-life';
+import { WAVE3_MATH } from '#frontiers-wave3-math';
+import { WAVE3_MATTER } from '#frontiers-wave3-matter';
 
 export type Domain = '数理' | '物质' | '生命' | '交叉';
 
@@ -133,7 +146,7 @@ export interface IslandInterior {
 }
 
 export interface FrontierEntry {
-  /** Chart id (1..176). Stable. */
+  /** Chart id (1..371). Stable. */
   id: number;
   /** xfrontier atlas record id (provenance back-reference). */
   atlasN: number;
@@ -266,7 +279,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 8, activity: 71,
-    chart: { x: 290, y: 385, scale: 0.95 },
+    chart: { x: 293, y: 389, scale: 0.95 },
   },
   {
     id: 4, atlasN: 374, slug: "formal-math",
@@ -295,7 +308,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 6, activity: 58,
-    chart: { x: 435, y: 315, scale: 0.85 },
+    chart: { x: 436, y: 308, scale: 0.85 },
   },
   {
     id: 5, atlasN: 851, slug: "causal-rep-learning",
@@ -354,7 +367,7 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     stage: 2, members: 6, activity: 44,
     dormant: true,
-    chart: { x: 395, y: 435, scale: 0.75 },
+    chart: { x: 395, y: 436, scale: 0.75 },
   },
   {
     id: 27, atlasN: 904, slug: "triadic-percolation-connectivity-dynamical",
@@ -522,7 +535,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 1, members: 6, activity: 51,
-    chart: { x: 265, y: 326, scale: 0.88 },
+    chart: { x: 269, y: 314, scale: 0.88 },
   },
   {
     id: 33, atlasN: 1486, slug: "category-theory-algebraic-theory",
@@ -550,7 +563,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 10, activity: 62,
-    chart: { x: 355, y: 329, scale: 1.02 },
+    chart: { x: 354, y: 328, scale: 1.02 },
   },
   {
     id: 34, atlasN: 373, slug: "ai-assisted-theorem-proving",
@@ -578,7 +591,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 10, activity: 65,
-    chart: { x: 482, y: 342, scale: 1.02 },
+    chart: { x: 477, y: 341, scale: 1.02 },
   },
   {
     id: 35, atlasN: 574, slug: "fundamental-limits-information-thermodynamics",
@@ -634,7 +647,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 1, members: 6, activity: 49,
-    chart: { x: 252, y: 423, scale: 0.87 },
+    chart: { x: 246, y: 431, scale: 0.87 },
   },
   {
     id: 37, atlasN: 1002, slug: "gravitational-coupling-milligram-source",
@@ -662,7 +675,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 9, activity: 62,
-    chart: { x: 351, y: 404, scale: 1.02 },
+    chart: { x: 354, y: 403, scale: 1.02 },
   },
   {
     id: 38, atlasN: 1238, slug: "proximal-causal-inference-negative-control",
@@ -690,7 +703,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 10, activity: 49,
-    chart: { x: 451, y: 414, scale: 1 },
+    chart: { x: 450, y: 392, scale: 1 },
   },
   {
     id: 39, atlasN: 1490, slug: "category-theoretic-compositional-scientific-modeling",
@@ -749,7 +762,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 3, members: 14, activity: 88,
-    chart: { x: 1080, y: 260, scale: 1.1 },
+    chart: { x: 1078, y: 252, scale: 1.1 },
   },
   {
     id: 8, atlasN: 1491, slug: "self-learning-matter",
@@ -778,7 +791,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 9, activity: 66,
-    chart: { x: 1215, y: 325, scale: 0.85 },
+    chart: { x: 1212, y: 327, scale: 0.85 },
   },
   {
     id: 9, atlasN: 953, slug: "rock-battery",
@@ -807,7 +820,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 9, activity: 66,
-    chart: { x: 1000, y: 360, scale: 0.95 },
+    chart: { x: 1005, y: 354, scale: 0.95 },
   },
   {
     id: 10, atlasN: 764, slug: "analog-solver",
@@ -835,7 +848,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 1, members: 6, activity: 52,
-    chart: { x: 1150, y: 435, scale: 0.8 },
+    chart: { x: 1150, y: 439, scale: 0.8 },
   },
   {
     id: 11, atlasN: 194, slug: "artificial-photosynthesis",
@@ -892,7 +905,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 0, members: 2, activity: 12,
-    chart: { x: 1045, y: 455, scale: 0.7 },
+    chart: { x: 1044, y: 458, scale: 0.7 },
   },
   {
     id: 13, atlasN: 132, slug: "chemical-vision",
@@ -920,7 +933,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 0, members: 1, activity: 6,
-    chart: { x: 1255, y: 395, scale: 0.78 },
+    chart: { x: 1254, y: 397, scale: 0.78 },
   },
   {
     id: 40, atlasN: 948, slug: "photonic-time-crystals-space-time",
@@ -948,7 +961,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 10, activity: 66,
-    chart: { x: 1002, y: 241, scale: 1.02 },
+    chart: { x: 1001, y: 235, scale: 1.02 },
   },
   {
     id: 41, atlasN: 766, slug: "ferroelectric-in-memory-ising-annealer",
@@ -976,7 +989,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 8, activity: 64,
-    chart: { x: 1124, y: 228, scale: 1.02 },
+    chart: { x: 1125, y: 228, scale: 1.02 },
   },
   {
     id: 42, atlasN: 786, slug: "magnetic-levitational-bioassembly-label-",
@@ -1004,7 +1017,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 8, activity: 62,
-    chart: { x: 1185, y: 247, scale: 1.02 },
+    chart: { x: 1184, y: 246, scale: 1.02 },
   },
   {
     id: 43, atlasN: 814, slug: "self-supervised-latent-world-models",
@@ -1032,7 +1045,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 8, activity: 58,
-    chart: { x: 1256, y: 287, scale: 1.01 },
+    chart: { x: 1258, y: 279, scale: 1.01 },
   },
   {
     id: 44, atlasN: 822, slug: "neural-reconstruction-real-to-sim-policy-evaluation",
@@ -1060,7 +1073,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 10, activity: 62,
-    chart: { x: 1017, y: 309, scale: 1.02 },
+    chart: { x: 1016, y: 307, scale: 1.02 },
   },
   {
     id: 45, atlasN: 905, slug: "magic-state-cultivation-cheap",
@@ -1088,7 +1101,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 9, activity: 58,
-    chart: { x: 1108, y: 325, scale: 1.01 },
+    chart: { x: 1112, y: 324, scale: 1.01 },
   },
   {
     id: 46, atlasN: 910, slug: "erasure-conversion-qubits-turning-loss",
@@ -1116,7 +1129,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 9, activity: 62,
-    chart: { x: 1162, y: 333, scale: 1.02 },
+    chart: { x: 1165, y: 322, scale: 1.02 },
   },
   {
     id: 47, atlasN: 771, slug: "stochastic-memristors-turning-device",
@@ -1144,7 +1157,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 10, activity: 56,
-    chart: { x: 1292, y: 332, scale: 1.01 },
+    chart: { x: 1294, y: 331, scale: 1.01 },
   },
   {
     id: 48, atlasN: 791, slug: "clonal-hematopoiesis-chip-personalized",
@@ -1172,7 +1185,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 1, members: 6, activity: 46,
-    chart: { x: 1009, y: 415, scale: 0.87 },
+    chart: { x: 1018, y: 417, scale: 0.87 },
   },
   {
     id: 49, atlasN: 823, slug: "soft-gradients-through-hard",
@@ -1201,7 +1214,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 9, activity: 60,
-    chart: { x: 1096, y: 423, scale: 1.02 },
+    chart: { x: 1102, y: 430, scale: 1.02 },
   },
   {
     id: 50, atlasN: 908, slug: "end-to-end-advantage-accounting-reckoning",
@@ -1230,7 +1243,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 10, activity: 54,
-    chart: { x: 1198, y: 410, scale: 1.01 },
+    chart: { x: 1197, y: 412, scale: 1.01 },
   },
   {
     id: 51, atlasN: 1413, slug: "cable-bacteria-conductive-nanoribbons",
@@ -1259,7 +1272,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 9, activity: 56,
-    chart: { x: 1298, y: 428, scale: 1.01 },
+    chart: { x: 1301, y: 429, scale: 1.01 },
   },
   {
     id: 52, atlasN: 593, slug: "hyperuniformity-hidden-order-disorder",
@@ -1288,7 +1301,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 9, activity: 59,
-    chart: { x: 1019, y: 502, scale: 1.02 },
+    chart: { x: 1030, y: 503, scale: 1.02 },
   },
 
   // ── 生命 Life ───────────────────────────────────────────────────────────
@@ -1318,7 +1331,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 3, members: 16, activity: 82,
-    chart: { x: 620, y: 300, scale: 1.05 },
+    chart: { x: 585, y: 280, scale: 1.05 },
   },
   {
     id: 15, atlasN: 1349, slug: "code-dark-matter",
@@ -1346,7 +1359,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 8, activity: 64,
-    chart: { x: 740, y: 250, scale: 0.8 },
+    chart: { x: 751, y: 236, scale: 0.8 },
   },
   {
     id: 16, atlasN: 872, slug: "adar-sensors",
@@ -1375,7 +1388,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 7, activity: 60,
-    chart: { x: 688, y: 398, scale: 0.9 },
+    chart: { x: 694, y: 406, scale: 0.9 },
   },
   {
     id: 17, atlasN: 1376, slug: "active-inference",
@@ -1403,7 +1416,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 6, activity: 49,
-    chart: { x: 556, y: 428, scale: 0.8 },
+    chart: { x: 544, y: 446, scale: 0.8 },
   },
   {
     id: 18, atlasN: 1, slug: "minimal-genome",
@@ -1431,7 +1444,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 8, activity: 58,
-    chart: { x: 835, y: 338, scale: 0.9 },
+    chart: { x: 866, y: 327, scale: 0.9 },
   },
   {
     id: 19, atlasN: 7, slug: "genome-writing",
@@ -1459,7 +1472,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 6, activity: 51,
-    chart: { x: 620, y: 420, scale: 0.75 },
+    chart: { x: 602, y: 419, scale: 0.75 },
   },
   {
     id: 53, atlasN: 470, slug: "deep-biosphere-extreme-life",
@@ -1487,7 +1500,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 1, members: 6, activity: 55,
-    chart: { x: 573, y: 241, scale: 0.88 },
+    chart: { x: 559, y: 241, scale: 0.88 },
   },
   {
     id: 54, atlasN: 531, slug: "ice-sheet-basal-ecology-subglacial",
@@ -1516,7 +1529,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 1, members: 6, activity: 46,
-    chart: { x: 667, y: 244, scale: 0.87 },
+    chart: { x: 675, y: 211, scale: 0.87 },
   },
   {
     id: 55, atlasN: 843, slug: "in-tissue-spatial-functional-genomics",
@@ -1545,7 +1558,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 1, members: 5, activity: 46,
-    chart: { x: 770, y: 205, scale: 0.87 },
+    chart: { x: 779, y: 175, scale: 0.87 },
   },
   {
     id: 56, atlasN: 874, slug: "vivo-hematopoietic-stem-cell-editing",
@@ -1574,7 +1587,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 8, activity: 61,
-    chart: { x: 835, y: 250, scale: 1.02 },
+    chart: { x: 873, y: 242, scale: 1.02 },
   },
   {
     id: 57, atlasN: 929, slug: "falsifiable-consciousness-metrology-organoids",
@@ -1602,7 +1615,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 1, members: 5, activity: 54,
-    chart: { x: 574, y: 328, scale: 0.88 },
+    chart: { x: 567, y: 323, scale: 0.88 },
   },
   {
     id: 58, atlasN: 972, slug: "genetically-encoded-rna-origami-cellular-hardware",
@@ -1631,7 +1644,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 10, activity: 58,
-    chart: { x: 673, y: 326, scale: 1.01 },
+    chart: { x: 654, y: 315, scale: 1.01 },
   },
   {
     id: 59, atlasN: 1316, slug: "adversarial-falsification-benchmark-science",
@@ -1659,7 +1672,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 9, activity: 58,
-    chart: { x: 747, y: 329, scale: 1.01 },
+    chart: { x: 759, y: 330, scale: 1.01 },
   },
   {
     id: 60, atlasN: 1449, slug: "perennial-grain-crops",
@@ -1688,7 +1701,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 10, activity: 57,
-    chart: { x: 872, y: 299, scale: 1.01 },
+    chart: { x: 895, y: 291, scale: 1.01 },
   },
   {
     id: 61, atlasN: 1488, slug: "unknomics-systematically-studying-least-known",
@@ -1717,7 +1730,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 10, activity: 53,
-    chart: { x: 583, y: 381, scale: 1.01 },
+    chart: { x: 557, y: 369, scale: 1.01 },
   },
   {
     id: 62, atlasN: 472, slug: "ancient-dna-paleoproteomics",
@@ -1746,7 +1759,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 9, activity: 59,
-    chart: { x: 666, y: 448, scale: 1.02 },
+    chart: { x: 632, y: 444, scale: 1.02 },
   },
   {
     id: 63, atlasN: 659, slug: "energy-limit-ecology-deep-subsurface-dark",
@@ -1775,7 +1788,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 1, members: 6, activity: 47,
-    chart: { x: 753, y: 411, scale: 0.87 },
+    chart: { x: 752, y: 406, scale: 0.87 },
   },
   {
     id: 64, atlasN: 755, slug: "3d-synthesizable-co-generation-joint",
@@ -1804,7 +1817,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 8, activity: 59,
-    chart: { x: 828, y: 414, scale: 1.02 },
+    chart: { x: 859, y: 394, scale: 1.02 },
   },
   {
     id: 65, atlasN: 760, slug: "retrosynthesis-in-the-loop-direct-optimization-synthesizability",
@@ -1833,7 +1846,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 10, activity: 56,
-    chart: { x: 591, y: 502, scale: 1.01 },
+    chart: { x: 573, y: 502, scale: 1.01 },
   },
 
   // ── 交叉 Cross ──────────────────────────────────────────────────────────
@@ -1863,7 +1876,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 9, activity: 76,
-    chart: { x: 858, y: 548, scale: 1 },
+    chart: { x: 869, y: 542, scale: 1 },
   },
   {
     id: 21, atlasN: 994, slug: "invertebrate-sentience",
@@ -1891,7 +1904,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 7, activity: 60,
-    chart: { x: 642, y: 562, scale: 0.9 },
+    chart: { x: 617, y: 565, scale: 0.9 },
   },
   {
     id: 22, atlasN: 802, slug: "verified-pqc",
@@ -1920,7 +1933,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 6, activity: 52,
-    chart: { x: 924, y: 602, scale: 0.75 },
+    chart: { x: 923, y: 599, scale: 0.75 },
   },
   {
     id: 23, atlasN: 50, slug: "ai-theory-discovery",
@@ -1948,7 +1961,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 6, activity: 54,
-    chart: { x: 502, y: 584, scale: 0.7 },
+    chart: { x: 500, y: 587, scale: 0.7 },
   },
   {
     id: 24, atlasN: 542, slug: "cross-species-umwelt",
@@ -1976,7 +1989,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 0, members: 2, activity: 12,
-    chart: { x: 742, y: 640, scale: 0.85 },
+    chart: { x: 748, y: 641, scale: 0.85 },
   },
   {
     id: 25, atlasN: 662, slug: "formal-unknown",
@@ -2004,7 +2017,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 1, members: 3, activity: 39,
-    chart: { x: 1080, y: 560, scale: 0.8 },
+    chart: { x: 1088, y: 562, scale: 0.8 },
   },
   {
     id: 26, atlasN: 680, slug: "dark-instrumentation",
@@ -2063,7 +2076,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 9, activity: 59,
-    chart: { x: 524, y: 633, scale: 1.02 },
+    chart: { x: 513, y: 633, scale: 1.02 },
   },
   {
     id: 67, atlasN: 746, slug: "complexity-theoretic-debate-provable-protocols",
@@ -2092,7 +2105,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 8, activity: 61,
-    chart: { x: 608, y: 604, scale: 1.02 },
+    chart: { x: 578, y: 591, scale: 1.02 },
   },
   {
     id: 68, atlasN: 996, slug: "biological-computationalism-substrate-inseparability-criterion",
@@ -2121,7 +2134,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 10, activity: 60,
-    chart: { x: 693, y: 605, scale: 1.02 },
+    chart: { x: 670, y: 625, scale: 1.02 },
   },
   {
     id: 69, atlasN: 998, slug: "calibration-problem-artificial-consciousness",
@@ -2150,7 +2163,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 9, activity: 73,
-    chart: { x: 795, y: 608, scale: 1.03 },
+    chart: { x: 783, y: 613, scale: 1.03 },
   },
   {
     id: 70, atlasN: 879, slug: "verifiable-reward-discovery-agents-pushing",
@@ -2179,7 +2192,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 10, activity: 65,
-    chart: { x: 871, y: 613, scale: 1.02 },
+    chart: { x: 881, y: 616, scale: 1.02 },
   },
   {
     id: 71, atlasN: 964, slug: "differentiable-manufacturing-simulation-gradient-based",
@@ -2208,7 +2221,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 9, activity: 59,
-    chart: { x: 980, y: 599, scale: 1.02 },
+    chart: { x: 1006, y: 597, scale: 1.02 },
   },
   {
     id: 72, atlasN: 1162, slug: "epistemic-boundaries-autonomous-science",
@@ -2236,7 +2249,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 10, activity: 69,
-    chart: { x: 1060, y: 610, scale: 1.03 },
+    chart: { x: 1064, y: 614, scale: 1.03 },
   },
   {
     id: 73, atlasN: 1199, slug: "developmental-interpretability-singular-learning",
@@ -2323,7 +2336,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 10, activity: 68,
-    chart: { x: 506, y: 684, scale: 1.03 },
+    chart: { x: 504, y: 685, scale: 1.03 },
   },
   {
     id: 76, atlasN: 886, slug: "self-play-dueling-agents-autonomous",
@@ -2351,7 +2364,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 10, activity: 54,
-    chart: { x: 611, y: 672, scale: 1.01 },
+    chart: { x: 582, y: 697, scale: 1.01 },
   },
   {
     id: 77, atlasN: 976, slug: "stimulated-raman-activated-cell-ejection",
@@ -2379,7 +2392,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 9, activity: 62,
-    chart: { x: 695, y: 675, scale: 1.02 },
+    chart: { x: 682, y: 695, scale: 1.02 },
   },
   {
     id: 78, atlasN: 995, slug: "complexity-consciousness-proxy-brain",
@@ -2408,7 +2421,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 2, members: 9, activity: 62,
-    chart: { x: 797, y: 663, scale: 1.02 },
+    chart: { x: 788, y: 659, scale: 1.02 },
   },
   // ── §九 学科打通 · 全聚类覆盖扩充 (78→128, grounded from xfrontier atlas) ──
   {
@@ -2498,12 +2511,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "Long-lived quantum coherence in photosynthetic complexes at physiological temperature",
-        "venue": "PNAS",
-        "year": 2010,
-        "url": "https://www.pnas.org/doi/10.1073/pnas.1005484107"
-      },
-      {
         "title": "Do photosynthetic complexes use quantum coherence to increase their efficiency? Probably not",
         "venue": "Journal of Physical Chemistry Letters",
         "year": 2021,
@@ -2520,8 +2527,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 825,
-      "y": 195,
+      "x": 829,
+      "y": 171,
       "scale": 0.88
     }
   },
@@ -2612,12 +2619,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "Physics-informed machine learning",
-        "venue": "Nature Reviews Physics",
-        "year": 2021,
-        "url": "https://doi.org/10.1038/s42254-021-00314-5"
-      },
-      {
         "title": "Highly accurate protein structure prediction with AlphaFold",
         "venue": "Nature",
         "year": 2021,
@@ -2640,8 +2641,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 960,
-      "y": 755,
+      "x": 963,
+      "y": 768,
       "scale": 0.91
     }
   },
@@ -2732,12 +2733,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "Sequence modeling and design from molecular to genome scale with Evo",
-        "venue": "Science",
-        "year": 2024,
-        "url": "https://www.science.org/doi/10.1126/science.ado9336"
-      },
-      {
         "title": "Uncovering the Genomic Manifold via Scalable Learning from the Global Microbiome (GenomeOcean)",
         "venue": "bioRxiv",
         "year": 2025,
@@ -2760,8 +2755,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 717,
-      "y": 368,
+      "x": 696,
+      "y": 370,
       "scale": 0.74
     }
   },
@@ -2858,12 +2853,6 @@ export const FRONTIERS: FrontierEntry[] = [
         "url": "https://onlinelibrary.wiley.com/doi/10.1111/1755-0998.13840"
       },
       {
-        "title": "First national survey of terrestrial biodiversity using airborne eDNA",
-        "venue": "Scientific Reports",
-        "year": 2025,
-        "url": "https://www.nature.com/articles/s41598-025-03650-z"
-      },
-      {
         "title": "Airborne eDNA captures three decades of ecosystem biodiversity",
         "venue": "bioRxiv (preprint)",
         "year": 2023,
@@ -2874,7 +2863,7 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 602,
+      "x": 586,
       "y": 455,
       "scale": 0.98
     }
@@ -2978,12 +2967,6 @@ export const FRONTIERS: FrontierEntry[] = [
         "url": "https://www.sciencedirect.com/science/article/abs/pii/S0167779920302730"
       },
       {
-        "title": "Phenotypically complex living materials containing engineered cyanobacteria",
-        "venue": "Nature Communications",
-        "year": 2023,
-        "url": "https://www.nature.com/articles/s41467-023-40265-2"
-      },
-      {
         "title": "Strength in diversity: unlocking the full potential of engineered living materials with multistrain collaboration",
         "venue": "FEMS Microbiology Reviews",
         "year": 2025,
@@ -2994,8 +2977,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 1230,
-      "y": 456,
+      "x": 1225,
+      "y": 460,
       "scale": 0.74
     }
   },
@@ -3086,12 +3069,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "Recent Advances in Stimuli-Responsive DNA-Based Hydrogels",
-        "venue": "ACS Applied Bio Materials",
-        "year": 2022,
-        "url": "https://pubs.acs.org/doi/10.1021/acsabm.1c01197"
-      },
-      {
         "title": "Design and application of stimuli-responsive DNA hydrogels: A review",
         "venue": "Frontiers in Chemistry",
         "year": 2022,
@@ -3108,7 +3085,7 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 1142,
+      "x": 1149,
       "y": 280,
       "scale": 0.79
     }
@@ -3200,12 +3177,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "Motile Living Biobots Self-Construct from Adult Human Somatic Progenitor Seed Cells",
-        "venue": "Advanced Science",
-        "year": 2024,
-        "url": "https://advanced.onlinelibrary.wiley.com/doi/10.1002/advs.202303575"
-      },
-      {
         "title": "With Living Robots, Scientists Unlock Cells' Power to Heal",
         "venue": "Tufts Now",
         "year": 2024,
@@ -3222,8 +3193,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 788,
-      "y": 246,
+      "x": 790,
+      "y": 243,
       "scale": 0.85
     }
   },
@@ -3320,12 +3291,6 @@ export const FRONTIERS: FrontierEntry[] = [
         "url": "https://www.pnas.org/doi/10.1073/pnas.2112672118"
       },
       {
-        "title": "A cellular platform for the development of synthetic living machines",
-        "venue": "Science Robotics",
-        "year": 2021,
-        "url": "https://www.science.org/doi/10.1126/scirobotics.abf1571"
-      },
-      {
         "title": "A scalable pipeline for designing reconfigurable organisms",
         "venue": "PNAS",
         "year": 2020,
@@ -3336,8 +3301,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 713,
-      "y": 289,
+      "x": 692,
+      "y": 291,
       "scale": 0.95
     }
   },
@@ -3428,12 +3393,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "How to build the virtual cell with artificial intelligence: Priorities and opportunities",
-        "venue": "Cell",
-        "year": 2024,
-        "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12148494/"
-      },
-      {
         "title": "Towards multimodal foundation models in molecular cell biology",
         "venue": "Nature",
         "year": 2025,
@@ -3450,8 +3409,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 619,
-      "y": 755,
+      "x": 601,
+      "y": 763,
       "scale": 0.81
     }
   },
@@ -3548,12 +3507,6 @@ export const FRONTIERS: FrontierEntry[] = [
         "url": "https://doi.org/10.3390/s21134513"
       },
       {
-        "title": "AirPen: A Wearable Monitor for Characterizing Exposures to Particulate Matter and Volatile Organic Compounds",
-        "venue": "Environmental Science & Technology",
-        "year": 2023,
-        "url": "https://doi.org/10.1021/acs.est.3c02238"
-      },
-      {
         "title": "An Assessment of Multipollutant Exposures Using Silicone Wristbands Among Bangladeshi Youth",
         "venue": "International Journal of Environmental Research and Public Health",
         "year": 2024,
@@ -3564,8 +3517,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 789,
-      "y": 454,
+      "x": 793,
+      "y": 447,
       "scale": 0.96
     }
   },
@@ -3662,12 +3615,6 @@ export const FRONTIERS: FrontierEntry[] = [
         "url": "https://doi.org/10.1093/chemse/bjac037"
       },
       {
-        "title": "Genetic, functional, and phenotypic diversity in TAS2R38-mediated bitter taste perception",
-        "venue": "Chemical Senses",
-        "year": 2013,
-        "url": "https://doi.org/10.1093/chemse/bjt016"
-      },
-      {
         "title": "Differential Activation of TAS2R4 May Recover Ability to Taste Propylthiouracil for Some TAS2R38 AVI Homozygotes",
         "venue": "Nutrients",
         "year": 2024,
@@ -3678,8 +3625,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 527,
-      "y": 376,
+      "x": 514,
+      "y": 378,
       "scale": 0.79
     }
   },
@@ -3770,12 +3717,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "Bringing comparative cognition approaches to AI systems",
-        "venue": "Nature Reviews Psychology",
-        "year": 2025,
-        "url": "https://www.nature.com/articles/s44159-025-00456-8"
-      },
-      {
         "title": "Bringing Comparative Cognition To Computers",
         "venue": "arXiv",
         "year": 2025,
@@ -3792,8 +3733,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 817,
-      "y": 297,
+      "x": 849,
+      "y": 283,
       "scale": 0.95
     }
   },
@@ -3884,12 +3825,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "Solar Geoengineering: History, Methods, Governance, Prospects",
-        "venue": "Annual Review of Environment and Resources",
-        "year": 2024,
-        "url": "https://www.annualreviews.org/content/journals/10.1146/annurev-environ-112321-081911"
-      },
-      {
         "title": "The potential environmental and climate impacts of stratospheric aerosol injection: a review",
         "venue": "Environmental Science: Atmospheres",
         "year": 2024,
@@ -3906,8 +3841,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 740,
-      "y": 517,
+      "x": 732,
+      "y": 503,
       "scale": 0.83
     }
   },
@@ -3998,12 +3933,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "A CRISPR–Cas9 gene drive targeting doublesex causes complete population suppression in caged Anopheles gambiae mosquitoes",
-        "venue": "Nature Biotechnology",
-        "year": 2018,
-        "url": "https://www.nature.com/articles/nbt.4245"
-      },
-      {
         "title": "An Ethical Overview of the CRISPR-Based Elimination of Anopheles gambiae to Combat Malaria",
         "venue": "AJOB Neuroscience / Yale Journal of Biology and Medicine",
         "year": 2022,
@@ -4026,8 +3955,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 1015,
-      "y": 744,
+      "x": 1035,
+      "y": 743,
       "scale": 0.84
     }
   },
@@ -4130,12 +4059,6 @@ export const FRONTIERS: FrontierEntry[] = [
         "url": "https://kleinmanenergy.upenn.edu/research/publications/bringing-fusion-energy-to-the-grid-challenges-and-pathways/"
       },
       {
-        "title": "Fusion Energy: Seizing Our Opportunity for a Clean Energy Future",
-        "venue": "National Academies of Sciences, Engineering, and Medicine",
-        "year": 2023,
-        "url": "https://www.nationalacademies.org/news/fusion-energy-seizing-our-opportunity-for-a-clean-energy-future"
-      },
-      {
         "title": "Commonwealth Fusion Systems fusion engineering progress",
         "venue": "Engineering",
         "year": 2024,
@@ -4146,8 +4069,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 1128,
-      "y": 377,
+      "x": 1119,
+      "y": 383,
       "scale": 0.72
     }
   },
@@ -4244,12 +4167,6 @@ export const FRONTIERS: FrontierEntry[] = [
         "url": "https://www.science.org/doi/10.1126/sciadv.aax3419"
       },
       {
-        "title": "Origins, Worlds, and Life: A Decadal Strategy for Planetary Science and Astrobiology 2023-2032",
-        "venue": "National Academies Press",
-        "year": 2022,
-        "url": "https://www.nationalacademies.org/read/26522/chapter/16"
-      },
-      {
         "title": "A Review on Hypothesized Metabolic Pathways on Europa and Enceladus: Space-Flight Detection Considerations",
         "venue": "Life",
         "year": 2023,
@@ -4260,8 +4177,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 980,
-      "y": 461,
+      "x": 1002,
+      "y": 455,
       "scale": 0.81
     }
   },
@@ -4358,12 +4275,6 @@ export const FRONTIERS: FrontierEntry[] = [
         "url": "https://www.pnas.org/doi/10.1073/pnas.2201388119"
       },
       {
-        "title": "Detection of phosphates originating from Enceladus's ocean",
-        "venue": "Nature",
-        "year": 2023,
-        "url": "https://www.nature.com/articles/s41586-023-05987-9"
-      },
-      {
         "title": "A Review on Hypothesized Metabolic Pathways on Europa and Enceladus: Space-Flight Detection Considerations",
         "venue": "Astrobiology",
         "year": 2023,
@@ -4380,8 +4291,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 695,
-      "y": 549,
+      "x": 690,
+      "y": 552,
       "scale": 0.92
     }
   },
@@ -4483,19 +4394,13 @@ export const FRONTIERS: FrontierEntry[] = [
         "year": 2025,
         "url": "https://www.annualreviews.org/content/journals/10.1146/annurev-genom-011224-015733"
       },
-      {
-        "title": "Polygenic prediction of educational attainment within and between families from genome-wide association analyses in 3 million individuals",
-        "venue": "Nature Genetics",
-        "year": 2022,
-        "url": "https://doi.org/10.1038/s41588-022-01016-z"
-      }
     ],
     "stage": 1,
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 802,
-      "y": 716,
+      "x": 825,
+      "y": 732,
       "scale": 0.95
     }
   },
@@ -4586,12 +4491,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "aiXiv: A Next-Generation Open Access Ecosystem for Scientific Discovery Generated by AI Scientists",
-        "venue": "arXiv preprint 2508.15126",
-        "year": 2025,
-        "url": "https://arxiv.org/abs/2508.15126"
-      },
-      {
         "title": "Open Conference of AI Agents for Science (Agents4Science) — Paper Submissions",
         "venue": "Stanford University / Together AI",
         "year": 2025,
@@ -4608,7 +4507,7 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 1055,
+      "x": 1066,
       "y": 683,
       "scale": 0.94
     }
@@ -4711,19 +4610,13 @@ export const FRONTIERS: FrontierEntry[] = [
         "year": 2025,
         "url": "https://arxiv.org/pdf/2503.22573"
       },
-      {
-        "title": "ZKML: An Optimizing System for ML Inference in Zero-Knowledge Proofs",
-        "venue": "EuroSys 2024",
-        "year": 2024,
-        "url": "https://ddkang.github.io/papers/2024/zkml-eurosys.pdf"
-      }
     ],
     "stage": 1,
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 914,
-      "y": 551,
+      "x": 935,
+      "y": 558,
       "scale": 1
     }
   },
@@ -4814,12 +4707,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "Scientific discovery in the age of artificial intelligence",
-        "venue": "Nature",
-        "year": 2023,
-        "url": "https://www.nature.com/articles/s41586-023-06221-2"
-      },
-      {
         "title": "Accelerating science with human-aware artificial intelligence",
         "venue": "Nature Human Behaviour",
         "year": 2023,
@@ -4836,8 +4723,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 706,
-      "y": 755,
+      "x": 672,
+      "y": 779,
       "scale": 0.89
     }
   },
@@ -4928,12 +4815,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "When combinations of humans and AI are useful: A systematic review and meta-analysis",
-        "venue": "Nature Human Behaviour",
-        "year": 2024,
-        "url": "https://www.nature.com/articles/s41562-024-02024-1"
-      },
-      {
         "title": "Does the Whole Exceed its Parts? The Effect of AI Explanations on Complementary Team Performance",
         "venue": "ACM CHI",
         "year": 2021,
@@ -4950,8 +4831,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 985,
-      "y": 544,
+      "x": 1012,
+      "y": 548,
       "scale": 0.96
     }
   },
@@ -5042,12 +4923,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "AI can help humans find common ground in democratic deliberation",
-        "venue": "Science",
-        "year": 2024,
-        "url": "https://www.science.org/doi/10.1126/science.adq2852"
-      },
-      {
         "title": "AI can help humans find common ground in democratic deliberation (publication page)",
         "venue": "Google DeepMind",
         "year": 2024,
@@ -5064,8 +4939,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 898,
-      "y": 755,
+      "x": 921,
+      "y": 769,
       "scale": 0.81
     }
   },
@@ -5156,12 +5031,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "AI can help humans find common ground in democratic deliberation",
-        "venue": "Science",
-        "year": 2024,
-        "url": "https://www.science.org/doi/10.1126/science.adq2852"
-      },
-      {
         "title": "Sensemaking by Jigsaw — open-source LLM tools for large-scale public input",
         "venue": "Google Jigsaw (GitHub)",
         "year": 2024,
@@ -5178,8 +5047,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 945,
-      "y": 504,
+      "x": 940,
+      "y": 516,
       "scale": 0.72
     }
   },
@@ -5270,12 +5139,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "Electro-agriculture: Revolutionizing farming for a sustainable future",
-        "venue": "Joule",
-        "year": 2024,
-        "url": "https://doi.org/10.1016/j.joule.2024.09.011"
-      },
-      {
         "title": "A hybrid inorganic-biological artificial photosynthesis system for energy-efficient food production",
         "venue": "Nature Food",
         "year": 2022,
@@ -5292,8 +5155,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 707,
-      "y": 204,
+      "x": 705,
+      "y": 183,
       "scale": 0.79
     }
   },
@@ -5384,12 +5247,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "FDA Announces Plan to Phase Out Animal Testing Requirement for Monoclonal Antibodies and Other Drugs",
-        "venue": "U.S. FDA press announcement",
-        "year": 2025,
-        "url": "https://www.fda.gov/news-events/press-announcements/fda-announces-plan-phase-out-animal-testing-requirement-monoclonal-antibodies-and-other-drugs"
-      },
-      {
         "title": "Advancing FDA New Approach Methodologies from animal models through digital twins",
         "venue": "npj Digital Medicine",
         "year": 2026,
@@ -5406,8 +5263,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 788,
-      "y": 367,
+      "x": 792,
+      "y": 363,
       "scale": 0.87
     }
   },
@@ -5498,12 +5355,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "Targeting the hallmarks of aging: mechanisms and therapeutic opportunities",
-        "venue": "Signal Transduction and Targeted Therapy",
-        "year": 2025,
-        "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12259695/"
-      },
-      {
         "title": "Targeting ageing with rapamycin and its derivatives in humans: a systematic review",
         "venue": "The Lancet Healthy Longevity",
         "year": 2023,
@@ -5526,8 +5377,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 765,
-      "y": 293,
+      "x": 766,
+      "y": 273,
       "scale": 0.9
     }
   },
@@ -5618,12 +5469,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "A principal odor map unifies diverse tasks in human olfactory perception",
-        "venue": "Science",
-        "year": 2023,
-        "url": "https://www.science.org/doi/10.1126/science.ade4401"
-      },
-      {
         "title": "A principal odor map unifies diverse tasks in human olfactory perception (full text)",
         "venue": "PMC",
         "year": 2023,
@@ -5640,8 +5485,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 794,
-      "y": 532,
+      "x": 800,
+      "y": 528,
       "scale": 0.91
     }
   },
@@ -5738,12 +5583,6 @@ export const FRONTIERS: FrontierEntry[] = [
         "url": "https://joss.theoj.org/papers/10.21105/joss.08118.pdf"
       },
       {
-        "title": "Sampling molecular conformations and dynamics in a multiuser virtual reality framework",
-        "venue": "Science Advances",
-        "year": 2018,
-        "url": "https://www.science.org/doi/10.1126/sciadv.aat2731"
-      },
-      {
         "title": "nanover-server-py: Interactive Molecular Dynamics (iMD) in VR",
         "venue": "GitHub (IRL2)",
         "year": 2025,
@@ -5754,8 +5593,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 763,
-      "y": 755,
+      "x": 772,
+      "y": 772,
       "scale": 0.91
     }
   },
@@ -5846,12 +5685,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "AI can help humans find common ground in democratic deliberation",
-        "venue": "Science",
-        "year": 2024,
-        "url": "https://www.science.org/doi/10.1126/science.adq2852"
-      },
-      {
         "title": "Online Deliberation Platform — Deliberative Democracy Lab",
         "venue": "Stanford University",
         "year": 2025,
@@ -5862,8 +5695,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 832,
-      "y": 491,
+      "x": 810,
+      "y": 487,
       "scale": 0.86
     }
   },
@@ -5954,12 +5787,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "On serendipity in science: discovery at the intersection of chance and wisdom",
-        "venue": "Synthese",
-        "year": 2019,
-        "url": "https://link.springer.com/article/10.1007/s11229-017-1544-3"
-      },
-      {
         "title": "Serendipity: The Unexpected in Science",
         "venue": "MIT Press",
         "year": 2024,
@@ -5982,8 +5809,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 729,
-      "y": 462,
+      "x": 764,
+      "y": 474,
       "scale": 0.9
     }
   },
@@ -6080,12 +5907,6 @@ export const FRONTIERS: FrontierEntry[] = [
         "url": "https://www.crossref.org/blog/news-crossref-and-retraction-watch"
       },
       {
-        "title": "Does ChatGPT Ignore Article Retractions and Other Reliability Concerns?",
-        "venue": "Learned Publishing",
-        "year": 2025,
-        "url": "https://onlinelibrary.wiley.com/doi/10.1002/leap.2018"
-      },
-      {
         "title": "AI models are using material from retracted scientific papers",
         "venue": "MIT Technology Review",
         "year": 2025,
@@ -6096,8 +5917,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 873,
-      "y": 448,
+      "x": 907,
+      "y": 403,
       "scale": 0.98
     }
   },
@@ -6188,12 +6009,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "Unraveling the functional dark matter through global metagenomics",
-        "venue": "Nature",
-        "year": 2023,
-        "url": "https://www.nature.com/articles/s41586-023-06583-7"
-      },
-      {
         "title": "Functional and evolutionary significance of unknown genes from uncultivated taxa",
         "venue": "Nature",
         "year": 2023,
@@ -6210,8 +6025,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 617,
-      "y": 244,
+      "x": 601,
+      "y": 234,
       "scale": 0.91
     }
   },
@@ -6302,12 +6117,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "Living at the Extremes: Extremophiles and the Limits of Life in a Planetary Context",
-        "venue": "Frontiers in Microbiology",
-        "year": 2019,
-        "url": "https://pubmed.ncbi.nlm.nih.gov/31037068/"
-      },
-      {
         "title": "Relevance of Earth-Bound Extremophiles in the Search for Extraterrestrial Life",
         "venue": "Life (MDPI)",
         "year": 2022,
@@ -6330,8 +6139,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 661,
-      "y": 279,
+      "x": 626,
+      "y": 287,
       "scale": 0.76
     }
   },
@@ -6422,12 +6231,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "Early-warning signals for critical transitions",
-        "venue": "Nature",
-        "year": 2009,
-        "url": "https://www.nature.com/articles/nature08227"
-      },
-      {
         "title": "Quantifying the Unexpected: a scientific approach to Black Swans",
         "venue": "Physical Review Research",
         "year": 2022,
@@ -6444,8 +6247,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 955,
-      "y": 648,
+      "x": 981,
+      "y": 635,
       "scale": 0.88
     }
   },
@@ -6542,12 +6345,6 @@ export const FRONTIERS: FrontierEntry[] = [
         "url": "https://arxiv.org/abs/2204.14115"
       },
       {
-        "title": "The TAP equation: Evaluating combinatorial innovation",
-        "venue": "European Economic Review",
-        "year": 2025,
-        "url": "https://www.sciencedirect.com/science/article/pii/S0014292125001941"
-      },
-      {
         "title": "Autocatalytic Sets Arising in a Combinatorial Model of Chemical Evolution",
         "venue": "Life (MDPI)",
         "year": 2022,
@@ -6558,8 +6355,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 871,
-      "y": 707,
+      "x": 893,
+      "y": 709,
       "scale": 0.78
     }
   },
@@ -6650,12 +6447,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "Artificial Generational Intelligence: Cultural Accumulation in Reinforcement Learning",
-        "venue": "NeurIPS 2024",
-        "year": 2024,
-        "url": "https://proceedings.neurips.cc/paper_files/paper/2024/hash/6df3a719d99bd2479c04114d357003d0-Abstract-Conference.html"
-      },
-      {
         "title": "Artificial Generational Intelligence (arXiv preprint)",
         "venue": "arXiv",
         "year": 2024,
@@ -6666,8 +6457,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 902,
-      "y": 659,
+      "x": 897,
+      "y": 668,
       "scale": 0.91
     }
   },
@@ -6758,18 +6549,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "Probing topological spin liquids on a programmable quantum simulator",
-        "venue": "Science",
-        "year": 2021,
-        "url": "https://www.science.org/doi/10.1126/science.abi8794"
-      },
-      {
-        "title": "Probing Topological Spin Liquids on a Programmable Quantum Simulator",
-        "venue": "arXiv",
-        "year": 2021,
-        "url": "https://arxiv.org/abs/2104.04119"
-      },
-      {
         "title": "The Coming Decades of Quantum Simulation",
         "venue": "arXiv",
         "year": 2022,
@@ -6780,8 +6559,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 653,
-      "y": 637,
+      "x": 630,
+      "y": 641,
       "scale": 0.84
     }
   },
@@ -6883,19 +6662,13 @@ export const FRONTIERS: FrontierEntry[] = [
         "year": 2026,
         "url": "https://arxiv.org/abs/2603.29511"
       },
-      {
-        "title": "Interpreting the detection of anomalies in SDSS spectra",
-        "venue": "Astronomy & Astrophysics",
-        "year": 2025,
-        "url": "https://www.aanda.org/articles/aa/full_html/2025/11/aa56339-25/aa56339-25.html"
-      }
     ],
     "stage": 1,
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 847,
-      "y": 658,
+      "x": 858,
+      "y": 652,
       "scale": 0.81
     }
   },
@@ -6986,12 +6759,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "Atypical Combinations and Scientific Impact",
-        "venue": "Science",
-        "year": 2013,
-        "url": "https://www.science.org/doi/10.1126/science.1240474"
-      },
-      {
         "title": "Does the use of unusual combinations of datasets contribute to greater scientific impact?",
         "venue": "PNAS",
         "year": 2024,
@@ -7014,8 +6781,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 889,
-      "y": 501,
+      "x": 913,
+      "y": 491,
       "scale": 0.91
     }
   },
@@ -7106,12 +6873,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "Deep learning for early warning signals of tipping points",
-        "venue": "PNAS",
-        "year": 2021,
-        "url": "https://www.pnas.org/doi/10.1073/pnas.2106140118"
-      },
-      {
         "title": "Tipping point detection and early warnings in climate, ecological, and human systems",
         "venue": "Earth System Dynamics",
         "year": 2024,
@@ -7128,8 +6889,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 841,
-      "y": 755,
+      "x": 851,
+      "y": 764,
       "scale": 0.82
     }
   },
@@ -7220,12 +6981,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "Signatures of a Shadow Biosphere",
-        "venue": "Astrobiology",
-        "year": 2009,
-        "url": "https://www.liebertpub.com/doi/10.1089/ast.2008.0251"
-      },
-      {
         "title": "Persistent microbial communities in hyperarid subsurface habitats of the Atacama Desert: Insights from intracellular DNA analysis",
         "venue": "PNAS Nexus",
         "year": 2024,
@@ -7248,8 +7003,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 745,
-      "y": 583,
+      "x": 740,
+      "y": 603,
       "scale": 0.83
     }
   },
@@ -7340,12 +7095,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "Solvent constraints for biopolymer folding and evolution in extraterrestrial environments",
-        "venue": "PNAS",
-        "year": 2024,
-        "url": "https://www.pnas.org/doi/10.1073/pnas.2318905121"
-      },
-      {
         "title": "Life as We Don't Know It",
         "venue": "Astrobiology",
         "year": 2024,
@@ -7362,8 +7111,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 982,
-      "y": 698,
+      "x": 999,
+      "y": 706,
       "scale": 0.79
     }
   },
@@ -7454,12 +7203,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "Search for New Phenomena in Two-Body Invariant Mass Distributions Using Unsupervised Machine Learning for Anomaly Detection at √s=13 TeV with the ATLAS Detector",
-        "venue": "Physical Review Letters",
-        "year": 2024,
-        "url": "https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.132.081801"
-      },
-      {
         "title": "A Classifier-Based Approach to Multi-Class Anomaly Detection for Astronomical Transients",
         "venue": "RAS Techniques and Instruments",
         "year": 2024,
@@ -7482,8 +7225,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 652,
-      "y": 710,
+      "x": 643,
+      "y": 711,
       "scale": 0.81
     }
   },
@@ -7574,12 +7317,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "Position: Categorical Deep Learning is an Algebraic Theory of All Architectures",
-        "venue": "ICML 2024 (PMLR 235)",
-        "year": 2024,
-        "url": "https://arxiv.org/abs/2402.15332"
-      },
-      {
         "title": "Category-Theoretical and Topos-Theoretical Frameworks in Machine Learning: A Survey",
         "venue": "Axioms (MDPI)",
         "year": 2025,
@@ -7596,8 +7333,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 830,
-      "y": 576,
+      "x": 855,
+      "y": 582,
       "scale": 0.75
     }
   },
@@ -7688,12 +7425,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "End-to-end data-driven weather prediction (Aardvark Weather)",
-        "venue": "Nature",
-        "year": 2025,
-        "url": "https://www.nature.com/articles/s41586-025-08897-0"
-      },
-      {
         "title": "GraphDOP: Towards skilful data-driven medium-range weather forecasts learnt and initialised directly from observations",
         "venue": "arXiv",
         "year": 2024,
@@ -7710,8 +7441,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 927,
-      "y": 709,
+      "x": 929,
+      "y": 696,
       "scale": 0.87
     }
   },
@@ -7802,12 +7533,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "Predictability Limit of the 2021 Pacific Northwest Heatwave From Deep-Learning Sensitivity Analysis",
-        "venue": "Geophysical Research Letters",
-        "year": 2024,
-        "url": "https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2024GL110651"
-      },
-      {
         "title": "Testing the Limit of Atmospheric Predictability with a Machine Learning Weather Model",
         "venue": "arXiv",
         "year": 2025,
@@ -7818,8 +7543,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 745,
-      "y": 702,
+      "x": 719,
+      "y": 727,
       "scale": 0.99
     }
   },
@@ -7910,12 +7635,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "Toward Practical Threshold FHE: Low Communication, Computation and Interaction",
-        "venue": "ACM CCS 2024",
-        "year": 2024,
-        "url": "https://dl.acm.org/doi/pdf/10.1145/3658644.3690861"
-      },
-      {
         "title": "Threshold FHE with Efficient Asynchronous Decryption",
         "venue": "IACR ePrint",
         "year": 2025,
@@ -7932,8 +7651,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 1012,
-      "y": 648,
+      "x": 1024,
+      "y": 641,
       "scale": 0.92
     }
   },
@@ -8024,12 +7743,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "Cross-system interactions for positive tipping cascades",
-        "venue": "Earth System Dynamics 15(3), 789",
-        "year": 2024,
-        "url": "https://esd.copernicus.org/articles/15/789/2024/"
-      },
-      {
         "title": "A method to identify positive tipping points to accelerate low-carbon transitions and actions to trigger them",
         "venue": "Sustainability Science",
         "year": 2025,
@@ -8046,8 +7759,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 206,
-      "y": 363,
+      "x": 204,
+      "y": 365,
       "scale": 0.87
     }
   },
@@ -8138,12 +7851,6 @@ export const FRONTIERS: FrontierEntry[] = [
     },
     "literature": [
       {
-        "title": "Deep learning for predicting rate-induced tipping",
-        "venue": "Nature Machine Intelligence",
-        "year": 2024,
-        "url": "https://www.nature.com/articles/s42256-024-00937-0"
-      },
-      {
         "title": "Rate-induced tipping in ecosystems and climate: the role of unstable states, basin boundaries and transient dynamics",
         "venue": "Nonlinear Processes in Geophysics",
         "year": 2023,
@@ -8154,8 +7861,8 @@ export const FRONTIERS: FrontierEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 336,
-      "y": 459,
+      "x": 344,
+      "y": 457,
       "scale": 0.95
     }
   },
@@ -8189,7 +7896,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 1, members: 4, activity: 38,
-    chart: { x: 650, y: 500, scale: 0.82 },
+    chart: { x: 613, y: 523, scale: 0.82 },
   },
   {
     id: 130, atlasN: 545, slug: "biotremology-vibrational-communication",
@@ -8220,7 +7927,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 1, members: 3, activity: 32,
-    chart: { x: 790, y: 570, scale: 0.78 },
+    chart: { x: 790, y: 569, scale: 0.78 },
   },
   {
     id: 131, atlasN: 534, slug: "aerial-electroecology",
@@ -8251,7 +7958,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 1, members: 2, activity: 27,
-    chart: { x: 950, y: 570, scale: 0.74 },
+    chart: { x: 975, y: 568, scale: 0.74 },
   },
   {
     id: 132, atlasN: 538, slug: "cable-bacteria-biogeophysical-signals",
@@ -8284,7 +7991,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 1, members: 3, activity: 35,
-    chart: { x: 640, y: 370, scale: 0.79 },
+    chart: { x: 629, y: 353, scale: 0.79 },
   },
   {
     id: 133, atlasN: 541, slug: "thermodynamic-computing-hardware",
@@ -8296,7 +8003,6 @@ export const FRONTIERS: FrontierEntry[] = [
     citation: { url: "https://arxiv.org/abs/2312.04836", title: "Thermodynamic Computing System for AI Applications", venue: "arXiv", year: 2023 },
     brief: { zh: "不再压制热噪声，而让连续变量电路的涨落与弛豫直接执行采样、生成和贝叶斯推断；目前仍是早期硬件路线。", en: "Instead of suppressing thermal noise, continuous-variable circuits use fluctuation and relaxation directly for sampling, generation, and Bayesian inference; the hardware route remains early-stage." },
     literature: [
-      { title: "Thermodynamic computing system for AI applications", venue: "Nature Communications", year: 2025, url: "https://www.nature.com/articles/s41467-025-59011-x" },
       { title: "Nonlinear thermodynamic computing out of equilibrium", venue: "Nature Communications", year: 2026, url: "https://www.nature.com/articles/s41467-025-67958-0" },
     ],
     depth: {
@@ -8316,7 +8022,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 1, members: 3, activity: 34,
-    chart: { x: 470, y: 500, scale: 0.81 },
+    chart: { x: 467, y: 499, scale: 0.81 },
   },
   {
     id: 134, atlasN: 546, slug: "p-bit-probabilistic-computing",
@@ -8408,7 +8114,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 1, members: 3, activity: 37,
-    chart: { x: 530, y: 520, scale: 0.85 },
+    chart: { x: 506, y: 512, scale: 0.85 },
   },
   {
     id: 137, atlasN: 537, slug: "counterfactual-history-causal-cliometrics",
@@ -8439,7 +8145,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 1, members: 4, activity: 39,
-    chart: { x: 660, y: 750, scale: 0.86 },
+    chart: { x: 633, y: 789, scale: 0.86 },
   },
   {
     id: 138, atlasN: 553, slug: "evolutionary-dynamics-norms-trust",
@@ -8471,7 +8177,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 1, members: 4, activity: 41,
-    chart: { x: 830, y: 620, scale: 0.84 },
+    chart: { x: 841, y: 617, scale: 0.84 },
   },
   {
     id: 139, atlasN: 552, slug: "social-physics-predictability-boundary",
@@ -8535,7 +8241,7 @@ export const FRONTIERS: FrontierEntry[] = [
       ],
     },
     stage: 1, members: 4, activity: 43,
-    chart: { x: 890, y: 580, scale: 0.84 },
+    chart: { x: 892, y: 573, scale: 0.84 },
   }
 ];
 
@@ -8543,6 +8249,11 @@ FRONTIERS.push(
   ...EARTH_LIFE_EXPANSION,
   ...MATTER_COMPUTATION_EXPANSION,
   ...SOCIETY_KNOWLEDGE_EXPANSION,
+  // Wave 3 (ids 177-371): levels every one of the 53 clusters to seven islands.
+  ...WAVE3_MATH,
+  ...WAVE3_MATTER,
+  ...WAVE3_LIFE,
+  ...WAVE3_CROSSING,
 );
 
 export const FRONTIERS_BY_SLUG: Record<string, FrontierEntry> = Object.fromEntries(

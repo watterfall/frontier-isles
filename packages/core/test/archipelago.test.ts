@@ -233,13 +233,18 @@ describe("projectArchipelagos — curated overlay is a PURE re-label (hybrid hon
   });
 });
 
-describe("projectArchipelagos — 176-island real dataset (packages/data)", () => {
+describe("projectArchipelagos — 371-island real dataset (packages/data)", () => {
   const islands = realIslands();
   const { archipelagos, outliers } = projectArchipelagos(islands, []);
 
-  it("clusters the 176 real islands into 8–18 named archipelagos", () => {
-    expect(archipelagos.length).toBeGreaterThanOrEqual(8);
-    expect(archipelagos.length).toBeLessThanOrEqual(18);
+  it("clusters the 371 real islands into 20–34 named archipelagos", () => {
+    // The band tracks the same density scaling the synthetic-scale test below
+    // pins: round(1.4·√n). Wave 3 took the atlas from 176 to 371 islands, so the
+    // expected middle tier moves from ~19 to round(1.4·√371) ≈ 27 — the observed
+    // 26 (a few islands are outliers, lowering effective n) is on-model, not a
+    // regression. Widening this band without that arithmetic would hide one.
+    expect(archipelagos.length).toBeGreaterThanOrEqual(20);
+    expect(archipelagos.length).toBeLessThanOrEqual(34);
   });
 
   it("the editorially-flagged outlier (dark-instrumentation) never joins a cluster", () => {

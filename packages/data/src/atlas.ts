@@ -140,8 +140,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 8,
     "activity": 71,
     "chart": {
-      "x": 290,
-      "y": 385,
+      "x": 293,
+      "y": 389,
       "scale": 0.95
     },
     "hasInterior": true
@@ -179,8 +179,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 6,
     "activity": 58,
     "chart": {
-      "x": 435,
-      "y": 315,
+      "x": 436,
+      "y": 308,
       "scale": 0.85
     },
     "hasInterior": true
@@ -259,7 +259,7 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "dormant": true,
     "chart": {
       "x": 395,
-      "y": 435,
+      "y": 436,
       "scale": 0.75
     },
     "hasInterior": true
@@ -492,8 +492,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 6,
     "activity": 51,
     "chart": {
-      "x": 265,
-      "y": 326,
+      "x": 269,
+      "y": 314,
       "scale": 0.88
     },
     "hasInterior": false
@@ -531,8 +531,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 10,
     "activity": 62,
     "chart": {
-      "x": 355,
-      "y": 329,
+      "x": 354,
+      "y": 328,
       "scale": 1.02
     },
     "hasInterior": true
@@ -570,8 +570,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 10,
     "activity": 65,
     "chart": {
-      "x": 482,
-      "y": 342,
+      "x": 477,
+      "y": 341,
       "scale": 1.02
     },
     "hasInterior": true
@@ -648,8 +648,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 6,
     "activity": 49,
     "chart": {
-      "x": 252,
-      "y": 423,
+      "x": 246,
+      "y": 431,
       "scale": 0.87
     },
     "hasInterior": false
@@ -687,8 +687,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 9,
     "activity": 62,
     "chart": {
-      "x": 351,
-      "y": 404,
+      "x": 354,
+      "y": 403,
       "scale": 1.02
     },
     "hasInterior": true
@@ -726,8 +726,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 10,
     "activity": 49,
     "chart": {
-      "x": 451,
-      "y": 414,
+      "x": 450,
+      "y": 392,
       "scale": 1
     },
     "hasInterior": false
@@ -804,8 +804,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 14,
     "activity": 88,
     "chart": {
-      "x": 1080,
-      "y": 260,
+      "x": 1078,
+      "y": 252,
       "scale": 1.1
     },
     "hasInterior": true
@@ -843,8 +843,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 9,
     "activity": 66,
     "chart": {
-      "x": 1215,
-      "y": 325,
+      "x": 1212,
+      "y": 327,
       "scale": 0.85
     },
     "hasInterior": true
@@ -882,8 +882,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 9,
     "activity": 66,
     "chart": {
-      "x": 1000,
-      "y": 360,
+      "x": 1005,
+      "y": 354,
       "scale": 0.95
     },
     "hasInterior": true
@@ -922,7 +922,7 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "activity": 52,
     "chart": {
       "x": 1150,
-      "y": 435,
+      "y": 439,
       "scale": 0.8
     },
     "hasInterior": false
@@ -1000,8 +1000,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 2,
     "activity": 12,
     "chart": {
-      "x": 1045,
-      "y": 455,
+      "x": 1044,
+      "y": 458,
       "scale": 0.7
     },
     "hasInterior": false
@@ -1039,8 +1039,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 1,
     "activity": 6,
     "chart": {
-      "x": 1255,
-      "y": 395,
+      "x": 1254,
+      "y": 397,
       "scale": 0.78
     },
     "hasInterior": false
@@ -1078,8 +1078,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 10,
     "activity": 66,
     "chart": {
-      "x": 1002,
-      "y": 241,
+      "x": 1001,
+      "y": 235,
       "scale": 1.02
     },
     "hasInterior": true
@@ -1117,7 +1117,7 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 8,
     "activity": 64,
     "chart": {
-      "x": 1124,
+      "x": 1125,
       "y": 228,
       "scale": 1.02
     },
@@ -1156,8 +1156,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 8,
     "activity": 62,
     "chart": {
-      "x": 1185,
-      "y": 247,
+      "x": 1184,
+      "y": 246,
       "scale": 1.02
     },
     "hasInterior": true
@@ -1195,8 +1195,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 8,
     "activity": 58,
     "chart": {
-      "x": 1256,
-      "y": 287,
+      "x": 1258,
+      "y": 279,
       "scale": 1.01
     },
     "hasInterior": true
@@ -1234,8 +1234,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 10,
     "activity": 62,
     "chart": {
-      "x": 1017,
-      "y": 309,
+      "x": 1016,
+      "y": 307,
       "scale": 1.02
     },
     "hasInterior": true
@@ -1273,8 +1273,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 9,
     "activity": 58,
     "chart": {
-      "x": 1108,
-      "y": 325,
+      "x": 1112,
+      "y": 324,
       "scale": 1.01
     },
     "hasInterior": false
@@ -1312,8 +1312,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 9,
     "activity": 62,
     "chart": {
-      "x": 1162,
-      "y": 333,
+      "x": 1165,
+      "y": 322,
       "scale": 1.02
     },
     "hasInterior": true
@@ -1351,8 +1351,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 10,
     "activity": 56,
     "chart": {
-      "x": 1292,
-      "y": 332,
+      "x": 1294,
+      "y": 331,
       "scale": 1.01
     },
     "hasInterior": false
@@ -1390,8 +1390,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 6,
     "activity": 46,
     "chart": {
-      "x": 1009,
-      "y": 415,
+      "x": 1018,
+      "y": 417,
       "scale": 0.87
     },
     "hasInterior": false
@@ -1429,8 +1429,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 9,
     "activity": 60,
     "chart": {
-      "x": 1096,
-      "y": 423,
+      "x": 1102,
+      "y": 430,
       "scale": 1.02
     },
     "hasInterior": true
@@ -1468,8 +1468,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 10,
     "activity": 54,
     "chart": {
-      "x": 1198,
-      "y": 410,
+      "x": 1197,
+      "y": 412,
       "scale": 1.01
     },
     "hasInterior": false
@@ -1507,8 +1507,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 9,
     "activity": 56,
     "chart": {
-      "x": 1298,
-      "y": 428,
+      "x": 1301,
+      "y": 429,
       "scale": 1.01
     },
     "hasInterior": false
@@ -1546,8 +1546,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 9,
     "activity": 59,
     "chart": {
-      "x": 1019,
-      "y": 502,
+      "x": 1030,
+      "y": 503,
       "scale": 1.02
     },
     "hasInterior": true
@@ -1585,8 +1585,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 16,
     "activity": 82,
     "chart": {
-      "x": 620,
-      "y": 300,
+      "x": 585,
+      "y": 280,
       "scale": 1.05
     },
     "hasInterior": true
@@ -1624,8 +1624,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 8,
     "activity": 64,
     "chart": {
-      "x": 740,
-      "y": 250,
+      "x": 751,
+      "y": 236,
       "scale": 0.8
     },
     "hasInterior": true
@@ -1663,8 +1663,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 7,
     "activity": 60,
     "chart": {
-      "x": 688,
-      "y": 398,
+      "x": 694,
+      "y": 406,
       "scale": 0.9
     },
     "hasInterior": true
@@ -1702,8 +1702,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 6,
     "activity": 49,
     "chart": {
-      "x": 556,
-      "y": 428,
+      "x": 544,
+      "y": 446,
       "scale": 0.8
     },
     "hasInterior": true
@@ -1741,8 +1741,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 8,
     "activity": 58,
     "chart": {
-      "x": 835,
-      "y": 338,
+      "x": 866,
+      "y": 327,
       "scale": 0.9
     },
     "hasInterior": true
@@ -1780,8 +1780,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 6,
     "activity": 51,
     "chart": {
-      "x": 620,
-      "y": 420,
+      "x": 602,
+      "y": 419,
       "scale": 0.75
     },
     "hasInterior": true
@@ -1819,7 +1819,7 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 6,
     "activity": 55,
     "chart": {
-      "x": 573,
+      "x": 559,
       "y": 241,
       "scale": 0.88
     },
@@ -1858,8 +1858,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 6,
     "activity": 46,
     "chart": {
-      "x": 667,
-      "y": 244,
+      "x": 675,
+      "y": 211,
       "scale": 0.87
     },
     "hasInterior": false
@@ -1897,8 +1897,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 5,
     "activity": 46,
     "chart": {
-      "x": 770,
-      "y": 205,
+      "x": 779,
+      "y": 175,
       "scale": 0.87
     },
     "hasInterior": false
@@ -1936,8 +1936,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 8,
     "activity": 61,
     "chart": {
-      "x": 835,
-      "y": 250,
+      "x": 873,
+      "y": 242,
       "scale": 1.02
     },
     "hasInterior": true
@@ -1975,8 +1975,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 5,
     "activity": 54,
     "chart": {
-      "x": 574,
-      "y": 328,
+      "x": 567,
+      "y": 323,
       "scale": 0.88
     },
     "hasInterior": false
@@ -2014,8 +2014,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 10,
     "activity": 58,
     "chart": {
-      "x": 673,
-      "y": 326,
+      "x": 654,
+      "y": 315,
       "scale": 1.01
     },
     "hasInterior": true
@@ -2053,8 +2053,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 9,
     "activity": 58,
     "chart": {
-      "x": 747,
-      "y": 329,
+      "x": 759,
+      "y": 330,
       "scale": 1.01
     },
     "hasInterior": true
@@ -2092,8 +2092,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 10,
     "activity": 57,
     "chart": {
-      "x": 872,
-      "y": 299,
+      "x": 895,
+      "y": 291,
       "scale": 1.01
     },
     "hasInterior": true
@@ -2131,8 +2131,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 10,
     "activity": 53,
     "chart": {
-      "x": 583,
-      "y": 381,
+      "x": 557,
+      "y": 369,
       "scale": 1.01
     },
     "hasInterior": false
@@ -2170,8 +2170,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 9,
     "activity": 59,
     "chart": {
-      "x": 666,
-      "y": 448,
+      "x": 632,
+      "y": 444,
       "scale": 1.02
     },
     "hasInterior": true
@@ -2209,8 +2209,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 6,
     "activity": 47,
     "chart": {
-      "x": 753,
-      "y": 411,
+      "x": 752,
+      "y": 406,
       "scale": 0.87
     },
     "hasInterior": false
@@ -2248,8 +2248,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 8,
     "activity": 59,
     "chart": {
-      "x": 828,
-      "y": 414,
+      "x": 859,
+      "y": 394,
       "scale": 1.02
     },
     "hasInterior": true
@@ -2287,7 +2287,7 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 10,
     "activity": 56,
     "chart": {
-      "x": 591,
+      "x": 573,
       "y": 502,
       "scale": 1.01
     },
@@ -2326,8 +2326,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 9,
     "activity": 76,
     "chart": {
-      "x": 858,
-      "y": 548,
+      "x": 869,
+      "y": 542,
       "scale": 1
     },
     "hasInterior": true
@@ -2365,8 +2365,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 7,
     "activity": 60,
     "chart": {
-      "x": 642,
-      "y": 562,
+      "x": 617,
+      "y": 565,
       "scale": 0.9
     },
     "hasInterior": true
@@ -2404,8 +2404,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 6,
     "activity": 52,
     "chart": {
-      "x": 924,
-      "y": 602,
+      "x": 923,
+      "y": 599,
       "scale": 0.75
     },
     "hasInterior": true
@@ -2443,8 +2443,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 6,
     "activity": 54,
     "chart": {
-      "x": 502,
-      "y": 584,
+      "x": 500,
+      "y": 587,
       "scale": 0.7
     },
     "hasInterior": true
@@ -2482,8 +2482,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 2,
     "activity": 12,
     "chart": {
-      "x": 742,
-      "y": 640,
+      "x": 748,
+      "y": 641,
       "scale": 0.85
     },
     "hasInterior": false
@@ -2521,8 +2521,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 3,
     "activity": 39,
     "chart": {
-      "x": 1080,
-      "y": 560,
+      "x": 1088,
+      "y": 562,
       "scale": 0.8
     },
     "hasInterior": false
@@ -2600,7 +2600,7 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 9,
     "activity": 59,
     "chart": {
-      "x": 524,
+      "x": 513,
       "y": 633,
       "scale": 1.02
     },
@@ -2639,8 +2639,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 8,
     "activity": 61,
     "chart": {
-      "x": 608,
-      "y": 604,
+      "x": 578,
+      "y": 591,
       "scale": 1.02
     },
     "hasInterior": true
@@ -2678,8 +2678,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 10,
     "activity": 60,
     "chart": {
-      "x": 693,
-      "y": 605,
+      "x": 670,
+      "y": 625,
       "scale": 1.02
     },
     "hasInterior": true
@@ -2717,8 +2717,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 9,
     "activity": 73,
     "chart": {
-      "x": 795,
-      "y": 608,
+      "x": 783,
+      "y": 613,
       "scale": 1.03
     },
     "hasInterior": true
@@ -2756,8 +2756,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 10,
     "activity": 65,
     "chart": {
-      "x": 871,
-      "y": 613,
+      "x": 881,
+      "y": 616,
       "scale": 1.02
     },
     "hasInterior": true
@@ -2795,8 +2795,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 9,
     "activity": 59,
     "chart": {
-      "x": 980,
-      "y": 599,
+      "x": 1006,
+      "y": 597,
       "scale": 1.02
     },
     "hasInterior": false
@@ -2834,8 +2834,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 10,
     "activity": 69,
     "chart": {
-      "x": 1060,
-      "y": 610,
+      "x": 1064,
+      "y": 614,
       "scale": 1.03
     },
     "hasInterior": true
@@ -2951,8 +2951,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 10,
     "activity": 68,
     "chart": {
-      "x": 506,
-      "y": 684,
+      "x": 504,
+      "y": 685,
       "scale": 1.03
     },
     "hasInterior": true
@@ -2990,8 +2990,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 10,
     "activity": 54,
     "chart": {
-      "x": 611,
-      "y": 672,
+      "x": 582,
+      "y": 697,
       "scale": 1.01
     },
     "hasInterior": false
@@ -3029,8 +3029,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 9,
     "activity": 62,
     "chart": {
-      "x": 695,
-      "y": 675,
+      "x": 682,
+      "y": 695,
       "scale": 1.02
     },
     "hasInterior": true
@@ -3068,8 +3068,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 9,
     "activity": 62,
     "chart": {
-      "x": 797,
-      "y": 663,
+      "x": 788,
+      "y": 659,
       "scale": 1.02
     },
     "hasInterior": true
@@ -3107,8 +3107,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 825,
-      "y": 195,
+      "x": 829,
+      "y": 171,
       "scale": 0.88
     },
     "hasInterior": false
@@ -3146,8 +3146,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 960,
-      "y": 755,
+      "x": 963,
+      "y": 768,
       "scale": 0.91
     },
     "hasInterior": false
@@ -3185,8 +3185,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 717,
-      "y": 368,
+      "x": 696,
+      "y": 370,
       "scale": 0.74
     },
     "hasInterior": false
@@ -3224,7 +3224,7 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 602,
+      "x": 586,
       "y": 455,
       "scale": 0.98
     },
@@ -3263,8 +3263,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 1230,
-      "y": 456,
+      "x": 1225,
+      "y": 460,
       "scale": 0.74
     },
     "hasInterior": false
@@ -3302,7 +3302,7 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 1142,
+      "x": 1149,
       "y": 280,
       "scale": 0.79
     },
@@ -3341,8 +3341,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 788,
-      "y": 246,
+      "x": 790,
+      "y": 243,
       "scale": 0.85
     },
     "hasInterior": false
@@ -3380,8 +3380,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 713,
-      "y": 289,
+      "x": 692,
+      "y": 291,
       "scale": 0.95
     },
     "hasInterior": false
@@ -3419,8 +3419,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 619,
-      "y": 755,
+      "x": 601,
+      "y": 763,
       "scale": 0.81
     },
     "hasInterior": false
@@ -3458,8 +3458,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 789,
-      "y": 454,
+      "x": 793,
+      "y": 447,
       "scale": 0.96
     },
     "hasInterior": false
@@ -3497,8 +3497,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 527,
-      "y": 376,
+      "x": 514,
+      "y": 378,
       "scale": 0.79
     },
     "hasInterior": false
@@ -3536,8 +3536,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 817,
-      "y": 297,
+      "x": 849,
+      "y": 283,
       "scale": 0.95
     },
     "hasInterior": false
@@ -3575,8 +3575,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 740,
-      "y": 517,
+      "x": 732,
+      "y": 503,
       "scale": 0.83
     },
     "hasInterior": false
@@ -3614,8 +3614,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 1015,
-      "y": 744,
+      "x": 1035,
+      "y": 743,
       "scale": 0.84
     },
     "hasInterior": false
@@ -3653,8 +3653,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 1128,
-      "y": 377,
+      "x": 1119,
+      "y": 383,
       "scale": 0.72
     },
     "hasInterior": false
@@ -3692,8 +3692,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 980,
-      "y": 461,
+      "x": 1002,
+      "y": 455,
       "scale": 0.81
     },
     "hasInterior": false
@@ -3731,8 +3731,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 695,
-      "y": 549,
+      "x": 690,
+      "y": 552,
       "scale": 0.92
     },
     "hasInterior": false
@@ -3770,8 +3770,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 802,
-      "y": 716,
+      "x": 825,
+      "y": 732,
       "scale": 0.95
     },
     "hasInterior": false
@@ -3809,7 +3809,7 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 1055,
+      "x": 1066,
       "y": 683,
       "scale": 0.94
     },
@@ -3848,8 +3848,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 914,
-      "y": 551,
+      "x": 935,
+      "y": 558,
       "scale": 1
     },
     "hasInterior": false
@@ -3887,8 +3887,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 706,
-      "y": 755,
+      "x": 672,
+      "y": 779,
       "scale": 0.89
     },
     "hasInterior": false
@@ -3926,8 +3926,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 985,
-      "y": 544,
+      "x": 1012,
+      "y": 548,
       "scale": 0.96
     },
     "hasInterior": false
@@ -3965,8 +3965,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 898,
-      "y": 755,
+      "x": 921,
+      "y": 769,
       "scale": 0.81
     },
     "hasInterior": false
@@ -4004,8 +4004,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 945,
-      "y": 504,
+      "x": 940,
+      "y": 516,
       "scale": 0.72
     },
     "hasInterior": false
@@ -4043,8 +4043,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 707,
-      "y": 204,
+      "x": 705,
+      "y": 183,
       "scale": 0.79
     },
     "hasInterior": false
@@ -4082,8 +4082,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 788,
-      "y": 367,
+      "x": 792,
+      "y": 363,
       "scale": 0.87
     },
     "hasInterior": false
@@ -4121,8 +4121,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 765,
-      "y": 293,
+      "x": 766,
+      "y": 273,
       "scale": 0.9
     },
     "hasInterior": false
@@ -4160,8 +4160,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 794,
-      "y": 532,
+      "x": 800,
+      "y": 528,
       "scale": 0.91
     },
     "hasInterior": false
@@ -4199,8 +4199,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 763,
-      "y": 755,
+      "x": 772,
+      "y": 772,
       "scale": 0.91
     },
     "hasInterior": false
@@ -4238,8 +4238,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 832,
-      "y": 491,
+      "x": 810,
+      "y": 487,
       "scale": 0.86
     },
     "hasInterior": false
@@ -4277,8 +4277,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 729,
-      "y": 462,
+      "x": 764,
+      "y": 474,
       "scale": 0.9
     },
     "hasInterior": false
@@ -4316,8 +4316,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 873,
-      "y": 448,
+      "x": 907,
+      "y": 403,
       "scale": 0.98
     },
     "hasInterior": false
@@ -4355,8 +4355,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 617,
-      "y": 244,
+      "x": 601,
+      "y": 234,
       "scale": 0.91
     },
     "hasInterior": false
@@ -4394,8 +4394,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 661,
-      "y": 279,
+      "x": 626,
+      "y": 287,
       "scale": 0.76
     },
     "hasInterior": false
@@ -4433,8 +4433,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 955,
-      "y": 648,
+      "x": 981,
+      "y": 635,
       "scale": 0.88
     },
     "hasInterior": false
@@ -4472,8 +4472,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 871,
-      "y": 707,
+      "x": 893,
+      "y": 709,
       "scale": 0.78
     },
     "hasInterior": false
@@ -4511,8 +4511,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 902,
-      "y": 659,
+      "x": 897,
+      "y": 668,
       "scale": 0.91
     },
     "hasInterior": false
@@ -4550,8 +4550,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 653,
-      "y": 637,
+      "x": 630,
+      "y": 641,
       "scale": 0.84
     },
     "hasInterior": false
@@ -4589,8 +4589,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 847,
-      "y": 658,
+      "x": 858,
+      "y": 652,
       "scale": 0.81
     },
     "hasInterior": false
@@ -4628,8 +4628,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 889,
-      "y": 501,
+      "x": 913,
+      "y": 491,
       "scale": 0.91
     },
     "hasInterior": false
@@ -4667,8 +4667,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 841,
-      "y": 755,
+      "x": 851,
+      "y": 764,
       "scale": 0.82
     },
     "hasInterior": false
@@ -4706,8 +4706,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 745,
-      "y": 583,
+      "x": 740,
+      "y": 603,
       "scale": 0.83
     },
     "hasInterior": false
@@ -4745,8 +4745,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 982,
-      "y": 698,
+      "x": 999,
+      "y": 706,
       "scale": 0.79
     },
     "hasInterior": false
@@ -4784,8 +4784,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 652,
-      "y": 710,
+      "x": 643,
+      "y": 711,
       "scale": 0.81
     },
     "hasInterior": false
@@ -4823,8 +4823,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 830,
-      "y": 576,
+      "x": 855,
+      "y": 582,
       "scale": 0.75
     },
     "hasInterior": false
@@ -4862,8 +4862,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 927,
-      "y": 709,
+      "x": 929,
+      "y": 696,
       "scale": 0.87
     },
     "hasInterior": false
@@ -4901,8 +4901,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 745,
-      "y": 702,
+      "x": 719,
+      "y": 727,
       "scale": 0.99
     },
     "hasInterior": false
@@ -4940,8 +4940,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 1012,
-      "y": 648,
+      "x": 1024,
+      "y": 641,
       "scale": 0.92
     },
     "hasInterior": false
@@ -4979,8 +4979,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 206,
-      "y": 363,
+      "x": 204,
+      "y": 365,
       "scale": 0.87
     },
     "hasInterior": false
@@ -5018,8 +5018,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 30,
     "chart": {
-      "x": 336,
-      "y": 459,
+      "x": 344,
+      "y": 457,
       "scale": 0.95
     },
     "hasInterior": false
@@ -5057,8 +5057,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 38,
     "chart": {
-      "x": 650,
-      "y": 500,
+      "x": 613,
+      "y": 523,
       "scale": 0.82
     },
     "hasInterior": false
@@ -5097,7 +5097,7 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "activity": 32,
     "chart": {
       "x": 790,
-      "y": 570,
+      "y": 569,
       "scale": 0.78
     },
     "hasInterior": false
@@ -5135,8 +5135,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 2,
     "activity": 27,
     "chart": {
-      "x": 950,
-      "y": 570,
+      "x": 975,
+      "y": 568,
       "scale": 0.74
     },
     "hasInterior": false
@@ -5174,8 +5174,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 3,
     "activity": 35,
     "chart": {
-      "x": 640,
-      "y": 370,
+      "x": 629,
+      "y": 353,
       "scale": 0.79
     },
     "hasInterior": false
@@ -5213,8 +5213,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 3,
     "activity": 34,
     "chart": {
-      "x": 470,
-      "y": 500,
+      "x": 467,
+      "y": 499,
       "scale": 0.81
     },
     "hasInterior": false
@@ -5330,8 +5330,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 3,
     "activity": 37,
     "chart": {
-      "x": 530,
-      "y": 520,
+      "x": 506,
+      "y": 512,
       "scale": 0.85
     },
     "hasInterior": false
@@ -5369,8 +5369,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 39,
     "chart": {
-      "x": 660,
-      "y": 750,
+      "x": 633,
+      "y": 789,
       "scale": 0.86
     },
     "hasInterior": false
@@ -5408,8 +5408,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 41,
     "chart": {
-      "x": 830,
-      "y": 620,
+      "x": 841,
+      "y": 617,
       "scale": 0.84
     },
     "hasInterior": false
@@ -5486,8 +5486,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 43,
     "chart": {
-      "x": 890,
-      "y": 580,
+      "x": 892,
+      "y": 573,
       "scale": 0.84
     },
     "hasInterior": false
@@ -5525,8 +5525,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 51,
     "chart": {
-      "x": 438,
-      "y": 344,
+      "x": 431,
+      "y": 350,
       "scale": 0.88
     },
     "hasInterior": false
@@ -5564,8 +5564,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 47,
     "chart": {
-      "x": 542,
-      "y": 318,
+      "x": 535,
+      "y": 297,
       "scale": 0.86
     },
     "hasInterior": false
@@ -5642,8 +5642,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 46,
     "chart": {
-      "x": 718,
-      "y": 458,
+      "x": 697,
+      "y": 483,
       "scale": 0.86
     },
     "hasInterior": false
@@ -5681,8 +5681,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 3,
     "activity": 39,
     "chart": {
-      "x": 792,
-      "y": 430,
+      "x": 825,
+      "y": 421,
       "scale": 0.82
     },
     "hasInterior": false
@@ -5720,8 +5720,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 42,
     "chart": {
-      "x": 858,
-      "y": 494,
+      "x": 852,
+      "y": 482,
       "scale": 0.84
     },
     "hasInterior": false
@@ -5759,8 +5759,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 5,
     "activity": 56,
     "chart": {
-      "x": 612,
-      "y": 210,
+      "x": 593,
+      "y": 193,
       "scale": 0.9
     },
     "hasInterior": false
@@ -5798,8 +5798,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 48,
     "chart": {
-      "x": 680,
-      "y": 260,
+      "x": 688,
+      "y": 248,
       "scale": 0.86
     },
     "hasInterior": false
@@ -5837,8 +5837,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 3,
     "activity": 43,
     "chart": {
-      "x": 744,
-      "y": 304,
+      "x": 734,
+      "y": 296,
       "scale": 0.83
     },
     "hasInterior": false
@@ -5876,8 +5876,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 5,
     "activity": 52,
     "chart": {
-      "x": 808,
-      "y": 350,
+      "x": 834,
+      "y": 354,
       "scale": 0.88
     },
     "hasInterior": false
@@ -5915,8 +5915,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 5,
     "activity": 58,
     "chart": {
-      "x": 664,
-      "y": 406,
+      "x": 637,
+      "y": 400,
       "scale": 0.9
     },
     "hasInterior": false
@@ -5954,8 +5954,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 49,
     "chart": {
-      "x": 728,
-      "y": 520,
+      "x": 732,
+      "y": 539,
       "scale": 0.87
     },
     "hasInterior": false
@@ -5993,8 +5993,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 5,
     "activity": 64,
     "chart": {
-      "x": 160,
-      "y": 185,
+      "x": 153,
+      "y": 190,
       "scale": 0.84
     },
     "hasInterior": false
@@ -6032,8 +6032,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 61,
     "chart": {
-      "x": 310,
-      "y": 470,
+      "x": 306,
+      "y": 477,
       "scale": 0.82
     },
     "hasInterior": false
@@ -6071,8 +6071,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 6,
     "activity": 68,
     "chart": {
-      "x": 670,
-      "y": 170,
+      "x": 686,
+      "y": 143,
       "scale": 0.8
     },
     "hasInterior": false
@@ -6110,8 +6110,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 3,
     "activity": 46,
     "chart": {
-      "x": 805,
-      "y": 330,
+      "x": 829,
+      "y": 316,
       "scale": 0.76
     },
     "hasInterior": false
@@ -6149,8 +6149,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 6,
     "activity": 69,
     "chart": {
-      "x": 560,
-      "y": 520,
+      "x": 540,
+      "y": 530,
       "scale": 0.78
     },
     "hasInterior": false
@@ -6188,8 +6188,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 2,
     "activity": 43,
     "chart": {
-      "x": 390,
-      "y": 135,
+      "x": 388,
+      "y": 138,
       "scale": 0.8
     },
     "hasInterior": false
@@ -6227,8 +6227,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 59,
     "chart": {
-      "x": 520,
-      "y": 260,
+      "x": 519,
+      "y": 258,
       "scale": 0.84
     },
     "hasInterior": false
@@ -6266,8 +6266,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 3,
     "activity": 52,
     "chart": {
-      "x": 730,
-      "y": 455,
+      "x": 727,
+      "y": 466,
       "scale": 0.79
     },
     "hasInterior": false
@@ -6305,8 +6305,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 5,
     "activity": 66,
     "chart": {
-      "x": 235,
-      "y": 335,
+      "x": 232,
+      "y": 334,
       "scale": 0.82
     },
     "hasInterior": false
@@ -6344,8 +6344,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 7,
     "activity": 73,
     "chart": {
-      "x": 445,
-      "y": 420,
+      "x": 438,
+      "y": 435,
       "scale": 0.86
     },
     "hasInterior": false
@@ -6383,8 +6383,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 3,
     "activity": 48,
     "chart": {
-      "x": 855,
-      "y": 190,
+      "x": 868,
+      "y": 176,
       "scale": 0.72
     },
     "hasInterior": false
@@ -6461,8 +6461,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 8,
     "activity": 71,
     "chart": {
-      "x": 180,
-      "y": 170,
+      "x": 187,
+      "y": 165,
       "scale": 0.91
     },
     "hasInterior": false
@@ -6500,8 +6500,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 6,
     "activity": 66,
     "chart": {
-      "x": 405,
-      "y": 105,
+      "x": 407,
+      "y": 102,
       "scale": 0.86
     },
     "hasInterior": false
@@ -6539,8 +6539,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 5,
     "activity": 59,
     "chart": {
-      "x": 645,
-      "y": 185,
+      "x": 626,
+      "y": 166,
       "scale": 0.84
     },
     "hasInterior": false
@@ -6578,7 +6578,7 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 6,
     "activity": 64,
     "chart": {
-      "x": 875,
+      "x": 876,
       "y": 105,
       "scale": 0.82
     },
@@ -6656,8 +6656,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 4,
     "activity": 51,
     "chart": {
-      "x": 250,
-      "y": 395,
+      "x": 247,
+      "y": 391,
       "scale": 0.8
     },
     "hasInterior": false
@@ -6695,8 +6695,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 9,
     "activity": 74,
     "chart": {
-      "x": 495,
-      "y": 455,
+      "x": 497,
+      "y": 463,
       "scale": 0.93
     },
     "hasInterior": false
@@ -6734,8 +6734,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 7,
     "activity": 62,
     "chart": {
-      "x": 735,
-      "y": 375,
+      "x": 731,
+      "y": 357,
       "scale": 0.78
     },
     "hasInterior": false
@@ -6773,8 +6773,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 8,
     "activity": 67,
     "chart": {
-      "x": 965,
-      "y": 455,
+      "x": 964,
+      "y": 439,
       "scale": 0.9
     },
     "hasInterior": false
@@ -6851,8 +6851,8 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 7,
     "activity": 65,
     "chart": {
-      "x": 555,
-      "y": 665,
+      "x": 547,
+      "y": 666,
       "scale": 0.89
     },
     "hasInterior": false
@@ -6890,9 +6890,7614 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "members": 5,
     "activity": 61,
     "chart": {
-      "x": 940,
-      "y": 660,
+      "x": 970,
+      "y": 681,
       "scale": 0.85
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 231,
+    "atlasN": 903,
+    "slug": "symmetry-origin-hierarchical-emergence-via-equivariance",
+    "title": {
+      "zh": "对称性起源的层级涌现:等变性诱导的信息闭包",
+      "en": "Symmetry-Origin of Hierarchical Emergence via Equivariance"
+    },
+    "qfocus": {
+      "zh": "宏观变量为什么存在——它们是否就是动力学对称群的必然产物，层级由子群格决定？",
+      "en": "Why do macro-variables exist at all — are they simply the necessary product of a symmetry group of the dynamics, with their hierarchy fixed by the subgroup lattice?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C14",
+      "zh": "复杂系统·多智能体",
+      "en": "Complex systems · multi-agent systems"
+    },
+    "scores": [
+      5,
+      5,
+      3,
+      2,
+      4,
+      4,
+      3,
+      3,
+      5
+    ],
+    "stage": 2,
+    "members": 8,
+    "activity": 54,
+    "chart": {
+      "x": 510,
+      "y": 211,
+      "scale": 0.9
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 232,
+    "atlasN": 1590,
+    "slug": "topology-state-coevolution-adaptive-networks",
+    "title": {
+      "zh": "适应性网络的拓扑—状态共演化",
+      "en": "Topology–State Coevolution in Adaptive Networks"
+    },
+    "qfocus": {
+      "zh": "当节点状态改写连边、新拓扑又反过来改写状态，这个双向闭环会产生哪些固定拓扑不可能有的相变？",
+      "en": "When node states rewrite edges and the new topology rewrites states in turn, what transitions does that two-way closed loop produce that a fixed topology never could?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C14",
+      "zh": "复杂系统·多智能体",
+      "en": "Complex systems · multi-agent systems"
+    },
+    "scores": [
+      5,
+      4,
+      5,
+      3,
+      3,
+      5,
+      4,
+      5,
+      4
+    ],
+    "stage": 2,
+    "members": 5,
+    "activity": 56,
+    "chart": {
+      "x": 475,
+      "y": 292,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 233,
+    "atlasN": 1591,
+    "slug": "multi-agent-credit-assignment-under-shared",
+    "title": {
+      "zh": "共享团队回报下的多智能体信用分配",
+      "en": "Multi-Agent Credit Assignment under Shared Team Rewards"
+    },
+    "qfocus": {
+      "zh": "一份不可分解的团队回报，如何被可靠地归因到每个智能体和每个动作上？",
+      "en": "How can one indecomposable team reward be reliably attributed to each individual agent and each individual action?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C14",
+      "zh": "复杂系统·多智能体",
+      "en": "Complex systems · multi-agent systems"
+    },
+    "scores": [
+      5,
+      5,
+      5,
+      4,
+      3,
+      4,
+      3,
+      5,
+      4
+    ],
+    "stage": 2,
+    "members": 8,
+    "activity": 58,
+    "chart": {
+      "x": 523,
+      "y": 168,
+      "scale": 0.9
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 260,
+    "atlasN": 920,
+    "slug": "graph-neural-networks-characterizing-algebraic",
+    "title": {
+      "zh": "图神经网络刻画代数等价类",
+      "en": "Graph Neural Networks Characterizing Algebraic Equivalence Classes"
+    },
+    "qfocus": {
+      "zh": "神经网络在离散代数对象上学到的判别规则，能否被读成人类可写下并证明的等价判据？",
+      "en": "Can the discriminative rule a network learns over discrete algebraic objects be read back out as an equivalence criterion a human can write down and prove?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C23",
+      "zh": "AI数学·形式科学",
+      "en": "AI mathematics · formal science"
+    },
+    "scores": [
+      4,
+      5,
+      5,
+      2,
+      4,
+      3,
+      4,
+      4,
+      4
+    ],
+    "stage": 2,
+    "members": 5,
+    "activity": 73,
+    "chart": {
+      "x": 329,
+      "y": 365,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 261,
+    "atlasN": 1651,
+    "slug": "automated-repair-evolving-formal-proof",
+    "title": {
+      "zh": "演化中形式证明库的自动修复",
+      "en": "Automated Repair of Evolving Formal Proof Libraries"
+    },
+    "qfocus": {
+      "zh": "当定义、类型或已验证实现发生变化时，既有形式证明能否被自动迁移，而不是每次重写？",
+      "en": "When a definition, type or verified implementation changes, can the existing formal proofs be migrated automatically instead of rewritten each time?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C23",
+      "zh": "AI数学·形式科学",
+      "en": "AI mathematics · formal science"
+    },
+    "scores": [
+      4,
+      3,
+      5,
+      4,
+      4,
+      5,
+      4,
+      5,
+      4
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 46,
+    "chart": {
+      "x": 283,
+      "y": 445,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 291,
+    "atlasN": 1725,
+    "slug": "beam-bottle-discrepancy-free-neutron-lifetime",
+    "title": {
+      "zh": "自由中子寿命的束流—储存差异",
+      "en": "Beam–Bottle Discrepancy in the Free-Neutron Lifetime"
+    },
+    "qfocus": {
+      "zh": "束流法与储存法给出的中子寿命相差约 1%，这是某一端的系统误差，还是一条未知的衰变通道？",
+      "en": "Beam and bottle methods differ by about 1% in the neutron lifetime — is that a systematic error at one end, or an unknown decay channel?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C33",
+      "zh": "基础物理·实在的本质",
+      "en": "Fundamental physics · the nature of reality"
+    },
+    "scores": [
+      5,
+      4,
+      5,
+      3,
+      4,
+      4,
+      3,
+      3,
+      5
+    ],
+    "stage": 2,
+    "members": 7,
+    "activity": 60,
+    "chart": {
+      "x": 388,
+      "y": 359,
+      "scale": 0.87
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 326,
+    "atlasN": 1776,
+    "slug": "synthetic-control-methods-transplanted-ecological-interventions",
+    "title": {
+      "zh": "合成对照法移植到生态干预",
+      "en": "Synthetic-Control Methods Transplanted to Ecological Interventions"
+    },
+    "qfocus": {
+      "zh": "在无法随机分配保护区的地方，加权供体单元拼出的反事实能否支撑「这项干预确实起了作用」？",
+      "en": "Where protected areas cannot be randomly assigned, can a counterfactual assembled from weighted donor units support the claim that the intervention actually worked?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C41",
+      "zh": "跨域方法移植",
+      "en": "Cross-Domain Method Transplant"
+    },
+    "scores": [
+      5,
+      5,
+      5,
+      2,
+      5,
+      4,
+      3,
+      3,
+      4
+    ],
+    "stage": 1,
+    "members": 2,
+    "activity": 45,
+    "chart": {
+      "x": 583,
+      "y": 661,
+      "scale": 0.72
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 327,
+    "atlasN": 718,
+    "slug": "ambient-seismic-interferometry-transplanted-subglacial",
+    "title": {
+      "zh": "环境地震干涉移植冰下与活体测厚",
+      "en": "Ambient Seismic Interferometry Transplanted to Subglacial and In Vivo Thickness Sensing"
+    },
+    "qfocus": {
+      "zh": "用随处可得的背景噪声重建虚拟波场，能否把冰—床界面的力学变化与噪声源自身的变化分开？",
+      "en": "Reconstructing a virtual wavefield from ubiquitous background noise, can we separate mechanical change at the ice–bed interface from change in the noise source itself?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C41",
+      "zh": "跨域方法移植",
+      "en": "Cross-Domain Method Transplant"
+    },
+    "scores": [
+      4,
+      5,
+      4,
+      3,
+      4,
+      4,
+      3,
+      3,
+      5
+    ],
+    "stage": 1,
+    "members": 6,
+    "activity": 39,
+    "chart": {
+      "x": 466,
+      "y": 656,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 328,
+    "atlasN": 1777,
+    "slug": "occupancy-models-transplanted-pathogen-surveillance",
+    "title": {
+      "zh": "占域模型移植到病原体监测",
+      "en": "Occupancy Models Transplanted to Pathogen Surveillance"
+    },
+    "qfocus": {
+      "zh": "在诊断不完美时，把「没检出」与「真的没有」分开的模型要撑到什么程度，才敢宣布消除？",
+      "en": "With imperfect diagnostics, how far must a model separating not detected from truly absent hold up before elimination can be declared?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C41",
+      "zh": "跨域方法移植",
+      "en": "Cross-Domain Method Transplant"
+    },
+    "scores": [
+      4,
+      5,
+      4,
+      3,
+      4,
+      4,
+      3,
+      4,
+      5
+    ],
+    "stage": 1,
+    "members": 5,
+    "activity": 45,
+    "chart": {
+      "x": 430,
+      "y": 530,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 329,
+    "atlasN": 1782,
+    "slug": "item-response-theory-transplanted-ai",
+    "title": {
+      "zh": "项目反应理论移植到 AI 基准校准",
+      "en": "Item Response Theory Transplanted to AI Benchmark Calibration"
+    },
+    "qfocus": {
+      "zh": "把心理测量的项目难度与区分度搬到基准题上，模型能力还能不能被估成一个稳定的潜在量？",
+      "en": "Once psychometric item difficulty and discrimination are carried over to benchmark items, can model capability still be estimated as a stable latent quantity?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C41",
+      "zh": "跨域方法移植",
+      "en": "Cross-Domain Method Transplant"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      4,
+      5,
+      5,
+      3,
+      3,
+      4
+    ],
+    "stage": 1,
+    "members": 2,
+    "activity": 50,
+    "chart": {
+      "x": 607,
+      "y": 726,
+      "scale": 0.72
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 330,
+    "atlasN": 744,
+    "slug": "saes-scientific-instrument-turning-interpretability",
+    "title": {
+      "zh": "SAE 作科学仪器：把可解释性反向用于发现生物学",
+      "en": "SAEs as a Scientific Instrument: Turning Interpretability Into a Discovery Tool"
+    },
+    "qfocus": {
+      "zh": "从蛋白质大模型表征里抽出的稀疏特征，哪些是尚未被记录的生物学，哪些只是已知注释的重述？",
+      "en": "Among the sparse features pulled out of a protein language model's representations, which are biology not yet recorded and which merely restate known annotation?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C42",
+      "zh": "AI对齐·可解释·评测科学",
+      "en": "AI alignment · interpretability · evaluation science"
+    },
+    "scores": [
+      4,
+      5,
+      4,
+      4,
+      4,
+      3,
+      4,
+      4,
+      4
+    ],
+    "stage": 2,
+    "members": 6,
+    "activity": 69,
+    "chart": {
+      "x": 945,
+      "y": 357,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 331,
+    "atlasN": 741,
+    "slug": "cross-layer-transcoders-attribution-graphs-dissecting",
+    "title": {
+      "zh": "跨层转码器与归因图：把语言模型当生物体解剖",
+      "en": "Cross-Layer Transcoders & Attribution Graphs: Dissecting LLMs Like Organisms"
+    },
+    "qfocus": {
+      "zh": "跨层转码器画出的归因图，能否算作模型这一次推理的真实因果链，而不只是一次局部线性近似？",
+      "en": "Is the attribution graph drawn by cross-layer transcoders the real causal chain of this particular inference, or only one local linearization of it?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C42",
+      "zh": "AI对齐·可解释·评测科学",
+      "en": "AI alignment · interpretability · evaluation science"
+    },
+    "scores": [
+      5,
+      4,
+      5,
+      3,
+      3,
+      3,
+      5,
+      4,
+      3
+    ],
+    "stage": 2,
+    "members": 7,
+    "activity": 66,
+    "chart": {
+      "x": 614,
+      "y": 481,
+      "scale": 0.87
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 336,
+    "atlasN": 1797,
+    "slug": "dendritic-computing-neuromorphic-circuits",
+    "title": {
+      "zh": "树突计算神经形态电路",
+      "en": "Dendritic-Computing Neuromorphic Circuits"
+    },
+    "qfocus": {
+      "zh": "把点神经元换成可学习的分支非线性后，扣除 ADC、路由与外围功耗，树突电路还剩多少真实增益？",
+      "en": "After replacing point neurons with learnable branch nonlinearities, how much real gain remains in a dendritic circuit once ADC, routing and peripheral power are subtracted?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C44",
+      "zh": "神经形态·物理智能硬件",
+      "en": "Neuromorphic · Physical-AI Hardware"
+    },
+    "scores": [
+      4,
+      5,
+      4,
+      4,
+      4,
+      4,
+      3,
+      4,
+      5
+    ],
+    "stage": 2,
+    "members": 4,
+    "activity": 60,
+    "chart": {
+      "x": 997,
+      "y": 104,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 352,
+    "atlasN": 1228,
+    "slug": "computational-chemical-space-monitoring-novel-entities-boundary",
+    "title": {
+      "zh": "新型实体边界的计算化学空间监测",
+      "en": "Computational Chemical-Space Monitoring of the Novel-Entities Boundary"
+    },
+    "qfocus": {
+      "zh": "当 35 万种在用化学品中 99% 以上缺实验数据，新型实体这条行星边界能被压成一个可证伪的控制变量吗？",
+      "en": "With over 99% of 350,000 chemicals in use lacking experimental data, can the novel-entities planetary boundary be compressed into a falsifiable control variable at all?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C49",
+      "zh": "计算可持续·韧性科学",
+      "en": "Computational Sustainability · Resilience Science"
+    },
+    "scores": [
+      4,
+      5,
+      4,
+      3,
+      4,
+      4,
+      3,
+      3,
+      5
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 51,
+    "chart": {
+      "x": 316,
+      "y": 424,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 353,
+    "atlasN": 1233,
+    "slug": "equation-free-causal-reconstruction-empirical-dynamic",
+    "title": {
+      "zh": "无方程因果重构：经验动态建模与收敛交叉映射",
+      "en": "Equation-Free Causal Reconstruction: Empirical Dynamic Modeling and Convergent Cross Mapping"
+    },
+    "qfocus": {
+      "zh": "当两个变量被同一个外部驱动强耦合、序列又短又噪时，交叉映射判出的因果方向还可信吗？",
+      "en": "When two variables are strongly coupled by a shared external driver and the series are short and noisy, is the causal direction that cross mapping reports still credible?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C49",
+      "zh": "计算可持续·韧性科学",
+      "en": "Computational Sustainability · Resilience Science"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      4,
+      3,
+      5,
+      4,
+      5,
+      4
+    ],
+    "stage": 2,
+    "members": 4,
+    "activity": 65,
+    "chart": {
+      "x": 212,
+      "y": 464,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 354,
+    "atlasN": 1230,
+    "slug": "renewable-energy-drought-dunkelflaute-risk",
+    "title": {
+      "zh": "可再生能源干旱（Dunkelflaute）风险建模",
+      "en": "Renewable Energy Drought (Dunkelflaute) Risk Modeling"
+    },
+    "qfocus": {
+      "zh": "把“连续多日风光同时低出力”定义成阈值还是能量缺口，会让欧洲所需的长时储能规模差出几倍？",
+      "en": "Defining multi-day simultaneous wind-and-solar scarcity by a threshold or by an energy deficit — how many times apart do the two put Europe's long-duration storage need?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C49",
+      "zh": "计算可持续·韧性科学",
+      "en": "Computational Sustainability · Resilience Science"
+    },
+    "scores": [
+      3,
+      4,
+      3,
+      4,
+      4,
+      5,
+      4,
+      4,
+      5
+    ],
+    "stage": 2,
+    "members": 6,
+    "activity": 60,
+    "chart": {
+      "x": 267,
+      "y": 355,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 355,
+    "atlasN": 1226,
+    "slug": "falsifiable-early-warning-science",
+    "title": {
+      "zh": "可证伪的临界预警科学",
+      "en": "Falsifiable Early-Warning Science"
+    },
+    "qfocus": {
+      "zh": "当一个地球系统分量只有一条时间序列时，临界预警信号的预报技巧该如何被样本外检验与证伪？",
+      "en": "When an Earth-system component leaves only a single time series, how can the forecast skill of an early-warning signal be tested out of sample and falsified at all?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C49",
+      "zh": "计算可持续·韧性科学",
+      "en": "Computational Sustainability · Resilience Science"
+    },
+    "scores": [
+      4,
+      4,
+      3,
+      3,
+      5,
+      5,
+      4,
+      4,
+      4
+    ],
+    "stage": 1,
+    "members": 2,
+    "activity": 50,
+    "chart": {
+      "x": 260,
+      "y": 474,
+      "scale": 0.72
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 356,
+    "atlasN": 1232,
+    "slug": "worst-case-verification-grid-optimization-proxies",
+    "title": {
+      "zh": "电网学习代理的最坏情形验证",
+      "en": "Worst-Case Verification of Grid Optimization Proxies"
+    },
+    "qfocus": {
+      "zh": "在真实规模电网上，一个神经潮流代理的最坏约束违约能否被算得既紧又快，而验证域又真的覆盖运行分布？",
+      "en": "On a real-scale grid, can a neural power-flow proxy's worst-case constraint violation be bounded both tightly and quickly, with a verification domain that genuinely covers the operating distribution?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C49",
+      "zh": "计算可持续·韧性科学",
+      "en": "Computational Sustainability · Resilience Science"
+    },
+    "scores": [
+      3,
+      5,
+      5,
+      3,
+      3,
+      4,
+      3,
+      4,
+      5
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 39,
+    "chart": {
+      "x": 201,
+      "y": 406,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 196,
+    "atlasN": 100,
+    "slug": "bio-inspired-structural-materials-lightweight-high-strength",
+    "title": {
+      "zh": "仿生结构材料（轻量高强）",
+      "en": "Bio-inspired Structural Materials (Lightweight, High-Strength)"
+    },
+    "qfocus": {
+      "zh": "珍珠母与骨骼的多级构型，能否在可批量制造的工艺窗口里保住它们的强韧优势？",
+      "en": "Can the hierarchical architectures of nacre and bone keep their strength-toughness advantage inside a process window that scales to manufacturing?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C06",
+      "zh": "活体材料·生物制造",
+      "en": "Living materials · biomanufacturing"
+    },
+    "scores": [
+      3,
+      4,
+      4,
+      3,
+      3,
+      3,
+      3,
+      4,
+      4
+    ],
+    "stage": 2,
+    "members": 9,
+    "activity": 65,
+    "chart": {
+      "x": 1292,
+      "y": 380,
+      "scale": 0.93
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 197,
+    "atlasN": 1537,
+    "slug": "long-term-evolutionary-stability-engineered-living",
+    "title": {
+      "zh": "工程活体材料的长期演化稳定性",
+      "en": "Long-Term Evolutionary Stability of Engineered Living Materials"
+    },
+    "qfocus": {
+      "zh": "一块靠活细胞维持功能的材料，能在多少代之后仍然达标——它的演化半衰期该怎么测？",
+      "en": "How many generations can a material whose function depends on living cells still meet spec, and how should its evolutionary half-life be measured?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C06",
+      "zh": "活体材料·生物制造",
+      "en": "Living materials · biomanufacturing"
+    },
+    "scores": [
+      3,
+      4,
+      3,
+      3,
+      4,
+      3,
+      3,
+      2,
+      4
+    ],
+    "stage": 2,
+    "members": 6,
+    "activity": 74,
+    "chart": {
+      "x": 1153,
+      "y": 400,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 198,
+    "atlasN": 1531,
+    "slug": "engineered-living-photonic-materials",
+    "title": {
+      "zh": "工程活体光子材料",
+      "en": "Engineered Living Photonic Materials"
+    },
+    "qfocus": {
+      "zh": "让细胞自己长出微透镜与结构色，能否把「生长」变成一道可编程的光学制造工艺？",
+      "en": "If cells grow their own microlenses and structural color, can growth itself become a programmable step of optical fabrication?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C06",
+      "zh": "活体材料·生物制造",
+      "en": "Living materials · biomanufacturing"
+    },
+    "scores": [
+      4,
+      4,
+      3,
+      2,
+      3,
+      2,
+      3,
+      3,
+      3
+    ],
+    "stage": 2,
+    "members": 8,
+    "activity": 54,
+    "chart": {
+      "x": 1211,
+      "y": 284,
+      "scale": 0.9
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 199,
+    "atlasN": 1534,
+    "slug": "enzyme-immobilized-cell-free-catalytic-materials",
+    "title": {
+      "zh": "酶固定化的无细胞催化材料",
+      "en": "Enzyme-Immobilized Cell-Free Catalytic Materials"
+    },
+    "qfocus": {
+      "zh": "把多酶级联固定进材料后，稳定性换来的活性损失能否靠传质与辅因子再生补回来？",
+      "en": "Once a multi-enzyme cascade is immobilized in a material, can the activity lost in exchange for stability be recovered through mass transfer and cofactor regeneration?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C06",
+      "zh": "活体材料·生物制造",
+      "en": "Living materials · biomanufacturing"
+    },
+    "scores": [
+      3,
+      3,
+      5,
+      3,
+      3,
+      4,
+      3,
+      4,
+      3
+    ],
+    "stage": 2,
+    "members": 7,
+    "activity": 72,
+    "chart": {
+      "x": 1257,
+      "y": 438,
+      "scale": 0.87
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 200,
+    "atlasN": 1060,
+    "slug": "cell-free-biomanufacturing-factories",
+    "title": {
+      "zh": "细胞自由生物制造工厂",
+      "en": "Cell-free biomanufacturing factories"
+    },
+    "qfocus": {
+      "zh": "抽掉活细胞之后，无细胞反应体系能否像化工反应器那样被调参、放大并稳定产出？",
+      "en": "With the living cell taken out, can a cell-free reaction system be tuned, scaled, and held to stable output the way a chemical reactor is?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C06",
+      "zh": "活体材料·生物制造",
+      "en": "Living materials · biomanufacturing"
+    },
+    "scores": [
+      3,
+      3,
+      4,
+      3,
+      3,
+      4,
+      3,
+      3,
+      3
+    ],
+    "stage": 2,
+    "members": 5,
+    "activity": 65,
+    "chart": {
+      "x": 1085,
+      "y": 358,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 206,
+    "atlasN": 1548,
+    "slug": "mechanochemically-controlled-molecular-machines",
+    "title": {
+      "zh": "机械化学操控的分子机器",
+      "en": "Mechanochemically Controlled Molecular Machines"
+    },
+    "qfocus": {
+      "zh": "外力能否成为分子机器的确定性输入——让互锁分子按载荷大小切换到指定状态并输出可控功能？",
+      "en": "Can mechanical force serve as a deterministic input to a molecular machine, switching interlocked molecules into specified states by load magnitude and releasing a controlled function?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C08",
+      "zh": "分子机器·DNA信息技术",
+      "en": "Molecular machines · DNA info tech"
+    },
+    "scores": [
+      4,
+      4,
+      4,
+      1,
+      4,
+      3,
+      3,
+      2,
+      5
+    ],
+    "stage": 1,
+    "members": 2,
+    "activity": 42,
+    "chart": {
+      "x": 1189,
+      "y": 470,
+      "scale": 0.72
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 207,
+    "atlasN": 128,
+    "slug": "single-molecule-detection-measurement",
+    "title": {
+      "zh": "单分子检测与测量",
+      "en": "Single-Molecule Detection and Measurement"
+    },
+    "qfocus": {
+      "zh": "单分子测量在成本下放到普通实验室的同时，能否保证不同仪器与实验室之间的距离与动力学结论一致？",
+      "en": "As single-molecule measurement falls in cost far enough for ordinary labs, can it still keep distance and dynamics conclusions consistent across instruments and laboratories?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C08",
+      "zh": "分子机器·DNA信息技术",
+      "en": "Molecular machines · DNA info tech"
+    },
+    "scores": [
+      3,
+      3,
+      5,
+      2,
+      3,
+      2,
+      4,
+      3,
+      4
+    ],
+    "stage": 1,
+    "members": 5,
+    "activity": 58,
+    "chart": {
+      "x": 1119,
+      "y": 477,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 208,
+    "atlasN": 1549,
+    "slug": "single-molecule-protein-sequencing",
+    "title": {
+      "zh": "单分子蛋白质测序",
+      "en": "Single-Molecule Protein Sequencing"
+    },
+    "qfocus": {
+      "zh": "逐分子读取能否从短肽片段与受限残基字母表，走到全长蛋白的从头测序与修饰定位？",
+      "en": "Can molecule-by-molecule reading move from short peptide fragments and restricted residue alphabets to de novo sequencing of full-length proteins with modifications located?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C08",
+      "zh": "分子机器·DNA信息技术",
+      "en": "Molecular machines · DNA info tech"
+    },
+    "scores": [
+      3,
+      3,
+      5,
+      2,
+      3,
+      2,
+      4,
+      3,
+      4
+    ],
+    "stage": 2,
+    "members": 9,
+    "activity": 50,
+    "chart": {
+      "x": 1181,
+      "y": 366,
+      "scale": 0.93
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 209,
+    "atlasN": 1059,
+    "slug": "molecular-recorders-inside-tissues",
+    "title": {
+      "zh": "组织内分子记录器",
+      "en": "Molecular recorders inside tissues"
+    },
+    "qfocus": {
+      "zh": "细胞能否把经历过的信号按时间顺序写进 DNA 条码，使事后测序读出的是历史而不只是当下状态？",
+      "en": "Can cells write the signals they experience into DNA barcodes in temporal order, so that later sequencing reads out a history rather than only the present state?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C08",
+      "zh": "分子机器·DNA信息技术",
+      "en": "Molecular machines · DNA info tech"
+    },
+    "scores": [
+      4,
+      3,
+      4,
+      2,
+      3,
+      2,
+      3,
+      3,
+      4
+    ],
+    "stage": 1,
+    "members": 6,
+    "activity": 45,
+    "chart": {
+      "x": 1195,
+      "y": 508,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 210,
+    "atlasN": 1545,
+    "slug": "dna-origami-nanopores-programmable-molecular-gates",
+    "title": {
+      "zh": "DNA折纸纳米孔与可编程分子闸门",
+      "en": "DNA-Origami Nanopores and Programmable Molecular Gates"
+    },
+    "qfocus": {
+      "zh": "用 DNA 折纸设计的跨膜孔，能否让孔径与选择性像参数一样被编程，并在膜上稳定门控？",
+      "en": "Can a transmembrane pore built from DNA origami have its aperture and selectivity programmed like parameters, and gate stably once inserted in a membrane?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C08",
+      "zh": "分子机器·DNA信息技术",
+      "en": "Molecular machines · DNA info tech"
+    },
+    "scores": [
+      4,
+      3,
+      5,
+      2,
+      3,
+      2,
+      3,
+      3,
+      3
+    ],
+    "stage": 2,
+    "members": 4,
+    "activity": 51,
+    "chart": {
+      "x": 1057,
+      "y": 424,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 224,
+    "atlasN": 1573,
+    "slug": "organic-electrochemical-transistors-barrier-tissue-integrity",
+    "title": {
+      "zh": "有机电化学晶体管的屏障组织完整性读出",
+      "en": "Organic Electrochemical Transistors for Barrier-Tissue Integrity Readout"
+    },
+    "qfocus": {
+      "zh": "把上皮或内皮细胞层直接做成晶体管的一部分，能否把屏障完整性变成连续、可放大的电学读数？",
+      "en": "By making an epithelial or endothelial cell layer part of the transistor itself, can barrier integrity become a continuous, amplified electrical reading?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C12",
+      "zh": "生物电子·生物能源",
+      "en": "Bioelectronics · bioenergy"
+    },
+    "scores": [
+      4,
+      5,
+      5,
+      3,
+      3,
+      3,
+      3,
+      4,
+      5
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 52,
+    "chart": {
+      "x": 1250,
+      "y": 321,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 225,
+    "atlasN": 1445,
+    "slug": "electromicrobiology-centimeter-scale-living-nickel-protein-wires",
+    "title": {
+      "zh": "电微生物学：厘米级导电的活体镍-蛋白纳米线",
+      "en": "Electromicrobiology: Centimeter-Scale Living Nickel-Protein Wires"
+    },
+    "qfocus": {
+      "zh": "以含硫配位镍为核心的活体蛋白纤维，其厘米级导电究竟是金属式还是跳跃式，又能否离体保住？",
+      "en": "Is the centimetre-scale conduction of living protein fibres built on a sulfur-coordinated nickel cofactor metallic or hopping — and can it survive removal from the cell?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C12",
+      "zh": "生物电子·生物能源",
+      "en": "Bioelectronics · bioenergy"
+    },
+    "scores": [
+      4,
+      5,
+      4,
+      3,
+      3,
+      3,
+      3,
+      3,
+      5
+    ],
+    "stage": 1,
+    "members": 5,
+    "activity": 54,
+    "chart": {
+      "x": 1259,
+      "y": 359,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 226,
+    "atlasN": 1414,
+    "slug": "synthetic-electromicrobiology-programmable-extracellular-electron",
+    "title": {
+      "zh": "合成电微生物学：可编程的胞外电子传递",
+      "en": "Synthetic Electromicrobiology: Programmable Extracellular Electron Transfer"
+    },
+    "qfocus": {
+      "zh": "把希瓦氏菌的 Mtr 导线搬进大肠杆菌后速率暴跌，瓶颈究竟落在分泌、折叠还是血红素装载？",
+      "en": "When Shewanella's Mtr conduit is transplanted into E. coli and the rate collapses, does the bottleneck lie in secretion, in folding, or in heme loading?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C12",
+      "zh": "生物电子·生物能源",
+      "en": "Bioelectronics · bioenergy"
+    },
+    "scores": [
+      3,
+      5,
+      5,
+      3,
+      3,
+      4,
+      3,
+      4,
+      4
+    ],
+    "stage": 2,
+    "members": 6,
+    "activity": 50,
+    "chart": {
+      "x": 1230,
+      "y": 239,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 227,
+    "atlasN": 1575,
+    "slug": "electro-fermentation-cellular-redox-state-control",
+    "title": {
+      "zh": "电发酵的细胞氧化还原态调控",
+      "en": "Electro-Fermentation for Cellular Redox-State Control"
+    },
+    "qfocus": {
+      "zh": "一根极化电极究竟通过直接电子转移、氢介导还是环境 ORP，改写了发酵的产物谱？",
+      "en": "By which route does a polarized electrode actually rewrite a fermentation's product spectrum — direct electron transfer, hydrogen mediation, or ambient ORP?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C12",
+      "zh": "生物电子·生物能源",
+      "en": "Bioelectronics · bioenergy"
+    },
+    "scores": [
+      3,
+      5,
+      5,
+      3,
+      3,
+      4,
+      3,
+      4,
+      4
+    ],
+    "stage": 2,
+    "members": 7,
+    "activity": 54,
+    "chart": {
+      "x": 1332,
+      "y": 395,
+      "scale": 0.87
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 234,
+    "atlasN": 1599,
+    "slug": "relativistic-geodesy-optical-atomic-clocks",
+    "title": {
+      "zh": "光学原子钟的相对论大地测量",
+      "en": "Relativistic Geodesy with Optical Atomic Clocks"
+    },
+    "qfocus": {
+      "zh": "两台光钟之间的引力红移差，能否成为常规可用的厘米级高程与重力位测量手段？",
+      "en": "Can the gravitational redshift between two optical clocks become a routinely usable way to measure geopotential difference and height at the centimetre level?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C15",
+      "zh": "应用量子科学",
+      "en": "Applied quantum science"
+    },
+    "scores": [
+      5,
+      5,
+      2,
+      2,
+      4,
+      3,
+      3,
+      3,
+      4
+    ],
+    "stage": 2,
+    "members": 8,
+    "activity": 64,
+    "chart": {
+      "x": 1071,
+      "y": 301,
+      "scale": 0.9
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 235,
+    "atlasN": 1391,
+    "slug": "spin-chemistry-radical-pair-quantum-biology",
+    "title": {
+      "zh": "自旋化学·量子生物学",
+      "en": "Spin Chemistry — Radical-Pair Quantum Biology"
+    },
+    "qfocus": {
+      "zh": "在体温下的活体里，纳秒级电子自旋相干能否真正改写化学反应走向并留下生理后果？",
+      "en": "Inside a living body at body temperature, can nanosecond-scale electron-spin coherence genuinely redirect a chemical reaction and leave a physiological consequence?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C15",
+      "zh": "应用量子科学",
+      "en": "Applied quantum science"
+    },
+    "scores": [
+      5,
+      5,
+      3,
+      1,
+      4,
+      2,
+      3,
+      2,
+      4
+    ],
+    "stage": 2,
+    "members": 7,
+    "activity": 64,
+    "chart": {
+      "x": 1049,
+      "y": 338,
+      "scale": 0.87
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 236,
+    "atlasN": 911,
+    "slug": "transversal-gate-algorithmic-fault-tolerance-logical-qubit",
+    "title": {
+      "zh": "横向门算法级容错与逻辑比特复用",
+      "en": "Transversal-Gate Algorithmic Fault Tolerance with Logical-Qubit Reuse"
+    },
+    "qfocus": {
+      "zh": "容错的粒度能否从每个逻辑门后插一轮纠错，提高到只在整个算法尺度上纠错？",
+      "en": "Can the granularity of fault tolerance be lifted from a round of error correction after every logical gate to correction at the scale of the whole algorithm?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C15",
+      "zh": "应用量子科学",
+      "en": "Applied quantum science"
+    },
+    "scores": [
+      4,
+      4,
+      4,
+      1,
+      4,
+      2,
+      5,
+      4,
+      3
+    ],
+    "stage": 2,
+    "members": 4,
+    "activity": 65,
+    "chart": {
+      "x": 1011,
+      "y": 144,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 237,
+    "atlasN": 1604,
+    "slug": "multistable-programming-origami-kirigami-structures",
+    "title": {
+      "zh": "折纸与剪纸力学结构的多稳态编程",
+      "en": "Multistable Programming of Origami and Kirigami Structures"
+    },
+    "qfocus": {
+      "zh": "折线与切口的拓扑能否把几何状态当成机械程序，让同一块结构在多种力学功能间可逆切换？",
+      "en": "Can crease and cut topology turn a geometric state into a mechanical program, letting one structure switch reversibly among several mechanical functions?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C16",
+      "zh": "可编程物质·超材料",
+      "en": "Programmable matter · metamaterials"
+    },
+    "scores": [
+      5,
+      4,
+      3,
+      2,
+      4,
+      5,
+      4,
+      5,
+      4
+    ],
+    "stage": 2,
+    "members": 7,
+    "activity": 50,
+    "chart": {
+      "x": 795,
+      "y": 100,
+      "scale": 0.87
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 238,
+    "atlasN": 265,
+    "slug": "active-matter-self-propelled-particles",
+    "title": {
+      "zh": "主动物质与自驱动颗粒",
+      "en": "Active Matter & Self-Propelled Particles"
+    },
+    "qfocus": {
+      "zh": "持续耗能的自驱动单元，能否像平衡态统计物理那样被一套统一框架刻画？",
+      "en": "Can continuously dissipating self-propelled units be captured by a unified framework the way equilibrium statistical physics captures matter at rest?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C16",
+      "zh": "可编程物质·超材料",
+      "en": "Programmable matter · metamaterials"
+    },
+    "scores": [
+      4,
+      5,
+      4,
+      2,
+      3,
+      3,
+      3,
+      2,
+      5
+    ],
+    "stage": 1,
+    "members": 6,
+    "activity": 48,
+    "chart": {
+      "x": 661,
+      "y": 457,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 239,
+    "atlasN": 950,
+    "slug": "non-hermitian-reconfigurable-metasurfaces-exceptional-point-engineering",
+    "title": {
+      "zh": "非厄米可重构超表面与奇异点调控",
+      "en": "Non-Hermitian Reconfigurable Metasurfaces and Exceptional-Point Engineering"
+    },
+    "qfocus": {
+      "zh": "可重构超表面能否把可编程性用在谱的拓扑上——电控地停在奇异点并穿越 PT 对称破缺？",
+      "en": "Can a reconfigurable metasurface apply programmability to the topology of its spectrum — sitting on an exceptional point under electrical control and crossing PT-symmetry breaking?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C16",
+      "zh": "可编程物质·超材料",
+      "en": "Programmable matter · metamaterials"
+    },
+    "scores": [
+      5,
+      4,
+      3,
+      2,
+      4,
+      3,
+      3,
+      3,
+      4
+    ],
+    "stage": 2,
+    "members": 6,
+    "activity": 52,
+    "chart": {
+      "x": 718,
+      "y": 218,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 240,
+    "atlasN": 945,
+    "slug": "momentum-bandgap-topology-k-gap-amplification-photonic",
+    "title": {
+      "zh": "光子时间晶体的动量带隙拓扑与k隙放大",
+      "en": "Momentum-Bandgap Topology and k-Gap Amplification in Photonic Time Crystals"
+    },
+    "qfocus": {
+      "zh": "把晶体的周期性从空间搬到时间之后，动量带隙内的放大与时域拓扑态能否被同时验证？",
+      "en": "Once crystalline periodicity is moved from space to time, can amplification inside the momentum bandgap and a temporal topological state be verified together?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C16",
+      "zh": "可编程物质·超材料",
+      "en": "Programmable matter · metamaterials"
+    },
+    "scores": [
+      5,
+      4,
+      4,
+      1,
+      3,
+      1,
+      3,
+      3,
+      4
+    ],
+    "stage": 2,
+    "members": 7,
+    "activity": 69,
+    "chart": {
+      "x": 907,
+      "y": 182,
+      "scale": 0.87
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 241,
+    "atlasN": 954,
+    "slug": "closed-loop-geothermal-supercritical-co-working",
+    "title": {
+      "zh": "超临界CO₂工质的闭环地热",
+      "en": "Closed-Loop Geothermal with Supercritical CO₂ Working Fluid"
+    },
+    "qfocus": {
+      "zh": "超临界 CO₂ 作闭环地热工质，能否在真实深储层里同时跑通取热与永久封存？",
+      "en": "Can supercritical CO₂ as a closed-loop geothermal working fluid deliver heat extraction and permanent sequestration at once in a real deep reservoir?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C17",
+      "zh": "新能源范式",
+      "en": "New energy paradigms"
+    },
+    "scores": [
+      4,
+      5,
+      3,
+      2,
+      3,
+      2,
+      4,
+      3,
+      4
+    ],
+    "stage": 1,
+    "members": 3,
+    "activity": 44,
+    "chart": {
+      "x": 1046,
+      "y": 180,
+      "scale": 0.75
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 242,
+    "atlasN": 1611,
+    "slug": "circular-metal-fuels-iron-powder-energy",
+    "title": {
+      "zh": "循环金属燃料与铁粉储能",
+      "en": "Circular Metal Fuels and Iron-Powder Energy Storage"
+    },
+    "qfocus": {
+      "zh": "铁粉在燃烧—还原的多轮循环后能否守住约 86% 的储存效率，而不把上游制氢的损失转嫁给整条链？",
+      "en": "Can iron powder hold roughly 86% storage efficiency across repeated combustion–reduction cycles without shifting upstream hydrogen-production losses onto the rest of the chain?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C17",
+      "zh": "新能源范式",
+      "en": "New energy paradigms"
+    },
+    "scores": [
+      3,
+      4,
+      4,
+      3,
+      3,
+      3,
+      4,
+      4,
+      4
+    ],
+    "stage": 2,
+    "members": 7,
+    "activity": 70,
+    "chart": {
+      "x": 957,
+      "y": 100,
+      "scale": 0.87
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 243,
+    "atlasN": 957,
+    "slug": "reservoir-thermal-energy-storage-cooling",
+    "title": {
+      "zh": "储层式地热蓄冷蓄热——为AI算力供冷供电",
+      "en": "Reservoir Thermal Energy Storage — Cooling and Powering AI Compute"
+    },
+    "qfocus": {
+      "zh": "真实多孔储层在热弥散与对流绕流下，能否守住模型假设的跨季节回收率，从而同时削平算力的冷峰与电峰？",
+      "en": "Under thermal dispersion and convective bypass, can a real porous reservoir hold the cross-seasonal recovery rate that models assume, and so flatten both the cooling peak and the power peak of AI compute?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C17",
+      "zh": "新能源范式",
+      "en": "New energy paradigms"
+    },
+    "scores": [
+      3,
+      4,
+      4,
+      2,
+      3,
+      3,
+      4,
+      4,
+      4
+    ],
+    "stage": 2,
+    "members": 4,
+    "activity": 70,
+    "chart": {
+      "x": 854,
+      "y": 138,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 284,
+    "atlasN": 1384,
+    "slug": "bioaerosol-atmosphere-coupling-living-microbes",
+    "title": {
+      "zh": "生物气溶胶—大气耦合：活的微生物作为成冰核驱动云与降水",
+      "en": "Bioaerosol–atmosphere coupling: living microbes as ice-nucleating particles driving clouds"
+    },
+    "qfocus": {
+      "zh": "在北极与北方森林上空，活的真菌与细菌在多大程度上决定混合相云何时结冰、何时降水？",
+      "en": "Over the Arctic and the boreal forest, how far do living fungi and bacteria decide when a mixed-phase cloud freezes and when it precipitates?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C29",
+      "zh": "地球·海洋·深时科学",
+      "en": "Earth · ocean · deep-time science"
+    },
+    "scores": [
+      5,
+      5,
+      3,
+      2,
+      4,
+      2,
+      3,
+      2,
+      5
+    ],
+    "stage": 1,
+    "members": 3,
+    "activity": 58,
+    "chart": {
+      "x": 657,
+      "y": 234,
+      "scale": 0.75
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 332,
+    "atlasN": 1790,
+    "slug": "de-novo-design-transmembrane-pores",
+    "title": {
+      "zh": "从头设计跨膜孔道与选择性运输",
+      "en": "De Novo Design of Transmembrane Pores and Selective Transport"
+    },
+    "qfocus": {
+      "zh": "从头设计的跨膜孔能否从一个「导电的洞」，走到有方向性与能量耦合的主动转运体？",
+      "en": "Can a de novo transmembrane pore progress from a conducting hole to a directional, energy-coupled active transporter?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C43",
+      "zh": "生成式生物·AI分子与蛋白设计",
+      "en": "Generative Biology · AI Molecular & Protein Design"
+    },
+    "scores": [
+      5,
+      5,
+      5,
+      2,
+      4,
+      2,
+      4,
+      4,
+      4
+    ],
+    "stage": 2,
+    "members": 7,
+    "activity": 62,
+    "chart": {
+      "x": 688,
+      "y": 596,
+      "scale": 0.87
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 333,
+    "atlasN": 1262,
+    "slug": "generative-emulation-protein-equilibrium-ensembles",
+    "title": {
+      "zh": "蛋白平衡系综的生成式仿真",
+      "en": "Generative Emulation of Protein Equilibrium Ensembles"
+    },
+    "qfocus": {
+      "zh": "生成模型采样出的蛋白构象，其概率权重能否被证明真的服从玻尔兹曼分布，而不只是构象看着合理？",
+      "en": "Can the probability weights of generatively sampled protein conformations be shown to be genuinely Boltzmann, rather than merely producing plausible-looking structures?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C43",
+      "zh": "生成式生物·AI分子与蛋白设计",
+      "en": "Generative Biology · AI Molecular & Protein Design"
+    },
+    "scores": [
+      5,
+      5,
+      5,
+      3,
+      3,
+      3,
+      4,
+      2,
+      3
+    ],
+    "stage": 2,
+    "members": 9,
+    "activity": 68,
+    "chart": {
+      "x": 578,
+      "y": 545,
+      "scale": 0.93
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 334,
+    "atlasN": 1792,
+    "slug": "inverse-design-sequence-ensemble-function",
+    "title": {
+      "zh": "内在无序蛋白的序列—系综—功能反向设计",
+      "en": "Inverse Design of Sequence–Ensemble–Function Relationships in IDPs"
+    },
+    "qfocus": {
+      "zh": "能否从目标系综性质反求无序蛋白序列，并证明设计出的不是“平均半径碰巧对上”的另一个微观系综？",
+      "en": "Can disordered protein sequences be solved backwards from target ensemble properties, and can one show the design is not just another microscopic ensemble whose mean radius happens to match?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C43",
+      "zh": "生成式生物·AI分子与蛋白设计",
+      "en": "Generative Biology · AI Molecular & Protein Design"
+    },
+    "scores": [
+      5,
+      5,
+      5,
+      3,
+      3,
+      3,
+      4,
+      3,
+      3
+    ],
+    "stage": 2,
+    "members": 8,
+    "activity": 73,
+    "chart": {
+      "x": 561,
+      "y": 415,
+      "scale": 0.9
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 335,
+    "atlasN": 759,
+    "slug": "crowdsourced-open-protein-design-competitions-shared",
+    "title": {
+      "zh": "众包开放的蛋白设计竞赛与共享湿实验",
+      "en": "Crowdsourced Open Protein-Design Competitions with Shared Wet-Lab"
+    },
+    "qfocus": {
+      "zh": "当任何人都能提交设计、由同一条自动化湿实验流水线盲测时，“哪种方法更强”能否被公允裁定？",
+      "en": "When anyone can submit designs and one shared automated wet-lab pipeline blind-tests them all, can “which method is stronger” be adjudicated fairly?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C43",
+      "zh": "生成式生物·AI分子与蛋白设计",
+      "en": "Generative Biology · AI Molecular & Protein Design"
+    },
+    "scores": [
+      3,
+      4,
+      4,
+      5,
+      4,
+      4,
+      3,
+      4,
+      5
+    ],
+    "stage": 2,
+    "members": 5,
+    "activity": 64,
+    "chart": {
+      "x": 673,
+      "y": 513,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 345,
+    "atlasN": 1206,
+    "slug": "open-source-silicon-roots-trust",
+    "title": {
+      "zh": "开源硅信任根",
+      "en": "Open-Source Silicon Roots of Trust"
+    },
+    "qfocus": {
+      "zh": "公开的 RTL 与出厂的那颗硅片是否一致——在流片、掩膜与封装仍闭源时，这一等价性能被独立证明吗？",
+      "en": "Does the shipped die match the published RTL — and while tapeout, masks and packaging stay closed, can that equivalence be proven independently?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C47",
+      "zh": "后量子·隐私计算工程",
+      "en": "Post-quantum · privacy-preserving computation"
+    },
+    "scores": [
+      4,
+      4,
+      4,
+      3,
+      4,
+      1,
+      5,
+      2,
+      4
+    ],
+    "stage": 2,
+    "members": 4,
+    "activity": 69,
+    "chart": {
+      "x": 1062,
+      "y": 533,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 346,
+    "atlasN": 1818,
+    "slug": "side-channel-fault-hardened-post-quantum-implementations",
+    "title": {
+      "zh": "后量子实现的侧信道与故障防护",
+      "en": "Side-Channel- and Fault-Hardened Post-Quantum Implementations"
+    },
+    "qfocus": {
+      "zh": "掩码后的 Kyber 硬件，在功耗、电磁与故障注入下究竟还剩多少密钥安全余量，而不只是攻击成本被抬高？",
+      "en": "For masked Kyber hardware, how much key-security margin genuinely remains under power, electromagnetic, and fault-injection attack — rather than merely a raised attack cost?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C47",
+      "zh": "后量子·隐私计算工程",
+      "en": "Post-quantum · privacy-preserving computation"
+    },
+    "scores": [
+      5,
+      5,
+      3,
+      4,
+      2,
+      3,
+      4,
+      3,
+      4
+    ],
+    "stage": 2,
+    "members": 4,
+    "activity": 52,
+    "chart": {
+      "x": 925,
+      "y": 257,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 347,
+    "atlasN": 1210,
+    "slug": "silent-preprocessing-mpc-via-pseudorandom-correlation",
+    "title": {
+      "zh": "伪随机相关生成器驱动的静默预处理 MPC",
+      "en": "Silent-Preprocessing MPC via Pseudorandom Correlation Generators"
+    },
+    "qfocus": {
+      "zh": "把 MPC 离线通信压到近零之后，整条静默生态共押 LPN/QA-SD 的这份假设集中度风险该如何定价与分散？",
+      "en": "Once MPC's offline communication is squeezed to near zero, how should the assumption-concentration risk of an entire silent ecosystem betting on LPN/QA-SD be priced and spread?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C47",
+      "zh": "后量子·隐私计算工程",
+      "en": "Post-quantum · privacy-preserving computation"
+    },
+    "scores": [
+      4,
+      3,
+      5,
+      2,
+      4,
+      4,
+      4,
+      3,
+      5
+    ],
+    "stage": 2,
+    "members": 4,
+    "activity": 61,
+    "chart": {
+      "x": 990,
+      "y": 391,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 348,
+    "atlasN": 1825,
+    "slug": "calibrated-uncertainty-help-seeking-robot-policies",
+    "title": {
+      "zh": "机器人策略的不确定性校准与主动求助",
+      "en": "Calibrated Uncertainty and Help-Seeking in Robot Policies"
+    },
+    "qfocus": {
+      "zh": "机器人何时该停下来求助——当部署分布已经漂移、校准集不再可交换，conformal 给出的覆盖率还算数吗？",
+      "en": "When should a robot stop and ask for help — and once the deployment distribution has drifted so the calibration set is no longer exchangeable, does conformal coverage still hold?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C48",
+      "zh": "具身基础模型·机器人学习",
+      "en": "Embodied Foundation Models · Robot Learning"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      5,
+      4,
+      4,
+      3,
+      5,
+      5
+    ],
+    "stage": 1,
+    "members": 3,
+    "activity": 43,
+    "chart": {
+      "x": 1142,
+      "y": 356,
+      "scale": 0.75
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 349,
+    "atlasN": 1830,
+    "slug": "post-deployment-continual-adaptation-retention-testing",
+    "title": {
+      "zh": "部署后机器人策略的持续适应与保留测试",
+      "en": "Post-Deployment Continual Adaptation and Retention Testing for Robot Policies"
+    },
+    "qfocus": {
+      "zh": "机器人在现场连续更新数年之后，怎么判断它保留下来的是仍然管用的旧技能，而非已经失效甚至危险的旧知识？",
+      "en": "After years of continual on-site updates, how do we tell whether a robot has retained skills that still work, or knowledge that has quietly become obsolete or dangerous?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C48",
+      "zh": "具身基础模型·机器人学习",
+      "en": "Embodied Foundation Models · Robot Learning"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      4,
+      2,
+      4,
+      4,
+      5,
+      5
+    ],
+    "stage": 1,
+    "members": 2,
+    "activity": 46,
+    "chart": {
+      "x": 1080,
+      "y": 395,
+      "scale": 0.72
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 350,
+    "atlasN": 1306,
+    "slug": "autonomous-real-robot-evaluation-networks-distributed",
+    "title": {
+      "zh": "自主真机评测网络：机器人策略的分布式考场",
+      "en": "Autonomous Real-Robot Evaluation Networks: A Distributed Examination Hall for Policies"
+    },
+    "qfocus": {
+      "zh": "在一个永不严格重复的物理世界里，跨机构的真机成绩要满足什么条件，才能构成统计上站得住的策略排名？",
+      "en": "In a physical world that never repeats exactly, what must cross-institution real-robot results satisfy before they add up to a statistically defensible ranking of policies?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C48",
+      "zh": "具身基础模型·机器人学习",
+      "en": "Embodied Foundation Models · Robot Learning"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      5,
+      3,
+      3,
+      3,
+      4,
+      5
+    ],
+    "stage": 1,
+    "members": 3,
+    "activity": 51,
+    "chart": {
+      "x": 1111,
+      "y": 281,
+      "scale": 0.75
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 351,
+    "atlasN": 813,
+    "slug": "tactile-force-vla-contact-physics-foundation-models",
+    "title": {
+      "zh": "触觉-力觉 VLA·接触物理基础模型",
+      "en": "Tactile-Force VLA · Contact-Physics Foundation Models"
+    },
+    "qfocus": {
+      "zh": "存在一套跨传感器可迁移的触觉表示吗，还是每换一种触觉皮肤就必须重采一遍接触数据？",
+      "en": "Does a cross-sensor transferable tactile representation exist, or must contact data be re-collected from scratch every time the tactile skin changes?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C48",
+      "zh": "具身基础模型·机器人学习",
+      "en": "Embodied Foundation Models · Robot Learning"
+    },
+    "scores": [
+      4,
+      4,
+      4,
+      2,
+      4,
+      2,
+      5,
+      3,
+      4
+    ],
+    "stage": 2,
+    "members": 5,
+    "activity": 71,
+    "chart": {
+      "x": 1222,
+      "y": 375,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 177,
+    "atlasN": 1350,
+    "slug": "genetic-firewalls-non-standard-amino-acid-obligate-commensalism",
+    "title": {
+      "zh": "遗传防火墙与非天然氨基酸义务共生的内生生物遏制",
+      "en": "Genetic Firewalls and Non-Standard-Amino-Acid Obligate Commensalism for Intrinsic Biocontainment"
+    },
+    "qfocus": {
+      "zh": "把遗传密码重编码与非天然氨基酸依赖叠加之后，逃逸率能否在底盘仍可工程化时稳定压在十亿分之几？",
+      "en": "With genetic-code recoding stacked on non-standard-amino-acid dependence, can escape rates stay at a few per billion while the chassis remains engineerable?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C01",
+      "zh": "合成生物·工程生命",
+      "en": "Synthetic biology · engineering life"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      2,
+      3,
+      2,
+      5,
+      3,
+      4
+    ],
+    "stage": 1,
+    "members": 5,
+    "activity": 41,
+    "chart": {
+      "x": 928,
+      "y": 321,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 178,
+    "atlasN": 1419,
+    "slug": "cybergenetics-real-time-feedback-control-living",
+    "title": {
+      "zh": "控制论遗传学：把控制理论接进活细胞做实时反馈",
+      "en": "Cybergenetics: Real-Time Feedback Control of Living Cells"
+    },
+    "qfocus": {
+      "zh": "当被控对象自己在生长、变异、彼此不同时，外部计算机的实时负反馈能否把上千个单细胞的表达同时锁在设定值？",
+      "en": "When the plant itself grows, mutates, and differs cell to cell, can an external computer's real-time negative feedback hold thousands of single cells at one expression setpoint?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C01",
+      "zh": "合成生物·工程生命",
+      "en": "Synthetic biology · engineering life"
+    },
+    "scores": [
+      4,
+      5,
+      4,
+      3,
+      4,
+      3,
+      4,
+      3,
+      4
+    ],
+    "stage": 1,
+    "members": 5,
+    "activity": 47,
+    "chart": {
+      "x": 788,
+      "y": 302,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 179,
+    "atlasN": 1358,
+    "slug": "living-molecular-diagnostics-in-body-dna",
+    "title": {
+      "zh": "活体分子诊断菌（体内DNA感知）",
+      "en": "Living Molecular Diagnostics (In-Body DNA Sensing)"
+    },
+    "qfocus": {
+      "zh": "细菌在体内经水平基因转移吃进的游离肿瘤 DNA，够不够让 CRISPR 判别出一个 KRAS 点突变？",
+      "en": "Is the cell-free tumor DNA a bacterium takes up in vivo by horizontal gene transfer enough for CRISPR to discriminate a single KRAS point mutation?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C01",
+      "zh": "合成生物·工程生命",
+      "en": "Synthetic biology · engineering life"
+    },
+    "scores": [
+      5,
+      4,
+      4,
+      3,
+      4,
+      4,
+      3,
+      3,
+      4
+    ],
+    "stage": 2,
+    "members": 8,
+    "activity": 72,
+    "chart": {
+      "x": 950,
+      "y": 191,
+      "scale": 0.9
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 180,
+    "atlasN": 1448,
+    "slug": "cybergenetics-closed-loop-feedback-control-living",
+    "title": {
+      "zh": "细胞控制论：活细胞的闭环反馈控制",
+      "en": "Cybergenetics: Closed-Loop Feedback Control of Living Cells"
+    },
+    "qfocus": {
+      "zh": "一个完全由基因编码、靠两种分子相互湮灭来做积分的控制器，能否在不拖垮宿主资源的前提下实现鲁棒完美适应？",
+      "en": "Can a fully genetically encoded controller that integrates via mutual annihilation of two molecules achieve robust perfect adaptation without draining its host's resources?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C01",
+      "zh": "合成生物·工程生命",
+      "en": "Synthetic biology · engineering life"
+    },
+    "scores": [
+      4,
+      5,
+      4,
+      2,
+      3,
+      2,
+      4,
+      2,
+      4
+    ],
+    "stage": 2,
+    "members": 5,
+    "activity": 67,
+    "chart": {
+      "x": 889,
+      "y": 423,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 181,
+    "atlasN": 1368,
+    "slug": "fungal-mycelial-physical-reservoir-computing",
+    "title": {
+      "zh": "真菌菌丝物理水库计算",
+      "en": "Fungal Mycelial Physical Reservoir Computing"
+    },
+    "qfocus": {
+      "zh": "一团逐日漂移、个体各异的活菌丝，能否被标定成可复现的物理水库，让线性读出层稳定完成分类？",
+      "en": "Can a mass of living mycelium that drifts daily and differs between individuals be calibrated into a reproducible physical reservoir on which a linear readout classifies reliably?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C02",
+      "zh": "生物计算·类器官智能",
+      "en": "Biocomputing · organoid intelligence"
+    },
+    "scores": [
+      4,
+      5,
+      4,
+      5,
+      4,
+      5,
+      3,
+      4,
+      5
+    ],
+    "stage": 2,
+    "members": 5,
+    "activity": 67,
+    "chart": {
+      "x": 534,
+      "y": 483,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 182,
+    "atlasN": 930,
+    "slug": "preventive-complexity-cap-governance-real-time-red",
+    "title": {
+      "zh": "预防式复杂度上限治理:类器官意识涌现的实时监测红线",
+      "en": "Preventive Complexity-Cap Governance: Real-Time Red Lines Against Organoid Consciousness Emergence"
+    },
+    "qfocus": {
+      "zh": "在'复杂度—意识'映射尚无科学刻度时，实时 EEG 监测加复杂度上限能否成为一条既拦得住、又不扼杀研究的红线？",
+      "en": "With no scientific graduation on the complexity-to-consciousness mapping, can mandatory real-time EEG plus a complexity ceiling form a red line that stops what it must without strangling research?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C02",
+      "zh": "生物计算·类器官智能",
+      "en": "Biocomputing · organoid intelligence"
+    },
+    "scores": [
+      4,
+      5,
+      3,
+      2,
+      5,
+      4,
+      3,
+      3,
+      5
+    ],
+    "stage": 1,
+    "members": 2,
+    "activity": 41,
+    "chart": {
+      "x": 437,
+      "y": 475,
+      "scale": 0.72
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 183,
+    "atlasN": 935,
+    "slug": "decentralized-biobanking-organoid-donor-provenance",
+    "title": {
+      "zh": "类器官捐赠者溯源的去中心化生物样本库:动态同意与可学习性研究的伦理底座",
+      "en": "Decentralized Biobanking for Organoid Donor Provenance: Dynamic Consent as the Ethical Substrate of Learnability Research"
+    },
+    "qfocus": {
+      "zh": "当捐赠的细胞被拿去做认知基准测试与闭环训练时，链上动态同意能否既保持可追溯、又不拆掉去标识化？",
+      "en": "When donated cells are pulled into cognitive benchmarking and closed-loop training, can on-chain dynamic consent stay traceable without dismantling de-identification?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C02",
+      "zh": "生物计算·类器官智能",
+      "en": "Biocomputing · organoid intelligence"
+    },
+    "scores": [
+      3,
+      5,
+      4,
+      5,
+      3,
+      4,
+      3,
+      4,
+      5
+    ],
+    "stage": 1,
+    "members": 5,
+    "activity": 48,
+    "chart": {
+      "x": 476,
+      "y": 425,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 193,
+    "atlasN": 1527,
+    "slug": "hyperspectral-mapping-biodiversity-functional-traits",
+    "title": {
+      "zh": "高光谱遥感的功能性状生物多样性制图",
+      "en": "Hyperspectral Mapping of Biodiversity Functional Traits"
+    },
+    "qfocus": {
+      "zh": "从冠层光谱反演出的功能性状与多样性，在多大的分辨率与尺度范围内能当作可信的生态量？",
+      "en": "Over what range of resolution and scale can functional traits and diversity retrieved from canopy spectra be trusted as ecological quantities?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C05",
+      "zh": "环境组学·行星感知",
+      "en": "Environmental omics · planetary sensing"
+    },
+    "scores": [
+      4,
+      5,
+      5,
+      4,
+      3,
+      3,
+      3,
+      2,
+      4
+    ],
+    "stage": 2,
+    "members": 7,
+    "activity": 73,
+    "chart": {
+      "x": 949,
+      "y": 480,
+      "scale": 0.87
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 194,
+    "atlasN": 1379,
+    "slug": "animals-planetary-sensors-internet-animals",
+    "title": {
+      "zh": "动物即行星传感器·动物互联网",
+      "en": "Animals as Planetary Sensors · The Internet of Animals"
+    },
+    "qfocus": {
+      "zh": "克级标签织出的动物运动数据，能否被当作严格的地球系统观测量，而不只是生态记录？",
+      "en": "Can the movement data woven from gram-scale tags be treated as rigorous Earth-system observations rather than merely ecological records?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C05",
+      "zh": "环境组学·行星感知",
+      "en": "Environmental omics · planetary sensing"
+    },
+    "scores": [
+      4,
+      5,
+      4,
+      4,
+      3,
+      2,
+      4,
+      2,
+      3
+    ],
+    "stage": 2,
+    "members": 9,
+    "activity": 57,
+    "chart": {
+      "x": 522,
+      "y": 339,
+      "scale": 0.93
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 195,
+    "atlasN": 1383,
+    "slug": "ecosystem-chemical-exposome-environmental-metabolomics",
+    "title": {
+      "zh": "生态化学暴露组·环境代谢组学",
+      "en": "The Ecosystem Chemical Exposome · Environmental Metabolomics"
+    },
+    "qfocus": {
+      "zh": "一瓶湖水里数千个可测的分子式，能否被解到结构级，成为生态系统可跨实验室比较的化学读数？",
+      "en": "Can the thousands of measurable molecular formulas in a bottle of lake water be resolved to structures and become a chemical readout comparable across laboratories?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C05",
+      "zh": "环境组学·行星感知",
+      "en": "Environmental omics · planetary sensing"
+    },
+    "scores": [
+      3,
+      4,
+      4,
+      2,
+      4,
+      2,
+      3,
+      3,
+      5
+    ],
+    "stage": 2,
+    "members": 5,
+    "activity": 71,
+    "chart": {
+      "x": 834,
+      "y": 241,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 201,
+    "atlasN": 1544,
+    "slug": "lifetime-performance-metrology-biohybrid-robots",
+    "title": {
+      "zh": "生物混合机器人的寿命与性能计量",
+      "en": "Lifetime and Performance Metrology for Biohybrid Robots"
+    },
+    "qfocus": {
+      "zh": "生物混合机器人该用哪一组量——力密度、效率、疲劳、存活、维护成本——才能跨平台比较？",
+      "en": "Which set of quantities — force density, efficiency, fatigue, survival, maintenance cost — makes biohybrid robots comparable across platforms?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C07",
+      "zh": "生物混合机器人·具身智能",
+      "en": "Biohybrid robotics · embodied intelligence"
+    },
+    "scores": [
+      4,
+      5,
+      4,
+      3,
+      5,
+      2,
+      3,
+      4,
+      5
+    ],
+    "stage": 2,
+    "members": 5,
+    "activity": 70,
+    "chart": {
+      "x": 916,
+      "y": 107,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 202,
+    "atlasN": 1398,
+    "slug": "fungal-mycelium-controlled-biohybrid-robots",
+    "title": {
+      "zh": "真菌菌丝电生理控制的生物混合机器人",
+      "en": "Fungal-Mycelium-Controlled Biohybrid Robots"
+    },
+    "qfocus": {
+      "zh": "菌丝自发的尖峰电压能否被整成可靠的控制带宽，让真菌真正当控制器而不只是噱头？",
+      "en": "Can the spontaneous spiking voltages of mycelium be shaped into a reliable control bandwidth, making the fungus a real controller rather than a gimmick?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C07",
+      "zh": "生物混合机器人·具身智能",
+      "en": "Biohybrid robotics · embodied intelligence"
+    },
+    "scores": [
+      4,
+      5,
+      4,
+      3,
+      4,
+      4,
+      3,
+      3,
+      5
+    ],
+    "stage": 1,
+    "members": 5,
+    "activity": 50,
+    "chart": {
+      "x": 659,
+      "y": 277,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 203,
+    "atlasN": 1393,
+    "slug": "innervated-trainable-biohybrid-actuators-neuromuscular-junction",
+    "title": {
+      "zh": "神经肌肉接头驱动的可训练生物混合执行器",
+      "en": "Innervated, Trainable Biohybrid Actuators (Neuromuscular-Junction Control)"
+    },
+    "qfocus": {
+      "zh": "用运动神经元与神经肌肉接头替代直接电刺激之后，工程化肌肉执行器能否长期存活、自供能并放大到米级？",
+      "en": "Once motor neurons and the neuromuscular junction replace direct electrical stimulation, can engineered muscle actuators survive long term, power themselves, and scale to meters?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C07",
+      "zh": "生物混合机器人·具身智能",
+      "en": "Biohybrid robotics · embodied intelligence"
+    },
+    "scores": [
+      4,
+      5,
+      5,
+      2,
+      4,
+      2,
+      4,
+      2,
+      3
+    ],
+    "stage": 1,
+    "members": 5,
+    "activity": 51,
+    "chart": {
+      "x": 836,
+      "y": 100,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 204,
+    "atlasN": 1542,
+    "slug": "chemical-navigation-robots-guided-insect-olfactory",
+    "title": {
+      "zh": "昆虫嗅觉器官驱动的化学导航机器人",
+      "en": "Chemical-Navigation Robots Guided by Insect Olfactory Organs"
+    },
+    "qfocus": {
+      "zh": "把离体昆虫触角接进机器人的控制回路后，气味源定位能否越过器官寿命与批间差异仍然可复现？",
+      "en": "Once an excised insect antenna is wired into a robot's control loop, does odor-source localization stay reproducible despite organ lifetime and batch-to-batch variation?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C07",
+      "zh": "生物混合机器人·具身智能",
+      "en": "Biohybrid robotics · embodied intelligence"
+    },
+    "scores": [
+      5,
+      5,
+      5,
+      2,
+      3,
+      1,
+      3,
+      2,
+      3
+    ],
+    "stage": 1,
+    "members": 3,
+    "activity": 54,
+    "chart": {
+      "x": 797,
+      "y": 336,
+      "scale": 0.75
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 205,
+    "atlasN": 107,
+    "slug": "bio-inspired-swarm-robotics",
+    "title": {
+      "zh": "仿生群体机器人",
+      "en": "Bio-inspired Swarm Robotics"
+    },
+    "qfocus": {
+      "zh": "只按局部交互规则行动的机器人群，其涌现的全局行为能否被事先验证到足以交付农业与监测任务？",
+      "en": "Can the global behavior emerging from robots that follow only local interaction rules be verified in advance well enough to be entrusted with agriculture and monitoring tasks?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C07",
+      "zh": "生物混合机器人·具身智能",
+      "en": "Biohybrid robotics · embodied intelligence"
+    },
+    "scores": [
+      3,
+      4,
+      3,
+      4,
+      3,
+      3,
+      3,
+      3,
+      4
+    ],
+    "stage": 1,
+    "members": 6,
+    "activity": 39,
+    "chart": {
+      "x": 544,
+      "y": 130,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 216,
+    "atlasN": 1381,
+    "slug": "field-deployable-crispr-environmental-biosensing",
+    "title": {
+      "zh": "现场CRISPR环境生物传感",
+      "en": "Field-Deployable CRISPR Environmental Biosensing"
+    },
+    "qfocus": {
+      "zh": "一张常温读出的 Cas12/Cas13 试纸，能否在抑制物密布的环境样本里从「检出有无」走到可信定量与多目标并行？",
+      "en": "Can a room-temperature Cas12/Cas13 strip move from presence-absence calls to trustworthy quantification and multiplexing in environmental samples dense with inhibitors?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C10",
+      "zh": "分布式生物传感·诊断",
+      "en": "Distributed biosensing · diagnostics"
+    },
+    "scores": [
+      3,
+      4,
+      5,
+      4,
+      3,
+      5,
+      4,
+      4,
+      4
+    ],
+    "stage": 2,
+    "members": 8,
+    "activity": 62,
+    "chart": {
+      "x": 599,
+      "y": 386,
+      "scale": 0.9
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 217,
+    "atlasN": 1560,
+    "slug": "tear-sensing-smart-contact-lenses",
+    "title": {
+      "zh": "泪液感知的智能隐形眼镜",
+      "en": "Tear-Sensing Smart Contact Lenses"
+    },
+    "qfocus": {
+      "zh": "泪液里的分子读数，能否在时滞与个体差异之下被标定成可以替代指尖血的血糖轨迹？",
+      "en": "Can a molecular reading taken from tears be calibrated, despite lag and inter-individual variation, into a glucose trajectory that replaces fingerstick blood?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C10",
+      "zh": "分布式生物传感·诊断",
+      "en": "Distributed biosensing · diagnostics"
+    },
+    "scores": [
+      3,
+      4,
+      3,
+      5,
+      3,
+      4,
+      3,
+      3,
+      5
+    ],
+    "stage": 2,
+    "members": 6,
+    "activity": 60,
+    "chart": {
+      "x": 517,
+      "y": 418,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 218,
+    "atlasN": 1564,
+    "slug": "freeze-dried-cell-free-biosensors-field-deployment",
+    "title": {
+      "zh": "冻干无细胞现场生物传感器",
+      "en": "Freeze-Dried Cell-Free Biosensors for Field Deployment"
+    },
+    "qfocus": {
+      "zh": "冻干后复苏的转录翻译反应，能否在常温储运与复杂基质里给出批次可重复的定量读数？",
+      "en": "Can a transcription-translation reaction rehydrated from freeze-drying deliver batch-reproducible quantitative readings after ambient storage and inside complex matrices?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C10",
+      "zh": "分布式生物传感·诊断",
+      "en": "Distributed biosensing · diagnostics"
+    },
+    "scores": [
+      3,
+      4,
+      5,
+      5,
+      4,
+      4,
+      3,
+      5,
+      3
+    ],
+    "stage": 2,
+    "members": 7,
+    "activity": 65,
+    "chart": {
+      "x": 639,
+      "y": 100,
+      "scale": 0.87
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 219,
+    "atlasN": 163,
+    "slug": "distributed-diagnostic-data-networks",
+    "title": {
+      "zh": "分布式诊断数据网络",
+      "en": "Distributed Diagnostic Data Networks"
+    },
+    "qfocus": {
+      "zh": "把家庭与药店的即时检测结果汇成一张实时健康地图，卡住它的先是信号质量，还是治理与权属？",
+      "en": "In aggregating home and pharmacy point-of-care results into a real-time health map, what binds first — signal quality, or governance and ownership?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C10",
+      "zh": "分布式生物传感·诊断",
+      "en": "Distributed biosensing · diagnostics"
+    },
+    "scores": [
+      3,
+      3,
+      3,
+      4,
+      3,
+      4,
+      3,
+      3,
+      4
+    ],
+    "stage": 2,
+    "members": 7,
+    "activity": 72,
+    "chart": {
+      "x": 820,
+      "y": 387,
+      "scale": 0.87
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 220,
+    "atlasN": 925,
+    "slug": "transcranial-acoustoelectric-brain-imaging-tabi",
+    "title": {
+      "zh": "经颅声电脑成像（tABI）",
+      "en": "Transcranial Acoustoelectric Brain Imaging (tABI)"
+    },
+    "qfocus": {
+      "zh": "在跨颅骨后极小的声电耦合系数下，超声焦点能否把清醒人体的神经电流标记成可测的电流密度图？",
+      "en": "Given how small the acoustoelectric coupling coefficient becomes across the skull, can an ultrasound focus tag neural current in an awake human into a measurable current-density map?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C11",
+      "zh": "神经技术·计算认知",
+      "en": "Neurotechnology · computational cognition"
+    },
+    "scores": [
+      5,
+      4,
+      5,
+      1,
+      4,
+      3,
+      3,
+      2,
+      5
+    ],
+    "stage": 2,
+    "members": 8,
+    "activity": 63,
+    "chart": {
+      "x": 1042,
+      "y": 381,
+      "scale": 0.9
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 221,
+    "atlasN": 522,
+    "slug": "connectomics-whole-brain-atlases",
+    "title": {
+      "zh": "连接组学与全脑图谱",
+      "en": "Connectomics and Whole-brain Atlases"
+    },
+    "qfocus": {
+      "zh": "从线虫 302 个神经元到果蝇全脑，一张静态突触线路图究竟能解释多少依赖动态与可塑性的功能？",
+      "en": "From the worm's 302 neurons to the whole fly brain, how much function that depends on dynamics and plasticity can a static synaptic wiring diagram actually explain?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C11",
+      "zh": "神经技术·计算认知",
+      "en": "Neurotechnology · computational cognition"
+    },
+    "scores": [
+      5,
+      4,
+      5,
+      3,
+      5,
+      1,
+      3,
+      3,
+      4
+    ],
+    "stage": 2,
+    "members": 6,
+    "activity": 60,
+    "chart": {
+      "x": 657,
+      "y": 354,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 222,
+    "atlasN": 924,
+    "slug": "functional-ultrasound-brain-machine-interface-fus-bmi",
+    "title": {
+      "zh": "功能超声脑机接口（fUS-BMI）",
+      "en": "Functional-Ultrasound Brain-Machine Interface (fUS-BMI)"
+    },
+    "qfocus": {
+      "zh": "以秒级血流动力学为载体的读脑通道，能否在不开颅、不打开硬脑膜的条件下支撑实时意图解码？",
+      "en": "Can a brain-reading channel carried by seconds-scale hemodynamics support real-time intent decoding without a craniotomy or a dural breach?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C11",
+      "zh": "神经技术·计算认知",
+      "en": "Neurotechnology · computational cognition"
+    },
+    "scores": [
+      4,
+      5,
+      5,
+      2,
+      4,
+      3,
+      4,
+      3,
+      4
+    ],
+    "stage": 1,
+    "members": 2,
+    "activity": 48,
+    "chart": {
+      "x": 741,
+      "y": 189,
+      "scale": 0.72
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 223,
+    "atlasN": 923,
+    "slug": "tonal-full-spectrum-mandarin-speech-neuroprostheses",
+    "title": {
+      "zh": "声调与全谱汉语言语假体",
+      "en": "Tonal and Full-Spectrum Mandarin Speech Neuroprostheses"
+    },
+    "qfocus": {
+      "zh": "声调这一又弱又快、叠加在音节之上的维度，能否与音段在皮层信号里被实时分离并同时解出？",
+      "en": "Can tone — weak, fast, and superimposed on the syllable — be separated from segmental content in cortical signals and decoded simultaneously in real time?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C11",
+      "zh": "神经技术·计算认知",
+      "en": "Neurotechnology · computational cognition"
+    },
+    "scores": [
+      4,
+      4,
+      3,
+      2,
+      4,
+      2,
+      4,
+      3,
+      5
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 56,
+    "chart": {
+      "x": 973,
+      "y": 137,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 262,
+    "atlasN": 1460,
+    "slug": "mechanistic-science-ultra-processed-foods-food",
+    "title": {
+      "zh": "超加工食品的机制科学与食物基质",
+      "en": "Mechanistic Science of Ultra-Processed Foods and the Food Matrix"
+    },
+    "qfocus": {
+      "zh": "配平热量、糖、盐与纤维后仍多摄入的约 500 大卡，究竟来自基质结构、进食速度还是适口性？",
+      "en": "After calories, sugar, salt and fiber are matched, where do the roughly 500 extra kilocalories come from — matrix structure, eating rate, or hyperpalatability?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C24",
+      "zh": "未来食品·农业科学",
+      "en": "Future food · agricultural science"
+    },
+    "scores": [
+      4,
+      4,
+      3,
+      3,
+      5,
+      4,
+      4,
+      4,
+      4
+    ],
+    "stage": 2,
+    "members": 6,
+    "activity": 71,
+    "chart": {
+      "x": 950,
+      "y": 398,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 263,
+    "atlasN": 1658,
+    "slug": "texture-digestibility-edible-mycelial-biomass",
+    "title": {
+      "zh": "食用菌丝全生物量的质构与消化",
+      "en": "Texture and Digestibility of Edible Mycelial Biomass"
+    },
+    "qfocus": {
+      "zh": "完整菌丝生物量的天然纤维结构，能在多大程度上既提供整块肉的质构，又不牺牲蛋白可及性？",
+      "en": "How far can the native fibrous structure of whole mycelial biomass deliver whole-cut texture without giving up protein accessibility?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C24",
+      "zh": "未来食品·农业科学",
+      "en": "Future food · agricultural science"
+    },
+    "scores": [
+      4,
+      4,
+      3,
+      3,
+      5,
+      4,
+      4,
+      4,
+      4
+    ],
+    "stage": 2,
+    "members": 9,
+    "activity": 56,
+    "chart": {
+      "x": 901,
+      "y": 354,
+      "scale": 0.93
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 264,
+    "atlasN": 1447,
+    "slug": "plant-nanobionics-in-planta-sensing",
+    "title": {
+      "zh": "植物纳米生物电子·活体传感",
+      "en": "Plant Nanobionics and In-Planta Sensing"
+    },
+    "qfocus": {
+      "zh": "嵌在活体植物里的纳米传感器，能否在可见症状出现前把胁迫类型读出来，并在田间连续工作？",
+      "en": "Can nanosensors embedded in a living plant name the type of stress before visible symptoms appear — and keep working continuously in the field?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C24",
+      "zh": "未来食品·农业科学",
+      "en": "Future food · agricultural science"
+    },
+    "scores": [
+      4,
+      5,
+      4,
+      2,
+      3,
+      2,
+      3,
+      3,
+      4
+    ],
+    "stage": 2,
+    "members": 8,
+    "activity": 65,
+    "chart": {
+      "x": 682,
+      "y": 100,
+      "scale": 0.9
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 265,
+    "atlasN": 1456,
+    "slug": "molecular-farming-animal-proteins-crops",
+    "title": {
+      "zh": "分子农场：作物直接长出动物蛋白",
+      "en": "Molecular Farming of Animal Proteins in Crops"
+    },
+    "qfocus": {
+      "zh": "把动物蛋白基因放进大田作物，能否在不拖垮产量、又过得了过敏原与标签审查的前提下量产？",
+      "en": "Can animal-protein genes placed into field crops scale to production without sinking yield and while clearing allergen and labeling review?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C24",
+      "zh": "未来食品·农业科学",
+      "en": "Future food · agricultural science"
+    },
+    "scores": [
+      4,
+      5,
+      4,
+      2,
+      3,
+      3,
+      3,
+      3,
+      4
+    ],
+    "stage": 1,
+    "members": 6,
+    "activity": 55,
+    "chart": {
+      "x": 727,
+      "y": 386,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 266,
+    "atlasN": 1669,
+    "slug": "cross-disease-endpoints-geroscience-trials",
+    "title": {
+      "zh": "老年科学试验的跨疾病终点",
+      "en": "Cross-Disease Endpoints for Geroscience Trials"
+    },
+    "qfocus": {
+      "zh": "「干预了共同的衰老过程」这一主张，究竟能被什么样的复合终点在临床上证伪？",
+      "en": "By what composite endpoint can the claim that an intervention altered a common aging process actually be falsified in the clinic?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C25",
+      "zh": "开放精准健康·长寿",
+      "en": "Open precision health · longevity"
+    },
+    "scores": [
+      5,
+      4,
+      4,
+      3,
+      4,
+      2,
+      3,
+      3,
+      2
+    ],
+    "stage": 2,
+    "members": 6,
+    "activity": 62,
+    "chart": {
+      "x": 721,
+      "y": 115,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 267,
+    "atlasN": 419,
+    "slug": "science-social-determinants-health",
+    "title": {
+      "zh": "健康的社会决定因素科学",
+      "en": "Science of the Social Determinants of Health"
+    },
+    "qfocus": {
+      "zh": "收入、住房与社区暴露对疾病与寿命的贡献，能否被量化到足以指认哪一项干预真的改变了健康？",
+      "en": "Can the contribution of income, housing and community exposure to disease and lifespan be quantified sharply enough to name which intervention actually changed health?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C25",
+      "zh": "开放精准健康·长寿",
+      "en": "Open precision health · longevity"
+    },
+    "scores": [
+      3,
+      4,
+      3,
+      4,
+      3,
+      4,
+      3,
+      2,
+      4
+    ],
+    "stage": 2,
+    "members": 7,
+    "activity": 52,
+    "chart": {
+      "x": 680,
+      "y": 337,
+      "scale": 0.87
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 268,
+    "atlasN": 1670,
+    "slug": "measuring-physiological-resilience-through-challenge-recovery",
+    "title": {
+      "zh": "刺激—恢复动力学测量生理韧性",
+      "en": "Measuring Physiological Resilience through Challenge-Recovery Dynamics"
+    },
+    "qfocus": {
+      "zh": "标准化刺激后的响应幅度与恢复速度，能否比空腹指标更早暴露健康储备，而不塌缩成一个笼统的「韧性分数」？",
+      "en": "Can response amplitude and recovery speed after a standardized challenge expose health reserve earlier than fasting measures, without collapsing into one vague “resilience score”?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C25",
+      "zh": "开放精准健康·长寿",
+      "en": "Open precision health · longevity"
+    },
+    "scores": [
+      3,
+      3,
+      5,
+      4,
+      4,
+      3,
+      3,
+      3,
+      3
+    ],
+    "stage": 2,
+    "members": 7,
+    "activity": 54,
+    "chart": {
+      "x": 667,
+      "y": 175,
+      "scale": 0.87
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 269,
+    "atlasN": 523,
+    "slug": "chronobiology-circadian-rhythmome",
+    "title": {
+      "zh": "时间生物学与昼夜节律组",
+      "en": "Chronobiology and the Circadian Rhythmome"
+    },
+    "qfocus": {
+      "zh": "给药时刻能否成为与剂量并列的处方变量——前提是个体的生物钟相位可被低成本实时读出？",
+      "en": "Can time of dosing become a prescription variable alongside dose — conditional on reading an individual's clock phase cheaply and in real time?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C25",
+      "zh": "开放精准健康·长寿",
+      "en": "Open precision health · longevity"
+    },
+    "scores": [
+      3,
+      3,
+      3,
+      4,
+      3,
+      3,
+      3,
+      3,
+      4
+    ],
+    "stage": 1,
+    "members": 3,
+    "activity": 40,
+    "chart": {
+      "x": 1047,
+      "y": 217,
+      "scale": 0.75
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 270,
+    "atlasN": 410,
+    "slug": "mrna-next-generation-vaccine-platforms",
+    "title": {
+      "zh": "mRNA 与下一代疫苗平台",
+      "en": "mRNA and Next-Generation Vaccine Platforms"
+    },
+    "qfocus": {
+      "zh": "当瓶颈已从序列设计移到 LNP 递送与免疫原性控制，个体化新抗原疫苗还能不能做到人人可及的成本与时效？",
+      "en": "With the bottleneck shifted from sequence design to LNP delivery and immunogenicity control, can personalized neoantigen vaccines still reach a cost and turnaround that everyone can access?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C25",
+      "zh": "开放精准健康·长寿",
+      "en": "Open precision health · longevity"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      2,
+      4,
+      1,
+      5,
+      4,
+      1
+    ],
+    "stage": 2,
+    "members": 8,
+    "activity": 54,
+    "chart": {
+      "x": 811,
+      "y": 203,
+      "scale": 0.9
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 285,
+    "atlasN": 1702,
+    "slug": "validating-oral-microbial-migration-systemic-effects",
+    "title": {
+      "zh": "口腔微生物迁移与系统效应验证",
+      "en": "Validating Oral-Microbial Migration and Systemic Effects"
+    },
+    "qfocus": {
+      "zh": "口腔细菌迁移到肠道并定植，在人体上到底能不能推动可测的系统性疾病，而不只是共同暴露？",
+      "en": "When oral bacteria migrate to the gut and colonize it, do they actually drive measurable systemic disease in humans — or is this only shared exposure?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C30",
+      "zh": "微生物组·生态工程",
+      "en": "Microbiome · ecological engineering"
+    },
+    "scores": [
+      3,
+      3,
+      3,
+      3,
+      3,
+      4,
+      3,
+      4,
+      5
+    ],
+    "stage": 1,
+    "members": 5,
+    "activity": 57,
+    "chart": {
+      "x": 632,
+      "y": 204,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 286,
+    "atlasN": 1700,
+    "slug": "gut-mycobiome-cross-kingdom-interactions",
+    "title": {
+      "zh": "肠道真菌组与跨界相互作用",
+      "en": "Gut Mycobiome and Cross-Kingdom Interactions"
+    },
+    "qfocus": {
+      "zh": "肠道里检出的真菌，哪些是真正定植的居民，哪些只是随食物与环境过路的乘客？",
+      "en": "Of the fungi detected in the gut, which are genuinely colonizing residents and which are only passengers arriving with food and the environment?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C30",
+      "zh": "微生物组·生态工程",
+      "en": "Microbiome · ecological engineering"
+    },
+    "scores": [
+      3,
+      4,
+      4,
+      4,
+      2,
+      4,
+      3,
+      3,
+      4
+    ],
+    "stage": 1,
+    "members": 2,
+    "activity": 51,
+    "chart": {
+      "x": 588,
+      "y": 350,
+      "scale": 0.72
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 287,
+    "atlasN": 499,
+    "slug": "one-health-cross-domain-pathogen-surveillance",
+    "title": {
+      "zh": "一健康与跨界病原监测",
+      "en": "One Health and Cross-domain Pathogen Surveillance"
+    },
+    "qfocus": {
+      "zh": "下一次溢出发生时，人医、兽医与环境三条数据流能否快到足以在人群传播前发出预警？",
+      "en": "At the next spillover, can the human, veterinary and environmental data streams move fast enough to raise a warning before human transmission takes hold?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C30",
+      "zh": "微生物组·生态工程",
+      "en": "Microbiome · ecological engineering"
+    },
+    "scores": [
+      3,
+      4,
+      3,
+      4,
+      2,
+      3,
+      3,
+      2,
+      4
+    ],
+    "stage": 2,
+    "members": 5,
+    "activity": 50,
+    "chart": {
+      "x": 582,
+      "y": 146,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 288,
+    "atlasN": 1705,
+    "slug": "post-antibiotic-community-recovery-colonization-resistance",
+    "title": {
+      "zh": "抗生素后群落恢复与定植抗性",
+      "en": "Post-Antibiotic Community Recovery and Colonization Resistance"
+    },
+    "qfocus": {
+      "zh": "抗生素之后，群落回到基线的组成，是否也意味着定植抗性这项功能真的恢复了？",
+      "en": "After antibiotics, does a community whose composition has returned to baseline actually mean the function of colonization resistance has come back?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C30",
+      "zh": "微生物组·生态工程",
+      "en": "Microbiome · ecological engineering"
+    },
+    "scores": [
+      3,
+      3,
+      3,
+      3,
+      4,
+      3,
+      3,
+      3,
+      4
+    ],
+    "stage": 2,
+    "members": 4,
+    "activity": 54,
+    "chart": {
+      "x": 801,
+      "y": 140,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 289,
+    "atlasN": 1713,
+    "slug": "neural-markers-consciousness-no-report-paradigms",
+    "title": {
+      "zh": "无报告范式中的意识神经标记",
+      "en": "Neural Markers of Consciousness in No-Report Paradigms"
+    },
+    "qfocus": {
+      "zh": "去掉口头报告之后，剩下的神经活动里哪些真的对应体验本身，而不是注意与任务执行？",
+      "en": "Once verbal report is removed, which of the remaining neural activity corresponds to experience itself rather than to attention and task execution?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C32",
+      "zh": "意识的本质与硬核理论",
+      "en": "Nature of consciousness and hard-problem theory"
+    },
+    "scores": [
+      5,
+      5,
+      4,
+      3,
+      3,
+      3,
+      3,
+      4,
+      5
+    ],
+    "stage": 2,
+    "members": 4,
+    "activity": 54,
+    "chart": {
+      "x": 824,
+      "y": 666,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 290,
+    "atlasN": 1717,
+    "slug": "interoception-minimal-sense-self",
+    "title": {
+      "zh": "内感受与最小自我感",
+      "en": "Interoception and the Minimal Sense of Self"
+    },
+    "qfocus": {
+      "zh": "心跳与呼吸的内感受信号，究竟只是伴随自我感，还是在实际构造身体归属与在场感？",
+      "en": "Do interoceptive signals from heartbeat and breathing merely accompany the sense of self, or do they actively construct body ownership and presence?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C32",
+      "zh": "意识的本质与硬核理论",
+      "en": "Nature of consciousness and hard-problem theory"
+    },
+    "scores": [
+      5,
+      5,
+      3,
+      3,
+      4,
+      5,
+      3,
+      3,
+      5
+    ],
+    "stage": 2,
+    "members": 5,
+    "activity": 74,
+    "chart": {
+      "x": 614,
+      "y": 602,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 307,
+    "atlasN": 1340,
+    "slug": "raman-activated-sorting-linking-single-cell-function",
+    "title": {
+      "zh": "拉曼活性分选驱动的单细胞功能-基因组挂钩",
+      "en": "Raman-Activated Sorting Linking Single-Cell Function to Genome"
+    },
+    "qfocus": {
+      "zh": "能否先用单细胞拉曼指纹锁定正在原位干活的细胞，再分选测序或培养，把功能从推断变成实证？",
+      "en": "Can single-cell Raman fingerprints first pick out the cells actually doing the job in situ, then sort them for sequencing or cultivation, turning function from inference into direct evidence?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C37",
+      "zh": "生物暗物质·未注释生命",
+      "en": "Biological Dark Matter & Unannotated Life"
+    },
+    "scores": [
+      3,
+      5,
+      5,
+      2,
+      4,
+      2,
+      4,
+      2,
+      5
+    ],
+    "stage": 1,
+    "members": 2,
+    "activity": 53,
+    "chart": {
+      "x": 675,
+      "y": 387,
+      "scale": 0.72
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 308,
+    "atlasN": 1489,
+    "slug": "machine-learning-illuminates-metabolic-dark",
+    "title": {
+      "zh": "机器学习点亮代谢暗物质",
+      "en": "Machine Learning Illuminates Metabolic Dark Matter"
+    },
+    "qfocus": {
+      "zh": "在没有化学标准品的情况下，质谱基础模型给暗代谢物的结构注释能否带上可被独立证伪的置信度？",
+      "en": "Without chemical standards, can a mass-spectrometry foundation model attach an independently falsifiable confidence to the structures it assigns to dark metabolites?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C37",
+      "zh": "生物暗物质·未注释生命",
+      "en": "Biological Dark Matter & Unannotated Life"
+    },
+    "scores": [
+      4,
+      4,
+      4,
+      3,
+      3,
+      3,
+      5,
+      3,
+      4
+    ],
+    "stage": 1,
+    "members": 2,
+    "activity": 39,
+    "chart": {
+      "x": 666,
+      "y": 421,
+      "scale": 0.72
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 309,
+    "atlasN": 1753,
+    "slug": "comparative-genomic-discovery-orphan-structured-rnas",
+    "title": {
+      "zh": "比较基因组发现的孤儿结构化 RNA",
+      "en": "Comparative-Genomic Discovery of Orphan Structured RNAs"
+    },
+    "qfocus": {
+      "zh": "序列协变发现的保守 RNA 结构，如何从折叠受选择推进到证实其被表达、结合配体并调控邻基因？",
+      "en": "How does a conserved RNA fold found by sequence covariation move from selection-on-structure to proof that it is expressed, binds a ligand, and regulates a neighboring gene?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C37",
+      "zh": "生物暗物质·未注释生命",
+      "en": "Biological Dark Matter & Unannotated Life"
+    },
+    "scores": [
+      5,
+      4,
+      4,
+      4,
+      4,
+      4,
+      3,
+      5,
+      4
+    ],
+    "stage": 1,
+    "members": 5,
+    "activity": 45,
+    "chart": {
+      "x": 936,
+      "y": 151,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 310,
+    "atlasN": 1749,
+    "slug": "structure-level-resolution-positional-lipid-isomers",
+    "title": {
+      "zh": "脂质位置异构体的结构级解析",
+      "en": "Structure-Level Resolution of Positional Lipid Isomers"
+    },
+    "qfocus": {
+      "zh": "在总碳数与不饱和度之下，脂肪链组成、sn 位点与 C=C 位置能否被逐层测定并给出可核验的证据链？",
+      "en": "Below total carbon count and unsaturation, can chain composition, sn position and C=C location each be measured in tiers, with a verifiable evidence chain?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C37",
+      "zh": "生物暗物质·未注释生命",
+      "en": "Biological Dark Matter & Unannotated Life"
+    },
+    "scores": [
+      5,
+      4,
+      5,
+      3,
+      3,
+      5,
+      3,
+      3,
+      4
+    ],
+    "stage": 2,
+    "members": 6,
+    "activity": 72,
+    "chart": {
+      "x": 607,
+      "y": 317,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 342,
+    "atlasN": 793,
+    "slug": "melanized-fungal-living-radiation-shielding-biocomposites",
+    "title": {
+      "zh": "黑色素化真菌活体辐射屏蔽生物复合材料",
+      "en": "Melanized-Fungal Living Radiation-Shielding Biocomposites"
+    },
+    "qfocus": {
+      "zh": "黑色素化真菌层能否在保持活性与不外溢的前提下，把辐射衰减做到工程上够用的厚度效率？",
+      "en": "Can a melanized fungal layer reach an engineering-useful attenuation per unit thickness while staying alive and contained?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C46",
+      "zh": "空间生物经济·地外制造",
+      "en": "Space Bioeconomy · Off-Earth Manufacturing"
+    },
+    "scores": [
+      4,
+      5,
+      3,
+      4,
+      3,
+      4,
+      3,
+      3,
+      5
+    ],
+    "stage": 2,
+    "members": 5,
+    "activity": 65,
+    "chart": {
+      "x": 1034,
+      "y": 265,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 343,
+    "atlasN": 1815,
+    "slug": "space-weathering-aware-lunar-dust-toxicology",
+    "title": {
+      "zh": "空间风化感知的月尘毒理学",
+      "en": "Space-Weathering-Aware Lunar-Dust Toxicology"
+    },
+    "qfocus": {
+      "zh": "模拟月尘的毒性读数，能否在保留太阳风风化历史与表面化学后，换算成舱内真实吸入的风险？",
+      "en": "Once solar-wind weathering history and surface chemistry are preserved, can toxicity readouts from lunar-dust simulants be converted into real inhalation risk inside a cabin?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C46",
+      "zh": "空间生物经济·地外制造",
+      "en": "Space Bioeconomy · Off-Earth Manufacturing"
+    },
+    "scores": [
+      4,
+      4,
+      3,
+      2,
+      3,
+      2,
+      4,
+      4,
+      5
+    ],
+    "stage": 2,
+    "members": 4,
+    "activity": 74,
+    "chart": {
+      "x": 852,
+      "y": 205,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 344,
+    "atlasN": 789,
+    "slug": "spaceflight-multi-omics-medical-atlas-civilian",
+    "title": {
+      "zh": "太空多组学医学图谱与平民宇航员生物样本库",
+      "en": "Spaceflight Multi-Omics Medical Atlas and Civilian Astronaut Biobank"
+    },
+    "qfocus": {
+      "zh": "在每次任务只有数人的样本量下，跨任务一致的分子特征能否不被个体差异淹没，从相关走向因果？",
+      "en": "With only a handful of participants per mission, can molecular signatures consistent across missions escape being swamped by individual variation and move from correlation to causation?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C46",
+      "zh": "空间生物经济·地外制造",
+      "en": "Space Bioeconomy · Off-Earth Manufacturing"
+    },
+    "scores": [
+      4,
+      5,
+      5,
+      3,
+      2,
+      2,
+      5,
+      3,
+      3
+    ],
+    "stage": 1,
+    "members": 3,
+    "activity": 58,
+    "chart": {
+      "x": 770,
+      "y": 210,
+      "scale": 0.75
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 357,
+    "atlasN": 838,
+    "slug": "subcellular-spatial-transcriptomics-reading-rna",
+    "title": {
+      "zh": "亚细胞空间转录组学：在原位读出 RNA 的居所",
+      "en": "Subcellular Spatial Transcriptomics: Reading RNA's Address In Situ"
+    },
+    "qfocus": {
+      "zh": "在不固定、不破坏区室的前提下，能否同时读出数千条内源 RNA 停在哪个细胞器，并保留时间维度？",
+      "en": "Without fixation and without destroying compartments, can thousands of endogenous RNAs be read out by which organelle they sit in, while keeping the time dimension?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C50",
+      "zh": "单细胞·空间多组学",
+      "en": "Single-Cell · Spatial Multi-Omics"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      2,
+      4,
+      2,
+      4,
+      3,
+      5
+    ],
+    "stage": 1,
+    "members": 6,
+    "activity": 56,
+    "chart": {
+      "x": 727,
+      "y": 259,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 358,
+    "atlasN": 1845,
+    "slug": "non-destructive-longitudinal-transcriptome-sampling-living",
+    "title": {
+      "zh": "活细胞转录组的非破坏纵向取样",
+      "en": "Non-Destructive Longitudinal Transcriptome Sampling in Living Cells"
+    },
+    "qfocus": {
+      "zh": "反复从同一活细胞抽走一小口胞质之后，测到的顺序转录组还是这个细胞原本的轨迹吗？",
+      "en": "After a small volume of cytoplasm has been drawn repeatedly from the same living cell, is the sequential transcriptome still that cell's original trajectory?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C50",
+      "zh": "单细胞·空间多组学",
+      "en": "Single-Cell · Spatial Multi-Omics"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      2,
+      4,
+      2,
+      4,
+      4,
+      5
+    ],
+    "stage": 2,
+    "members": 7,
+    "activity": 58,
+    "chart": {
+      "x": 859,
+      "y": 442,
+      "scale": 0.87
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 359,
+    "atlasN": 840,
+    "slug": "joint-spatial-multi-omics-aligning-epigenome",
+    "title": {
+      "zh": "空间多组学共测：在同一张切片上对齐表观基因组与转录组",
+      "en": "Joint Spatial Multi-Omics: Aligning the Epigenome and Transcriptome on One Section"
+    },
+    "qfocus": {
+      "zh": "在同一张切片上共测染色质可及性与 mRNA 时，分辨率、覆盖度与通量的三方取舍能被推到哪一步？",
+      "en": "When co-profiling chromatin accessibility and mRNA on one section, how far can the three-way trade-off among resolution, coverage and throughput be pushed?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C50",
+      "zh": "单细胞·空间多组学",
+      "en": "Single-Cell · Spatial Multi-Omics"
+    },
+    "scores": [
+      4,
+      5,
+      5,
+      2,
+      3,
+      2,
+      5,
+      3,
+      4
+    ],
+    "stage": 2,
+    "members": 7,
+    "activity": 58,
+    "chart": {
+      "x": 743,
+      "y": 151,
+      "scale": 0.87
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 360,
+    "atlasN": 839,
+    "slug": "situ-spatial-translatomics-imaging-mrna",
+    "title": {
+      "zh": "原位空间翻译组学：在组织里给「正在被翻译的 mRNA」拍照",
+      "en": "In Situ Spatial Translatomics: Imaging the mRNA Being Translated, In Tissue"
+    },
+    "qfocus": {
+      "zh": "在完整组织里成像「正在被翻译的 mRNA」，如何把核糖体结合与偶然共定位可靠地分开？",
+      "en": "When imaging actively translated mRNA in intact tissue, how can genuine ribosome binding be reliably separated from incidental colocalization?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C50",
+      "zh": "单细胞·空间多组学",
+      "en": "Single-Cell · Spatial Multi-Omics"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      2,
+      4,
+      2,
+      5,
+      3,
+      4
+    ],
+    "stage": 2,
+    "members": 6,
+    "activity": 67,
+    "chart": {
+      "x": 722,
+      "y": 425,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 361,
+    "atlasN": 1840,
+    "slug": "in-situ-spatial-glycomics-tissues",
+    "title": {
+      "zh": "组织原位空间糖组学",
+      "en": "In-Situ Spatial Glycomics of Tissues"
+    },
+    "qfocus": {
+      "zh": "组织原位释放的 N-糖链质谱成像，能否在保住空间坐标的同时确定分支、连接与位置异构？",
+      "en": "Can mass spectrometry imaging of N-glycans released in situ pin down branching, linkage and positional isomers while keeping spatial coordinates?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C50",
+      "zh": "单细胞·空间多组学",
+      "en": "Single-Cell · Spatial Multi-Omics"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      2,
+      4,
+      2,
+      5,
+      4,
+      4
+    ],
+    "stage": 1,
+    "members": 3,
+    "activity": 48,
+    "chart": {
+      "x": 625,
+      "y": 254,
+      "scale": 0.75
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 362,
+    "atlasN": 1847,
+    "slug": "causal-identification-under-nonrandom-missingness",
+    "title": {
+      "zh": "非随机缺失下的因果识别",
+      "en": "Causal Identification under Nonrandom Missingness"
+    },
+    "qfocus": {
+      "zh": "当混杂变量的缺失由未观测结局或治疗本身驱动时，哪些因果效应仍然可识别？",
+      "en": "When confounder missingness is driven by the unobserved outcome or by treatment itself, which causal effects remain identifiable?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C51",
+      "zh": "因果科学·可信推断",
+      "en": "Causal science · trustworthy inference"
+    },
+    "scores": [
+      5,
+      4,
+      4,
+      2,
+      4,
+      4,
+      4,
+      4,
+      5
+    ],
+    "stage": 1,
+    "members": 6,
+    "activity": 48,
+    "chart": {
+      "x": 405,
+      "y": 398,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 363,
+    "atlasN": 873,
+    "slug": "hit-and-run-vivo-epigenetic-silencing-heritable",
+    "title": {
+      "zh": "命中即走的体内表观沉默：不切 DNA 的可遗传基因关闭",
+      "en": "Hit-and-Run In Vivo Epigenetic Silencing: Heritable Gene Shutdown Without Cutting DNA"
+    },
+    "qfocus": {
+      "zh": "编辑器只在体内停留数天，它写下的抑制性表观标记凭什么被细胞自己维持一整年？",
+      "en": "If the editor persists only days in vivo, what makes the cell itself maintain the repressive marks it wrote for a whole year?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C52",
+      "zh": "RNA·表观与可编程医学",
+      "en": "RNA · Epigenetic & Programmable Medicine"
+    },
+    "scores": [
+      5,
+      4,
+      4,
+      2,
+      3,
+      2,
+      4,
+      3,
+      4
+    ],
+    "stage": 2,
+    "members": 5,
+    "activity": 60,
+    "chart": {
+      "x": 956,
+      "y": 233,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 364,
+    "atlasN": 1328,
+    "slug": "vivo-epigenetic-reactivation-silenced-alleles",
+    "title": {
+      "zh": "体内表观重激活沉默等位基因治疗神经发育障碍",
+      "en": "In Vivo Epigenetic Reactivation of Silenced Alleles for Neurodevelopmental Disorders"
+    },
+    "qfocus": {
+      "zh": "把一个被表观沉默的健康等位基因重新点亮，为什么比关掉一个基因更难维持？",
+      "en": "Why is durably switching a silenced healthy allele back on harder to sustain than switching a gene off?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C52",
+      "zh": "RNA·表观与可编程医学",
+      "en": "RNA · Epigenetic & Programmable Medicine"
+    },
+    "scores": [
+      4,
+      4,
+      3,
+      2,
+      4,
+      2,
+      3,
+      3,
+      5
+    ],
+    "stage": 1,
+    "members": 3,
+    "activity": 57,
+    "chart": {
+      "x": 764,
+      "y": 375,
+      "scale": 0.75
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 365,
+    "atlasN": 1854,
+    "slug": "programmable-rna-trans-splicing-exon-replacement",
+    "title": {
+      "zh": "可编程 RNA 转剪接与外显子替换",
+      "en": "Programmable RNA Trans-Splicing for Exon Replacement"
+    },
+    "qfocus": {
+      "zh": "在不改写 DNA 的前提下替换一整段外显子，能否压住顺式剪接的竞争与异常嵌合转录本？",
+      "en": "Replacing a whole exon without rewriting DNA — can competition from cis-splicing and aberrant chimeric transcripts be held down?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C52",
+      "zh": "RNA·表观与可编程医学",
+      "en": "RNA · Epigenetic & Programmable Medicine"
+    },
+    "scores": [
+      5,
+      4,
+      5,
+      2,
+      3,
+      3,
+      4,
+      4,
+      3
+    ],
+    "stage": 1,
+    "members": 2,
+    "activity": 47,
+    "chart": {
+      "x": 756,
+      "y": 100,
+      "scale": 0.72
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 366,
+    "atlasN": 1323,
+    "slug": "durable-vivo-epigenetic-silencing-without",
+    "title": {
+      "zh": "体内可编程表观沉默:不切割DNA的持久基因静默",
+      "en": "Durable In Vivo Epigenetic Silencing Without Cutting DNA"
+    },
+    "qfocus": {
+      "zh": "小鼠里持续 550 天的表观沉默，能否在人肝细胞的更新与炎症环境下不被洗脱？",
+      "en": "Can epigenetic silencing that held for 550 days in mice survive human hepatocyte turnover and inflammation without being washed out?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C52",
+      "zh": "RNA·表观与可编程医学",
+      "en": "RNA · Epigenetic & Programmable Medicine"
+    },
+    "scores": [
+      5,
+      4,
+      4,
+      2,
+      3,
+      2,
+      4,
+      2,
+      3
+    ],
+    "stage": 1,
+    "members": 3,
+    "activity": 54,
+    "chart": {
+      "x": 914,
+      "y": 221,
+      "scale": 0.75
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 367,
+    "atlasN": 1330,
+    "slug": "virus-like-particle-transient-delivery-editor",
+    "title": {
+      "zh": "类病毒颗粒瞬时递送编辑器核糖核蛋白",
+      "en": "Virus-Like Particle Transient Delivery of Editor Ribonucleoproteins"
+    },
+    "qfocus": {
+      "zh": "把编辑器当一次性货物送进去、几天内自我清除，单次注射的效率能否够到治疗阈值？",
+      "en": "If the editor goes in as one-off cargo that clears within days, can a single injection reach a therapeutic efficiency threshold?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C52",
+      "zh": "RNA·表观与可编程医学",
+      "en": "RNA · Epigenetic & Programmable Medicine"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      3,
+      3,
+      3,
+      4,
+      3,
+      3
+    ],
+    "stage": 1,
+    "members": 5,
+    "activity": 41,
+    "chart": {
+      "x": 717,
+      "y": 319,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 184,
+    "atlasN": 1160,
+    "slug": "autoformalization-machine-verifiable-scientific-reasoning",
+    "title": {
+      "zh": "自动形式化与机器可验证科学推理",
+      "en": "Autoformalization and Machine-Verifiable Scientific Reasoning"
+    },
+    "qfocus": {
+      "zh": "把非形式的科学论证可靠翻成 Lean 之类形式语言，这道语义鸿沟能否越出数学、覆盖更广的学科？",
+      "en": "Can the semantic gap in reliably translating informal scientific argument into a formal language like Lean be crossed beyond mathematics into wider disciplines?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C03",
+      "zh": "科学基础模型·AI4S",
+      "en": "Scientific foundation models · AI for science"
+    },
+    "scores": [
+      5,
+      4,
+      5,
+      4,
+      4,
+      3,
+      5,
+      4,
+      3
+    ],
+    "stage": 2,
+    "members": 4,
+    "activity": 63,
+    "chart": {
+      "x": 719,
+      "y": 695,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 185,
+    "atlasN": 894,
+    "slug": "real-time-all-optical-closed-loop-neuroscience",
+    "title": {
+      "zh": "实时全光闭环神经科学",
+      "en": "Real-Time All-Optical Closed-Loop Neuroscience"
+    },
+    "qfocus": {
+      "zh": "在动物行为进行中，由正在演化的群体活动选出的神经元集群被毫秒级靶向激活后，能否真正证明因果？",
+      "en": "When a neuronal ensemble chosen by the evolving population activity is targeted within milliseconds mid-behavior, does that actually establish causality?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C03",
+      "zh": "科学基础模型·AI4S",
+      "en": "Scientific foundation models · AI for science"
+    },
+    "scores": [
+      5,
+      4,
+      5,
+      2,
+      5,
+      1,
+      5,
+      2,
+      3
+    ],
+    "stage": 1,
+    "members": 2,
+    "activity": 42,
+    "chart": {
+      "x": 554,
+      "y": 627,
+      "scale": 0.72
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 186,
+    "atlasN": 1158,
+    "slug": "neural-operator-multi-physics-foundation-models",
+    "title": {
+      "zh": "神经算子多物理基础模型",
+      "en": "Neural-Operator Multi-Physics Foundation Models"
+    },
+    "qfocus": {
+      "zh": "跨物理族预训练的算子学习器，能否在不发生负迁移的前提下少样本迁移到从未见过的方程？",
+      "en": "Can an operator learner pretrained across PDE families transfer few-shot to equations it has never seen, without incurring negative transfer?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C03",
+      "zh": "科学基础模型·AI4S",
+      "en": "Scientific foundation models · AI for science"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      3,
+      2,
+      2,
+      5,
+      3,
+      4
+    ],
+    "stage": 1,
+    "members": 6,
+    "activity": 42,
+    "chart": {
+      "x": 468,
+      "y": 545,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 187,
+    "atlasN": 1159,
+    "slug": "novelty-falsifiability-metrics-ai-generated-hypotheses",
+    "title": {
+      "zh": "AI 新假说的新颖性与可证伪性度量",
+      "en": "Novelty and Falsifiability Metrics for AI-Generated Hypotheses"
+    },
+    "qfocus": {
+      "zh": "'新颖'与'可证伪'能否被操作化成经得起对抗、跨学科通用的度量，而不是靠 LLM 自评或引文重合？",
+      "en": "Can 'novel' and 'falsifiable' be operationalized into adversarially robust, cross-disciplinary metrics instead of LLM self-rating or citation overlap?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C03",
+      "zh": "科学基础模型·AI4S",
+      "en": "Scientific foundation models · AI for science"
+    },
+    "scores": [
+      5,
+      5,
+      4,
+      4,
+      5,
+      4,
+      3,
+      4,
+      3
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 39,
+    "chart": {
+      "x": 656,
+      "y": 482,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 188,
+    "atlasN": 1374,
+    "slug": "credibility-audits-acceleration-benchmarks-autonomous",
+    "title": {
+      "zh": "自主发现的可信度审计与加速基准",
+      "en": "Credibility Audits and Acceleration Benchmarks for Autonomous Discovery"
+    },
+    "qfocus": {
+      "zh": "当自驱实验室宣称'发现了 N 种新材料'，用什么可复核的程序才能把这个数字证伪？",
+      "en": "When a self-driving lab claims it discovered N new materials, what re-checkable procedure can falsify that number?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C04",
+      "zh": "自驱实验室·自动化科学",
+      "en": "Self-driving labs · automated science"
+    },
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      5,
+      5,
+      3,
+      4,
+      5
+    ],
+    "stage": 1,
+    "members": 5,
+    "activity": 39,
+    "chart": {
+      "x": 1055,
+      "y": 802,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 189,
+    "atlasN": 1519,
+    "slug": "autonomous-chromatographic-method-development",
+    "title": {
+      "zh": "自主色谱方法开发",
+      "en": "Autonomous Chromatographic Method Development"
+    },
+    "qfocus": {
+      "zh": "贝叶斯优化能在有限混合物上自主整出液相色谱方法，那柱子老化、基质变复杂、换一台仪器之后还成立吗？",
+      "en": "Bayesian optimization can work out a liquid-chromatography method autonomously on limited mixtures — but does it still hold once the column ages, the matrix gets complex, or the instrument changes?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C04",
+      "zh": "自驱实验室·自动化科学",
+      "en": "Self-driving labs · automated science"
+    },
+    "scores": [
+      4,
+      4,
+      4,
+      5,
+      4,
+      5,
+      3,
+      5,
+      5
+    ],
+    "stage": 1,
+    "members": 2,
+    "activity": 39,
+    "chart": {
+      "x": 859,
+      "y": 728,
+      "scale": 0.72
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 190,
+    "atlasN": 1161,
+    "slug": "active-mechanism-discovery-via-disagreement-driven",
+    "title": {
+      "zh": "主动机理发现（分歧驱动实验设计恢复可解释定律）",
+      "en": "Active Mechanism Discovery via Disagreement-Driven Experiment Design"
+    },
+    "qfocus": {
+      "zh": "让闭环专挑「候选机理预测最分歧」的那个实验去做，能否比拟合固定数据更快恢复出真定律？",
+      "en": "Can a loop that deliberately runs the experiment where competing mechanisms most disagree recover the true law faster than fitting a fixed dataset?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C04",
+      "zh": "自驱实验室·自动化科学",
+      "en": "Self-driving labs · automated science"
+    },
+    "scores": [
+      5,
+      4,
+      5,
+      4,
+      3,
+      4,
+      3,
+      4,
+      4
+    ],
+    "stage": 2,
+    "members": 5,
+    "activity": 62,
+    "chart": {
+      "x": 906,
+      "y": 533,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 191,
+    "atlasN": 1164,
+    "slug": "calibrated-autonomy-human-handoff-self-driving",
+    "title": {
+      "zh": "校准自主与人机交接（自驱实验室的共驾决策层）",
+      "en": "Calibrated Autonomy and Human Handoff in Self-Driving Labs"
+    },
+    "qfocus": {
+      "zh": "自驱实验室能否可靠判断「这一步我该停下来问人」，把交接阈值建在可校准、可审计的证据上？",
+      "en": "Can a self-driving lab reliably judge when to stop and ask a human, resting the handoff threshold on calibrated, auditable evidence?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C04",
+      "zh": "自驱实验室·自动化科学",
+      "en": "Self-driving labs · automated science"
+    },
+    "scores": [
+      4,
+      4,
+      4,
+      3,
+      5,
+      3,
+      4,
+      4,
+      4
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 50,
+    "chart": {
+      "x": 1022,
+      "y": 781,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 192,
+    "atlasN": 977,
+    "slug": "one-week-automated-genome-wide-optical-pooled",
+    "title": {
+      "zh": "一周完成的全基因组光学混池筛选自动化",
+      "en": "One-Week Automated Genome-Wide Optical Pooled Screening"
+    },
+    "qfocus": {
+      "zh": "当全基因组成像筛选从数月压到八天，瓶颈是否就从「跑得完」整个移到了「看得懂」？",
+      "en": "Once a genome-wide imaging screen compresses from months to eight days, does the bottleneck move entirely from running it to reading it?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C04",
+      "zh": "自驱实验室·自动化科学",
+      "en": "Self-driving labs · automated science"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      2,
+      2,
+      2,
+      5,
+      3,
+      4
+    ],
+    "stage": 2,
+    "members": 4,
+    "activity": 57,
+    "chart": {
+      "x": 715,
+      "y": 626,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 211,
+    "atlasN": 966,
+    "slug": "executable-asset-administration-shells-plug-and-simulate",
+    "title": {
+      "zh": "可执行资产管理壳:即插即仿的互操作孪生",
+      "en": "Executable Asset Administration Shells: Plug-and-Simulate Interoperable Twins"
+    },
+    "qfocus": {
+      "zh": "来自不同厂商的资产管理壳，能否在运行时自动装配成一条可联合仿真的整线孪生，而不靠人工适配？",
+      "en": "Can asset administration shells from different vendors assemble themselves at runtime into a co-simulatable whole-line twin, without hand-written adapters?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C09",
+      "zh": "数字孪生·虚拟科学",
+      "en": "Digital twins · virtual science"
+    },
+    "scores": [
+      3,
+      5,
+      4,
+      5,
+      3,
+      4,
+      4,
+      3,
+      5
+    ],
+    "stage": 1,
+    "members": 3,
+    "activity": 39,
+    "chart": {
+      "x": 813,
+      "y": 640,
+      "scale": 0.75
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 212,
+    "atlasN": 961,
+    "slug": "neural-operator-surrogate-twins-laser-manufacturing",
+    "title": {
+      "zh": "激光制造的神经算子代理孪生",
+      "en": "Neural-Operator Surrogate Twins for Laser Manufacturing"
+    },
+    "qfocus": {
+      "zh": "时间平均的准稳态算子能否覆盖从传导到匙孔的整个工艺窗口，并在加工节拍内闭环预测熔池？",
+      "en": "Can a time-averaged quasi-steady operator cover the entire process window from conduction to keyhole, and predict the melt pool in closed loop within the machine's cycle time?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C09",
+      "zh": "数字孪生·虚拟科学",
+      "en": "Digital twins · virtual science"
+    },
+    "scores": [
+      4,
+      5,
+      5,
+      2,
+      3,
+      2,
+      4,
+      4,
+      4
+    ],
+    "stage": 1,
+    "members": 6,
+    "activity": 58,
+    "chart": {
+      "x": 836,
+      "y": 802,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 213,
+    "atlasN": 150,
+    "slug": "virtual-experiments-computable-papers",
+    "title": {
+      "zh": "虚拟实验与可计算论文",
+      "en": "Virtual Experiments and Computable Papers"
+    },
+    "qfocus": {
+      "zh": "论文里的图表结论能否被读者一键重算，并在计算环境封存多年之后仍复现出同一结果？",
+      "en": "Can a reader recompute a paper's figures and conclusions in one click, and still obtain the same result years after its compute environment was archived?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C09",
+      "zh": "数字孪生·虚拟科学",
+      "en": "Digital twins · virtual science"
+    },
+    "scores": [
+      4,
+      3,
+      4,
+      4,
+      4,
+      4,
+      3,
+      4,
+      4
+    ],
+    "stage": 2,
+    "members": 4,
+    "activity": 65,
+    "chart": {
+      "x": 657,
+      "y": 666,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 214,
+    "atlasN": 965,
+    "slug": "material-informed-gaussian-splatting-twins-camera-as-twin",
+    "title": {
+      "zh": "物质感知高斯泼溅孪生:相机即孪生",
+      "en": "Material-Informed Gaussian-Splatting Twins: Camera-as-Twin"
+    },
+    "qfocus": {
+      "zh": "只用多视角相机重建的场景，能否带上足以支撑物理传感器仿真的材质属性，取代激光雷达做孪生？",
+      "en": "Can a scene reconstructed from multi-view cameras alone carry material properties good enough for physics-based sensor simulation, replacing LiDAR as the basis of a twin?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C09",
+      "zh": "数字孪生·虚拟科学",
+      "en": "Digital twins · virtual science"
+    },
+    "scores": [
+      3,
+      5,
+      4,
+      4,
+      3,
+      4,
+      3,
+      4,
+      4
+    ],
+    "stage": 1,
+    "members": 2,
+    "activity": 58,
+    "chart": {
+      "x": 948,
+      "y": 802,
+      "scale": 0.72
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 215,
+    "atlasN": 1552,
+    "slug": "mechanistic-digital-twins-tumor-therapy",
+    "title": {
+      "zh": "机制性肿瘤治疗数字孪生",
+      "en": "Mechanistic Digital Twins for Tumor Therapy"
+    },
+    "qfocus": {
+      "zh": "由个体影像反复校准的肿瘤机制模型，能否给出可信的治疗反事实，并在前瞻性试验中改善结局？",
+      "en": "Can a mechanistic tumor model repeatedly calibrated from an individual's imaging yield trustworthy treatment counterfactuals, and improve outcomes in a prospective trial?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C09",
+      "zh": "数字孪生·虚拟科学",
+      "en": "Digital twins · virtual science"
+    },
+    "scores": [
+      5,
+      3,
+      4,
+      2,
+      5,
+      4,
+      3,
+      3,
+      3
+    ],
+    "stage": 2,
+    "members": 5,
+    "activity": 53,
+    "chart": {
+      "x": 723,
+      "y": 666,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 228,
+    "atlasN": 214,
+    "slug": "climate-attribution-extreme-event-science",
+    "title": {
+      "zh": "气候归因与极端事件科学",
+      "en": "Climate Attribution & Extreme-Event Science"
+    },
+    "qfocus": {
+      "zh": "单次热浪或洪水的归因结论，能否在置信区间宽到可被诉讼双方各取所需之前被稳健确定？",
+      "en": "Can an attribution verdict on a single heatwave or flood be pinned down robustly before its confidence interval widens enough for both sides of a lawsuit to cherry-pick?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C13",
+      "zh": "气候·地球生物工程",
+      "en": "Climate · planetary bioengineering"
+    },
+    "scores": [
+      3,
+      4,
+      4,
+      3,
+      4,
+      2,
+      4,
+      4,
+      4
+    ],
+    "stage": 2,
+    "members": 9,
+    "activity": 62,
+    "chart": {
+      "x": 695,
+      "y": 441,
+      "scale": 0.93
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 229,
+    "atlasN": 216,
+    "slug": "rapid-urban-evolution-data-driven",
+    "title": {
+      "zh": "城市快速演化（数据驱动）",
+      "en": "Rapid Urban Evolution (Data-Driven)"
+    },
+    "qfocus": {
+      "zh": "城市热岛、污染与农药的选择压，能否在几年到几十年内被追踪成可复现的定向遗传演化？",
+      "en": "Can the selection pressures of urban heat islands, pollution, and pesticides be tracked, within years to decades, as reproducible directional genetic evolution?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C13",
+      "zh": "气候·地球生物工程",
+      "en": "Climate · planetary bioengineering"
+    },
+    "scores": [
+      3,
+      3,
+      3,
+      5,
+      3,
+      4,
+      4,
+      3,
+      4
+    ],
+    "stage": 1,
+    "members": 2,
+    "activity": 58,
+    "chart": {
+      "x": 638,
+      "y": 507,
+      "scale": 0.72
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 230,
+    "atlasN": 1586,
+    "slug": "lifecycle-carbon-accounting-prescribed-fire",
+    "title": {
+      "zh": "计划用火的全生命周期碳核算",
+      "en": "Lifecycle Carbon Accounting for Prescribed Fire"
+    },
+    "qfocus": {
+      "zh": "把处理时燃烧、真正遭遇野火的概率与碳恢复时间一起算进去后，计划用火在什么条件下才净减碳？",
+      "en": "Once treatment-time combustion, the probability of actually meeting a wildfire, and carbon recovery time are all counted, under what conditions does prescribed fire actually reduce net carbon?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C13",
+      "zh": "气候·地球生物工程",
+      "en": "Climate · planetary bioengineering"
+    },
+    "scores": [
+      3,
+      4,
+      2,
+      5,
+      4,
+      5,
+      3,
+      2,
+      4
+    ],
+    "stage": 2,
+    "members": 4,
+    "activity": 65,
+    "chart": {
+      "x": 822,
+      "y": 455,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 244,
+    "atlasN": 1621,
+    "slug": "citizen-multi-station-optical-telemetry-observations",
+    "title": {
+      "zh": "公众卫星再入的多站光学与遥测观测",
+      "en": "Citizen Multi-Station Optical and Telemetry Observations of Satellite Reentries"
+    },
+    "qfocus": {
+      "zh": "分布在多地的业余相机与业余无线电站，能否把一次卫星再入的轨迹与碎裂时序复原到可用于工程核对的精度？",
+      "en": "Can amateur cameras and amateur radio stations spread across many sites reconstruct a satellite reentry's trajectory and break-up timeline to a precision usable for engineering cross-checks?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C18",
+      "zh": "大众空间科学",
+      "en": "Citizen space science"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      5,
+      5,
+      4,
+      4,
+      4,
+      3
+    ],
+    "stage": 2,
+    "members": 5,
+    "activity": 74,
+    "chart": {
+      "x": 757,
+      "y": 578,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 245,
+    "atlasN": 710,
+    "slug": "diy-muon-tomography-seeing-through",
+    "title": {
+      "zh": "DIY缪子层析（看穿岩石）",
+      "en": "DIY Muon Tomography (Seeing Through Rock)"
+    },
+    "qfocus": {
+      "zh": "百元级开源缪子探测器组成的阵列，能否把病态的三维反演做到直接给出空腔形状，而不只是提示异常？",
+      "en": "Can arrays of sub-$100 open-source muon detectors push the ill-posed 3D inversion far enough to output void shape directly, rather than merely flag an anomaly?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C18",
+      "zh": "大众空间科学",
+      "en": "Citizen space science"
+    },
+    "scores": [
+      3,
+      5,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "stage": 1,
+    "members": 6,
+    "activity": 43,
+    "chart": {
+      "x": 686,
+      "y": 652,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 246,
+    "atlasN": 1426,
+    "slug": "citizen-discovered-optical-phenomena-upper-atmosphere",
+    "title": {
+      "zh": "公众发现的高层大气新光学现象",
+      "en": "Citizen-Discovered Optical Phenomena in the Upper Atmosphere"
+    },
+    "qfocus": {
+      "zh": "缺乏定标的手机与相机影像，能否被校准到足以反演发射高度与温度，让新现象从命名走进物理？",
+      "en": "Can uncalibrated phone and camera imagery be corrected far enough to retrieve emission altitude and temperature, moving a new phenomenon from naming into physics?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C18",
+      "zh": "大众空间科学",
+      "en": "Citizen space science"
+    },
+    "scores": [
+      4,
+      4,
+      4,
+      5,
+      5,
+      5,
+      4,
+      4,
+      3
+    ],
+    "stage": 2,
+    "members": 4,
+    "activity": 69,
+    "chart": {
+      "x": 984,
+      "y": 276,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 247,
+    "atlasN": 1425,
+    "slug": "personal-space-weather-stations-distributed",
+    "title": {
+      "zh": "个人空间天气站——业余无线电的分布式电离层探测",
+      "en": "Personal Space Weather Stations — Distributed Ionospheric Sensing by Ham Radio"
+    },
+    "qfocus": {
+      "zh": "上百台自建接收机在时钟、天线与环境各异的条件下，能否合成一张足以分辨中尺度电离层行波的观测网？",
+      "en": "With clocks, antennas and local environments all differing, can hundreds of self-built receivers combine into a network able to resolve medium-scale traveling ionospheric disturbances?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C18",
+      "zh": "大众空间科学",
+      "en": "Citizen space science"
+    },
+    "scores": [
+      3,
+      4,
+      5,
+      5,
+      3,
+      5,
+      4,
+      4,
+      4
+    ],
+    "stage": 1,
+    "members": 5,
+    "activity": 57,
+    "chart": {
+      "x": 870,
+      "y": 691,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 248,
+    "atlasN": 294,
+    "slug": "planetary-science-small-body-exploration",
+    "title": {
+      "zh": "行星科学与小天体探测",
+      "en": "Planetary Science & Small-Body Exploration"
+    },
+    "qfocus": {
+      "zh": "一份未经大气烧蚀与地表风化的原始样品，能给出哪些陨石永远无法给出的太阳系初始条件？",
+      "en": "What initial conditions of the solar system can a sample untouched by atmospheric ablation and terrestrial weathering reveal that meteorites never can?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C18",
+      "zh": "大众空间科学",
+      "en": "Citizen space science"
+    },
+    "scores": [
+      4,
+      4,
+      3,
+      2,
+      2,
+      1,
+      5,
+      4,
+      4
+    ],
+    "stage": 1,
+    "members": 6,
+    "activity": 47,
+    "chart": {
+      "x": 894,
+      "y": 142,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 249,
+    "atlasN": 1628,
+    "slug": "community-governed-corpora-endangered-languages",
+    "title": {
+      "zh": "社区共治的濒危语言语料基础设施",
+      "en": "Community-Governed Corpora for Endangered Languages"
+    },
+    "qfocus": {
+      "zh": "当模型一旦训练便难以撤回，社区对语料的同意、许可与撤回权还能以什么技术形式真正兑现？",
+      "en": "When a model, once trained, can hardly be untrained, in what technical form can a community's consent, licensing and withdrawal rights over its corpus still be honoured?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C19",
+      "zh": "计算社会科学·数字人文",
+      "en": "Computational social science · digital humanities"
+    },
+    "scores": [
+      5,
+      5,
+      4,
+      3,
+      4,
+      2,
+      4,
+      2,
+      4
+    ],
+    "stage": 2,
+    "members": 4,
+    "activity": 60,
+    "chart": {
+      "x": 591,
+      "y": 625,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 250,
+    "atlasN": 1169,
+    "slug": "publish-review-curate-ecosystems-their-validity-science",
+    "title": {
+      "zh": "出版-评审-策展（PRC）生态及其效度科学",
+      "en": "Publish-Review-Curate Ecosystems and Their Validity Science"
+    },
+    "qfocus": {
+      "zh": "eLife 评估这类分层措辞与论文的真实可靠性之间究竟有多大相关，能否像诊断测试那样被校准？",
+      "en": "How strongly do tiered assessment terms such as eLife's correlate with a paper's actual reliability, and can they be calibrated the way a diagnostic test is?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C20",
+      "zh": "去中心科学·开放科学机制",
+      "en": "Decentralized science · open science mechanisms"
+    },
+    "scores": [
+      4,
+      3,
+      4,
+      5,
+      4,
+      5,
+      4,
+      3,
+      3
+    ],
+    "stage": 1,
+    "members": 2,
+    "activity": 39,
+    "chart": {
+      "x": 772,
+      "y": 548,
+      "scale": 0.72
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 251,
+    "atlasN": 1635,
+    "slug": "verifiable-builds-dependency-provenance-research",
+    "title": {
+      "zh": "科研软件的可验证构建与依赖出处",
+      "en": "Verifiable Builds and Dependency Provenance for Research Software"
+    },
+    "qfocus": {
+      "zh": "一篇论文所用的软件制品，能否在十年后仅凭归档源码与锁定依赖被独立重建到位级一致？",
+      "en": "Can the software artifact a paper relied on be independently rebuilt, bit for bit, ten years later from archived source and locked dependencies alone?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C20",
+      "zh": "去中心科学·开放科学机制",
+      "en": "Decentralized science · open science mechanisms"
+    },
+    "scores": [
+      3,
+      3,
+      4,
+      4,
+      4,
+      5,
+      4,
+      5,
+      4
+    ],
+    "stage": 1,
+    "members": 6,
+    "activity": 45,
+    "chart": {
+      "x": 760,
+      "y": 437,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 252,
+    "atlasN": 329,
+    "slug": "open-data-fair-infrastructure",
+    "title": {
+      "zh": "开放数据与 FAIR 基础设施",
+      "en": "Open Data and FAIR Infrastructure"
+    },
+    "qfocus": {
+      "zh": "在没人愿意长期出钱的前提下，元数据与标识符这类管道工作如何维持到足以支撑跨学科复用？",
+      "en": "With no one willing to fund it for the long haul, how does plumbing work like metadata and identifiers get sustained far enough to carry cross-disciplinary reuse?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C20",
+      "zh": "去中心科学·开放科学机制",
+      "en": "Decentralized science · open science mechanisms"
+    },
+    "scores": [
+      3,
+      3,
+      4,
+      4,
+      3,
+      4,
+      3,
+      3,
+      5
+    ],
+    "stage": 1,
+    "members": 3,
+    "activity": 44,
+    "chart": {
+      "x": 534,
+      "y": 595,
+      "scale": 0.75
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 253,
+    "atlasN": 1167,
+    "slug": "partial-lotteries-mechanism-design-experiments-research",
+    "title": {
+      "zh": "科研资助的部分抽签制与机制设计实验",
+      "en": "Partial Lotteries & Mechanism-Design Experiments in Research Funding"
+    },
+    "qfocus": {
+      "zh": "怎样才能证明同行评议在资助线附近确实没有区分信号，而不是用抽签替无法问责的决策打掩护？",
+      "en": "How can one demonstrate that peer review truly carries no discriminating signal near the funding line, rather than using the lottery to cover decisions no one can be held to?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C20",
+      "zh": "去中心科学·开放科学机制",
+      "en": "Decentralized science · open science mechanisms"
+    },
+    "scores": [
+      3,
+      3,
+      3,
+      4,
+      4,
+      5,
+      4,
+      4,
+      4
+    ],
+    "stage": 2,
+    "members": 7,
+    "activity": 61,
+    "chart": {
+      "x": 812,
+      "y": 273,
+      "scale": 0.87
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 254,
+    "atlasN": 1641,
+    "slug": "goal-alignment-conflict-resolution-human",
+    "title": {
+      "zh": "人机团队的目标对齐与冲突解决",
+      "en": "Goal Alignment and Conflict Resolution in Human–AI Teams"
+    },
+    "qfocus": {
+      "zh": "人与 AI 的计划发生冲突时，谁让步、是否透明，究竟改变的是任务真实正确率还是仅仅改变了合作感？",
+      "en": "When human and AI plans conflict, does who concedes and whether the process is transparent change the task's actual accuracy, or only the felt sense of cooperation?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C21",
+      "zh": "人机协作·认知增强",
+      "en": "Human-AI collaboration · cognitive augmentation"
+    },
+    "scores": [
+      5,
+      4,
+      5,
+      3,
+      5,
+      3,
+      3,
+      2,
+      2
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 56,
+    "chart": {
+      "x": 966,
+      "y": 718,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 255,
+    "atlasN": 1637,
+    "slug": "interaction-trace-measurement-human-ai-team",
+    "title": {
+      "zh": "人机团队动态的交互轨迹测量",
+      "en": "Interaction-Trace Measurement of Human–AI Team Dynamics"
+    },
+    "qfocus": {
+      "zh": "带时间戳的请求、澄清、纠错与交接序列，能否成为人机团队过程的可识别测量，而不只是日志的堆积？",
+      "en": "Can timestamped sequences of requests, clarifications, corrections and handoffs become an identifiable measurement of human–AI team process rather than merely accumulated logs?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C21",
+      "zh": "人机协作·认知增强",
+      "en": "Human-AI collaboration · cognitive augmentation"
+    },
+    "scores": [
+      3,
+      3,
+      4,
+      3,
+      5,
+      5,
+      3,
+      3,
+      4
+    ],
+    "stage": 2,
+    "members": 7,
+    "activity": 53,
+    "chart": {
+      "x": 700,
+      "y": 769,
+      "scale": 0.87
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 256,
+    "atlasN": 1640,
+    "slug": "cognitive-forcing-functions-intercepting-ai",
+    "title": {
+      "zh": "认知强制函数与 AI 错误拦截",
+      "en": "Cognitive Forcing Functions for Intercepting AI Errors"
+    },
+    "qfocus": {
+      "zh": "先自答、延迟披露、冲突复核这类强制摩擦，究竟减少了对 AI 的错采纳，还是只换来错拒绝与疲劳？",
+      "en": "Do forced frictions — answer first, delayed disclosure, conflict review — actually reduce wrong adoption of AI advice, or merely trade it for wrong rejection and fatigue?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C21",
+      "zh": "人机协作·认知增强",
+      "en": "Human-AI collaboration · cognitive augmentation"
+    },
+    "scores": [
+      3,
+      3,
+      3,
+      4,
+      5,
+      5,
+      3,
+      4,
+      4
+    ],
+    "stage": 2,
+    "members": 5,
+    "activity": 68,
+    "chart": {
+      "x": 796,
+      "y": 698,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 257,
+    "atlasN": 1636,
+    "slug": "shared-mental-models-human-ai",
+    "title": {
+      "zh": "人机团队的共享心智模型",
+      "en": "Shared Mental Models in Human–AI Teams"
+    },
+    "qfocus": {
+      "zh": "人与 AI 是否真的形成了一致且正确的任务、角色与能力边界表征，还是只是共享了同一个错误？",
+      "en": "Do human and AI actually hold consistent and correct representations of task, role and capability boundary — or do they merely share the same mistake?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C21",
+      "zh": "人机协作·认知增强",
+      "en": "Human-AI collaboration · cognitive augmentation"
+    },
+    "scores": [
+      4,
+      3,
+      2,
+      4,
+      5,
+      4,
+      3,
+      3,
+      3
+    ],
+    "stage": 1,
+    "members": 3,
+    "activity": 42,
+    "chart": {
+      "x": 1112,
+      "y": 766,
+      "scale": 0.75
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 258,
+    "atlasN": 1639,
+    "slug": "creative-fixation-diversity-under-generative",
+    "title": {
+      "zh": "生成式辅助中的创意固着与多样性",
+      "en": "Creative Fixation and Diversity under Generative Assistance"
+    },
+    "qfocus": {
+      "zh": "生成式建议在哪个工作阶段抬高个体创意，又在哪个阶段把群体作品压成同一副面孔？",
+      "en": "At which stage of the work does generative assistance lift individual creativity, and at which stage does it press a population of works into one face?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C21",
+      "zh": "人机协作·认知增强",
+      "en": "Human-AI collaboration · cognitive augmentation"
+    },
+    "scores": [
+      3,
+      4,
+      3,
+      4,
+      4,
+      5,
+      3,
+      3,
+      3
+    ],
+    "stage": 2,
+    "members": 7,
+    "activity": 59,
+    "chart": {
+      "x": 753,
+      "y": 707,
+      "scale": 0.87
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 259,
+    "atlasN": 1644,
+    "slug": "participatory-governance-ontologies-taxonomies",
+    "title": {
+      "zh": "参与式本体与分类体系治理",
+      "en": "Participatory Governance of Ontologies and Taxonomies"
+    },
+    "qfocus": {
+      "zh": "被分类影响的人，能否在本体的提案、表决、弃用与退出上真正握有权力，而不只是被邀请来受访？",
+      "en": "Can the people a classification acts upon hold real power over proposal, vote, deprecation and exit in an ontology — rather than merely being invited for interviews?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C22",
+      "zh": "集体智能·知识基础设施",
+      "en": "Collective intelligence · knowledge infrastructure"
+    },
+    "scores": [
+      4,
+      4,
+      3,
+      5,
+      5,
+      4,
+      3,
+      4,
+      5
+    ],
+    "stage": 2,
+    "members": 4,
+    "activity": 63,
+    "chart": {
+      "x": 948,
+      "y": 288,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 271,
+    "atlasN": 711,
+    "slug": "eavesdropping-vibrational-communication-substrate-dark",
+    "title": {
+      "zh": "震动通讯的窃听学（基质暗信道）",
+      "en": "Eavesdropping on Vibrational Communication (the Substrate Dark Channel)"
+    },
+    "qfocus": {
+      "zh": "在基质对信号的强烈衰减与畸变之下，能否建立一部把振动模式对应到行为意义的跨物种「振动词典」？",
+      "en": "Under the strong attenuation and distortion a substrate imposes, can a cross-species “vibrational dictionary” be built that maps vibration patterns to behavioral meaning?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C26",
+      "zh": "感官界面·跨物种",
+      "en": "Sensory interfaces · cross-species"
+    },
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      3,
+      2,
+      5
+    ],
+    "stage": 1,
+    "members": 3,
+    "activity": 56,
+    "chart": {
+      "x": 705,
+      "y": 519,
+      "scale": 0.75
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 272,
+    "atlasN": 528,
+    "slug": "biomimetic-olfactory-receptors-odor-decoding",
+    "title": {
+      "zh": "仿生嗅觉受体与气味解码",
+      "en": "Biomimetic Olfactory Receptors and Odor Decoding"
+    },
+    "qfocus": {
+      "zh": "以约 400 种受体的组合激活为坐标，能否给气味建立一套像波长之于光那样可计算的表示？",
+      "en": "Using the combinatorial activation of roughly 400 receptors as coordinates, can odor be given a computable representation the way wavelength serves light?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C26",
+      "zh": "感官界面·跨物种",
+      "en": "Sensory interfaces · cross-species"
+    },
+    "scores": [
+      4,
+      4,
+      4,
+      3,
+      4,
+      3,
+      3,
+      3,
+      4
+    ],
+    "stage": 2,
+    "members": 4,
+    "activity": 57,
+    "chart": {
+      "x": 508,
+      "y": 552,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 273,
+    "atlasN": 1675,
+    "slug": "measuring-animal-olfactory-landscapes-navigation",
+    "title": {
+      "zh": "动物气味景观的测量与导航",
+      "en": "Measuring Animal Olfactory Landscapes and Navigation"
+    },
+    "qfocus": {
+      "zh": "能否把动物实际经历的气味场——浓度、湍流结构、随时间的运动——测到与它的自由行为轨迹逐帧对齐？",
+      "en": "Can the odor field an animal actually experiences — concentration, turbulent structure, motion over time — be measured well enough to align frame by frame with its free-behavior trajectory?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C26",
+      "zh": "感官界面·跨物种",
+      "en": "Sensory interfaces · cross-species"
+    },
+    "scores": [
+      4,
+      4,
+      4,
+      3,
+      4,
+      3,
+      3,
+      4,
+      4
+    ],
+    "stage": 2,
+    "members": 9,
+    "activity": 72,
+    "chart": {
+      "x": 651,
+      "y": 584,
+      "scale": 0.93
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 274,
+    "atlasN": 1338,
+    "slug": "scientific-data-sonification-research-accessible",
+    "title": {
+      "zh": "科学数据声化：用听觉做科研与无障碍探索",
+      "en": "Scientific Data Sonification: Research and Accessible Discovery by Ear"
+    },
+    "qfocus": {
+      "zh": "在哪些任务上，把光变曲线映射成声音能系统性地比看图更早发现信号，而不只是换一种有趣的呈现？",
+      "en": "On which tasks does mapping a light curve to sound systematically surface signals earlier than looking at the plot, rather than merely presenting it more engagingly?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C27",
+      "zh": "科学·艺术·设计融合",
+      "en": "Science · art · design fusion"
+    },
+    "scores": [
+      3,
+      3,
+      4,
+      5,
+      4,
+      5,
+      4,
+      5,
+      5
+    ],
+    "stage": 2,
+    "members": 7,
+    "activity": 71,
+    "chart": {
+      "x": 831,
+      "y": 551,
+      "scale": 0.87
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 275,
+    "atlasN": 1681,
+    "slug": "conservation-science-software-based-born-digital-art",
+    "title": {
+      "zh": "软件与原生数字艺术的保存科学",
+      "en": "Conservation Science for Software-Based and Born-Digital Art"
+    },
+    "qfocus": {
+      "zh": "当模拟、重写与代码修复都会改变作品本身，如何判定一次迁移之后运行的仍是同一件作品？",
+      "en": "When emulation, rewriting, and code repair all alter the work, how does one judge that what runs after a migration is still the same artwork?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C27",
+      "zh": "科学·艺术·设计融合",
+      "en": "Science · art · design fusion"
+    },
+    "scores": [
+      2,
+      5,
+      3,
+      5,
+      5,
+      4,
+      3,
+      4,
+      5
+    ],
+    "stage": 2,
+    "members": 5,
+    "activity": 71,
+    "chart": {
+      "x": 738,
+      "y": 770,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 276,
+    "atlasN": 1336,
+    "slug": "data-physicalization-graspable-embodied-data",
+    "title": {
+      "zh": "数据物理化：可触握的具身数据表征",
+      "en": "Data Physicalization: Graspable, Embodied Data Representation"
+    },
+    "qfocus": {
+      "zh": "用手握住数据带来的理解增益，能否与新奇感分开测量，而不只是展览现场的即时反应？",
+      "en": "Can the comprehension gain from holding data in the hand be measured apart from novelty, rather than read off an exhibition-floor reaction?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C27",
+      "zh": "科学·艺术·设计融合",
+      "en": "Science · art · design fusion"
+    },
+    "scores": [
+      3,
+      4,
+      4,
+      5,
+      5,
+      5,
+      3,
+      4,
+      4
+    ],
+    "stage": 2,
+    "members": 4,
+    "activity": 56,
+    "chart": {
+      "x": 887,
+      "y": 471,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 277,
+    "atlasN": 1335,
+    "slug": "distortion-metrology-ai-science-intermediaries",
+    "title": {
+      "zh": "AI科学中介的失真度量学",
+      "en": "Distortion Metrology for AI Science Intermediaries"
+    },
+    "qfocus": {
+      "zh": "当公众经由聊天助手读科学，这层中介的系统性失真能否被做成可周期复跑、跨语言可比的指标？",
+      "en": "As the public reads science through chat assistants, can this intermediary layer's systematic distortion be turned into an index that re-runs on a cycle and compares across languages?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C27",
+      "zh": "科学·艺术·设计融合",
+      "en": "Science · art · design fusion"
+    },
+    "scores": [
+      3,
+      3,
+      4,
+      4,
+      4,
+      5,
+      4,
+      4,
+      4
+    ],
+    "stage": 1,
+    "members": 5,
+    "activity": 49,
+    "chart": {
+      "x": 912,
+      "y": 802,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 278,
+    "atlasN": 1680,
+    "slug": "comprehension-experiments-scientific-diagrams",
+    "title": {
+      "zh": "科学图解的理解度实验",
+      "en": "Comprehension Experiments for Scientific Diagrams"
+    },
+    "qfocus": {
+      "zh": "一个箭头、一种布局对概念理解究竟有多大因果效应，而不只是让图看起来更清楚？",
+      "en": "What causal effect on conceptual understanding does an arrow style or a layout actually have, as opposed to merely making the figure look clearer?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C27",
+      "zh": "科学·艺术·设计融合",
+      "en": "Science · art · design fusion"
+    },
+    "scores": [
+      3,
+      3,
+      4,
+      4,
+      4,
+      5,
+      4,
+      5,
+      4
+    ],
+    "stage": 2,
+    "members": 7,
+    "activity": 65,
+    "chart": {
+      "x": 619,
+      "y": 679,
+      "scale": 0.87
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 279,
+    "atlasN": 1436,
+    "slug": "computational-research-integrity-forensics",
+    "title": {
+      "zh": "计算科研诚信取证",
+      "en": "Computational Research-Integrity Forensics"
+    },
+    "qfocus": {
+      "zh": "当 LLM 抹平了「折磨过的短语」这类破绽，还能不能找到可在上亿篇论文上批量运行的造假指纹？",
+      "en": "Now that LLMs are erasing tells like “tortured phrases,” can fraud fingerprints still be found that run in batch across hundreds of millions of papers?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C28",
+      "zh": "元科学·科研治理",
+      "en": "Metascience · research governance"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      4,
+      3,
+      4,
+      5,
+      4,
+      4
+    ],
+    "stage": 2,
+    "members": 5,
+    "activity": 67,
+    "chart": {
+      "x": 785,
+      "y": 408,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 280,
+    "atlasN": 1470,
+    "slug": "data-leakage-auditing-reforms-consensus-ml-based",
+    "title": {
+      "zh": "ML-科学的数据泄漏审计与 REFORMS 报告共识",
+      "en": "Data-Leakage Auditing and the REFORMS Consensus for ML-Based Science"
+    },
+    "qfocus": {
+      "zh": "数据泄漏能否被查到可清单化、可规模化的程度，还是时间与群组泄漏永远需要懂数据生成过程的人来看？",
+      "en": "Can data leakage be caught to a degree that is checklistable and scalable, or will temporal and group leakage always require someone who understands the data-generating process?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C28",
+      "zh": "元科学·科研治理",
+      "en": "Metascience · research governance"
+    },
+    "scores": [
+      4,
+      3,
+      5,
+      4,
+      4,
+      4,
+      5,
+      4,
+      4
+    ],
+    "stage": 1,
+    "members": 5,
+    "activity": 54,
+    "chart": {
+      "x": 723,
+      "y": 574,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 281,
+    "atlasN": 1440,
+    "slug": "ai-forensics-research-integrity-detecting",
+    "title": {
+      "zh": "学术造假的AI取证：论文工厂与伪造科学的规模化检测",
+      "en": "AI Forensics for Research Integrity: Detecting Paper Mills and Fabricated Science at Scale"
+    },
+    "qfocus": {
+      "zh": "在千万篇真论文上维持极低误报率的前提下，取证模型能否在评审之前拦下论文工厂批量伪造的稿件？",
+      "en": "While holding a very low false-positive rate across tens of millions of genuine papers, can forensic models intercept mass-fabricated paper-mill manuscripts before peer review?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C28",
+      "zh": "元科学·科研治理",
+      "en": "Metascience · research governance"
+    },
+    "scores": [
+      3,
+      4,
+      5,
+      4,
+      3,
+      4,
+      5,
+      4,
+      4
+    ],
+    "stage": 1,
+    "members": 5,
+    "activity": 49,
+    "chart": {
+      "x": 991,
+      "y": 177,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 282,
+    "atlasN": 1469,
+    "slug": "auditing-ai-contamination-model-collapse-risk",
+    "title": {
+      "zh": "科学文献的 AI 污染与“模型坍缩”审计",
+      "en": "Auditing AI Contamination and Model-Collapse Risk of the Scientific Record"
+    },
+    "qfocus": {
+      "zh": "被大模型稀释的科学文献，会不会通过训练下一代模型与自动综述形成闭环，让知识库自身发生模型坍缩？",
+      "en": "As the scientific record is diluted by large-language-model text, does training the next generation of models and automated reviews on it close a loop that collapses the knowledge base itself?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C28",
+      "zh": "元科学·科研治理",
+      "en": "Metascience · research governance"
+    },
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      3,
+      5,
+      4,
+      4,
+      4
+    ],
+    "stage": 2,
+    "members": 7,
+    "activity": 50,
+    "chart": {
+      "x": 841,
+      "y": 518,
+      "scale": 0.87
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 283,
+    "atlasN": 1433,
+    "slug": "forensics-llm-contamination-scientific-corpus",
+    "title": {
+      "zh": "语料的大模型污染取证",
+      "en": "Forensics of LLM Contamination in the Scientific Corpus"
+    },
+    "qfocus": {
+      "zh": "在没有人写/机写黄金标注的情况下，语料级的超额词频能把 AI 之手测到多准，又只能给出多低的下界？",
+      "en": "Without any gold-labelled human-versus-machine corpus, how accurately can corpus-level excess vocabulary measure the hand of AI — and how loose is the lower bound it can offer?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C28",
+      "zh": "元科学·科研治理",
+      "en": "Metascience · research governance"
+    },
+    "scores": [
+      4,
+      4,
+      4,
+      3,
+      3,
+      5,
+      4,
+      5,
+      4
+    ],
+    "stage": 2,
+    "members": 9,
+    "activity": 71,
+    "chart": {
+      "x": 645,
+      "y": 547,
+      "scale": 0.93
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 292,
+    "atlasN": 1730,
+    "slug": "geographic-sampling-debt-biodiversity-science",
+    "title": {
+      "zh": "生物多样性的地域采样债务",
+      "en": "Geographic Sampling Debt in Biodiversity Science"
+    },
+    "qfocus": {
+      "zh": "一张生物多样性热点图上，多少信号来自物种本身，多少只来自道路、经费与采集史？",
+      "en": "On a biodiversity hotspot map, how much of the signal comes from the species themselves and how much from roads, funding and collecting history?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C34",
+      "zh": "无知测绘·盲区科学",
+      "en": "Mapping ignorance & blind spots"
+    },
+    "scores": [
+      5,
+      4,
+      4,
+      4,
+      4,
+      4,
+      3,
+      3,
+      5
+    ],
+    "stage": 2,
+    "members": 8,
+    "activity": 61,
+    "chart": {
+      "x": 639,
+      "y": 751,
+      "scale": 0.9
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 293,
+    "atlasN": 1729,
+    "slug": "auditing-missingness-mechanisms-scientific-data",
+    "title": {
+      "zh": "科学数据缺失机制审计",
+      "en": "Auditing Missingness Mechanisms in Scientific Data"
+    },
+    "qfocus": {
+      "zh": "一份数据里的空格，是随机丢的、被选择性丢的、低于检测限的，还是流程坏了——这能从数据本身判出来吗？",
+      "en": "A blank cell in a dataset: dropped at random, dropped selectively, below the detection limit, or a broken pipeline — can the data itself ever tell us which?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C34",
+      "zh": "无知测绘·盲区科学",
+      "en": "Mapping ignorance & blind spots"
+    },
+    "scores": [
+      4,
+      4,
+      3,
+      4,
+      5,
+      5,
+      3,
+      3,
+      5
+    ],
+    "stage": 1,
+    "members": 3,
+    "activity": 39,
+    "chart": {
+      "x": 879,
+      "y": 505,
+      "scale": 0.75
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 294,
+    "atlasN": 590,
+    "slug": "automated-conjecture-unknown-terrain-ai",
+    "title": {
+      "zh": "AI数学的自动猜想与未知地形",
+      "en": "Automated Conjecture and the Unknown Terrain of AI Mathematics"
+    },
+    "qfocus": {
+      "zh": "机器能否提出人类尚未提出的猜想，并在海量真而平凡的关系中挑出值得去证明的那一条？",
+      "en": "Can machines pose conjectures no human has stated, and pick the one worth proving out of a flood of true-but-trivial relations?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C34",
+      "zh": "无知测绘·盲区科学",
+      "en": "Mapping ignorance & blind spots"
+    },
+    "scores": [
+      5,
+      4,
+      5,
+      3,
+      3,
+      3,
+      3,
+      3,
+      4
+    ],
+    "stage": 2,
+    "members": 9,
+    "activity": 67,
+    "chart": {
+      "x": 933,
+      "y": 739,
+      "scale": 0.93
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 295,
+    "atlasN": 1727,
+    "slug": "patient-clinician-co-prioritization-unanswered-research",
+    "title": {
+      "zh": "患者—临床共同确定未答研究问题",
+      "en": "Patient–Clinician Co-Prioritization of Unanswered Research Questions"
+    },
+    "qfocus": {
+      "zh": "患者与临床人员共同排出的研究优先级，是对真实需求的测量，还是招募方式与会场措辞的产物？",
+      "en": "Is a research priority list co-ranked by patients and clinicians a measurement of real need, or an artifact of who was recruited and how the workshop worded things?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C34",
+      "zh": "无知测绘·盲区科学",
+      "en": "Mapping ignorance & blind spots"
+    },
+    "scores": [
+      5,
+      4,
+      2,
+      4,
+      5,
+      5,
+      3,
+      2,
+      4
+    ],
+    "stage": 2,
+    "members": 8,
+    "activity": 64,
+    "chart": {
+      "x": 1095,
+      "y": 729,
+      "scale": 0.9
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 296,
+    "atlasN": 1731,
+    "slug": "value-of-information-sensor-placement-under-model",
+    "title": {
+      "zh": "模型不确定性下的信息价值传感器布设",
+      "en": "Value-of-Information Sensor Placement under Model Uncertainty"
+    },
+    "qfocus": {
+      "zh": "在模型可能设错的前提下，按信息价值挑出的传感器位置，会不会正好避开模型没有预设的那类意外？",
+      "en": "When the model itself may be misspecified, does value-of-information sensor placement steer precisely away from the surprises the model never encoded?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C34",
+      "zh": "无知测绘·盲区科学",
+      "en": "Mapping ignorance & blind spots"
+    },
+    "scores": [
+      5,
+      4,
+      4,
+      3,
+      3,
+      5,
+      3,
+      3,
+      4
+    ],
+    "stage": 2,
+    "members": 7,
+    "activity": 52,
+    "chart": {
+      "x": 705,
+      "y": 802,
+      "scale": 0.87
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 297,
+    "atlasN": 1735,
+    "slug": "morphology-control-evolution-physical-robots",
+    "title": {
+      "zh": "现实机器人的形态—控制共同演化",
+      "en": "Morphology–Control Evolution in Physical Robots"
+    },
+    "qfocus": {
+      "zh": "当形态必须被真正制造出来、并在地面上磨损时，形态与控制器的共同演化还剩多少仿真里看到的收益？",
+      "en": "When a morphology must actually be manufactured and worn down on real ground, how much of the co-evolutionary gain seen in simulation survives?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C35",
+      "zh": "开放式探索·好奇驱动",
+      "en": "Open-Endedness & Curiosity-Driven Discovery"
+    },
+    "scores": [
+      5,
+      5,
+      5,
+      5,
+      3,
+      5,
+      3,
+      4,
+      4
+    ],
+    "stage": 1,
+    "members": 5,
+    "activity": 48,
+    "chart": {
+      "x": 677,
+      "y": 736,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 298,
+    "atlasN": 613,
+    "slug": "fluctuation-driven-hypothesis-sampling-thermodynamic-hardware",
+    "title": {
+      "zh": "热力学计算的涨落式假说采样",
+      "en": "Fluctuation-Driven Hypothesis Sampling on Thermodynamic Hardware"
+    },
+    "qfocus": {
+      "zh": "把假说空间的采样交给器件本征热涨落，能否在保住分布精度的同时把能耗降下一两个数量级？",
+      "en": "If sampling of hypothesis space is handed to a device's intrinsic thermal fluctuations, can energy fall by orders of magnitude while distributional fidelity holds?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C35",
+      "zh": "开放式探索·好奇驱动",
+      "en": "Open-Endedness & Curiosity-Driven Discovery"
+    },
+    "scores": [
+      5,
+      4,
+      5,
+      2,
+      3,
+      2,
+      3,
+      3,
+      4
+    ],
+    "stage": 1,
+    "members": 5,
+    "activity": 46,
+    "chart": {
+      "x": 989,
+      "y": 802,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 299,
+    "atlasN": 1737,
+    "slug": "comparative-curiosity-information-seeking-across",
+    "title": {
+      "zh": "跨物种的信息寻求与比较好奇心",
+      "en": "Comparative Curiosity and Information Seeking across Species"
+    },
+    "qfocus": {
+      "zh": "动物为「想知道」而放弃奖励时，这份好奇能否与风险偏好、新奇吸引和条件化强化区分开？",
+      "en": "When an animal gives up reward simply to know, can that curiosity be separated from risk preference, novelty attraction and conditioned reinforcement?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C35",
+      "zh": "开放式探索·好奇驱动",
+      "en": "Open-Endedness & Curiosity-Driven Discovery"
+    },
+    "scores": [
+      5,
+      4,
+      4,
+      3,
+      3,
+      4,
+      3,
+      2,
+      4
+    ],
+    "stage": 2,
+    "members": 7,
+    "activity": 51,
+    "chart": {
+      "x": 890,
+      "y": 746,
+      "scale": 0.87
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 300,
+    "atlasN": 623,
+    "slug": "self-driving-labs-actively-mapping-hypothesis",
+    "title": {
+      "zh": "实验室自驱的假说空间主动测绘",
+      "en": "Self-Driving Labs Actively Mapping Hypothesis Space"
+    },
+    "qfocus": {
+      "zh": "把采集函数从最高产率换成最大信息增益后，自驱实验室会走向真正的未知，还是走向自己估计的盲区？",
+      "en": "Once the acquisition function switches from highest yield to greatest information gain, does a self-driving lab head for the genuine unknown or for its own estimation blind spots?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C35",
+      "zh": "开放式探索·好奇驱动",
+      "en": "Open-Endedness & Curiosity-Driven Discovery"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      2,
+      3,
+      2,
+      4,
+      3,
+      4
+    ],
+    "stage": 1,
+    "members": 6,
+    "activity": 45,
+    "chart": {
+      "x": 1138,
+      "y": 802,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 301,
+    "atlasN": 1503,
+    "slug": "kinetix-open-ended-physics-task-universe-general",
+    "title": {
+      "zh": "Kinetix：面向通用智能体的开放式物理任务宇宙",
+      "en": "Kinetix: An Open-Ended Physics-Task Universe for General Agents"
+    },
+    "qfocus": {
+      "zh": "在数千万个随机生成的 2D 物理任务上预训练出的单个智能体，够不够说明具身控制也有基础模型时刻？",
+      "en": "Is a single agent pretrained on tens of millions of procedurally generated 2D physics tasks enough to claim embodied control has its own foundation-model moment?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C35",
+      "zh": "开放式探索·好奇驱动",
+      "en": "Open-Endedness & Curiosity-Driven Discovery"
+    },
+    "scores": [
+      3,
+      3,
+      5,
+      4,
+      3,
+      4,
+      5,
+      4,
+      4
+    ],
+    "stage": 1,
+    "members": 6,
+    "activity": 48,
+    "chart": {
+      "x": 865,
+      "y": 802,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 302,
+    "atlasN": 634,
+    "slug": "crowdsourced-anomalies-letting-public-catch",
+    "title": {
+      "zh": "众包异常：让大众捕捉意外天体",
+      "en": "Crowdsourced Anomalies: Letting the Public Catch Unexpected Objects"
+    },
+    "qfocus": {
+      "zh": "当绝大多数「怪异」候选都是伪影或已知天体，如何把稀缺的志愿者注意力导向真正没人见过的对象？",
+      "en": "When nearly all weird candidates are artifacts or known objects, how can scarce volunteer attention be steered toward the genuinely unseen?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C36",
+      "zh": "异常驱动·新现象发现",
+      "en": "Anomaly-Driven Discovery of New Phenomena"
+    },
+    "scores": [
+      4,
+      4,
+      4,
+      5,
+      5,
+      4,
+      3,
+      3,
+      4
+    ],
+    "stage": 2,
+    "members": 9,
+    "activity": 66,
+    "chart": {
+      "x": 954,
+      "y": 658,
+      "scale": 0.93
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 303,
+    "atlasN": 1746,
+    "slug": "injected-signal-benchmarks-scientific-anomaly-detection",
+    "title": {
+      "zh": "科学异常检测的注入信号基准",
+      "en": "Injected-Signal Benchmarks for Scientific Anomaly Detection"
+    },
+    "qfocus": {
+      "zh": "用注入的已知信号测出的召回率，能在多大程度上代表异常检测器对从未见过的现象的灵敏度？",
+      "en": "How far does recall measured on injected known signals stand in for an anomaly detector's sensitivity to phenomena never seen before?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C36",
+      "zh": "异常驱动·新现象发现",
+      "en": "Anomaly-Driven Discovery of New Phenomena"
+    },
+    "scores": [
+      4,
+      5,
+      5,
+      4,
+      3,
+      4,
+      3,
+      4,
+      4
+    ],
+    "stage": 2,
+    "members": 9,
+    "activity": 62,
+    "chart": {
+      "x": 749,
+      "y": 802,
+      "scale": 0.93
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 304,
+    "atlasN": 1747,
+    "slug": "reverse-translation-exceptional-cancer-responders",
+    "title": {
+      "zh": "肿瘤异常响应者的反向转化",
+      "en": "Reverse Translation from Exceptional Cancer Responders"
+    },
+    "qfocus": {
+      "zh": "一名在整体失败的试验里超长期获益的患者，其肿瘤突变究竟是机制线索，还是事后多组学挑出的乘客？",
+      "en": "In a patient with an extraordinarily durable benefit inside an otherwise failed trial, is the tumour mutation a mechanistic clue or a passenger picked out by post-hoc multi-omics?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C36",
+      "zh": "异常驱动·新现象发现",
+      "en": "Anomaly-Driven Discovery of New Phenomena"
+    },
+    "scores": [
+      4,
+      4,
+      4,
+      3,
+      5,
+      5,
+      3,
+      3,
+      4
+    ],
+    "stage": 2,
+    "members": 5,
+    "activity": 59,
+    "chart": {
+      "x": 764,
+      "y": 511,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 305,
+    "atlasN": 1742,
+    "slug": "rare-cell-state-discovery-single-cell-omics",
+    "title": {
+      "zh": "单细胞组学中的稀有细胞状态发现",
+      "en": "Rare Cell-State Discovery in Single-Cell Omics"
+    },
+    "qfocus": {
+      "zh": "表达谱上的极少数离群细胞，是被大簇淹没的真实稀有状态，还是 doublet、环境 RNA 与聚类分辨率的产物？",
+      "en": "Are the few expression outliers a real rare state drowned by a large cluster, or an artifact of doublets, ambient RNA and clustering resolution?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C36",
+      "zh": "异常驱动·新现象发现",
+      "en": "Anomaly-Driven Discovery of New Phenomena"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      5,
+      3,
+      2,
+      3,
+      4,
+      3
+    ],
+    "stage": 2,
+    "members": 6,
+    "activity": 52,
+    "chart": {
+      "x": 815,
+      "y": 590,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 306,
+    "atlasN": 1745,
+    "slug": "online-false-discovery-control-perpetual-discovery",
+    "title": {
+      "zh": "持续发现流的在线错误发现率控制",
+      "en": "Online False-Discovery Control for Perpetual Discovery Streams"
+    },
+    "qfocus": {
+      "zh": "当假设持续到来、未来数量未知、每个决定都必须当场做出时，显著性预算应该怎样分配？",
+      "en": "When hypotheses keep arriving, their future number is unknown, and every decision must be made on the spot, how should the significance budget be allocated?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C36",
+      "zh": "异常驱动·新现象发现",
+      "en": "Anomaly-Driven Discovery of New Phenomena"
+    },
+    "scores": [
+      3,
+      4,
+      4,
+      5,
+      3,
+      5,
+      3,
+      4,
+      4
+    ],
+    "stage": 2,
+    "members": 6,
+    "activity": 50,
+    "chart": {
+      "x": 759,
+      "y": 676,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 311,
+    "atlasN": 1761,
+    "slug": "calibrated-multi-expert-review-machine-generated-hypotheses",
+    "title": {
+      "zh": "机器生成假说的多专家校准",
+      "en": "Calibrated Multi-Expert Review of Machine-Generated Hypotheses"
+    },
+    "qfocus": {
+      "zh": "专家给机器生成假说打出的一致性，有多少来自真实判断，多少来自共享盲点与量表设计？",
+      "en": "When experts agree while scoring machine-generated hypotheses, how much of that agreement is real judgment and how much is shared blind spots and scale design?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C38",
+      "zh": "文献潜知·跨域桥接",
+      "en": "Literature-based discovery & cross-domain bridging"
+    },
+    "scores": [
+      5,
+      5,
+      4,
+      5,
+      5,
+      5,
+      3,
+      3,
+      4
+    ],
+    "stage": 2,
+    "members": 5,
+    "activity": 71,
+    "chart": {
+      "x": 1094,
+      "y": 509,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 312,
+    "atlasN": 1180,
+    "slug": "functional-unknomics",
+    "title": {
+      "zh": "功能未知组学",
+      "en": "Functional Unknomics"
+    },
+    "qfocus": {
+      "zh": "能否给每个蛋白算一个已知度分，把最没人研究的保守基因排在最前，并证明这个排序真的富集关键功能？",
+      "en": "Can every protein be given a knownness score that ranks the least-studied conserved genes first — and can that ranking be shown to enrich for consequential function?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C38",
+      "zh": "文献潜知·跨域桥接",
+      "en": "Literature-based discovery & cross-domain bridging"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      3,
+      3,
+      2,
+      5,
+      4,
+      4
+    ],
+    "stage": 1,
+    "members": 6,
+    "activity": 55,
+    "chart": {
+      "x": 964,
+      "y": 597,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 313,
+    "atlasN": 1183,
+    "slug": "computational-excavation-null-results-dark",
+    "title": {
+      "zh": "阴性结果与暗数据的计算发掘",
+      "en": "Computational Excavation of Null Results and Dark Data"
+    },
+    "qfocus": {
+      "zh": "从未成为文献的那部分知识，能否被系统打捞并回注证据体系，而不被批量生产的失败报告淹没？",
+      "en": "Can the knowledge that never became literature be systematically recovered and reinjected into the evidence base without drowning in mass-produced failure reports?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C38",
+      "zh": "文献潜知·跨域桥接",
+      "en": "Literature-based discovery & cross-domain bridging"
+    },
+    "scores": [
+      4,
+      3,
+      3,
+      5,
+      4,
+      5,
+      3,
+      4,
+      5
+    ],
+    "stage": 2,
+    "members": 9,
+    "activity": 64,
+    "chart": {
+      "x": 977,
+      "y": 530,
+      "scale": 0.93
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 314,
+    "atlasN": 1755,
+    "slug": "prospective-wet-lab-validation-literature-generated-hypotheses",
+    "title": {
+      "zh": "文献生成假说的前瞻与湿实验验证",
+      "en": "Prospective and Wet-Lab Validation of Literature-Generated Hypotheses"
+    },
+    "qfocus": {
+      "zh": "文献生成的假说，怎样的验证才算真前瞻——而不是事后找到一场相合试验或只报告成功的少数候选？",
+      "en": "For a literature-generated hypothesis, what counts as genuinely prospective validation — as opposed to finding a concordant trial after the fact, or reporting only the few candidates that worked?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C38",
+      "zh": "文献潜知·跨域桥接",
+      "en": "Literature-based discovery & cross-domain bridging"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      3,
+      2,
+      2,
+      4,
+      4,
+      4
+    ],
+    "stage": 1,
+    "members": 5,
+    "activity": 48,
+    "chart": {
+      "x": 1050,
+      "y": 572,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 315,
+    "atlasN": 1182,
+    "slug": "claim-level-scientific-knowledge-graphs-contradiction",
+    "title": {
+      "zh": "主张级科学知识图谱与矛盾发掘",
+      "en": "Claim-Level Scientific Knowledge Graphs and Contradiction Mining"
+    },
+    "qfocus": {
+      "zh": "把文献拆到主张—证据—溯源的粒度后，机器能否区分真矛盾与只是实验语境不同的表面冲突？",
+      "en": "Once literature is decomposed to assertion–evidence–provenance units, can a machine tell a real contradiction from a surface conflict that is only a difference of experimental context?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C38",
+      "zh": "文献潜知·跨域桥接",
+      "en": "Literature-based discovery & cross-domain bridging"
+    },
+    "scores": [
+      4,
+      5,
+      5,
+      4,
+      3,
+      3,
+      4,
+      5,
+      3
+    ],
+    "stage": 1,
+    "members": 6,
+    "activity": 40,
+    "chart": {
+      "x": 991,
+      "y": 489,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 316,
+    "atlasN": 1762,
+    "slug": "detection-calibrated-evidence-ecological-absence",
+    "title": {
+      "zh": "检出概率校准的生态缺席证据",
+      "en": "Detection-Calibrated Evidence of Ecological Absence"
+    },
+    "qfocus": {
+      "zh": "一次没看到为何不能写成缺席——重复调查与检出概率模型能把没测到和真的不在分开到什么程度？",
+      "en": "Why can one non-detection not be written down as absence — and how far can repeated surveys and detection-probability models separate not-detected from not-there?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C39",
+      "zh": "缺席·负空间科学",
+      "en": "Absence & negative-space science"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      3,
+      4,
+      5,
+      4,
+      5,
+      5
+    ],
+    "stage": 2,
+    "members": 8,
+    "activity": 64,
+    "chart": {
+      "x": 1116,
+      "y": 690,
+      "scale": 0.9
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 317,
+    "atlasN": 1765,
+    "slug": "exclusion-lineage-source-cohorts-analysis",
+    "title": {
+      "zh": "从源队列到分析样本的排除谱系",
+      "en": "Exclusion Lineage from Source Cohorts to Analysis Samples"
+    },
+    "qfocus": {
+      "zh": "谁在哪个阶段、依什么规则从分析分母里消失——这条排除谱系能否成为与结果同级发布的数据产品？",
+      "en": "Who dropped out of the analysis denominator, at which stage and under which rule — can that exclusion lineage be published as a data product on a par with the results?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C39",
+      "zh": "缺席·负空间科学",
+      "en": "Absence & negative-space science"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      4,
+      3,
+      5,
+      4,
+      4,
+      5
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 48,
+    "chart": {
+      "x": 1194,
+      "y": 767,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 318,
+    "atlasN": 1188,
+    "slug": "quantifying-evidence-absence",
+    "title": {
+      "zh": "缺席证据的量化科学",
+      "en": "Quantifying Evidence of Absence"
+    },
+    "qfocus": {
+      "zh": "没有证据要满足什么条件才能升级为证据表明没有——负结论的强度可以怎样被量化？",
+      "en": "What has to hold before absence of evidence can be upgraded into evidence of absence — and how is the strength of a negative conclusion quantified?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C39",
+      "zh": "缺席·负空间科学",
+      "en": "Absence & negative-space science"
+    },
+    "scores": [
+      4,
+      4,
+      4,
+      3,
+      4,
+      5,
+      4,
+      4,
+      5
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 43,
+    "chart": {
+      "x": 1100,
+      "y": 647,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 319,
+    "atlasN": 1186,
+    "slug": "dark-diversity-ecology",
+    "title": {
+      "zh": "暗多样性生态学",
+      "en": "Dark Diversity Ecology"
+    },
+    "qfocus": {
+      "zh": "本该出现在这里却缺席的物种池由推断得来，如何不循环论证地界定它，让群落完整度可被证伪？",
+      "en": "The pool of species that ought to be here but is absent is itself inferred — how can it be defined without circularity, so that community completeness stays falsifiable?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C39",
+      "zh": "缺席·负空间科学",
+      "en": "Absence & negative-space science"
+    },
+    "scores": [
+      4,
+      3,
+      4,
+      5,
+      3,
+      4,
+      5,
+      3,
+      4
+    ],
+    "stage": 2,
+    "members": 4,
+    "activity": 53,
+    "chart": {
+      "x": 1150,
+      "y": 759,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 320,
+    "atlasN": 684,
+    "slug": "shadow-diversity-invisible-unknowns-life",
+    "title": {
+      "zh": "影子多样性：看不见的生物未知",
+      "en": "Shadow Diversity: The Invisible Unknowns of Life"
+    },
+    "qfocus": {
+      "zh": "在没有直接观测的前提下，能否把「尚未被描述的多样性」估到足以改写灭绝率的精度？",
+      "en": "Without any direct observation, can undescribed diversity be estimated precisely enough to rewrite extinction rates?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C39",
+      "zh": "缺席·负空间科学",
+      "en": "Absence & negative-space science"
+    },
+    "scores": [
+      4,
+      4,
+      4,
+      3,
+      4,
+      3,
+      3,
+      3,
+      5
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 39,
+    "chart": {
+      "x": 1178,
+      "y": 802,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 321,
+    "atlasN": 1770,
+    "slug": "abiotic-null-models-isotopic-fractionation",
+    "title": {
+      "zh": "同位素分馏的非生物空模型",
+      "en": "Abiotic Null Models for Isotopic Fractionation"
+    },
+    "qfocus": {
+      "zh": "对一个具体环境，能否给出「非生物过程可达的同位素分馏上限」，让轻同位素信号不再自动读作生命？",
+      "en": "For one specific setting, can we state an upper bound on the isotopic fractionation abiotic processes can reach, so that a light-isotope signal is no longer read automatically as life?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C40",
+      "zh": "无关化学·生命探测",
+      "en": "Agnostic Life Detection & Assembly Theory"
+    },
+    "scores": [
+      5,
+      5,
+      4,
+      2,
+      4,
+      2,
+      3,
+      2,
+      5
+    ],
+    "stage": 2,
+    "members": 9,
+    "activity": 71,
+    "chart": {
+      "x": 972,
+      "y": 322,
+      "scale": 0.93
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 322,
+    "atlasN": 1773,
+    "slug": "abiotic-null-library-mineral-biomorphs",
+    "title": {
+      "zh": "矿物仿生形态的非生物空模型库",
+      "en": "Abiotic Null Library for Mineral Biomorphs"
+    },
+    "qfocus": {
+      "zh": "在把一枚类丝状构造判为微化石之前，我们能否先拿出同一环境下矿物自组织能生成的完整形态分布？",
+      "en": "Before calling a filament-like structure a microfossil, can we first produce the full morphological distribution that mineral self-organization yields in the same environment?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C40",
+      "zh": "无关化学·生命探测",
+      "en": "Agnostic Life Detection & Assembly Theory"
+    },
+    "scores": [
+      5,
+      5,
+      4,
+      2,
+      4,
+      3,
+      3,
+      2,
+      4
+    ],
+    "stage": 1,
+    "members": 6,
+    "activity": 56,
+    "chart": {
+      "x": 994,
+      "y": 747,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 323,
+    "atlasN": 1769,
+    "slug": "molecular-chirality-homochirality-life-signatures",
+    "title": {
+      "zh": "分子手性与同手性生命特征",
+      "en": "Molecular Chirality and Homochirality as Life Signatures"
+    },
+    "qfocus": {
+      "zh": "对映体过量与圆偏振要跨越什么样的空间、链长与环境背景检验，才能从「不对称」升级为「有生命」？",
+      "en": "What tests across space, chain length, and environmental background must enantiomeric excess and circular polarization survive before asymmetry becomes evidence of life?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C40",
+      "zh": "无关化学·生命探测",
+      "en": "Agnostic Life Detection & Assembly Theory"
+    },
+    "scores": [
+      5,
+      4,
+      5,
+      3,
+      3,
+      2,
+      3,
+      3,
+      4
+    ],
+    "stage": 2,
+    "members": 9,
+    "activity": 55,
+    "chart": {
+      "x": 921,
+      "y": 446,
+      "scale": 0.93
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 324,
+    "atlasN": 1012,
+    "slug": "molecular-diversity-biosignature-ecodiversity-metrics",
+    "title": {
+      "zh": "分子多样性生态度量生物标记",
+      "en": "Molecular Diversity as a Biosignature (Ecodiversity Metrics)"
+    },
+    "qfocus": {
+      "zh": "一组分子的丰度「分得有多均匀」，能否在不鉴定它们是什么的前提下判定生命来源？",
+      "en": "Can how evenly a set of molecules distributes its abundances decide biological origin without identifying what those molecules are?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C40",
+      "zh": "无关化学·生命探测",
+      "en": "Agnostic Life Detection & Assembly Theory"
+    },
+    "scores": [
+      4,
+      4,
+      3,
+      4,
+      4,
+      2,
+      4,
+      3,
+      4
+    ],
+    "stage": 2,
+    "members": 6,
+    "activity": 52,
+    "chart": {
+      "x": 1096,
+      "y": 802,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 325,
+    "atlasN": 1010,
+    "slug": "ionic-liquid-biospheres-solvent-agnostic-habitability-class",
+    "title": {
+      "zh": "离子液体生物圈与去水溶剂的可栖性新纲",
+      "en": "Ionic-Liquid Biospheres and a Solvent-Agnostic Habitability Class"
+    },
+    "qfocus": {
+      "zh": "如果地表液体是几乎不蒸发的离子液体而非水，这类行星要留下什么独有光谱特征才算可被推翻？",
+      "en": "If the surface liquid is a near-nonvolatile ionic liquid rather than water, what unique spectral feature must such a planet leave behind for the claim to be refutable?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C40",
+      "zh": "无关化学·生命探测",
+      "en": "Agnostic Life Detection & Assembly Theory"
+    },
+    "scores": [
+      5,
+      4,
+      3,
+      2,
+      4,
+      2,
+      3,
+      2,
+      4
+    ],
+    "stage": 2,
+    "members": 6,
+    "activity": 72,
+    "chart": {
+      "x": 811,
+      "y": 770,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 337,
+    "atlasN": 1283,
+    "slug": "physics-auditing-ai-forecasts-extreme-event",
+    "title": {
+      "zh": "AI 预报的物理审计：极端事件基准与可信度评测科学",
+      "en": "Physics auditing of AI forecasts: extreme-event benchmarks and fidelity evaluation science"
+    },
+    "qfocus": {
+      "zh": "AI 天气模式究竟学到了大气物理，还是学成了一个会模糊的后处理器——如何在事前判定？",
+      "en": "Has an AI weather model actually learned atmospheric physics, or has it become a post-processing algorithm that blurs — and how can that be judged in advance?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C45",
+      "zh": "地理空间AI·数字地球",
+      "en": "Geospatial AI · Digital Earth"
+    },
+    "scores": [
+      3,
+      3,
+      5,
+      5,
+      4,
+      5,
+      4,
+      4,
+      5
+    ],
+    "stage": 2,
+    "members": 5,
+    "activity": 65,
+    "chart": {
+      "x": 795,
+      "y": 736,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 338,
+    "atlasN": 1806,
+    "slug": "soil-moisture-inundation-observation-gnss-reflectometry",
+    "title": {
+      "zh": "GNSS 反射测量的土壤湿度与淹没观测",
+      "en": "Soil-Moisture and Inundation Observation with GNSS Reflectometry"
+    },
+    "qfocus": {
+      "zh": "导航信号的一次强反射，能否被唯一地判读为地表积水，而不是植被、粗糙度或观测几何的变化？",
+      "en": "Can a strong reflection of a navigation signal be read uniquely as standing water, rather than a change in vegetation, surface roughness or viewing geometry?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C45",
+      "zh": "地理空间AI·数字地球",
+      "en": "Geospatial AI · Digital Earth"
+    },
+    "scores": [
+      3,
+      3,
+      5,
+      5,
+      4,
+      5,
+      4,
+      5,
+      4
+    ],
+    "stage": 2,
+    "members": 7,
+    "activity": 66,
+    "chart": {
+      "x": 793,
+      "y": 802,
+      "scale": 0.87
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 339,
+    "atlasN": 1810,
+    "slug": "community-governance-geospatial-training-data",
+    "title": {
+      "zh": "社区治理的地理空间训练数据",
+      "en": "Community Governance of Geospatial Training Data"
+    },
+    "qfocus": {
+      "zh": "当训练数据含敏感地点与原住民知识时，“同意”能否被写成机器可执行、且可撤回的约束？",
+      "en": "When training data contains sensitive places and Indigenous knowledge, can consent be written as a machine-enforceable and revocable constraint?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C45",
+      "zh": "地理空间AI·数字地球",
+      "en": "Geospatial AI · Digital Earth"
+    },
+    "scores": [
+      3,
+      3,
+      5,
+      5,
+      4,
+      5,
+      4,
+      5,
+      4
+    ],
+    "stage": 1,
+    "members": 5,
+    "activity": 55,
+    "chart": {
+      "x": 1070,
+      "y": 765,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 340,
+    "atlasN": 1805,
+    "slug": "data-assimilation-glacier-velocity-mass",
+    "title": {
+      "zh": "冰川速度与质量平衡的数据同化",
+      "en": "Data Assimilation of Glacier Velocity and Mass Balance"
+    },
+    "qfocus": {
+      "zh": "速度、高程与厚度的联合同化，能否把床面摩擦与气候质量平衡分开，而不是让两者的误差互相抵消？",
+      "en": "Can the joint assimilation of velocity, elevation and thickness separate basal friction from climatic mass balance, instead of letting their errors cancel each other?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C45",
+      "zh": "地理空间AI·数字地球",
+      "en": "Geospatial AI · Digital Earth"
+    },
+    "scores": [
+      5,
+      4,
+      5,
+      1,
+      3,
+      2,
+      4,
+      4,
+      3
+    ],
+    "stage": 1,
+    "members": 3,
+    "activity": 51,
+    "chart": {
+      "x": 890,
+      "y": 779,
+      "scale": 0.75
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 341,
+    "atlasN": 1285,
+    "slug": "open-community-scale-surface-embedding-fields",
+    "title": {
+      "zh": "开放社区级地表嵌入场",
+      "en": "Open Community-Scale Surface Embedding Fields"
+    },
+    "qfocus": {
+      "zh": "当建模决策被冻结进公开发布的像元嵌入里，下游还能否审计它的偏置与失真？",
+      "en": "When modeling decisions are frozen into publicly released per-pixel embeddings, can downstream users still audit their bias and distortion?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C45",
+      "zh": "地理空间AI·数字地球",
+      "en": "Geospatial AI · Digital Earth"
+    },
+    "scores": [
+      3,
+      3,
+      5,
+      5,
+      3,
+      5,
+      4,
+      5,
+      4
+    ],
+    "stage": 1,
+    "members": 2,
+    "activity": 55,
+    "chart": {
+      "x": 758,
+      "y": 743,
+      "scale": 0.72
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 368,
+    "atlasN": 1862,
+    "slug": "simulation-validation-self-correction-experimental-protocols",
+    "title": {
+      "zh": "实验协议的仿真验证与自校正",
+      "en": "Simulation Validation and Self-Correction of Experimental Protocols"
+    },
+    "qfocus": {
+      "zh": "一份实验协议在机械臂动手之前，能被仿真排除掉多少物理上不可能的步骤？",
+      "en": "Before a robot arm moves, how many physically impossible steps in an experimental protocol can simulation rule out?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C53",
+      "zh": "自主科学发现·AI科学家",
+      "en": "Autonomous Discovery · The AI Scientist"
+    },
+    "scores": [
+      5,
+      4,
+      5,
+      4,
+      3,
+      5,
+      3,
+      5,
+      5
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 48,
+    "chart": {
+      "x": 908,
+      "y": 634,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 369,
+    "atlasN": 882,
+    "slug": "trust-rulers-ai-scientists-reproducibility",
+    "title": {
+      "zh": "AI 科学家的可信标尺：可复现性与证伪的评测基建",
+      "en": "Trust Rulers for AI Scientists: Reproducibility and Falsification Benchmarks"
+    },
+    "qfocus": {
+      "zh": "谁来评测评测者——判定 AI 科学家是否真复现了论文的标尺，自身可信度如何证明？",
+      "en": "Who evaluates the evaluators — how does the ruler that judges whether an AI scientist truly replicated a paper prove its own trustworthiness?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C53",
+      "zh": "自主科学发现·AI科学家",
+      "en": "Autonomous Discovery · The AI Scientist"
+    },
+    "scores": [
+      3,
+      4,
+      5,
+      3,
+      4,
+      4,
+      5,
+      4,
+      5
+    ],
+    "stage": 1,
+    "members": 3,
+    "activity": 57,
+    "chart": {
+      "x": 838,
+      "y": 702,
+      "scale": 0.75
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 370,
+    "atlasN": 1255,
+    "slug": "information-firewall-rediscovery-benchmarks",
+    "title": {
+      "zh": "信息防火墙式再发现基准",
+      "en": "Information-Firewall Rediscovery Benchmarks"
+    },
+    "qfocus": {
+      "zh": "把论文的方法与结论隔在防火墙外，智能体还能不能真的重新发现那个结论？",
+      "en": "With a paper's method and conclusion sealed behind a firewall, can an agent still genuinely rediscover the finding?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C53",
+      "zh": "自主科学发现·AI科学家",
+      "en": "Autonomous Discovery · The AI Scientist"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      4,
+      3,
+      3,
+      5,
+      3,
+      4
+    ],
+    "stage": 1,
+    "members": 2,
+    "activity": 48,
+    "chart": {
+      "x": 943,
+      "y": 622,
+      "scale": 0.72
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 371,
+    "atlasN": 878,
+    "slug": "embodied-self-driving-labs-closing-discovery",
+    "title": {
+      "zh": "具身自驱实验室：把发现闭环交给会动手的机器人",
+      "en": "Embodied Self-Driving Labs: Closing the Discovery Loop with Robotic Hands"
+    },
+    "qfocus": {
+      "zh": "闭环发现能否从一台定制平台走出去，在任意实验室的仪器上重跑同一套协议？",
+      "en": "Can closed-loop discovery leave its bespoke platform and rerun the same protocol on any lab's instruments?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C53",
+      "zh": "自主科学发现·AI科学家",
+      "en": "Autonomous Discovery · The AI Scientist"
+    },
+    "scores": [
+      4,
+      5,
+      5,
+      2,
+      3,
+      1,
+      5,
+      2,
+      4
+    ],
+    "stage": 1,
+    "members": 3,
+    "activity": 51,
+    "chart": {
+      "x": 1027,
+      "y": 682,
+      "scale": 0.75
     },
     "hasInterior": false
   }

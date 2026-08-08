@@ -7,6 +7,10 @@
     "#frontiers-expansion-earth-life": "./src/frontiers-expansion-earth-life.ts",
     "#frontiers-expansion-matter-computation": "./src/frontiers-expansion-matter-computation.ts",
     "#frontiers-expansion-society-knowledge": "./src/frontiers-expansion-society-knowledge.ts",
+    "#frontiers-wave3-math": "./src/frontiers-wave3-math.ts",
+    "#frontiers-wave3-matter": "./src/frontiers-wave3-matter.ts",
+    "#frontiers-wave3-life": "./src/frontiers-wave3-life.ts",
+    "#frontiers-wave3-crossing": "./src/frontiers-wave3-crossing.ts",
     "#structures-expansion-wave2": "./src/structures-expansion-wave2.ts"
   },
   "exports": {
@@ -27,6 +31,7 @@
     "generate:atlas": "node --experimental-strip-types scripts/generate-atlas.mjs",
     "check:atlas": "node --experimental-strip-types scripts/generate-atlas.mjs --check",
     "generate:literature": "node --experimental-strip-types scripts/generate-literature.mjs",
+    "audit:atlas": "node --experimental-strip-types scripts/audit-atlas.mjs",
     "test": "vitest run",
     "typecheck": "pnpm check:atlas && tsc --noEmit"
   },
