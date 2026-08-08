@@ -1,0 +1,524 @@
+<title>Frontier Isles · 图集扩张勘验 Wave 3</title>
+<style>
+/* ──────────────────────────────────────────────────────────────────────────
+   Bathymetric survey. Ground is cool chart paper, structure is monochrome
+   ink, and the ONLY saturated colour on the page is the product's own domain
+   palette — the same four inks apps/web paints islands with — so a hue here
+   always means a domain and never decoration. The paired light fills the
+   product uses for island bodies become the dark-theme inks.
+   ────────────────────────────────────────────────────────────────────────── */
+:root {
+  --paper:        #E9EEF0;
+  --paper-raised: #F5F8F9;
+  --paper-sunk:   #DFE6E9;
+  --ink:          #15242D;
+  --ink-soft:     #47606D;
+  --ink-faint:    #7B929D;
+  --rule:         #C0CCD3;
+  --rule-soft:    #D5DEE2;
+
+  --math:   #2E5E8C;
+  --matter: #9C5932;
+  --life:   #2A775D;
+  --cross:  #7E6820;
+
+  /* the "before" state — the only non-domain colour, used nowhere else */
+  --was:    #A6483C;
+
+  --shadow: 0 1px 2px rgba(21, 36, 45, .07), 0 8px 24px -12px rgba(21, 36, 45, .18);
+
+  --serif: ui-serif, "Iowan Old Style", "Hoefler Text", "Palatino Linotype", Palatino, Georgia, serif;
+  --sans: system-ui, -apple-system, "Segoe UI", "Helvetica Neue", sans-serif;
+  --mono: ui-monospace, "SF Mono", SFMono-Regular, "Cascadia Mono", Menlo, Consolas, monospace;
+  --cjk: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper:        #0E1A21;
+    --paper-raised: #16242C;
+    --paper-sunk:   #0A141A;
+    --ink:          #DCE7EC;
+    --ink-soft:     #9DB2BC;
+    --ink-faint:    #6C838F;
+    --rule:         #2C3E49;
+    --rule-soft:    #223038;
+    --math:   #A9C6DE;
+    --matter: #E0B78E;
+    --life:   #A5CFBA;
+    --cross:  #DDCC8E;
+    --was:    #D98878;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 28px -14px rgba(0, 0, 0, .7);
+  }
+}
+:root[data-theme="dark"] {
+  --paper:        #0E1A21;
+  --paper-raised: #16242C;
+  --paper-sunk:   #0A141A;
+  --ink:          #DCE7EC;
+  --ink-soft:     #9DB2BC;
+  --ink-faint:    #6C838F;
+  --rule:         #2C3E49;
+  --rule-soft:    #223038;
+  --math:   #A9C6DE;
+  --matter: #E0B78E;
+  --life:   #A5CFBA;
+  --cross:  #DDCC8E;
+  --was:    #D98878;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 28px -14px rgba(0, 0, 0, .7);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.62;
+  -webkit-font-smoothing: antialiased;
+}
+:lang(zh), .zh { font-family: var(--cjk); }
+
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 28px 96px; }
+
+/* ── masthead ─────────────────────────────────────────────────────────── */
+.mast { padding: 56px 0 28px; border-bottom: 1px solid var(--rule); }
+.eyebrow {
+  font-family: var(--mono); font-size: 11.5px; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--ink-faint); margin: 0 0 14px;
+}
+h1 {
+  font-family: var(--serif); font-weight: 600; font-size: clamp(30px, 4.6vw, 50px);
+  line-height: 1.1; letter-spacing: -.012em; margin: 0 0 16px; text-wrap: balance;
+}
+.dek {
+  font-family: var(--cjk); font-size: clamp(15px, 1.6vw, 18px); color: var(--ink-soft);
+  max-width: 60ch; margin: 0; line-height: 1.7;
+}
+
+/* ── the count, stated once, large ────────────────────────────────────── */
+.headline-count {
+  display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap;
+  margin: 30px 0 4px; font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+.hc-from { font-size: clamp(28px, 4vw, 44px); color: var(--ink-faint); text-decoration: line-through; text-decoration-thickness: 1.5px; }
+.hc-arrow { font-size: clamp(20px, 2.6vw, 28px); color: var(--ink-faint); }
+.hc-to { font-size: clamp(46px, 7.4vw, 88px); font-weight: 600; letter-spacing: -.03em; line-height: 1; }
+.hc-unit { font-family: var(--cjk); font-size: 15px; color: var(--ink-soft); }
+.hc-mult {
+  font-size: 13px; letter-spacing: .05em; color: var(--ink-soft);
+  border: 1px solid var(--rule); border-radius: 2px; padding: 3px 9px;
+}
+
+/* ── map ──────────────────────────────────────────────────────────────── */
+.map-block { margin: 40px 0 0; }
+.map-head {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  gap: 20px; flex-wrap: wrap; margin-bottom: 12px;
+}
+.map-frame {
+  background: var(--paper-raised); border: 1px solid var(--rule);
+  border-radius: 3px; box-shadow: var(--shadow); overflow: hidden;
+  position: relative;
+}
+#map { display: block; width: 100%; height: auto; }
+.map-note {
+  font-family: var(--mono); font-size: 11.5px; color: var(--ink-faint);
+  padding: 9px 14px; border-top: 1px solid var(--rule-soft);
+  display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+}
+.controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+button.ctl {
+  font-family: var(--mono); font-size: 12px; letter-spacing: .04em;
+  background: var(--paper-raised); color: var(--ink); cursor: pointer;
+  border: 1px solid var(--rule); border-radius: 2px; padding: 6px 13px;
+  transition: background .15s, border-color .15s;
+}
+button.ctl:hover { background: var(--paper-sunk); border-color: var(--ink-faint); }
+button.ctl[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+button.ctl:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+.legend { display: flex; gap: 16px; flex-wrap: wrap; font-family: var(--mono); font-size: 11.5px; color: var(--ink-soft); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+
+/* ── sections ─────────────────────────────────────────────────────────── */
+section { margin-top: 68px; }
+h2 {
+  font-family: var(--serif); font-size: clamp(21px, 2.5vw, 27px); font-weight: 600;
+  letter-spacing: -.008em; margin: 0 0 6px; text-wrap: balance;
+}
+.sec-sub { font-family: var(--cjk); color: var(--ink-soft); margin: 0 0 24px; max-width: 66ch; font-size: 15px; }
+p { max-width: 66ch; }
+.zh-body { font-family: var(--cjk); }
+
+/* ── metric strip ─────────────────────────────────────────────────────── */
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(168px, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 3px; overflow: hidden; }
+.metric { background: var(--paper-raised); padding: 16px 18px; }
+.metric dt { font-family: var(--mono); font-size: 10.5px; letter-spacing: .11em; text-transform: uppercase; color: var(--ink-faint); margin: 0 0 8px; }
+.metric dd { margin: 0; font-family: var(--mono); font-size: 26px; font-variant-numeric: tabular-nums; letter-spacing: -.02em; line-height: 1.1; }
+.metric .sub { display: block; font-size: 11.5px; color: var(--ink-soft); letter-spacing: 0; margin-top: 5px; font-variant-numeric: tabular-nums; }
+
+/* ── cluster grid ─────────────────────────────────────────────────────── */
+.clusters { display: grid; grid-template-columns: repeat(auto-fill, minmax(196px, 1fr)); gap: 10px 20px; }
+.cl { display: grid; grid-template-columns: 40px 1fr; gap: 9px; align-items: center; }
+.cl-code { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+.cl-bar { position: relative; height: 15px; background: var(--paper-sunk); border-radius: 1px; overflow: hidden; }
+.cl-was { position: absolute; inset: 0 auto 0 0; background: var(--rule); }
+.cl-now { position: absolute; inset: 0 auto 0 0; opacity: .92; }
+.cl-name { grid-column: 2; font-family: var(--cjk); font-size: 11.5px; color: var(--ink-soft); margin-top: -3px; }
+
+/* ── slope chart ──────────────────────────────────────────────────────── */
+.slope-wrap { overflow-x: auto; }
+#slope { display: block; min-width: 640px; width: 100%; height: auto; }
+
+/* ── table ────────────────────────────────────────────────────────────── */
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 3px; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; background: var(--paper-raised); }
+th, td { text-align: left; padding: 10px 15px; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
+th { font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-faint); font-weight: 400; white-space: nowrap; }
+td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+tr:last-child td { border-bottom: none; }
+td .zh { font-family: var(--cjk); }
+
+.verdict {
+  display: flex; gap: 12px; align-items: flex-start;
+  border: 1px solid var(--rule); border-left: 3px solid var(--life);
+  background: var(--paper-raised); border-radius: 3px; padding: 16px 20px; margin-top: 22px;
+}
+.verdict.finding { border-left-color: var(--was); }
+.verdict-mark { font-family: var(--mono); font-size: 13px; color: var(--life); padding-top: 2px; }
+.verdict.finding .verdict-mark { color: var(--was); }
+.verdict p { margin: 0; font-family: var(--cjk); font-size: 14.5px; }
+.verdict p + p { margin-top: 8px; }
+.verdict code { font-family: var(--mono); font-size: 12.5px; background: var(--paper-sunk); padding: 1px 5px; border-radius: 2px; }
+
+.foot { margin-top: 76px; padding-top: 20px; border-top: 1px solid var(--rule); font-family: var(--mono); font-size: 11.5px; color: var(--ink-faint); display: flex; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
+@media (max-width: 640px) {
+  .wrap { padding: 0 18px 64px; }
+  .mast { padding-top: 36px; }
+}
+</style>
+
+<div class="wrap">
+
+<header class="mast">
+  <p class="eyebrow">Frontier Isles · Atlas Survey · Wave 3</p>
+  <h1>图集扩张勘验：176 → 371 座岛</h1>
+  <p class="dek">这一轮把 xfrontier 语料里 1,673 条尚未成岛的研究方向筛出 195 条，补齐为可进入、可读、可追溯的岛屿。下面是这次改动的全部可核对证据——不是摘要，是量出来的。</p>
+
+  <div class="headline-count">
+    <span class="hc-from">176</span>
+    <span class="hc-arrow">→</span>
+    <span class="hc-to" id="count-to">371</span>
+    <span class="hc-unit">座岛屿</span>
+    <span class="hc-mult">2.11×</span>
+  </div>
+</header>
+
+<div class="map-block">
+  <div class="map-head">
+    <div>
+      <h2 style="margin-bottom:2px">真实坐标，不是示意图</h2>
+      <p class="sec-sub" style="margin:0">下面这张图用的是应用自己的画布坐标系 <code style="font-family:var(--mono);font-size:12.5px">viewBox 0 0 1440 900</code>，每个点都是 <code style="font-family:var(--mono);font-size:12.5px">frontiers.ts</code> 里那座岛的真实位置。</p>
+    </div>
+    <div class="controls">
+      <button class="ctl" id="btn-after" aria-pressed="true">扩张后 371</button>
+      <button class="ctl" id="btn-before" aria-pressed="false">扩张前 176</button>
+      <button class="ctl" id="btn-moved" aria-pressed="false">只看位移</button>
+    </div>
+  </div>
+
+  <div class="map-frame">
+    <svg id="map" viewBox="0 0 1440 900" role="img"
+         aria-label="371 座前沿岛屿在图集画布上的真实分布，按四大领域着色">
+      <g id="layer-moves"></g>
+      <g id="layer-islands"></g>
+    </svg>
+    <div class="map-note">
+      <span class="legend">
+        <span><i class="dot" style="background:var(--math)"></i>数理 49</span>
+        <span><i class="dot" style="background:var(--matter)"></i>物质 72</span>
+        <span><i class="dot" style="background:var(--life)"></i>生命 98</span>
+        <span><i class="dot" style="background:var(--cross)"></i>交叉 152</span>
+        <span><i class="dot" style="background:transparent;border:1.5px solid var(--ink-faint)"></i>本轮新增（空心）</span>
+      </span>
+      <span id="map-status">371 islands · 1440×900</span>
+    </div>
+  </div>
+</div>
+
+<section>
+  <h2>量出来的结果</h2>
+  <p class="sec-sub">每一项都由 <code style="font-family:var(--mono);font-size:12.5px">pnpm --filter @frontier-isles/data audit:atlas</code> 复跑得到，不是手记的。</p>
+  <dl class="metrics" id="metrics"></dl>
+</section>
+
+<section>
+  <h2>把 53 个簇拉平，而不是按域配额</h2>
+  <p class="sec-sub">扩张前每个簇有 2 到 7 座岛不等；这一轮把每个簇都补到 7 座。灰色是原有，彩色是补足后——彩色越长，说明那个簇原先越薄。</p>
+  <div class="clusters" id="clusters"></div>
+  <div class="verdict">
+    <span class="verdict-mark">◆</span>
+    <div>
+      <p>为什么不按四大领域配额：<strong>域是有损的编辑分类桶</strong>。交叉域独占 53 个簇里的 20 个，任何按域配比的选材都只是把这个分类学假象重新编码一遍。拉平簇覆盖消除了<em>选材导致</em>的那部分偏斜；剩下的偏斜（交叉占 41%）是语料结构本身，如实报告而不是靠扭曲选材掩盖。</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>更严的闸，在评分上看得见</h2>
+  <p class="sec-sub">wave 3 在原有「范式 ∨ 交叉 ∨ 洼地 ≥ 4」之上，加了评分手册自己写明的两条：基底真实性 ≥ 3、可压缩内核可达性 ≥ 2。手册原话是「洼地必须以基底真实性为条件读——冷 + 无基底 = 陷阱」。下面是九维均值的变化。</p>
+  <div class="slope-wrap">
+    <svg id="slope" viewBox="0 0 900 340" role="img" aria-label="九个评分维度在扩张前后的均值变化斜率图"></svg>
+  </div>
+  <div class="verdict">
+    <span class="verdict-mark">◆</span>
+    <div>
+      <p>这是一次有意的交换：范式分让掉 0.35，换来基底真实性 +0.37、群体参与 +0.52、新工具方法 +0.29。基底门槛挡掉了 380 条「冷但没有真实曲线」的候选——正是手册说的陷阱。</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>翻倍之后，地图反而更点得动</h2>
+  <p class="sec-sub">这是本轮最容易翻车的地方。SVG 可读孪生的画布固定在 1440×900，扩不了——扩出去的岛会在无 GPU 路径上被裁掉，违反「每个空间状态都要有可读孪生」。所以做法是回收现有布局的松弛空间：全局松弛 371 座，给现有岛加一根回弹弹簧（质量 4:1），让它们让位但不远离手工设定的位置。</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>最近邻间距</th><th>扩张前 176</th><th>扩张后 371</th><th>读法</th></tr></thead>
+      <tbody id="geo-rows"></tbody>
+    </table>
+  </div>
+  <div class="verdict">
+    <span class="verdict-mark">◆</span>
+    <div>
+      <p>诚实的取舍：<strong>地板抬高了，中位数下降了</strong>。岛数翻倍必然更密（中位数 44.8 → 37.7px），但最坏的重叠被消除——最紧邻对从 7.1px 提到 25.5px，那对岛原本几乎叠在一起、有一座点不到。155 座现有岛移动了，平均 14.5px，约占画布宽度的 1%。</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>审核发现</h2>
+  <p class="sec-sub">审核脚本把「本轮引入的缺陷」和「既有问题」分开报。把既有缺陷记到本次改动头上是错的，不报也是错的。</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>检查项</th><th>本轮 wave 3</th><th>既有岛</th><th>处置</th></tr></thead>
+      <tbody id="audit-rows"></tbody>
+    </table>
+  </div>
+
+  <div class="verdict finding">
+    <span class="verdict-mark">⚠</span>
+    <div>
+      <p><strong>留给人定夺的一条：</strong>既有岛 <code>#60 perennial-grain-crops</code> 引用的语料记录 <code>XF-001449</code> 已被 xfrontier 撤回，撤回理由是 <span class="zh">「多年生谷物育种（Kernza、PR23 水稻）已是落地的农业生态项目，不再是前沿方向」</span>。</p>
+      <p>按项目不变量「AI 可以提议或搭架子，但不替人定稿一个映射」，我没有动它。两条可选：给它标 <code>resolved: true</code>（图上会亮起「已解决问题」的灯塔），或者退役这座岛。</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>门禁</h2>
+  <p class="sec-sub">全部在 worktree <code style="font-family:var(--mono);font-size:12.5px">frontier-2x-expansion</code> 分支上跑过。</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>门</th><th>结果</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>单元测试</td><td class="num">974 passed / 8 packages</td><td class="zh">含新增的 wave-3 契约测试 7 条</td></tr>
+        <tr><td>typecheck</td><td class="num">8/8 Done</td><td class="zh">含 <code>check:atlas</code>（生成文件与源数据一致）</td></tr>
+        <tr><td>production build</td><td class="num">✓ built</td><td class="zh">入口 chunk 1024.38 kB raw / 354.30 kB gzip</td></tr>
+        <tr><td>audit:atlas</td><td class="num">PASS</td><td class="zh">完整性 · 溯源 · 可达性 · 几何</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="verdict finding">
+    <span class="verdict-mark">⚠</span>
+    <div>
+      <p><strong>预算抬了，且是记录在案地抬：</strong>入口 chunk 预算 900 → 1024 KiB。增长的是 L0 图集<em>数据</em>而不是新运行时——<code>atlas.ts</code> 是故意急加载的，好让第一帧就是一张真地图。</p>
+      <p>把 <code>qfocus</code> 挪进懒加载那一半是实测过的（占 L0 负载 36%，挪后入口降到 914 KiB），但<strong>被否掉了</strong>：图上的悬停岛卡和连接场搜索都从 L0 读它，挪走会让无服务器时的可读孪生显示一张没有问题的岛卡。余量 23.6 KiB（2.3%），与之前 878/900 的比例一致。</p>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <span>frontier-isles · wave 3 · commit 72b095c</span>
+  <span>语料 xf-6eb361265784 · 1,848 条记录 · 53 簇</span>
+</footer>
+
+</div>
+
+<script>const ATLAS = {"before":{"n":176,"nn":{"min":7.1,"p10":23.7,"median":44.8,"max":99.8,"under40":68}},"after":{"n":371,"nn":{"min":25.5,"p10":30.2,"median":37.7,"max":99.8,"under40":267}},"islands":[{"x":205,"y":300,"s":0.9,"d":"数理","c":"C23","w":0,"t":"组合式科学建模","e":"Compositional Scientific Modeling","px":205,"py":300},{"x":330,"y":245,"s":0.78,"d":"数理","c":"C33","w":0,"t":"暗物质古探测","e":"Paleo-Detectors for Dark Matter","px":330,"py":245},{"x":293,"y":389,"s":0.95,"d":"数理","c":"C31","w":0,"t":"生物计算的热力学代价界","e":"Thermodynamic Cost of Biological Computation","px":290,"py":385},{"x":436,"y":308,"s":0.85,"d":"数理","c":"C23","w":0,"t":"形式化数学与证明库","e":"Formalized Mathematics & Proof Libraries","px":435,"py":315},{"x":170,"y":425,"s":0.68,"d":"数理","c":"C51","w":0,"t":"可识别因果表征学习","e":"Identifiable Causal Representation Learning","px":170,"py":425},{"x":395,"y":436,"s":0.75,"d":"数理","c":"C33","w":0,"t":"桌面量子引力","e":"Tabletop Quantum Gravity","px":395,"py":435},{"x":150,"y":241,"s":1.02,"d":"数理","c":"C14","w":0,"t":"三元调控渗流:从连通性到动力系统","e":"Triadic Percolation: Connectivity as a Dynamical System","px":150,"py":241},{"x":259,"y":244,"s":1.01,"d":"数理","c":"C33","w":0,"t":"波函数坍缩的实验判定（客观坍缩）","e":"Experimental Determination of Wavefunction Collapse (Objective Collapse)","px":259,"py":244},{"x":384,"y":249,"s":1.02,"d":"数理","c":"C14","w":0,"t":"粗粒化无关的因果涌现:动力学可逆性与奇异谱","e":"Coarse-Graining-Free Causal Emergence via Dynamical Reversibility","px":384,"py":249},{"x":458,"y":250,"s":1.02,"d":"数理","c":"C14","w":0,"t":"LLM 群体的涌现规约与集体偏见临界点","e":"Emergent Conventions and Collective-Bias Tipping Points in LLM Populations","px":458,"py":250},{"x":156,"y":338,"s":1.01,"d":"数理","c":"C51","w":0,"t":"代理变量因果识别（近端因果学习）","e":"Proximal Causal Identification via Negative Controls","px":156,"py":338},{"x":269,"y":314,"s":0.88,"d":"数理","c":"C51","w":0,"t":"变量外泛化与部分可迁移性","e":"Out-of-Variable Generalization & Partial Transportability","px":265,"py":326},{"x":354,"y":328,"s":1.02,"d":"数理","c":"C23","w":0,"t":"范畴论作为一切神经网络架构的代数理论","e":"Category Theory as an Algebraic Theory of All Neural Architectures","px":355,"py":329},{"x":477,"y":341,"s":1.02,"d":"数理","c":"C23","w":0,"t":"AI 辅助定理证明","e":"AI-Assisted Theorem Proving","px":482,"py":342},{"x":126,"y":393,"s":1.02,"d":"数理","c":"C31","w":0,"t":"信息热力学的根本极限（新麦克斯韦妖）","e":"The Fundamental Limits of Information Thermodynamics (New Maxwell's Demons)","px":126,"py":393},{"x":246,"y":431,"s":0.87,"d":"数理","c":"C33","w":0,"t":"时间之矢的宇宙学起点","e":"The Cosmological Origin of the Arrow of Time","px":252,"py":423},{"x":354,"y":403,"s":1.02,"d":"数理","c":"C33","w":0,"t":"毫克级源质量引力耦合与桌面牛顿常数","e":"Gravitational Coupling of Milligram Source Masses and Tabletop G","px":351,"py":404},{"x":450,"y":392,"s":1,"d":"数理","c":"C51","w":0,"t":"近端因果推断：阴性对照代理去混杂","e":"Proximal Causal Inference with Negative-Control Proxies","px":451,"py":414},{"x":168,"y":502,"s":1.02,"d":"数理","c":"C23","w":0,"t":"范畴论驱动的可组合科学建模","e":"Category-Theoretic Compositional Scientific Modeling","px":168,"py":502},{"x":1078,"y":252,"s":1.1,"d":"物质","c":"C12","w":0,"t":"活体导线","e":"Living Wires","px":1080,"py":260},{"x":1212,"y":327,"s":0.85,"d":"物质","c":"C44","w":0,"t":"会自学习的物理网络","e":"Self-Learning Physical Networks","px":1215,"py":325},{"x":1005,"y":354,"s":0.95,"d":"物质","c":"C17","w":0,"t":"岩层压力储能","e":"Geomechanical Pressure Storage","px":1000,"py":360},{"x":1150,"y":439,"s":0.8,"d":"物质","c":"C44","w":0,"t":"高精度模拟矩阵求解器","e":"High-Precision Analog Matrix Solver","px":1150,"py":435},{"x":1290,"y":245,"s":0.72,"d":"物质","c":"C12","w":0,"t":"仿光合人工光合系统","e":"Bio-Inspired Artificial Photosynthesis","px":1290,"py":245},{"x":1044,"y":458,"s":0.7,"d":"物质","c":"C08","w":0,"t":"信息化学","e":"Information Chemistry","px":1045,"py":455},{"x":1254,"y":397,"s":0.78,"d":"物质","c":"C08","w":0,"t":"分子模式识别","e":"Molecular Pattern Recognition","px":1255,"py":395},{"x":1001,"y":235,"s":1.02,"d":"物质","c":"C16","w":0,"t":"光子时间晶体与时空超材料","e":"Photonic Time Crystals and Space-Time Metamaterials","px":1002,"py":241},{"x":1125,"y":228,"s":1.02,"d":"物质","c":"C44","w":0,"t":"铁电存内原位伊辛退火器","e":"Ferroelectric In-Memory Ising Annealer","px":1124,"py":228},{"x":1184,"y":246,"s":1.02,"d":"物质","c":"C46","w":0,"t":"磁悬浮生物装配（无标记无喷头无支架）","e":"Magnetic Levitational Bioassembly (Label-, Nozzle-, Scaffold-Free)","px":1185,"py":247},{"x":1258,"y":279,"s":1.01,"d":"物质","c":"C48","w":0,"t":"自监督潜空间世界模型驱动的零样本机器人规划","e":"Self-Supervised Latent World Models for Zero-Shot Robot Planning","px":1256,"py":287},{"x":1016,"y":307,"s":1.02,"d":"物质","c":"C48","w":0,"t":"神经重建驱动的真实-到-仿真策略评测","e":"Neural-Reconstruction Real-to-Sim Policy Evaluation","px":1017,"py":309},{"x":1112,"y":324,"s":1.01,"d":"物质","c":"C15","w":0,"t":"魔法态培育:廉价非克利福德门","e":"Magic State Cultivation for Cheap Non-Clifford Gates","px":1108,"py":325},{"x":1165,"y":322,"s":1.02,"d":"物质","c":"C15","w":0,"t":"可擦除转换:把损耗变成可见擦除","e":"Erasure-Conversion Qubits: Turning Loss into Detectable Erasure","px":1162,"py":333},{"x":1294,"y":331,"s":1.01,"d":"物质","c":"C44","w":0,"t":"随机忆阻器:把器件涨落同时变成熵源、安全原语与算力","e":"Stochastic Memristors: Turning Device Fluctuations Into Entropy, Security Primitives and Compute at Once","px":1292,"py":332},{"x":1018,"y":417,"s":0.87,"d":"物质","c":"C46","w":0,"t":"克隆造血(CHIP)作为太空辐射风险的个体化放大器","e":"Clonal Hematopoiesis (CHIP) as a Personalized Amplifier of Space-Radiation Risk","px":1009,"py":415},{"x":1102,"y":430,"s":1.02,"d":"物质","c":"C48","w":0,"t":"穿过硬接触的可微梯度:接触丰富任务的可微仿真","e":"Soft Gradients Through Hard Contacts for Contact-Rich Differentiable Simulation","px":1096,"py":423},{"x":1197,"y":412,"s":1.01,"d":"物质","c":"C15","w":0,"t":"端到端优势核算：数据装载瓶颈的清算","e":"End-to-End Advantage Accounting: Reckoning with the Data-Loading Bottleneck","px":1198,"py":410},{"x":1301,"y":429,"s":1.01,"d":"物质","c":"C12","w":0,"t":"电缆菌导电纳米带：生物合成的金属有机框架导线","e":"Cable Bacteria Conductive Nanoribbons: Biologically Grown Metal-Organic-Framework Wires","px":1298,"py":428},{"x":1030,"y":503,"s":1.02,"d":"物质","c":"C16","w":0,"t":"超均匀性：无序中的隐藏秩序","e":"Hyperuniformity: Hidden Order in Disorder","px":1019,"py":502},{"x":585,"y":280,"s":1.05,"d":"生命","c":"C29","w":0,"t":"Miyake 事件深时定年","e":"Miyake Events as Deep-Time Anchors","px":620,"py":300},{"x":751,"y":236,"s":0.8,"d":"生命","c":"C37","w":0,"t":"遗传密码暗物质","e":"Recoded Genetic-Code Dark Matter","px":740,"py":250},{"x":694,"y":406,"s":0.9,"d":"生命","c":"C52","w":0,"t":"ADAR RNA 传感器件","e":"ADAR-Recruiting RNA Sensors","px":688,"py":398},{"x":544,"y":446,"s":0.8,"d":"生命","c":"C11","w":0,"t":"主动推断工程化","e":"Active Inference as Engineering","px":556,"py":428},{"x":866,"y":327,"s":0.9,"d":"生命","c":"C01","w":0,"t":"最小基因组与人工细胞","e":"Minimal Genomes & Artificial Cells","px":835,"py":338},{"x":602,"y":419,"s":0.75,"d":"生命","c":"C01","w":0,"t":"合成基因组写入","e":"Synthetic Genome Writing","px":620,"py":420},{"x":559,"y":241,"s":0.88,"d":"生命","c":"C29","w":0,"t":"深地生物圈与极端生命","e":"The Deep Biosphere and Extreme Life","px":573,"py":241},{"x":675,"y":211,"s":0.87,"d":"生命","c":"C29","w":0,"t":"冰盖底界生态与冰下水文生命","e":"Ice-sheet Basal Ecology and Subglacial Hydrologic Life","px":667,"py":244},{"x":779,"y":175,"s":0.87,"d":"生命","c":"C50","w":0,"t":"原位空间功能基因组学：在完整组织里做 CRISPR 扰动＋空间读出","e":"In-Tissue Spatial Functional Genomics: CRISPR Perturbation With Spatial Readout in Intact Tissue","px":770,"py":205},{"x":873,"y":242,"s":1.02,"d":"生命","c":"C52","w":0,"t":"体内造血干细胞编辑：把骨髓移植级疗法装进一针","e":"In Vivo Hematopoietic Stem-Cell Editing: Compressing Transplant-Grade Therapy Into One Injection","px":835,"py":250},{"x":567,"y":323,"s":0.88,"d":"生命","c":"C02","w":0,"t":"类器官意识的可证伪计量学:扰动复杂度C-检验","e":"Falsifiable Consciousness Metrology for Organoids: A Perturbational C-Test","px":574,"py":328},{"x":654,"y":315,"s":1.01,"d":"生命","c":"C01","w":0,"t":"RNA折纸基因编码细胞硬件","e":"Genetically-Encoded RNA-Origami Cellular Hardware","px":673,"py":326},{"x":759,"y":330,"s":1.01,"d":"生命","c":"C50","w":0,"t":"扰动预测模型的对抗性证伪与基准科学","e":"Adversarial Falsification and Benchmark Science for Perturbation-Prediction Models","px":747,"py":329},{"x":895,"y":291,"s":1.01,"d":"生命","c":"C24","w":0,"t":"多年生粮食作物·一次播种多年收获","e":"Perennial Grain Crops","px":872,"py":299},{"x":557,"y":369,"s":1.01,"d":"生命","c":"C37","w":0,"t":"未知组学：系统研究「最不为人知的基因」","e":"Unknomics: Systematically Studying the Least-Known Genes","px":583,"py":381},{"x":632,"y":444,"s":1.02,"d":"生命","c":"C29","w":0,"t":"古DNA与古蛋白质组学","e":"Ancient DNA and Paleoproteomics","px":666,"py":448},{"x":752,"y":406,"s":0.87,"d":"生命","c":"C37","w":0,"t":"深地暗微生物的能量极限生态","e":"Energy-Limit Ecology of Deep-Subsurface Dark Microbes","px":753,"py":411},{"x":859,"y":394,"s":1.02,"d":"生命","c":"C43","w":0,"t":"三维可合成共生成 · 反应图与原子坐标联合扩散","e":"3D Synthesizable Co-Generation via Joint Reaction-Coordinate Diffusion","px":828,"py":414},{"x":573,"y":502,"s":1.01,"d":"生命","c":"C43","w":0,"t":"逆合成模型在环 · 把合成可行性变成生成的直接优化目标","e":"Retrosynthesis-in-the-Loop Direct Optimization of Synthesizability","px":591,"py":502},{"x":869,"y":542,"s":1,"d":"交叉","c":"C26","w":0,"t":"动物交流的 AI 解码","e":"AI Decoding of Animal Communication","px":858,"py":548},{"x":617,"y":565,"s":0.9,"d":"交叉","c":"C32","w":0,"t":"无脊椎动物感受性判据","e":"Invertebrate Sentience Markers","px":642,"py":562},{"x":923,"y":599,"s":0.75,"d":"交叉","c":"C47","w":0,"t":"机器可验证的后量子密码","e":"Machine-Verified Post-Quantum Crypto","px":924,"py":602},{"x":500,"y":587,"s":0.7,"d":"交叉","c":"C03","w":0,"t":"AI 辅助理论发现","e":"AI-Assisted Theory Discovery","px":502,"py":584},{"x":748,"y":641,"s":0.85,"d":"交叉","c":"C34","w":0,"t":"跨物种感官世界重建","e":"Reconstructing Cross-Species Senses","px":742,"py":640},{"x":1088,"y":562,"s":0.8,"d":"交叉","c":"C38","w":0,"t":"未知论的形式刻画","e":"Formal Characterization of the Unknown","px":1080,"py":560},{"x":1232,"y":648,"s":0.85,"d":"交叉","c":"C39","w":0,"t":"暗仪器化","e":"Dark Instrumentation","px":1232,"py":648},{"x":513,"y":633,"s":1.02,"d":"交叉","c":"C42","w":0,"t":"评测意识:模型\"知道自己在被测\"对测量有效性的侵蚀","e":"Evaluation Awareness: How Models 'Knowing They Are Being Tested' Erodes Measurement Validity","px":524,"py":633},{"x":578,"y":591,"s":1.02,"d":"交叉","c":"C42","w":0,"t":"复杂度理论化的辩论：化解混淆论证的可证协议","e":"Complexity-Theoretic Debate: Provable Protocols Against Obfuscated Arguments","px":608,"py":604},{"x":670,"y":625,"s":1.02,"d":"交叉","c":"C32","w":0,"t":"生物计算主义：意识的基底不可分离性判据","e":"Biological Computationalism: The Substrate-Inseparability Criterion for Consciousness","px":693,"py":605},{"x":783,"y":613,"s":1.03,"d":"交叉","c":"C32","w":0,"t":"人工意识的校准难题:指标体系缺乏可验证基准真相","e":"The Calibration Problem in Artificial Consciousness: Indicator Frameworks Lack a Validated Ground Truth","px":795,"py":608},{"x":881,"y":616,"s":1.02,"d":"交叉","c":"C53","w":0,"t":"可验证奖励的发现智能体：用RL在测试时逼出新SOTA","e":"Verifiable-Reward Discovery Agents: Pushing New SOTA via Test-Time RL","px":871,"py":613},{"x":1006,"y":597,"s":1.02,"d":"交叉","c":"C09","w":0,"t":"可微分制造仿真与梯度反演工艺设计","e":"Differentiable Manufacturing Simulation for Gradient-Based Inverse Process Design","px":980,"py":599},{"x":1064,"y":614,"s":1.03,"d":"交叉","c":"C04","w":0,"t":"自主科学的认识论边界（异者认识论与不透明性辩护）","e":"Epistemic Boundaries of Autonomous Science (Xenoepistemics and Opacity)","px":1060,"py":610},{"x":1166,"y":605,"s":1.01,"d":"交叉","c":"C42","w":0,"t":"奇异学习理论驱动的发展式可解释性","e":"Developmental Interpretability via Singular Learning Theory","px":1166,"py":605},{"x":1253,"y":598,"s":1.02,"d":"交叉","c":"C53","w":0,"t":"AI 发现的统计严谨性强制与自动证伪","e":"Structural Enforcement of Statistical Rigor and Automated Falsification in AI Discovery","px":1253,"py":598},{"x":504,"y":685,"s":1.03,"d":"交叉","c":"C19","w":0,"t":"个体特异性动态网络心理学","e":"Idiographic Dynamic-Network Psychology","px":506,"py":684},{"x":582,"y":697,"s":1.01,"d":"交叉","c":"C53","w":0,"t":"对偶自博弈的全自动猜想智能体","e":"Self-Play Dueling Agents for Autonomous Conjecturing","px":611,"py":672},{"x":682,"y":695,"s":1.02,"d":"交叉","c":"C04","w":0,"t":"受激拉曼激活细胞弹射的功能优先单细胞分选","e":"Stimulated Raman-Activated Cell Ejection for Function-First Single-Cell Sorting","px":695,"py":675},{"x":788,"y":659,"s":1.02,"d":"交叉","c":"C32","w":0,"t":"类脑器官与体外神经网络的复杂度意识代理量","e":"Complexity as a Consciousness Proxy in Brain Organoids and In-Vitro Neural Nets","px":797,"py":663},{"x":829,"y":171,"s":0.88,"d":"生命","c":"C02","w":0,"t":"量子-生物混合计算","e":"Quantum-Biological Hybrid Computing","px":825,"py":195},{"x":963,"y":768,"s":0.91,"d":"交叉","c":"C03","w":0,"t":"物理约束科学基础模型","e":"Physics-constrained scientific foundation models","px":960,"py":755},{"x":696,"y":370,"s":0.74,"d":"生命","c":"C05","w":0,"t":"宏基因组基础模型：从环境序列直接“读出”功能暗物质","e":"Metagenomic foundation models: reading function straight from environmental sequence","px":717,"py":368},{"x":586,"y":455,"s":0.98,"d":"生命","c":"C05","w":0,"t":"空中 eDNA 生物多样性普查","e":"Airborne eDNA Biodiversity Surveys","px":602,"py":455},{"x":1225,"y":460,"s":0.74,"d":"物质","c":"C06","w":0,"t":"工程活体材料（ELM）","e":"Engineered Living Materials (ELMs)","px":1230,"py":456},{"x":1149,"y":280,"s":0.79,"d":"物质","c":"C06","w":0,"t":"可编程DNA水凝胶","e":"Programmable DNA Hydrogels","px":1142,"py":280},{"x":790,"y":243,"s":0.85,"d":"生命","c":"C07","w":0,"t":"人源自组装生物机器人（Anthrobot）","e":"Anthrobots — Self-Assembling Biobots from Adult Human Cells","px":788,"py":246},{"x":692,"y":291,"s":0.95,"d":"生命","c":"C07","w":0,"t":"异种生物机器人（xenobots）","e":"Xenobots","px":713,"py":289},{"x":601,"y":763,"s":0.81,"d":"交叉","c":"C09","w":0,"t":"细胞数字孪生 / 虚拟细胞","e":"Cell Digital Twins / Virtual Cells","px":619,"py":755},{"x":793,"y":447,"s":0.96,"d":"生命","c":"C10","w":0,"t":"环境-健康暴露组监测","e":"Environment-Health Exposome Monitoring","px":789,"py":454},{"x":514,"y":378,"s":0.79,"d":"生命","c":"C10","w":0,"t":"味嗅感知的个体差异","e":"Individual Differences in Taste and Smell Perception","px":527,"py":376},{"x":849,"y":283,"s":0.95,"d":"生命","c":"C11","w":0,"t":"跨物种认知与比较心智","e":"Cross-Species Cognition and Comparative Minds","px":817,"py":297},{"x":732,"y":503,"s":0.83,"d":"交叉","c":"C13","w":0,"t":"太阳辐射管理的建模与治理","e":"Solar Radiation Management Modeling & Governance","px":740,"py":517},{"x":1035,"y":743,"s":0.84,"d":"交叉","c":"C13","w":0,"t":"基因驱动的建模与伦理","e":"Gene-Drive Modeling & Ethics","px":1015,"py":744},{"x":1119,"y":383,"s":0.72,"d":"物质","c":"C17","w":0,"t":"聚变能的工程化路径","e":"Engineering Pathways to Fusion Energy","px":1128,"py":377},{"x":1002,"y":455,"s":0.81,"d":"交叉","c":"C18","w":0,"t":"天体生物学与生命起源","e":"Astrobiology and the Origin of Life","px":980,"py":461},{"x":690,"y":552,"s":0.92,"d":"交叉","c":"C18","w":0,"t":"冰卫星地下海洋与地外宜居","e":"Subsurface Oceans of Icy Moons and Extraterrestrial Habitability","px":695,"py":549},{"x":825,"y":732,"s":0.95,"d":"交叉","c":"C19","w":0,"t":"社会基因组学","e":"Sociogenomics","px":802,"py":716},{"x":1066,"y":683,"s":0.94,"d":"交叉","c":"C20","w":0,"t":"AI科学家与AI评审的自治出版生态","e":"Autonomous AI-Scientist / AI-Reviewer Publishing Ecosystems","px":1055,"py":683},{"x":935,"y":558,"s":1,"d":"交叉","c":"C20","w":0,"t":"零知识证明的可验证科研计算","e":"Zero-Knowledge Verifiable Scientific Computation","px":914,"py":551},{"x":672,"y":779,"s":0.89,"d":"交叉","c":"C21","w":0,"t":"人机协作的科学发现","e":"Human-Machine Collaborative Scientific Discovery","px":706,"py":755},{"x":1012,"y":548,"s":0.96,"d":"交叉","c":"C21","w":0,"t":"人机互补性的实证科学","e":"The Empirical Science of Human-AI Complementarity","px":985,"py":544},{"x":921,"y":769,"s":0.81,"d":"交叉","c":"C22","w":0,"t":"AI 调解的集体审议","e":"AI-Mediated Collective Deliberation","px":898,"py":755},{"x":940,"y":516,"s":0.72,"d":"交叉","c":"C22","w":0,"t":"AI 中介审议与机器共识调解","e":"AI-Mediated Deliberation and Machine Consensus Facilitation","px":945,"py":504},{"x":705,"y":183,"s":0.79,"d":"生命","c":"C24","w":0,"t":"电力农业与无光合食物合成","e":"Electro-Agriculture and Light-Free Food Synthesis","px":707,"py":204},{"x":792,"y":363,"s":0.87,"d":"生命","c":"C25","w":0,"t":"无动物药物安全评估（新方法学 NAMs）","e":"Animal-Free Drug Safety Science (New Approach Methodologies)","px":788,"py":367},{"x":766,"y":273,"s":0.9,"d":"生命","c":"C25","w":0,"t":"衰老生物学与长寿科学","e":"Aging Biology and Longevity Science","px":765,"py":293},{"x":800,"y":528,"s":0.91,"d":"交叉","c":"C26","w":0,"t":"嗅觉数字化与主气味图谱","e":"Digitizing Olfaction and the Principal Odor Map","px":794,"py":532},{"x":772,"y":772,"s":0.91,"d":"交叉","c":"C27","w":0,"t":"具身分子动力学：VR 中用手操控实时模拟","e":"Interactive Molecular Dynamics in VR: Hand-Steered Real-Time Simulation","px":763,"py":755},{"x":810,"y":487,"s":0.86,"d":"交叉","c":"C27","w":0,"t":"AI居间协商与共识机器","e":"AI-Mediated Deliberation and Consensus Machines","px":832,"py":491},{"x":764,"y":474,"s":0.9,"d":"交叉","c":"C28","w":0,"t":"意外发现率的可量化科学","e":"A Quantitative Science of Serendipity Rates","px":729,"py":462},{"x":907,"y":403,"s":0.98,"d":"交叉","c":"C28","w":0,"t":"撤稿流行病学与知识库污染","e":"Retraction Epidemiology and Knowledge-Base Contamination","px":873,"py":448},{"x":601,"y":234,"s":0.91,"d":"生命","c":"C30","w":0,"t":"微生物暗物质与未培养菌","e":"Microbial Dark Matter and Uncultured Microbes","px":617,"py":244},{"x":626,"y":287,"s":0.76,"d":"生命","c":"C30","w":0,"t":"极端微生物与生命边界","e":"Extremophiles and the Limits of Life","px":661,"py":279},{"x":981,"y":635,"s":0.88,"d":"交叉","c":"C34","w":0,"t":"未知未知的预警学","e":"An Early-Warning Science for Unknown Unknowns","px":955,"py":648},{"x":893,"y":709,"s":0.78,"d":"交叉","c":"C35","w":0,"t":"邻接可能的可计算扩张律","e":"A Computable Expansion Law for the Adjacent Possible","px":871,"py":707},{"x":897,"y":668,"s":0.91,"d":"交叉","c":"C35","w":0,"t":"强化学习中的文化累积:人工\"世代智能\"","e":"Cultural Accumulation in Reinforcement Learning: Artificial Generational Intelligence","px":902,"py":659},{"x":630,"y":641,"s":0.84,"d":"交叉","c":"C36","w":0,"t":"量子模拟器探未知物相","e":"Quantum Simulators Probing Unknown Phases of Matter","px":653,"py":637},{"x":858,"y":652,"s":0.81,"d":"交叉","c":"C36","w":0,"t":"异常即信号的跨域发现科学","e":"Anomaly-as-Signal: Cross-Domain Discovery Science","px":847,"py":658},{"x":913,"y":491,"s":0.91,"d":"交叉","c":"C38","w":0,"t":"学科裂缝采矿（孤岛桥接图谱）","e":"Mining Disciplinary Fissures (Atlas of Bridgeable Silos)","px":889,"py":501},{"x":851,"y":764,"s":0.82,"d":"交叉","c":"C39","w":0,"t":"临界转变的通用预警信号","e":"Generic Early-Warning Signals for Critical Transitions","px":841,"py":755},{"x":740,"y":603,"s":0.83,"d":"交叉","c":"C40","w":0,"t":"影子生物圈的探测学","e":"The Detection Science of the Shadow Biosphere","px":745,"py":583},{"x":999,"y":706,"s":0.79,"d":"交叉","c":"C40","w":0,"t":"异类化学的可栖性边界","e":"The Habitability Boundaries of Alien Chemistry","px":982,"py":698},{"x":643,"y":711,"s":0.81,"d":"交叉","c":"C41","w":0,"t":"对撞机异常检测移植生态盲发现","e":"Collider Anomaly Detection Transplanted to Blind Ecological Discovery","px":652,"py":710},{"x":855,"y":582,"s":0.75,"d":"交叉","c":"C41","w":0,"t":"函子式跨域结构移植（应用范畴论迁移方法论）","e":"Functorial Cross-Domain Structure Transport (Applied Category Theory as Transfer Methodology)","px":830,"py":576},{"x":929,"y":696,"s":0.87,"d":"交叉","c":"C45","w":0,"t":"观测直达预报：跳过资料同化的端到端天气 AI","e":"Observation-native forecasting: end-to-end weather AI that bypasses data assimilation","px":927,"py":709},{"x":719,"y":727,"s":0.99,"d":"交叉","c":"C45","w":0,"t":"AI 伴随敏感性：反向传播穿透预报模式的可预报性实验","e":"AI-adjoint sensitivity: backpropagating through forecast models to probe predictability limits","px":745,"py":702},{"x":1024,"y":641,"s":0.92,"d":"交叉","c":"C47","w":0,"t":"门限与多方全同态加密:把解密密钥拆碎分布","e":"Threshold and Multiparty FHE: Shattering the Decryption Key Across Parties","px":1012,"py":648},{"x":204,"y":365,"s":0.87,"d":"数理","c":"C49","w":0,"t":"正向临界点级联：设计能自我放大的良性转变","e":"Positive Tipping Cascades: Engineering Self-Amplifying Beneficial Transitions","px":206,"py":363},{"x":344,"y":457,"s":0.95,"d":"数理","c":"C49","w":0,"t":"速率诱导临界点的可计算判据","e":"Computable Criteria for Rate-Induced Tipping","px":336,"py":459},{"x":613,"y":523,"s":0.82,"d":"交叉","c":"C29","w":0,"t":"暗光纤地震—声学生态感知","e":"Dark-Fiber Seismo-Acoustic Ecological Sensing","px":650,"py":500},{"x":790,"y":569,"s":0.78,"d":"交叉","c":"C26","w":0,"t":"振动通讯生物学","e":"Biotremology: Vibrational Communication Biology","px":790,"py":570},{"x":975,"y":568,"s":0.74,"d":"交叉","c":"C26","w":0,"t":"空中电生态学","e":"Aerial Electroecology","px":950,"py":570},{"x":629,"y":353,"s":0.79,"d":"生命","c":"C30","w":0,"t":"电缆细菌与沉积生物地球物理信号","e":"Cable Bacteria and Sedimentary Biogeophysical Signals","px":640,"py":370},{"x":467,"y":499,"s":0.81,"d":"物质","c":"C31","w":0,"t":"热力学计算硬件","e":"Thermodynamic Computing Hardware","px":470,"py":500},{"x":370,"y":570,"s":0.76,"d":"物质","c":"C31","w":0,"t":"p-bit 概率计算","e":"p-bit Probabilistic Computing","px":370,"py":570},{"x":440,"y":620,"s":0.83,"d":"物质","c":"C02","w":0,"t":"水基离子学忆阻器","e":"Aqueous Iontronic Memristors","px":440,"py":620},{"x":506,"y":512,"s":0.85,"d":"物质","c":"C31","w":0,"t":"力学超材料计算与机械神经网络","e":"Mechanical-Metamaterial Computing and Mechanical Neural Networks","px":530,"py":520},{"x":633,"y":789,"s":0.86,"d":"交叉","c":"C19","w":0,"t":"反事实历史与因果计量史学","e":"Counterfactual History and Causal Cliometrics","px":660,"py":750},{"x":841,"y":617,"s":0.84,"d":"交叉","c":"C19","w":0,"t":"规范与信任的演化动力学","e":"Evolutionary Dynamics of Norms and Trust","px":830,"py":620},{"x":270,"y":540,"s":0.8,"d":"数理","c":"C19","w":0,"t":"社会物理学 2.0：集体行为可预测性边界","e":"Social Physics 2.0: Limits of Collective-Behavior Predictability","px":270,"py":540},{"x":892,"y":573,"s":0.84,"d":"交叉","c":"C22","w":0,"t":"集体推理与群体认识论","e":"Collective Reasoning and Group Epistemology","px":890,"py":580},{"x":431,"y":350,"s":0.88,"d":"物质","c":"C15","w":0,"t":"冷原子量子重力梯度仪","e":"Cold-Atom Quantum Gravity Gradiometry","px":438,"py":344},{"x":535,"y":297,"s":0.86,"d":"物质","c":"C29","w":0,"t":"火山缪子成像与时序监测","e":"Volcano Muography and Time-Lapse Monitoring","px":542,"py":318},{"x":252,"y":576,"s":0.84,"d":"数理","c":"C41","w":0,"t":"收敛交叉映射的非线性因果迁移","e":"Nonlinear Causal Transfer with Convergent Cross Mapping","px":252,"py":576},{"x":697,"y":483,"s":0.86,"d":"交叉","c":"C13","w":0,"t":"增强岩石风化的碳移除 MRV","e":"Carbon-Removal MRV for Enhanced Rock Weathering","px":718,"py":458},{"x":825,"y":421,"s":0.82,"d":"交叉","c":"C13","w":0,"t":"海洋碱度增强与原位 MRV","e":"Ocean Alkalinity Enhancement and In-Situ MRV","px":792,"py":430},{"x":852,"y":482,"s":0.84,"d":"交叉","c":"C05","w":0,"t":"eDNA 群体基因组学与人类遗传副渔获","e":"Population-Genomic eDNA and Human Genetic Bycatch","px":858,"py":494},{"x":593,"y":193,"s":0.9,"d":"生命","c":"C42","w":0,"t":"生物基础模型的机制可解释性","e":"Mechanistic Interpretability of Biological Foundation Models","px":612,"py":210},{"x":688,"y":248,"s":0.86,"d":"生命","c":"C10","w":0,"t":"可现场部署的工程活细胞生物传感器","e":"Field-Deployable Engineered Whole-Cell Biosensors","px":680,"py":260},{"x":734,"y":296,"s":0.83,"d":"生命","c":"C05","w":0,"t":"环境 RNA 生态活性监测","e":"Environmental RNA Monitoring of Ecosystem Activity","px":744,"py":304},{"x":834,"y":354,"s":0.88,"d":"生命","c":"C11","w":0,"t":"大脑的基础模型与神经数字孪生","e":"Foundation Models of the Brain and Neural Digital Twins","px":808,"py":350},{"x":637,"y":400,"s":0.9,"d":"生命","c":"C24","w":0,"t":"反刍动物肠道甲烷减排","e":"Enteric Methane Mitigation in Ruminants","px":664,"py":406},{"x":732,"y":539,"s":0.87,"d":"生命","c":"C32","w":0,"t":"生物电形态发生与基础认知","e":"Bioelectric Morphogenesis and Basal Cognition","px":728,"py":520},{"x":153,"y":190,"s":0.84,"d":"物质","c":"C16","w":0,"t":"可编程声学超表面与动态声全息","e":"Programmable Acoustic Metasurfaces and Dynamic Acoustic Holography","px":160,"py":185},{"x":306,"y":477,"s":0.82,"d":"物质","c":"C31","w":0,"t":"会学习改变形状的力学超材料","e":"Mechanical Metamaterials That Learn to Change Shape","px":310,"py":470},{"x":686,"y":143,"s":0.8,"d":"物质","c":"C17","w":0,"t":"地热卤水直接提锂与关键矿物联产","e":"Direct Lithium Extraction and Critical-Mineral Coproduction from Geothermal Brine","px":670,"py":170},{"x":829,"y":316,"s":0.76,"d":"物质","c":"C17","w":0,"t":"熔盐堆在线燃料盐化学与连续后处理","e":"Online Fuel-Salt Chemistry and Continuous Reprocessing for Molten Salt Reactors","px":805,"py":330},{"x":540,"y":530,"s":0.78,"d":"物质","c":"C43","w":0,"t":"从头人工金属酶与非天然辅因子催化设计","e":"De Novo Metalloenzyme and Abiological-Cofactor Catalysis Design","px":560,"py":520},{"x":388,"y":138,"s":0.8,"d":"物质","c":"C44","w":0,"t":"可逆绝热CMOS：芯片级净能量回收计算","e":"Reversible Adiabatic CMOS with Net On-Chip Energy Recovery","px":390,"py":135},{"x":519,"y":258,"s":0.84,"d":"数理","c":"C31","w":0,"t":"基于量子真空/热噪声的光子概率计算","e":"Photonic Probabilistic Computing on Quantum-Vacuum and Thermal Noise","px":520,"py":260},{"x":727,"y":466,"s":0.79,"d":"数理","c":"C33","w":0,"t":"长基线原子干涉计实验室检验暗能量屏蔽标量场","e":"Laboratory Tests of Dark-Energy Screened Scalars with Long-Baseline Atom Interferometry","px":730,"py":455},{"x":232,"y":334,"s":0.82,"d":"数理","c":"C44","w":0,"t":"热力学线性代数：随机处理单元加速高维矩阵原语","e":"Thermodynamic Linear Algebra on Stochastic Processing Units","px":235,"py":335},{"x":438,"y":435,"s":0.86,"d":"交叉","c":"C03","w":0,"t":"通用机器学习原子间势","e":"Universal Machine-Learning Interatomic Potentials","px":445,"py":420},{"x":868,"y":176,"s":0.72,"d":"交叉","c":"C46","w":0,"t":"在轨蛋白结晶与药物再制剂化","e":"In-Orbit Protein Crystallization for Drug Reformulation","px":855,"py":190},{"x":125,"y":540,"s":0.78,"d":"生命","c":"C46","w":0,"t":"辐射营养真菌与黑色素活体自修复辐射屏蔽","e":"Radiosynthetic Fungi and Melanin Living Self-Repairing Radiation Shields","px":125,"py":540},{"x":187,"y":165,"s":0.91,"d":"数理","c":"C22","w":0,"t":"桥接排序与人机协同事实核查","e":"Bridging-Based Ranking and Human-LLM Fact-Checking","px":180,"py":170},{"x":407,"y":102,"s":0.86,"d":"数理","c":"C42","w":0,"t":"构念效度驱动的评测科学","e":"Construct-Valid Evaluation Science","px":405,"py":105},{"x":626,"y":166,"s":0.84,"d":"数理","c":"C51","w":0,"t":"自动化偏识别与因果界","e":"Automated Partial Identification and Causal Bounds","px":645,"py":185},{"x":876,"y":105,"s":0.82,"d":"数理","c":"C47","w":0,"t":"单次训练运行的经验隐私审计","e":"One-Run Empirical Privacy Auditing","px":875,"py":105},{"x":1085,"y":195,"s":0.88,"d":"数理","c":"C14","w":0,"t":"多智能体隐写合谋审计","e":"Auditing Steganographic Collusion among AI Agents","px":1085,"py":195},{"x":247,"y":391,"s":0.8,"d":"交叉","c":"C20","w":0,"t":"聚焦研究组织的公共品机制","e":"Focused Research Organizations for Scientific Public Goods","px":250,"py":395},{"x":497,"y":463,"s":0.93,"d":"交叉","c":"C22","w":0,"t":"机器可执行的研究发现","e":"Machine-Actionable Research Findings","px":495,"py":455},{"x":731,"y":357,"s":0.78,"d":"交叉","c":"C19","w":0,"t":"未翻译知识损失观测站","e":"Observatory for Untranslated Knowledge Loss","px":735,"py":375},{"x":964,"y":439,"s":0.9,"d":"交叉","c":"C22","w":0,"t":"集体对齐与民主化 AI 治理","e":"Collective Alignment and Democratic AI Governance","px":965,"py":455},{"x":185,"y":650,"s":0.81,"d":"生命","c":"C02","w":0,"t":"类器官出处与动态同意基础设施","e":"Organoid Provenance and Dynamic-Consent Infrastructure","px":185,"py":650},{"x":547,"y":666,"s":0.89,"d":"生命","c":"C51","w":0,"t":"人机决策的因果评测","e":"Causal Evaluation of Human-AI Decisions","px":555,"py":665},{"x":970,"y":681,"s":0.85,"d":"物质","c":"C47","w":0,"t":"机密计算的物理中间人防线","e":"Physical-Interposer Defenses for Confidential Computing","px":940,"py":660},{"x":510,"y":211,"s":0.9,"d":"数理","c":"C14","w":3,"t":"对称性起源的层级涌现:等变性诱导的信息闭包","e":"Symmetry-Origin of Hierarchical Emergence via Equivariance","px":null,"py":null},{"x":475,"y":292,"s":0.81,"d":"数理","c":"C14","w":3,"t":"适应性网络的拓扑—状态共演化","e":"Topology–State Coevolution in Adaptive Networks","px":null,"py":null},{"x":523,"y":168,"s":0.9,"d":"数理","c":"C14","w":3,"t":"共享团队回报下的多智能体信用分配","e":"Multi-Agent Credit Assignment under Shared Team Rewards","px":null,"py":null},{"x":329,"y":365,"s":0.81,"d":"数理","c":"C23","w":3,"t":"图神经网络刻画代数等价类","e":"Graph Neural Networks Characterizing Algebraic Equivalence Classes","px":null,"py":null},{"x":283,"y":445,"s":0.78,"d":"数理","c":"C23","w":3,"t":"演化中形式证明库的自动修复","e":"Automated Repair of Evolving Formal Proof Libraries","px":null,"py":null},{"x":388,"y":359,"s":0.87,"d":"数理","c":"C33","w":3,"t":"自由中子寿命的束流—储存差异","e":"Beam–Bottle Discrepancy in the Free-Neutron Lifetime","px":null,"py":null},{"x":583,"y":661,"s":0.72,"d":"数理","c":"C41","w":3,"t":"合成对照法移植到生态干预","e":"Synthetic-Control Methods Transplanted to Ecological Interventions","px":null,"py":null},{"x":466,"y":656,"s":0.84,"d":"数理","c":"C41","w":3,"t":"环境地震干涉移植冰下与活体测厚","e":"Ambient Seismic Interferometry Transplanted to Subglacial and In Vivo Thickness Sensing","px":null,"py":null},{"x":430,"y":530,"s":0.81,"d":"数理","c":"C41","w":3,"t":"占域模型移植到病原体监测","e":"Occupancy Models Transplanted to Pathogen Surveillance","px":null,"py":null},{"x":607,"y":726,"s":0.72,"d":"数理","c":"C41","w":3,"t":"项目反应理论移植到 AI 基准校准","e":"Item Response Theory Transplanted to AI Benchmark Calibration","px":null,"py":null},{"x":945,"y":357,"s":0.84,"d":"数理","c":"C42","w":3,"t":"SAE 作科学仪器：把可解释性反向用于发现生物学","e":"SAEs as a Scientific Instrument: Turning Interpretability Into a Discovery Tool","px":null,"py":null},{"x":614,"y":481,"s":0.87,"d":"数理","c":"C42","w":3,"t":"跨层转码器与归因图：把语言模型当生物体解剖","e":"Cross-Layer Transcoders & Attribution Graphs: Dissecting LLMs Like Organisms","px":null,"py":null},{"x":997,"y":104,"s":0.78,"d":"数理","c":"C44","w":3,"t":"树突计算神经形态电路","e":"Dendritic-Computing Neuromorphic Circuits","px":null,"py":null},{"x":316,"y":424,"s":0.78,"d":"数理","c":"C49","w":3,"t":"新型实体边界的计算化学空间监测","e":"Computational Chemical-Space Monitoring of the Novel-Entities Boundary","px":null,"py":null},{"x":212,"y":464,"s":0.78,"d":"数理","c":"C49","w":3,"t":"无方程因果重构：经验动态建模与收敛交叉映射","e":"Equation-Free Causal Reconstruction: Empirical Dynamic Modeling and Convergent Cross Mapping","px":null,"py":null},{"x":267,"y":355,"s":0.84,"d":"数理","c":"C49","w":3,"t":"可再生能源干旱（Dunkelflaute）风险建模","e":"Renewable Energy Drought (Dunkelflaute) Risk Modeling","px":null,"py":null},{"x":260,"y":474,"s":0.72,"d":"数理","c":"C49","w":3,"t":"可证伪的临界预警科学","e":"Falsifiable Early-Warning Science","px":null,"py":null},{"x":201,"y":406,"s":0.78,"d":"数理","c":"C49","w":3,"t":"电网学习代理的最坏情形验证","e":"Worst-Case Verification of Grid Optimization Proxies","px":null,"py":null},{"x":1292,"y":380,"s":0.93,"d":"物质","c":"C06","w":3,"t":"仿生结构材料（轻量高强）","e":"Bio-inspired Structural Materials (Lightweight, High-Strength)","px":null,"py":null},{"x":1153,"y":400,"s":0.84,"d":"物质","c":"C06","w":3,"t":"工程活体材料的长期演化稳定性","e":"Long-Term Evolutionary Stability of Engineered Living Materials","px":null,"py":null},{"x":1211,"y":284,"s":0.9,"d":"物质","c":"C06","w":3,"t":"工程活体光子材料","e":"Engineered Living Photonic Materials","px":null,"py":null},{"x":1257,"y":438,"s":0.87,"d":"物质","c":"C06","w":3,"t":"酶固定化的无细胞催化材料","e":"Enzyme-Immobilized Cell-Free Catalytic Materials","px":null,"py":null},{"x":1085,"y":358,"s":0.81,"d":"物质","c":"C06","w":3,"t":"细胞自由生物制造工厂","e":"Cell-free biomanufacturing factories","px":null,"py":null},{"x":1189,"y":470,"s":0.72,"d":"物质","c":"C08","w":3,"t":"机械化学操控的分子机器","e":"Mechanochemically Controlled Molecular Machines","px":null,"py":null},{"x":1119,"y":477,"s":0.81,"d":"物质","c":"C08","w":3,"t":"单分子检测与测量","e":"Single-Molecule Detection and Measurement","px":null,"py":null},{"x":1181,"y":366,"s":0.93,"d":"物质","c":"C08","w":3,"t":"单分子蛋白质测序","e":"Single-Molecule Protein Sequencing","px":null,"py":null},{"x":1195,"y":508,"s":0.84,"d":"物质","c":"C08","w":3,"t":"组织内分子记录器","e":"Molecular recorders inside tissues","px":null,"py":null},{"x":1057,"y":424,"s":0.78,"d":"物质","c":"C08","w":3,"t":"DNA折纸纳米孔与可编程分子闸门","e":"DNA-Origami Nanopores and Programmable Molecular Gates","px":null,"py":null},{"x":1250,"y":321,"s":0.78,"d":"物质","c":"C12","w":3,"t":"有机电化学晶体管的屏障组织完整性读出","e":"Organic Electrochemical Transistors for Barrier-Tissue Integrity Readout","px":null,"py":null},{"x":1259,"y":359,"s":0.81,"d":"物质","c":"C12","w":3,"t":"电微生物学：厘米级导电的活体镍-蛋白纳米线","e":"Electromicrobiology: Centimeter-Scale Living Nickel-Protein Wires","px":null,"py":null},{"x":1230,"y":239,"s":0.84,"d":"物质","c":"C12","w":3,"t":"合成电微生物学：可编程的胞外电子传递","e":"Synthetic Electromicrobiology: Programmable Extracellular Electron Transfer","px":null,"py":null},{"x":1332,"y":395,"s":0.87,"d":"物质","c":"C12","w":3,"t":"电发酵的细胞氧化还原态调控","e":"Electro-Fermentation for Cellular Redox-State Control","px":null,"py":null},{"x":1071,"y":301,"s":0.9,"d":"物质","c":"C15","w":3,"t":"光学原子钟的相对论大地测量","e":"Relativistic Geodesy with Optical Atomic Clocks","px":null,"py":null},{"x":1049,"y":338,"s":0.87,"d":"物质","c":"C15","w":3,"t":"自旋化学·量子生物学","e":"Spin Chemistry — Radical-Pair Quantum Biology","px":null,"py":null},{"x":1011,"y":144,"s":0.78,"d":"物质","c":"C15","w":3,"t":"横向门算法级容错与逻辑比特复用","e":"Transversal-Gate Algorithmic Fault Tolerance with Logical-Qubit Reuse","px":null,"py":null},{"x":795,"y":100,"s":0.87,"d":"物质","c":"C16","w":3,"t":"折纸与剪纸力学结构的多稳态编程","e":"Multistable Programming of Origami and Kirigami Structures","px":null,"py":null},{"x":661,"y":457,"s":0.84,"d":"物质","c":"C16","w":3,"t":"主动物质与自驱动颗粒","e":"Active Matter & Self-Propelled Particles","px":null,"py":null},{"x":718,"y":218,"s":0.84,"d":"物质","c":"C16","w":3,"t":"非厄米可重构超表面与奇异点调控","e":"Non-Hermitian Reconfigurable Metasurfaces and Exceptional-Point Engineering","px":null,"py":null},{"x":907,"y":182,"s":0.87,"d":"物质","c":"C16","w":3,"t":"光子时间晶体的动量带隙拓扑与k隙放大","e":"Momentum-Bandgap Topology and k-Gap Amplification in Photonic Time Crystals","px":null,"py":null},{"x":1046,"y":180,"s":0.75,"d":"物质","c":"C17","w":3,"t":"超临界CO₂工质的闭环地热","e":"Closed-Loop Geothermal with Supercritical CO₂ Working Fluid","px":null,"py":null},{"x":957,"y":100,"s":0.87,"d":"物质","c":"C17","w":3,"t":"循环金属燃料与铁粉储能","e":"Circular Metal Fuels and Iron-Powder Energy Storage","px":null,"py":null},{"x":854,"y":138,"s":0.78,"d":"物质","c":"C17","w":3,"t":"储层式地热蓄冷蓄热——为AI算力供冷供电","e":"Reservoir Thermal Energy Storage — Cooling and Powering AI Compute","px":null,"py":null},{"x":657,"y":234,"s":0.75,"d":"物质","c":"C29","w":3,"t":"生物气溶胶—大气耦合：活的微生物作为成冰核驱动云与降水","e":"Bioaerosol–atmosphere coupling: living microbes as ice-nucleating particles driving clouds","px":null,"py":null},{"x":688,"y":596,"s":0.87,"d":"物质","c":"C43","w":3,"t":"从头设计跨膜孔道与选择性运输","e":"De Novo Design of Transmembrane Pores and Selective Transport","px":null,"py":null},{"x":578,"y":545,"s":0.93,"d":"物质","c":"C43","w":3,"t":"蛋白平衡系综的生成式仿真","e":"Generative Emulation of Protein Equilibrium Ensembles","px":null,"py":null},{"x":561,"y":415,"s":0.9,"d":"物质","c":"C43","w":3,"t":"内在无序蛋白的序列—系综—功能反向设计","e":"Inverse Design of Sequence–Ensemble–Function Relationships in IDPs","px":null,"py":null},{"x":673,"y":513,"s":0.81,"d":"物质","c":"C43","w":3,"t":"众包开放的蛋白设计竞赛与共享湿实验","e":"Crowdsourced Open Protein-Design Competitions with Shared Wet-Lab","px":null,"py":null},{"x":1062,"y":533,"s":0.78,"d":"物质","c":"C47","w":3,"t":"开源硅信任根","e":"Open-Source Silicon Roots of Trust","px":null,"py":null},{"x":925,"y":257,"s":0.78,"d":"物质","c":"C47","w":3,"t":"后量子实现的侧信道与故障防护","e":"Side-Channel- and Fault-Hardened Post-Quantum Implementations","px":null,"py":null},{"x":990,"y":391,"s":0.78,"d":"物质","c":"C47","w":3,"t":"伪随机相关生成器驱动的静默预处理 MPC","e":"Silent-Preprocessing MPC via Pseudorandom Correlation Generators","px":null,"py":null},{"x":1142,"y":356,"s":0.75,"d":"物质","c":"C48","w":3,"t":"机器人策略的不确定性校准与主动求助","e":"Calibrated Uncertainty and Help-Seeking in Robot Policies","px":null,"py":null},{"x":1080,"y":395,"s":0.72,"d":"物质","c":"C48","w":3,"t":"部署后机器人策略的持续适应与保留测试","e":"Post-Deployment Continual Adaptation and Retention Testing for Robot Policies","px":null,"py":null},{"x":1111,"y":281,"s":0.75,"d":"物质","c":"C48","w":3,"t":"自主真机评测网络：机器人策略的分布式考场","e":"Autonomous Real-Robot Evaluation Networks: A Distributed Examination Hall for Policies","px":null,"py":null},{"x":1222,"y":375,"s":0.81,"d":"物质","c":"C48","w":3,"t":"触觉-力觉 VLA·接触物理基础模型","e":"Tactile-Force VLA · Contact-Physics Foundation Models","px":null,"py":null},{"x":928,"y":321,"s":0.81,"d":"生命","c":"C01","w":3,"t":"遗传防火墙与非天然氨基酸义务共生的内生生物遏制","e":"Genetic Firewalls and Non-Standard-Amino-Acid Obligate Commensalism for Intrinsic Biocontainment","px":null,"py":null},{"x":788,"y":302,"s":0.81,"d":"生命","c":"C01","w":3,"t":"控制论遗传学：把控制理论接进活细胞做实时反馈","e":"Cybergenetics: Real-Time Feedback Control of Living Cells","px":null,"py":null},{"x":950,"y":191,"s":0.9,"d":"生命","c":"C01","w":3,"t":"活体分子诊断菌（体内DNA感知）","e":"Living Molecular Diagnostics (In-Body DNA Sensing)","px":null,"py":null},{"x":889,"y":423,"s":0.81,"d":"生命","c":"C01","w":3,"t":"细胞控制论：活细胞的闭环反馈控制","e":"Cybergenetics: Closed-Loop Feedback Control of Living Cells","px":null,"py":null},{"x":534,"y":483,"s":0.81,"d":"生命","c":"C02","w":3,"t":"真菌菌丝物理水库计算","e":"Fungal Mycelial Physical Reservoir Computing","px":null,"py":null},{"x":437,"y":475,"s":0.72,"d":"生命","c":"C02","w":3,"t":"预防式复杂度上限治理:类器官意识涌现的实时监测红线","e":"Preventive Complexity-Cap Governance: Real-Time Red Lines Against Organoid Consciousness Emergence","px":null,"py":null},{"x":476,"y":425,"s":0.81,"d":"生命","c":"C02","w":3,"t":"类器官捐赠者溯源的去中心化生物样本库:动态同意与可学习性研究的伦理底座","e":"Decentralized Biobanking for Organoid Donor Provenance: Dynamic Consent as the Ethical Substrate of Learnability Research","px":null,"py":null},{"x":949,"y":480,"s":0.87,"d":"生命","c":"C05","w":3,"t":"高光谱遥感的功能性状生物多样性制图","e":"Hyperspectral Mapping of Biodiversity Functional Traits","px":null,"py":null},{"x":522,"y":339,"s":0.93,"d":"生命","c":"C05","w":3,"t":"动物即行星传感器·动物互联网","e":"Animals as Planetary Sensors · The Internet of Animals","px":null,"py":null},{"x":834,"y":241,"s":0.81,"d":"生命","c":"C05","w":3,"t":"生态化学暴露组·环境代谢组学","e":"The Ecosystem Chemical Exposome · Environmental Metabolomics","px":null,"py":null},{"x":916,"y":107,"s":0.81,"d":"生命","c":"C07","w":3,"t":"生物混合机器人的寿命与性能计量","e":"Lifetime and Performance Metrology for Biohybrid Robots","px":null,"py":null},{"x":659,"y":277,"s":0.81,"d":"生命","c":"C07","w":3,"t":"真菌菌丝电生理控制的生物混合机器人","e":"Fungal-Mycelium-Controlled Biohybrid Robots","px":null,"py":null},{"x":836,"y":100,"s":0.81,"d":"生命","c":"C07","w":3,"t":"神经肌肉接头驱动的可训练生物混合执行器","e":"Innervated, Trainable Biohybrid Actuators (Neuromuscular-Junction Control)","px":null,"py":null},{"x":797,"y":336,"s":0.75,"d":"生命","c":"C07","w":3,"t":"昆虫嗅觉器官驱动的化学导航机器人","e":"Chemical-Navigation Robots Guided by Insect Olfactory Organs","px":null,"py":null},{"x":544,"y":130,"s":0.84,"d":"生命","c":"C07","w":3,"t":"仿生群体机器人","e":"Bio-inspired Swarm Robotics","px":null,"py":null},{"x":599,"y":386,"s":0.9,"d":"生命","c":"C10","w":3,"t":"现场CRISPR环境生物传感","e":"Field-Deployable CRISPR Environmental Biosensing","px":null,"py":null},{"x":517,"y":418,"s":0.84,"d":"生命","c":"C10","w":3,"t":"泪液感知的智能隐形眼镜","e":"Tear-Sensing Smart Contact Lenses","px":null,"py":null},{"x":639,"y":100,"s":0.87,"d":"生命","c":"C10","w":3,"t":"冻干无细胞现场生物传感器","e":"Freeze-Dried Cell-Free Biosensors for Field Deployment","px":null,"py":null},{"x":820,"y":387,"s":0.87,"d":"生命","c":"C10","w":3,"t":"分布式诊断数据网络","e":"Distributed Diagnostic Data Networks","px":null,"py":null},{"x":1042,"y":381,"s":0.9,"d":"生命","c":"C11","w":3,"t":"经颅声电脑成像（tABI）","e":"Transcranial Acoustoelectric Brain Imaging (tABI)","px":null,"py":null},{"x":657,"y":354,"s":0.84,"d":"生命","c":"C11","w":3,"t":"连接组学与全脑图谱","e":"Connectomics and Whole-brain Atlases","px":null,"py":null},{"x":741,"y":189,"s":0.72,"d":"生命","c":"C11","w":3,"t":"功能超声脑机接口（fUS-BMI）","e":"Functional-Ultrasound Brain-Machine Interface (fUS-BMI)","px":null,"py":null},{"x":973,"y":137,"s":0.78,"d":"生命","c":"C11","w":3,"t":"声调与全谱汉语言语假体","e":"Tonal and Full-Spectrum Mandarin Speech Neuroprostheses","px":null,"py":null},{"x":950,"y":398,"s":0.84,"d":"生命","c":"C24","w":3,"t":"超加工食品的机制科学与食物基质","e":"Mechanistic Science of Ultra-Processed Foods and the Food Matrix","px":null,"py":null},{"x":901,"y":354,"s":0.93,"d":"生命","c":"C24","w":3,"t":"食用菌丝全生物量的质构与消化","e":"Texture and Digestibility of Edible Mycelial Biomass","px":null,"py":null},{"x":682,"y":100,"s":0.9,"d":"生命","c":"C24","w":3,"t":"植物纳米生物电子·活体传感","e":"Plant Nanobionics and In-Planta Sensing","px":null,"py":null},{"x":727,"y":386,"s":0.84,"d":"生命","c":"C24","w":3,"t":"分子农场：作物直接长出动物蛋白","e":"Molecular Farming of Animal Proteins in Crops","px":null,"py":null},{"x":721,"y":115,"s":0.84,"d":"生命","c":"C25","w":3,"t":"老年科学试验的跨疾病终点","e":"Cross-Disease Endpoints for Geroscience Trials","px":null,"py":null},{"x":680,"y":337,"s":0.87,"d":"生命","c":"C25","w":3,"t":"健康的社会决定因素科学","e":"Science of the Social Determinants of Health","px":null,"py":null},{"x":667,"y":175,"s":0.87,"d":"生命","c":"C25","w":3,"t":"刺激—恢复动力学测量生理韧性","e":"Measuring Physiological Resilience through Challenge-Recovery Dynamics","px":null,"py":null},{"x":1047,"y":217,"s":0.75,"d":"生命","c":"C25","w":3,"t":"时间生物学与昼夜节律组","e":"Chronobiology and the Circadian Rhythmome","px":null,"py":null},{"x":811,"y":203,"s":0.9,"d":"生命","c":"C25","w":3,"t":"mRNA 与下一代疫苗平台","e":"mRNA and Next-Generation Vaccine Platforms","px":null,"py":null},{"x":632,"y":204,"s":0.81,"d":"生命","c":"C30","w":3,"t":"口腔微生物迁移与系统效应验证","e":"Validating Oral-Microbial Migration and Systemic Effects","px":null,"py":null},{"x":588,"y":350,"s":0.72,"d":"生命","c":"C30","w":3,"t":"肠道真菌组与跨界相互作用","e":"Gut Mycobiome and Cross-Kingdom Interactions","px":null,"py":null},{"x":582,"y":146,"s":0.81,"d":"生命","c":"C30","w":3,"t":"一健康与跨界病原监测","e":"One Health and Cross-domain Pathogen Surveillance","px":null,"py":null},{"x":801,"y":140,"s":0.78,"d":"生命","c":"C30","w":3,"t":"抗生素后群落恢复与定植抗性","e":"Post-Antibiotic Community Recovery and Colonization Resistance","px":null,"py":null},{"x":824,"y":666,"s":0.78,"d":"生命","c":"C32","w":3,"t":"无报告范式中的意识神经标记","e":"Neural Markers of Consciousness in No-Report Paradigms","px":null,"py":null},{"x":614,"y":602,"s":0.81,"d":"生命","c":"C32","w":3,"t":"内感受与最小自我感","e":"Interoception and the Minimal Sense of Self","px":null,"py":null},{"x":675,"y":387,"s":0.72,"d":"生命","c":"C37","w":3,"t":"拉曼活性分选驱动的单细胞功能-基因组挂钩","e":"Raman-Activated Sorting Linking Single-Cell Function to Genome","px":null,"py":null},{"x":666,"y":421,"s":0.72,"d":"生命","c":"C37","w":3,"t":"机器学习点亮代谢暗物质","e":"Machine Learning Illuminates Metabolic Dark Matter","px":null,"py":null},{"x":936,"y":151,"s":0.81,"d":"生命","c":"C37","w":3,"t":"比较基因组发现的孤儿结构化 RNA","e":"Comparative-Genomic Discovery of Orphan Structured RNAs","px":null,"py":null},{"x":607,"y":317,"s":0.84,"d":"生命","c":"C37","w":3,"t":"脂质位置异构体的结构级解析","e":"Structure-Level Resolution of Positional Lipid Isomers","px":null,"py":null},{"x":1034,"y":265,"s":0.81,"d":"生命","c":"C46","w":3,"t":"黑色素化真菌活体辐射屏蔽生物复合材料","e":"Melanized-Fungal Living Radiation-Shielding Biocomposites","px":null,"py":null},{"x":852,"y":205,"s":0.78,"d":"生命","c":"C46","w":3,"t":"空间风化感知的月尘毒理学","e":"Space-Weathering-Aware Lunar-Dust Toxicology","px":null,"py":null},{"x":770,"y":210,"s":0.75,"d":"生命","c":"C46","w":3,"t":"太空多组学医学图谱与平民宇航员生物样本库","e":"Spaceflight Multi-Omics Medical Atlas and Civilian Astronaut Biobank","px":null,"py":null},{"x":727,"y":259,"s":0.84,"d":"生命","c":"C50","w":3,"t":"亚细胞空间转录组学：在原位读出 RNA 的居所","e":"Subcellular Spatial Transcriptomics: Reading RNA's Address In Situ","px":null,"py":null},{"x":859,"y":442,"s":0.87,"d":"生命","c":"C50","w":3,"t":"活细胞转录组的非破坏纵向取样","e":"Non-Destructive Longitudinal Transcriptome Sampling in Living Cells","px":null,"py":null},{"x":743,"y":151,"s":0.87,"d":"生命","c":"C50","w":3,"t":"空间多组学共测：在同一张切片上对齐表观基因组与转录组","e":"Joint Spatial Multi-Omics: Aligning the Epigenome and Transcriptome on One Section","px":null,"py":null},{"x":722,"y":425,"s":0.84,"d":"生命","c":"C50","w":3,"t":"原位空间翻译组学：在组织里给「正在被翻译的 mRNA」拍照","e":"In Situ Spatial Translatomics: Imaging the mRNA Being Translated, In Tissue","px":null,"py":null},{"x":625,"y":254,"s":0.75,"d":"生命","c":"C50","w":3,"t":"组织原位空间糖组学","e":"In-Situ Spatial Glycomics of Tissues","px":null,"py":null},{"x":405,"y":398,"s":0.84,"d":"生命","c":"C51","w":3,"t":"非随机缺失下的因果识别","e":"Causal Identification under Nonrandom Missingness","px":null,"py":null},{"x":956,"y":233,"s":0.81,"d":"生命","c":"C52","w":3,"t":"命中即走的体内表观沉默：不切 DNA 的可遗传基因关闭","e":"Hit-and-Run In Vivo Epigenetic Silencing: Heritable Gene Shutdown Without Cutting DNA","px":null,"py":null},{"x":764,"y":375,"s":0.75,"d":"生命","c":"C52","w":3,"t":"体内表观重激活沉默等位基因治疗神经发育障碍","e":"In Vivo Epigenetic Reactivation of Silenced Alleles for Neurodevelopmental Disorders","px":null,"py":null},{"x":756,"y":100,"s":0.72,"d":"生命","c":"C52","w":3,"t":"可编程 RNA 转剪接与外显子替换","e":"Programmable RNA Trans-Splicing for Exon Replacement","px":null,"py":null},{"x":914,"y":221,"s":0.75,"d":"生命","c":"C52","w":3,"t":"体内可编程表观沉默:不切割DNA的持久基因静默","e":"Durable In Vivo Epigenetic Silencing Without Cutting DNA","px":null,"py":null},{"x":717,"y":319,"s":0.81,"d":"生命","c":"C52","w":3,"t":"类病毒颗粒瞬时递送编辑器核糖核蛋白","e":"Virus-Like Particle Transient Delivery of Editor Ribonucleoproteins","px":null,"py":null},{"x":719,"y":695,"s":0.78,"d":"交叉","c":"C03","w":3,"t":"自动形式化与机器可验证科学推理","e":"Autoformalization and Machine-Verifiable Scientific Reasoning","px":null,"py":null},{"x":554,"y":627,"s":0.72,"d":"交叉","c":"C03","w":3,"t":"实时全光闭环神经科学","e":"Real-Time All-Optical Closed-Loop Neuroscience","px":null,"py":null},{"x":468,"y":545,"s":0.84,"d":"交叉","c":"C03","w":3,"t":"神经算子多物理基础模型","e":"Neural-Operator Multi-Physics Foundation Models","px":null,"py":null},{"x":656,"y":482,"s":0.78,"d":"交叉","c":"C03","w":3,"t":"AI 新假说的新颖性与可证伪性度量","e":"Novelty and Falsifiability Metrics for AI-Generated Hypotheses","px":null,"py":null},{"x":1055,"y":802,"s":0.81,"d":"交叉","c":"C04","w":3,"t":"自主发现的可信度审计与加速基准","e":"Credibility Audits and Acceleration Benchmarks for Autonomous Discovery","px":null,"py":null},{"x":859,"y":728,"s":0.72,"d":"交叉","c":"C04","w":3,"t":"自主色谱方法开发","e":"Autonomous Chromatographic Method Development","px":null,"py":null},{"x":906,"y":533,"s":0.81,"d":"交叉","c":"C04","w":3,"t":"主动机理发现（分歧驱动实验设计恢复可解释定律）","e":"Active Mechanism Discovery via Disagreement-Driven Experiment Design","px":null,"py":null},{"x":1022,"y":781,"s":0.78,"d":"交叉","c":"C04","w":3,"t":"校准自主与人机交接（自驱实验室的共驾决策层）","e":"Calibrated Autonomy and Human Handoff in Self-Driving Labs","px":null,"py":null},{"x":715,"y":626,"s":0.78,"d":"交叉","c":"C04","w":3,"t":"一周完成的全基因组光学混池筛选自动化","e":"One-Week Automated Genome-Wide Optical Pooled Screening","px":null,"py":null},{"x":813,"y":640,"s":0.75,"d":"交叉","c":"C09","w":3,"t":"可执行资产管理壳:即插即仿的互操作孪生","e":"Executable Asset Administration Shells: Plug-and-Simulate Interoperable Twins","px":null,"py":null},{"x":836,"y":802,"s":0.84,"d":"交叉","c":"C09","w":3,"t":"激光制造的神经算子代理孪生","e":"Neural-Operator Surrogate Twins for Laser Manufacturing","px":null,"py":null},{"x":657,"y":666,"s":0.78,"d":"交叉","c":"C09","w":3,"t":"虚拟实验与可计算论文","e":"Virtual Experiments and Computable Papers","px":null,"py":null},{"x":948,"y":802,"s":0.72,"d":"交叉","c":"C09","w":3,"t":"物质感知高斯泼溅孪生:相机即孪生","e":"Material-Informed Gaussian-Splatting Twins: Camera-as-Twin","px":null,"py":null},{"x":723,"y":666,"s":0.81,"d":"交叉","c":"C09","w":3,"t":"机制性肿瘤治疗数字孪生","e":"Mechanistic Digital Twins for Tumor Therapy","px":null,"py":null},{"x":695,"y":441,"s":0.93,"d":"交叉","c":"C13","w":3,"t":"气候归因与极端事件科学","e":"Climate Attribution & Extreme-Event Science","px":null,"py":null},{"x":638,"y":507,"s":0.72,"d":"交叉","c":"C13","w":3,"t":"城市快速演化（数据驱动）","e":"Rapid Urban Evolution (Data-Driven)","px":null,"py":null},{"x":822,"y":455,"s":0.78,"d":"交叉","c":"C13","w":3,"t":"计划用火的全生命周期碳核算","e":"Lifecycle Carbon Accounting for Prescribed Fire","px":null,"py":null},{"x":757,"y":578,"s":0.81,"d":"交叉","c":"C18","w":3,"t":"公众卫星再入的多站光学与遥测观测","e":"Citizen Multi-Station Optical and Telemetry Observations of Satellite Reentries","px":null,"py":null},{"x":686,"y":652,"s":0.84,"d":"交叉","c":"C18","w":3,"t":"DIY缪子层析（看穿岩石）","e":"DIY Muon Tomography (Seeing Through Rock)","px":null,"py":null},{"x":984,"y":276,"s":0.78,"d":"交叉","c":"C18","w":3,"t":"公众发现的高层大气新光学现象","e":"Citizen-Discovered Optical Phenomena in the Upper Atmosphere","px":null,"py":null},{"x":870,"y":691,"s":0.81,"d":"交叉","c":"C18","w":3,"t":"个人空间天气站——业余无线电的分布式电离层探测","e":"Personal Space Weather Stations — Distributed Ionospheric Sensing by Ham Radio","px":null,"py":null},{"x":894,"y":142,"s":0.84,"d":"交叉","c":"C18","w":3,"t":"行星科学与小天体探测","e":"Planetary Science & Small-Body Exploration","px":null,"py":null},{"x":591,"y":625,"s":0.78,"d":"交叉","c":"C19","w":3,"t":"社区共治的濒危语言语料基础设施","e":"Community-Governed Corpora for Endangered Languages","px":null,"py":null},{"x":772,"y":548,"s":0.72,"d":"交叉","c":"C20","w":3,"t":"出版-评审-策展（PRC）生态及其效度科学","e":"Publish-Review-Curate Ecosystems and Their Validity Science","px":null,"py":null},{"x":760,"y":437,"s":0.84,"d":"交叉","c":"C20","w":3,"t":"科研软件的可验证构建与依赖出处","e":"Verifiable Builds and Dependency Provenance for Research Software","px":null,"py":null},{"x":534,"y":595,"s":0.75,"d":"交叉","c":"C20","w":3,"t":"开放数据与 FAIR 基础设施","e":"Open Data and FAIR Infrastructure","px":null,"py":null},{"x":812,"y":273,"s":0.87,"d":"交叉","c":"C20","w":3,"t":"科研资助的部分抽签制与机制设计实验","e":"Partial Lotteries & Mechanism-Design Experiments in Research Funding","px":null,"py":null},{"x":966,"y":718,"s":0.78,"d":"交叉","c":"C21","w":3,"t":"人机团队的目标对齐与冲突解决","e":"Goal Alignment and Conflict Resolution in Human–AI Teams","px":null,"py":null},{"x":700,"y":769,"s":0.87,"d":"交叉","c":"C21","w":3,"t":"人机团队动态的交互轨迹测量","e":"Interaction-Trace Measurement of Human–AI Team Dynamics","px":null,"py":null},{"x":796,"y":698,"s":0.81,"d":"交叉","c":"C21","w":3,"t":"认知强制函数与 AI 错误拦截","e":"Cognitive Forcing Functions for Intercepting AI Errors","px":null,"py":null},{"x":1112,"y":766,"s":0.75,"d":"交叉","c":"C21","w":3,"t":"人机团队的共享心智模型","e":"Shared Mental Models in Human–AI Teams","px":null,"py":null},{"x":753,"y":707,"s":0.87,"d":"交叉","c":"C21","w":3,"t":"生成式辅助中的创意固着与多样性","e":"Creative Fixation and Diversity under Generative Assistance","px":null,"py":null},{"x":948,"y":288,"s":0.78,"d":"交叉","c":"C22","w":3,"t":"参与式本体与分类体系治理","e":"Participatory Governance of Ontologies and Taxonomies","px":null,"py":null},{"x":705,"y":519,"s":0.75,"d":"交叉","c":"C26","w":3,"t":"震动通讯的窃听学（基质暗信道）","e":"Eavesdropping on Vibrational Communication (the Substrate Dark Channel)","px":null,"py":null},{"x":508,"y":552,"s":0.78,"d":"交叉","c":"C26","w":3,"t":"仿生嗅觉受体与气味解码","e":"Biomimetic Olfactory Receptors and Odor Decoding","px":null,"py":null},{"x":651,"y":584,"s":0.93,"d":"交叉","c":"C26","w":3,"t":"动物气味景观的测量与导航","e":"Measuring Animal Olfactory Landscapes and Navigation","px":null,"py":null},{"x":831,"y":551,"s":0.87,"d":"交叉","c":"C27","w":3,"t":"科学数据声化：用听觉做科研与无障碍探索","e":"Scientific Data Sonification: Research and Accessible Discovery by Ear","px":null,"py":null},{"x":738,"y":770,"s":0.81,"d":"交叉","c":"C27","w":3,"t":"软件与原生数字艺术的保存科学","e":"Conservation Science for Software-Based and Born-Digital Art","px":null,"py":null},{"x":887,"y":471,"s":0.78,"d":"交叉","c":"C27","w":3,"t":"数据物理化：可触握的具身数据表征","e":"Data Physicalization: Graspable, Embodied Data Representation","px":null,"py":null},{"x":912,"y":802,"s":0.81,"d":"交叉","c":"C27","w":3,"t":"AI科学中介的失真度量学","e":"Distortion Metrology for AI Science Intermediaries","px":null,"py":null},{"x":619,"y":679,"s":0.87,"d":"交叉","c":"C27","w":3,"t":"科学图解的理解度实验","e":"Comprehension Experiments for Scientific Diagrams","px":null,"py":null},{"x":785,"y":408,"s":0.81,"d":"交叉","c":"C28","w":3,"t":"计算科研诚信取证","e":"Computational Research-Integrity Forensics","px":null,"py":null},{"x":723,"y":574,"s":0.81,"d":"交叉","c":"C28","w":3,"t":"ML-科学的数据泄漏审计与 REFORMS 报告共识","e":"Data-Leakage Auditing and the REFORMS Consensus for ML-Based Science","px":null,"py":null},{"x":991,"y":177,"s":0.81,"d":"交叉","c":"C28","w":3,"t":"学术造假的AI取证：论文工厂与伪造科学的规模化检测","e":"AI Forensics for Research Integrity: Detecting Paper Mills and Fabricated Science at Scale","px":null,"py":null},{"x":841,"y":518,"s":0.87,"d":"交叉","c":"C28","w":3,"t":"科学文献的 AI 污染与“模型坍缩”审计","e":"Auditing AI Contamination and Model-Collapse Risk of the Scientific Record","px":null,"py":null},{"x":645,"y":547,"s":0.93,"d":"交叉","c":"C28","w":3,"t":"语料的大模型污染取证","e":"Forensics of LLM Contamination in the Scientific Corpus","px":null,"py":null},{"x":639,"y":751,"s":0.9,"d":"交叉","c":"C34","w":3,"t":"生物多样性的地域采样债务","e":"Geographic Sampling Debt in Biodiversity Science","px":null,"py":null},{"x":879,"y":505,"s":0.75,"d":"交叉","c":"C34","w":3,"t":"科学数据缺失机制审计","e":"Auditing Missingness Mechanisms in Scientific Data","px":null,"py":null},{"x":933,"y":739,"s":0.93,"d":"交叉","c":"C34","w":3,"t":"AI数学的自动猜想与未知地形","e":"Automated Conjecture and the Unknown Terrain of AI Mathematics","px":null,"py":null},{"x":1095,"y":729,"s":0.9,"d":"交叉","c":"C34","w":3,"t":"患者—临床共同确定未答研究问题","e":"Patient–Clinician Co-Prioritization of Unanswered Research Questions","px":null,"py":null},{"x":705,"y":802,"s":0.87,"d":"交叉","c":"C34","w":3,"t":"模型不确定性下的信息价值传感器布设","e":"Value-of-Information Sensor Placement under Model Uncertainty","px":null,"py":null},{"x":677,"y":736,"s":0.81,"d":"交叉","c":"C35","w":3,"t":"现实机器人的形态—控制共同演化","e":"Morphology–Control Evolution in Physical Robots","px":null,"py":null},{"x":989,"y":802,"s":0.81,"d":"交叉","c":"C35","w":3,"t":"热力学计算的涨落式假说采样","e":"Fluctuation-Driven Hypothesis Sampling on Thermodynamic Hardware","px":null,"py":null},{"x":890,"y":746,"s":0.87,"d":"交叉","c":"C35","w":3,"t":"跨物种的信息寻求与比较好奇心","e":"Comparative Curiosity and Information Seeking across Species","px":null,"py":null},{"x":1138,"y":802,"s":0.84,"d":"交叉","c":"C35","w":3,"t":"实验室自驱的假说空间主动测绘","e":"Self-Driving Labs Actively Mapping Hypothesis Space","px":null,"py":null},{"x":865,"y":802,"s":0.84,"d":"交叉","c":"C35","w":3,"t":"Kinetix：面向通用智能体的开放式物理任务宇宙","e":"Kinetix: An Open-Ended Physics-Task Universe for General Agents","px":null,"py":null},{"x":954,"y":658,"s":0.93,"d":"交叉","c":"C36","w":3,"t":"众包异常：让大众捕捉意外天体","e":"Crowdsourced Anomalies: Letting the Public Catch Unexpected Objects","px":null,"py":null},{"x":749,"y":802,"s":0.93,"d":"交叉","c":"C36","w":3,"t":"科学异常检测的注入信号基准","e":"Injected-Signal Benchmarks for Scientific Anomaly Detection","px":null,"py":null},{"x":764,"y":511,"s":0.81,"d":"交叉","c":"C36","w":3,"t":"肿瘤异常响应者的反向转化","e":"Reverse Translation from Exceptional Cancer Responders","px":null,"py":null},{"x":815,"y":590,"s":0.84,"d":"交叉","c":"C36","w":3,"t":"单细胞组学中的稀有细胞状态发现","e":"Rare Cell-State Discovery in Single-Cell Omics","px":null,"py":null},{"x":759,"y":676,"s":0.84,"d":"交叉","c":"C36","w":3,"t":"持续发现流的在线错误发现率控制","e":"Online False-Discovery Control for Perpetual Discovery Streams","px":null,"py":null},{"x":1094,"y":509,"s":0.81,"d":"交叉","c":"C38","w":3,"t":"机器生成假说的多专家校准","e":"Calibrated Multi-Expert Review of Machine-Generated Hypotheses","px":null,"py":null},{"x":964,"y":597,"s":0.84,"d":"交叉","c":"C38","w":3,"t":"功能未知组学","e":"Functional Unknomics","px":null,"py":null},{"x":977,"y":530,"s":0.93,"d":"交叉","c":"C38","w":3,"t":"阴性结果与暗数据的计算发掘","e":"Computational Excavation of Null Results and Dark Data","px":null,"py":null},{"x":1050,"y":572,"s":0.81,"d":"交叉","c":"C38","w":3,"t":"文献生成假说的前瞻与湿实验验证","e":"Prospective and Wet-Lab Validation of Literature-Generated Hypotheses","px":null,"py":null},{"x":991,"y":489,"s":0.84,"d":"交叉","c":"C38","w":3,"t":"主张级科学知识图谱与矛盾发掘","e":"Claim-Level Scientific Knowledge Graphs and Contradiction Mining","px":null,"py":null},{"x":1116,"y":690,"s":0.9,"d":"交叉","c":"C39","w":3,"t":"检出概率校准的生态缺席证据","e":"Detection-Calibrated Evidence of Ecological Absence","px":null,"py":null},{"x":1194,"y":767,"s":0.78,"d":"交叉","c":"C39","w":3,"t":"从源队列到分析样本的排除谱系","e":"Exclusion Lineage from Source Cohorts to Analysis Samples","px":null,"py":null},{"x":1100,"y":647,"s":0.78,"d":"交叉","c":"C39","w":3,"t":"缺席证据的量化科学","e":"Quantifying Evidence of Absence","px":null,"py":null},{"x":1150,"y":759,"s":0.78,"d":"交叉","c":"C39","w":3,"t":"暗多样性生态学","e":"Dark Diversity Ecology","px":null,"py":null},{"x":1178,"y":802,"s":0.78,"d":"交叉","c":"C39","w":3,"t":"影子多样性：看不见的生物未知","e":"Shadow Diversity: The Invisible Unknowns of Life","px":null,"py":null},{"x":972,"y":322,"s":0.93,"d":"交叉","c":"C40","w":3,"t":"同位素分馏的非生物空模型","e":"Abiotic Null Models for Isotopic Fractionation","px":null,"py":null},{"x":994,"y":747,"s":0.84,"d":"交叉","c":"C40","w":3,"t":"矿物仿生形态的非生物空模型库","e":"Abiotic Null Library for Mineral Biomorphs","px":null,"py":null},{"x":921,"y":446,"s":0.93,"d":"交叉","c":"C40","w":3,"t":"分子手性与同手性生命特征","e":"Molecular Chirality and Homochirality as Life Signatures","px":null,"py":null},{"x":1096,"y":802,"s":0.84,"d":"交叉","c":"C40","w":3,"t":"分子多样性生态度量生物标记","e":"Molecular Diversity as a Biosignature (Ecodiversity Metrics)","px":null,"py":null},{"x":811,"y":770,"s":0.84,"d":"交叉","c":"C40","w":3,"t":"离子液体生物圈与去水溶剂的可栖性新纲","e":"Ionic-Liquid Biospheres and a Solvent-Agnostic Habitability Class","px":null,"py":null},{"x":795,"y":736,"s":0.81,"d":"交叉","c":"C45","w":3,"t":"AI 预报的物理审计：极端事件基准与可信度评测科学","e":"Physics auditing of AI forecasts: extreme-event benchmarks and fidelity evaluation science","px":null,"py":null},{"x":793,"y":802,"s":0.87,"d":"交叉","c":"C45","w":3,"t":"GNSS 反射测量的土壤湿度与淹没观测","e":"Soil-Moisture and Inundation Observation with GNSS Reflectometry","px":null,"py":null},{"x":1070,"y":765,"s":0.81,"d":"交叉","c":"C45","w":3,"t":"社区治理的地理空间训练数据","e":"Community Governance of Geospatial Training Data","px":null,"py":null},{"x":890,"y":779,"s":0.75,"d":"交叉","c":"C45","w":3,"t":"冰川速度与质量平衡的数据同化","e":"Data Assimilation of Glacier Velocity and Mass Balance","px":null,"py":null},{"x":758,"y":743,"s":0.72,"d":"交叉","c":"C45","w":3,"t":"开放社区级地表嵌入场","e":"Open Community-Scale Surface Embedding Fields","px":null,"py":null},{"x":908,"y":634,"s":0.78,"d":"交叉","c":"C53","w":3,"t":"实验协议的仿真验证与自校正","e":"Simulation Validation and Self-Correction of Experimental Protocols","px":null,"py":null},{"x":838,"y":702,"s":0.75,"d":"交叉","c":"C53","w":3,"t":"AI 科学家的可信标尺：可复现性与证伪的评测基建","e":"Trust Rulers for AI Scientists: Reproducibility and Falsification Benchmarks","px":null,"py":null},{"x":943,"y":622,"s":0.72,"d":"交叉","c":"C53","w":3,"t":"信息防火墙式再发现基准","e":"Information-Firewall Rediscovery Benchmarks","px":null,"py":null},{"x":1027,"y":682,"s":0.75,"d":"交叉","c":"C53","w":3,"t":"具身自驱实验室：把发现闭环交给会动手的机器人","e":"Embodied Self-Driving Labs: Closing the Discovery Loop with Robotic Hands","px":null,"py":null}],"clusterNames":{"C01":{"zh":"合成生物·工程生命","en":"Synthetic biology · engineering life","d":"生命"},"C02":{"zh":"生物计算·类器官智能","en":"Biocomputing · organoid intelligence","d":"生命"},"C03":{"zh":"科学基础模型·AI4S","en":"Scientific foundation models · AI4S","d":"交叉"},"C04":{"zh":"自驱实验室·自动化科学","en":"Self-driving labs · automated science","d":"交叉"},"C05":{"zh":"环境组学·行星感知","en":"Environmental omics · planetary sensing","d":"生命"},"C06":{"zh":"活体材料·生物制造","en":"Living materials · biomanufacturing","d":"物质"},"C07":{"zh":"生物混合机器人·具身智能","en":"Biohybrid robotics · embodied intelligence","d":"生命"},"C08":{"zh":"分子机器·DNA信息技术","en":"Molecular machines · DNA info tech","d":"物质"},"C09":{"zh":"数字孪生·虚拟科学","en":"Digital twins · virtual science","d":"交叉"},"C10":{"zh":"分布式生物传感·诊断","en":"Distributed biosensing · diagnostics","d":"生命"},"C11":{"zh":"神经技术·计算认知","en":"Neurotechnology · computational cognition","d":"生命"},"C12":{"zh":"生物电子·生物能源","en":"Bioelectronics · bioenergy","d":"物质"},"C13":{"zh":"气候·地球生物工程","en":"Climate · planetary bioengineering","d":"交叉"},"C14":{"zh":"复杂系统·多智能体","en":"Complex systems · multi-agent systems","d":"数理"},"C15":{"zh":"应用量子科学","en":"Applied quantum science","d":"物质"},"C16":{"zh":"可编程物质·超材料","en":"Programmable matter · metamaterials","d":"物质"},"C17":{"zh":"新能源范式","en":"New energy paradigms","d":"物质"},"C18":{"zh":"大众空间科学","en":"Citizen space science","d":"交叉"},"C19":{"zh":"计算社会科学·数字人文","en":"Computational social science · digital humanities","d":"交叉"},"C20":{"zh":"去中心科学·开放科学机制","en":"Decentralized science · open science mechanisms","d":"交叉"},"C21":{"zh":"人机协作·认知增强","en":"Human-AI collaboration · cognitive augmentation","d":"交叉"},"C22":{"zh":"集体智能·知识基础设施","en":"Collective intelligence · knowledge infrastructure","d":"交叉"},"C23":{"zh":"AI数学·形式科学","en":"AI mathematics · formal science","d":"数理"},"C24":{"zh":"未来食品·农业科学","en":"Future food · agricultural science","d":"生命"},"C25":{"zh":"开放精准健康·长寿","en":"Open precision health · longevity","d":"生命"},"C26":{"zh":"感官界面·跨物种","en":"Sensory interfaces · cross-species","d":"交叉"},"C27":{"zh":"科学·艺术·设计融合","en":"Science · art · design fusion","d":"交叉"},"C28":{"zh":"元科学·科研治理","en":"Metascience · research governance","d":"交叉"},"C29":{"zh":"地球·海洋·深时科学","en":"Earth · ocean · deep-time science","d":"生命"},"C30":{"zh":"微生物组·生态工程","en":"Microbiome · ecological engineering","d":"生命"},"C31":{"zh":"物理计算·热力学与涨落","en":"Physical computing · thermodynamics","d":"数理"},"C32":{"zh":"意识的本质与硬核理论","en":"Nature of consciousness & hard-problem theory","d":"交叉"},"C33":{"zh":"基础物理·实在的本质","en":"Fundamental physics · nature of reality","d":"数理"},"C34":{"zh":"无知测绘·盲区科学","en":"Mapping ignorance & blind spots","d":"交叉"},"C35":{"zh":"开放式探索·好奇驱动","en":"Open-Endedness & Curiosity-Driven Discovery","d":"交叉"},"C36":{"zh":"异常驱动·新现象发现","en":"Anomaly-Driven Discovery of New Phenomena","d":"交叉"},"C37":{"zh":"生物暗物质·未注释生命","en":"Biological dark matter & unannotated life","d":"生命"},"C38":{"zh":"文献潜知·跨域桥接","en":"Literature-based discovery & cross-domain bridging","d":"交叉"},"C39":{"zh":"缺席·负空间科学","en":"Absence & negative-space science","d":"交叉"},"C40":{"zh":"无关化学·生命探测","en":"Agnostic Life Detection & Assembly Theory","d":"交叉"},"C41":{"zh":"跨域方法移植","en":"Cross-Domain Method Transplant","d":"交叉"},"C42":{"zh":"AI对齐·可解释·评测科学","en":"AI Alignment · Interpretability · Evaluation Science","d":"交叉"},"C43":{"zh":"生成式生物·AI分子与蛋白设计","en":"Generative Biology · AI Molecular & Protein Design","d":"生命"},"C44":{"zh":"神经形态·物理智能硬件","en":"Neuromorphic · physical-AI hardware","d":"物质"},"C45":{"zh":"地理空间AI·数字地球","en":"Geospatial AI · Digital Earth","d":"交叉"},"C46":{"zh":"空间生物经济·地外制造","en":"Space Bioeconomy · Off-Earth Manufacturing","d":"物质"},"C47":{"zh":"后量子·隐私计算工程","en":"Post-quantum · privacy computation","d":"交叉"},"C48":{"zh":"具身基础模型·机器人学习","en":"Embodied Foundation Models · Robot Learning","d":"物质"},"C49":{"zh":"计算可持续·韧性科学","en":"Computational Sustainability · Resilience Science","d":"数理"},"C50":{"zh":"单细胞·空间多组学","en":"Single-Cell · Spatial Multi-Omics","d":"生命"},"C51":{"zh":"因果科学·可信推断","en":"Causal science · trustworthy inference","d":"数理"},"C52":{"zh":"RNA·表观与可编程医学","en":"RNA · epigenetic & programmable medicine","d":"生命"},"C53":{"zh":"自主科学发现·AI科学家","en":"Autonomous Discovery · The AI Scientist","d":"交叉"}},"clusterBefore":{"C23":5,"C33":6,"C31":7,"C51":6,"C14":4,"C12":3,"C44":6,"C17":4,"C08":2,"C16":3,"C46":4,"C48":3,"C15":4,"C29":6,"C37":3,"C52":2,"C11":3,"C01":3,"C50":2,"C02":4,"C24":3,"C43":3,"C26":4,"C32":5,"C47":4,"C03":3,"C34":2,"C38":2,"C39":2,"C42":5,"C53":3,"C09":2,"C04":2,"C19":6,"C05":4,"C06":2,"C07":2,"C10":3,"C13":4,"C18":2,"C20":3,"C21":2,"C22":6,"C25":2,"C27":2,"C28":2,"C30":3,"C35":2,"C36":2,"C40":2,"C41":3,"C45":2,"C49":2},"clusterAfter":{"C23":7,"C33":7,"C31":7,"C51":7,"C14":7,"C12":7,"C44":7,"C17":7,"C08":7,"C16":7,"C46":7,"C48":7,"C15":7,"C29":7,"C37":7,"C52":7,"C11":7,"C01":7,"C50":7,"C02":7,"C24":7,"C43":7,"C26":7,"C32":7,"C47":7,"C03":7,"C34":7,"C38":7,"C39":7,"C42":7,"C53":7,"C09":7,"C04":7,"C19":7,"C05":7,"C06":7,"C07":7,"C10":7,"C13":7,"C18":7,"C20":7,"C21":7,"C22":7,"C25":7,"C27":7,"C28":7,"C30":7,"C35":7,"C36":7,"C40":7,"C41":7,"C45":7,"C49":7},"domainBefore":{"数理":31,"物质":36,"生命":42,"交叉":67},"domainAfter":{"数理":49,"物质":72,"生命":98,"交叉":152},"dims":["范式","交叉","工具","群体","人本","低门","基底","可达","洼地"],"dimsEn":["Paradigm","Convergence","Tooling","Crowd","Human-core","Low-barrier","Substrate","Reachability","Undervalued"],"scoreBefore":[4.32,4.31,3.88,2.72,3.48,3.16,3.23,3.24,4.15],"scoreWave3":[3.97,4.12,4.17,3.24,3.63,3.42,3.6,3.43,4.1],"evidence":{"shelves":290,"refs":545,"w3shelves":193,"w3refs":357},"depthChars":{"before":3022,"wave3":2825},"movedAuthored":155}
+;</script>
+<script>
+/* eslint-disable */
+const DOM_VAR = { '数理': '--math', '物质': '--matter', '生命': '--life', '交叉': '--cross' };
+const cssv = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const SVGNS = 'http://www.w3.org/2000/svg';
+const el = (tag, attrs) => {
+  const n = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  return n;
+};
+
+/* ── map ──────────────────────────────────────────────────────────────── */
+const layerI = document.getElementById('layer-islands');
+const layerM = document.getElementById('layer-moves');
+const status = document.getElementById('map-status');
+const nodes = [];
+
+ATLAS.islands.forEach((is) => {
+  const c = el('circle', {
+    cx: is.x, cy: is.y, r: (is.w === 3 ? 4.4 : 5.2) * is.s,
+    'data-domain': is.d, 'data-wave': is.w,
+  });
+  c.style.transition = 'cx .9s cubic-bezier(.22,.7,.24,1), cy .9s cubic-bezier(.22,.7,.24,1), opacity .5s';
+  const col = 'var(' + DOM_VAR[is.d] + ')';
+  if (is.w === 3) { c.setAttribute('fill', 'none'); c.setAttribute('stroke', col); c.setAttribute('stroke-width', '1.7'); }
+  else { c.setAttribute('fill', col); c.setAttribute('fill-opacity', '.82'); }
+  const title = el('title', {});
+  title.textContent = is.t + ' · ' + is.c + (is.w === 3 ? ' · 本轮新增' : '');
+  c.appendChild(title);
+  layerI.appendChild(c);
+  nodes.push({ c, is });
+});
+
+/* faint hairlines showing where the 155 authored islands moved from */
+ATLAS.islands.forEach((is) => {
+  if (is.px == null || (is.px === is.x && is.py === is.y)) return;
+  const l = el('line', {
+    x1: is.px, y1: is.py, x2: is.x, y2: is.y,
+    stroke: 'var(--was)', 'stroke-width': '1', 'stroke-opacity': '.5',
+  });
+  layerM.appendChild(l);
+});
+layerM.style.opacity = '0';
+layerM.style.transition = 'opacity .4s';
+
+const btns = {
+  after: document.getElementById('btn-after'),
+  before: document.getElementById('btn-before'),
+  moved: document.getElementById('btn-moved'),
+};
+function setMode(mode) {
+  for (const k in btns) btns[k].setAttribute('aria-pressed', String(k === mode));
+  layerM.style.opacity = mode === 'moved' ? '1' : '0';
+  nodes.forEach(({ c, is }) => {
+    if (mode === 'before') {
+      if (is.w === 3) { c.style.opacity = '0'; }
+      else { c.style.opacity = '1'; c.setAttribute('cx', is.px ?? is.x); c.setAttribute('cy', is.py ?? is.y); }
+    } else if (mode === 'moved') {
+      c.style.opacity = is.w === 3 ? '.12' : '1';
+      c.setAttribute('cx', is.x); c.setAttribute('cy', is.y);
+    } else {
+      c.style.opacity = '1';
+      c.setAttribute('cx', is.x); c.setAttribute('cy', is.y);
+    }
+  });
+  status.textContent = mode === 'before'
+    ? '176 islands · 扩张前的手工位置'
+    : mode === 'moved'
+      ? '155 条位移线 · 平均 14.5px · 最大 56.3px'
+      : '371 islands · 1440×900';
+}
+btns.after.onclick = () => setMode('after');
+btns.before.onclick = () => setMode('before');
+btns.moved.onclick = () => setMode('moved');
+
+/* ── metrics ──────────────────────────────────────────────────────────── */
+const M = [
+  ['岛屿总数', '371', '176 → 371 · 2.11×'],
+  ['簇覆盖', '53 / 53', '每簇均为 7 座（原 2–7 不等）'],
+  ['内容完整', '371 / 371', '六段深度全中英双语'],
+  ['真实溯源', '370 / 371', '1 座为既有岛，语料已撤回'],
+  ['文献书架', '290 座 · 545 条', '本轮新增 193 座 · 357 条'],
+  ['地图可达', '371 / 371', '全部在 1440×900 内，零裁切'],
+  ['最紧邻对', '25.5 px', '扩张前 7.1 px'],
+  ['深度密度', '2,825 字符/岛', '既有岛均值 3,022'],
+];
+document.getElementById('metrics').innerHTML = M.map(([k, v, s]) =>
+  '<div class="metric"><dt>' + k + '</dt><dd>' + v + '<span class="sub">' + s + '</span></dd></div>').join('');
+
+/* ── cluster bars ─────────────────────────────────────────────────────── */
+const MAXC = 7;
+document.getElementById('clusters').innerHTML = Object.keys(ATLAS.clusterNames).map((code) => {
+  const meta = ATLAS.clusterNames[code];
+  const was = ATLAS.clusterBefore[code] || 0;
+  const now = ATLAS.clusterAfter[code] || 0;
+  const col = 'var(' + DOM_VAR[meta.d] + ')';
+  return '<div class="cl">' +
+    '<span class="cl-code">' + code + '</span>' +
+    '<span class="cl-bar" title="' + code + ' ' + was + ' → ' + now + '">' +
+      '<i class="cl-now" style="width:' + (now / MAXC * 100) + '%;background:' + col + '"></i>' +
+      '<i class="cl-was" style="width:' + (was / MAXC * 100) + '%;background:var(--ink);opacity:.34"></i>' +
+    '</span>' +
+    '<span class="cl-name">' + meta.zh + ' <span style="font-family:var(--mono);color:var(--ink-faint)">' + was + '→' + now + '</span></span>' +
+  '</div>';
+}).join('');
+
+/* ── slope chart: 9 dimensions, before → wave 3 ───────────────────────── */
+(function slope() {
+  const svg = document.getElementById('slope');
+  const W = 900, H = 340, padL = 76, padR = 76, padT = 34, padB = 40;
+  const lo = 2.4, hi = 4.6;
+  const y = (v) => padT + (hi - v) / (hi - lo) * (H - padT - padB);
+  const xA = padL, xB = W - padR;
+  const ink = 'var(--ink)', faint = 'var(--ink-faint)', rule = 'var(--rule-soft)';
+
+  [xA, xB].forEach((x, i) => {
+    svg.appendChild(el('line', { x1: x, y1: padT - 12, x2: x, y2: H - padB + 6, stroke: rule, 'stroke-width': 1 }));
+    const t = el('text', { x, y: padT - 20, fill: faint, 'font-size': 12, 'text-anchor': 'middle' });
+    t.style.fontFamily = 'var(--mono)'; t.style.letterSpacing = '.08em';
+    t.textContent = i === 0 ? 'BEFORE 176' : 'WAVE 3 · 195';
+    svg.appendChild(t);
+  });
+
+  ATLAS.dims.forEach((dim, i) => {
+    const a = ATLAS.scoreBefore[i], b = ATLAS.scoreWave3[i];
+    const up = b > a;
+    const grew = Math.abs(b - a) >= 0.25;
+    const col = grew ? (up ? 'var(--life)' : 'var(--was)') : faint;
+    svg.appendChild(el('line', {
+      x1: xA, y1: y(a), x2: xB, y2: y(b), stroke: col,
+      'stroke-width': grew ? 2.1 : 1, 'stroke-opacity': grew ? .95 : .42,
+    }));
+    svg.appendChild(el('circle', { cx: xA, cy: y(a), r: grew ? 3.6 : 2.4, fill: col, 'fill-opacity': grew ? 1 : .5 }));
+    svg.appendChild(el('circle', { cx: xB, cy: y(b), r: grew ? 3.6 : 2.4, fill: col, 'fill-opacity': grew ? 1 : .5 }));
+
+    const la = el('text', { x: xA - 10, y: y(a) + 4, fill: grew ? ink : faint, 'font-size': 12, 'text-anchor': 'end' });
+    la.style.fontFamily = 'var(--cjk)';
+    la.textContent = dim + ' ' + a.toFixed(2);
+    svg.appendChild(la);
+
+    const lb = el('text', { x: xB + 10, y: y(b) + 4, fill: grew ? ink : faint, 'font-size': 12 });
+    lb.style.fontFamily = 'var(--cjk)';
+    lb.textContent = b.toFixed(2) + (grew ? '  ' + (up ? '+' : '−') + Math.abs(b - a).toFixed(2) : '');
+    svg.appendChild(lb);
+  });
+})();
+
+/* ── geometry table ───────────────────────────────────────────────────── */
+const G = [
+  ['最小值（最紧邻对）', ATLAS.before.nn.min + ' px', ATLAS.after.nn.min + ' px', '地板抬高 3.6×，最坏重叠消除'],
+  ['第 10 百分位', ATLAS.before.nn.p10 + ' px', ATLAS.after.nn.p10 + ' px', '最挤的一成也变宽了'],
+  ['中位数', ATLAS.before.nn.median + ' px', ATLAS.after.nn.median + ' px', '整体变密——岛数翻倍的必然代价'],
+  ['小于 40px 的岛数', ATLAS.before.nn.under40, ATLAS.after.nn.under40, '密度上升，但都在可点范围内'],
+];
+document.getElementById('geo-rows').innerHTML = G.map(([k, a, b, note]) =>
+  '<tr><td class="zh">' + k + '</td><td class="num">' + a + '</td><td class="num">' + b + '</td><td class="zh" style="color:var(--ink-soft)">' + note + '</td></tr>').join('');
+
+/* ── audit table ──────────────────────────────────────────────────────── */
+const A = [
+  ['内容不完整 / 缺英文', '0 / 195', '0 / 176', '—'],
+  ['文献重复自身 headline 引用', '0', '52 条 · 51 座岛', '已修：按 DOI + 归一化标题去重'],
+  ['引用的语料记录不存在', '0', '1 座', '如实报告，留给人定夺'],
+  ['落在画布外（会被裁切）', '0', '0', '—'],
+  ['与他岛重叠不可点', '0', '1 座（样例岛）', '已修：单独松弛，6.3 → 26.9px'],
+  ['桥梁端点坐标失同步', '—', '9 条全部', '已修：保留各自弧度弯曲量'],
+];
+document.getElementById('audit-rows').innerHTML = A.map(([k, w3, pre, fix]) =>
+  '<tr><td class="zh">' + k + '</td><td class="num">' + w3 + '</td><td class="num">' + pre + '</td><td class="zh" style="color:var(--ink-soft)">' + fix + '</td></tr>').join('');
+</script>
