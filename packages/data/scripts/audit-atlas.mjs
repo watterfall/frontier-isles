@@ -23,13 +23,38 @@ const WAVE_3_FIRST = 177;
 /** The flat SVG readable twin's viewBox. The Pixi atlas derives its own bounds,
  *  but the SVG twin does not — anything outside is clipped on the no-GPU path. */
 const SVG_VIEWBOX = { w: 1440, h: 900 };
-/** Centre-to-centre floor below which two mounds are not separately clickable. */
-const CLICK_FLOOR_PX = 20;
+/** Centre-to-centre floor below which two mounds are not separately clickable.
+ *  Must match `frontier-expansion-wave3.test.ts` — two gates on one invariant
+ *  with two thresholds means an edit can pass one and fail the other. */
+const CLICK_FLOOR_PX = 24;
 
-const corpusDir = process.argv[2] ?? '/Users/jili/AIAI/frontier/audit';
-const readJson = async (p) => JSON.parse(await readFile(p, 'utf8')).valueOf();
-const corpus = await readJson(`${corpusDir}/atlas_data.json`).catch(() => null);
-const evidence = await readJson(`${corpusDir}/evidence.json`).catch(() => null);
+const corpusDir = process.argv[2] ?? process.env.XFRONTIER_AUDIT_DIR ?? '/Users/jili/AIAI/frontier/audit';
+
+/**
+ * Read a corpus file. A MISSING file is a legitimate "not on this machine" —
+ * the corpus is a separate checkout and CI does not have it. A file that exists
+ * but does not parse is a broken corpus, and must NOT be laundered into the
+ * same "skipped" state: that would let a truncated atlas_data.json read as a
+ * clean pass. So only ENOENT degrades; anything else throws.
+ */
+const readJson = async (p) => {
+  let raw;
+  try {
+    raw = await readFile(p, 'utf8');
+  } catch (err) {
+    if (err.code === 'ENOENT') return null;
+    throw new Error(`cannot read ${p}: ${err.message}`);
+  }
+  try {
+    return JSON.parse(raw);
+  } catch (err) {
+    throw new Error(`${p} exists but is not valid JSON (${err.message}). A corrupt corpus must fail, not skip.`);
+  }
+};
+const corpus = await readJson(`${corpusDir}/atlas_data.json`);
+const evidence = await readJson(`${corpusDir}/evidence.json`);
+/** Checks that could not run. The verdict must never claim a property it skipped. */
+const skipped = [];
 
 const fail = [];
 const warn = [];
@@ -62,6 +87,7 @@ if (corpus) {
   console.log(`provenance: ${FRONTIERS.length - orphans.length}/${FRONTIERS.length} trace to a live xfrontier record ` +
     `(wave-3 orphans ${orphansW3.length}, pre-existing ${orphans.length - orphansW3.length})`);
 } else {
+  skipped.push(`provenance (no corpus at ${corpusDir} — pass XFRONTIER_AUDIT_DIR or an argv path)`);
   console.log('provenance: SKIPPED (no corpus at ' + corpusDir + ')');
 }
 
@@ -106,19 +132,56 @@ ok(incomplete === 0, `${incomplete} islands have incomplete content`);
 console.log(`content: ${FRONTIERS.length - incomplete}/${FRONTIERS.length} complete and bilingual across every depth section`);
 
 // ── evidence ────────────────────────────────────────────────────────────────
-const doiOf = (u) => (String(u ?? '').match(/10\.\d{4,9}\/[^\s"'<>?#]+/i) ?? [''])[0].toLowerCase();
+const doiOf = (u) => (String(u ?? '').match(/10\.\d{4,9}\/[^\s"'<>?#]+/i) ?? [''])[0].toLowerCase().replace(/[.,;)]+$/, '');
+const titleKey = (t) => String(t ?? '').toLowerCase().replace(/[^a-z0-9一-鿿]/g, '');
+/** Same paper? DOI first (doi.org and the publisher host give the same DOI),
+ *  then normalised title (a PMC mirror carries neither the same URL nor DOI). */
+const samePaper = (a, b) => {
+  const da = doiOf(a.url), db = doiOf(b.url);
+  if (da && db) return da === db;
+  return !!titleKey(a.title) && titleKey(a.title) === titleKey(b.title);
+};
+
 let shelves = 0, refs = 0, dupes = 0;
 for (const f of FRONTIERS) {
-  if (f.literature?.length) { shelves++; refs += f.literature.length; }
-  for (const l of f.literature ?? []) {
-    const a = doiOf(l.url), b = doiOf(f.citation.url);
-    // A shelf that repeats the headline shows the visitor the same paper twice.
-    if ((a && b && a === b) || l.title.toLowerCase() === f.citation.title.toLowerCase()) {
+  const lit = f.literature ?? [];
+  if (lit.length) { shelves++; refs += lit.length; }
+  for (let i = 0; i < lit.length; i++) {
+    // A shelf that repeats the headline shows the visitor the same paper twice…
+    if (samePaper(lit[i], f.citation)) {
       dupes++; fail.push(`#${f.id} ${f.slug}: literature repeats the headline citation`);
+    }
+    // …and so does a shelf that repeats ITSELF. The original dedup pass only
+    // compared each entry to the headline, which let #118 carry one PNAS paper
+    // twice — once at the publisher, once at its PMC mirror (different URL,
+    // different DOI-less link, identical title).
+    for (let j = i + 1; j < lit.length; j++) {
+      if (samePaper(lit[i], lit[j])) {
+        dupes++; fail.push(`#${f.id} ${f.slug}: shelf lists the same paper twice ("${lit[i].title.slice(0, 50)}…")`);
+      }
     }
   }
 }
-console.log(`evidence: ${shelves}/${FRONTIERS.length} islands carry a literature shelf (${refs} refs), ${dupes} duplicating their headline`);
+console.log(`evidence: ${shelves}/${FRONTIERS.length} islands carry a literature shelf (${refs} refs), ${dupes} duplicated`);
+
+// Two islands whose DEFINING paper is the same one. Not a failure: which paper
+// defines a frontier is an editorial call, and 11 of these predate wave 3. But
+// it is worth surfacing — a visitor meeting both islands meets one paper twice.
+const headline = new Map();
+for (const f of FRONTIERS) {
+  const key = doiOf(f.citation.url) || titleKey(f.citation.title);
+  if (!key) continue;
+  if (!headline.has(key)) headline.set(key, []);
+  headline.get(key).push(f);
+}
+const groups = [...headline.values()].filter((g) => g.length > 1);
+if (groups.length) {
+  const sameCluster = groups.filter((g) => new Set(g.map((f) => f.cluster.code)).size === 1);
+  warn.push(`${groups.length} group(s) of islands share a headline citation ` +
+    `(${sameCluster.length} of them inside one cluster, i.e. closest to true duplicates): ` +
+    sameCluster.slice(0, 4).map((g) => g.map((f) => `#${f.id}`).join('≡')).join(', ') +
+    ` — editorial call: re-point one headline, merge, or accept them as distinct framings.`);
+}
 if (evidence) {
   const notInCorpus = FRONTIERS.filter((f) => {
     const src = evidence[f.atlasN]?.sources ?? [];
@@ -162,9 +225,23 @@ console.log(`geometry: all inside ${SVG_VIEWBOX.w}×${SVG_VIEWBOX.h} · tightest
 // ── verdict ─────────────────────────────────────────────────────────────────
 console.log('\n' + '─'.repeat(64));
 if (warn.length) { console.log('FINDINGS (not introduced by the current change):'); warn.forEach((w) => console.log('  ⚠ ' + w)); }
+if (skipped.length) { console.log('NOT CHECKED:'); skipped.forEach((s) => console.log('  ∅ ' + s)); }
 if (fail.length) {
   console.log(`\n✗ FAILED — ${fail.length} problem(s):`);
   fail.slice(0, 20).forEach((f) => console.log('  ✗ ' + f));
   process.exit(1);
 }
-console.log('✓ PASS — every island is grounded, complete, bilingual, and reachable on the map.');
+
+// The verdict must not assert a property that a warning contradicts or that was
+// never checked. A reader who sees only the last line (a CI log tail, a doc's
+// gate table, a future agent) has to be able to trust it literally — printing
+// "every island is grounded" four lines under "#60 cites a withdrawn record"
+// is how an invariant quietly stops meaning anything.
+const claims = ['complete', 'bilingual', 'reachable on the map'];
+if (!warn.some((w) => /withdrawn|absent from the corpus/.test(w)) && corpus) claims.unshift('grounded');
+const verdict = `✓ PASS — every island is ${claims.join(', ')}.`;
+console.log(verdict);
+if (warn.length || skipped.length) {
+  console.log(`  (${warn.length} open finding(s), ${skipped.length} check(s) not run — see above. ` +
+    `"PASS" covers only the properties named on the line above.)`);
+}

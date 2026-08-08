@@ -6765,12 +6765,6 @@ export const FRONTIERS: FrontierEntry[] = [
         "url": "https://www.pnas.org/doi/10.1073/pnas.2402802121"
       },
       {
-        "title": "Does the use of unusual combinations of datasets contribute to greater scientific impact?",
-        "venue": "PNAS (PMC)",
-        "year": 2024,
-        "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11474085/"
-      },
-      {
         "title": "Delayed Recognition: A Co-Citation Perspective",
         "venue": "PMC",
         "year": 2021,

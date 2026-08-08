@@ -297,7 +297,37 @@ td .zh { font-family: var(--cjk); }
   <div class="verdict">
     <span class="verdict-mark">◆</span>
     <div>
-      <p>诚实的取舍：<strong>地板抬高了，中位数下降了</strong>。岛数翻倍必然更密（中位数 44.8 → 37.7px），但最坏的重叠被消除——最紧邻对从 7.1px 提到 25.5px，那对岛原本几乎叠在一起、有一座点不到。155 座现有岛移动了，平均 14.5px，约占画布宽度的 1%。</p>
+      <p>诚实的取舍：<strong>地板抬高了，中位数下降了</strong>。岛数翻倍必然更密（中位数 44.8 → 37.7px），但最坏的重叠被消除——最紧邻对从 7.1px 提到 25.5px，那对岛原本几乎叠在一起、有一座点不到。176 座现有岛中有 <strong>155 座移动</strong>，对移动者而言中位数 13.3px、均值 16.5px、最大 56.4px。</p>
+      <p style="color:var(--ink-soft);font-size:13.5px">上面这段是<strong>手写坐标平面</strong>的数据。Pixi 图集把它投影到另一个平面后再跑一次自己的松弛，那才是访客真正看到的分布——最初这一层被漏测了，见下。</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>我一开始量错了平面</h2>
+  <p class="sec-sub">这一节记录一次真实的返工。上面那些间距数字全部来自<strong>手写坐标</strong>，而地图有两条渲染路径、两套去重叠，它们工作在不同平面上——我只验证了其中一条。</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>平面</th><th>谁在用</th><th>去重叠</th><th>371 岛下的最近邻</th></tr></thead>
+      <tbody>
+        <tr><td class="zh">手写坐标 <code>chart.x/y</code></td><td class="zh">SVG 可读孪生（无 GPU 路径）</td><td class="num">固定框 1440×900</td><td class="num">25.5 px ✓</td></tr>
+        <tr><td class="zh">投影坐标 <code>y·tilt − lift</code></td><td class="zh">Pixi 图集（默认路径）</td><td class="num">弹性框，minDist 140</td><td class="num">3.2 px ✗</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="verdict finding">
+    <span class="verdict-mark">⚠</span>
+    <div>
+      <p><strong>因果：</strong>Pixi 图集的世界边界是<em>从数据推出来的</em>，本该随内容一起变大。但我为了不被固定的 SVG 框裁切，把 371 座全塞进了同一个 1440×900 手写画布——<strong>岛数翻倍，世界没变大</strong>。投影后每岛只剩 8,619 px²，可达六边形间距 99.8px，而求解器索要 140px 且被显式设为「不降级」（<code>capToPackingCapacity: false</code>），于是它一直推不到位、来回震荡，留下 3.2px 的贴脸对与 142 对小于 40px。</p>
+      <p><strong>修法：</strong>让世界真的随 N 变大——按 <code>n · (√3/2) · 140²</code> 反解出所需边距，恢复那段注释本来就假设的前提（“a zoomable world whose bbox already grows”）。图集本来就可缩放平移，世界大一点不花钱，叠在一起才花钱。</p>
+      <p><strong>结果：</strong>最近邻 <strong>3.2 → 32.3px</strong>，p10 <strong>19.7 → 61.5px</strong>，中位数 49.1 → 100.1px，40px 以下从 <strong>142 对降到 8 对</strong>。</p>
+      <p><strong>顺带证伪一条直觉：</strong>把松弛迭代数从 80 提到 320 <em>更差</em>（最近邻 32.3 → 18.6px）。在「不降级 + 边界钳制」下更多迭代会震荡而非收敛，所以原有的 <code>&gt;220 ? 80 : 320</code> 分支保留。</p>
+    </div>
+  </div>
+  <div class="verdict">
+    <span class="verdict-mark">◆</span>
+    <div>
+      <p>教训不在数字上，在门禁上：<strong>我原来的两道闸量的都是输入，不是输出。</strong>所有计数断言全绿、审核脚本报 PASS，而访客默认打开的那张图有一百多对岛叠着。现已补 <code>atlasOverlap.test.ts</code>，在 <code>buildAtlasScene</code> 之后测量，并且同时守住地板（最紧邻 &gt; 28px）、尾部（p10 &gt; 45px）和世界密度（每岛 &gt; 14,000 px²）——中位数好看而尾部崩坏，正是这次回归藏身的地方。</p>
     </div>
   </div>
 </section>
@@ -421,7 +451,7 @@ function setMode(mode) {
   status.textContent = mode === 'before'
     ? '176 islands · 扩张前的手工位置'
     : mode === 'moved'
-      ? '155 条位移线 · 平均 14.5px · 最大 56.3px'
+      ? '155 条位移线 · 中位 13.3px · 均值 16.5px · 最大 56.4px'
       : '371 islands · 1440×900';
 }
 btns.after.onclick = () => setMode('after');
