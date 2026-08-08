@@ -5,7 +5,9 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./mapping": "./src/mapping.ts"
+    "./mapping": "./src/mapping.ts",
+    "./mission": "./src/mission.ts",
+    "./mission-runner": "./src/mission-runner.ts"
   },
   "scripts": {
     "test": "vitest run",

@@ -9,7 +9,8 @@
 
 import { fetchWorks } from "./crossref.js";
 import { createMcpWriter } from "./mcpClient.js";
-import { runNightShift, type NightDeps, type NightOptions } from "./night.js";
+import { runNightShiftMission } from "./mission.js";
+import { type NightDeps, type NightOptions } from "./night.js";
 
 function arg(name: string): string | undefined {
   const i = process.argv.indexOf(`--${name}`);
@@ -50,7 +51,11 @@ async function main(): Promise<void> {
   };
 
   console.log(`🔭 文献侦察夜班 · ${opts.island}${opts.dryRun ? " (dry-run)" : ""}`);
-  const result = await runNightShift(opts, deps);
+  const bundle = await runNightShiftMission(opts, deps);
+  const result = bundle.completed.at(-1)?.output;
+  if (bundle.status !== "completed" || !result) {
+    throw new Error(`Night mission stopped: ${bundle.stopReason}${bundle.summary ? ` · ${bundle.summary}` : ""}`);
+  }
   console.log(
     `完成：拾得 ${result.proposals.length}/${result.fetched} 条候选，${
       opts.dryRun ? "未写入 (dry-run)" : `已提案 ${result.written.length} 条`

@@ -17,3 +17,5 @@ export type { NightOptions, NightDeps, NightResult } from "./night.js";
 export { fetchWorks, userAgent, PKG, VERSION } from "./crossref.js";
 export { createMcpWriter } from "./mcpClient.js";
 export type { ScoutWriter, McpWriterOptions } from "./mcpClient.js";
+export { createScoutMissionContract, runNightShiftMission } from "./mission.js";
+export type { ScoutMissionContractOptions, ScoutMissionRunOptions } from "./mission.js";
