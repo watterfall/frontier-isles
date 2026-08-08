@@ -22,12 +22,17 @@ import { ModelMissionControl } from './ModelMissionControl';
 import { WorldTrail } from '../shell/WorldTrail';
 import type { WorldTrailProjection } from '../../state/worldTrail';
 import type { RouteOutcomeViewModel } from '../../state/routeOutcome';
+import type { ModelLabMissionEvidenceV1 } from '../../state/missionEvidence';
 
 interface ModelWorkbenchProps {
   lang: ModelLanguage;
   launch?: ModelLaunchContext | null;
   previousRuns?: readonly ModelRunReceipt[];
+  /** Bounded A2 investigations already saved in the field notebook, oldest first. */
+  previousMissions?: readonly ModelLabMissionEvidenceV1[];
   onSave: (receipt: ModelRunReceipt) => void;
+  /** Omitted where the workbench is mounted without a notebook to write into. */
+  onSaveMission?: (evidence: ModelLabMissionEvidenceV1) => void;
   onClose?: () => void;
   embedded?: boolean;
   worldTrail?: WorldTrailProjection;
@@ -102,7 +107,7 @@ function useReducedMotion(): boolean {
   return reduced;
 }
 
-export function ModelWorkbench({ lang, launch, previousRuns = [], onSave, onClose, embedded = false, worldTrail, routeOutcome }: ModelWorkbenchProps) {
+export function ModelWorkbench({ lang, launch, previousRuns = [], previousMissions = [], onSave, onSaveMission, onClose, embedded = false, worldTrail, routeOutcome }: ModelWorkbenchProps) {
   const copy = COPY[lang];
   const normalizedLaunch = useMemo(() => normalizeModelLaunch(launch), [launch]);
   const launchFamily = modelFamily(normalizedLaunch.familyId);
@@ -306,6 +311,8 @@ export function ModelWorkbench({ lang, launch, previousRuns = [], onSave, onClos
         count={count}
         spread={spread}
         onChooseSynchronization={() => chooseFamily('synchronization')}
+        savedMissions={previousMissions}
+        onSaveMission={onSaveMission}
       />
 
       <div className="fi-model-bench">

@@ -39,6 +39,7 @@ import {
 } from './state/ceremonyReducer';
 import { useIsMobile } from './useIsMobile';
 import type { ModelLaunchContext, ModelRunReceipt } from './models/types';
+import type { ModelLabMissionEvidenceV1 } from './state/missionEvidence';
 import { modelFamily, normalizeModelLaunch } from './models/catalog';
 import {
   selectWorldTrail,
@@ -535,6 +536,12 @@ export default function App() {
     dispatchExploration({ type: 'record-model-run', receipt });
     showToast(lang === 'zh' ? '这次模型运行已放进考察札记' : 'This model run is now in the field notebook');
   }, [lang, showToast]);
+  const recordMissionRun = useCallback((evidence: ModelLabMissionEvidenceV1) => {
+    dispatchExploration({ type: 'record-mission-run', evidence });
+    showToast(lang === 'zh'
+      ? '这次受限调查已存进考察札记'
+      : 'This bounded inquiry is now in the field notebook');
+  }, [lang, showToast]);
   const recordConnectionOutcome = useCallback((receipt: ResearchActionReceipt) => {
     setRecentResearchAction(receipt);
     setConnectionRevision((value) => value + 1);
@@ -716,7 +723,7 @@ export default function App() {
     recentResearchAction,
   }), [exploration.completedPassages, exploration.modelRuns, recentResearchAction, trailIslands]);
 
-  if (isMobile) return <MobileShell islands={chartIslands} initialIslandSlug={pendingLink} modelRuns={exploration.modelRuns} onRecordModelRun={recordModelRun} worldTrailEnabled={worldTrailEnabled} />;
+  if (isMobile) return <MobileShell islands={chartIslands} initialIslandSlug={pendingLink} modelRuns={exploration.modelRuns} onRecordModelRun={recordModelRun} missionRuns={exploration.missionRuns} onRecordMissionRun={recordMissionRun} worldTrailEnabled={worldTrailEnabled} />;
 
   const passageSource = exploration.passageIntent
     ? chartIslands.find((island) => island.slug === exploration.passageIntent?.islandSlug) ?? null
@@ -901,7 +908,9 @@ export default function App() {
             lang={lang}
             launch={modelLaunch}
             previousRuns={exploration.modelRuns}
+            previousMissions={exploration.missionRuns}
             onSave={recordModelRun}
+            onSaveMission={recordMissionRun}
             onClose={closeModel}
             worldTrail={worldTrailEnabled ? worldTrail : undefined}
             routeOutcome={worldTrailEnabled ? routeOutcome : undefined}

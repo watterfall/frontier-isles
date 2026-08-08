@@ -6,6 +6,7 @@ import type {
   SynchronizationModelLabObjectiveV1,
 } from '../../models/modelMission';
 import type { ModelFamilyId, ModelLanguage, ModelSubstrateId } from '../../models/types';
+import { toMissionEvidence, type ModelLabMissionEvidenceV1 } from '../../state/missionEvidence';
 
 interface ModelMissionControlProps {
   lang: ModelLanguage;
@@ -16,6 +17,10 @@ interface ModelMissionControlProps {
   count: number;
   spread: number;
   onChooseSynchronization: () => void;
+  /** Completed investigations already in the field notebook, oldest first. */
+  savedMissions?: readonly ModelLabMissionEvidenceV1[];
+  /** Absent when the workbench is mounted without a notebook to write into. */
+  onSaveMission?: (evidence: ModelLabMissionEvidenceV1) => void;
 }
 type MissionState =
   | { phase: 'idle' }
@@ -48,8 +53,10 @@ const COPY = {
     trials: '模型试验', trial: '试验', coupling: '耦合 K', reading: '同步程度', reached: '达到 0.82', notReached: '尚未达到',
     trace: '查看决策轨迹与事件序号', started: '接受受限任务', revised: '根据失败结果修订计划', stepStarted: '开始一次本地模型运行', stepSucceeded: '记录模型观察', stopped: '按声明条件停止',
     boundary: '这份轨迹只说明指定模型在指定参数下发生了什么。它保留为 model_observation，不会自动写入研究账本、生成关系连线或成为科学证据。',
-    network: '0 次网络请求', writes: '0 次共享写入', grants: '0 项能力授予', local: '仅当前页面会话',
+    network: '0 次网络请求', writes: '0 次共享写入', grants: '0 项能力授予', local: '存入本浏览器的考察札记',
     error: '本地调查没有完成。请保留当前参数后重试。',
+    saved: '已存入札记', history: '此前保存的调查', historyHint: '这些记录留在本浏览器的考察札记里，可随札记一起导出为 Markdown。重新打开页面后它们仍在，但依然只是模型观察。',
+    historyRuns: '次运行', historyRevisions: '次修订',
   },
   en: {
     summaryKicker: 'AI-NATIVE · BOUNDED A2',
@@ -70,8 +77,10 @@ const COPY = {
     trials: 'Model trials', trial: 'Trial', coupling: 'Coupling K', reading: 'Coherence', reached: 'Reached 0.82', notReached: 'Not reached',
     trace: 'Inspect the decision trace and event sequence', started: 'Accepted the bounded mission', revised: 'Revised the plan from a failed result', stepStarted: 'Started one local model run', stepSucceeded: 'Recorded a model observation', stopped: 'Stopped at a declared condition',
     boundary: 'This trace only reports what the specified model did under the specified parameters. It remains a model_observation and does not become ledger evidence, a graph connection, or a scientific claim.',
-    network: '0 network requests', writes: '0 shared writes', grants: '0 capability grants', local: 'Current page session only',
+    network: '0 network requests', writes: '0 shared writes', grants: '0 capability grants', local: 'Saved to this browser’s field notebook',
     error: 'The local inquiry did not finish. Keep the current parameters and try again.',
+    saved: 'Saved to the notebook', history: 'Earlier saved inquiries', historyHint: 'These records stay in this browser’s field notebook and export with it as Markdown. They survive a reload, and they remain model observations.',
+    historyRuns: 'runs', historyRevisions: 'revisions',
   },
 } as const;
 
@@ -141,6 +150,8 @@ export function ModelMissionControl({
   count,
   spread,
   onChooseSynchronization,
+  savedMissions = [],
+  onSaveMission,
 }: ModelMissionControlProps) {
   const copy = COPY[lang];
   const [state, setState] = useState<MissionState>({ phase: 'idle' });
@@ -156,6 +167,9 @@ export function ModelMissionControl({
       const receipt = mission.createModelLabReceipt(objective, bundle);
       const replay = mission.replayModelLabBundle(bundle);
       setState({ phase: 'complete', receipt, replayOk: replay.ok, events: missionTrace(bundle.events) });
+      // The notebook stores evidence, not resume authority: the projection drops
+      // the contract, events, and step inputs the runner would need to continue.
+      onSaveMission?.(toMissionEvidence(receipt, replay.ok));
     } catch (error) {
       setState({ phase: 'error', message: error instanceof Error ? error.message : copy.error });
     }
@@ -252,6 +266,27 @@ export function ModelMissionControl({
           )}
           <footer><strong>{copy.local}</strong><span>{copy.boundary}</span></footer>
         </section>
+
+        {savedMissions.length > 0 ? (
+          <section className="fi-model-mission-history" aria-labelledby="fi-model-mission-history-title">
+            <h3 id="fi-model-mission-history-title">{copy.history}</h3>
+            <p>{copy.historyHint}</p>
+            <ol>
+              {[...savedMissions].reverse().map((mission) => (
+                <li key={mission.missionId}>
+                  <span>
+                    <strong>{stopLabel(mission.stopReason, lang)}</strong>
+                    <small>{mission.objectiveId}</small>
+                  </span>
+                  <em>
+                    {mission.modelRuns} {copy.historyRuns} · {mission.revisions} {copy.historyRevisions} ·{' '}
+                    {mission.replayOk ? copy.replayPassed : copy.replayFailed}
+                  </em>
+                </li>
+              ))}
+            </ol>
+          </section>
+        ) : null}
       </div>
     </details>
   );

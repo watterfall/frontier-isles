@@ -1,4 +1,8 @@
 import type { ModelRunReceipt } from '../models/types';
+import {
+  MAX_MISSION_EVIDENCE_RECORDS,
+  type ModelLabMissionEvidenceV1,
+} from './missionEvidence';
 
 export type ExplorationPhase = 'atlas' | 'explore' | 'island';
 export type ExplorerFacing = 'north' | 'east' | 'south' | 'west';
@@ -97,6 +101,12 @@ export interface ExplorationSession {
   visitedBuildingFloors: Record<string, string[]>;
   /** Learner-owned local model runs. They are never folded into graph/ledger truth. */
   modelRuns: ModelRunReceipt[];
+  /**
+   * Completed bounded A2 investigations, kept as inspectable evidence. Like
+   * `modelRuns` they are local observations: storing one grants it no ledger
+   * authority and creates no graph edge.
+   */
+  missionRuns: ModelLabMissionEvidenceV1[];
 }
 
 export type ExplorationAction =
@@ -115,6 +125,7 @@ export type ExplorationAction =
   | { type: 'survey-district'; slug: string; districtId: IslandDistrictId }
   | { type: 'visit-building-floor'; slug: string; station: string; floorId: string }
   | { type: 'record-model-run'; receipt: ModelRunReceipt }
+  | { type: 'record-mission-run'; evidence: ModelLabMissionEvidenceV1 }
   | { type: 'dock'; slug: string; source: 'atlas' | 'explore'; pose?: WorldExplorerPose }
   | { type: 'return-world' }
   | { type: 'return-atlas' };
@@ -138,6 +149,7 @@ export function initialExplorationSession(): ExplorationSession {
     surveyedDistricts: {},
     visitedBuildingFloors: {},
     modelRuns: [],
+    missionRuns: [],
   };
 }
 
@@ -259,6 +271,13 @@ export function explorationReducer(state: ExplorationSession, action: Exploratio
     case 'record-model-run': {
       const prior = state.modelRuns.filter((receipt) => receipt.id !== action.receipt.id);
       return { ...state, modelRuns: [...prior, action.receipt].slice(-200) };
+    }
+    case 'record-mission-run': {
+      const prior = state.missionRuns.filter((record) => record.missionId !== action.evidence.missionId);
+      return {
+        ...state,
+        missionRuns: [...prior, action.evidence].slice(-MAX_MISSION_EVIDENCE_RECORDS),
+      };
     }
     case 'dock':
       return {

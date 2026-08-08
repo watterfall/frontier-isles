@@ -191,6 +191,25 @@
   - Passed final repository gates: 950 tests, recursive typecheck/release/atlas/import checks, production build, and diff hygiene.
   - Confirmed the eager entry remains effectively flat at 878.05 kB raw / 302.75 kB gzip; Mission Control stays in the 35.60 kB / 13.01 kB gzip lazy workbench and its runtime is a nested 72.66 kB / 18.22 kB gzip chunk.
 
+### Phase 15: Notebook-v5 Mission Evidence Persistence
+- **Status:** complete
+- Actions taken:
+  - Re-measured the inherited baseline before changing anything: 950 tests, recursive typecheck, production build, and `git diff --check` all passed on `badd1db`, with entry 878.05 kB raw / 302.75 kB gzip.
+  - Traced the eager/lazy boundary and found the binding constraint: `explorationNotebook` loads at boot, while `guardEntryChunk` in `apps/web/vite.config.ts` denylists `zod` in the entry chunk and caps it at 900 KiB. The mission receipt reaches `zod` through the core contracts, so the notebook may borrow its types but never its values.
+  - Added `apps/web/src/state/missionEvidence.ts`: a bounded, hand-parsed `ModelLabMissionEvidenceV1` projection with no runtime edge to the mission chunk, capped at 12 trials (mirroring `MODEL_LAB_MAX_RUNS`) and 50 retained missions.
+  - Made non-promotion enforceable at the parse boundary: a stored record whose `epistemicStatus` is not `model_observation`, whose `ledgerEffect` is not `none`, or whose summary counts exceed its surviving trials is discarded rather than trusted.
+  - Kept resume authority out of storage: the projection drops the contract, event log, and per-step inputs a runner would need to continue a mission.
+  - Raised the notebook to v5 with additive migration; v1–v4 payloads still load and simply carry no missions.
+  - Wired `missionRuns` through the session reducer, the eager save/load path, desktop `App`, and the compact `MobileShell`, and added a saved-inquiry list to Mission Control on both surfaces.
+  - Rewrote the "current page session only" / "Current page session only" line, which persistence had made false, and added a test asserting the stale wording cannot return.
+  - Extended the portable Markdown export with a bounded-inquiry section that carries `model_observation` and `ledger_effect=none` with each record.
+  - Added a constant-agreement test so the copied trial ceiling cannot silently drift from the runtime ceiling it mirrors.
+- Files created/modified:
+  - `apps/web/src/state/missionEvidence.ts`, `apps/web/src/state/explorationSession.ts`, `apps/web/src/state/explorationNotebook.ts`
+  - `apps/web/src/components/model/ModelMissionControl.tsx`, `apps/web/src/components/model/ModelWorkbench.tsx`
+  - `apps/web/src/App.tsx`, `apps/web/src/components/mobile/MobileShell.tsx`, `apps/web/src/global.css`
+  - `apps/web/src/__tests__/missionEvidence.test.ts`, `apps/web/src/__tests__/explorationNotebook.test.ts`, `apps/web/src/components/model/__tests__/ModelMissionControl.test.tsx`, `apps/web/e2e/surface-hardening.spec.ts`
+
 ## Test Results
 | Test | Input | Expected | Actual | Status |
 |------|-------|----------|--------|--------|
@@ -228,6 +247,15 @@
 | Phase 14 final typecheck | `pnpm typecheck` | Release docs, atlas/import, and TypeScript pass | Passed | pass |
 | Phase 14 final build | `pnpm build` | Mission runtime remains lazy and enforced budgets pass | Passed; entry 878.05 kB, ModelWorkbench 35.60 kB, modelMission 72.66 kB raw | pass |
 | Phase 14 final diff hygiene | `git diff --check` | No whitespace errors | Passed | pass |
+| Phase 15 inherited baseline | `pnpm test` / `typecheck` / `build` / `git diff --check` on `badd1db` | Re-measure before changing anything rather than trusting recorded counts | 950 tests, 117 files; typecheck, build (entry 878.05 kB), and diff hygiene passed | pass |
+| Phase 15 evidence parser | `vitest run src/__tests__/missionEvidence.test.ts` | Real-run projection, storage round trip, tampering and inconsistency refusal, retention bounds | 9 tests passed | pass |
+| Phase 15 notebook migration | `vitest run src/__tests__/explorationNotebook.test.ts` | v1–v4 payloads still load; v5 round-trips missions; a tampered record drops alone | 12 tests passed | pass |
+| Phase 15 mission control surface | `vitest run .../ModelMissionControl.test.tsx` | Saved inquiries render and the stale "session only" claim cannot return | 4 tests passed | pass |
+| Phase 15 final repository tests | `pnpm test` | All workspaces pass after notebook-v5 | 967 tests, 118 files passed | pass |
+| Phase 15 final typecheck | `pnpm typecheck` | Release docs, atlas/import boundaries, and TypeScript pass | Passed | pass |
+| Phase 15 final build | `pnpm build` | `zod` stays out of the entry chunk and budgets hold | Passed; entry 884.52 kB (budget 921.6 kB), CSS 234.58 kB, ModelWorkbench 36.91 kB, modelMission unchanged at 72.66 kB | pass |
+| Phase 15 browser suite | `pnpm test:e2e`, 2 workers, owned services | Desktop inquiry survives a full reload; compact surface saves without overflow; axe AA holds | 8/8 in 59.6s; 5173/8787 reclaimed | pass |
+| Phase 15 final diff hygiene | `git diff --check` | No whitespace errors | Passed | pass |
 
 ## Error Log
 | Timestamp | Error | Attempt | Resolution |
@@ -252,11 +280,11 @@
 ## 5-Question Reboot Check
 | Question | Answer |
 |----------|--------|
-| Where am I? | Phase 14 complete locally; runtime hardening, durable Scout recovery, visible A2 Mission Control, and the owned-service browser gate are verified |
-| Where am I going? | Next: notebook-v5 mission evidence persistence, then architectural/comprehension review before live providers |
+| Where am I? | Phase 15 complete locally; notebook-v5 persists completed A2 investigations as evidence on both desktop and compact surfaces |
+| Where am I going? | Next: architectural/comprehension review, then live providers |
 | What's the goal? | Build a bounded AI-native execution path without collapsing autonomous model work into research truth |
 | What have I learned? | See `findings.md` |
-| What have I done? | Implemented and verified mission policy/runtime, durable Scout records, shared ModelSpec/runtime, and a visible replayable provider-free A2 investigation |
+| What have I done? | Implemented and verified mission policy/runtime, durable Scout records, shared ModelSpec/runtime, a visible replayable provider-free A2 investigation, and durable non-promoting mission evidence |
 
 ---
 *Update after each completed planning phase or new error.*

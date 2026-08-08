@@ -17,6 +17,7 @@ import { LangToggle } from '../shell/LangToggle';
 import { WorldTrail } from '../shell/WorldTrail';
 import { ConnectionTideChart } from '../chart/ConnectionTideChart';
 import type { ModelRunReceipt } from '../../models/types';
+import type { ModelLabMissionEvidenceV1 } from '../../state/missionEvidence';
 import { selectWorldTrail } from '../../state/worldTrail';
 import { selectRouteOutcome } from '../../state/routeOutcome';
 
@@ -29,6 +30,8 @@ export interface MobileShellProps {
   initialIslandSlug?: string | null;
   modelRuns?: readonly ModelRunReceipt[];
   onRecordModelRun?: (receipt: ModelRunReceipt) => void;
+  missionRuns?: readonly ModelLabMissionEvidenceV1[];
+  onRecordMissionRun?: (evidence: ModelLabMissionEvidenceV1) => void;
   worldTrailEnabled?: boolean;
 }
 
@@ -117,7 +120,7 @@ export function buildMobileHierarchy(islands: readonly IslandDatum[]): Map<numbe
  * visitors can browse, search, and inspect the same data. Personal model runs
  * are intentionally writable because they do not mutate the research ledger.
  */
-export function MobileShell({ islands, initialIslandSlug = null, modelRuns = [], onRecordModelRun = () => {}, worldTrailEnabled = true }: MobileShellProps) {
+export function MobileShell({ islands, initialIslandSlug = null, modelRuns = [], onRecordModelRun = () => {}, missionRuns = [], onRecordMissionRun, worldTrailEnabled = true }: MobileShellProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
   const [seg, setSeg] = useState<'connections' | 'models' | 'chart' | 'list'>('connections');
@@ -284,7 +287,7 @@ export function MobileShell({ islands, initialIslandSlug = null, modelRuns = [],
           <MobileConnectionField field={connectionField} lang={lang} carriedQuestion={carriedQuestion} onCarriedApplied={clearCarriedQuestion} />
         ) : seg === 'models' ? (
           <Suspense fallback={<p className="fi-mobile-connection-empty">{lang === 'zh' ? '正在准备模型台…' : 'Preparing the model bench…'}</p>}>
-            <ModelWorkbench lang={lang} embedded previousRuns={modelRuns} onSave={onRecordModelRun} />
+            <ModelWorkbench lang={lang} embedded previousRuns={modelRuns} onSave={onRecordModelRun} previousMissions={missionRuns} onSaveMission={onRecordMissionRun} />
           </Suspense>
         ) : seg === 'chart' ? (
           <>

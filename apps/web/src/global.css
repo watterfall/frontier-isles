@@ -2568,6 +2568,18 @@ body:has(.fi-app-shell[data-theme='night']) .fi-model-workbench {
 .fi-model-mission-run > footer strong { color: var(--fi-ochre-text); font-family: var(--fi-font-mono); font-size: 7px; letter-spacing: .1em; }
 .fi-model-mission-run > footer span { max-width: 820px; color: var(--fi-ink-2); font-size: 8px; line-height: 1.5; }
 
+/* Saved inquiries are a ledger-style tail on the same sheet, not a second
+   panel: full width under both columns, ruled rows, no new colour vocabulary. */
+.fi-model-mission-history { grid-column: 1 / -1; padding: 15px 18px 18px; border-top: 2px solid var(--fi-ochre); }
+.fi-model-mission-history > h3 { margin: 0 0 4px; font-family: var(--fi-font-display); font-size: 11px; }
+.fi-model-mission-history > p { max-width: 820px; margin: 0 0 9px; color: var(--fi-ink-2); font-size: 8px; line-height: 1.5; }
+.fi-model-mission-history ol { display: grid; gap: 0; margin: 0; padding: 0; border-top: .75px solid color-mix(in srgb, var(--fi-ink) 35%, transparent); list-style: none; }
+.fi-model-mission-history li { display: grid; min-height: 44px; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 5px 7px; border-bottom: .75px solid color-mix(in srgb, var(--fi-ink) 24%, transparent); }
+.fi-model-mission-history li > span { display: grid; min-width: 0; gap: 2px; }
+.fi-model-mission-history li strong { font-family: var(--fi-font-display); font-size: 9.5px; }
+.fi-model-mission-history li small { overflow: hidden; color: var(--fi-ink-2); font-family: var(--fi-font-mono); font-size: 7px; text-overflow: ellipsis; white-space: nowrap; }
+.fi-model-mission-history li em { color: var(--fi-ochre-text); font-family: var(--fi-font-mono); font-size: 8px; font-style: normal; }
+
 .fi-model-bench {
   display: grid;
   min-height: 560px;
@@ -2728,6 +2740,8 @@ body:has(.fi-app-shell[data-theme='night']) .fi-model-workbench {
   .fi-model-workbench[data-embedded='true'] .fi-model-mission-trials li > em { grid-column: 2 / -1; padding-bottom: 4px; }
   .fi-model-workbench[data-embedded='true'] .fi-model-mission-run > button,
   .fi-model-workbench[data-embedded='true'] .fi-model-mission-trace > summary { min-height: 44px; }
+  .fi-model-workbench[data-embedded='true'] .fi-model-mission-history { padding: 15px 18px 18px; }
+  .fi-model-workbench[data-embedded='true'] .fi-model-mission-history li { grid-template-columns: minmax(0, 1fr); align-items: start; padding: 8px 7px; }
   .fi-model-workbench[data-embedded='true'] .fi-model-bench { grid-template-columns: 1fr; margin-left: 0; }
   .fi-model-workbench[data-embedded='true'] .fi-model-build-sheet,
   .fi-model-workbench[data-embedded='true'] .fi-model-running-sheet { border-right: 0; border-bottom: 1px solid var(--fi-ink); }

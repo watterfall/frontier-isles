@@ -115,6 +115,11 @@
 | Retry E0/E1 automatically, but stop on uncertain E2/E3 failures | Reversible reads/computation may repeat; a shared or production write cannot be replayed safely unless its destination independently proves idempotency |
 | Share one pure model runtime between manual and autonomous paths | A separate agent-only simulator would let the UI and mission produce divergent observations from nominally identical parameters |
 | Keep the first A2 investigator deterministic and provider-free | It proves authorization, plan/evaluate/revise semantics, budgets, failed predictions, and replay before provider variability or UI complexity is introduced |
+| Give the notebook its own hand-parsed mission projection | `explorationNotebook` loads eagerly and `guardEntryChunk` denylists `zod`, so borrowing only the receipt's types makes the boundary a build error rather than a review convention |
+| Re-assert epistemic status at the storage parse boundary | Persisted JSON is the one surface where a record could gain authority nobody granted it; a stored `ledgerEffect` other than `none` is refused instead of trusted |
+| Persist evidence, never resume authority | Dropping the contract, event log, and step inputs means a notebook record can be read and re-checked but cannot restart or extend a mission |
+| Discard an internally inconsistent record rather than repairing it | A summary that claims more failures or runs than its surviving trials can show would misreport the investigation; showing nothing is the honest failure mode |
+| Treat the "current page session only" line as code, not copy | Persisting the record made that reassurance false, so it had to change in the same commit that made it false |
 
 ## Plan Arbitration
 

@@ -43,6 +43,28 @@ const modelRun = {
   sourceProblemSlugs: ['a', 'b'],
   createdAt: '2026-07-18T02:00:00.000Z',
 };
+const missionEvidence = {
+  version: 1 as const,
+  kind: 'model-lab-mission' as const,
+  missionId: 'mission://model-lab/sync-threshold-1',
+  objectiveId: 'sync-threshold-1',
+  status: 'completed' as const,
+  stopReason: 'goal_reached' as const,
+  startedAt: '2026-08-08T00:00:00.000Z',
+  endedAt: '2026-08-08T00:00:02.400Z',
+  revisions: 2,
+  failedPredictions: 1,
+  modelRuns: 3,
+  wallMs: 2400,
+  replayOk: true,
+  trials: [
+    { trial: 1, substrateId: 'fireflies' as const, coupling: 0, prediction: 'increase' as const, predictionMatched: false, targetReached: false, metric: 'coherence' as const, initial: 0.11, final: 0.12, steps: 700 },
+    { trial: 2, substrateId: 'fireflies' as const, coupling: 0.2, prediction: 'increase' as const, predictionMatched: true, targetReached: false, metric: 'coherence' as const, initial: 0.11, final: 0.34, steps: 700 },
+    { trial: 3, substrateId: 'fireflies' as const, coupling: 2.8, prediction: 'increase' as const, predictionMatched: true, targetReached: true, metric: 'coherence' as const, initial: 0.11, final: 0.94, steps: 700 },
+  ],
+  epistemicStatus: 'model_observation' as const,
+  ledgerEffect: 'none' as const,
+};
 const islands: IslandDatum[] = [
   { id: 1, slug: 'a', n: { zh: '甲岛', en: 'Isle A' }, q: { zh: '甲问题？', en: 'Question A?' }, d: '数理', x: 0, y: 0, s: 1, st: 1, m: 1, a: 1, citation: { title: 'A', venue: 'Nature', year: 2025, url: 'https://example.com/a' } },
   { id: 2, slug: 'b', n: { zh: '乙岛', en: 'Isle B' }, q: { zh: '乙问题？', en: 'Question B?' }, d: '交叉', x: 1, y: 1, s: 1, st: 1, m: 1, a: 1 },
@@ -197,5 +219,115 @@ describe('exploration field notebook persistence', () => {
     expect(markdown).toContain('整体同步程度 0.1200 → 0.9100 · 360 步');
     expect(markdown).toContain('这个相位模型没有表示萤火虫的空间遮挡和脉冲感知。');
     expect(markdown).toContain('`struct://xfrontier/synchronization`');
+  });
+
+  it('migrates the prior v4 model-run notebook with empty mission state', () => {
+    const legacy = memoryStorage(JSON.stringify({
+      version: 4,
+      savedAt: '2026-08-04T00:00:00.000Z',
+      worldPose: null,
+      courseIslandSlug: null,
+      courseHistorySlugs: [],
+      visitedIslandSlugs: ['a'],
+      sampledCurrents: [],
+      notes: { a: 'v4 note' },
+      surveyedDistricts: { a: ['harbor'] },
+      visitedBuildingFloors: {},
+      modelRuns: [modelRun],
+    }));
+    const restored = loadExplorationNotebook(legacy);
+
+    // Upgrading the schema must not cost a learner their existing notebook.
+    expect(restored.modelRuns).toEqual([modelRun]);
+    expect(restored.notes).toEqual({ a: 'v4 note' });
+    expect(restored.surveyedDistricts).toEqual({ a: ['harbor'] });
+    expect(restored.missionRuns).toEqual([]);
+  });
+
+  it('round-trips a completed bounded inquiry as notebook evidence', () => {
+    const session = explorationReducer(initialExplorationSession(), {
+      type: 'record-mission-run',
+      evidence: missionEvidence,
+    });
+    const storage = memoryStorage();
+
+    expect(saveExplorationNotebook(session, storage, '2026-08-08T00:00:03.000Z')).toBe(true);
+    expect(JSON.parse(storage.value ?? '{}').version).toBe(5);
+
+    const restored = loadExplorationNotebook(storage);
+    expect(restored.missionRuns).toEqual([missionEvidence]);
+    expect(restored.missionRuns[0]?.epistemicStatus).toBe('model_observation');
+    expect(restored.missionRuns[0]?.ledgerEffect).toBe('none');
+  });
+
+  it('replaces an earlier record of the same mission instead of accumulating duplicates', () => {
+    let session = explorationReducer(initialExplorationSession(), {
+      type: 'record-mission-run',
+      evidence: missionEvidence,
+    });
+    session = explorationReducer(session, {
+      type: 'record-mission-run',
+      evidence: { ...missionEvidence, revisions: 5 },
+    });
+
+    expect(session.missionRuns).toHaveLength(1);
+    expect(session.missionRuns[0]?.revisions).toBe(5);
+  });
+
+  it('drops a tampered mission record while keeping the rest of the notebook', () => {
+    const tampered = memoryStorage(JSON.stringify({
+      version: 5,
+      savedAt: '2026-08-08T00:00:00.000Z',
+      worldPose: null,
+      courseIslandSlug: null,
+      courseHistorySlugs: [],
+      visitedIslandSlugs: ['a'],
+      sampledCurrents: [],
+      notes: { a: 'still here' },
+      modelRuns: [modelRun],
+      missionRuns: [
+        // Claims ledger authority it was never granted.
+        { ...missionEvidence, missionId: 'mission://forged', ledgerEffect: 'append' },
+        missionEvidence,
+        'not-an-object',
+      ],
+    }));
+    const restored = loadExplorationNotebook(tampered);
+
+    expect(restored.missionRuns).toEqual([missionEvidence]);
+    expect(restored.notes).toEqual({ a: 'still here' });
+    expect(restored.modelRuns).toEqual([modelRun]);
+  });
+
+  it('exports bounded inquiries as Markdown with their non-ledger status attached', () => {
+    const session = explorationReducer(initialExplorationSession(), {
+      type: 'record-mission-run',
+      evidence: missionEvidence,
+    });
+    const markdown = explorationNotebookMarkdown(session, islands, 'zh', '2026-08-08T01:00:00.000Z');
+
+    expect(markdown).toContain('## 受限调查记录（AI 自主运行）');
+    expect(markdown).toContain('不是研究证据，也不会写入账本');
+    expect(markdown).toContain('停止原因: 达到目标 (`completed`)');
+    expect(markdown).toContain('计划修订: 2 · 失败预测: 1 · 模型运行次数: 3');
+    expect(markdown).toContain('耗时: 2.4s · 确定性复演: 全部一致');
+    expect(markdown).toContain('耦合 K=2.8');
+    expect(markdown).toContain('预测落空');
+    expect(markdown).toContain('达到目标');
+    expect(markdown).toContain('`model_observation` · `ledger_effect=none`');
+  });
+
+  it('exports the English inquiry section for the same notebook state', () => {
+    const session = explorationReducer(initialExplorationSession(), {
+      type: 'record-mission-run',
+      evidence: missionEvidence,
+    });
+    const markdown = explorationNotebookMarkdown(session, islands, 'en', '2026-08-08T01:00:00.000Z');
+
+    expect(markdown).toContain('## Bounded inquiries (run autonomously)');
+    expect(markdown).toContain('not research evidence');
+    expect(markdown).toContain('Stop reason: Goal reached (`completed`)');
+    expect(markdown).toContain('prediction failed');
+    expect(markdown).toContain('target reached');
   });
 });

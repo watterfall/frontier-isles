@@ -480,10 +480,29 @@ Fresh local proof for this checkpoint:
 - desktop and 390x844 mobile visual checks covered collapsed, authorization, and completed states; the mobile document stayed at 390px scroll width, with no horizontal overflow;
 - `git diff --check`: passed.
 
+### Notebook-v5 addendum
+
+A completed investigation is now durable evidence rather than a page-local result:
+
+- the field notebook stores a bounded `ModelLabMissionEvidenceV1` projection — outcome, budgets, revisions, failed predictions, replay agreement, and per-trial readings — and reloads it on both the desktop workbench and the compact model tab;
+- the projection is deliberately lossy in one direction: it drops the contract, event log, and per-step inputs, so a stored record can be read and re-checked but can never restart or extend a mission;
+- non-promotion is enforced where it can actually be attacked. `parseMissionEvidence` refuses any record that does not re-assert `epistemicStatus: model_observation` and `ledgerEffect: none`, and refuses any record whose summary counts exceed the trials it can show;
+- the notebook parses missions by hand rather than reusing `parseAgentRunBundle`. The notebook is eager and `guardEntryChunk` denylists `zod` in the entry chunk, so the boundary is a build failure rather than a review convention;
+- schema migration stays additive: v1–v4 payloads load unchanged and simply carry no missions, and one corrupt mission record drops itself instead of resetting the notebook;
+- the Markdown export carries each investigation with its epistemic status attached, so the portable copy cannot present it as research evidence;
+- the pre-persistence "current page session only" assurance was removed in the same change that made it false.
+
+Fresh local proof for the addendum:
+
+- `pnpm test`: 967 tests across 118 files passed;
+- `pnpm typecheck` and `git diff --check`: passed;
+- `pnpm build`: passed; the eager entry moved 878.05 kB → 884.52 kB raw against a 921.6 kB budget, CSS 233.23 kB → 234.58 kB, the lazy `ModelWorkbench` 35.60 kB → 36.91 kB, and the nested `modelMission` runtime stayed byte-identical at 72.66 kB — the parser added no edge to the mission chunk;
+- `pnpm test:e2e`: 8/8 with two workers in 59.6s, including a desktop investigation that survives a full page reload and a 390px compact run that saves without horizontal overflow; ports 5173 and 8787 were reclaimed.
+
 The runtime and durable Scout foundation are complete locally, but the broader AI-native product proof remains open:
 
 - automated reconciliation of an ambiguous `running` record remains intentionally absent; the safe behavior is stop-and-inspect, not blind replay;
-- notebook-v5 storage/export/import for the completed receipt and replay bundle; the current visible result is session-local and disappears on reset/reload;
+- promotion routing from a saved mission record into a reviewable human decision; storage deliberately stops at evidence and offers no path toward a claim;
 - long-running Mission Control behavior for live pause/stop/revoke and promotion routing; the current deterministic UI mission finishes synchronously and performs no ledger write;
 - live model providers, generated-code sandboxing, multi-agent delegation, E3 production research writes, commit/push, and deployment;
 - exact-SHA CI proof for the uncommitted harness change; the local W0 browser/service gate is now green, while sandboxed Chromium remains unable to launch on this macOS host because Mach-port registration is denied.
