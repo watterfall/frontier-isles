@@ -16,6 +16,7 @@ import {
   WAVE_2_STRUCTURES,
   WAVE_2_STRUCTURE_PATCHES,
 } from '#structures-expansion-wave2';
+import { WAVE_3_STRUCTURE_PATCHES } from '#structures-expansion-wave3';
 
 export interface StructureCorrespondence {
   /** A quantity in the abstract structure. */
@@ -2237,3 +2238,17 @@ for (const patch of WAVE_2_STRUCTURE_PATCHES) {
 }
 
 SEED_STRUCTURES.push(...WAVE_2_STRUCTURES);
+
+// Wave 3 adds substrate to skeletons that already exist — all 36 corpus
+// isomorphisms were claimed before it, so it patches rather than names. Applied
+// after the wave-2 push so a patch may target a wave-2 structure too.
+for (const patch of WAVE_3_STRUCTURE_PATCHES) {
+  const structure = SEED_STRUCTURES.find((candidate) => candidate.id === patch.structureId);
+  if (!structure) {
+    throw new Error(`Wave 3 structure patch target does not exist: ${patch.structureId}`);
+  }
+  structure.mappings.push(...patch.mappings);
+  if (patch.mappings.length > 0) {
+    structure.status = 'active';
+  }
+}

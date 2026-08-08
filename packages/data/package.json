@@ -11,7 +11,8 @@
     "#frontiers-wave3-matter": "./src/frontiers-wave3-matter.ts",
     "#frontiers-wave3-life": "./src/frontiers-wave3-life.ts",
     "#frontiers-wave3-crossing": "./src/frontiers-wave3-crossing.ts",
-    "#structures-expansion-wave2": "./src/structures-expansion-wave2.ts"
+    "#structures-expansion-wave2": "./src/structures-expansion-wave2.ts",
+    "#structures-expansion-wave3": "./src/structures-expansion-wave3.ts"
   },
   "exports": {
     ".": "./src/index.ts",

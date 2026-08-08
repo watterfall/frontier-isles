@@ -32,7 +32,13 @@ describe('buildConnectionField', () => {
     expect(field.topics).toHaveLength(EXPECTED_TOPICS);
     expect(field.convergences).toHaveLength(EXPECTED_CONVERGENCES);
     const cascade = field.convergences.find((group) => group.structureId.endsWith('network-cascade'));
-    expect(cascade?.members).toHaveLength(3);
+    // 4 since wave 3: closed-loop-geothermal joined percolation on its own text —
+    // p is the fraction of fractures still open after carbonate precipitates, and
+    // the island itself sets "locks the storage in" against "clogs the flow paths"
+    // as the two outcomes the threshold separates. A convergence group growing is
+    // the feature working; what this test guards is that it grew from a real
+    // mapping rather than a gap, which the boundary assertion below carries.
+    expect(cascade?.members).toHaveLength(4);
     expect(cascade?.members.every((member) => member.mapping.boundary?.zh)).toBe(true);
     expect(field.convergences.some((group) => group.structureId.endsWith('scaling'))).toBe(false);
     expect(field.topics.find((topic) => topic.structureId.endsWith('scaling'))?.members).toHaveLength(0);
@@ -72,7 +78,7 @@ describe('buildConnectionField', () => {
     const map = projectConnectionMap(field, 'mechanism');
     expect(map.convergences).toHaveLength(EXPECTED_CONVERGENCES);
     expect(map.paths).toHaveLength(0);
-    expect(map.convergences.find((group) => group.id.endsWith('network-cascade'))?.memberSlugs).toHaveLength(3);
+    expect(map.convergences.find((group) => group.id.endsWith('network-cascade'))?.memberSlugs).toHaveLength(4);
   });
 
   it('keeps the global atlas at aggregate tide scale until a real focus is chosen', () => {

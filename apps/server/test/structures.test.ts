@@ -83,14 +83,16 @@ describe("structures API (执行纲要 §九)", () => {
 
   it("GET /api/structures/graph reduces real edges + frontier from the ledger", async () => {
     const g = await jsonOf(await app.request("/api/structures/graph"));
-    // network-cascade has 3 seeded edges; synchronization 1; scaling 0.
+    // network-cascade has 4 seeded edges since wave 3 (closed-loop-geothermal
+    // joined percolation: p is the fraction of fractures left open after
+    // carbonate precipitates); synchronization 1; scaling 0.
     const cascadeEdges = g.edges.filter((e: { structureId: string }) => e.structureId.endsWith("network-cascade"));
-    expect(cascadeEdges.length).toBe(3);
+    expect(cascadeEdges.length).toBe(4);
     const scaling = g.frontier.find((f: { structureId: string }) => f.structureId.endsWith("scaling"));
     // scaling is unmapped → absent from the frontier (no edges → no entry).
     expect(scaling).toBeUndefined();
     const cascade = g.frontier.find((f: { structureId: string }) => f.structureId.endsWith("network-cascade"));
-    expect(cascade.rebuilt.length).toBe(3);
+    expect(cascade.rebuilt.length).toBe(4);
     expect(Array.isArray(cascade.gaps)).toBe(true);
     const seededMappings = SEED_STRUCTURES.reduce((n, s) => n + s.mappings.length, 0);
     expect(g.edges).toHaveLength(seededMappings);
