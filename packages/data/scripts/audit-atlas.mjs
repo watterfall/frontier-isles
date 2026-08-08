@@ -91,13 +91,21 @@ if (corpus) {
   // structure cites record ids as provenance, and some are NOT islands — so
   // checking `FRONTIERS[].atlasN` alone leaves those unresolved forever.
   //
-  // Read them off the MODULE, never off structures.ts as a file: SEED_STRUCTURES
-  // splices in `structures-expansion-wave2.ts` through a `#` subpath import, and
-  // a file-scoped regex therefore sees 40 of the 61 ids. Both this repo and the
-  // upstream corpus session made exactly that mistake, independently, and both
-  // still got the right final answer — because all 21 ids it drops happen to be
-  // island atlasN values already in the set. A count that is right by luck reads
-  // exactly like a count that is right.
+  // Read them off the MODULE, never off structures.ts as a file. SEED_STRUCTURES
+  // composes in `structures-expansion-wave2.ts` through a `#` subpath import, so
+  // 21 of the 61 ids are not in structures.ts AT ALL — and that file defines its
+  // own lowercase `provenance()` helper rather than reusing `XFRONTIER`, so a
+  // name-based pattern misses them a second time even if you do open it.
+  //
+  // The first reason is the one that matters: a flawless AST parser over
+  // structures.ts still cannot reach ids that live in another file. Source-level
+  // extraction is not merely fragile against composition, it is CLOSED to it.
+  //
+  // Both this repo and the upstream corpus session made this mistake
+  // independently and both still got the right total, because every id the
+  // file-scoped read drops happens to be an island atlasN already in the union.
+  // Worse, the two wrong counts agreeing looked like corroboration when it was a
+  // shared defect. A count that is right by luck reads exactly like a right one.
   const { SEED_STRUCTURES: STRUCTS } = await import('../src/structures.ts');
   const structIds = new Set();
   for (const s of STRUCTS) {
