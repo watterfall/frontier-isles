@@ -222,6 +222,43 @@ ok(min > CLICK_FLOOR_PX, `tightest pair ${min.toFixed(1)}px (${pair.join(' ↔ '
 console.log(`geometry: all inside ${SVG_VIEWBOX.w}×${SVG_VIEWBOX.h} · tightest pair ${min.toFixed(1)}px · ` +
   `p10 ${nn[Math.floor(nn.length * 0.1)].toFixed(1)}px · median ${nn[Math.floor(nn.length / 2)].toFixed(1)}px`);
 
+// ── relational layers ───────────────────────────────────────────────────────
+// An island with depth but no ferry route, no current and no structure mapping
+// is readable but inert: nothing connects it to the rest of the atlas. Coverage
+// here is not a pass/fail — the relational layers are hand-authored and always
+// lag a content wave — but it must be VISIBLE, because "371 islands" and
+// "371 connected islands" are very different claims and only one of them is
+// true right now.
+const { SEED_STRUCTURES } = await import('../src/structures.ts');
+const { BRIDGES } = await import('../src/bridges.ts');
+const { SEA_SEED_RELATIONS } = await import('../src/sea.ts');
+const { INTERIORS } = await import('../src/interiors.ts');
+const { INTERIORS_2 } = await import('../src/interiors-2.ts');
+
+const layers = [
+  ['ferry routes (bridges)', new Set(BRIDGES.flatMap((b) => [b.from, b.to]))],
+  ['structure mappings', new Set(SEED_STRUCTURES.flatMap((s) => s.mappings.map((m) => m.slug)))],
+  // SeaSeedRelation carries anchor/reactor, NOT from/to.
+  ['ledger currents (sea)', new Set(SEA_SEED_RELATIONS.flatMap((r) => [r.anchor, r.reactor]))],
+  ['rich interiors', new Set([...Object.keys(INTERIORS), ...Object.keys(INTERIORS_2)])],
+];
+console.log('\nrelational coverage — an island in none of these is readable but inert:');
+let inertEverywhere = 0;
+for (const f of FRONTIERS) if (!layers.some(([, s]) => s.has(f.slug))) inertEverywhere++;
+for (const [name, set] of layers) {
+  const hit = FRONTIERS.filter((f) => set.has(f.slug)).length;
+  const w3 = FRONTIERS.filter((f) => isWave3(f) && set.has(f.slug)).length;
+  console.log(`  ${name.padEnd(26)} ${String(hit).padStart(3)}/${FRONTIERS.length}` +
+    `  (wave 3: ${w3}/${FRONTIERS.filter(isWave3).length})`);
+}
+const inertPct = (inertEverywhere / FRONTIERS.length * 100).toFixed(0);
+console.log(`  islands in NO relational layer: ${inertEverywhere}/${FRONTIERS.length} (${inertPct}%)`);
+if (inertEverywhere / FRONTIERS.length > 0.4) {
+  warn.push(`${inertEverywhere} islands (${inertPct}%) appear in no ferry route, structure mapping, ` +
+    `current or interior — they open to a real briefing but connect to nothing. The relational layers ` +
+    `are hand-authored and lag content waves; this is the backlog, not a data error.`);
+}
+
 // ── verdict ─────────────────────────────────────────────────────────────────
 console.log('\n' + '─'.repeat(64));
 if (warn.length) { console.log('FINDINGS (not introduced by the current change):'); warn.forEach((w) => console.log('  ⚠ ' + w)); }

@@ -49,7 +49,7 @@
   },
   "bundleBaseline": {
     "measuredAt": "wave-3 atlas expansion (176 → 371 islands)",
-    "entryJs": { "rawKb": 1024.38, "gzipKb": 354.3, "rawBudgetKib": 1024 },
+    "entryJs": { "rawKb": 1024.62, "gzipKb": 354.38, "rawBudgetKib": 1024 },
     "css": { "rawKb": 234.58, "gzipKb": 36.14, "rawBudgetKib": 244 },
     "atlasDetail": { "rawKb": 287.17, "gzipKb": 125.68, "loading": "deferred-isolated" },
     "interiorArchive": { "rawKb": 1210.0, "gzipKb": 482.99, "loading": "lazy-stale-server-fallback" },

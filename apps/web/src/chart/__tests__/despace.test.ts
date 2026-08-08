@@ -37,6 +37,12 @@ describe('spaceIslands', () => {
     expect(minPairDist(placed)).toBeGreaterThanOrEqual(capacity * 0.9);
     // …and it must still spread the densest pairs further than the raw layout.
     expect(minPairDist(placed)).toBeGreaterThan(minPairDist(DATA));
+    // A capacity-relative assertion alone can only catch a solver that fails to
+    // converge — it would happily pass a result too tight to click, because the
+    // capacity shrinks with every island added. Keep one ABSOLUTE floor as well,
+    // so growth that outruns the fixed twin's canvas fails here rather than in
+    // the visitor's hands.
+    expect(minPairDist(placed), 'absolute clickability floor on the flat twin').toBeGreaterThan(30);
   });
 
   it('is deterministic — identical input yields identical output', () => {
