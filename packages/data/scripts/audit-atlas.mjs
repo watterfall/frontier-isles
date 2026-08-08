@@ -86,6 +86,25 @@ if (corpus) {
   }
   console.log(`provenance: ${FRONTIERS.length - orphans.length}/${FRONTIERS.length} trace to a live xfrontier record ` +
     `(wave-3 orphans ${orphansW3.length}, pre-existing ${orphans.length - orphansW3.length})`);
+
+  // Islands are not the only thing pinning a corpus record id. `structures.ts`
+  // cites record ids as provenance for each isomorphism and each mapping, and
+  // some of those are NOT islands — so checking `FRONTIERS[].atlasN` alone
+  // leaves them unresolved forever.
+  const { SEED_STRUCTURES: STRUCTS } = await import('../src/structures.ts');
+  const structIds = new Set();
+  for (const s of STRUCTS) {
+    for (const p of [s.provenance, ...(s.mappings ?? []).map((m) => m.provenance)]) {
+      for (const n of p?.recordIds ?? []) structIds.add(n);
+    }
+  }
+  const structOnly = [...structIds].filter((n) => !FRONTIERS.some((f) => f.atlasN === n));
+  const structDead = [...structIds].filter((n) => !live.has(n));
+  console.log(`            + ${structIds.size} record ids cited by structures.ts ` +
+    `(${structOnly.length} of them not an island) — ${structIds.size - structDead.length} live`);
+  for (const n of structDead) {
+    warn.push(`structures.ts cites XF-${String(n).padStart(6, '0')}, which is not in the current corpus`);
+  }
 } else {
   skipped.push(`provenance (no corpus at ${corpusDir} — pass XFRONTIER_AUDIT_DIR or an argv path)`);
   console.log('provenance: SKIPPED (no corpus at ' + corpusDir + ')');
