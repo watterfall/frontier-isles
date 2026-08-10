@@ -14,7 +14,8 @@ vi.mock('@frontier-isles/data/structures', () => ({
   }],
 }));
 
-import { fallbackStructureGraph, opIdFor } from './structureFallback';
+import { fallbackStructureGraph } from './structureFallback';
+import { opIdFor } from './opId';
 
 describe('fallbackStructureGraph', () => {
   it('preserves mapping-level evidence references in the offline projection', () => {

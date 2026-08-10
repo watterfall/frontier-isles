@@ -43,6 +43,22 @@ const CSS_MAX_BYTES = 244 * 1024;
  */
 const ISOLATED_MODULES = [/\/packages\/data\/src\/atlas-detail\.ts$/];
 
+/**
+ * Workspace modules that may live in any chunk EXCEPT the eager entry.
+ *
+ * The seed structure catalogue is ~261KiB across three source modules and is
+ * needed only once a reader opens the structure lens. It reached the entry
+ * anyway, twice over: two eager screens imported `api/structureFallback` for
+ * its fallback data, and `chart/connectionField.ts` imported a two-line
+ * `slugOfOp` helper that used to live in the same module.
+ *
+ * The size check alone did not catch it in time — the wave-3 mappings pushed
+ * the entry 85KiB past budget and both `pnpm -r test` and `pnpm typecheck`
+ * stayed green, because neither runs a build. This names the module so the
+ * failure says WHAT leaked rather than only that the total grew.
+ */
+const ENTRY_FORBIDDEN_MODULES = [/\/packages\/data\/src\/structures(-expansion-wave\d+)?\.ts$/];
+
 /** Fails the build on a denylisted package in the entry chunk, on an isolated
  *  module folded into somebody else's chunk, or when the measured entry/CSS
  *  budgets regress beyond the dated baseline in docs/release-manifest.json. */
@@ -80,6 +96,19 @@ function guardEntryChunk(): Plugin {
         }
 
         if (!out.isEntry) continue;
+
+        const forbidden = Object.entries(out.modules)
+          .filter(([id]) => ENTRY_FORBIDDEN_MODULES.some((re) => re.test(id)))
+          .map(([id, mod]) => `${id.split('/').pop()} (~${(mod.renderedLength / 1024).toFixed(0)}KiB)`);
+        if (forbidden.length > 0) {
+          this.error(
+            `entry chunk ${file} eagerly includes ${forbidden.join(', ')}. These must be reached ` +
+              `through a dynamic import() — most often the cause is a static import of ` +
+              `'api/structureFallback' from a screen on the eager path, or a small helper imported ` +
+              `from a module that also pulls the seed catalogue (see api/opId.ts).`,
+          );
+        }
+
         const entryBytes = Buffer.byteLength(out.code);
         if (entryBytes > ENTRY_JS_MAX_BYTES) {
           this.error(

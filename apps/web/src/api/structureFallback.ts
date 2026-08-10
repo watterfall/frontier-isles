@@ -11,14 +11,27 @@
  * shen-kuo, `seedStructures`). If the two ever disagree, the seed changed and
  * this file's test will catch the drift.
  */
+/**
+ * LOAD THIS THROUGH `import()`, never a static import from an eager module.
+ *
+ * `SEED_STRUCTURES` composes three source modules totalling ~261KiB — larger
+ * than any other single thing this app can put in front of a first paint, and
+ * needed only once a reader actually asks for the structure lens. The build
+ * guard enforces the boundary (`guardEntryChunk`, ENTRY_FORBIDDEN in
+ * vite.config.ts) because documenting it was not enough: the wave-3 mappings
+ * pushed the entry chunk 85KiB past its budget through the static imports that
+ * used to be here, and `pnpm -r test` and `pnpm typecheck` both stayed green.
+ */
 import { structureFrontier, type StructureEdge } from '@frontier-isles/core';
 import { SEED_STRUCTURES } from '@frontier-isles/data/structures';
 import { DATA } from './fallback';
+import { opIdFor } from './opId';
 import type { ApiStructure, ApiStructureGraph } from './client';
 
-/** Mirrors the server's `opIdFor` (store.ts): `op://frontier-isles/prob/<slug>`. */
-export const opIdFor = (slug: string): string => `op://frontier-isles/prob/${slug}`;
-export const slugOfOp = (op: string): string => op.split('/').at(-1) ?? op;
+// Deliberately NOT re-exporting `opIdFor` / `slugOfOp`. Re-exporting them would
+// leave the exact door open that caused the regression: a cheap helper imported
+// from here by an eager module anchors 261KiB of seed data in the entry chunk.
+// Import them from `./opId` instead.
 
 /** The seed curator — the server materialises each mapping as ONE rebuild
  * event by this actor, so fallback edges carry the same weight/actors. */

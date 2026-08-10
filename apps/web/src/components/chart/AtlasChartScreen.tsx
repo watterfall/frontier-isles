@@ -32,7 +32,8 @@ import { IslandCard } from './IslandCard';
 import { computeCardContent, cardBoxPos } from './cardContent';
 import { hasWebGL } from '../../chart/webgl';
 import { api, type ApiSeaData, type ApiStructure, type ApiStructureGraph } from '../../api/client';
-import { fallbackStructures, fallbackStructureGraph } from '../../api/structureFallback';
+// `structureFallback` is loaded through import() below, not statically: it pulls
+// ~261KiB of seed structure/mapping data, and this screen is on the eager path.
 import { fixtureSeaData } from '../../api/seaFallback';
 import type { IslandDatum } from '../../api/fallback';
 import type { AtlasControls, AtlasMetrics } from '../../chart/atlasControls';
@@ -174,6 +175,8 @@ function AtlasChartScreenImpl(props: AtlasChartScreenProps) {
           pendingConnectionPath.current = null;
         }
       } else {
+        const { fallbackStructures, fallbackStructureGraph } = await import('../../api/structureFallback');
+        if (!alive) return;
         setStructures(fallbackStructures());
         setStructureGraph(fallbackStructureGraph());
         setSeaData(fixtureSeaData());

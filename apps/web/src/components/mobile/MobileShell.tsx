@@ -4,7 +4,8 @@ import { SEA_SEED_RELATIONS } from '@frontier-isles/data/sea';
 import { api } from '../../api/client';
 import type { IslandDatum } from '../../api/fallback';
 import { fixtureSeaData } from '../../api/seaFallback';
-import { fallbackStructureGraph, fallbackStructures } from '../../api/structureFallback';
+// `structureFallback` is loaded through import() below, not statically: it pulls
+// ~261KiB of seed structure/mapping data, and this shell is on the eager path.
 import {
   buildConnectionField,
   DISCOVERY_THEME_IDS,
@@ -163,9 +164,14 @@ export function MobileShell({ islands, initialIslandSlug = null, modelRuns = [],
     void (async () => {
       const [structures, graph, sea] = await Promise.all([api.structures(), api.structureGraph(), api.currents()]);
       if (!alive) return;
+      // Fetched only when the server did not answer — the offline path costs a
+      // chunk load, the online path costs nothing, and neither blocks the shell.
+      const needSeed = !structures?.structures || !(graph && Array.isArray(graph.mappings));
+      const seed = needSeed ? await import('../../api/structureFallback') : null;
+      if (!alive) return;
       setConnectionField(buildConnectionField(
-        structures?.structures ?? fallbackStructures(),
-        graph && Array.isArray(graph.mappings) ? graph : fallbackStructureGraph(),
+        structures?.structures ?? seed!.fallbackStructures(),
+        graph && Array.isArray(graph.mappings) ? graph : seed!.fallbackStructureGraph(),
         sea ?? fixtureSeaData(),
         islands,
       ));
