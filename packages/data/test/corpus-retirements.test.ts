@@ -24,9 +24,19 @@ import {
  *
  * #60 perennial-grain-crops cites XF-001449, retired `too_mature_or_applied`:
  * the work moved into deployment, which is not the same as the question being
- * answered. Which way that island goes — retired, kept with the reason shown,
- * or flagged resolved — is an editorial call that has not been made, so this
- * gate holds the line at "exactly this one, and no new ones".
+ * answered.
+ *
+ * Of the three dispositions, one is settled and two are not. `resolved` is
+ * ruled OUT on evidence: the island's own interior text records that
+ * perennial-grain yields commonly fall by year three and that no yield
+ * improvement yet supports parity with annual wheat, so marking the question
+ * answered would contradict content this repository already publishes. What
+ * 2026-08-10 added is disclosure — the L1 screen now states the retirement and
+ * its reason (`apps/web/.../GeneratedIslandScreen.tsx`,
+ * `__tests__/retirementNotice.test.ts`), because until then the fact lived only
+ * in this test and the audit script. Whether the island is ultimately kept or
+ * retired stays open, and stays with a human; showing the reason does not
+ * decide it either way.
  *
  * When that call IS made, edit this set. A shrinking set is progress; a growing
  * one means a new island was authored on a record the corpus had already

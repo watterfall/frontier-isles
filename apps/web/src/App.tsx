@@ -795,6 +795,7 @@ export default function App() {
                     onActiveFloor={setTrailFloor}
                     clusterSiblings={clusterSiblings}
                     onVoyageToIsland={voyageToSlug}
+                    atlasN={chartIslands.find((d) => islandSlugOf(d) === selSlug)?.atlasN}
                     onReady={signalIslandReady}
                   />
                 </Suspense>

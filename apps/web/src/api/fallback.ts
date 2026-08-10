@@ -54,6 +54,9 @@ export interface IslandDatum {
   brief?: Bilingual;
   /** Cluster provenance from xfrontier atlas. */
   cluster?: { code: string; zh: string; en: string };
+  /** The xfrontier record this island cites. Carried so a reader can be told
+   *  when that record has been retired upstream (see corpus-retirements.ts). */
+  atlasN?: number;
   /** Citation provenance (real DOI/URL). */
   citation?: { url: string; title: string; venue: string; year: number };
 }
@@ -88,6 +91,7 @@ export const DATA: IslandDatum[] = [
     // ./atlasDetail.ts). Every reader of the two guards on their presence, so
     // the pre-merge frame is a correct map with shorter cards.
     cluster: f.cluster,
+    atlasN: f.atlasN,
   })),
   // The bespoke sample island (full L1 scene + rich ledger) — not in FRONTIERS.
   // id sits OUTSIDE the frontier range: the 26→78 atlas expansion re-used 27,

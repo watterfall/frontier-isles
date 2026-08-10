@@ -256,6 +256,14 @@ export const zh = {
       subQuestions: '开放子问题',
       literature: '参考文献',
     },
+    retired: {
+      label: '上游语料已退役此来源记录',
+      // The crux, and the reason this is shown rather than acted on: the
+      // upstream reason speaks about the ATLAS's inclusion scope, not about the
+      // question. Both can hold at once — the programme really is deployed, and
+      // it really has not reached parity — and the tension is the information.
+      scope: '这是上游图谱的收录范围在说话（它不收已落地的方向），不等于问题已被回答。本岛状态未改。',
+    },
     cluster: {
       title: '同簇',
       // `n`, not `count`: i18next reserves `count` for plural resolution and

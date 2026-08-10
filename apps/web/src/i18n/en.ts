@@ -257,6 +257,14 @@ export const en: Resources = {
       subQuestions: 'Open sub-questions',
       literature: 'References',
     },
+    retired: {
+      label: 'The upstream corpus retired this source record',
+      // The crux, and the reason this is shown rather than acted on: the
+      // upstream reason speaks about the ATLAS's inclusion scope, not about the
+      // question. Both can hold at once — the programme really is deployed, and
+      // it really has not reached parity — and the tension is the information.
+      scope: 'That is the upstream atlas’s inclusion scope speaking — it does not collect deployed programmes — not a finding that the question has been answered. This island’s status is unchanged.',
+    },
     cluster: {
       title: 'Same cluster',
       // `n`, not `count`: i18next reserves `count` for plural resolution and

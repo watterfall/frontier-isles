@@ -21,6 +21,9 @@ import type { IslandInterior } from '@frontier-isles/data/frontiers';
 import type { IslandReference } from '@frontier-isles/data/literature';
 import { api, type ApiStructure } from '../../api/client';
 import type { Bilingual } from '../../api/fallback';
+// 18 entries, ~6KB, and this screen is lazy — the notice below is the only
+// place a reader can learn that a cited source was withdrawn upstream.
+import { retirementFor } from '@frontier-isles/data/corpus-retirements';
 import { fallbackStructures } from '../../api/structureFallback';
 import { buildingVisitKey, type IslandDistrictId } from '../../state/explorationSession';
 import { projectRecordFreshness, type RecordFreshness } from '../../models/recordFreshness';
@@ -143,6 +146,9 @@ export interface GeneratedIslandScreenProps {
   clusterSiblings?: ReadonlyArray<{ slug: string; name: Bilingual }>;
   /** Opens a sibling as a normal voyage — the same path ‹ › stepping takes. */
   onVoyageToIsland?: (slug: string) => void;
+  /** The xfrontier record this island cites, so the screen can tell the reader
+   *  when that record has been retired upstream. */
+  atlasN?: number;
   /** Signals that the destination scene can safely replace the atlas snapshot. */
   onReady?: () => void;
 }
@@ -173,6 +179,7 @@ export function GeneratedIslandScreen({
   onActiveFloor,
   clusterSiblings,
   onVoyageToIsland,
+  atlasN,
   onReady,
 }: GeneratedIslandScreenProps) {
   const { t, i18n } = useTranslation();
@@ -476,6 +483,7 @@ export function GeneratedIslandScreen({
   const brief = detail.atlas?.brief[lang] ?? '';
   const citation = detail.atlas?.citation;
   const cluster = detail.atlas?.cluster[lang];
+  const retirement = atlasN != null ? retirementFor(atlasN) : undefined;
   const depth = detail.atlas?.depth;
   // Server first, offline projection second — same precedence the interior uses.
   const literature = detail.atlas?.literature?.length ? detail.atlas.literature : localLiterature;
@@ -693,6 +701,33 @@ export function GeneratedIslandScreen({
                     ? t('island.researchPassage.evidenceAdjudicated', { validates: ledgerStats.validates, refutes: ledgerStats.refutes })
                     : t('island.researchPassage.evidenceBoundary')}</span>
                 </div>
+                {/* The cited record was retired upstream.
+                  *
+                  * This is DISCLOSURE, not a status change: the island keeps
+                  * its status, and nothing here sets `resolved` or dissolves it.
+                  * Until this existed the repository knew a cited source had
+                  * been withdrawn — the audit prints it, a test pins it — and
+                  * told no one who opens the island, which is silent retention
+                  * dressed as a decision.
+                  *
+                  * The note is quoted, untranslated, like every other upstream
+                  * citation on this screen. The scope sentence is the part that
+                  * has to be here: `too_mature_or_applied` is the upstream
+                  * atlas declining to collect deployed programmes, and reading
+                  * it as "answered" contradicts this island's own text, which
+                  * records that perennial-grain yields commonly fall by year
+                  * three and that no yield improvement yet supports parity with
+                  * annual wheat. */}
+                {retirement && (
+                  <p className="fi-island-retired" style={{ margin: '6px 0 0', fontSize: 12, lineHeight: 1.5, opacity: 0.9 }}>
+                    <b>⚠ {t('island.retired.label')}</b>
+                    {' · '}<code>{retirement.reason}</code>
+                    <br />
+                    <span style={{ opacity: 0.85 }}>{retirement.note}</span>
+                    <br />
+                    <i style={{ opacity: 0.8 }}>{t('island.retired.scope')}</i>
+                  </p>
+                )}
               </section>
               {nextDistrict && (
                 <section data-beat="next">
