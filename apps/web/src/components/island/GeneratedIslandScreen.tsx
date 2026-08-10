@@ -868,15 +868,21 @@ export function GeneratedIslandScreen({
               * island's own depth. That is what makes it checkable in seconds
               * rather than a paragraph to be taken on trust.
               *
-              * `open` by default, unlike the two disclosures above: a queue item
-              * nobody opens is the same as no queue, and this one is asking for
-              * a decision rather than offering background. */}
+              * A collapsed `details`, matching the two disclosures above.
+              * The first draft was always open, on the reasoning that a queue
+              * nobody opens is no queue — which optimises for the reviewer,
+              * while this card's usual reader is someone exploring the atlas.
+              * Rendered, it was the largest thing on the island: a wall of text
+              * beside two one-line summaries, a third layout language on a
+              * screen that had two. The DOM assertions could not see that; the
+              * screenshot could. Discoverability is carried by the summary
+              * naming the pending count, and by the audit's own line. */}
             {proposals.length > 0 && (
-              <section className="fi-island-proposal" aria-label={t('island.proposal.title')}
-                style={{ marginTop: 8, maxWidth: 540, fontSize: 12.5, lineHeight: 1.55 }}>
-                <p style={{ margin: '0 0 4px', letterSpacing: '.04em', opacity: 0.9 }}>
-                  <b>◇ {t('island.proposal.title')}</b>
-                </p>
+              <details className="fi-island-proposal" style={{ marginTop: 6, maxWidth: 540 }}>
+                <summary style={{ cursor: 'pointer', fontSize: 12, letterSpacing: '.04em', opacity: 0.82 }}>
+                  ◇ {t('island.proposal.title')} · {t('island.proposal.count', { n: proposals.length })}
+                </summary>
+                <div style={{ marginTop: 6, fontSize: 12.5, lineHeight: 1.55 }}>
                 {proposals.map((proposal) => (
                   <div key={`${proposal.structureId}`} data-testid="structure-proposal"
                     style={{ display: 'grid', gap: 3, padding: '6px 0', borderTop: '1px dashed rgba(138,106,30,0.35)' }}>
@@ -901,7 +907,8 @@ export function GeneratedIslandScreen({
                   </div>
                 ))}
                 <p style={{ margin: '5px 0 0', opacity: 0.72, fontSize: 11.5 }}>{t('island.proposal.note')}</p>
-              </section>
+                </div>
+              </details>
             )}
           </section>
         </div>

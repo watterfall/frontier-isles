@@ -108,6 +108,10 @@ describe('structure proposal — shown on the island, marked unratified', () => 
     const html = await renderScreen(SUBJECT.slug);
     expect(html).toContain('fi-island-proposal');
     expect(html).toContain('structure-proposal');
+    // The summary is what a reader sees before opening — this block is a
+    // collapsed disclosure like its two siblings, so presence in the DOM no
+    // longer implies visibility, and the count is the whole of what is visible.
+    expect(html).toContain(zh.island.proposal.count.replace('{{n}}', '1'));
     // The check sentence is the only authored prose, and the part that tells a
     // reviewer what to do. An edit that shortens it away should fail here.
     expect(html).toContain(SUBJECT.check.zh);

@@ -278,6 +278,8 @@ export const zh = {
       // 「待批」而不是「关联」：这是一条排队等人判定的候选，不是已成立的关系。
       // 岛页上任何让它读起来像已确认的措辞，都会把队列偷换成覆盖率。
       title: '结构提议 · 待人工批准',
+      // `n`, not `count` — i18next reserves `count` for plural resolution.
+      count: '{{n}} 条待批',
       unratified: '尚未批准',
       // 量与证据都是指针解析出来的原文，不是这里写的。
       quantity: '该结构要求的量',

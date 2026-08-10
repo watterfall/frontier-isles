@@ -280,6 +280,8 @@ export const en: Resources = {
       // established relation. Any wording that reads as confirmed turns a queue
       // into coverage, which is the substitution this whole layer avoids.
       title: 'Structure proposal · awaiting human ratification',
+      // `n`, not `count` — i18next reserves `count` for plural resolution.
+      count: '{{n}} pending',
       unratified: 'not ratified',
       // Both the quantity and the evidence are resolved from pointers into
       // already-authored text; neither is written here.
