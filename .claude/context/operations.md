@@ -90,6 +90,19 @@ was reported over a fraction of the tree. Printing `scanned: N test files` and
 checking N against an independent count (`find`, or the runners' own totals)
 made it visible immediately: 124, matching.
 
+**A mutation says something only about assertions that actually ran.** An
+earlier assertion throwing, a skipped case, or a timeout all make "the later
+assertion did not error" look like "the later assertion passed" — the same
+non-result-read-as-result, hiding inside one test's assertion order. Across the
+suite the equivalent is `.only`: one committed marker shrinks the run to a
+single case and still reports green, which would quietly invalidate every
+"nothing turned red, so this is uncovered" conclusion. `pnpm test:scripts` gates
+that (`scripts/suite-integrity.test.mjs`), reports skipped/pending counts
+without gating them, and asserts its own file-count so a truncated walk cannot
+report a clean tree. Read a NOT CAUGHT only after checking the harness's scope:
+two mutations against that gate reported NOT CAUGHT because the harness was
+still pinned to one file in `scripts/`, which reads exactly like a broken gate.
+
 **Matcher behaviour on a missing subject is runner-specific and must be run, not
 assumed.** `expect(undefined).not.toHaveProperty('x')` is a known hazard in some
 runners — it passes, so indexing into an empty array reads as "the field is
