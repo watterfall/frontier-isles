@@ -20,6 +20,7 @@ import { atlasDetailOf } from '../../api/atlasDetail';
 import type { IslandInterior } from '@frontier-isles/data/frontiers';
 import type { IslandReference } from '@frontier-isles/data/literature';
 import { api, type ApiStructure } from '../../api/client';
+import type { Bilingual } from '../../api/fallback';
 import { fallbackStructures } from '../../api/structureFallback';
 import { buildingVisitKey, type IslandDistrictId } from '../../state/explorationSession';
 import { projectRecordFreshness, type RecordFreshness } from '../../models/recordFreshness';
@@ -131,6 +132,17 @@ export interface GeneratedIslandScreenProps {
   onVisitBuildingFloor?: (station: StationKind, floorId: string) => void;
   onActiveDistrict?: (district: WorldTrailDistrict | null) => void;
   onActiveFloor?: (floor: WorldTrailFloor | null) => void;
+  /**
+   * The other islands the upstream corpus files in this island's cluster.
+   *
+   * Supplied by the caller rather than derived here: App already holds the
+   * roster (`chartIslands`), and a second read of the island source inside L1
+   * would be a second truth for the same fact. `undefined` for the sample
+   * island, which carries no cluster provenance.
+   */
+  clusterSiblings?: ReadonlyArray<{ slug: string; name: Bilingual }>;
+  /** Opens a sibling as a normal voyage — the same path ‹ › stepping takes. */
+  onVoyageToIsland?: (slug: string) => void;
   /** Signals that the destination scene can safely replace the atlas snapshot. */
   onReady?: () => void;
 }
@@ -159,6 +171,8 @@ export function GeneratedIslandScreen({
   onVisitBuildingFloor,
   onActiveDistrict,
   onActiveFloor,
+  clusterSiblings,
+  onVoyageToIsland,
   onReady,
 }: GeneratedIslandScreenProps) {
   const { t, i18n } = useTranslation();
@@ -723,6 +737,57 @@ export function GeneratedIslandScreen({
                       </ul>
                     </>
                   )}
+                </div>
+              </details>
+            )}
+            {/* Same-cluster islands.
+              *
+              * Every island carries an upstream cluster code, so this reaches
+              * all of them — including the ones in no authored relational layer,
+              * which otherwise open to a complete briefing and connect to
+              * nothing. It is projection, not authorship: the corpus filed these
+              * together and this only makes that filing navigable.
+              *
+              * It deliberately does NOT count toward the audit's relational
+              * coverage. That metric measures AUTHORED relations (ferry routes,
+              * structure mappings, ledger currents, interiors), and folding a
+              * derived one into the numerator would make the backlog read as
+              * closed while nothing was authored.
+              *
+              * The copy says "filed together", never "related": this atlas
+              * measured that inferring a structural correspondence from shared
+              * cluster membership fails about nine times in ten (378 of 419
+              * candidates rejected on reading the substrate), so calling these
+              * related would contradict our own recorded evidence.
+              */}
+            {clusterSiblings && clusterSiblings.length > 0 && (
+              <details className="fi-island-cluster" style={{ marginTop: 6, maxWidth: 540 }}>
+                <summary style={{ cursor: 'pointer', fontSize: 12, letterSpacing: '.04em', opacity: 0.82 }}>
+                  {t('island.cluster.title')} · {t('island.cluster.count', { n: clusterSiblings.length })}
+                </summary>
+                <div style={{ marginTop: 6, fontSize: 12.5, lineHeight: 1.55, display: 'grid', gap: 5 }}>
+                  <p style={{ margin: 0, opacity: 0.78 }}>{t('island.cluster.note')}</p>
+                  <ul style={{ margin: 0, paddingLeft: 18, maxHeight: 172, overflowY: 'auto', display: 'grid', gap: 2 }}>
+                    {clusterSiblings.map((sibling) => (
+                      <li key={sibling.slug}>
+                        {/* A button, not a link: this starts an in-app voyage
+                          * through the same path ‹ › stepping uses, so the world
+                          * transition and the shareable hash both stay correct. */}
+                        <button
+                          type="button"
+                          data-testid="cluster-sibling"
+                          onClick={() => onVoyageToIsland?.(sibling.slug)}
+                          style={{
+                            background: 'none', border: 'none', padding: '3px 0',
+                            font: 'inherit', color: 'var(--gold2,#8A6A1E)',
+                            cursor: 'pointer', textAlign: 'left',
+                          }}
+                        >
+                          {sibling.name[lang]}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </details>
             )}

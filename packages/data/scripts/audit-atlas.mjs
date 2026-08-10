@@ -353,6 +353,13 @@ for (const [name, set] of layers) {
 }
 const inertPct = (inertEverywhere / FRONTIERS.length * 100).toFixed(0);
 console.log(`  islands in NO relational layer: ${inertEverywhere}/${FRONTIERS.length} (${inertPct}%)`);
+// The L1 screen also offers a same-cluster list, which reaches every island.
+// It is NOT in the four layers above and must not be: those count AUTHORED
+// relations, and a derived one in the numerator would read as backlog closed
+// while nothing was authored. Stated here so the two facts are not confused —
+// the reader's dead end is smaller than it was; the backlog is unchanged.
+console.log(`  (every island additionally lists its ${FRONTIERS.length / 53 - 1} same-cluster islands on L1 — ` +
+  `a projection of the corpus filing, deliberately excluded from the four counts above)`);
 if (inertEverywhere / FRONTIERS.length > 0.4) {
   warn.push(`${inertEverywhere} islands (${inertPct}%) appear in no ferry route, structure mapping, ` +
     `current or interior — they open to a real briefing but connect to nothing. The relational layers ` +

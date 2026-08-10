@@ -256,6 +256,16 @@ export const zh = {
       subQuestions: '开放子问题',
       literature: '参考文献',
     },
+    cluster: {
+      title: '同簇',
+      // `n`, not `count`: i18next reserves `count` for plural resolution and
+      // would look for `_one` / `_other` variants that do not exist here.
+      count: '另有 {{n}} 座',
+      // Deliberately not "相关问题". Shared cluster membership is the corpus's
+      // own filing, and this atlas measured what it does NOT support: inferring
+      // a structural correspondence from it fails about nine times in ten.
+      note: '语料把它们归在一处——这是归类，不是已验证的关联。',
+    },
     district: {
       title: '岛内图',
       fold: '收',

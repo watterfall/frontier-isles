@@ -257,6 +257,16 @@ export const en: Resources = {
       subQuestions: 'Open sub-questions',
       literature: 'References',
     },
+    cluster: {
+      title: 'Same cluster',
+      // `n`, not `count`: i18next reserves `count` for plural resolution and
+      // would look for `_one` / `_other` variants that do not exist here.
+      count: '{{n}} more',
+      // Deliberately not "related problems". Shared cluster membership is the
+      // corpus's own filing, and this atlas measured what it does NOT support:
+      // inferring a structural correspondence from it fails about nine in ten.
+      note: 'The corpus files them together — a filing, not a verified link.',
+    },
     district: {
       title: 'Island map',
       fold: 'Fold',
