@@ -13,7 +13,14 @@ This is **stage 1** of that contract: the file exists, the field rules are enfor
 - **`by` is who made the observation; `filed_by` is who wrote the entry.** They differ whenever something is relayed, which is the permanent state for any provider this project will never mount — the same findings previously reached their subject by hand and landed in another project's ledger attributed to `frontier-isles` without `frontier-isles` having written a single one. A provenance field with no write path behind it silently lies.
 - **The summary counts; it does not assert.** It reports `self` / `relayed` / `unrecorded` from what each entry records. The earlier version printed a ratio "written by the actor named in `by`" that was computed by matching one hardcoded actor string, stating something no field in the file could carry. When a derived statistic and its label disagree, the label is the part that gets believed.
 - **`signature: null` means unsigned and says so.** A missing `signature` key is a contract violation, not a shorthand. Until stage 4 every entry is unsigned, so `by` is a claim, not proof.
-- **Disagreement is preserved, not merged.** A superseded observation is corrected by appending a new entry on the same `about`; the old line is never edited. The gate enforces this against `HEAD` — every committed line must still be present, byte-identical, in order.
+- **Disagreement is preserved, not merged.** A superseded observation is corrected by appending a new entry on the same `about`; the old line is never edited.
+
+  What the gate actually establishes, in two halves, because the first half alone reads stronger than it is:
+
+  - **Holds.** No commit in this file's history rewrote or removed an entry a previous commit contained — the gate walks every committed version and requires each to be a line-wise prefix extension of the one before. It also catches an edit still sitting in the working tree, which fails earlier and reads better.
+  - **Does not hold.** A rewritten history defeats it. The gate reads the history it is given, so a rebase or force-push that drops a record before the gate runs leaves nothing to find. Append-only here defends against ordinary mistakes and against a later version of whoever maintains it — not against someone rewriting the past. That needs signatures (stage 4) or an externally anchored log, and this is neither.
+
+  The working-tree comparison used to be the whole check, and it was weaker than this bullet claimed: commit the edit and `HEAD` moves with it, so the same comparison reports clean. Verified, not assumed — a rewritten entry, committed, passed with `append-only: ok` and exit 0.
 - **A `population` stores a recomputable selector**, never a frozen id list. A frozen list keeps asserting itself after the population has moved.
 
 ## What does not go in here

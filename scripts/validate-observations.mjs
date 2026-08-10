@@ -123,11 +123,15 @@ for (const { n, e } of entries) {
   else seen.set(e.id, n);
 }
 
-// ── append-only ─────────────────────────────────────────────────────────────
-// The ledger's core property, enforced rather than trusted. Every previously
-// committed line must still be present, byte-identical, in the same order.
-// Editing a past entry is how a record of "what someone once saw" quietly turns
-// into a record of "what we currently believe".
+// ── append-only, part 1: the working tree against HEAD ──────────────────────
+// Catches the mistake BEFORE it is committed, which is the common case and the
+// one where a precise message helps most.
+//
+// On its own this is WEAKER than the property it appears to check: commit the
+// edit and HEAD moves with it, so the same comparison reports clean. That was
+// not hypothetical here — a rewritten entry, committed, passed this gate with
+// `append-only: ok` and exit 0. Part 2 below is what actually checks the
+// property; this part stays because it fails earlier and reads better.
 let appendOnly = 'not checked (no committed version yet)';
 if (committedLines.length) {
   const now = lines.filter((l) => l.trim());
@@ -143,6 +147,61 @@ if (committedLines.length) {
   } else {
     appendOnly = `ok (${committedLines.length} committed, ${now.length - committedLines.length} appended)`;
   }
+}
+
+// ── append-only, part 2: every committed version, against the one before it ──
+//
+// Walks the file's own commit history and requires each version to be a
+// line-wise PREFIX EXTENSION of its predecessor. Appending passes; editing or
+// deleting a line that a previous commit contained does not.
+//
+// A `git log --diff-filter=MDR` check — the natural fix when a ledger stores
+// one file per record, where appends are Additions and edits are Modifications
+// — cannot be used here: this ledger is a single append-only JSONL, so a
+// perfectly legal append is also an `M`. The storage shape decides the check;
+// copying the other shape's rule would reject every append.
+//
+// Residual limit, stated rather than papered over: this reads the history it is
+// given. A rebase or force-push that removes a record before the gate runs
+// leaves nothing to find. Append-only here defends against ordinary mistakes
+// and against a later version of myself — not against someone rewriting the
+// past. That would need signatures (stage 4) or an externally anchored log.
+let history = 'not checked (no commits touch this file yet)';
+try {
+  const shas = execFileSync('git', ['log', '--format=%H', '--', FILE], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })
+    .split('\n').filter(Boolean).reverse(); // oldest first
+  const drift = [];
+  let prev = null;
+  let prevSha = null;
+  let compared = 0;
+  for (const sha of shas) {
+    let text;
+    try {
+      text = execFileSync('git', ['show', `${sha}:${FILE}`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+    } catch {
+      continue; // path absent at this commit (e.g. before a rename) — see limit below
+    }
+    const cur = text.split('\n').filter((l) => l.trim());
+    if (prev) {
+      compared++;
+      prev.forEach((line, i) => {
+        if (cur[i] === undefined) drift.push(`${sha.slice(0, 8)} removed entry ${i + 1}, present in ${prevSha.slice(0, 8)}`);
+        else if (cur[i] !== line) drift.push(`${sha.slice(0, 8)} rewrote entry ${i + 1}, changed since ${prevSha.slice(0, 8)}`);
+      });
+    }
+    prev = cur;
+    prevSha = sha;
+  }
+  if (drift.length) {
+    fail.push(`${FILE} — append-only violated IN HISTORY: ${drift.slice(0, 5).join('; ')}. ` +
+      `A committed rewrite is still a rewrite; correct a superseded observation by appending on the same \`about\`.`);
+    history = 'VIOLATED';
+  } else {
+    history = `ok (${shas.length} commit(s) touched it, ${compared} version pair(s) compared)`;
+  }
+} catch {
+  /* not a git repository — the check cannot run; reported as such below */
+  history = 'NOT CHECKED (not a git repository)';
 }
 
 // ── report ──────────────────────────────────────────────────────────────────
@@ -172,7 +231,7 @@ for (const { e } of entries) {
 }
 
 console.log(`observations: ${entries.length} · subjects: ${[...bySubject].map(([k, v]) => `${k} ${v}`).join(', ')}`);
-console.log(`append-only: ${appendOnly}`);
+console.log(`append-only: working tree ${appendOnly} · history ${history}`);
 console.log(`filed by: ${filer.self} self · ${filer.relayed} relayed · ${filer.unrecorded} unrecorded ` +
   `(entries predating the field — append-only, so they cannot be backfilled; the gate requires it on anything appended since)`);
 console.log(`signatures: ${unsigned}/${entries.length} explicitly unsigned (signing is stage 4)`);

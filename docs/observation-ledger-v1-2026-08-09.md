@@ -150,7 +150,11 @@ Bulk reads must be **bounded**. Unbounded pairwise export upstream returned 759 
 ## 8 · Stages
 
 **Stage 1 — validation, no protocol change. DONE (2026-08-09).**
-`ledger/observations.jsonl` holds the findings this repo has already produced — 4 about the xfrontier corpus, 3 about this repo's own data — in the `events.jsonl`-isomorphic shape §4 specifies. `scripts/validate-observations.mjs` enforces the field contract, uniqueness, and append-only against `HEAD`, and runs inside `pnpm typecheck`. Nothing is exposed to peers yet, and the server's gateway is untouched.
+`ledger/observations.jsonl` holds the findings this repo has already produced — 4 about the xfrontier corpus, 3 about this repo's own data — in the `events.jsonl`-isomorphic shape §4 specifies. `scripts/validate-observations.mjs` enforces the field contract, uniqueness, and append-only, and runs inside `pnpm typecheck`. Nothing is exposed to peers yet, and the server's gateway is untouched.
+
+Append-only is checked in two places for one reason: the first version compared the working tree against `HEAD`, which only ever catches an *uncommitted* edit — commit it and `HEAD` moves with it, so the same comparison reports clean. A rewritten entry, committed, passed that gate with `append-only: ok` and exit 0. The property now lives in a walk over the file's own commit history, requiring each version to be a line-wise prefix extension of its predecessor; the working-tree comparison stays because it fails earlier and reads better. The residual limit is stated in `ledger/README.md` rather than left implied: this reads the history it is given, so a rewritten history defeats it, which is a job for signatures (stage 4) or an external anchor.
+
+A `--diff-filter=MDR` history check does not transfer here, though it is the natural fix for a ledger that stores one file per record: with a single append-only JSONL a legal append is also a modification, so that rule would reject every append. The storage shape decides the check.
 
 *Acceptance — partly met, and the shortfall is recorded rather than reworded.*
 This paragraph originally cited the gate line `7/7 written by the actor named in
