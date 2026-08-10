@@ -123,6 +123,78 @@ for (const { n, e } of entries) {
   else seen.set(e.id, n);
 }
 
+/**
+ * Enforcement. Positional on purpose: only a positional comparison catches an
+ * entry inserted in the middle or the file reordered, cases where the set of
+ * ids is unchanged and any id-keyed comparison reports clean.
+ */
+const isPrefixExtension = (prev, cur) => prev.every((line, i) => cur[i] === line);
+
+/**
+ * Explanation — a DIFFERENT quantity from the one enforcement uses.
+ *
+ * Positional drift describes a deletion as a run of rewrites: removing entry 5
+ * shifts 6, 7, 8 up, so the honest positional report reads "5, 6, 7 rewritten,
+ * 8 removed" for what a reader thinks of as one deletion. The description is
+ * accurate and still misleads, because the reader's mental model is keyed on
+ * records and the checker's is keyed on line positions.
+ *
+ * So enforcement stays positional and reporting re-derives from the id set:
+ * present-then-absent is a removal, present-in-both-but-changed is a rewrite,
+ * absent-then-present is an append and is legal. Line position becomes an
+ * implementation detail nobody has to hold in their head.
+ *
+ * Where the two disagree, that disagreement is itself the finding: a positional
+ * failure with no id-level difference means the ORDER changed, which the id view
+ * cannot see and must not silently swallow. And the id view needs ids to exist
+ * and be unique, so a line that will not parse drops the whole explanation back
+ * to positional — announced, never quietly.
+ */
+function explainDrift(prev, cur) {
+  const index = (rows) => {
+    const map = new Map();
+    for (const row of rows) {
+      let id;
+      try {
+        id = JSON.parse(row).id;
+      } catch {
+        return null; // unparseable line — no id view is possible
+      }
+      if (id === undefined || map.has(id)) return null; // missing or duplicate id
+      map.set(id, row);
+    }
+    return map;
+  };
+  const before = index(prev);
+  const after = index(cur);
+  if (!before || !after) {
+    const positional = [];
+    prev.forEach((line, i) => {
+      if (cur[i] === undefined) positional.push(`line ${i + 1} removed`);
+      else if (cur[i] !== line) positional.push(`line ${i + 1} modified`);
+    });
+    return { notes: positional, fellBack: true };
+  }
+  const notes = [];
+  for (const [id, row] of before) {
+    if (!after.has(id)) notes.push(`entry \`${id}\` was REMOVED`);
+    else if (after.get(id) !== row) notes.push(`entry \`${id}\` was REWRITTEN`);
+  }
+  // Appended ids are legal on their own and are not reported as drift — but
+  // WHERE they landed is not, so they are what distinguishes the two ways a
+  // positional check can fail with no entry removed or rewritten. Saying "the
+  // entry set is unchanged" for an insertion would be a small false statement
+  // of exactly the kind this whole check exists to stop.
+  if (notes.length === 0) {
+    const inserted = [...after.keys()].filter((id) => !before.has(id));
+    notes.push(inserted.length > 0
+      ? `entry ${inserted.map((id) => `\`${id}\``).join(', ')} was INSERTED before the end of the file — ` +
+        'appending is legal, appending in the middle is not, because it renumbers everything after it'
+      : 'no entry was removed, rewritten or added, so existing entries were REORDERED');
+  }
+  return { notes, fellBack: false };
+}
+
 // ── append-only, part 1: the working tree against HEAD ──────────────────────
 // Catches the mistake BEFORE it is committed, which is the common case and the
 // one where a precise message helps most.
@@ -135,13 +207,10 @@ for (const { n, e } of entries) {
 let appendOnly = 'not checked (no committed version yet)';
 if (committedLines.length) {
   const now = lines.filter((l) => l.trim());
-  const drift = [];
-  committedLines.forEach((line, i) => {
-    if (now[i] === undefined) drift.push(`line ${i + 1} was removed`);
-    else if (now[i] !== line) drift.push(`line ${i + 1} was modified`);
-  });
-  if (drift.length) {
-    fail.push(`${FILE} — append-only violated: ${drift.slice(0, 5).join('; ')}. ` +
+  if (!isPrefixExtension(committedLines, now)) {
+    const { notes, fellBack } = explainDrift(committedLines, now);
+    fail.push(`${FILE} — append-only violated in the working tree: ${notes.slice(0, 5).join('; ')}` +
+      `${fellBack ? ' (reported by line position: an entry would not parse, or its id is missing or duplicated)' : ''}. ` +
       `A superseded observation is corrected by APPENDING a new entry on the same \`about\`, never by editing the old one.`);
     appendOnly = 'VIOLATED';
   } else {
@@ -184,10 +253,13 @@ try {
     const cur = text.split('\n').filter((l) => l.trim());
     if (prev) {
       compared++;
-      prev.forEach((line, i) => {
-        if (cur[i] === undefined) drift.push(`${sha.slice(0, 8)} removed entry ${i + 1}, present in ${prevSha.slice(0, 8)}`);
-        else if (cur[i] !== line) drift.push(`${sha.slice(0, 8)} rewrote entry ${i + 1}, changed since ${prevSha.slice(0, 8)}`);
-      });
+      if (!isPrefixExtension(prev, cur)) {
+        const { notes, fellBack } = explainDrift(prev, cur);
+        for (const note of notes) {
+          drift.push(`in ${sha.slice(0, 8)} (since ${prevSha.slice(0, 8)}) ${note}` +
+            `${fellBack ? ' [by line position — an entry would not parse or its id is missing/duplicated]' : ''}`);
+        }
+      }
     }
     prev = cur;
     prevSha = sha;
