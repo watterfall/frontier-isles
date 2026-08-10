@@ -890,9 +890,17 @@ export function GeneratedIslandScreen({
                       <b>{proposal.structureTitle[lang]}</b>
                       {' '}<i style={{ opacity: 0.75 }}>({t('island.proposal.unratified')})</i>
                     </p>
+                    {/* A `breaks` proposal says the structure does NOT reach
+                      * here. Rendering it in the wording of a candidate mapping
+                      * would ship a negative as a positive — the one way this
+                      * layer could actively mislead rather than merely queue. */}
+                    <p style={{ margin: 0, opacity: 0.9 }}>
+                      <b>{t(`island.proposal.relation.${proposal.relation}`)}</b>
+                    </p>
                     <p style={{ margin: 0, opacity: 0.85 }}>{proposal.structureStatement[lang]}</p>
                     <p style={{ margin: 0 }}>
-                      <b>{t('island.proposal.quantity')} · </b>{proposal.quantity[lang]}
+                      <b>{t(proposal.relation === 'breaks' ? 'island.proposal.quantityBreaks' : 'island.proposal.quantity')} · </b>
+                      {proposal.quantity[lang]}
                     </p>
                     <p style={{ margin: 0 }}>
                       <b>{t('island.proposal.evidence')} · </b>
@@ -906,7 +914,15 @@ export function GeneratedIslandScreen({
                     </p>
                   </div>
                 ))}
-                <p style={{ margin: '5px 0 0', opacity: 0.72, fontSize: 11.5 }}>{t('island.proposal.note')}</p>
+                {/* Per relation: ratifying a `breaks` writes down a gap, it
+                  * does not add a mapping. One shared closing sentence told a
+                  * reader the opposite — found by opening the page, not by the
+                  * assertions, which only checked the heading wording. */}
+                {[...new Set(proposals.map((p) => p.relation))].map((relation) => (
+                  <p key={relation} style={{ margin: '5px 0 0', opacity: 0.72, fontSize: 11.5 }}>
+                    {t(relation === 'breaks' ? 'island.proposal.noteBreaks' : 'island.proposal.note')}
+                  </p>
+                ))}
                 </div>
               </details>
             )}

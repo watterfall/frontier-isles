@@ -114,6 +114,30 @@ describe('structure proposals', () => {
     }
   });
 
+  it('carries both kinds of relation, and only those two', () => {
+    // The population guard for the second kind. Without it, every assertion
+    // about `breaks` below would pass on a list that contains none — and the
+    // negative proposals are the ones most likely to be quietly dropped in a
+    // later edit, because they read like rejected candidates.
+    const kinds = new Set(STRUCTURE_PROPOSALS.map((p) => p.relation));
+    expect([...kinds].sort()).toEqual(['breaks', 'embodies']);
+    expect(STRUCTURE_PROPOSALS.filter((p) => p.relation === 'breaks').length).toBeGreaterThan(0);
+    expect(STRUCTURE_PROPOSALS.filter((p) => p.relation === 'embodies').length).toBeGreaterThan(0);
+  });
+
+  it('keeps a `breaks` proposal off the mapping path entirely', () => {
+    // A negative must never be reachable as a candidate mapping: ratifying one
+    // means recording a GAP, not writing a mapping. If a future edit ever lets
+    // a `breaks` slug also appear as `embodies` against the same structure,
+    // the pair contradicts itself and one of them is wrong.
+    const embodies = new Set(STRUCTURE_PROPOSALS.filter((p) => p.relation === 'embodies')
+      .map((p) => `${p.slug}::${p.structureId}`));
+    const contradictions = STRUCTURE_PROPOSALS
+      .filter((p) => p.relation === 'breaks' && embodies.has(`${p.slug}::${p.structureId}`))
+      .map((p) => `${p.slug} is proposed BOTH as embodying and as breaking ${p.structureId}`);
+    expect(contradictions).toEqual([]);
+  });
+
   it('states a check a reviewer can act on, in both languages', () => {
     for (const p of STRUCTURE_PROPOSALS) {
       // Long enough to name what has to be settled. A one-line `check` is how

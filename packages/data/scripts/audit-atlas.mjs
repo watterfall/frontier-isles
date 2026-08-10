@@ -395,8 +395,15 @@ for (const p of STRUCTURE_PROPOSALS) {
     resolveProposal(p, { structure: structById.get(p.structureId), depth: depthBySlug.get(p.slug) ?? {} });
   } catch { resolveFailures++; }
 }
+// Split by kind. A `breaks` proposal records where a structure does NOT reach,
+// so folding the two into one total would report negatives as candidate
+// mappings — the same substitution as counting proposals as coverage, one level
+// down.
+const embodies = STRUCTURE_PROPOSALS.filter((p) => p.relation === 'embodies').length;
+const breaks = STRUCTURE_PROPOSALS.length - embodies;
 console.log(`  unratified structure proposals: ${STRUCTURE_PROPOSALS.length} over ` +
-  `${proposalIslands.size} island(s), ${proposalsOnInert.length} of them in the ${inertEverywhere} above ` +
+  `${proposalIslands.size} island(s) (${embodies} candidate mapping, ${breaks} recorded as where the ` +
+  `structure BREAKS), ${proposalsOnInert.length} of them in the ${inertEverywhere} above ` +
   `— queued for human ratification, counted in NO layer` +
   (resolveFailures ? ` · ⚠ ${resolveFailures} FAILED TO RESOLVE` : ''));
 if (resolveFailures) {

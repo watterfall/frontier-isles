@@ -285,11 +285,23 @@ export const en: Resources = {
       unratified: 'not ratified',
       // Both the quantity and the evidence are resolved from pointers into
       // already-authored text; neither is written here.
+      // The two kinds must not read alike. Showing "breaks" in the wording of
+      // "embodies" ships a negative as a positive, which is worse than showing
+      // nothing at all.
+      relation: {
+        embodies: 'Candidate: this island may embody the structure',
+        breaks: 'Candidate: this island may be where the structure fails',
+      },
       quantity: 'The quantity this structure requires',
+      quantityBreaks: 'The quantity this structure requires and this island may lack',
       evidence: 'Where this island\'s own text meets it',
       check: 'What must be settled before ratifying',
       by: 'Proposed by {{who}} on {{when}}',
       note: 'This counts toward no relational layer for this island. Ratifying it means a person writing a real mapping — correspondences, prediction, boundary — not moving this text across.',
+      // Ratifying a negative produces a recorded gap, not a mapping. Reusing
+      // the sentence above would tell a reader that accepting it adds a
+      // connection, which is the opposite of what happens.
+      noteBreaks: 'This counts toward no relational layer for this island, and will not after ratification either. It records that the structure does not reach here; ratifying means writing that gap down so the next person does not have to try it again.',
     },
     district: {
       title: 'Island map',

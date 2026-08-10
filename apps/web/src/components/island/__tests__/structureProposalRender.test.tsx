@@ -25,8 +25,10 @@ import { en } from '../../../i18n/en';
  * nothing and pass.
  */
 
-const SUBJECT = STRUCTURE_PROPOSALS[0]!;
+const SUBJECT = STRUCTURE_PROPOSALS.find((p) => p.relation === 'embodies')!;
+const BREAKS = STRUCTURE_PROPOSALS.find((p) => p.relation === 'breaks')!;
 const ISLAND = FRONTIERS.find((f) => f.slug === SUBJECT.slug)!;
+const BREAKS_ISLAND = FRONTIERS.find((f) => f.slug === BREAKS.slug)!;
 
 const DETAIL = {
   object: { title: 'Proximal causal identification', qfocus: ISLAND.qfocus?.zh ?? '', status: 'open' as const },
@@ -48,9 +50,16 @@ const DETAIL = {
   },
 };
 
+/** Same fixture, pointed at the island carrying a `breaks` proposal. */
+const BREAKS_DETAIL = {
+  ...DETAIL,
+  object: { ...DETAIL.object, qfocus: BREAKS_ISLAND.qfocus?.zh ?? '' },
+  atlas: { ...DETAIL.atlas, depth: BREAKS_ISLAND.depth },
+};
+
 vi.mock('../../../api/client', () => ({
   api: {
-    island: vi.fn(async () => DETAIL),
+    island: vi.fn(async (slug: string) => (slug === BREAKS.slug ? BREAKS_DETAIL : DETAIL)),
     ledger: vi.fn(async () => null),
     structures: vi.fn(async () => null),
     relationRefResolver: vi.fn(async () => undefined),
@@ -127,6 +136,25 @@ describe('structure proposal — shown on the island, marked unratified', () => 
     expect(zh.island.proposal.note).toMatch(/不计入/);
     expect(en.island.proposal.title.toLowerCase()).toContain('awaiting human ratification');
     expect(en.island.proposal.note.toLowerCase()).toContain('counts toward no relational layer');
+  });
+
+  it('shows a `breaks` proposal as a failure, never in the wording of a mapping', async () => {
+    // The one way this layer could actively mislead rather than merely queue:
+    // a negative rendered in the sentence used for a candidate mapping. Both
+    // halves are asserted — the failure wording present, the mapping wording
+    // absent — because either alone passes on a screen that renders neither.
+    const html = await renderScreen(BREAKS.slug);
+    expect(html).toContain('fi-island-proposal');
+    expect(html).toContain(zh.island.proposal.relation.breaks);
+    expect(html).not.toContain(zh.island.proposal.relation.embodies);
+    // And the quantity is labelled as one the island may LACK.
+    expect(html).toContain(zh.island.proposal.quantityBreaks);
+    // The closing sentence too. This was wrong when first shipped — one shared
+    // note told the reader that ratifying would produce a mapping, which for a
+    // negative is backwards — and the earlier assertions passed straight over
+    // it because they only looked at the heading.
+    expect(html).toContain(zh.island.proposal.noteBreaks);
+    expect(html).not.toContain(zh.island.proposal.note);
   });
 
   it('stays absent on an island with no proposal', async () => {

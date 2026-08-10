@@ -60,11 +60,35 @@ import type { Bilingual } from './frontiers';
 
 export type DepthField = 'overview' | 'whyMatters' | 'ifAnswered' | 'approaches' | 'barrier' | 'subQuestions';
 
+/**
+ * What the proposal claims about the pair.
+ *
+ * `embodies` — the island supplies the quantity; this is a candidate mapping.
+ *
+ * `breaks` — the island is where this structure FAILS, and its own text says
+ * why. Added after reading all 222 inert islands, because several of the most
+ * informative pairings are negative: rate-induced tipping collapses without
+ * crossing a threshold at all, so a critical point is the wrong quantity for
+ * it; a gene drive has no correction step because evolution has no undo, so a
+ * model-intervention-correction loop cannot close; active matter has no
+ * equilibrium free energy, which is the quantity that structure is built on.
+ *
+ * These are worth recording rather than discarding. This repository already
+ * treats a structure with no rebuilt islands as "a pure frontier, the map's
+ * honest dashed field" — a named place where a standard toolkit provably does
+ * not reach is the same kind of fact, and it is the more useful one for a
+ * reader about to reach for that toolkit. It is also the safer thing for a
+ * model to propose: asserting that something does NOT apply, with the island's
+ * own sentence as the evidence, claims less than asserting that it does.
+ */
+export type ProposalRelation = 'embodies' | 'breaks';
+
 export interface StructureProposal {
   /** Island slug. Must be in FRONTIERS and must not already sit in an authored layer. */
   slug: string;
   /** `struct://...` id of an existing structure. */
   structureId: string;
+  relation: ProposalRelation;
   /**
    * Which authored quantity this island is proposed to supply — an INDEX PAIR
    * into `structure.mappings[m].correspondences[c].quantity`, never a copy of
@@ -99,6 +123,7 @@ export const STRUCTURE_PROPOSALS: StructureProposal[] = [
     // 识别集 is what that procedure returns.
     slug: 'proximal-causal-identification-negative',
     structureId: 'struct://xfrontier/intervention-identifiability',
+    relation: 'embodies',
     quantity: { mapping: 4, correspondence: 1 },
     evidence: { field: 'approaches', index: 0 },
     check: {
@@ -116,6 +141,7 @@ export const STRUCTURE_PROPOSALS: StructureProposal[] = [
     // faster than wet-lab work can check them.
     slug: 'metagenomic-foundation-models-reading-function',
     structureId: 'struct://xfrontier/open-set-recognition',
+    relation: 'embodies',
     quantity: { mapping: 4, correspondence: 0 },
     evidence: { field: 'barrier' },
     check: {
@@ -132,6 +158,7 @@ export const STRUCTURE_PROPOSALS: StructureProposal[] = [
     // true density rather than stopping at presence/absence.
     slug: 'airborne-edna-biodiversity-surveys',
     structureId: 'struct://xfrontier/selection-bias-absence',
+    relation: 'embodies',
     quantity: { mapping: 1, correspondence: 0 },
     evidence: { field: 'approaches', index: 0 },
     check: {
@@ -148,6 +175,7 @@ export const STRUCTURE_PROPOSALS: StructureProposal[] = [
     // exactly this quantity.
     slug: 'stochastic-memristors-turning-device',
     structureId: 'struct://xfrontier/shannon-entropy',
+    relation: 'embodies',
     quantity: { mapping: 0, correspondence: 0 },
     evidence: { field: 'approaches', index: 1 },
     check: {
@@ -163,6 +191,7 @@ export const STRUCTURE_PROPOSALS: StructureProposal[] = [
     // overhead, which is the structure's k/n.
     slug: 'magic-state-cultivation-cheap',
     structureId: 'struct://xfrontier/error-correcting-redundancy',
+    relation: 'embodies',
     quantity: { mapping: 3, correspondence: 1 },
     evidence: { field: 'barrier' },
     check: {
@@ -178,6 +207,7 @@ export const STRUCTURE_PROPOSALS: StructureProposal[] = [
     // machine-checkable rather than social.
     slug: 'zero-knowledge-verifiable-scientific-computation',
     structureId: 'struct://xfrontier/executable-knowledge',
+    relation: 'embodies',
     quantity: { mapping: 2, correspondence: 1 },
     evidence: { field: 'approaches', index: 0 },
     check: {
@@ -193,6 +223,7 @@ export const STRUCTURE_PROPOSALS: StructureProposal[] = [
     // claim cannot be made without passing through it.
     slug: 'structural-enforcement-statistical-rigor',
     structureId: 'struct://xfrontier/executable-knowledge',
+    relation: 'embodies',
     quantity: { mapping: 3, correspondence: 1 },
     evidence: { field: 'approaches', index: 0 },
     check: {
@@ -212,6 +243,7 @@ export const STRUCTURE_PROPOSALS: StructureProposal[] = [
     // fit the repo forbids.
     slug: 'analog-solver',
     structureId: 'struct://xfrontier/error-correcting-redundancy',
+    relation: 'embodies',
     quantity: { mapping: 1, correspondence: 1 },
     evidence: { field: 'approaches', index: 1 },
     check: {
@@ -229,6 +261,7 @@ export const STRUCTURE_PROPOSALS: StructureProposal[] = [
     // this structure asks to be written down.
     slug: 'sociogenomics',
     structureId: 'struct://xfrontier/intervention-identifiability',
+    relation: 'embodies',
     quantity: { mapping: 4, correspondence: 0 },
     evidence: { field: 'approaches', index: 0 },
     check: {
@@ -245,6 +278,7 @@ export const STRUCTURE_PROPOSALS: StructureProposal[] = [
     // instead of as a hazard.
     slug: 'positive-tipping-cascades-engineering-self',
     structureId: 'struct://xfrontier/network-cascade',
+    relation: 'embodies',
     quantity: { mapping: 2, correspondence: 0 },
     evidence: { field: 'approaches', index: 0 },
     check: {
@@ -254,12 +288,303 @@ export const STRUCTURE_PROPOSALS: StructureProposal[] = [
     proposedBy: 'did:mcp:atlas-audit',
     proposedAt: '2026-08-10',
   },
+
+  // ── 2026-08-11, after reading the barrier of every one of the 222 ──────────
+  //
+  // Reading them all at once showed something one-at-a-time selection hides:
+  // the islands arrive in FAMILIES. Four separate astrobiology islands are each
+  // building the distribution a NON-living process can produce, because without
+  // it no measurement is a biosignature — that is one structure with four
+  // islands waiting, not four unrelated pairings. The same held for modelling
+  // absence, for domain transfer, and for field inversion. Grouping the
+  // proposals by structure is therefore not presentation: it is what the corpus
+  // turned out to look like once read.
+
+  // ── anomaly-as-signal · the background model comes before the residual ────
+  {
+    // The island's third approach is literally building the natural end-member
+    // model against which a methane signal would have to stand out.
+    slug: 'abiotic-null-models-isotopic-fractionation',
+    structureId: 'struct://xfrontier/anomaly-as-signal',
+    relation: 'embodies',
+    quantity: { mapping: 1, correspondence: 0 },
+    evidence: { field: 'approaches', index: 2 },
+    check: {
+      zh: '复核要点：非生物端空模型是否构成本结构说的「平滑背景模型」——即一个可外推、能给出残差的模型，还是只是一组散点标定。岛自身障碍说生物与非生物同位素分布本就重叠，那正是背景模型必须窄到什么程度才有用的判据。',
+      en: 'What a reviewer must settle: whether an abiotic end-member model is a background model in this structure\'s sense — one that extrapolates and yields a residual — or merely a set of calibration points. The island\'s barrier notes that biotic and abiotic isotope distributions already overlap, which is precisely the test of how tight the background has to be before a residual means anything.',
+    },
+    proposedBy: 'did:mcp:atlas-audit',
+    proposedAt: '2026-08-11',
+  },
+  {
+    // "Output the population distribution of biomorph shapes, not a single
+    // representative image" is the known-behaviour manifold, stated as method.
+    slug: 'abiotic-null-library-mineral-biomorphs',
+    structureId: 'struct://xfrontier/anomaly-as-signal',
+    relation: 'embodies',
+    quantity: { mapping: 0, correspondence: 0 },
+    evidence: { field: 'approaches', index: 0 },
+    check: {
+      zh: '复核要点：矿物自组织的形态分布能否当作「已知行为流形」——即一个可判定「落在里面/落在外面」的集合。岛自身障碍给了最强的限制：形态相似只证明生物不是唯一成因，不能证明某块样本一定非生物，所以这个流形只能用于排除，不能用于确认。',
+      en: 'What a reviewer must settle: whether the population of mineral self-organised shapes can serve as a known-behaviour manifold — a set against which "inside or outside" is decidable. The island states the sharpest limit itself: morphological similarity shows only that biology is not the sole cause, never that a given sample is abiotic, so this manifold can exclude but cannot confirm.',
+    },
+    proposedBy: 'did:mcp:atlas-audit',
+    proposedAt: '2026-08-11',
+  },
+  {
+    slug: 'molecular-chirality-homochirality-life-signatures',
+    structureId: 'struct://xfrontier/anomaly-as-signal',
+    relation: 'embodies',
+    quantity: { mapping: 1, correspondence: 0 },
+    evidence: { field: 'approaches', index: 1 },
+    check: {
+      zh: '复核要点：「可达的非生物对映体过量上限」是否是一个真正的背景模型（有确定的上界），还是一条会随母体过程知识更新而移动的软线。岛自身障碍指出陨石母体过程本身就能造出对映体过量——若上界不封闭，残差就无法定义。',
+      en: 'What a reviewer must settle: whether "the reachable abiotic enantiomeric excess ceiling" is a genuine background model with a fixed upper bound, or a soft line that moves as knowledge of meteoritic parent-body chemistry changes. The island notes those processes alone can produce enantiomeric excess — if the bound is not closed, no residual can be defined.',
+    },
+    proposedBy: 'did:mcp:atlas-audit',
+    proposedAt: '2026-08-11',
+  },
+  {
+    slug: 'molecular-diversity-biosignature-ecodiversity-metrics',
+    structureId: 'struct://xfrontier/anomaly-as-signal',
+    relation: 'embodies',
+    quantity: { mapping: 0, correspondence: 0 },
+    evidence: { field: 'approaches', index: 0 },
+    check: {
+      zh: '复核要点：生物/非生物对照分布是否足以把「均匀度」变成一个可判定的残差。岛自身障碍说得很清楚——均匀度是统计判据而非机制判据，地质浓缩与选择性降解都能伪造它；若对照基线没做全，这条不成立。',
+      en: 'What a reviewer must settle: whether a biotic/abiotic control distribution is enough to turn evenness into a decidable residual. The island is explicit: evenness is a statistical criterion, not a mechanistic one, and geological concentration or selective degradation can forge it. If the control baselines are incomplete, this does not hold.',
+    },
+    proposedBy: 'did:mcp:atlas-audit',
+    proposedAt: '2026-08-11',
+  },
+  {
+    // A 1% discrepancy that is either an unmodelled systematic or a new decay
+    // channel is the structure's sentence with the field names changed.
+    slug: 'beam-bottle-discrepancy-free-neutron-lifetime',
+    structureId: 'struct://xfrontier/anomaly-as-signal',
+    relation: 'embodies',
+    quantity: { mapping: 0, correspondence: 1 },
+    evidence: { field: 'approaches', index: 0 },
+    check: {
+      zh: '复核要点：束流法与储存法之差要成为「受控残差」，前提是背景（通量监视、计数效率、壁损失）已被控制到 1% 以下。岛自身障碍指出两法测的根本不是同一个可观测量——若如此，这个差就不是同一个量的残差，本结构不适用。',
+      en: 'What a reviewer must settle: for the beam-versus-bottle gap to be a controlled residual, the background — flux monitoring, counting efficiency, wall losses — must already be controlled below 1%. The island states that the two methods do not measure the same observable at all; if so, the gap is not a residual of one quantity and this structure does not apply.',
+    },
+    proposedBy: 'did:mcp:atlas-audit',
+    proposedAt: '2026-08-11',
+  },
+
+  // ── selection-bias-absence · what was not seen has to be modelled ─────────
+  {
+    // Writing method-dependent detection probability into the likelihood is the
+    // selection equation, built rather than assumed away.
+    slug: 'occupancy-models-transplanted-pathogen-surveillance',
+    structureId: 'struct://xfrontier/selection-bias-absence',
+    relation: 'embodies',
+    quantity: { mapping: 1, correspondence: 1 },
+    evidence: { field: 'approaches', index: 1 },
+    check: {
+      zh: '复核要点：把各方法的检出概率写进似然，是否等于本结构说的「对缺席建模」。岛自身障碍给出了失效条件——检出概率与真实患病率在数据里高度耦合，闭合假设一破裂，两者会同时偏移；那正是这个模型能不能撑到「宣布消除」的地方。',
+      en: 'What a reviewer must settle: whether writing each method\'s detection probability into the likelihood is what this structure means by modelling the absent. The island names the failure condition: detection probability and true prevalence are strongly coupled in the data, and once the closure assumption breaks both shift together — which is exactly where this model does or does not stretch to declaring elimination.',
+    },
+    proposedBy: 'did:mcp:atlas-audit',
+    proposedAt: '2026-08-11',
+  },
+  {
+    // "The species that should be here and are not" is the absent, made into a
+    // quantity — and the island's barrier is the circularity that threatens it.
+    slug: 'dark-diversity-ecology',
+    structureId: 'struct://xfrontier/selection-bias-absence',
+    relation: 'embodies',
+    quantity: { mapping: 1, correspondence: 1 },
+    evidence: { field: 'approaches', index: 0 },
+    check: {
+      zh: '复核要点：从共现关系反推「适宜物种池」，是对缺席建模，还是循环论证？岛自身把这个判据写出来了——观测本身早已被人类影响塑形，用被改造过的数据定义「本该出现」，极易循环。判定标准应是：这个池能否被独立于共现数据的证据证伪。',
+      en: 'What a reviewer must settle: whether inferring a suitable species pool from co-occurrence is modelling the absent or arguing in a circle. The island supplies the test: the observations have already been reshaped by human impact, so defining "should have been here" from reshaped data risks circularity. The criterion is whether that pool can be falsified by evidence independent of the co-occurrence data.',
+    },
+    proposedBy: 'did:mcp:atlas-audit',
+    proposedAt: '2026-08-11',
+  },
+
+  // ── covariate-shift-transfer · what changed and what stayed ───────────────
+  {
+    slug: 'calibrated-uncertainty-help-seeking-robot-policies',
+    structureId: 'struct://xfrontier/covariate-shift-transfer',
+    relation: 'embodies',
+    quantity: { mapping: 1, correspondence: 1 },
+    evidence: { field: 'approaches', index: 0 },
+    check: {
+      zh: '复核要点：conformal 要求的「可交换性」与本结构说的「可迁移性判定条件」是不是同一个东西。岛自身障碍说部署分布几乎必然漂移——若漂移的是输入分布，重加权还有救；若漂移的是条件关系本身，搬运就失效。这两种情况必须先分开。',
+      en: 'What a reviewer must settle: whether conformal prediction\'s exchangeability requirement is the same thing this structure calls a transferability condition. The island says deployment distributions drift almost by necessity — if what drifts is the input distribution, reweighting can still repair it; if the conditional relation itself drifts, transfer fails. Those two cases have to be separated first.',
+    },
+    proposedBy: 'did:mcp:atlas-audit',
+    proposedAt: '2026-08-11',
+  },
+  {
+    slug: 'animal-free-drug-safety-science',
+    structureId: 'struct://xfrontier/covariate-shift-transfer',
+    relation: 'embodies',
+    quantity: { mapping: 1, correspondence: 0 },
+    evidence: { field: 'approaches', index: 1 },
+    check: {
+      zh: '复核要点：从器官芯片/类器官搬到人体，「什么在搬运中保持不变」能不能被写下来。岛自身障碍指出最硬的地方在验证——缺乏跨实验室可复现的金标准基准。若这个不变量写不出来，这条评估链就只是换了一个未经验证的代理，而不是一次可判定的迁移。',
+      en: 'What a reviewer must settle: whether "what stays invariant under the move" from organ-chips and organoids to humans can actually be written down. The island names validation as the hardest point — there is no cross-lab reproducible gold-standard benchmark. If that invariant cannot be stated, the chain is simply a different unvalidated proxy rather than a transfer whose validity is decidable.',
+    },
+    proposedBy: 'did:mcp:atlas-audit',
+    proposedAt: '2026-08-11',
+  },
+
+  // ── open-set-recognition · the cost of having no "I don't know" ───────────
+  {
+    // The structure's authored quantity is "the term no empirical risk can
+    // estimate". The island's barrier: a true unknown unknown cannot, by
+    // definition, be predicted from the system's own history. Same sentence.
+    slug: 'an-early-warning-science-for',
+    structureId: 'struct://xfrontier/open-set-recognition',
+    relation: 'embodies',
+    quantity: { mapping: 5, correspondence: 1 },
+    evidence: { field: 'barrier' },
+    check: {
+      zh: '复核要点：通用前兆（临界慢化、方差上升）是否真的覆盖了「经验风险估不出的那一项」，还是只覆盖了已知类型冲击的前兆。岛自身障碍把界限说死了——真正的未知未知按定义不可由系统自身历史预测；若通用信号只在已见过的相变上成立，这条就退化成封闭集问题。',
+      en: 'What a reviewer must settle: whether generic precursors — critical slowing down, rising variance — actually cover the term no empirical risk can estimate, or only the precursors of shocks whose type is already known. The island states the boundary flatly: a genuine unknown unknown cannot by definition be predicted from the system\'s own history. If the generic signal holds only for transitions already seen, this collapses back into a closed-set problem.',
+    },
+    proposedBy: 'did:mcp:atlas-audit',
+    proposedAt: '2026-08-11',
+  },
+
+  // ── distributed-field-observability · source versus medium ────────────────
+  {
+    // The structure names 场源与外场 — telling the source apart from the field
+    // it travels through. The island's barrier is that exact confusion: a
+    // change in the noise source is read as a change in the medium.
+    slug: 'ambient-seismic-interferometry-transplanted-subglacial',
+    structureId: 'struct://xfrontier/distributed-field-observability',
+    relation: 'embodies',
+    quantity: { mapping: 2, correspondence: 0 },
+    evidence: { field: 'barrier' },
+    check: {
+      zh: '复核要点：本结构要求传递函数、传感孔径与背景噪声先被标定，才能反演事件。这个岛的问题恰恰是噪声源本身不稳定——源变被读成介质变。判定的是：在没有独立真值（冰下无法核对）的条件下，源与介质能否分开，还是这条反演原理上就不唯一。',
+      en: 'What a reviewer must settle: this structure requires the transfer function, sensing aperture and background noise to be calibrated before an event can be inverted. Here the noise source itself is unstable, so a change in the source reads as a change in the medium. The question is whether source and medium can be separated with no independent ground truth available beneath the ice, or whether the inversion is non-unique in principle.',
+    },
+    proposedBy: 'did:mcp:atlas-audit',
+    proposedAt: '2026-08-11',
+  },
+  {
+    slug: 'cable-bacteria-biogeophysical-signals',
+    structureId: 'struct://xfrontier/distributed-field-observability',
+    relation: 'embodies',
+    quantity: { mapping: 1, correspondence: 1 },
+    evidence: { field: 'barrier' },
+    check: {
+      zh: '复核要点：沉积物的电位场要成为可反演的观测量，需要一个确定的基底传递函数。岛自身障碍说相似的电位与 pH 梯度可由扩散、矿物反应或其他电活性微生物产生，反演并不唯一——那么这个传递函数是可标定的，还是根本不存在唯一解？',
+      en: 'What a reviewer must settle: for a sediment potential field to be an invertible observable it needs a determinate substrate transfer function. The island says similar potential and pH gradients can arise from diffusion, mineral reactions or other electroactive microbes, so the inversion is not unique — is that transfer function calibratable, or is there simply no unique solution?',
+    },
+    proposedBy: 'did:mcp:atlas-audit',
+    proposedAt: '2026-08-11',
+  },
+
+  // ── stateful-in-materia-computation ───────────────────────────────────────
+  {
+    // The structure's own statement supplies the test: hysteresis is
+    // computation only when state update, operator and readout are all
+    // reproducible. The island's barrier is that they are not, yet.
+    slug: 'fungal-mycelial-physical-reservoir-computing',
+    structureId: 'struct://xfrontier/stateful-in-materia-computation',
+    relation: 'embodies',
+    quantity: { mapping: 0, correspondence: 0 },
+    evidence: { field: 'barrier' },
+    check: {
+      zh: '复核要点：本结构明说——只有状态更新、算子与读出都可复现，迟滞才构成计算而不只是漂移。这个岛自己写着活体基底逐日漂移、同一块菌丝不同批次给出不同状态空间。所以要判的是：这是「尚未标定」，还是「原理上不可复现」；前者是映射，后者不是。',
+      en: 'What a reviewer must settle: this structure says outright that hysteresis is computation only when state update, operator and readout are each reproducible. The island records that the living substrate drifts daily and that the same mycelium yields a different state space between batches. So the judgement is whether that is "not yet calibrated" or "not reproducible in principle" — the first is a mapping, the second is not.',
+    },
+    proposedBy: 'did:mcp:atlas-audit',
+    proposedAt: '2026-08-11',
+  },
+
+  // ── variational-free-energy ───────────────────────────────────────────────
+  {
+    slug: 'generative-emulation-protein-equilibrium-ensembles',
+    structureId: 'struct://xfrontier/variational-free-energy',
+    relation: 'embodies',
+    quantity: { mapping: 3, correspondence: 0 },
+    evidence: { field: 'barrier' },
+    check: {
+      zh: '复核要点：生成模型采出的构象分布，是不是本结构说的候选分布 q(x)——即一个其与真实分布之差被显式优化的对象。岛自身障碍写得很准：系综「看起来对」不等于概率权重对。判据应是相对自由能与实验或长时程模拟的定量吻合，而不是构象是否合理。',
+      en: 'What a reviewer must settle: whether the conformational distribution a generative model samples is the candidate distribution q(x) this structure names — an object whose divergence from the true distribution is explicitly optimised. The island puts it precisely: an ensemble looking right is not the same as its probability weights being right. The criterion is quantitative agreement of relative free energies with experiment or long simulation, not whether the conformations look plausible.',
+    },
+    proposedBy: 'did:mcp:atlas-audit',
+    proposedAt: '2026-08-11',
+  },
+
+  // ── synchronization ───────────────────────────────────────────────────────
+  {
+    slug: 'bio-inspired-swarm-robotics',
+    structureId: 'struct://xfrontier/synchronization',
+    relation: 'embodies',
+    quantity: { mapping: 0, correspondence: 1 },
+    evidence: { field: 'barrier' },
+    check: {
+      zh: '复核要点：群体机器人的「全局任务达成」是否可以写成一个序参量——一个随耦合强度变化、能标出临界的标量。岛自身障碍指出局部规则正确并不蕴含全局达成；若找不到这样的序参量，本结构提供的就只是类比，不是可用的工具。',
+      en: 'What a reviewer must settle: whether a swarm\'s "global task achieved" can be written as an order parameter — a scalar that varies with coupling strength and marks a threshold. The island notes that locally correct rules do not entail global achievement; without such an order parameter this structure offers an analogy rather than a usable tool.',
+    },
+    proposedBy: 'did:mcp:atlas-audit',
+    proposedAt: '2026-08-11',
+  },
+
+  // ── breaks · where the structure provably does not reach ──────────────────
+  {
+    // The island's whole point is collapse WITHOUT crossing a threshold: the
+    // rate of forcing is the mechanism. A critical point is then the wrong
+    // quantity, and saying so is more useful than a weak positive.
+    slug: 'computable-criteria-for-rate-induced',
+    structureId: 'struct://xfrontier/network-cascade',
+    relation: 'breaks',
+    quantity: { mapping: 2, correspondence: 0 },
+    evidence: { field: 'barrier' },
+    check: {
+      zh: '复核要点：这条记录的是本结构在此失效。R-tipping 的崩溃不需要跨过任何阈值，速率本身就是机制，因此「临界点」不是这个岛的量。要判的是这个否定是否成立——是否存在一种表述，使速率诱导仍能被写成某个控制参数上的临界点；若存在，这条应改为正向映射。',
+      en: 'What a reviewer must settle: this records the structure FAILING here. Rate-induced tipping collapses without crossing any threshold — the rate of forcing is itself the mechanism — so a critical point is not this island\'s quantity. The judgement is whether that negative holds, or whether some formulation still writes rate-induced tipping as a critical point in a control parameter; if one does, this should become a positive mapping instead.',
+    },
+    proposedBy: 'did:mcp:atlas-audit',
+    proposedAt: '2026-08-11',
+  },
+  {
+    // The loop this structure is built on needs a correction step. Evolution
+    // has no undo, so the loop cannot close — the island says so itself.
+    slug: 'gene-drive-modeling-ethics',
+    structureId: 'struct://xfrontier/model-reality-loop',
+    relation: 'breaks',
+    quantity: { mapping: 2, correspondence: 1 },
+    evidence: { field: 'barrier' },
+    check: {
+      zh: '复核要点：本结构的价值在闭环内可检验地改进——干预、观测结果、再校正模型。基因驱动的干预不可撤回，校正那一步在原理上不存在。要判的是：模型能否在释放前通过其他方式闭环（围栏试验、可逆驱动设计），若能，这条否定就不成立。',
+      en: 'What a reviewer must settle: this structure earns its value inside a closed loop — intervene, observe, correct the model. A gene drive\'s intervention cannot be withdrawn, so the correction step does not exist in principle. The judgement is whether the loop can be closed some other way before release — contained field trials, reversible drive designs — in which case this negative does not hold.',
+    },
+    proposedBy: 'did:mcp:atlas-audit',
+    proposedAt: '2026-08-11',
+  },
+  {
+    // The structure rests on a bound that active matter, being driven and
+    // dissipative, has no equilibrium analogue of. The island states the
+    // absence as its central difficulty rather than as a detail.
+    slug: 'active-matter-self-propelled-particles',
+    structureId: 'struct://xfrontier/variational-free-energy',
+    relation: 'breaks',
+    quantity: { mapping: 0, correspondence: 0 },
+    evidence: { field: 'barrier' },
+    check: {
+      zh: '复核要点：本结构建立在一个可被持续压低的上界之上。主动物质持续耗能、远离平衡，岛自身说没有平衡态自由能那样的统一判据——所以这个上界不存在。要判的是：非平衡下是否已有等价的变分量（如熵产率上界）可以替代它；若有，这条应从否定改为正向映射。',
+      en: 'What a reviewer must settle: this structure rests on a bound that a system continuously drives downward. Active matter is driven and far from equilibrium, and the island states that no unifying criterion equivalent to an equilibrium free energy exists — so the bound is absent. The judgement is whether a non-equilibrium variational quantity, an entropy-production bound for instance, already substitutes for it; if one does, this should turn from a negative into a positive mapping.',
+    },
+    proposedBy: 'did:mcp:atlas-audit',
+    proposedAt: '2026-08-11',
+  },
 ];
 
 /** A proposal with its pointers resolved against the human-authored sources. */
 export interface ResolvedProposal {
   slug: string;
   structureId: string;
+  relation: ProposalRelation;
   structureTitle: Bilingual;
   structureStatement: Bilingual;
   /** Verbatim from the structure's own authored correspondence. */
@@ -313,6 +638,7 @@ export function resolveProposal(p: StructureProposal, sources: ProposalSources):
   return {
     slug: p.slug,
     structureId: p.structureId,
+    relation: p.relation,
     structureTitle: s.title,
     structureStatement: s.statement,
     quantity: c.quantity,
