@@ -8,7 +8,7 @@ import type {
   ApiStructureMapping,
 } from '../api/client';
 import type { Bilingual, DomainKey, IslandDatum } from '../api/fallback';
-import { slugOfOp } from '../api/structureFallback';
+import { slugOfOp } from '../api/opId';
 import { briefOf, citationOf } from '../api/atlasDetail';
 
 /** The semantic channels a reader can ask the field to reveal. */
