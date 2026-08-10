@@ -51,6 +51,21 @@ reports every mutation as caught; and assert on the violation's own text rather
 than a keyword, since a gate's explanatory output mentions the same field names
 its violations do.
 
+**Negative assertions fail in two directions, and both are quiet.** "X is
+absent" is also true when *nothing at all* was produced — the first draft of the
+render test above passed its two absence cases against a loading placeholder
+containing no markup. Pair every absence assertion with a positive one proving
+the subject rendered. The other direction: an absence assertion is only as
+strong as the guess about how a defect will be worded.
+`doesNotMatch(/not a git repository/i)` was unfalsifiable here — the gate had
+never printed those words, they lived only in a comment — and a regression
+naming the cause as "not a git checkout" passed it untouched, verified by
+running both mutations together for 0 red. Where the wording *is* the contract,
+pin the whole sentence: every rewording turns it red, including the ones a
+forbidden-phrase list would never have anticipated. Population scans have the
+same shape — "no offenders" is also what "no records scanned" produces, so
+assert the population size beside the result.
+
 `pnpm dev` starts the API and WebSocket server on `:8787` and the Vite web app on `:5173`. Before describing live application state, confirm which process owns each port; a response from one listener does not prove the other is running.
 
 ## Narrow iteration

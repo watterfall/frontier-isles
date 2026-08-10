@@ -42,6 +42,25 @@ function run({ cwd = ROOT, fail = null } = {}) {
 /** The violation the gate prints for a missing `filed_by`, verbatim. */
 const FILED_BY_VIOLATION = 'missing `filed_by`';
 
+/**
+ * The verdict for a failing `git log`, pinned verbatim — deliberately a POSITIVE
+ * assertion about wording.
+ *
+ * The obvious way to check "it must not name a cause" is to forbid the phrase:
+ * `doesNotMatch(/not a git repository/i)`. That is unfalsifiable here. The gate
+ * has never printed those words — they appear only in a source comment and in
+ * the assertion itself — so the check cannot fail, and a regression that names a
+ * cause in any OTHER words ("git is not available here") passes it untouched.
+ * An absence assertion is only as good as the guess about how the defect will
+ * be phrased, and a defect does not have to cooperate.
+ *
+ * Pinning the whole sentence inverts that: every rewording turns this red,
+ * including the ones a forbidden-phrase list would never have anticipated. The
+ * cost is that an intentional improvement to the wording also turns it red —
+ * correct, because the wording IS the contract in this branch.
+ */
+const LOG_FAILED_VERDICT = 'NOT CHECKED — `git log` failed here, cause unknown';
+
 describe('ledger gate — normal run', () => {
   test('passes in this checkout, with real git', () => {
     const { code, out } = run();
@@ -58,9 +77,10 @@ describe('ledger gate — git fails', () => {
     // exited 0. The strongest half of the check was optional and said nothing.
     const { code, out } = run({ fail: 'log' });
     assert.equal(code, 1, out);
-    assert.match(out, /NOT CHECKED/);
-    // And it must not name a cause it has not established.
-    assert.doesNotMatch(out, /not a git repository/i);
+    // Pinned rather than forbidden — see LOG_FAILED_VERDICT for why a
+    // `doesNotMatch` on the cause-naming phrase cannot fail here.
+    assert.ok(out.includes(LOG_FAILED_VERDICT),
+      `the verdict must stay exactly "${LOG_FAILED_VERDICT}" — naming a cause asserts a reading this branch has not established:\n${out}`);
   });
 
   test('a failing `git show` does not get reported as "no committed version yet"', () => {

@@ -71,6 +71,11 @@ describe('frozen corpus retirement ledger', () => {
   });
 
   it('lets no island cite a record the corpus has already retired', () => {
+    // An empty offender list is also what an empty ISLAND list produces, and
+    // "nothing was found" would read identically to "nothing was scanned". The
+    // sibling test below pins its own population size for the same reason;
+    // this one had no such guard until a mutation run made the shape obvious.
+    expect(FRONTIERS.length, 'islands scanned').toBeGreaterThan(300);
     const offenders = FRONTIERS
       .filter((f) => retirementFor(f.atlasN))
       .filter((f) => !KNOWN_RETIRED_CITATIONS.has(f.atlasN))
