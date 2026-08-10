@@ -66,6 +66,39 @@ forbidden-phrase list would never have anticipated. Population scans have the
 same shape — "no offenders" is also what "no records scanned" produces, so
 assert the population size beside the result.
 
+**Deciding whether an absence assertion is falsifiable means asking whether the
+code under test can produce that string — which is not the same as whether the
+string appears in its file.** At least six routes produce one: a source literal;
+something the source calls (i18n tables, constant maps); echoed test input (a
+secret fed in specifically so the assertion can prove it does not leak — its
+absence from source is the point); a data file outside `src/`; string
+interpolation (`data-lamp={kind}` produces `data-lamp="questions"`); and
+source-to-output transformation (JSX `className` renders as `class=`, a style
+object renders as `color:#A89C88`, `markerEnd` renders as `marker-end`). A
+screen that knows only the first route flags precisely the healthiest
+assertions. The 2026-08-10 sweep of this repo produced 13 literals with no
+apparent producing path; hand-checking found the last two routes accounted for
+most of them, one legitimate don't-reintroduce guard for a string git history
+shows was removed, and two forbidding markup that never existed.
+
+**A sweep must report its own coverage, or a silent truncation reads as a clean
+result.** The first version of that sweep used `return` where it meant
+`continue` inside the directory walk, which exited the walk for the entire
+directory — remaining files and every subdirectory below it went unscanned. It
+printed findings but no file count, so nothing looked wrong, and "3 unexplained"
+was reported over a fraction of the tree. Printing `scanned: N test files` and
+checking N against an independent count (`find`, or the runners' own totals)
+made it visible immediately: 124, matching.
+
+**Matcher behaviour on a missing subject is runner-specific and must be run, not
+assumed.** `expect(undefined).not.toHaveProperty('x')` is a known hazard in some
+runners — it passes, so indexing into an empty array reads as "the field is
+correctly absent". Under this repo's vitest it does the opposite and throws
+`TypeError: Cannot convert undefined or null to object`, so the shape is safe
+here. `toMatchObject` and `toEqual` also throw on `undefined`, which is what
+makes them usable as the guard above such an assertion. Verified with a
+throwaway probe rather than carried over from another project.
+
 `pnpm dev` starts the API and WebSocket server on `:8787` and the Vite web app on `:5173`. Before describing live application state, confirm which process owns each port; a response from one listener does not prove the other is running.
 
 ## Narrow iteration
