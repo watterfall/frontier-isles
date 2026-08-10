@@ -152,7 +152,21 @@ Bulk reads must be **bounded**. Unbounded pairwise export upstream returned 759 
 **Stage 1 — validation, no protocol change. DONE (2026-08-09).**
 `ledger/observations.jsonl` holds the findings this repo has already produced — 4 about the xfrontier corpus, 3 about this repo's own data — in the `events.jsonl`-isomorphic shape §4 specifies. `scripts/validate-observations.mjs` enforces the field contract, uniqueness, and append-only against `HEAD`, and runs inside `pnpm typecheck`. Nothing is exposed to peers yet, and the server's gateway is untouched.
 
-*Acceptance, met:* the gate reports `7/7 written by the actor named in by` — the claim "under the annotation model proxy-filing does not happen" is demonstrated rather than argued, against a baseline where the same findings reached their subject as entries in *another* project's ledger attributed to `frontier-isles`, none of which `frontier-isles` wrote. The file is plain JSONL a human opens.
+*Acceptance — partly met, and the shortfall is recorded rather than reworded.*
+This paragraph originally cited the gate line `7/7 written by the actor named in
+by` as proof that proxy-filing does not happen under the annotation model. That
+line was withdrawn on 2026-08-10: it counted entries matching one hardcoded
+actor string and asserted a fact the file recorded nowhere (see `filed_by`
+above). Citing it here while debunking it two sections up is the same defect
+twice — a claim in prose with no check behind it.
+
+What holds without it: the entries exist, they are plain JSONL a human opens,
+and each names the actor who made the observation. What does *not* hold yet is
+the measurement — the eight entries predating `filed_by` are counted
+`unrecorded`, so the ledger cannot presently show that its writer and its `by`
+coincide. The claim becomes measurable from the first entry carrying the field,
+and until several do, "proxy-filing does not happen here" is an argument, which
+is exactly the status this stage was meant to change.
 
 *Not decided by this stage:* the repo-level placement is the only option that avoids touching the gateway, not an answer to §10's island-ledger question. Stage 2 has to answer it.
 

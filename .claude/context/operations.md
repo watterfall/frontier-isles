@@ -7,11 +7,22 @@ Load this file only for local runtime, build, test, or debugging work.
 ```bash
 pnpm install
 pnpm dev
+pnpm verify        # test + typecheck + build — run this before reporting done
 pnpm test
 pnpm typecheck
 pnpm build
 pnpm test:e2e
 ```
+
+**`pnpm test` and `pnpm typecheck` do not build.** `pnpm typecheck` runs the
+release-doc and observation-ledger checks plus `tsc --noEmit`; neither it nor
+the test run invokes Vite, so the bundle guards in `apps/web/vite.config.ts`
+(entry-chunk budget, forbidden eager modules, CSS budget) are not exercised.
+That gap is not hypothetical: the wave-3 structure mappings pushed the entry
+chunk 85 KiB past its budget and two consecutive rounds reported everything
+green while `pnpm build` failed. `pnpm verify` is the whole gate; use it before
+saying work is done. CI (`.github/workflows/ci.yml`) runs the build too, but
+only on pushes that trigger it — a worktree branch gets no such signal.
 
 `pnpm dev` starts the API and WebSocket server on `:8787` and the Vite web app on `:5173`. Before describing live application state, confirm which process owns each port; a response from one listener does not prove the other is running.
 

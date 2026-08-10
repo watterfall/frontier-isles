@@ -11,7 +11,8 @@
     "test:e2e": "pnpm --filter @frontier-isles/web test:e2e",
     "verify:release-docs": "node scripts/verify-release-docs.mjs",
     "validate:observations": "node scripts/validate-observations.mjs",
-    "typecheck": "pnpm verify:release-docs && pnpm validate:observations && pnpm -r typecheck"
+    "typecheck": "pnpm verify:release-docs && pnpm validate:observations && pnpm -r typecheck",
+    "verify": "pnpm test && pnpm typecheck && pnpm build"
   },
   "devDependencies": {
     "typescript": "^5.7.2",
