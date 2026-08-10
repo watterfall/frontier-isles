@@ -79,7 +79,8 @@ observation
   asserted    at least one of { dataset_version | content_hash | repo_commit }
   statement   one sentence, readable by someone who was not there
   evidence    resolvable references
-  by          actor id (did: | orcid: | github:)
+  by          actor id (did: | orcid: | github:) — who MADE the observation
+  filed_by    actor id, or null when the filer is `by` — who WROTE the entry
   by_type     human | model | derived      ← the ONLY signal that a person was involved
   signature   present, or explicitly null — a missing key is a violation
   observed_at ISO date
@@ -88,6 +89,28 @@ observation
 `kind` is deliberately open. A predefined taxonomy would be a guess about what
 future consumers notice; letting the vocabulary grow and reporting its
 distribution is what the upstream corpus does, and it costs nothing to reverse.
+
+`filed_by` was added on 2026-08-10, after §3's argument against it turned out to
+rest on a false premise. The argument was that a field naming the filer gives
+the workaround a comfortable notation instead of removing the reason for it —
+true while proxy-filing is a transitional state, false once a provider is one
+this project will never mount. For those, relaying is the permanent state, and a
+ledger that cannot say so has to assert something instead.
+
+**Derived statistics must count from what is recorded, never assert.** The gate
+previously printed "N/N written by the actor named in `by`", where N counted
+entries whose `by` matched one hardcoded string — a sentence stating a fact the
+file could not carry, which any second author would have quietly falsified. It
+now reports three buckets (`self` / `relayed` / `unrecorded`) so the entries that
+predate the field are claimed for neither side. This is the same "a missing key
+is not null" discipline as `signature`, reappearing one layer up in the summary,
+which is where it is easiest to miss: the entry-level rule was already right and
+the statistic over those entries was still wrong.
+
+Fields added after entries exist cannot be required of those entries — the file
+is append-only, so they cannot be edited to carry them. The gate enforces a new
+required field only from the committed prefix onward, which grandfathers exactly
+the entries that predate it and needs no version stamp to stay in sync.
 
 Three field rules, each earned:
 

@@ -10,7 +10,8 @@ This is **stage 1** of that contract: the file exists, the field rules are enfor
 
 - **An entry is true only for the version in `asserted`.** When the subject moves, the entry is *stale* — shown, not trusted, not hidden. Deleting it destroys the record that someone once saw this; trusting it silently propagates a claim about data that no longer exists.
 - **`by_type` is the only field that says whether a person was involved.** Never infer it from a timestamp. "Last touched" is not "reviewed by" — that inference mislabelled 1504 records in the upstream corpus, which is why the rule is written down rather than remembered.
-- **`by` is who made the observation.** In this ledger it is also who wrote it, and the gate reports that ratio on every run. That is not a courtesy: the same findings previously reached their subject by hand, and ended up in another project's ledger attributed to `frontier-isles` without `frontier-isles` having written a single one. A provenance field with no write path behind it silently lies.
+- **`by` is who made the observation; `filed_by` is who wrote the entry.** They differ whenever something is relayed, which is the permanent state for any provider this project will never mount — the same findings previously reached their subject by hand and landed in another project's ledger attributed to `frontier-isles` without `frontier-isles` having written a single one. A provenance field with no write path behind it silently lies.
+- **The summary counts; it does not assert.** It reports `self` / `relayed` / `unrecorded` from what each entry records. The earlier version printed a ratio "written by the actor named in `by`" that was computed by matching one hardcoded actor string, stating something no field in the file could carry. When a derived statistic and its label disagree, the label is the part that gets believed.
 - **`signature: null` means unsigned and says so.** A missing `signature` key is a contract violation, not a shorthand. Until stage 4 every entry is unsigned, so `by` is a claim, not proof.
 - **Disagreement is preserved, not merged.** A superseded observation is corrected by appending a new entry on the same `about`; the old line is never edited. The gate enforces this against `HEAD` — every committed line must still be present, byte-identical, in order.
 - **A `population` stores a recomputable selector**, never a frozen id list. A frozen list keeps asserting itself after the population has moved.
@@ -34,7 +35,10 @@ kind         free-form; the vocabulary grows from use rather than being predefin
 asserted     at least one of dataset_version | content_hash | repo_commit
 statement    one sentence, readable by someone who was not there
 evidence     resolvable references (paths, ids, or a command that reproduces it)
-by           normalized actor id (did: | orcid: | github:)
+by           normalized actor id (did: | orcid: | github:) — who MADE the observation
+filed_by     who WROTE the entry; null when that is `by`. Required on entries
+             appended after 2026-08-10; earlier ones predate the field and are
+             counted `unrecorded`, never folded into either side
 by_type      human | model | derived
 signature    null until stage 4 — the key is required even when the value is not
 observed_at  ISO date

@@ -30,6 +30,20 @@ const raw = readFileSync(FILE, 'utf8');
 const lines = raw.split('\n');
 if (raw.length && !raw.endsWith('\n')) fail.push(`${FILE} — must end with a newline (append-only files are appended to)`);
 
+/**
+ * Lines already committed. Read up front because two rules need it: the
+ * append-only check below, and grandfathering — a field added to the contract
+ * after an entry was written cannot be required of that entry, since the file
+ * is append-only and the entry may not be edited to add it. Enforcing the rule
+ * from the committed prefix onward grandfathers exactly the entries that
+ * predate it and no others, with no version stamp to keep in sync.
+ */
+let committedLines = [];
+try {
+  committedLines = execFileSync('git', ['show', `HEAD:${FILE}`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })
+    .split('\n').filter((l) => l.trim());
+} catch { /* not in HEAD yet — first commit, nothing is grandfathered */ }
+
 const entries = [];
 lines.forEach((text, i) => {
   const n = i + 1;
@@ -57,6 +71,15 @@ lines.forEach((text, i) => {
     bad(n, 'missing `signature` — an unsigned entry must say so explicitly (`"signature": null`), never by omission');
   }
   if (!Object.hasOwn(e, 'observed_at')) bad(n, 'missing `observed_at`');
+
+  // `filed_by` — who WROTE the entry, when that is not the actor in `by`.
+  // Required (null allowed) on every entry appended after the field existed;
+  // the entries that predate it are grandfathered and counted as `unrecorded`
+  // in the summary below rather than silently folded into either bucket.
+  if (i >= committedLines.length && !Object.hasOwn(e, 'filed_by')) {
+    bad(n, 'missing `filed_by` — say who wrote this entry, or `null` when that is the actor in `by`. ' +
+      'Absent, the summary cannot distinguish a relayed entry from a self-written one and would have to assert it.');
+  }
 
   // ── subject ───────────────────────────────────────────────────────────────
   const about = e.about ?? {};
@@ -106,12 +129,10 @@ for (const { n, e } of entries) {
 // Editing a past entry is how a record of "what someone once saw" quietly turns
 // into a record of "what we currently believe".
 let appendOnly = 'not checked (no committed version yet)';
-try {
-  const head = execFileSync('git', ['show', `HEAD:${FILE}`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
-  const prev = head.split('\n').filter((l) => l.trim());
+if (committedLines.length) {
   const now = lines.filter((l) => l.trim());
   const drift = [];
-  prev.forEach((line, i) => {
+  committedLines.forEach((line, i) => {
     if (now[i] === undefined) drift.push(`line ${i + 1} was removed`);
     else if (now[i] !== line) drift.push(`line ${i + 1} was modified`);
   });
@@ -120,10 +141,8 @@ try {
       `A superseded observation is corrected by APPENDING a new entry on the same \`about\`, never by editing the old one.`);
     appendOnly = 'VIOLATED';
   } else {
-    appendOnly = `ok (${prev.length} committed, ${now.length - prev.length} appended)`;
+    appendOnly = `ok (${committedLines.length} committed, ${now.length - committedLines.length} appended)`;
   }
-} catch {
-  /* file not in HEAD yet — first commit */
 }
 
 // ── report ──────────────────────────────────────────────────────────────────
@@ -133,12 +152,30 @@ for (const { e } of entries) {
   bySubject.set(owner, (bySubject.get(owner) ?? 0) + 1);
 }
 const unsigned = entries.filter(({ e }) => e.signature === null).length;
-const byWriter = entries.filter(({ e }) => e.by === 'did:mcp:atlas-audit').length;
+
+// Who wrote each entry, counted from what is recorded — never asserted.
+//
+// This line used to read "N/N written by the actor named in `by`", where N was
+// entries whose `by` equalled one hardcoded actor string. That is not a
+// measurement: nothing in the file recorded who wrote an entry, so the label
+// stated a fact the data could not carry, and any legitimate second author
+// would have silently pushed the ratio down while the sentence stayed put.
+//
+// Three buckets, because two would force the grandfathered entries into one
+// side or the other: `self` recorded `filed_by: null`, `relayed` recorded a
+// different filer, `unrecorded` predates the field and is claimed for neither.
+const filer = { self: 0, relayed: 0, unrecorded: 0 };
+for (const { e } of entries) {
+  if (!Object.hasOwn(e, 'filed_by')) filer.unrecorded++;
+  else if (e.filed_by === null) filer.self++;
+  else filer.relayed++;
+}
 
 console.log(`observations: ${entries.length} · subjects: ${[...bySubject].map(([k, v]) => `${k} ${v}`).join(', ')}`);
 console.log(`append-only: ${appendOnly}`);
-console.log(`attribution: ${byWriter}/${entries.length} written by the actor named in \`by\`; ` +
-  `${unsigned} explicitly unsigned (signing is stage 4)`);
+console.log(`filed by: ${filer.self} self · ${filer.relayed} relayed · ${filer.unrecorded} unrecorded ` +
+  `(entries predating the field — append-only, so they cannot be backfilled; the gate requires it on anything appended since)`);
+console.log(`signatures: ${unsigned}/${entries.length} explicitly unsigned (signing is stage 4)`);
 
 if (fail.length) {
   console.error(`\n✗ ${fail.length} contract violation(s):`);
