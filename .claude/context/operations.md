@@ -24,6 +24,15 @@ green while `pnpm build` failed. `pnpm verify` is the whole gate; use it before
 saying work is done. CI (`.github/workflows/ci.yml`) runs the build too, but
 only on pushes that trigger it — a worktree branch gets no such signal.
 
+**Conclude from the exit code, never from a filtered view of the output.**
+`pnpm verify > log 2>&1; echo $?` is the report; `| grep … | tail -n` is for
+reading detail afterwards. A one-ended truncation hides exactly the thing being
+looked for: `tail -n` drops the earliest failures, `head -n` never reaches a
+verdict printed at the end, and a pipeline's `$?` is the last stage's, so a
+failing command upstream of a successful `grep` exits 0. This is not
+hypothetical either — an adjacent project reported a full green run read out of
+a `head -30` view whose report had 34 passing lines before the first warning.
+
 `pnpm dev` starts the API and WebSocket server on `:8787` and the Vite web app on `:5173`. Before describing live application state, confirm which process owns each port; a response from one listener does not prove the other is running.
 
 ## Narrow iteration

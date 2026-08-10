@@ -161,8 +161,8 @@ if (corpus) {
   const structOnly = [...structIds].filter((n) => !FRONTIERS.some((f) => f.atlasN === n));
   const structDead = [...structIds].filter((n) => !live.has(n));
   console.log(`            + ${structIds.size} record ids cited by SEED_STRUCTURES ` +
-    `(${STRUCTS.length} structures incl. the wave-2 module; ${structOnly.length} id not an island) ` +
-    `— ${structIds.size - structDead.length} live`);
+    `(${STRUCTS.length} structures incl. the wave-2 module; ${structOnly.length}/${structIds.size} not an island) ` +
+    `— ${structIds.size - structDead.length}/${structIds.size} live`);
   for (const n of structDead) {
     provenanceOpen = true;
     warn.push(`structures.ts cites XF-${String(n).padStart(6, '0')}, which is not in the current corpus`);
@@ -262,7 +262,12 @@ for (const f of FRONTIERS) {
     }
   }
 }
-console.log(`evidence: ${shelves}/${FRONTIERS.length} islands carry a literature shelf (${refs} refs), ${dupes} duplicated`);
+// Every number carries its denominator. A bare count gets divided by whatever
+// total the reader happens to assume, and readers assume wrong — the same way a
+// bare `relayed: 0` reads as "none were relayed" when it means "nobody recorded
+// which were". `0 duplicated` is only informative next to the 544 it is out of.
+console.log(`evidence: ${shelves}/${FRONTIERS.length} islands carry a literature shelf ` +
+  `(${refs} refs, ${dupes}/${refs} duplicated)`);
 
 // Two islands whose DEFINING paper is the same one. Not a failure: which paper
 // defines a frontier is an editorial call, and 11 of these predate wave 3. But
