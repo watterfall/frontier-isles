@@ -374,6 +374,35 @@ const siblingSpan = Math.min(...siblingCounts) === Math.max(...siblingCounts)
   : `${Math.min(...siblingCounts)}–${Math.max(...siblingCounts)}`;
 console.log(`  (every island additionally lists its ${siblingSpan} same-cluster islands on L1 — ` +
   `a projection of the corpus filing, deliberately excluded from the four counts above)`);
+
+// Unratified structure proposals. Reported on their own line and excluded from
+// every count above, for the same reason the sibling list is: these are
+// candidates an AI read out of already-authored text, not relations anybody has
+// accepted. Counting them would turn a queue into coverage, which is precisely
+// the substitution the whole relational-coverage block exists to prevent.
+const { STRUCTURE_PROPOSALS, resolveProposal } = await import('../src/structure-proposals.ts');
+const proposalIslands = new Set(STRUCTURE_PROPOSALS.map((p) => p.slug));
+const proposalsOnInert = [...proposalIslands].filter((s) => !layers.some(([, set]) => set.has(s)));
+// Resolve every one here too: the pointers are checked by the data package's
+// tests, but the audit is what gets run against a moved corpus, and a proposal
+// whose quantity index has drifted must surface as an error rather than as a
+// smaller number.
+let resolveFailures = 0;
+const structById = new Map(SEED_STRUCTURES.map((s) => [s.id, s]));
+const depthBySlug = new Map(FRONTIERS.map((f) => [f.slug, f.depth ?? {}]));
+for (const p of STRUCTURE_PROPOSALS) {
+  try {
+    resolveProposal(p, { structure: structById.get(p.structureId), depth: depthBySlug.get(p.slug) ?? {} });
+  } catch { resolveFailures++; }
+}
+console.log(`  unratified structure proposals: ${STRUCTURE_PROPOSALS.length} over ` +
+  `${proposalIslands.size} island(s), ${proposalsOnInert.length} of them in the ${inertEverywhere} above ` +
+  `— queued for human ratification, counted in NO layer` +
+  (resolveFailures ? ` · ⚠ ${resolveFailures} FAILED TO RESOLVE` : ''));
+if (resolveFailures) {
+  warn.push(`${resolveFailures} structure proposal(s) no longer resolve against the authored sources — ` +
+    `a quantity or depth entry moved. A proposal that cannot resolve must not be shown; fix the pointer or drop it.`);
+}
 if (inertEverywhere / FRONTIERS.length > 0.4) {
   warn.push(`${inertEverywhere} islands (${inertPct}%) appear in no ferry route, structure mapping, ` +
     `current or interior — they open to a real briefing but connect to nothing. The relational layers ` +

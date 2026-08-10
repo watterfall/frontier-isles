@@ -24,7 +24,8 @@ import type { Bilingual } from '../../api/fallback';
 // 18 entries, ~6KB, and this screen is lazy — the notice below is the only
 // place a reader can learn that a cited source was withdrawn upstream.
 import { retirementFor } from '@frontier-isles/data/corpus-retirements';
-import { fallbackStructures } from '../../api/structureFallback';
+import { fallbackStructures, seedStructureById } from '../../api/structureFallback';
+import { proposalsFor, resolveProposal, type ResolvedProposal } from '@frontier-isles/data/structure-proposals';
 import { buildingVisitKey, type IslandDistrictId } from '../../state/explorationSession';
 import { projectRecordFreshness, type RecordFreshness } from '../../models/recordFreshness';
 import { IslandStepper, type IslandStepperProps } from './IslandStepper';
@@ -485,6 +486,32 @@ export function GeneratedIslandScreen({
   const cluster = detail.atlas?.cluster[lang];
   const retirement = atlasN != null ? retirementFor(atlasN) : undefined;
   const depth = detail.atlas?.depth;
+  /**
+   * Unratified structure proposals for this island.
+   *
+   * Resolved here rather than shipped pre-resolved so the quantity and the
+   * evidence are read out of the authored sources at display time — a proposal
+   * is a pair of pointers, and the reader sees whatever those currently address
+   * or nothing at all.
+   *
+   * A failed resolve is swallowed HERE and only here. That is safe because it
+   * does not guard the authoritative check: `audit-atlas.mjs` resolves every
+   * proposal too and reports failures as their own category ("N FAILED TO
+   * RESOLVE") plus a finding, so a moved pointer surfaces as a named breakage
+   * rather than as a quietly shorter list. The alternative — letting a stale
+   * index throw inside a screen — takes down an island page over a queue item.
+   */
+  const proposals: ResolvedProposal[] = depth
+    ? proposalsFor(slug).flatMap((p) => {
+        const structure = seedStructureById(p.structureId);
+        if (!structure) return [];
+        try {
+          return [resolveProposal(p, { structure, depth })];
+        } catch {
+          return [];
+        }
+      })
+    : [];
   // Server first, offline projection second — same precedence the interior uses.
   const literature = detail.atlas?.literature?.length ? detail.atlas.literature : localLiterature;
   // Server interior first; fall back to the offline atlas when the server omits
@@ -825,6 +852,56 @@ export function GeneratedIslandScreen({
                   </ul>
                 </div>
               </details>
+            )}
+            {/* Unratified structure proposals.
+              *
+              * 222 of 371 islands sit in no authored relational layer, and the
+              * obvious remedy is barred: `structures.ts` states its mappings are
+              * the curator's, attached only where an island GENUINELY embodies
+              * the structure, and `architecture.md` gives the ferryman
+              * proposal rights only, with bridges ratified by both masters. So
+              * this shows a queue, not a relation.
+              *
+              * Everything visible below except `check` is resolved from a
+              * pointer into text a human already wrote — the quantity out of the
+              * structure's own correspondences, the evidence out of this
+              * island's own depth. That is what makes it checkable in seconds
+              * rather than a paragraph to be taken on trust.
+              *
+              * `open` by default, unlike the two disclosures above: a queue item
+              * nobody opens is the same as no queue, and this one is asking for
+              * a decision rather than offering background. */}
+            {proposals.length > 0 && (
+              <section className="fi-island-proposal" aria-label={t('island.proposal.title')}
+                style={{ marginTop: 8, maxWidth: 540, fontSize: 12.5, lineHeight: 1.55 }}>
+                <p style={{ margin: '0 0 4px', letterSpacing: '.04em', opacity: 0.9 }}>
+                  <b>◇ {t('island.proposal.title')}</b>
+                </p>
+                {proposals.map((proposal) => (
+                  <div key={`${proposal.structureId}`} data-testid="structure-proposal"
+                    style={{ display: 'grid', gap: 3, padding: '6px 0', borderTop: '1px dashed rgba(138,106,30,0.35)' }}>
+                    <p style={{ margin: 0 }}>
+                      <b>{proposal.structureTitle[lang]}</b>
+                      {' '}<i style={{ opacity: 0.75 }}>({t('island.proposal.unratified')})</i>
+                    </p>
+                    <p style={{ margin: 0, opacity: 0.85 }}>{proposal.structureStatement[lang]}</p>
+                    <p style={{ margin: 0 }}>
+                      <b>{t('island.proposal.quantity')} · </b>{proposal.quantity[lang]}
+                    </p>
+                    <p style={{ margin: 0 }}>
+                      <b>{t('island.proposal.evidence')} · </b>
+                      <span style={{ opacity: 0.85 }}>{proposal.evidence.text[lang]}</span>
+                    </p>
+                    <p style={{ margin: 0 }}>
+                      <b>{t('island.proposal.check')} · </b>{proposal.check[lang]}
+                    </p>
+                    <p style={{ margin: 0, opacity: 0.7, fontSize: 11.5 }}>
+                      {t('island.proposal.by', { who: proposal.proposedBy, when: proposal.proposedAt })}
+                    </p>
+                  </div>
+                ))}
+                <p style={{ margin: '5px 0 0', opacity: 0.72, fontSize: 11.5 }}>{t('island.proposal.note')}</p>
+              </section>
             )}
           </section>
         </div>

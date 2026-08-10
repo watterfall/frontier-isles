@@ -27,7 +27,8 @@
     "./literature": "./src/literature.ts",
     "./regions": "./src/regions.ts",
     "./sea": "./src/sea.ts",
-    "./structures": "./src/structures.ts"
+    "./structures": "./src/structures.ts",
+    "./structure-proposals": "./src/structure-proposals.ts"
   },
   "scripts": {
     "generate:atlas": "node --experimental-strip-types scripts/generate-atlas.mjs",

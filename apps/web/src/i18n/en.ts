@@ -275,6 +275,20 @@ export const en: Resources = {
       // inferring a structural correspondence from it fails about nine in ten.
       note: 'The corpus files them together — a filing, not a verified link.',
     },
+    proposal: {
+      // "Awaiting ratification", never "related": this is a queue item, not an
+      // established relation. Any wording that reads as confirmed turns a queue
+      // into coverage, which is the substitution this whole layer avoids.
+      title: 'Structure proposal · awaiting human ratification',
+      unratified: 'not ratified',
+      // Both the quantity and the evidence are resolved from pointers into
+      // already-authored text; neither is written here.
+      quantity: 'The quantity this structure requires',
+      evidence: 'Where this island\'s own text meets it',
+      check: 'What must be settled before ratifying',
+      by: 'Proposed by {{who}} on {{when}}',
+      note: 'This counts toward no relational layer for this island. Ratifying it means a person writing a real mapping — correspondences, prediction, boundary — not moving this text across.',
+    },
     district: {
       title: 'Island map',
       fold: 'Fold',

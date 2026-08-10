@@ -274,6 +274,18 @@ export const zh = {
       // a structural correspondence from it fails about nine times in ten.
       note: '语料把它们归在一处——这是归类，不是已验证的关联。',
     },
+    proposal: {
+      // 「待批」而不是「关联」：这是一条排队等人判定的候选，不是已成立的关系。
+      // 岛页上任何让它读起来像已确认的措辞，都会把队列偷换成覆盖率。
+      title: '结构提议 · 待人工批准',
+      unratified: '尚未批准',
+      // 量与证据都是指针解析出来的原文，不是这里写的。
+      quantity: '该结构要求的量',
+      evidence: '本岛自身文本中与之对应处',
+      check: '批准前须先判定',
+      by: '由 {{who}} 于 {{when}} 提出',
+      note: '这条不计入本岛的关系层覆盖。批准它意味着由人重写成一条正式映射（含对应、预测与边界），而不是把这段文字搬过去。',
+    },
     district: {
       title: '岛内图',
       fold: '收',
