@@ -8,11 +8,18 @@ Load this file only for local runtime, build, test, or debugging work.
 pnpm install
 pnpm dev
 pnpm verify        # test + typecheck + build — run this before reporting done
-pnpm test
+pnpm test          # every workspace package, then pnpm test:scripts
+pnpm test:scripts  # node:test over scripts/*.test.mjs (root scripts are not a package)
 pnpm typecheck
 pnpm build
 pnpm test:e2e
 ```
+
+**Root `scripts/` is not a workspace package,** so `pnpm -r test` never reached
+it. The ledger gate's git-failure branches lived there with no suite at all: a
+mutation run could not even report them uncovered, only "unreadable", because
+there was nothing to be red. `pnpm test` now chains `test:scripts` so they are
+covered by the same command everything else is.
 
 **`pnpm test` and `pnpm typecheck` do not build.** `pnpm typecheck` runs the
 release-doc and observation-ledger checks plus `tsc --noEmit`; neither it nor
@@ -32,6 +39,17 @@ verdict printed at the end, and a pipeline's `$?` is the last stage's, so a
 failing command upstream of a successful `grep` exits 0. This is not
 hypothetical either — an adjacent project reported a full green run read out of
 a `head -30` view whose report had 34 passing lines before the first warning.
+
+**A green suite is not evidence that a property is covered.** The only check
+that separates "tested" from "test-shaped" is to break the property and see the
+suite go red. Done here on 2026-08-10 across nine mutations, it found a test
+file named for the retired-source notice whose three assertions all passed with
+the notice deleted from the screen — it covered the data feeding the notice, not
+the notice. Two rules that came out of that run: measure red **relative to an
+unmutated baseline**, since a suite already failing for an unrelated reason
+reports every mutation as caught; and assert on the violation's own text rather
+than a keyword, since a gate's explanatory output mentions the same field names
+its violations do.
 
 `pnpm dev` starts the API and WebSocket server on `:8787` and the Vite web app on `:5173`. Before describing live application state, confirm which process owns each port; a response from one listener does not prove the other is running.
 

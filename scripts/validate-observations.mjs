@@ -47,6 +47,17 @@ const GIT = process.env.FI_GIT_BIN ?? 'git';
 const git = (args) => execFileSync(GIT, args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
 
 /**
+ * Whether this copy of the repository has history at all.
+ *
+ * A FILESYSTEM question on purpose. The thing it has to separate is a failing
+ * git call, so asking git again would share the failure mode of the call being
+ * diagnosed — a probe that fails whenever its subject does separates nothing.
+ * (`.git` is a directory in an ordinary clone and a FILE in a linked worktree;
+ * `existsSync` answers both, and neither needs git to be installed.)
+ */
+const IN_CHECKOUT = existsSync('.git');
+
+/**
  * Whether git itself is usable here. Needed to keep two different situations
  * apart that a bare `catch` collapses: a file genuinely absent from HEAD (the
  * first commit — nothing to grandfather, nothing wrong) and git being
@@ -345,13 +356,25 @@ try {
     }
   }
 } catch {
-  // `git log` failed. Do NOT name a cause — "not a git repository" is one
-  // reading and this has established none of them, which is the same
-  // collapse-then-assert the entry-level rules forbid. And it must not exit 0:
-  // a history check that never ran is not a history check that passed.
-  history = 'NOT CHECKED — `git log` failed here, cause unknown';
-  fail.push(`${FILE} — the append-only history check could not run (\`git log\` failed). ` +
-    `Treating that as a pass would make the strongest half of this gate optional.`);
+  // `git log` failed — and the same skip deserves opposite verdicts depending
+  // on whether a comparison was possible in principle.
+  //
+  // Outside a checkout (a release tarball, a vendored copy) there is no history
+  // and never was, so passing is the honest answer; failing there would report a
+  // missing feature as a contract violation. Inside one, the strongest half of
+  // this gate did not run, and passing would make it optional — which it was,
+  // silently, until this branch was RUN against a stubbed git rather than read.
+  //
+  // Either way, do NOT name a cause: "not a git repository" is one reading and
+  // this has established none of them, the same collapse-then-assert the
+  // entry-level rules forbid.
+  if (IN_CHECKOUT) {
+    history = 'NOT CHECKED — `git log` failed here, cause unknown';
+    fail.push(`${FILE} — the append-only history check could not run (\`git log\` failed) in a checkout. ` +
+      `Treating that as a pass would make the strongest half of this gate optional.`);
+  } else {
+    history = 'DOES NOT APPLY — no `.git` here, so there is no history to compare (release tarball or vendored copy)';
+  }
 }
 
 // ── report ──────────────────────────────────────────────────────────────────
