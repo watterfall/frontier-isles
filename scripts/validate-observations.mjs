@@ -38,11 +38,49 @@ if (raw.length && !raw.endsWith('\n')) fail.push(`${FILE} — must end with a ne
  * from the committed prefix onward grandfathers exactly the entries that
  * predate it and no others, with no version stamp to keep in sync.
  */
-let committedLines = [];
+/**
+ * Overridable so the failure branches below can be RUN rather than asserted.
+ * Point it at a stub that fails a chosen subcommand; see the note on the
+ * history walk for what that does and does not establish.
+ */
+const GIT = process.env.FI_GIT_BIN ?? 'git';
+const git = (args) => execFileSync(GIT, args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+
+/**
+ * Whether git itself is usable here. Needed to keep two different situations
+ * apart that a bare `catch` collapses: a file genuinely absent from HEAD (the
+ * first commit — nothing to grandfather, nothing wrong) and git being
+ * unavailable (the check did not run at all). Collapsing them means printing
+ * "no committed version yet", which asserts the first while the second is
+ * equally consistent with what was observed.
+ *
+ * `rev-parse` is not enough on its own: it answers "is there a repository",
+ * while the question here is "does HEAD contain this path". `ls-tree` answers
+ * exactly that — empty output means genuinely absent, a failure means git could
+ * not tell us, and those must not print the same sentence.
+ */
+let pathInHead = null; // true | false | null when git could not say
 try {
-  committedLines = execFileSync('git', ['show', `HEAD:${FILE}`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })
-    .split('\n').filter((l) => l.trim());
-} catch { /* not in HEAD yet — first commit, nothing is grandfathered */ }
+  pathInHead = git(['ls-tree', '--name-only', 'HEAD', '--', FILE]).trim().length > 0;
+} catch {
+  pathInHead = null;
+}
+
+let committedLines = [];
+/** Set when the comparison could not be made, as opposed to finding nothing. */
+let baselineSkipped = null;
+try {
+  committedLines = git(['show', `HEAD:${FILE}`]).split('\n').filter((l) => l.trim());
+} catch {
+  // `show` failed. Only one reading of that is benign — the path really is not
+  // in HEAD yet. Anything else means the baseline could not be read, and saying
+  // "no committed version yet" would assert the benign one on no evidence.
+  if (pathInHead !== false) {
+    baselineSkipped = pathInHead === null
+      ? 'git could not report whether HEAD contains this file'
+      : 'HEAD contains this file but its contents could not be read';
+  }
+}
 
 const entries = [];
 lines.forEach((text, i) => {
@@ -76,7 +114,11 @@ lines.forEach((text, i) => {
   // Required (null allowed) on every entry appended after the field existed;
   // the entries that predate it are grandfathered and counted as `unrecorded`
   // in the summary below rather than silently folded into either bucket.
-  if (i >= committedLines.length && !Object.hasOwn(e, 'filed_by')) {
+  // Only when the baseline is trustworthy. Without it every entry looks new,
+  // and a failed git call would surface as a pile of contract violations
+  // instead of "this check could not run" — a broken tool reported as broken
+  // data.
+  if (!baselineSkipped && i >= committedLines.length && !Object.hasOwn(e, 'filed_by')) {
     bad(n, 'missing `filed_by` — say who wrote this entry, or `null` when that is the actor in `by`. ' +
       'Absent, the summary cannot distinguish a relayed entry from a self-written one and would have to assert it.');
   }
@@ -210,7 +252,7 @@ function explainDrift(prev, cur) {
 // not hypothetical here — a rewritten entry, committed, passed this gate with
 // `append-only: ok` and exit 0. Part 2 below is what actually checks the
 // property; this part stays because it fails earlier and reads better.
-let appendOnly = 'not checked (no committed version yet)';
+let appendOnly = baselineSkipped ? `SKIPPED — ${baselineSkipped}` : 'not checked (no committed version yet)';
 if (committedLines.length) {
   const now = lines.filter((l) => l.trim());
   if (!isPrefixExtension(committedLines, now)) {
@@ -243,7 +285,7 @@ if (committedLines.length) {
 // past. That would need signatures (stage 4) or an externally anchored log.
 let history = 'not checked (no commits touch this file yet)';
 try {
-  const shas = execFileSync('git', ['log', '--format=%H', '--', FILE], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })
+  const shas = git(['log', '--format=%H', '--', FILE])
     .split('\n').filter(Boolean).reverse(); // oldest first
   const drift = [];
   let prev = null;
@@ -253,16 +295,19 @@ try {
   for (const sha of shas) {
     let text;
     try {
-      text = execFileSync('git', ['show', `${sha}:${FILE}`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+      text = git(['show', `${sha}:${FILE}`]);
     } catch {
       // Path absent at this commit (e.g. before a rename). Counted, because a
       // silently skipped version turns "N commits checked" into a number that
       // does not say how many were actually compared.
       //
-      // UNTESTED: no commit in this file's history fails to produce a blob, so
-      // nothing here has exercised this branch. It is written to be visible
-      // rather than correct-by-assertion — the summary prints the word SKIPPED,
-      // which does not read like a pass, instead of quietly lowering a count.
+      // Exercised by pointing `FI_GIT_BIN` at a stub that fails `show` while
+      // `log` still succeeds. What that establishes is how THIS code reacts to
+      // a failing `show` — not that git ever fails that way, which no stub can
+      // show. The distinction matters: a branch whose correctness depends on
+      // git's actual output (a rename reported as `R100 old new`, say) has to
+      // be checked against real git, and a stub would only be re-asserting the
+      // format this code already assumes.
       unreadable++;
       continue;
     }
@@ -285,12 +330,28 @@ try {
       `A committed rewrite is still a rewrite; correct a superseded observation by appending on the same \`about\`.`);
     history = 'VIOLATED';
   } else {
-    history = `ok (${shas.length} commit(s) touched it, ${compared} version pair(s) compared` +
-      `${unreadable ? `, ${unreadable} version(s) unreadable at this path and SKIPPED` : ''})`;
+    // "ok" only when something was actually compared. A walk that skipped every
+    // version has established nothing, and printing ok there is the exact
+    // substitution this check exists to prevent: "not compared" read as
+    // "unchanged".
+    const detail = `${shas.length} commit(s) touched it, ${compared} version pair(s) compared` +
+      `${unreadable ? `, ${unreadable} version(s) unreadable at this path and SKIPPED` : ''}`;
+    if (compared === 0 && shas.length > 1) {
+      history = `NOT ESTABLISHED — nothing could be compared (${detail})`;
+      fail.push(`${FILE} — the append-only history check compared nothing (${detail}). ` +
+        `That is not a pass; it means the history could not be read.`);
+    } else {
+      history = `ok (${detail})`;
+    }
   }
 } catch {
-  /* not a git repository — the check cannot run; reported as such below */
-  history = 'NOT CHECKED (not a git repository)';
+  // `git log` failed. Do NOT name a cause — "not a git repository" is one
+  // reading and this has established none of them, which is the same
+  // collapse-then-assert the entry-level rules forbid. And it must not exit 0:
+  // a history check that never ran is not a history check that passed.
+  history = 'NOT CHECKED — `git log` failed here, cause unknown';
+  fail.push(`${FILE} — the append-only history check could not run (\`git log\` failed). ` +
+    `Treating that as a pass would make the strongest half of this gate optional.`);
 }
 
 // ── report ──────────────────────────────────────────────────────────────────
