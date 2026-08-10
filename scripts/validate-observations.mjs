@@ -187,9 +187,15 @@ function explainDrift(prev, cur) {
   // of exactly the kind this whole check exists to stop.
   if (notes.length === 0) {
     const inserted = [...after.keys()].filter((id) => !before.has(id));
+    // Say only what this branch establishes. All it knows is: nothing removed,
+    // nothing rewritten, and the file is no longer an extension of the previous
+    // version. With an added id that is an insertion somewhere other than the
+    // end — possibly alongside a reordering, which this view cannot separate.
+    // Claiming plain "inserted mid-file" would assert the part it cannot see.
     notes.push(inserted.length > 0
-      ? `entry ${inserted.map((id) => `\`${id}\``).join(', ')} was INSERTED before the end of the file — ` +
-        'appending is legal, appending in the middle is not, because it renumbers everything after it'
+      ? `entry ${inserted.map((id) => `\`${id}\``).join(', ')} was ADDED somewhere other than the end, ` +
+        'or existing entries were reordered around it — either way the file is no longer an extension ' +
+        'of its previous version, which appending at the end would have kept'
       : 'no entry was removed, rewritten or added, so existing entries were REORDERED');
   }
   return { notes, fellBack: false };
@@ -243,12 +249,22 @@ try {
   let prev = null;
   let prevSha = null;
   let compared = 0;
+  let unreadable = 0;
   for (const sha of shas) {
     let text;
     try {
       text = execFileSync('git', ['show', `${sha}:${FILE}`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
     } catch {
-      continue; // path absent at this commit (e.g. before a rename) — see limit below
+      // Path absent at this commit (e.g. before a rename). Counted, because a
+      // silently skipped version turns "N commits checked" into a number that
+      // does not say how many were actually compared.
+      //
+      // UNTESTED: no commit in this file's history fails to produce a blob, so
+      // nothing here has exercised this branch. It is written to be visible
+      // rather than correct-by-assertion — the summary prints the word SKIPPED,
+      // which does not read like a pass, instead of quietly lowering a count.
+      unreadable++;
+      continue;
     }
     const cur = text.split('\n').filter((l) => l.trim());
     if (prev) {
@@ -269,7 +285,8 @@ try {
       `A committed rewrite is still a rewrite; correct a superseded observation by appending on the same \`about\`.`);
     history = 'VIOLATED';
   } else {
-    history = `ok (${shas.length} commit(s) touched it, ${compared} version pair(s) compared)`;
+    history = `ok (${shas.length} commit(s) touched it, ${compared} version pair(s) compared` +
+      `${unreadable ? `, ${unreadable} version(s) unreadable at this path and SKIPPED` : ''})`;
   }
 } catch {
   /* not a git repository — the check cannot run; reported as such below */

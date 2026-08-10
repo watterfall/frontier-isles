@@ -363,7 +363,16 @@ console.log(`  islands in NO relational layer: ${inertEverywhere}/${FRONTIERS.le
 // relations, and a derived one in the numerator would read as backlog closed
 // while nothing was authored. Stated here so the two facts are not confused —
 // the reader's dead end is smaller than it was; the backlog is unchanged.
-console.log(`  (every island additionally lists its ${FRONTIERS.length / 53 - 1} same-cluster islands on L1 — ` +
+// Derived from the actual per-cluster sizes, not from `FRONTIERS.length / 53`.
+// That mean reads as a per-island count and is only equal to one while every
+// cluster happens to hold the same number — uneven clusters would print a
+// fraction, and a sentence of the form "every island lists its 6.4 siblings" is
+// wrong in a way that still looks like a measurement.
+const siblingCounts = [...byCluster.values()].map((n) => n - 1);
+const siblingSpan = Math.min(...siblingCounts) === Math.max(...siblingCounts)
+  ? `${siblingCounts[0]}`
+  : `${Math.min(...siblingCounts)}–${Math.max(...siblingCounts)}`;
+console.log(`  (every island additionally lists its ${siblingSpan} same-cluster islands on L1 — ` +
   `a projection of the corpus filing, deliberately excluded from the four counts above)`);
 if (inertEverywhere / FRONTIERS.length > 0.4) {
   warn.push(`${inertEverywhere} islands (${inertPct}%) appear in no ferry route, structure mapping, ` +
