@@ -469,14 +469,20 @@ export const STRUCTURE_PROPOSALS: StructureProposal[] = [
     proposedAt: '2026-08-11',
   },
   {
+    // Reclassified 2026-08-11. Filed as `embodies` on the reading that the
+    // island has a field to invert; the barrier it cites actually says the
+    // inversion is NOT unique, which means the substrate transfer function is
+    // indeterminate — the quantity is absent, not present. See the note on
+    // `ProposalRelation`: an audit of evidence direction found three proposals
+    // whose barrier quote argued the opposite of the relation they carried.
     slug: 'cable-bacteria-biogeophysical-signals',
     structureId: 'struct://xfrontier/distributed-field-observability',
-    relation: 'embodies',
+    relation: 'breaks',
     quantity: { mapping: 1, correspondence: 1 },
     evidence: { field: 'barrier' },
     check: {
-      zh: '复核要点：沉积物的电位场要成为可反演的观测量，需要一个确定的基底传递函数。岛自身障碍说相似的电位与 pH 梯度可由扩散、矿物反应或其他电活性微生物产生，反演并不唯一——那么这个传递函数是可标定的，还是根本不存在唯一解？',
-      en: 'What a reviewer must settle: for a sediment potential field to be an invertible observable it needs a determinate substrate transfer function. The island says similar potential and pH gradients can arise from diffusion, mineral reactions or other electroactive microbes, so the inversion is not unique — is that transfer function calibratable, or is there simply no unique solution?',
+      zh: '复核要点：这条记录的是本结构在此可能失效。可反演的观测量需要一个确定的基底传递函数，而岛自身说相似的电位与 pH 梯度可由扩散、矿物反应或其他电活性微生物产生，反演并不唯一。要判的是：这个不唯一是标定不足（可修，则应改为正向映射），还是原理性的多解（则本结构不适用）。',
+      en: 'What a reviewer must settle: this records the structure possibly FAILING here. An invertible observable needs a determinate substrate transfer function, and the island says similar potential and pH gradients arise from diffusion, mineral reactions or other electroactive microbes, so the inversion is not unique. The judgement is whether that non-uniqueness is under-calibration — fixable, in which case this becomes a positive mapping — or a non-uniqueness of principle, in which case the structure does not apply.',
     },
     proposedBy: 'did:mcp:atlas-audit',
     proposedAt: '2026-08-11',
@@ -487,14 +493,19 @@ export const STRUCTURE_PROPOSALS: StructureProposal[] = [
     // The structure's own statement supplies the test: hysteresis is
     // computation only when state update, operator and readout are all
     // reproducible. The island's barrier is that they are not, yet.
+    // Reclassified 2026-08-11, same audit. The structure's own statement makes
+    // reproducibility the test — "hysteresis is computation only when state
+    // update, operator and readout are reproducible" — and the island's barrier
+    // says the state space differs between batches of the same mycelium. Filed
+    // as `embodies`, its evidence argued the structure's test is FAILED.
     slug: 'fungal-mycelial-physical-reservoir-computing',
     structureId: 'struct://xfrontier/stateful-in-materia-computation',
-    relation: 'embodies',
+    relation: 'breaks',
     quantity: { mapping: 0, correspondence: 0 },
     evidence: { field: 'barrier' },
     check: {
-      zh: '复核要点：本结构明说——只有状态更新、算子与读出都可复现，迟滞才构成计算而不只是漂移。这个岛自己写着活体基底逐日漂移、同一块菌丝不同批次给出不同状态空间。所以要判的是：这是「尚未标定」，还是「原理上不可复现」；前者是映射，后者不是。',
-      en: 'What a reviewer must settle: this structure says outright that hysteresis is computation only when state update, operator and readout are each reproducible. The island records that the living substrate drifts daily and that the same mycelium yields a different state space between batches. So the judgement is whether that is "not yet calibrated" or "not reproducible in principle" — the first is a mapping, the second is not.',
+      zh: '复核要点：本结构明说——只有状态更新、算子与读出都可复现，迟滞才构成计算而不只是漂移。这个岛自己写着活体基底逐日漂移、同一块菌丝不同批次给出不同状态空间，也就是当前不满足这个判据。要判的是：这是「尚未标定」（可修，则应改为正向映射），还是「原理上不可复现」（则本结构不适用）。',
+      en: 'What a reviewer must settle: this structure says outright that hysteresis is computation only when state update, operator and readout are each reproducible. The island records that the living substrate drifts daily and that the same mycelium yields a different state space between batches — that is, the structure\'s own test is currently not met. The judgement is whether that is "not yet calibrated", in which case this becomes a positive mapping, or "not reproducible in principle", in which case the structure does not apply.',
     },
     proposedBy: 'did:mcp:atlas-audit',
     proposedAt: '2026-08-11',
@@ -517,14 +528,18 @@ export const STRUCTURE_PROPOSALS: StructureProposal[] = [
 
   // ── synchronization ───────────────────────────────────────────────────────
   {
+    // Reclassified 2026-08-11, same audit. The barrier cited — locally correct
+    // rules do not entail global achievement — is a statement that no order
+    // parameter is in hand, which is the structure's central quantity. Filed as
+    // `embodies`, its own evidence said the quantity is missing.
     slug: 'bio-inspired-swarm-robotics',
     structureId: 'struct://xfrontier/synchronization',
-    relation: 'embodies',
+    relation: 'breaks',
     quantity: { mapping: 0, correspondence: 1 },
     evidence: { field: 'barrier' },
     check: {
-      zh: '复核要点：群体机器人的「全局任务达成」是否可以写成一个序参量——一个随耦合强度变化、能标出临界的标量。岛自身障碍指出局部规则正确并不蕴含全局达成；若找不到这样的序参量，本结构提供的就只是类比，不是可用的工具。',
-      en: 'What a reviewer must settle: whether a swarm\'s "global task achieved" can be written as an order parameter — a scalar that varies with coupling strength and marks a threshold. The island notes that locally correct rules do not entail global achievement; without such an order parameter this structure offers an analogy rather than a usable tool.',
+      zh: '复核要点：这条记录的是本结构在此可能失效。它要求存在一个序参量——随耦合强度变化、能标出临界的标量；而岛自身障碍说局部规则正确并不蕴含全局任务达成，即当前没有这样的量。要判的是：群体任务达成能否被写成序参量（能，则改为正向映射），还是「任务达成」本质上不是一个可连续取值的集体态。',
+      en: 'What a reviewer must settle: this records the structure possibly FAILING here. It requires an order parameter — a scalar varying with coupling strength that marks a threshold — and the island says locally correct rules do not entail global task achievement, i.e. no such quantity is in hand. The judgement is whether swarm task achievement can be written as an order parameter, in which case this becomes a positive mapping, or whether "task achieved" is simply not a continuously valued collective state.',
     },
     proposedBy: 'did:mcp:atlas-audit',
     proposedAt: '2026-08-11',

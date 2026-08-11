@@ -138,6 +138,33 @@ describe('structure proposals', () => {
     expect(contradictions).toEqual([]);
   });
 
+  it('quotes text that belongs to exactly one island', () => {
+    // The corpus reuses sub-question text across islands filed in the same
+    // cluster — 11 groups covering 22 of the inert islands. So "the island's
+    // own text", the phrase this whole design rests on, is not automatically
+    // island-specific. None of the current proposals point at a shared string,
+    // but that was luck: nothing prevented it until this gate.
+    const allDepthText = FRONTIERS.map((f) => {
+      const d = f.depth;
+      return {
+        slug: f.slug,
+        texts: new Set([
+          d?.overview?.zh, d?.whyMatters?.zh, d?.ifAnswered?.zh, d?.barrier?.zh,
+          ...(d?.approaches ?? []).map((a) => a.zh),
+          ...(d?.subQuestions ?? []).map((q) => q.zh),
+        ].filter(Boolean) as string[]),
+      };
+    });
+    const shared = STRUCTURE_PROPOSALS.flatMap((p) => {
+      const quote = resolveProposal(p, sourcesFor(p)).evidence.text.zh;
+      const owners = allDepthText.filter((i) => i.texts.has(quote)).map((i) => i.slug);
+      return owners.length > 1
+        ? [`${p.slug}: evidence is shared verbatim with ${owners.filter((o) => o !== p.slug).join(', ')}`]
+        : [];
+    });
+    expect(shared, 'evidence must identify one island, not a cluster').toEqual([]);
+  });
+
   it('states a check a reviewer can act on, in both languages', () => {
     for (const p of STRUCTURE_PROPOSALS) {
       // Long enough to name what has to be settled. A one-line `check` is how

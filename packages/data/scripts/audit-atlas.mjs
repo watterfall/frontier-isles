@@ -406,6 +406,30 @@ console.log(`  unratified structure proposals: ${STRUCTURE_PROPOSALS.length} ove
   `structure BREAKS), ${proposalsOnInert.length} of them in the ${inertEverywhere} above ` +
   `— queued for human ratification, counted in NO layer` +
   (resolveFailures ? ` · ⚠ ${resolveFailures} FAILED TO RESOLVE` : ''));
+
+// Two ratios that decide whether this queue is still trustworthy, printed
+// because neither can be gated — both are judgements, and both go wrong
+// silently.
+//
+// (a) An `embodies` proposal evidenced by the island's BARRIER is the weaker
+//     form: a barrier says what is hard or missing, so using it to show the
+//     island SUPPLIES a quantity can be backwards. An audit of the first 28
+//     found three that argued the opposite of the relation they carried, and
+//     they were reclassified. Keeping the count visible is what makes the next
+//     occurrence cheap to spot.
+// (b) Proposals outnumbering authored mappings on one structure means a reader
+//     opening the structure lens sees mostly unratified material.
+const embodiesOnBarrier = STRUCTURE_PROPOSALS
+  .filter((p) => p.relation === 'embodies' && p.evidence.field === 'barrier').length;
+const perStructure = new Map();
+for (const p of STRUCTURE_PROPOSALS) perStructure.set(p.structureId, (perStructure.get(p.structureId) ?? 0) + 1);
+const outweighed = [...perStructure]
+  .map(([id, n]) => ({ id, n, authored: structById.get(id)?.mappings.length ?? 0 }))
+  .filter((x) => x.n > x.authored)
+  .map((x) => `${x.id.replace('struct://xfrontier/', '')} ${x.n} proposed vs ${x.authored} authored`);
+console.log(`    of which ${embodiesOnBarrier} rest on the island's BARRIER as evidence of supply ` +
+  `(the weaker form — a barrier states what is missing)` +
+  (outweighed.length ? `\n    ⚠ proposals outnumber authored mappings on: ${outweighed.join(' · ')}` : ''));
 if (resolveFailures) {
   warn.push(`${resolveFailures} structure proposal(s) no longer resolve against the authored sources — ` +
     `a quantity or depth entry moved. A proposal that cannot resolve must not be shown; fix the pointer or drop it.`);
