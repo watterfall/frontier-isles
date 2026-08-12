@@ -51,11 +51,12 @@ import {
   type StructureFrontier,
   type StructureMappingRecord,
 } from "@frontier-isles/core";
-import { domainToVec, type IslandInterior } from "@frontier-isles/data";
+import { domainToVec, type IslandInterior, type XFrontierWithdrawal } from "@frontier-isles/data";
 import type { DB } from "./db.js";
 import { refHash, type RefKind } from "./refs.js";
 import { dispatchNightDigest } from "./webhook.js";
 import { randomBytes } from "node:crypto";
+import { isDeepStrictEqual } from "node:util";
 
 export const ORG = "frontier-isles";
 export const opIdFor = (slug: string) => `op://${ORG}/prob/${slug}`;
@@ -230,6 +231,7 @@ export interface ProblemMeta {
    *  `frontier` field stays lean — heat/substrate derived from these scores). */
   atlas?: {
     atlasN: number;
+    atlasWithdrawal?: XFrontierWithdrawal;
     scores: number[];
     cluster: { code: string; zh: string; en: string };
     citation: { url: string; title: string; venue: string; year: number };
@@ -320,6 +322,369 @@ export interface ConnectionResponseResult extends GatewayResult {
   respondingIslandOp: string;
 }
 
+/** A catalog slug is occupied by a different stable xFrontier identity. */
+export class CatalogAtlasIdentityConflict extends Error {
+  constructor(
+    public slug: string,
+    public storedAtlasN: unknown,
+    public catalogAtlasN: number,
+  ) {
+    super(
+      `catalog atlas identity conflict for ${slug}: stored XF-${storedAtlasN} does not match catalog XF-${catalogAtlasN}`,
+    );
+    this.name = "CatalogAtlasIdentityConflict";
+  }
+}
+
+export type FeedbackOutboxState = "pending" | "in_flight" | "delivered" | "uncertain" | "cancelled";
+export type FeedbackDeliveryOutcome = "success" | "failure" | "lease_expired";
+export type FeedbackReconciliationOutcome = "found" | "not_found" | "refused" | "conflict";
+export type FeedbackRemoteDecisionStatus =
+  | "pending"
+  | "accepted"
+  | "rejected"
+  | "resolved"
+  | "wontfix"
+  | "superseded";
+export type FeedbackLocalDisposition = "unreviewed" | "acknowledged" | "applied" | "released";
+export type FeedbackFindingLocalDisposition = "unreviewed" | "acknowledged" | "addressed" | "dismissed";
+
+export interface FeedbackOutboxItem {
+  id: string;
+  idempotencyKey: string;
+  envelopeHash: string;
+  envelope: unknown;
+  sourceLedgerEventHash?: string;
+  sourceRefHash?: string;
+  state: FeedbackOutboxState;
+  createdAt: string;
+  updatedAt: string;
+  cancelledReason?: string;
+}
+
+export interface FeedbackDeliveryAttempt {
+  attemptId: string;
+  outboxId: string;
+  attemptNo: number;
+  workerId: string;
+  startedAt: string;
+  leaseExpiresAt: string;
+}
+
+export interface FeedbackDeliveryLease {
+  item: FeedbackOutboxItem;
+  attempt: FeedbackDeliveryAttempt;
+  /** Capability for completing this exact lease; do not persist in logs. */
+  leaseToken: string;
+}
+
+/** Read-only delivery audit view. Lease capabilities are intentionally absent. */
+export interface FeedbackDeliveryInspection {
+  item: FeedbackOutboxItem;
+  activeLease?: {
+    attemptId: string;
+    workerId: string;
+    leaseExpiresAt: string;
+  };
+  lastAttempt?: FeedbackDeliveryAttempt;
+  lastReceipt?: FeedbackDeliveryReceipt;
+  lastReconciliation?: FeedbackDeliveryReconciliation;
+}
+
+export interface FeedbackDeliveryReceipt {
+  receiptId: string;
+  attemptId: string;
+  outboxId: string;
+  outcome: FeedbackDeliveryOutcome;
+  remoteReceiptId?: string;
+  detail?: unknown;
+  error?: string;
+  recordedAt: string;
+}
+
+export interface FeedbackDeliveryReconciliation {
+  reconciliationId: string;
+  outboxId: string;
+  /** The completed delivery attempt whose remote outcome this lookup observed. */
+  basisAttemptId: string;
+  clientEventId: string;
+  requestHash: string;
+  outcome: FeedbackReconciliationOutcome;
+  remoteReceiptId?: string;
+  detail: unknown;
+  recordedAt: string;
+}
+
+export interface FeedbackReviewDecision {
+  seq: number;
+  decisionId: string;
+  outboxId: string;
+  remoteStatus: FeedbackRemoteDecisionStatus;
+  decision: unknown;
+  decidedAt: string;
+  receivedAt: string;
+}
+
+export interface FeedbackReviewInboxItem {
+  outboxId: string;
+  latestDecisionId: string;
+  remoteStatus: FeedbackRemoteDecisionStatus;
+  remoteDecidedAt: string;
+  localDisposition: FeedbackLocalDisposition;
+  /** A local application/release is historical fact. If upstream later reverses
+   * acceptance, preserve that fact and surface the disagreement for a human. */
+  needsReconciliation: boolean;
+  localUpdatedAt?: string;
+}
+
+export interface FeedbackFindingInboxItem {
+  remoteFindingId: string;
+  datasetVersion: string;
+  findingHash: string;
+  finding: unknown;
+  upstreamStale: boolean;
+  observedAt: string;
+  localDisposition: FeedbackFindingLocalDisposition;
+  localUpdatedAt?: string;
+}
+
+export class FeedbackStoreError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "FeedbackStoreError";
+  }
+}
+
+export class FeedbackIdempotencyConflict extends FeedbackStoreError {
+  constructor(public idempotencyKey: string) {
+    super(`feedback idempotency key was reused with different content: ${idempotencyKey}`);
+    this.name = "FeedbackIdempotencyConflict";
+  }
+}
+
+export class FeedbackSourceMissing extends FeedbackStoreError {
+  constructor(public sourceKind: "ledger_event" | "ref", public hash: string) {
+    super(`feedback source ${sourceKind} does not exist locally: ${hash}`);
+    this.name = "FeedbackSourceMissing";
+  }
+}
+
+export class FeedbackStateConflict extends FeedbackStoreError {
+  constructor(message: string) {
+    super(message);
+    this.name = "FeedbackStateConflict";
+  }
+}
+
+type FeedbackOutboxSqlRow = {
+  id: string;
+  idempotency_key: string;
+  envelope_hash: string;
+  envelope_json: string;
+  source_ledger_event_hash: string | null;
+  source_ref_hash: string | null;
+  state: FeedbackOutboxState;
+  created_at: string;
+  updated_at: string;
+  cancelled_reason: string | null;
+};
+
+type FeedbackActiveLeaseSqlRow = {
+  state: FeedbackOutboxState;
+  lease_owner: string | null;
+  current_attempt_id: string | null;
+  lease_expires_at: string | null;
+};
+
+type FeedbackAttemptSqlRow = {
+  attempt_id: string;
+  outbox_id: string;
+  attempt_no: number;
+  worker_id: string;
+  started_at: string;
+  lease_expires_at: string;
+};
+
+type FeedbackReceiptSqlRow = {
+  receipt_id: string;
+  attempt_id: string;
+  outbox_id: string;
+  outcome: FeedbackDeliveryOutcome;
+  remote_receipt_id: string | null;
+  detail_json: string | null;
+  error: string | null;
+  recorded_at: string;
+};
+
+type FeedbackReconciliationSqlRow = {
+  reconciliation_id: string;
+  outbox_id: string;
+  basis_attempt_id: string;
+  client_event_id: string;
+  request_hash: string;
+  outcome: FeedbackReconciliationOutcome;
+  remote_receipt_id: string | null;
+  detail_json: string;
+  recorded_at: string;
+};
+
+type FeedbackDecisionSqlRow = {
+  seq: number;
+  decision_id: string;
+  outbox_id: string;
+  remote_status: FeedbackRemoteDecisionStatus;
+  decision_json: string;
+  decided_at: string;
+  received_at: string;
+};
+
+type FeedbackInboxSqlRow = {
+  outbox_id: string;
+  latest_decision_id: string;
+  remote_status: FeedbackRemoteDecisionStatus;
+  remote_decided_at: string;
+  local_disposition: FeedbackLocalDisposition;
+  local_updated_at: string | null;
+};
+
+type FeedbackFindingSqlRow = {
+  remote_finding_id: string;
+  dataset_version: string;
+  finding_hash: string;
+  finding_json: string;
+  upstream_stale: number;
+  observed_at: string;
+  local_disposition: FeedbackFindingLocalDisposition;
+  local_updated_at: string | null;
+};
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+const feedbackJson = (value: unknown, label: string): string => {
+  const json = JSON.stringify(value);
+  if (json === undefined) throw new FeedbackStoreError(`${label} must be JSON-serializable`);
+  return json;
+};
+
+const feedbackIso = (value: string | undefined, label: string): string => {
+  const date = value === undefined ? new Date() : new Date(value);
+  if (!Number.isFinite(date.getTime())) throw new FeedbackStoreError(`${label} must be a valid timestamp`);
+  return date.toISOString();
+};
+
+const feedbackSourceOf = (envelope: unknown): { ledgerEventHash?: string; refHash?: string } => {
+  if (!isRecord(envelope)) throw new FeedbackStoreError("feedback envelope must be a JSON object");
+  if (envelope.source === undefined) {
+    throw new FeedbackStoreError("feedback envelope needs a ledgerEventHash or refHash evidence anchor");
+  }
+  if (!isRecord(envelope.source)) throw new FeedbackStoreError("feedback envelope source must be an object");
+  const ledgerEventHash = envelope.source.ledgerEventHash;
+  const sourceRefHash = envelope.source.refHash;
+  if (ledgerEventHash !== undefined && (typeof ledgerEventHash !== "string" || ledgerEventHash.length === 0)) {
+    throw new FeedbackStoreError("feedback source ledgerEventHash must be a non-empty string");
+  }
+  if (sourceRefHash !== undefined && (typeof sourceRefHash !== "string" || sourceRefHash.length === 0)) {
+    throw new FeedbackStoreError("feedback source refHash must be a non-empty string");
+  }
+  if (ledgerEventHash === undefined && sourceRefHash === undefined) {
+    throw new FeedbackStoreError("feedback envelope needs a ledgerEventHash or refHash evidence anchor");
+  }
+  return { ledgerEventHash: ledgerEventHash as string | undefined, refHash: sourceRefHash as string | undefined };
+};
+
+const feedbackOutboxFromRow = (row: FeedbackOutboxSqlRow): FeedbackOutboxItem => ({
+  id: row.id,
+  idempotencyKey: row.idempotency_key,
+  envelopeHash: row.envelope_hash,
+  envelope: JSON.parse(row.envelope_json) as unknown,
+  ...(row.source_ledger_event_hash ? { sourceLedgerEventHash: row.source_ledger_event_hash } : {}),
+  ...(row.source_ref_hash ? { sourceRefHash: row.source_ref_hash } : {}),
+  state: row.state,
+  createdAt: row.created_at,
+  updatedAt: row.updated_at,
+  ...(row.cancelled_reason ? { cancelledReason: row.cancelled_reason } : {}),
+});
+
+const feedbackAttemptFromRow = (row: FeedbackAttemptSqlRow): FeedbackDeliveryAttempt => ({
+  attemptId: row.attempt_id,
+  outboxId: row.outbox_id,
+  attemptNo: row.attempt_no,
+  workerId: row.worker_id,
+  startedAt: row.started_at,
+  leaseExpiresAt: row.lease_expires_at,
+});
+
+const feedbackReceiptFromRow = (row: FeedbackReceiptSqlRow): FeedbackDeliveryReceipt => ({
+  receiptId: row.receipt_id,
+  attemptId: row.attempt_id,
+  outboxId: row.outbox_id,
+  outcome: row.outcome,
+  ...(row.remote_receipt_id ? { remoteReceiptId: row.remote_receipt_id } : {}),
+  ...(row.detail_json !== null ? { detail: JSON.parse(row.detail_json) as unknown } : {}),
+  ...(row.error ? { error: row.error } : {}),
+  recordedAt: row.recorded_at,
+});
+
+const feedbackReconciliationFromRow = (
+  row: FeedbackReconciliationSqlRow,
+): FeedbackDeliveryReconciliation => ({
+  reconciliationId: row.reconciliation_id,
+  outboxId: row.outbox_id,
+  basisAttemptId: row.basis_attempt_id,
+  clientEventId: row.client_event_id,
+  requestHash: row.request_hash,
+  outcome: row.outcome,
+  ...(row.remote_receipt_id ? { remoteReceiptId: row.remote_receipt_id } : {}),
+  detail: JSON.parse(row.detail_json) as unknown,
+  recordedAt: row.recorded_at,
+});
+
+const feedbackDecisionFromRow = (row: FeedbackDecisionSqlRow): FeedbackReviewDecision => ({
+  seq: row.seq,
+  decisionId: row.decision_id,
+  outboxId: row.outbox_id,
+  remoteStatus: row.remote_status,
+  decision: JSON.parse(row.decision_json) as unknown,
+  decidedAt: row.decided_at,
+  receivedAt: row.received_at,
+});
+
+const feedbackInboxFromRow = (row: FeedbackInboxSqlRow): FeedbackReviewInboxItem => ({
+  outboxId: row.outbox_id,
+  latestDecisionId: row.latest_decision_id,
+  remoteStatus: row.remote_status,
+  remoteDecidedAt: row.remote_decided_at,
+  localDisposition: row.local_disposition,
+  needsReconciliation:
+    (row.local_disposition === "applied" || row.local_disposition === "released")
+    && row.remote_status !== "accepted",
+  ...(row.local_updated_at ? { localUpdatedAt: row.local_updated_at } : {}),
+});
+
+const feedbackFindingFromRow = (row: FeedbackFindingSqlRow): FeedbackFindingInboxItem => ({
+  remoteFindingId: row.remote_finding_id,
+  datasetVersion: row.dataset_version,
+  findingHash: row.finding_hash,
+  finding: JSON.parse(row.finding_json) as unknown,
+  upstreamStale: row.upstream_stale === 1,
+  observedAt: row.observed_at,
+  localDisposition: row.local_disposition,
+  ...(row.local_updated_at ? { localUpdatedAt: row.local_updated_at } : {}),
+});
+
+const FEEDBACK_OUTBOX_COLUMNS = `id, idempotency_key, envelope_hash, envelope_json,
+  source_ledger_event_hash, source_ref_hash, state, created_at, updated_at, cancelled_reason`;
+
+const REMOTE_DECISION_STATUSES = new Set<FeedbackRemoteDecisionStatus>([
+  "pending",
+  "accepted",
+  "rejected",
+  "resolved",
+  "wontfix",
+  "superseded",
+]);
+
 // ---------------------------------------------------------------------------
 // Store
 // ---------------------------------------------------------------------------
@@ -342,6 +707,979 @@ export class Store {
       | { kind: string; json: string }
       | undefined;
     return row ? { kind: row.kind, content: JSON.parse(row.json) } : undefined;
+  }
+
+  // --- durable xFrontier feedback -------------------------------------------
+
+  /**
+   * Transactionally enqueue one already-validated exchange envelope. The
+   * idempotency key is stable across process retries; reusing it with different
+   * content or provenance is a hard conflict, never an overwrite.
+   *
+   * Optional `envelope.source.ledgerEventHash/refHash` values are authority
+   * anchors, not decorative provenance: both must already exist in this DB.
+   */
+  enqueueFeedback(input: {
+    idempotencyKey: string;
+    envelope: unknown;
+    now?: string;
+  }): { created: boolean; item: FeedbackOutboxItem } {
+    const idempotencyKey = input.idempotencyKey.trim();
+    if (!idempotencyKey) throw new FeedbackStoreError("feedback idempotency key is required");
+    const at = feedbackIso(input.now, "feedback enqueue timestamp");
+    const envelopeJson = feedbackJson(input.envelope, "feedback envelope");
+    const envelopeHash = refHash(input.envelope);
+    const source = feedbackSourceOf(input.envelope);
+    const outboxId = refHash({ format: "frontier-isles/xfrontier-feedback-outbox/v1", idempotencyKey });
+
+    const tx = this.db.transaction((): { created: boolean; item: FeedbackOutboxItem } => {
+      const existing = this.db
+        .prepare(`SELECT ${FEEDBACK_OUTBOX_COLUMNS} FROM feedback_outbox WHERE idempotency_key = ?`)
+        .get(idempotencyKey) as FeedbackOutboxSqlRow | undefined;
+      if (existing) {
+        if (
+          existing.envelope_hash !== envelopeHash ||
+          existing.source_ledger_event_hash !== (source.ledgerEventHash ?? null) ||
+          existing.source_ref_hash !== (source.refHash ?? null)
+        ) {
+          throw new FeedbackIdempotencyConflict(idempotencyKey);
+        }
+        return { created: false, item: feedbackOutboxFromRow(existing) };
+      }
+
+      if (source.ledgerEventHash) {
+        const found = this.db.prepare("SELECT 1 FROM ledger_events WHERE hash = ?").get(source.ledgerEventHash);
+        if (!found) throw new FeedbackSourceMissing("ledger_event", source.ledgerEventHash);
+      }
+      if (source.refHash) {
+        const found = this.db.prepare("SELECT 1 FROM refs WHERE hash = ?").get(source.refHash);
+        if (!found) throw new FeedbackSourceMissing("ref", source.refHash);
+      }
+
+      this.db
+        .prepare(
+          `INSERT INTO feedback_outbox (
+             id, idempotency_key, envelope_hash, envelope_json,
+             source_ledger_event_hash, source_ref_hash, state, created_at, updated_at
+           ) VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?)`,
+        )
+        .run(
+          outboxId,
+          idempotencyKey,
+          envelopeHash,
+          envelopeJson,
+          source.ledgerEventHash ?? null,
+          source.refHash ?? null,
+          at,
+          at,
+        );
+      return { created: true, item: this.getFeedbackOutbox(outboxId)! };
+    });
+    return tx();
+  }
+
+  getFeedbackOutbox(outboxId: string): FeedbackOutboxItem | undefined {
+    const row = this.db
+      .prepare(`SELECT ${FEEDBACK_OUTBOX_COLUMNS} FROM feedback_outbox WHERE id = ?`)
+      .get(outboxId) as FeedbackOutboxSqlRow | undefined;
+    return row ? feedbackOutboxFromRow(row) : undefined;
+  }
+
+  findFeedbackByIdempotencyKey(idempotencyKey: string): FeedbackOutboxItem | undefined {
+    const row = this.db
+      .prepare(`SELECT ${FEEDBACK_OUTBOX_COLUMNS} FROM feedback_outbox WHERE idempotency_key = ?`)
+      .get(idempotencyKey) as FeedbackOutboxSqlRow | undefined;
+    return row ? feedbackOutboxFromRow(row) : undefined;
+  }
+
+  /** Resolve a remote proposal/finding id back to its one successful local send. */
+  findFeedbackByRemoteReceiptId(remoteReceiptId: string): FeedbackOutboxItem | undefined {
+    const remoteId = remoteReceiptId.trim();
+    if (!remoteId) throw new FeedbackStoreError("remote feedback receipt id is required");
+    const rows = this.db
+      .prepare(
+        `SELECT o.id, o.idempotency_key, o.envelope_hash, o.envelope_json,
+                o.source_ledger_event_hash, o.source_ref_hash, o.state,
+                o.created_at, o.updated_at, o.cancelled_reason
+         FROM feedback_delivery_receipts r
+         JOIN feedback_outbox o ON o.id = r.outbox_id
+         WHERE r.outcome = 'success' AND r.remote_receipt_id = ?
+         UNION ALL
+         SELECT o.id, o.idempotency_key, o.envelope_hash, o.envelope_json,
+                o.source_ledger_event_hash, o.source_ref_hash, o.state,
+                o.created_at, o.updated_at, o.cancelled_reason
+         FROM feedback_delivery_reconciliations r
+         JOIN feedback_outbox o ON o.id = r.outbox_id
+         WHERE r.outcome = 'found' AND r.remote_receipt_id = ?
+         ORDER BY id`,
+      )
+      .all(remoteId, remoteId) as FeedbackOutboxSqlRow[];
+    const unique = [...new Map(rows.map((row) => [row.id, row])).values()];
+    if (unique.length > 1) {
+      throw new FeedbackStateConflict(`remote feedback receipt id maps to multiple outbox items: ${remoteId}`);
+    }
+    return unique[0] ? feedbackOutboxFromRow(unique[0]) : undefined;
+  }
+
+  listFeedbackOutbox(state?: FeedbackOutboxState): FeedbackOutboxItem[] {
+    const rows = state
+      ? (this.db
+          .prepare(`SELECT ${FEEDBACK_OUTBOX_COLUMNS} FROM feedback_outbox WHERE state = ? ORDER BY created_at, id`)
+          .all(state) as FeedbackOutboxSqlRow[])
+      : (this.db
+          .prepare(`SELECT ${FEEDBACK_OUTBOX_COLUMNS} FROM feedback_outbox ORDER BY created_at, id`)
+          .all() as FeedbackOutboxSqlRow[]);
+    return rows.map(feedbackOutboxFromRow);
+  }
+
+  /**
+   * Read-only operational detail for CLI inspection/recovery decisions. This
+   * never expires a lease or changes state; callers must invoke
+   * {@link recoverExpiredFeedbackDeliveries} explicitly.
+   */
+  inspectFeedbackDelivery(outboxId: string): FeedbackDeliveryInspection | undefined {
+    const item = this.getFeedbackOutbox(outboxId);
+    if (!item) return undefined;
+    const lease = this.db
+      .prepare(
+        `SELECT state, lease_owner, current_attempt_id, lease_expires_at
+         FROM feedback_outbox WHERE id = ?`,
+      )
+      .get(outboxId) as FeedbackActiveLeaseSqlRow;
+    const attempts = this.listFeedbackDeliveryAttempts(outboxId);
+    const receipts = this.listFeedbackDeliveryReceipts(outboxId);
+    const reconciliations = this.listFeedbackDeliveryReconciliations(outboxId);
+    const lastAttempt = attempts.at(-1);
+    const lastReceipt = receipts.at(-1);
+    const lastReconciliation = reconciliations.at(-1);
+    return {
+      item,
+      ...(lease.state === "in_flight"
+        ? {
+            activeLease: {
+              attemptId: lease.current_attempt_id!,
+              workerId: lease.lease_owner!,
+              leaseExpiresAt: lease.lease_expires_at!,
+            },
+          }
+        : {}),
+      ...(lastAttempt ? { lastAttempt } : {}),
+      ...(lastReceipt ? { lastReceipt } : {}),
+      ...(lastReconciliation ? { lastReconciliation } : {}),
+    };
+  }
+
+  /** Expired delivery means "remote outcome unknown", never "safe to retry". */
+  private expireFeedbackLeasesAt(at: string): number {
+    const expired = this.db
+      .prepare(
+        `SELECT id, current_attempt_id, lease_expires_at
+         FROM feedback_outbox
+         WHERE state = 'in_flight' AND lease_expires_at <= ?
+         ORDER BY lease_expires_at, id`,
+      )
+      .all(at) as Array<{ id: string; current_attempt_id: string; lease_expires_at: string }>;
+    for (const row of expired) {
+      const detail = { reason: "lease_expired", leaseExpiresAt: row.lease_expires_at };
+      const receiptHash = refHash({
+        attemptId: row.current_attempt_id,
+        outboxId: row.id,
+        outcome: "lease_expired",
+        detail,
+      });
+      const receiptId = refHash({ format: "frontier-isles/feedback-delivery-receipt/v1", receiptHash });
+      this.db
+        .prepare(
+          `INSERT INTO feedback_delivery_receipts (
+             receipt_id, receipt_hash, attempt_id, outbox_id, outcome, detail_json, error, recorded_at
+           ) VALUES (?, ?, ?, ?, 'lease_expired', ?, ?, ?)`,
+        )
+        .run(
+          receiptId,
+          receiptHash,
+          row.current_attempt_id,
+          row.id,
+          JSON.stringify(detail),
+          "delivery lease expired after the remote call began; outcome is uncertain",
+          at,
+        );
+      const updated = this.db
+        .prepare(
+          `UPDATE feedback_outbox
+           SET state = 'uncertain', updated_at = ?, lease_owner = NULL, lease_token = NULL,
+               lease_expires_at = NULL, current_attempt_id = NULL
+           WHERE id = ? AND state = 'in_flight' AND current_attempt_id = ?`,
+        )
+        .run(at, row.id, row.current_attempt_id);
+      if (updated.changes !== 1) throw new FeedbackStateConflict(`expired feedback lease changed concurrently: ${row.id}`);
+    }
+    return expired.length;
+  }
+
+  recoverExpiredFeedbackDeliveries(now?: string): number {
+    const at = feedbackIso(now, "feedback lease recovery timestamp");
+    return this.db.transaction(() => this.expireFeedbackLeasesAt(at)).immediate();
+  }
+
+  /** @deprecated Prefer the explicitly named recovery operation. */
+  expireFeedbackDeliveryLeases(now?: string): number {
+    return this.recoverExpiredFeedbackDeliveries(now);
+  }
+
+  /**
+   * Atomically lease the oldest pending item and append the immutable fact that
+   * a remote delivery call is about to begin. An uncertain item is selectable
+   * only by exact id after a matching not_found reconciliation.
+   */
+  leaseFeedbackDelivery(input: {
+    workerId: string;
+    /** Pin an explicit CLI/preflight selection instead of leasing another item. */
+    outboxId?: string;
+    /** An uncertain item is eligible only after an exact read-only lookup proved
+     * this immutable request absent. The caller must present that same proof. */
+    retry?: { clientEventId: string; requestHash: string };
+    now?: string;
+    leaseMs?: number;
+  }): FeedbackDeliveryLease | undefined {
+    const workerId = input.workerId.trim();
+    if (!workerId) throw new FeedbackStoreError("feedback delivery worker id is required");
+    const startedAt = feedbackIso(input.now, "feedback delivery start timestamp");
+    const leaseMs = input.leaseMs ?? 60_000;
+    if (!Number.isFinite(leaseMs) || leaseMs <= 0) {
+      throw new FeedbackStoreError("feedback delivery leaseMs must be positive");
+    }
+    if (input.retry && !input.outboxId) {
+      throw new FeedbackStoreError("reconciled feedback retry requires an explicit outboxId");
+    }
+    const retry = input.retry
+      ? {
+          clientEventId: input.retry.clientEventId.trim(),
+          requestHash: input.retry.requestHash.trim(),
+        }
+      : undefined;
+    if (retry && (!retry.clientEventId || !/^sha256:[0-9a-f]{64}$/.test(retry.requestHash))) {
+      throw new FeedbackStoreError("reconciled feedback retry needs a client event id and SHA-256 request hash");
+    }
+    const leaseExpiresAt = new Date(Date.parse(startedAt) + leaseMs).toISOString();
+
+    const tx = this.db.transaction((): FeedbackDeliveryLease | undefined => {
+      const candidate = input.outboxId
+        ? (this.db
+            .prepare(
+              `SELECT ${FEEDBACK_OUTBOX_COLUMNS} FROM feedback_outbox
+               WHERE id = ? AND state = ?`,
+            )
+            .get(input.outboxId, retry ? "uncertain" : "pending") as FeedbackOutboxSqlRow | undefined)
+        : (this.db
+            .prepare(`SELECT ${FEEDBACK_OUTBOX_COLUMNS} FROM feedback_outbox WHERE state = 'pending' ORDER BY created_at, id LIMIT 1`)
+            .get() as FeedbackOutboxSqlRow | undefined);
+      if (!candidate) return undefined;
+      if (retry) {
+        if (candidate.idempotency_key !== retry.clientEventId) {
+          throw new FeedbackStateConflict(`feedback retry client event id mismatch: ${candidate.id}`);
+        }
+        const latest = this.db
+          .prepare(
+            `SELECT reconciliation_id, outbox_id, basis_attempt_id, client_event_id, request_hash,
+                    outcome, remote_receipt_id, detail_json, recorded_at
+             FROM feedback_delivery_reconciliations WHERE outbox_id = ?
+             ORDER BY seq DESC LIMIT 1`,
+          )
+          .get(candidate.id) as FeedbackReconciliationSqlRow | undefined;
+        const lastAttempt = this.db
+          .prepare(
+            `SELECT attempt_id, outbox_id, attempt_no, worker_id, started_at, lease_expires_at
+             FROM feedback_delivery_attempts WHERE outbox_id = ?
+             ORDER BY attempt_no DESC LIMIT 1`,
+          )
+          .get(candidate.id) as FeedbackAttemptSqlRow | undefined;
+        if (
+          !latest || latest.outcome !== "not_found" ||
+          latest.client_event_id !== retry.clientEventId || latest.request_hash !== retry.requestHash ||
+          latest.basis_attempt_id !== lastAttempt?.attempt_id
+        ) {
+          throw new FeedbackStateConflict(
+            `feedback retry requires a fresh exact not_found reconciliation for the latest attempt: ${candidate.id}`,
+          );
+        }
+      }
+
+      const count = this.db
+        .prepare("SELECT COUNT(*) AS n FROM feedback_delivery_attempts WHERE outbox_id = ?")
+        .get(candidate.id) as { n: number };
+      const attemptNo = count.n + 1;
+      const attemptId = `feedback-attempt:${randomBytes(16).toString("hex")}`;
+      const leaseToken = randomBytes(32).toString("hex");
+      const updated = this.db
+        .prepare(
+          `UPDATE feedback_outbox
+           SET state = 'in_flight', updated_at = ?, lease_owner = ?, lease_token = ?,
+               lease_expires_at = ?, current_attempt_id = ?
+           WHERE id = ? AND state = ?`,
+        )
+        .run(startedAt, workerId, leaseToken, leaseExpiresAt, attemptId, candidate.id, retry ? "uncertain" : "pending");
+      if (updated.changes !== 1) throw new FeedbackStateConflict(`feedback item was leased concurrently: ${candidate.id}`);
+      this.db
+        .prepare(
+          `INSERT INTO feedback_delivery_attempts (
+             attempt_id, outbox_id, attempt_no, worker_id, lease_token, started_at, lease_expires_at
+           ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        )
+        .run(attemptId, candidate.id, attemptNo, workerId, leaseToken, startedAt, leaseExpiresAt);
+
+      return {
+        item: this.getFeedbackOutbox(candidate.id)!,
+        attempt: { attemptId, outboxId: candidate.id, attemptNo, workerId, startedAt, leaseExpiresAt },
+        leaseToken,
+      };
+    });
+    return tx.immediate();
+  }
+
+  private completeFeedbackDelivery(input: {
+    attemptId: string;
+    leaseToken: string;
+    outcome: "success" | "failure";
+    remoteReceiptId?: string;
+    detail?: unknown;
+    error?: string;
+    at?: string;
+  }): FeedbackDeliveryReceipt {
+    const recordedAt = feedbackIso(input.at, "feedback delivery receipt timestamp");
+    const detailJson = input.detail === undefined ? null : feedbackJson(input.detail, "feedback delivery receipt");
+    const attempt = this.db
+      .prepare(
+        `SELECT a.attempt_id, a.outbox_id, a.lease_token,
+                o.state, o.current_attempt_id, o.lease_token AS current_lease_token
+         FROM feedback_delivery_attempts a
+         JOIN feedback_outbox o ON o.id = a.outbox_id
+         WHERE a.attempt_id = ?`,
+      )
+      .get(input.attemptId) as
+      | {
+          attempt_id: string;
+          outbox_id: string;
+          lease_token: string;
+          state: FeedbackOutboxState;
+          current_attempt_id: string | null;
+          current_lease_token: string | null;
+        }
+      | undefined;
+    if (!attempt) throw new FeedbackStateConflict(`unknown feedback delivery attempt: ${input.attemptId}`);
+    if (attempt.lease_token !== input.leaseToken) {
+      throw new FeedbackStateConflict(`feedback delivery lease token mismatch: ${input.attemptId}`);
+    }
+
+    const semanticReceipt = {
+      attemptId: attempt.attempt_id,
+      outboxId: attempt.outbox_id,
+      outcome: input.outcome,
+      remoteReceiptId: input.remoteReceiptId ?? null,
+      detail: input.detail ?? null,
+      error: input.error ?? null,
+    };
+    const receiptHash = refHash(semanticReceipt);
+    const existing = this.db
+      .prepare(
+        `SELECT receipt_id, receipt_hash, attempt_id, outbox_id, outcome,
+                remote_receipt_id, detail_json, error, recorded_at
+         FROM feedback_delivery_receipts WHERE attempt_id = ?`,
+      )
+      .get(input.attemptId) as (FeedbackReceiptSqlRow & { receipt_hash: string }) | undefined;
+    if (existing) {
+      if (existing.receipt_hash !== receiptHash) {
+        throw new FeedbackStateConflict(`feedback attempt already has a different receipt: ${input.attemptId}`);
+      }
+      return feedbackReceiptFromRow(existing);
+    }
+    if (
+      attempt.state !== "in_flight" ||
+      attempt.current_attempt_id !== input.attemptId ||
+      attempt.current_lease_token !== input.leaseToken
+    ) {
+      throw new FeedbackStateConflict(`feedback delivery attempt is no longer active: ${input.attemptId}`);
+    }
+
+    const receiptId = refHash({ format: "frontier-isles/feedback-delivery-receipt/v1", receiptHash });
+    const nextState: FeedbackOutboxState = input.outcome === "success" ? "delivered" : "uncertain";
+    const tx = this.db.transaction((): FeedbackDeliveryReceipt => {
+      if (input.outcome === "success") {
+        const receiptOwner = this.db
+          .prepare(
+            `SELECT attempt_id, outbox_id FROM feedback_delivery_receipts
+             WHERE outcome = 'success' AND remote_receipt_id = ?`,
+          )
+          .get(input.remoteReceiptId) as { attempt_id: string; outbox_id: string } | undefined;
+        const reconciliationOwner = this.db
+          .prepare(
+            `SELECT basis_attempt_id AS attempt_id, outbox_id
+             FROM feedback_delivery_reconciliations
+             WHERE outcome = 'found' AND remote_receipt_id = ?
+             LIMIT 1`,
+          )
+          .get(input.remoteReceiptId) as { attempt_id: string; outbox_id: string } | undefined;
+        const remoteOwner = receiptOwner ?? reconciliationOwner;
+        if (remoteOwner) {
+          throw new FeedbackStateConflict(
+            `remote feedback receipt id already belongs to outbox ${remoteOwner.outbox_id}: ${input.remoteReceiptId}`,
+          );
+        }
+      }
+      this.db
+        .prepare(
+          `INSERT INTO feedback_delivery_receipts (
+             receipt_id, receipt_hash, attempt_id, outbox_id, outcome,
+             remote_receipt_id, detail_json, error, recorded_at
+           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        )
+        .run(
+          receiptId,
+          receiptHash,
+          input.attemptId,
+          attempt.outbox_id,
+          input.outcome,
+          input.remoteReceiptId ?? null,
+          detailJson,
+          input.error ?? null,
+          recordedAt,
+        );
+      const updated = this.db
+        .prepare(
+          `UPDATE feedback_outbox
+           SET state = ?, updated_at = ?, lease_owner = NULL, lease_token = NULL,
+               lease_expires_at = NULL, current_attempt_id = NULL
+           WHERE id = ? AND state = 'in_flight' AND current_attempt_id = ? AND lease_token = ?`,
+        )
+        .run(nextState, recordedAt, attempt.outbox_id, input.attemptId, input.leaseToken);
+      if (updated.changes !== 1) {
+        throw new FeedbackStateConflict(`feedback delivery completion changed concurrently: ${input.attemptId}`);
+      }
+      return {
+        receiptId,
+        attemptId: input.attemptId,
+        outboxId: attempt.outbox_id,
+        outcome: input.outcome,
+        ...(input.remoteReceiptId ? { remoteReceiptId: input.remoteReceiptId } : {}),
+        ...(input.detail !== undefined ? { detail: input.detail } : {}),
+        ...(input.error ? { error: input.error } : {}),
+        recordedAt,
+      };
+    });
+    // Serialize the uniqueness check with other DB connections before inserting
+    // the success receipt; this is the hard guard without rewriting legacy rows.
+    return tx.immediate();
+  }
+
+  recordFeedbackDeliverySuccess(input: {
+    attemptId: string;
+    leaseToken: string;
+    remoteReceiptId: string;
+    receipt: unknown;
+    at?: string;
+  }): FeedbackDeliveryReceipt {
+    const remoteReceiptId = input.remoteReceiptId.trim();
+    if (!remoteReceiptId) throw new FeedbackStoreError("remote feedback receipt id is required for success");
+    return this.completeFeedbackDelivery({
+      attemptId: input.attemptId,
+      leaseToken: input.leaseToken,
+      outcome: "success",
+      remoteReceiptId,
+      detail: input.receipt,
+      at: input.at,
+    });
+  }
+
+  /** Any exception after an attempt began is uncertain and is never requeued. */
+  recordFeedbackDeliveryFailure(input: {
+    attemptId: string;
+    leaseToken: string;
+    error: string;
+    receipt?: unknown;
+    at?: string;
+  }): FeedbackDeliveryReceipt {
+    const error = input.error.trim();
+    if (!error) throw new FeedbackStoreError("feedback delivery failure requires an error");
+    return this.completeFeedbackDelivery({
+      attemptId: input.attemptId,
+      leaseToken: input.leaseToken,
+      outcome: "failure",
+      detail: input.receipt,
+      error,
+      at: input.at,
+    });
+  }
+
+  listFeedbackDeliveryAttempts(outboxId: string): FeedbackDeliveryAttempt[] {
+    const rows = this.db
+      .prepare(
+        `SELECT attempt_id, outbox_id, attempt_no, worker_id, started_at, lease_expires_at
+         FROM feedback_delivery_attempts WHERE outbox_id = ? ORDER BY attempt_no`,
+      )
+      .all(outboxId) as FeedbackAttemptSqlRow[];
+    return rows.map(feedbackAttemptFromRow);
+  }
+
+  listFeedbackDeliveryReceipts(outboxId: string): FeedbackDeliveryReceipt[] {
+    const rows = this.db
+      .prepare(
+        `SELECT receipt_id, attempt_id, outbox_id, outcome, remote_receipt_id,
+                detail_json, error, recorded_at
+         FROM feedback_delivery_receipts WHERE outbox_id = ? ORDER BY recorded_at, receipt_id`,
+      )
+      .all(outboxId) as FeedbackReceiptSqlRow[];
+    return rows.map(feedbackReceiptFromRow);
+  }
+
+  /** Append the result of an exact, read-only upstream receipt lookup. This is
+   * deliberately separate from attempt receipts: it observes an already-ended
+   * attempt and never pretends that another writer call began. */
+  recordFeedbackDeliveryReconciliation(input: {
+    outboxId: string;
+    clientEventId: string;
+    requestHash: string;
+    outcome: FeedbackReconciliationOutcome;
+    remoteReceiptId?: string;
+    detail: unknown;
+    at?: string;
+  }): { created: boolean; reconciliation: FeedbackDeliveryReconciliation; item: FeedbackOutboxItem } {
+    const clientEventId = input.clientEventId.trim();
+    const requestHash = input.requestHash.trim();
+    const remoteReceiptId = input.remoteReceiptId?.trim();
+    if (!clientEventId) throw new FeedbackStoreError("feedback reconciliation client event id is required");
+    if (!/^sha256:[0-9a-f]{64}$/.test(requestHash)) {
+      throw new FeedbackStoreError("feedback reconciliation request hash must be sha256:<64 lowercase hex>");
+    }
+    if (input.outcome === "found" ? !remoteReceiptId : remoteReceiptId !== undefined) {
+      throw new FeedbackStoreError("only a found feedback reconciliation carries a remote receipt id");
+    }
+    const recordedAt = feedbackIso(input.at, "feedback reconciliation timestamp");
+    const detailJson = feedbackJson(input.detail, "feedback reconciliation detail");
+    const tx = this.db.transaction(() => {
+      const item = this.getFeedbackOutbox(input.outboxId);
+      if (!item) throw new FeedbackStateConflict(`unknown feedback outbox item: ${input.outboxId}`);
+      if (item.idempotencyKey !== clientEventId) {
+        throw new FeedbackStateConflict(`feedback reconciliation client event id mismatch: ${item.id}`);
+      }
+      if (item.state === "in_flight") {
+        throw new FeedbackStateConflict(`cannot reconcile an active feedback delivery: ${item.id}`);
+      }
+      if (input.outcome === "not_found" && item.state !== "uncertain") {
+        throw new FeedbackStateConflict(`not_found reconciliation requires uncertain state: ${item.id}`);
+      }
+      if ((input.outcome === "refused" || input.outcome === "conflict") && item.state !== "uncertain") {
+        throw new FeedbackStateConflict(`${input.outcome} reconciliation requires uncertain state: ${item.id}`);
+      }
+      if (input.outcome === "found" && !["uncertain", "delivered"].includes(item.state)) {
+        throw new FeedbackStateConflict(`found reconciliation cannot close state ${item.state}: ${item.id}`);
+      }
+
+      const basisAttempt = this.db
+        .prepare(
+          `SELECT attempt_id, outbox_id, attempt_no, worker_id, started_at, lease_expires_at
+           FROM feedback_delivery_attempts WHERE outbox_id = ?
+           ORDER BY attempt_no DESC LIMIT 1`,
+        )
+        .get(item.id) as FeedbackAttemptSqlRow | undefined;
+      if (!basisAttempt) {
+        throw new FeedbackStateConflict(`feedback reconciliation requires a completed delivery attempt: ${item.id}`);
+      }
+      const basisReceipt = this.db
+        .prepare("SELECT 1 FROM feedback_delivery_receipts WHERE attempt_id = ?")
+        .get(basisAttempt.attempt_id);
+      if (!basisReceipt) {
+        throw new FeedbackStateConflict(
+          `feedback reconciliation basis attempt has no terminal receipt: ${basisAttempt.attempt_id}`,
+        );
+      }
+
+      const reconciliationHash = refHash({
+        format: "frontier-isles/xfrontier-feedback-reconciliation/v1",
+        outboxId: item.id,
+        basisAttemptId: basisAttempt.attempt_id,
+        clientEventId,
+        requestHash,
+        outcome: input.outcome,
+        remoteReceiptId: remoteReceiptId ?? null,
+        detail: input.detail,
+      });
+      const reconciliationId = refHash({
+        format: "frontier-isles/xfrontier-feedback-reconciliation-id/v1",
+        reconciliationHash,
+      });
+      const existing = this.db
+        .prepare(
+          `SELECT reconciliation_id, outbox_id, basis_attempt_id, client_event_id, request_hash,
+                  outcome, remote_receipt_id, detail_json, recorded_at
+           FROM feedback_delivery_reconciliations WHERE reconciliation_id = ?`,
+        )
+        .get(reconciliationId) as FeedbackReconciliationSqlRow | undefined;
+      if (existing) {
+        return { created: false, reconciliation: feedbackReconciliationFromRow(existing), item };
+      }
+
+      if (remoteReceiptId) {
+        const normalOwner = this.db
+          .prepare(
+            `SELECT outbox_id FROM feedback_delivery_receipts
+             WHERE outcome = 'success' AND remote_receipt_id = ?`,
+          )
+          .get(remoteReceiptId) as { outbox_id: string } | undefined;
+        const reconciledOwner = this.db
+          .prepare(
+            `SELECT outbox_id FROM feedback_delivery_reconciliations
+             WHERE outcome = 'found' AND remote_receipt_id = ? LIMIT 1`,
+          )
+          .get(remoteReceiptId) as { outbox_id: string } | undefined;
+        const owner = normalOwner?.outbox_id ?? reconciledOwner?.outbox_id;
+        if (owner && owner !== item.id) {
+          throw new FeedbackStateConflict(
+            `remote feedback receipt id already belongs to outbox ${owner}: ${remoteReceiptId}`,
+          );
+        }
+      }
+
+      this.db
+        .prepare(
+          `INSERT INTO feedback_delivery_reconciliations (
+             reconciliation_id, reconciliation_hash, outbox_id, basis_attempt_id, client_event_id,
+             request_hash, outcome, remote_receipt_id, detail_json, recorded_at
+           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        )
+        .run(
+          reconciliationId,
+          reconciliationHash,
+          item.id,
+          basisAttempt.attempt_id,
+          clientEventId,
+          requestHash,
+          input.outcome,
+          remoteReceiptId ?? null,
+          detailJson,
+          recordedAt,
+        );
+
+      if (input.outcome === "found" && item.state !== "delivered") {
+        const updated = this.db
+          .prepare(
+            `UPDATE feedback_outbox SET state = 'delivered', updated_at = ?, cancelled_reason = NULL
+             WHERE id = ? AND state = ?`,
+          )
+          .run(recordedAt, item.id, item.state);
+        if (updated.changes !== 1) {
+          throw new FeedbackStateConflict(`feedback reconciliation changed concurrently: ${item.id}`);
+        }
+      } else if (input.outcome === "refused") {
+        const updated = this.db
+          .prepare(
+            `UPDATE feedback_outbox SET state = 'cancelled', updated_at = ?, cancelled_reason = ?
+             WHERE id = ? AND state = 'uncertain'`,
+          )
+          .run(recordedAt, "upstream precondition refused without writing", item.id);
+        if (updated.changes !== 1) {
+          throw new FeedbackStateConflict(`feedback refusal reconciliation changed concurrently: ${item.id}`);
+        }
+      }
+
+      const reconciliation = this.db
+        .prepare(
+          `SELECT reconciliation_id, outbox_id, basis_attempt_id, client_event_id, request_hash,
+                  outcome, remote_receipt_id, detail_json, recorded_at
+           FROM feedback_delivery_reconciliations WHERE reconciliation_id = ?`,
+        )
+        .get(reconciliationId) as FeedbackReconciliationSqlRow;
+      return {
+        created: true,
+        reconciliation: feedbackReconciliationFromRow(reconciliation),
+        item: this.getFeedbackOutbox(item.id)!,
+      };
+    });
+    return tx.immediate();
+  }
+
+  listFeedbackDeliveryReconciliations(outboxId: string): FeedbackDeliveryReconciliation[] {
+    const rows = this.db
+      .prepare(
+        `SELECT reconciliation_id, outbox_id, basis_attempt_id, client_event_id, request_hash,
+                outcome, remote_receipt_id, detail_json, recorded_at
+         FROM feedback_delivery_reconciliations WHERE outbox_id = ?
+         ORDER BY seq`,
+      )
+      .all(outboxId) as FeedbackReconciliationSqlRow[];
+    return rows.map(feedbackReconciliationFromRow);
+  }
+
+  cancelFeedback(outboxId: string, reason: string, at?: string): FeedbackOutboxItem {
+    const cancellationReason = reason.trim();
+    if (!cancellationReason) throw new FeedbackStoreError("feedback cancellation requires a reason");
+    const cancelledAt = feedbackIso(at, "feedback cancellation timestamp");
+    const current = this.getFeedbackOutbox(outboxId);
+    if (!current) throw new FeedbackStateConflict(`unknown feedback outbox item: ${outboxId}`);
+    if (current.state !== "pending") {
+      throw new FeedbackStateConflict(`cannot cancel feedback in state ${current.state}: ${outboxId}`);
+    }
+    const updated = this.db
+      .prepare(
+        `UPDATE feedback_outbox SET state = 'cancelled', updated_at = ?, cancelled_reason = ?
+         WHERE id = ? AND state = 'pending'`,
+      )
+      .run(cancelledAt, cancellationReason, outboxId);
+    if (updated.changes !== 1) throw new FeedbackStateConflict(`feedback cancellation changed concurrently: ${outboxId}`);
+    return this.getFeedbackOutbox(outboxId)!;
+  }
+
+  /**
+   * Append one remote review decision idempotently and update the inbox's latest
+   * remote projection. Local disposition is deliberately preserved.
+   */
+  upsertFeedbackReviewDecision(input: {
+    outboxId: string;
+    decisionId: string;
+    status: FeedbackRemoteDecisionStatus;
+    decision: unknown;
+    decidedAt: string;
+    receivedAt?: string;
+  }): { created: boolean; decision: FeedbackReviewDecision; inbox: FeedbackReviewInboxItem } {
+    const decisionId = input.decisionId.trim();
+    if (!decisionId) throw new FeedbackStoreError("feedback review decision id is required");
+    if (!REMOTE_DECISION_STATUSES.has(input.status)) {
+      throw new FeedbackStoreError(`unsupported feedback remote decision status: ${input.status}`);
+    }
+    const decidedAt = feedbackIso(input.decidedAt, "feedback remote decision timestamp");
+    const receivedAt = feedbackIso(input.receivedAt, "feedback decision receipt timestamp");
+    const decisionJson = feedbackJson(input.decision, "feedback remote decision");
+    const decisionHash = refHash({
+      outboxId: input.outboxId,
+      decisionId,
+      status: input.status,
+      decision: input.decision,
+      decidedAt,
+    });
+
+    const tx = this.db.transaction(() => {
+      if (!this.getFeedbackOutbox(input.outboxId)) {
+        throw new FeedbackStateConflict(`unknown feedback outbox item: ${input.outboxId}`);
+      }
+      const existing = this.db
+        .prepare(
+          `SELECT seq, decision_id, decision_hash, outbox_id, remote_status,
+                  decision_json, decided_at, received_at
+           FROM feedback_review_decisions WHERE decision_id = ?`,
+        )
+        .get(decisionId) as (FeedbackDecisionSqlRow & { decision_hash: string }) | undefined;
+      if (existing) {
+        if (existing.decision_hash !== decisionHash) {
+          throw new FeedbackStateConflict(`feedback decision id was reused with different content: ${decisionId}`);
+        }
+        return {
+          created: false,
+          decision: feedbackDecisionFromRow(existing),
+          inbox: this.getFeedbackReviewInbox(input.outboxId)!,
+        };
+      }
+
+      const inserted = this.db
+        .prepare(
+          `INSERT INTO feedback_review_decisions (
+             decision_id, decision_hash, outbox_id, remote_status, decision_json, decided_at, received_at
+           ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        )
+        .run(decisionId, decisionHash, input.outboxId, input.status, decisionJson, decidedAt, receivedAt);
+      this.db
+        .prepare(
+          `INSERT INTO feedback_review_inbox (
+             outbox_id, latest_decision_id, remote_status, remote_decided_at, local_disposition
+           ) VALUES (?, ?, ?, ?, 'unreviewed')
+           ON CONFLICT(outbox_id) DO UPDATE SET
+             latest_decision_id = excluded.latest_decision_id,
+             remote_status = excluded.remote_status,
+             remote_decided_at = excluded.remote_decided_at
+           WHERE excluded.remote_decided_at >= feedback_review_inbox.remote_decided_at`,
+        )
+        .run(input.outboxId, decisionId, input.status, decidedAt);
+
+      return {
+        created: true,
+        decision: {
+          seq: Number(inserted.lastInsertRowid),
+          decisionId,
+          outboxId: input.outboxId,
+          remoteStatus: input.status,
+          decision: input.decision,
+          decidedAt,
+          receivedAt,
+        },
+        inbox: this.getFeedbackReviewInbox(input.outboxId)!,
+      };
+    });
+    return tx();
+  }
+
+  getFeedbackReviewInbox(outboxId: string): FeedbackReviewInboxItem | undefined {
+    const row = this.db
+      .prepare(
+        `SELECT outbox_id, latest_decision_id, remote_status, remote_decided_at,
+                local_disposition, local_updated_at
+         FROM feedback_review_inbox WHERE outbox_id = ?`,
+      )
+      .get(outboxId) as FeedbackInboxSqlRow | undefined;
+    return row ? feedbackInboxFromRow(row) : undefined;
+  }
+
+  listFeedbackReviewInbox(): FeedbackReviewInboxItem[] {
+    const rows = this.db
+      .prepare(
+        `SELECT outbox_id, latest_decision_id, remote_status, remote_decided_at,
+                local_disposition, local_updated_at
+         FROM feedback_review_inbox ORDER BY remote_decided_at, outbox_id`,
+      )
+      .all() as FeedbackInboxSqlRow[];
+    return rows.map(feedbackInboxFromRow);
+  }
+
+  listFeedbackReviewDecisions(outboxId: string): FeedbackReviewDecision[] {
+    const rows = this.db
+      .prepare(
+        `SELECT seq, decision_id, outbox_id, remote_status, decision_json, decided_at, received_at
+         FROM feedback_review_decisions WHERE outbox_id = ? ORDER BY decided_at, seq`,
+      )
+      .all(outboxId) as FeedbackDecisionSqlRow[];
+    return rows.map(feedbackDecisionFromRow);
+  }
+
+  setFeedbackLocalDisposition(
+    outboxId: string,
+    next: FeedbackLocalDisposition,
+    at?: string,
+  ): FeedbackReviewInboxItem {
+    const updatedAt = feedbackIso(at, "feedback local disposition timestamp");
+    const current = this.getFeedbackReviewInbox(outboxId);
+    if (!current) throw new FeedbackStateConflict(`feedback item has no remote review decision: ${outboxId}`);
+    if (current.localDisposition === next) return current;
+    const order: FeedbackLocalDisposition[] = ["unreviewed", "acknowledged", "applied", "released"];
+    const expected = order[order.indexOf(current.localDisposition) + 1];
+    if (next !== expected) {
+      throw new FeedbackStateConflict(
+        `feedback local disposition must advance one step from ${current.localDisposition}, not ${next}`,
+      );
+    }
+    if ((next === "applied" || next === "released") && current.remoteStatus !== "accepted") {
+      throw new FeedbackStateConflict(
+        `feedback cannot become ${next} while remote status is ${current.remoteStatus}`,
+      );
+    }
+    const changed = this.db
+      .prepare(
+        `UPDATE feedback_review_inbox SET local_disposition = ?, local_updated_at = ?
+         WHERE outbox_id = ? AND local_disposition = ?`,
+      )
+      .run(next, updatedAt, outboxId, current.localDisposition);
+    if (changed.changes !== 1) {
+      throw new FeedbackStateConflict(`feedback local disposition changed concurrently: ${outboxId}`);
+    }
+    return this.getFeedbackReviewInbox(outboxId)!;
+  }
+
+  /**
+   * Upsert findings carrying xFrontier's explicit upstream-stale signal. An id
+   * absent from this observation is left exactly as-is: it may have been skipped
+   * because a remote file was damaged and absence is not a lifecycle decision.
+   */
+  upsertFeedbackFindings(input: {
+    datasetVersion: string;
+    findings: ReadonlyArray<{ remoteFindingId: string; finding: unknown; upstreamStale: boolean }>;
+    observedAt?: string;
+  }): { upserted: number } {
+    const datasetVersion = input.datasetVersion.trim();
+    if (!datasetVersion) throw new FeedbackStoreError("feedback finding dataset version is required");
+    const observedAt = feedbackIso(input.observedAt, "feedback finding snapshot timestamp");
+    const prepared = input.findings.map(({ remoteFindingId, finding, upstreamStale }) => {
+      const id = remoteFindingId.trim();
+      if (!id) throw new FeedbackStoreError("remote feedback finding id is required");
+      if (typeof upstreamStale !== "boolean") {
+        throw new FeedbackStoreError("remote feedback finding upstreamStale must be boolean");
+      }
+      return {
+        id,
+        finding,
+        upstreamStale,
+        json: feedbackJson(finding, "remote feedback finding"),
+        hash: refHash(finding),
+      };
+    });
+    if (new Set(prepared.map((finding) => finding.id)).size !== prepared.length) {
+      throw new FeedbackStoreError("feedback finding snapshot contains duplicate remote ids");
+    }
+
+    return this.db.transaction(() => {
+      for (const finding of prepared) {
+        this.db
+          .prepare(
+            `INSERT INTO feedback_finding_inbox (
+               remote_finding_id, dataset_version, finding_hash, finding_json, upstream_stale, observed_at
+             ) VALUES (?, ?, ?, ?, ?, ?)
+             ON CONFLICT(remote_finding_id) DO UPDATE SET
+               dataset_version = excluded.dataset_version,
+               finding_hash = excluded.finding_hash,
+               finding_json = excluded.finding_json,
+               upstream_stale = excluded.upstream_stale,
+               observed_at = excluded.observed_at`,
+          )
+          .run(finding.id, datasetVersion, finding.hash, finding.json, finding.upstreamStale ? 1 : 0, observedAt);
+      }
+      return { upserted: prepared.length };
+    })();
+  }
+
+  listFeedbackFindings(input: { includeStale?: boolean } = {}): FeedbackFindingInboxItem[] {
+    const rows = input.includeStale
+      ? (this.db
+          .prepare(
+            `SELECT remote_finding_id, dataset_version, finding_hash, finding_json, upstream_stale,
+                    observed_at, local_disposition, local_updated_at
+             FROM feedback_finding_inbox ORDER BY remote_finding_id`,
+          )
+          .all() as FeedbackFindingSqlRow[])
+      : (this.db
+          .prepare(
+            `SELECT remote_finding_id, dataset_version, finding_hash, finding_json, upstream_stale,
+                    observed_at, local_disposition, local_updated_at
+             FROM feedback_finding_inbox WHERE upstream_stale = 0 ORDER BY remote_finding_id`,
+          )
+          .all() as FeedbackFindingSqlRow[]);
+    return rows.map(feedbackFindingFromRow);
+  }
+
+  setFeedbackFindingLocalDisposition(
+    remoteFindingId: string,
+    next: FeedbackFindingLocalDisposition,
+    at?: string,
+  ): FeedbackFindingInboxItem {
+    const id = remoteFindingId.trim();
+    const updatedAt = feedbackIso(at, "feedback finding review timestamp");
+    const row = this.db
+      .prepare(
+        `SELECT remote_finding_id, dataset_version, finding_hash, finding_json, upstream_stale,
+                observed_at, local_disposition, local_updated_at
+         FROM feedback_finding_inbox WHERE remote_finding_id = ?`,
+      )
+      .get(id) as FeedbackFindingSqlRow | undefined;
+    if (!row) throw new FeedbackStateConflict(`unknown remote feedback finding: ${id}`);
+    if (row.local_disposition === next) return feedbackFindingFromRow(row);
+    const allowed =
+      (row.local_disposition === "unreviewed" && next === "acknowledged") ||
+      (row.local_disposition === "acknowledged" && (next === "addressed" || next === "dismissed"));
+    if (!allowed) {
+      throw new FeedbackStateConflict(
+        `invalid feedback finding disposition ${row.local_disposition} -> ${next}: ${id}`,
+      );
+    }
+    this.db
+      .prepare(
+        `UPDATE feedback_finding_inbox SET local_disposition = ?, local_updated_at = ?
+         WHERE remote_finding_id = ? AND local_disposition = ?`,
+      )
+      .run(next, updatedAt, id, row.local_disposition);
+    return this.listFeedbackFindings({ includeStale: true }).find((finding) => finding.remoteFindingId === id)!;
   }
 
   // --- problem objects ------------------------------------------------------
@@ -437,6 +1775,43 @@ export class Store {
         object.qfocus,
         JSON.stringify(meta),
       );
+  }
+
+  /**
+   * Reconcile only the bundled catalog's atlas projection for an existing
+   * problem. The island's authored problem object, relational columns, other
+   * place metadata (including unknown extensions), ledger, and refs remain
+   * untouched. Returns true only when the stored projection changed.
+   *
+   * This is intentionally not a problem-object upsert: the catalog owns this
+   * one projection, while the island keeps authority over every other field.
+   */
+  reconcileCatalogAtlasProjection(
+    slug: string,
+    atlas: NonNullable<ProblemMeta["atlas"]>,
+  ): boolean {
+    const row = this.db
+      .prepare("SELECT json FROM problem_objects WHERE slug = ?")
+      .get(slug) as { json: string } | undefined;
+    if (!row) return false;
+
+    const meta = JSON.parse(row.json) as ProblemMeta & Record<string, unknown>;
+    const storedAtlasN = (meta.atlas as { atlasN?: unknown } | undefined)?.atlasN;
+    // A slug alone is not proof of catalog ownership. Fresh catalog rows are
+    // always seeded with atlasN; a missing identity is ambiguous and must not
+    // let the catalog silently claim a user-authored island with the same slug.
+    if (storedAtlasN !== atlas.atlasN) {
+      throw new CatalogAtlasIdentityConflict(slug, storedAtlasN, atlas.atlasN);
+    }
+    // Match SQLite's JSON representation: optional `undefined` properties are
+    // absent after serialization, so they must not turn every boot into a write.
+    const projection = JSON.parse(JSON.stringify(atlas)) as NonNullable<ProblemMeta["atlas"]>;
+    if (isDeepStrictEqual(meta.atlas, projection)) return false;
+
+    this.db
+      .prepare("UPDATE problem_objects SET json = ? WHERE slug = ?")
+      .run(JSON.stringify({ ...meta, atlas: projection }), slug);
+    return true;
   }
 
   // --- structures (执行纲要 §九, knowledge plane) ----------------------------

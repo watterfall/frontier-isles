@@ -8,6 +8,7 @@
     "start": "tsx src/index.ts",
     "seed": "tsx src/seed.ts",
     "mcp": "tsx src/mcp.ts",
+    "xfrontier:feedback": "node --import tsx src/xfrontier-feedback-cli.ts",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },

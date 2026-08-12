@@ -101,6 +101,25 @@ const ATLAS: Record<string, FrontierEntry> = Object.fromEntries(
   FRONTIERS.map((f) => [f.slug, f]),
 );
 
+/** The complete catalog-owned atlas projection persisted in ProblemMeta. It
+ * mixes upstream xFrontier provenance with frontier-isles editorial content;
+ * runtime reconciliation therefore names the catalog as its owner rather than
+ * claiming every field is canonical xFrontier data. */
+function catalogAtlasProjection(atlas: FrontierEntry): NonNullable<ProblemMeta["atlas"]> {
+  return {
+    atlasN: atlas.atlasN,
+    atlasWithdrawal: atlas.atlasWithdrawal,
+    scores: atlas.scores,
+    cluster: atlas.cluster,
+    citation: atlas.citation,
+    brief: atlas.brief,
+    outlier: atlas.outlier,
+    literature: atlas.literature,
+    depth: atlas.depth,
+    interior: atlas.interior,
+  };
+}
+
 /** The bespoke sample island (machine-curiosity) keeps its own chart meta — it
  *  is not in the curated FRONTIERS set (it carries a full bespoke L1 scene). */
 const SAMPLE_META = {
@@ -347,19 +366,7 @@ function seedMinimalIsland(store: Store, c: Chart): void {
     domain: c.d,
     name: c.n,
     chart: { x: c.x, y: c.y, scale: c.s, activity: c.a, members: c.m },
-    atlas: atlas
-      ? {
-          atlasN: atlas.atlasN,
-          scores: atlas.scores,
-          cluster: atlas.cluster,
-          citation: atlas.citation,
-          brief: atlas.brief,
-          outlier: atlas.outlier,
-          literature: atlas.literature,
-          depth: atlas.depth,
-          interior: atlas.interior,
-        }
-      : undefined,
+    atlas: atlas ? catalogAtlasProjection(atlas) : undefined,
   };
   store.insertProblem(object, md, meta);
   store.createStations(opId);
@@ -531,34 +538,50 @@ function seedStructures(store: Store): void {
 }
 
 /**
- * Reconcile the bundled island catalog without rewriting any island already in
- * the database. This matters on upgrades: a non-empty database may contain an
- * older FRONTIERS snapshot, so `hasIslands()` alone is not a sufficient
- * freshness check. Existing problem objects and ledgers remain authoritative;
- * only missing catalog slugs are materialized.
+ * Reconcile the bundled island catalog without rewriting any authored problem
+ * object already in the database. This matters on upgrades: a non-empty
+ * database may contain an older FRONTIERS snapshot, so `hasIslands()` alone is
+ * not a sufficient freshness check. Missing catalog slugs are materialized;
+ * existing catalog slugs receive only the current catalog atlas projection in
+ * `ProblemMeta.atlas`. Their problem.md, columns, other metadata, and ledgers
+ * remain authoritative and untouched.
  *
  * Sea relations reconcile by reactor + verb + anchor artifact. Structure
  * mappings reconcile by their content-addressed ref, so both are safe on every
  * boot after the island catalog itself is complete.
  *
- * Returns the number of missing islands materialized during this call.
+ * {@link seedWithReport} exposes both materialized and reconciled counts;
+ * {@link seed} preserves the historical materialized-only numeric return.
  */
-export function seed(store: Store): number {
-  let seeded = 0;
+export interface SeedReport {
+  materialized: number;
+  reconciled: number;
+}
+
+/** Seed with an observable report while retaining one transaction for catalog
+ * identity conflicts: no partial materialization or reconciliation can escape. */
+export function seedWithReport(store: Store): SeedReport {
+  const report: SeedReport = { materialized: 0, reconciled: 0 };
   const tx = store.db.transaction(() => {
     const existingSlugs = new Set(store.listProblemRows().map((row) => row.slug));
 
     if (!existingSlugs.has("machine-curiosity")) {
       seedSampleIsland(store);
       existingSlugs.add("machine-curiosity");
-      seeded += 1;
+      report.materialized += 1;
     }
     for (const c of DATA) {
       if (c.slug === "machine-curiosity") continue;
-      if (existingSlugs.has(c.slug)) continue;
+      if (existingSlugs.has(c.slug)) {
+        const atlas = ATLAS[c.slug];
+        if (atlas && store.reconcileCatalogAtlasProjection(c.slug, catalogAtlasProjection(atlas))) {
+          report.reconciled += 1;
+        }
+        continue;
+      }
       seedMinimalIsland(store, c);
       existingSlugs.add(c.slug);
-      seeded += 1;
+      report.materialized += 1;
     }
     // Reconcile real cross-island relations after every referenced island exists.
     seedCrossIslandRelations(store);
@@ -566,7 +589,12 @@ export function seed(store: Store): number {
     seedStructures(store);
   });
   tx();
-  return seeded;
+  return report;
+}
+
+/** Backward-compatible count used by existing callers and tests. */
+export function seed(store: Store): number {
+  return seedWithReport(store).materialized;
 }
 
 // CLI: `pnpm --filter @frontier-isles/server seed`
@@ -574,7 +602,11 @@ const invokedDirectly = process.argv[1]?.endsWith("seed.ts") || process.argv[1]?
 if (invokedDirectly) {
   const db = openDb(process.env.DB_FILE ?? "data/isles.db");
   const store = new Store(db);
-  const n = seed(store);
-  console.log(n > 0 ? `[seed] materialized ${n} missing catalog islands` : "[seed] island + structure catalog already current");
+  const report = seedWithReport(store);
+  console.log(
+    report.materialized > 0 || report.reconciled > 0
+      ? `[seed] materialized ${report.materialized} missing catalog islands; reconciled ${report.reconciled} catalog atlas projections`
+      : "[seed] island + structure catalog already current",
+  );
   db.close();
 }

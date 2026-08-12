@@ -29,7 +29,7 @@ import { openDb } from "./db.js";
 import { Store } from "./store.js";
 import { createApp } from "./app.js";
 import { createYjsHandler } from "./yjs.js";
-import { seed } from "./seed.js";
+import { seedWithReport } from "./seed.js";
 
 const PORT = Number(process.env.PORT ?? 8787);
 const DB_FILE = process.env.DB_FILE ?? "data/isles.db";
@@ -38,9 +38,13 @@ const WEB_DIST = process.env.WEB_DIST ?? "../web/dist";
 const db = openDb(DB_FILE);
 const store = new Store(db);
 
-// Auto-seed on boot if the DB is empty.
-const seeded = seed(store);
-if (seeded > 0) console.log(`[seed] seeded ${seeded} islands`);
+// Reconcile the catalog on every boot (missing islands + catalog-owned atlas projection).
+const seedReport = seedWithReport(store);
+if (seedReport.materialized > 0 || seedReport.reconciled > 0) {
+  console.log(
+    `[seed] materialized ${seedReport.materialized} islands; reconciled ${seedReport.reconciled} catalog atlas projections`,
+  );
+}
 
 const app = createApp(store);
 

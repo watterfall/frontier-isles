@@ -312,6 +312,10 @@ export const en: Resources = {
       nightsAgo: 'Record updated {{nights}} nights ago',
       curated: 'Curated atlas content · not a live record',
     },
+    provenance: {
+      withdrawn: 'retired',
+      withdrawnDetail: '{{id}} was retired in {{version}}: {{reason}}',
+    },
     step: {
       label: 'Island stepping',
       prev: 'Previous island',

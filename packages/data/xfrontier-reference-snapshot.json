@@ -1,0 +1,900 @@
+{
+  "schemaVersion": "xfrontier-reference-snapshot/v1",
+  "datasetVersion": "xf-6eb361265784",
+  "serverVersion": "0.6.0",
+  "reviewedAt": "2026-08-13",
+  "source": "local xfrontier MCP resolve_ids over module-loaded FRONTIERS and SEED_STRUCTURES references",
+  "tally": {
+    "active": 176,
+    "withdrawn": 1,
+    "unknown": 0
+  },
+  "references": [
+    {
+      "id": 1,
+      "status": "active",
+      "contentHash": "131ef9bd"
+    },
+    {
+      "id": 7,
+      "status": "active",
+      "contentHash": "f8ef8a91"
+    },
+    {
+      "id": 29,
+      "status": "active",
+      "contentHash": "9d058504"
+    },
+    {
+      "id": 50,
+      "status": "active",
+      "contentHash": "6f2c76bb"
+    },
+    {
+      "id": 69,
+      "status": "active",
+      "contentHash": "d9a8fb47"
+    },
+    {
+      "id": 86,
+      "status": "active",
+      "contentHash": "54b27457"
+    },
+    {
+      "id": 97,
+      "status": "active",
+      "contentHash": "e3792fc1"
+    },
+    {
+      "id": 104,
+      "status": "active",
+      "contentHash": "0e94fe46"
+    },
+    {
+      "id": 123,
+      "status": "active",
+      "contentHash": "3a3398fc"
+    },
+    {
+      "id": 132,
+      "status": "active",
+      "contentHash": "5d232434"
+    },
+    {
+      "id": 137,
+      "status": "active",
+      "contentHash": "47fccbe3"
+    },
+    {
+      "id": 167,
+      "status": "active",
+      "contentHash": "1a7e5310"
+    },
+    {
+      "id": 169,
+      "status": "active",
+      "contentHash": "9ef588c2"
+    },
+    {
+      "id": 178,
+      "status": "active",
+      "contentHash": "b71bf7ce"
+    },
+    {
+      "id": 194,
+      "status": "active",
+      "contentHash": "75677b4d"
+    },
+    {
+      "id": 209,
+      "status": "active",
+      "contentHash": "676b8682"
+    },
+    {
+      "id": 213,
+      "status": "active",
+      "contentHash": "9c634bda"
+    },
+    {
+      "id": 231,
+      "status": "active",
+      "contentHash": "3b99afe6"
+    },
+    {
+      "id": 273,
+      "status": "active",
+      "contentHash": "dd447daa"
+    },
+    {
+      "id": 300,
+      "status": "active",
+      "contentHash": "bc68f8d3"
+    },
+    {
+      "id": 341,
+      "status": "active",
+      "contentHash": "2069fe73"
+    },
+    {
+      "id": 373,
+      "status": "active",
+      "contentHash": "82a7cd11"
+    },
+    {
+      "id": 374,
+      "status": "active",
+      "contentHash": "d03d1ad9"
+    },
+    {
+      "id": 405,
+      "status": "active",
+      "contentHash": "ebb2c4da"
+    },
+    {
+      "id": 470,
+      "status": "active",
+      "contentHash": "dede6fda"
+    },
+    {
+      "id": 472,
+      "status": "active",
+      "contentHash": "8c33e901"
+    },
+    {
+      "id": 492,
+      "status": "active",
+      "contentHash": "9fe788ee"
+    },
+    {
+      "id": 513,
+      "status": "active",
+      "contentHash": "bb82f48e"
+    },
+    {
+      "id": 529,
+      "status": "active",
+      "contentHash": "9ddb0bd3"
+    },
+    {
+      "id": 531,
+      "status": "active",
+      "contentHash": "abf51d3f"
+    },
+    {
+      "id": 532,
+      "status": "active",
+      "contentHash": "bac4d7e0"
+    },
+    {
+      "id": 533,
+      "status": "active",
+      "contentHash": "5ca9480a"
+    },
+    {
+      "id": 534,
+      "status": "active",
+      "contentHash": "f4467286"
+    },
+    {
+      "id": 535,
+      "status": "active",
+      "contentHash": "7862bd77"
+    },
+    {
+      "id": 537,
+      "status": "active",
+      "contentHash": "333ce864"
+    },
+    {
+      "id": 538,
+      "status": "active",
+      "contentHash": "b12a5224"
+    },
+    {
+      "id": 541,
+      "status": "active",
+      "contentHash": "cf798bc1"
+    },
+    {
+      "id": 542,
+      "status": "active",
+      "contentHash": "2bd6431b"
+    },
+    {
+      "id": 544,
+      "status": "active",
+      "contentHash": "1f97d9b7"
+    },
+    {
+      "id": 545,
+      "status": "active",
+      "contentHash": "04b108d2"
+    },
+    {
+      "id": 546,
+      "status": "active",
+      "contentHash": "26297120"
+    },
+    {
+      "id": 550,
+      "status": "active",
+      "contentHash": "5936c85c"
+    },
+    {
+      "id": 552,
+      "status": "active",
+      "contentHash": "08a2ce76"
+    },
+    {
+      "id": 553,
+      "status": "active",
+      "contentHash": "634bcb74"
+    },
+    {
+      "id": 568,
+      "status": "active",
+      "contentHash": "60bd3dce"
+    },
+    {
+      "id": 572,
+      "status": "active",
+      "contentHash": "8d5ea629"
+    },
+    {
+      "id": 574,
+      "status": "active",
+      "contentHash": "cfb4c9c0"
+    },
+    {
+      "id": 593,
+      "status": "active",
+      "contentHash": "e1353fcb"
+    },
+    {
+      "id": 595,
+      "status": "active",
+      "contentHash": "94d6497b"
+    },
+    {
+      "id": 605,
+      "status": "active",
+      "contentHash": "0565c213"
+    },
+    {
+      "id": 606,
+      "status": "active",
+      "contentHash": "7b5ee2c6"
+    },
+    {
+      "id": 624,
+      "status": "active",
+      "contentHash": "9737e448"
+    },
+    {
+      "id": 629,
+      "status": "active",
+      "contentHash": "ead6420c"
+    },
+    {
+      "id": 640,
+      "status": "active",
+      "contentHash": "1db316bc"
+    },
+    {
+      "id": 659,
+      "status": "active",
+      "contentHash": "986c34d3"
+    },
+    {
+      "id": 662,
+      "status": "active",
+      "contentHash": "e30f6ef9"
+    },
+    {
+      "id": 663,
+      "status": "active",
+      "contentHash": "b662acb5"
+    },
+    {
+      "id": 680,
+      "status": "active",
+      "contentHash": "cf402630"
+    },
+    {
+      "id": 697,
+      "status": "active",
+      "contentHash": "128a0685"
+    },
+    {
+      "id": 698,
+      "status": "active",
+      "contentHash": "25e0e556"
+    },
+    {
+      "id": 715,
+      "status": "active",
+      "contentHash": "1ea6c22e"
+    },
+    {
+      "id": 716,
+      "status": "active",
+      "contentHash": "88d2e4df"
+    },
+    {
+      "id": 740,
+      "status": "active",
+      "contentHash": "0a5d2e37"
+    },
+    {
+      "id": 746,
+      "status": "active",
+      "contentHash": "891bbc3d"
+    },
+    {
+      "id": 747,
+      "status": "active",
+      "contentHash": "8454262d"
+    },
+    {
+      "id": 755,
+      "status": "active",
+      "contentHash": "06016fd7"
+    },
+    {
+      "id": 760,
+      "status": "active",
+      "contentHash": "141f8210"
+    },
+    {
+      "id": 764,
+      "status": "active",
+      "contentHash": "43e94c8c"
+    },
+    {
+      "id": 766,
+      "status": "active",
+      "contentHash": "b0a0b52a"
+    },
+    {
+      "id": 771,
+      "status": "active",
+      "contentHash": "e2799b2a"
+    },
+    {
+      "id": 786,
+      "status": "active",
+      "contentHash": "ba90424f"
+    },
+    {
+      "id": 787,
+      "status": "active",
+      "contentHash": "e35b0db9"
+    },
+    {
+      "id": 791,
+      "status": "active",
+      "contentHash": "dadcd3c7"
+    },
+    {
+      "id": 802,
+      "status": "active",
+      "contentHash": "ea4e5eb5"
+    },
+    {
+      "id": 806,
+      "status": "active",
+      "contentHash": "00d4a275"
+    },
+    {
+      "id": 807,
+      "status": "active",
+      "contentHash": "28d4b407"
+    },
+    {
+      "id": 814,
+      "status": "active",
+      "contentHash": "e5efb96c"
+    },
+    {
+      "id": 822,
+      "status": "active",
+      "contentHash": "0da6b0f5"
+    },
+    {
+      "id": 823,
+      "status": "active",
+      "contentHash": "a3849eb1"
+    },
+    {
+      "id": 843,
+      "status": "active",
+      "contentHash": "5095248f"
+    },
+    {
+      "id": 851,
+      "status": "active",
+      "contentHash": "6660760b"
+    },
+    {
+      "id": 872,
+      "status": "active",
+      "contentHash": "78b0bf35"
+    },
+    {
+      "id": 874,
+      "status": "active",
+      "contentHash": "a87331bd"
+    },
+    {
+      "id": 879,
+      "status": "active",
+      "contentHash": "a0479738"
+    },
+    {
+      "id": 886,
+      "status": "active",
+      "contentHash": "210eed38"
+    },
+    {
+      "id": 898,
+      "status": "active",
+      "contentHash": "ce0e18e5"
+    },
+    {
+      "id": 900,
+      "status": "active",
+      "contentHash": "ac9c0af5"
+    },
+    {
+      "id": 901,
+      "status": "active",
+      "contentHash": "2e5b7ee3"
+    },
+    {
+      "id": 904,
+      "status": "active",
+      "contentHash": "c311168b"
+    },
+    {
+      "id": 905,
+      "status": "active",
+      "contentHash": "728f08ce"
+    },
+    {
+      "id": 908,
+      "status": "active",
+      "contentHash": "3f5058f2"
+    },
+    {
+      "id": 910,
+      "status": "active",
+      "contentHash": "60ea4048"
+    },
+    {
+      "id": 929,
+      "status": "active",
+      "contentHash": "03f57a5b"
+    },
+    {
+      "id": 938,
+      "status": "active",
+      "contentHash": "30f91edd"
+    },
+    {
+      "id": 940,
+      "status": "active",
+      "contentHash": "9ba08cae"
+    },
+    {
+      "id": 944,
+      "status": "active",
+      "contentHash": "02761c05"
+    },
+    {
+      "id": 948,
+      "status": "active",
+      "contentHash": "0cd73b69"
+    },
+    {
+      "id": 951,
+      "status": "active",
+      "contentHash": "828c601e"
+    },
+    {
+      "id": 953,
+      "status": "active",
+      "contentHash": "824324ab"
+    },
+    {
+      "id": 955,
+      "status": "active",
+      "contentHash": "918c0ba3"
+    },
+    {
+      "id": 960,
+      "status": "active",
+      "contentHash": "81d3c31d"
+    },
+    {
+      "id": 964,
+      "status": "active",
+      "contentHash": "2113b182"
+    },
+    {
+      "id": 972,
+      "status": "active",
+      "contentHash": "9ae5d9f1"
+    },
+    {
+      "id": 976,
+      "status": "active",
+      "contentHash": "03d2a8b5"
+    },
+    {
+      "id": 994,
+      "status": "active",
+      "contentHash": "8b810327"
+    },
+    {
+      "id": 995,
+      "status": "active",
+      "contentHash": "8a2487ba"
+    },
+    {
+      "id": 996,
+      "status": "active",
+      "contentHash": "eb58d350"
+    },
+    {
+      "id": 998,
+      "status": "active",
+      "contentHash": "927bac76"
+    },
+    {
+      "id": 1002,
+      "status": "active",
+      "contentHash": "20ff307c"
+    },
+    {
+      "id": 1005,
+      "status": "active",
+      "contentHash": "bdecec63"
+    },
+    {
+      "id": 1006,
+      "status": "active",
+      "contentHash": "099f4ec4"
+    },
+    {
+      "id": 1016,
+      "status": "active",
+      "contentHash": "c2ddfa94"
+    },
+    {
+      "id": 1020,
+      "status": "active",
+      "contentHash": "095b12c4"
+    },
+    {
+      "id": 1031,
+      "status": "active",
+      "contentHash": "29d84f67"
+    },
+    {
+      "id": 1162,
+      "status": "active",
+      "contentHash": "9258c302"
+    },
+    {
+      "id": 1166,
+      "status": "active",
+      "contentHash": "44a4d5d3"
+    },
+    {
+      "id": 1171,
+      "status": "active",
+      "contentHash": "f222aa1e"
+    },
+    {
+      "id": 1172,
+      "status": "active",
+      "contentHash": "d43e56ef"
+    },
+    {
+      "id": 1173,
+      "status": "active",
+      "contentHash": "f8caaf04"
+    },
+    {
+      "id": 1177,
+      "status": "active",
+      "contentHash": "20941990"
+    },
+    {
+      "id": 1185,
+      "status": "active",
+      "contentHash": "d0c847c8"
+    },
+    {
+      "id": 1193,
+      "status": "active",
+      "contentHash": "f36cc063"
+    },
+    {
+      "id": 1199,
+      "status": "active",
+      "contentHash": "a884b125"
+    },
+    {
+      "id": 1214,
+      "status": "active",
+      "contentHash": "a4ef664d"
+    },
+    {
+      "id": 1224,
+      "status": "active",
+      "contentHash": "65b2167c"
+    },
+    {
+      "id": 1227,
+      "status": "active",
+      "contentHash": "356510ef"
+    },
+    {
+      "id": 1238,
+      "status": "active",
+      "contentHash": "ca2c627d"
+    },
+    {
+      "id": 1243,
+      "status": "active",
+      "contentHash": "a1d6e423"
+    },
+    {
+      "id": 1245,
+      "status": "active",
+      "contentHash": "a501c24b"
+    },
+    {
+      "id": 1246,
+      "status": "active",
+      "contentHash": "926d0248"
+    },
+    {
+      "id": 1247,
+      "status": "active",
+      "contentHash": "91e14bd6"
+    },
+    {
+      "id": 1257,
+      "status": "active",
+      "contentHash": "8718e562"
+    },
+    {
+      "id": 1264,
+      "status": "active",
+      "contentHash": "4538ca99"
+    },
+    {
+      "id": 1271,
+      "status": "active",
+      "contentHash": "b1904f9e"
+    },
+    {
+      "id": 1279,
+      "status": "active",
+      "contentHash": "48a91a3d"
+    },
+    {
+      "id": 1280,
+      "status": "active",
+      "contentHash": "52d20468"
+    },
+    {
+      "id": 1286,
+      "status": "active",
+      "contentHash": "3dae1f01"
+    },
+    {
+      "id": 1294,
+      "status": "active",
+      "contentHash": "51a4984e"
+    },
+    {
+      "id": 1316,
+      "status": "active",
+      "contentHash": "388680b3"
+    },
+    {
+      "id": 1334,
+      "status": "active",
+      "contentHash": "dd7be2b5"
+    },
+    {
+      "id": 1337,
+      "status": "active",
+      "contentHash": "e99d0e3f"
+    },
+    {
+      "id": 1349,
+      "status": "active",
+      "contentHash": "6425556e"
+    },
+    {
+      "id": 1365,
+      "status": "active",
+      "contentHash": "29c02d29"
+    },
+    {
+      "id": 1376,
+      "status": "active",
+      "contentHash": "fe749db4"
+    },
+    {
+      "id": 1380,
+      "status": "active",
+      "contentHash": "88fdaec8"
+    },
+    {
+      "id": 1385,
+      "status": "active",
+      "contentHash": "6b6abdfa"
+    },
+    {
+      "id": 1387,
+      "status": "active",
+      "contentHash": "c7024114"
+    },
+    {
+      "id": 1388,
+      "status": "active",
+      "contentHash": "5b49b3f3"
+    },
+    {
+      "id": 1392,
+      "status": "active",
+      "contentHash": "d75e06db"
+    },
+    {
+      "id": 1408,
+      "status": "active",
+      "contentHash": "f55c7fa9"
+    },
+    {
+      "id": 1413,
+      "status": "active",
+      "contentHash": "35636f8e"
+    },
+    {
+      "id": 1418,
+      "status": "active",
+      "contentHash": "facaba52"
+    },
+    {
+      "id": 1420,
+      "status": "active",
+      "contentHash": "5f16a2d5"
+    },
+    {
+      "id": 1422,
+      "status": "active",
+      "contentHash": "656c72da"
+    },
+    {
+      "id": 1427,
+      "status": "active",
+      "contentHash": "868ca4ad"
+    },
+    {
+      "id": 1428,
+      "status": "active",
+      "contentHash": "48c5bb06"
+    },
+    {
+      "id": 1431,
+      "status": "active",
+      "contentHash": "42d3f443"
+    },
+    {
+      "id": 1434,
+      "status": "active",
+      "contentHash": "373e7db4"
+    },
+    {
+      "id": 1438,
+      "status": "active",
+      "contentHash": "bb934abc"
+    },
+    {
+      "id": 1446,
+      "status": "active",
+      "contentHash": "bf547c3c"
+    },
+    {
+      "id": 1449,
+      "status": "withdrawn",
+      "reason": "too_mature_or_applied",
+      "note": "perennial grain breeding (e.g. Kernza, PR23 rice) is already a deployed agroecology program, not a frontier direction"
+    },
+    {
+      "id": 1453,
+      "status": "active",
+      "contentHash": "4f0f8f2f"
+    },
+    {
+      "id": 1455,
+      "status": "active",
+      "contentHash": "3f916b18"
+    },
+    {
+      "id": 1459,
+      "status": "active",
+      "contentHash": "13b5e4ce"
+    },
+    {
+      "id": 1466,
+      "status": "active",
+      "contentHash": "52ea5827"
+    },
+    {
+      "id": 1472,
+      "status": "active",
+      "contentHash": "2b7aa293"
+    },
+    {
+      "id": 1475,
+      "status": "active",
+      "contentHash": "a605275f"
+    },
+    {
+      "id": 1478,
+      "status": "active",
+      "contentHash": "b3215af2"
+    },
+    {
+      "id": 1479,
+      "status": "active",
+      "contentHash": "2f67abb6"
+    },
+    {
+      "id": 1486,
+      "status": "active",
+      "contentHash": "39e0be96"
+    },
+    {
+      "id": 1488,
+      "status": "active",
+      "contentHash": "19d5222a"
+    },
+    {
+      "id": 1490,
+      "status": "active",
+      "contentHash": "2a4a7f57"
+    },
+    {
+      "id": 1491,
+      "status": "active",
+      "contentHash": "8ef4d162"
+    },
+    {
+      "id": 1492,
+      "status": "active",
+      "contentHash": "a7feba8e"
+    },
+    {
+      "id": 1493,
+      "status": "active",
+      "contentHash": "205bb441"
+    },
+    {
+      "id": 1494,
+      "status": "active",
+      "contentHash": "0b48346a"
+    },
+    {
+      "id": 1499,
+      "status": "active",
+      "contentHash": "982d8d67"
+    }
+  ]
+}

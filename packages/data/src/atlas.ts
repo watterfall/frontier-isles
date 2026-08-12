@@ -13,6 +13,7 @@ import type { FrontierEntry } from './frontiers';
 export type FrontierAtlasEntry = Pick<FrontierEntry,
   | 'id'
   | 'atlasN'
+  | 'atlasWithdrawal'
   | 'slug'
   | 'title'
   | 'qfocus'
@@ -2062,6 +2063,15 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
   {
     "id": 60,
     "atlasN": 1449,
+    "atlasWithdrawal": {
+      "status": "withdrawn",
+      "datasetVersion": "xf-6eb361265784",
+      "reason": "too_mature_or_applied",
+      "note": {
+        "zh": "多年生谷物育种（如 Kernza、PR23 水稻）已进入落地的农业生态项目，不再作为 xfrontier 的前沿方向；这里保留的是 Frontier Isles 自己仍可检验的问题。",
+        "en": "Perennial grain breeding (such as Kernza and PR23 rice) is now a deployed agroecology programme rather than an xfrontier direction; Frontier Isles retains its own still-testable problem."
+      }
+    },
     "slug": "perennial-grain-crops",
     "title": {
       "zh": "多年生粮食作物·一次播种多年收获",

@@ -21,16 +21,19 @@
     "./literature": "./src/literature.ts",
     "./regions": "./src/regions.ts",
     "./sea": "./src/sea.ts",
+    "./xfrontier-feedback": "./src/xfrontier-feedback.ts",
     "./structures": "./src/structures.ts"
   },
   "scripts": {
     "generate:atlas": "node --experimental-strip-types scripts/generate-atlas.mjs",
     "check:atlas": "node --experimental-strip-types scripts/generate-atlas.mjs --check",
     "generate:literature": "node --experimental-strip-types scripts/generate-literature.mjs",
+    "xfrontier:sync": "node --experimental-strip-types scripts/sync-xfrontier.mjs",
     "test": "vitest run",
     "typecheck": "pnpm check:atlas && tsc --noEmit"
   },
   "devDependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
     "typescript": "^5.7.2",
     "vitest": "^3.0.0"
   }

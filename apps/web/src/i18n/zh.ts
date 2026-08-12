@@ -311,6 +311,10 @@ export const zh = {
       nightsAgo: '记录更新于 {{nights}} 夜前',
       curated: '编纂图集内容 · 非实时记录',
     },
+    provenance: {
+      withdrawn: '已退役',
+      withdrawnDetail: '{{id}} 在 {{version}} 中退役：{{reason}}',
+    },
     step: {
       label: '逐岛巡览',
       prev: '上一岛',

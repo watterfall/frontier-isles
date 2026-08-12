@@ -1,9 +1,8 @@
 /**
  * Curated frontier islands — real research directions sourced from the
- * xfrontier atlas (1,477 directions scored on 9 dimensions in the reviewed
- * 2026-07-26 local audit snapshot; see
- * /Users/jili/AIAI/frontier/audit/atlas_data.json + cluster_questions.json +
- * cluster_intros.json). 176 entries span 数理/物质/生命/交叉, selected for
+ * xfrontier atlas (1,848 active directions scored on 9 dimensions in dataset
+ * xf-6eb361265784, reviewed 2026-08-12 through the local xfrontier MCP).
+ * 176 entries span 数理/物质/生命/交叉, selected for
  * paradigm-shift (s[0]) ∧ undervalued (s[8]) ∧ cluster diversity.
  *
  * Single source of truth consumed by apps/server/src/seed.ts (live data) and
@@ -26,6 +25,21 @@ export type Domain = '数理' | '物质' | '生命' | '交叉';
 export interface Bilingual {
   zh: string;
   en: string;
+}
+
+/** xfrontier corpus version used by the checked-in provenance snapshot. */
+export const XFRONTIER_DATASET_VERSION = 'xf-6eb361265784' as const;
+
+/**
+ * A source record that xfrontier issued and later withdrew. The Frontier Isles
+ * problem object remains independently valid, but the source lifecycle must be
+ * visible instead of silently presenting the identifier as active.
+ */
+export interface XFrontierWithdrawal {
+  status: 'withdrawn';
+  datasetVersion: string;
+  reason: string;
+  note: Bilingual;
 }
 
 /** Grounded deep content for an island's detail surface + problem.md body. */
@@ -137,6 +151,8 @@ export interface FrontierEntry {
   id: number;
   /** xfrontier atlas record id (provenance back-reference). */
   atlasN: number;
+  /** Present only when the referenced xfrontier record has been withdrawn. */
+  atlasWithdrawal?: XFrontierWithdrawal;
   /** URL-safe slug; also the OPP problem-object slug. */
   slug: string;
   title: { zh: string; en: string };
@@ -1663,6 +1679,15 @@ export const FRONTIERS: FrontierEntry[] = [
   },
   {
     id: 60, atlasN: 1449, slug: "perennial-grain-crops",
+    atlasWithdrawal: {
+      status: "withdrawn",
+      datasetVersion: XFRONTIER_DATASET_VERSION,
+      reason: "too_mature_or_applied",
+      note: {
+        zh: "多年生谷物育种（如 Kernza、PR23 水稻）已进入落地的农业生态项目，不再作为 xfrontier 的前沿方向；这里保留的是 Frontier Isles 自己仍可检验的问题。",
+        en: "Perennial grain breeding (such as Kernza and PR23 rice) is now a deployed agroecology programme rather than an xfrontier direction; Frontier Isles retains its own still-testable problem.",
+      },
+    },
     title: { zh: "多年生粮食作物·一次播种多年收获", en: "Perennial Grain Crops" },
     qfocus: { zh: "谷物能否只种一次、连续收获数年而不减产？", en: "Can a grain be sown once and harvested for years without yield loss?" },
     domain: "生命",

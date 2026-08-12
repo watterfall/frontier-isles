@@ -74,6 +74,18 @@ describe('fallback data matches the curated atlas', () => {
     }
   });
 
+  it('keeps withdrawn xfrontier provenance visible without deleting the local problem', () => {
+    const perennial = FRONTIER_ATLAS.find((frontier) => frontier.slug === 'perennial-grain-crops');
+    expect(perennial).toMatchObject({
+      atlasN: 1449,
+      atlasWithdrawal: {
+        status: 'withdrawn',
+        datasetVersion: 'xf-6eb361265784',
+        reason: 'too_mature_or_applied',
+      },
+    });
+  });
+
   it('question 2 is a rewrite with the prototype vote count', () => {
     const q2 = QUESTIONS[1]!;
     expect(q2.rw).toBe(true);
