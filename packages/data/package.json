@@ -8,7 +8,8 @@
     "#frontiers-expansion-matter-computation": "./src/frontiers-expansion-matter-computation.ts",
     "#frontiers-expansion-society-knowledge": "./src/frontiers-expansion-society-knowledge.ts",
     "#structures-expansion-wave2": "./src/structures-expansion-wave2.ts",
-    "#structures-expansion-wave4": "./src/structures-expansion-wave4.ts"
+    "#structures-expansion-wave4": "./src/structures-expansion-wave4.ts",
+    "#structures-expansion-wave5": "./src/structures-expansion-wave5.ts"
   },
   "exports": {
     ".": "./src/index.ts",
@@ -22,7 +23,8 @@
     "./literature": "./src/literature.ts",
     "./regions": "./src/regions.ts",
     "./sea": "./src/sea.ts",
-    "./structures": "./src/structures.ts"
+    "./structures": "./src/structures.ts",
+    "./quantity-index": "./src/quantity-index.ts"
   },
   "scripts": {
     "generate:atlas": "node --experimental-strip-types scripts/generate-atlas.mjs",

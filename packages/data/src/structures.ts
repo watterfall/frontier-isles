@@ -17,6 +17,7 @@ import {
   WAVE_2_STRUCTURE_PATCHES,
 } from '#structures-expansion-wave2';
 import { WAVE_4_STRUCTURES } from '#structures-expansion-wave4';
+import { WAVE_5_STRUCTURES } from '#structures-expansion-wave5';
 
 export interface StructureCorrespondence {
   /** A quantity in the abstract structure. */
@@ -2292,3 +2293,6 @@ SEED_STRUCTURES.push(...WAVE_2_STRUCTURES);
  * one by being imported next to the mappings.
  */
 SEED_STRUCTURES.push(...WAVE_4_STRUCTURES);
+
+/** Wave 5 on the same terms as wave 4: zero mappings, `proposed`, no edge. */
+SEED_STRUCTURES.push(...WAVE_5_STRUCTURES);
