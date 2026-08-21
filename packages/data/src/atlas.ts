@@ -6895,6 +6895,474 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       "scale": 0.85
     },
     "hasInterior": false
+  },
+  {
+    "id": 177,
+    "atlasN": 1072,
+    "slug": "universal-sample-prep-robotics",
+    "title": {
+      "zh": "通用样品制备机器人",
+      "en": "Universal sample-prep robotics"
+    },
+    "qfocus": {
+      "zh": "自驱实验室的瓶颈已经从算法转到样品前处理——最脏乱、最依赖手艺的那几步，能不能被拆解成可测、可复核、可迁移的模块？",
+      "en": "The bottleneck in self-driving laboratories has moved from the algorithm to sample preparation — can the dirtiest, most craft-dependent steps be decomposed into modules that are measurable, checkable and transferable?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C04",
+      "zh": "自驱实验室·自动化科学",
+      "en": "Self-driving labs · automated science"
+    },
+    "scores": [
+      2,
+      2,
+      3,
+      2,
+      3,
+      2,
+      3,
+      2,
+      4
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 38,
+    "chart": {
+      "x": 832,
+      "y": 691,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 178,
+    "atlasN": 130,
+    "slug": "bio-inspired-molecular-self-assembly",
+    "title": {
+      "zh": "仿生分子自组装",
+      "en": "Bio-inspired molecular self-assembly"
+    },
+    "qfocus": {
+      "zh": "「自发组装」与「精确可控」能否兼得——还是说动力学陷阱与多态性注定让产物偏离设计？",
+      "en": "Can spontaneous assembly and precise control be had together, or do kinetic traps and polymorphism condemn the product to drift from the design?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C08",
+      "zh": "分子机器·DNA信息技术",
+      "en": "Molecular machines · DNA information technology"
+    },
+    "scores": [
+      3,
+      3,
+      4,
+      2,
+      2,
+      3,
+      3,
+      3,
+      4
+    ],
+    "stage": 1,
+    "members": 5,
+    "activity": 44,
+    "chart": {
+      "x": 1161,
+      "y": 391,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 179,
+    "atlasN": 12,
+    "slug": "quorum-sensing-engineering",
+    "title": {
+      "zh": "群体感应工程",
+      "en": "Quorum-sensing engineering"
+    },
+    "qfocus": {
+      "zh": "把「破坏细菌通讯」当作不直接杀菌的抗感染策略，能否在体内可靠成立——还是冗余的群体感应网络总能绕过单点干预？",
+      "en": "Can disrupting bacterial communication work as an anti-infective strategy that never kills directly, or does a redundant quorum-sensing network always route around a single-point intervention?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C01",
+      "zh": "合成生物·工程生命",
+      "en": "Synthetic biology · engineered life"
+    },
+    "scores": [
+      2,
+      3,
+      3,
+      2,
+      2,
+      3,
+      2,
+      2,
+      4
+    ],
+    "stage": 1,
+    "members": 5,
+    "activity": 41,
+    "chart": {
+      "x": 673,
+      "y": 360,
+      "scale": 0.9
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 180,
+    "atlasN": 168,
+    "slug": "crowd-n-of-1-self-experimentation",
+    "title": {
+      "zh": "群体自我量化与 N-of-1 实验",
+      "en": "Crowd self-quantification and N-of-1 trials"
+    },
+    "qfocus": {
+      "zh": "把临床试验的严谨性下放到个人，再把成千上万个 N-of-1 结果汇成群体证据——聚合一堆有偏的自我实验，能否洗出可靠的人群级结论？",
+      "en": "Push the rigour of a clinical trial down to the individual, then aggregate thousands of N-of-1 results into population evidence — can pooling many biased self-experiments wash out into a reliable population conclusion?"
+    },
+    "domain": "生命",
+    "cluster": {
+      "code": "C10",
+      "zh": "分布式生物传感·诊断",
+      "en": "Distributed biosensing · diagnostics"
+    },
+    "scores": [
+      3,
+      2,
+      3,
+      5,
+      3,
+      4,
+      2,
+      2,
+      4
+    ],
+    "stage": 1,
+    "members": 6,
+    "activity": 47,
+    "chart": {
+      "x": 635,
+      "y": 334,
+      "scale": 0.9
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 181,
+    "atlasN": 238,
+    "slug": "resilience-science-critical-transition",
+    "title": {
+      "zh": "韧性科学与临界预警",
+      "en": "Resilience science and critical-transition early warning"
+    },
+    "qfocus": {
+      "zh": "临界慢化是少数有理论基础又可实测的预警信号，但它常在崩溃前夕才显现——留给应对的时间窗，够不够构成「预警」？",
+      "en": "Critical slowing down is one of the few early-warning signals with both a theoretical basis and a measurable form, yet it often appears only on the eve of collapse — is the window it leaves long enough to count as warning at all?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C14",
+      "zh": "复杂系统·多智能体",
+      "en": "Complex systems · multi-agent"
+    },
+    "scores": [
+      4,
+      5,
+      4,
+      3,
+      4,
+      4,
+      3,
+      3,
+      4
+    ],
+    "stage": 1,
+    "members": 6,
+    "activity": 52,
+    "chart": {
+      "x": 484,
+      "y": 228,
+      "scale": 0.82
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 182,
+    "atlasN": 826,
+    "slug": "realtime-critical-slowing-down-remote-sensing",
+    "title": {
+      "zh": "生态系统临界点的实时临界减速预警",
+      "en": "Real-time critical-slowing-down warning for ecosystem tipping points"
+    },
+    "qfocus": {
+      "zh": "临界减速已能在卫星时序上逐像元算出来，但 Turing 失稳会给出相似信号、缺失值又系统性高估韧性——这套读数在真实带噪数据上还剩多少可证伪性？",
+      "en": "Critical slowing down can now be computed per pixel on satellite time series, yet Turing instability produces a similar signal and missing data systematically overstates resilience — how much falsifiability does the reading retain on real noisy data?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C49",
+      "zh": "计算可持续·韧性科学",
+      "en": "Computational sustainability · resilience science"
+    },
+    "scores": [
+      3,
+      3,
+      3,
+      2,
+      3,
+      3,
+      2,
+      3,
+      3
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 40,
+    "chart": {
+      "x": 307,
+      "y": 415,
+      "scale": 0.85
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 183,
+    "atlasN": 383,
+    "slug": "computational-complexity-limits-of-solvability",
+    "title": {
+      "zh": "计算复杂性与可解性边界",
+      "en": "Computational complexity and the limits of solvability"
+    },
+    "qfocus": {
+      "zh": "理论极限界定的是最坏情况，而现实中的 NP 难问题常被启发式在实践上「解决」——这片灰色地带能否被刻画，而不只是被绕过？",
+      "en": "The theoretical limit bounds the worst case while real NP-hard problems are routinely \"solved\" in practice by heuristics — can that grey zone be characterised rather than merely walked around?"
+    },
+    "domain": "数理",
+    "cluster": {
+      "code": "C23",
+      "zh": "AI数学·形式科学",
+      "en": "AI mathematics · formal science"
+    },
+    "scores": [
+      5,
+      4,
+      3,
+      2,
+      3,
+      5,
+      2,
+      4,
+      4
+    ],
+    "stage": 1,
+    "members": 5,
+    "activity": 45,
+    "chart": {
+      "x": 365,
+      "y": 362,
+      "scale": 0.84
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 184,
+    "atlasN": 1443,
+    "slug": "randomised-research-funding-partial-lotteries",
+    "title": {
+      "zh": "科研资助的随机化：部分抽签与机制设计",
+      "en": "Randomising research funding: partial lotteries and mechanism design"
+    },
+    "qfocus": {
+      "zh": "在资助线附近评审其实分不清第 20 名与第 40 名，却假装能——把这段噪声区改用抽签，是更公平，还是放弃了本来可得的择优？",
+      "en": "Near the funding line reviewers cannot actually separate the twentieth proposal from the fortieth, yet act as if they can — does drawing lots across that noise band buy fairness, or give up selection that was genuinely available?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C28",
+      "zh": "元科学·科研治理",
+      "en": "Metascience · research governance"
+    },
+    "scores": [
+      4,
+      4,
+      3,
+      2,
+      3,
+      4,
+      4,
+      3,
+      4
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 43,
+    "chart": {
+      "x": 837,
+      "y": 455,
+      "scale": 0.78
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 185,
+    "atlasN": 1021,
+    "slug": "replication-prediction-markets",
+    "title": {
+      "zh": "可复现性预测市场与可信度定价",
+      "en": "Replication prediction markets and credibility pricing"
+    },
+    "qfocus": {
+      "zh": "学术共同体其实「心里有数」哪些发现会塌——把这种私有直觉做成可下注、可结算的公开价格，在缺乏真金白银结算的场景里还能维持诚实吗？",
+      "en": "The research community privately knows which findings will fall over — can that intuition be made into a tradeable, settleable public price, and stay honest in a setting with no real money at stake?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C20",
+      "zh": "去中心科学·开放科学机制",
+      "en": "Decentralised science · open-science mechanisms"
+    },
+    "scores": [
+      3,
+      3,
+      4,
+      4,
+      3,
+      3,
+      2,
+      3,
+      4
+    ],
+    "stage": 1,
+    "members": 5,
+    "activity": 46,
+    "chart": {
+      "x": 773,
+      "y": 500,
+      "scale": 0.85
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 186,
+    "atlasN": 1121,
+    "slug": "epistemic-traceability-ledgers",
+    "title": {
+      "zh": "认识论可追溯账本",
+      "en": "Epistemic traceability ledgers"
+    },
+    "qfocus": {
+      "zh": "为数据、模型、假说、实验与结论建立可审计的来源链，能否把证据、推断与叙事真正分开——还是记录本身也会变成一种叙事？",
+      "en": "Build an auditable chain of provenance for data, models, hypotheses, experiments and conclusions — can that genuinely separate evidence from inference from narrative, or does the record become another narrative?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C28",
+      "zh": "元科学·科研治理",
+      "en": "Metascience · research governance"
+    },
+    "scores": [
+      3,
+      3,
+      4,
+      3,
+      4,
+      4,
+      2,
+      2,
+      4
+    ],
+    "stage": 1,
+    "members": 3,
+    "activity": 34,
+    "chart": {
+      "x": 828,
+      "y": 528,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 187,
+    "atlasN": 1706,
+    "slug": "finite-time-information-erasure-control",
+    "title": {
+      "zh": "有限时间信息擦除的最优控制",
+      "en": "Optimal control of finite-time information erasure"
+    },
+    "qfocus": {
+      "zh": "固定操作时间下，协议形状、擦除错误、终态约束、欠阻尼加热与强耦合如何共同决定超出 Landauer 界的那部分额外耗散？",
+      "en": "At a fixed operation time, how do protocol shape, erasure error, final-state constraint, underdamped heating and strong coupling jointly set the excess dissipation above the Landauer bound?"
+    },
+    "domain": "物质",
+    "cluster": {
+      "code": "C31",
+      "zh": "物理计算·热力学与涨落",
+      "en": "Physical computing · thermodynamics and fluctuations"
+    },
+    "scores": [
+      4,
+      4,
+      5,
+      1,
+      3,
+      3,
+      3,
+      5,
+      4
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 39,
+    "chart": {
+      "x": 397,
+      "y": 470,
+      "scale": 0.81
+    },
+    "hasInterior": false
+  },
+  {
+    "id": 188,
+    "atlasN": 1218,
+    "slug": "zero-knowledge-model-auditing",
+    "title": {
+      "zh": "零知识模型审计",
+      "en": "Zero-knowledge model auditing"
+    },
+    "qfocus": {
+      "zh": "监管者要求审计、厂商拒绝开箱——密码学证明能不能同时满足两边，还是「可证明的属性」与「社会想要的属性」之间那道语义鸿沟根本跨不过去？",
+      "en": "Regulators demand an audit and vendors refuse to open the box — can a cryptographic proof satisfy both, or is the semantic gap between provable properties and the properties society wants simply uncrossable?"
+    },
+    "domain": "交叉",
+    "cluster": {
+      "code": "C47",
+      "zh": "后量子·隐私计算工程",
+      "en": "Post-quantum · privacy-computing engineering"
+    },
+    "scores": [
+      4,
+      5,
+      3,
+      3,
+      4,
+      3,
+      2,
+      4,
+      4
+    ],
+    "stage": 1,
+    "members": 4,
+    "activity": 42,
+    "chart": {
+      "x": 915,
+      "y": 476,
+      "scale": 0.87
+    },
+    "hasInterior": false
   }
 ];
 

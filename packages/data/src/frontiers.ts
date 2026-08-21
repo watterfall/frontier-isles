@@ -19,6 +19,7 @@
 import { EARTH_LIFE_EXPANSION } from '#frontiers-expansion-earth-life';
 import { MATTER_COMPUTATION_EXPANSION } from '#frontiers-expansion-matter-computation';
 import { SOCIETY_KNOWLEDGE_EXPANSION } from '#frontiers-expansion-society-knowledge';
+import { STRUCTURE_LED_EXPANSION } from '#frontiers-expansion-structure-led';
 
 export type Domain = '数理' | '物质' | '生命' | '交叉';
 
@@ -8560,6 +8561,8 @@ FRONTIERS.push(
   ...EARTH_LIFE_EXPANSION,
   ...MATTER_COMPUTATION_EXPANSION,
   ...SOCIETY_KNOWLEDGE_EXPANSION,
+  // Chosen structure-first rather than record-first; see the file header.
+  ...STRUCTURE_LED_EXPANSION,
 );
 
 export const FRONTIERS_BY_SLUG: Record<string, FrontierEntry> = Object.fromEntries(

@@ -615,8 +615,41 @@ export const WAVE_4_PROPOSALS: Wave4StructureProposal[] = [
 ];
 
 /**
- * Records the corpus supports strongly for a wave-4 structure and that are NOT
- * islands — in `FRONTIERS` here, and also absent from the 371-island wave-3 set.
+ * ALL TWELVE ENTRIES HAVE BEEN ACTED ON, so this queue is empty.
+ *
+ * They are now islands 177–188, in `frontiers-expansion-structure-led.ts`, and
+ * that file rather than this one is the record of what each became. The queue
+ * shrinking is the sign of progress here exactly as it is for a structure
+ * proposal: a candidate that has been built is deleted, never left behind
+ * asserting a state that stopped being true.
+ *
+ * The list is kept as an empty export rather than removed because its type is
+ * the contract for the next batch, and because the test that guards it — that
+ * nothing in the queue is already an island — is what caught the twelve the
+ * moment they were built.
+ *
+ * What the entries were, and what the twelve islands still owe. None of them
+ * carries a mapping or a proposal, deliberately: an island authored by the same
+ * hand that then cites its text as evidence for the structure that motivated it
+ * proves only that the hand was consistent. Whether the structure-first
+ * ordering worked is left to the same matchers that run over every other
+ * island.
+ */
+export const WAVE_4_ISLAND_CANDIDATES: ReadonlyArray<{
+  recordId: number;
+  structureId: string;
+  note: Bilingual;
+}> = [];
+
+/**
+ * Retained for the record: the corpus handles that seeded islands 177–188, each
+ * with the wave-4 structure whose quantity the record was found to supply.
+ *
+ * This is provenance, not a queue. It says where the twelve islands came from
+ * and which structure sent the search that found them; it does NOT assert that
+ * any of them embodies that structure, which is the mapping nobody has authored.
+ *
+ * Below is the note each entry carried while it was still a candidate.
  *
  * This list is the other half of the expansion, and it points the opposite way
  * from how islands have been added so far. The recorded cost of adding islands
@@ -627,11 +660,10 @@ export const WAVE_4_PROPOSALS: Wave4StructureProposal[] = [
  * way arrives already connected, instead of joining the set that connects to
  * nothing.
  *
- * These are candidates, not a queue. Each still needs the island authoring any
- * island needs — qfocus, brief, depth, cited literature — and the pairing still
- * needs the same ratification as any proposal above.
+ * Each has since been built, so what follows is provenance rather than a queue:
+ * the note below is the one it carried while it was still a candidate.
  */
-export const WAVE_4_ISLAND_CANDIDATES: ReadonlyArray<{
+export const WAVE_4_ISLAND_PROVENANCE: ReadonlyArray<{
   recordId: number;
   structureId: string;
   note: Bilingual;

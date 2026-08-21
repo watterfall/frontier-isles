@@ -129,7 +129,7 @@ describe("structures API (执行纲要 §九)", () => {
     expect(store.listStructures()).toHaveLength(SEED_STRUCTURES.length);
   });
 
-  it("materializes the 36 missing wave-2 islands on upgrade exactly once", () => {
+  it("materializes every island added after id 140 on upgrade exactly once", () => {
     const expansion = FRONTIERS.filter((frontier) => frontier.id >= 141);
     const expansionOps = new Set(expansion.map((frontier) => opIdFor(frontier.slug)));
     const legacyEvents = new Map(
@@ -148,11 +148,13 @@ describe("structures API (执行纲要 §九)", () => {
       }
     });
     removeLegacyGap();
-    expect(expansion).toHaveLength(36);
+    // 36 from wave 2 plus the 12 structure-led ones; the filter is id-based,
+    // so a later expansion joins this set and is covered by the same gate.
+    expect(expansion).toHaveLength(48);
     expect(store.listProblemRows()).toHaveLength(141);
 
-    expect(seed(store)).toBe(36);
-    expect(store.listProblemRows()).toHaveLength(177);
+    expect(seed(store)).toBe(48);
+    expect(store.listProblemRows()).toHaveLength(189);
     for (const frontier of expansion) {
       expect(store.getProblemRow(frontier.slug)?.meta.name).toBe(frontier.title.zh);
     }

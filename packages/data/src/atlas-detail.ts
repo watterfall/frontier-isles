@@ -2121,5 +2121,149 @@ export const FRONTIER_ATLAS_DETAIL: Record<string, FrontierAtlasDetail> = {
       "venue": "Project site (KU Leuven / U. Birmingham)",
       "year": 2025
     }
+  },
+  "universal-sample-prep-robotics": {
+    "brief": {
+      "zh": "把最脏乱、最依赖手艺的样品制备步骤模块化，让自动实验室真正接触现实样本。开放问题在于能否把概念做成可测、可复核、可迁移的实验对象，并明确失败条件。",
+      "en": "Modularise the messiest, most craft-dependent steps of sample preparation so that automated laboratories can touch real specimens. The open question is whether the concept can be turned into a measurable, checkable, transferable experimental object with stated failure conditions."
+    },
+    "citation": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12923569/",
+      "title": "The ADePT framework for assessing autonomous laboratory robotics",
+      "venue": "Digital Discovery",
+      "year": 2026
+    }
+  },
+  "bio-inspired-molecular-self-assembly": {
+    "brief": {
+      "zh": "借鉴脂质、蛋白、肽的自组装原理，让人工分子在适当条件下自发聚集成有序、具特定功能的纳米结构，靠热力学与动力学而非外力构建，是自下而上纳米制造的核心路径。",
+      "en": "Borrowing from how lipids, proteins and peptides assemble themselves, let synthetic molecules aggregate under the right conditions into ordered, functional nanostructures built by thermodynamics and kinetics rather than by an external tool — the core route to bottom-up nanofabrication."
+    },
+    "citation": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12720980/",
+      "title": "Molecular-Level Design Principles and Strategies of Peptide Self-Assembly Nanomaterials",
+      "venue": "International Journal of Nanomedicine",
+      "year": 2025
+    }
+  },
+  "quorum-sensing-engineering": {
+    "brief": {
+      "zh": "工程化改写细菌赖以协调群体的群体感应系统（如 LuxI/LuxR 与 AHL 信号），或用淬灭酶阻断通讯，从而调控生物膜形成、毒力表达与同步裂解。",
+      "en": "Rewrite the quorum-sensing systems bacteria use to coordinate — LuxI/LuxR and AHL signalling among them — or block the conversation with quenching enzymes, and thereby steer biofilm formation, virulence expression and synchronised lysis."
+    },
+    "citation": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11104945/",
+      "title": "Quorum sensing for population-level control of bacteria and potential therapeutic applications",
+      "venue": "Cell Chemical Biology",
+      "year": 2024
+    }
+  },
+  "crowd-n-of-1-self-experimentation": {
+    "brief": {
+      "zh": "让个体对自己做严谨的单受试者交叉实验（随机化、洗脱期、盲法），再把成千上万个 N-of-1 结果汇成群体证据，把临床试验的严谨性下放到个人。",
+      "en": "Have individuals run rigorous single-subject crossover trials on themselves — randomised, with washout and blinding — then aggregate thousands of those N-of-1 results into population evidence, pushing the rigour of a clinical trial down to one person."
+    },
+    "citation": {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10565195/",
+      "title": "The use of N-of-1 trials to generate real-world evidence for optimal treatment of individuals and populations",
+      "venue": "British Journal of Clinical Pharmacology",
+      "year": 2023
+    }
+  },
+  "resilience-science-critical-transition": {
+    "brief": {
+      "zh": "韧性科学研究复杂系统在崩溃前的普适预警信号，如「临界慢化」——系统从扰动中恢复变慢、方差和自相关上升，预示逼近临界点。它寻找跨领域通用的崩溃前兆。",
+      "en": "Resilience science looks for universal precursors of collapse in complex systems, chief among them critical slowing down — recovery from perturbation gets slower while variance and autocorrelation rise, signalling an approaching tipping point. It searches for a warning that works across fields."
+    },
+    "citation": {
+      "url": "https://esd.copernicus.org/articles/15/1117/2024/",
+      "title": "Tipping point detection and early warnings in climate, ecological, and human systems",
+      "venue": "Earth System Dynamics",
+      "year": 2024
+    }
+  },
+  "realtime-critical-slowing-down-remote-sensing": {
+    "brief": {
+      "zh": "用临界减速（自相关与方差上升）等通用早期预警信号，在全球遥感时序上连续度量生态系统逼近临界转变的程度，把韧性从事后诊断变成可监测的前瞻量。",
+      "en": "Use generic early-warning signals — rising autocorrelation and variance — to measure continuously, on global remote-sensing series, how close an ecosystem is to a critical transition, turning resilience from an after-the-fact diagnosis into a forward-looking measurable."
+    },
+    "citation": {
+      "url": "https://www.nature.com/articles/s41558-025-02328-8",
+      "title": "Ambiguity of early warning signals for climate tipping points",
+      "venue": "Nature Climate Change",
+      "year": 2025
+    }
+  },
+  "computational-complexity-limits-of-solvability": {
+    "brief": {
+      "zh": "研究哪些问题在本质上可被高效计算、哪些注定指数级困难（P/NP、近似难度、量子加速边界），用严格的下界理论划定「再快的硬件也救不了」的内在难度。",
+      "en": "Study which problems are efficiently computable in principle and which are condemned to exponential difficulty — P versus NP, hardness of approximation, the limits of quantum speed-up — using rigorous lower bounds to mark the difficulty no faster hardware can rescue."
+    },
+    "citation": {
+      "url": "https://dl.acm.org/doi/book/10.1145/3241304",
+      "title": "Hardness of Approximation Between P and NP",
+      "venue": "ACM Books",
+      "year": 2019
+    }
+  },
+  "randomised-research-funding-partial-lotteries": {
+    "brief": {
+      "zh": "承认同行评审在资助线附近无力区分优劣，于是对达标提案改用受控随机抽签分配经费，并研究如何把贝叶斯排序与随机化最优组合。它把「谁该拿到钱」从评委判断问题变成机制设计问题。",
+      "en": "Accept that peer review cannot separate proposals near the funding line, allocate money among the qualifying ones by controlled lottery, and study how best to combine Bayesian ranking with randomisation. It turns who should be funded from a question of reviewer judgement into one of mechanism design."
+    },
+    "citation": {
+      "url": "https://www.tandfonline.com/doi/full/10.1080/2330443X.2022.2086190",
+      "title": "Rethinking the Funding Line at the Swiss National Science Foundation: Bayesian Ranking and Lottery",
+      "venue": "Statistics and Public Policy",
+      "year": 2022
+    }
+  },
+  "replication-prediction-markets": {
+    "brief": {
+      "zh": "用预测市场让研究者对「某结论能否被成功复现」下注，把分散在学术共同体里的私有判断聚合成一个连续的可信度价格。它不评判论文好坏，而直接给「这个发现会不会站得住」定价。",
+      "en": "Let researchers bet on whether a finding will replicate, aggregating private judgement scattered through the community into a continuous credibility price. It does not judge whether a paper is good; it prices whether the finding will hold."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1098/rsos.250377",
+      "title": "Using prediction markets and forecasting surveys to predict 28 replication outcomes of classic articles in social psychology and judgement and decision making",
+      "venue": "Royal Society Open Science",
+      "year": 2025
+    }
+  },
+  "epistemic-traceability-ledgers": {
+    "brief": {
+      "zh": "为数据、模型、假说、实验和结论建立可审计的来源链，区分证据、推断和叙事。开放问题在于能否把概念做成可测、可复核、可迁移的对象，并明确失败条件。",
+      "en": "Build an auditable chain of provenance across data, models, hypotheses, experiments and conclusions, separating evidence from inference from narrative. The open question is whether the concept becomes a measurable, checkable, transferable object with stated failure conditions."
+    },
+    "citation": {
+      "url": "https://www.taylorfrancis.com/chapters/oa-edit/10.4324/9781003536116-1/epistemic-governance-diverse-research-practices-knowledge-production-introduction-rebecca-lund-jill-blackmore-julie-rowlands",
+      "title": "Epistemic governance of diverse research practices and knowledge production: an introduction",
+      "venue": "Epistemic Injustice (Routledge)",
+      "year": 2024
+    }
+  },
+  "finite-time-information-erasure-control": {
+    "brief": {
+      "zh": "准静态的 Landauer 极限已被单粒子与单电子实验覆盖；这条方向只研究固定时限下超出该极限的协议成本，要求同时报告操作时间、擦除错误、初末分布与控制自由度。",
+      "en": "The quasi-static Landauer limit is already covered by single-particle and single-electron experiments; this direction studies only the cost of a protocol above that limit at a fixed time, and requires operation time, erasure error, initial and final distributions and control freedom all to be reported together."
+    },
+    "citation": {
+      "url": "https://doi.org/10.1103/PhysRevLett.125.100602",
+      "title": "Finite-Time Landauer Principle",
+      "venue": "Physical Review Letters",
+      "year": 2020
+    }
+  },
+  "zero-knowledge-model-auditing": {
+    "brief": {
+      "zh": "用零知识证明让模型方向监管者与用户证明「这个保密模型满足公平性、基准分数或安全属性」而不泄露权重，把 AI 审计从「信任机构」重构为「验证密码学证据」。",
+      "en": "Use zero-knowledge proofs so a vendor can prove to regulators and users that a confidential model satisfies a fairness, benchmark-score or safety property without disclosing its weights, recasting AI audit from trusting an institution to verifying cryptographic evidence."
+    },
+    "citation": {
+      "url": "https://proceedings.mlr.press/v235/yadav24a.html",
+      "title": "FairProof: Confidential and Certifiable Fairness for Neural Networks",
+      "venue": "ICML 2024 (PMLR v235)",
+      "year": 2024
+    }
   }
 };
