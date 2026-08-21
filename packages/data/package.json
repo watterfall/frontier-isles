@@ -7,7 +7,8 @@
     "#frontiers-expansion-earth-life": "./src/frontiers-expansion-earth-life.ts",
     "#frontiers-expansion-matter-computation": "./src/frontiers-expansion-matter-computation.ts",
     "#frontiers-expansion-society-knowledge": "./src/frontiers-expansion-society-knowledge.ts",
-    "#structures-expansion-wave2": "./src/structures-expansion-wave2.ts"
+    "#structures-expansion-wave2": "./src/structures-expansion-wave2.ts",
+    "#structures-expansion-wave4": "./src/structures-expansion-wave4.ts"
   },
   "exports": {
     ".": "./src/index.ts",

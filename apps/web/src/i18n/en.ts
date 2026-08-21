@@ -254,7 +254,7 @@ export const en: Resources = {
       ifAnswered: 'If answered',
       approaches: 'Approaches',
       barrier: 'The hard barrier',
-      subQuestions: 'Open sub-questions',
+      subQuestions: 'Related open questions',
       literature: 'References',
     },
     district: {

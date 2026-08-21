@@ -299,7 +299,9 @@ export function projectBuildingFloors(input: BuildingFloorInput): BuildingFloorP
     for (const [group, title, questions] of groups) chunks(questions).forEach(({ start, items }, index) =>
       pushFloor(floors, `${station}:${group}:${start}`, { zh: `${title.zh}${questions.length > 2 ? roman(index) : ''}`, en: `${title.en}${questions.length > 2 ? ` ${index + 1}` : ''}` }, STATION_PURPOSE[station], items.map((question) => ({ kind: 'question', question })), 'interior'));
     if (rich.length === 0) chunks(depth?.subQuestions ?? []).forEach(({ start, items }, index) =>
-      pushFloor(floors, `${station}:subquestion:${start}`, bi(`子问层${roman(index)}`, `Subquestions ${index + 1}`), STATION_PURPOSE[station], items.map((text) => ({ kind: 'brief', label: bi('开放子问', 'Open subquestion'), text })), 'island'));
+      // "Related", not "sub-": about a fifth of these are the island's own
+      // cluster's questions rather than the island's (see DepthContent.subQuestions).
+      pushFloor(floors, `${station}:subquestion:${start}`, bi(`问题层${roman(index)}`, `Questions ${index + 1}`), STATION_PURPOSE[station], items.map((text) => ({ kind: 'brief', label: bi('相关开放问题', 'Related open question'), text })), 'island'));
   }
 
   if (station === 'library') {

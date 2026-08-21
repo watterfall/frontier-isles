@@ -253,7 +253,7 @@ export const zh = {
       ifAnswered: '若被回答',
       approaches: '主要路径',
       barrier: '硬骨头',
-      subQuestions: '开放子问题',
+      subQuestions: '相关开放问题',
       literature: '参考文献',
     },
     district: {

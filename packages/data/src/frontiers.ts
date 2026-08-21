@@ -40,7 +40,24 @@ export interface DepthContent {
   approaches: Bilingual[];
   /** The single hardest honest obstacle. */
   barrier: Bilingual;
-  /** 2-4 open sub-questions specific to this frontier (→ problem.md body). */
+  /**
+   * 2-4 open questions carried on this island's detail surface (→ problem.md
+   * body).
+   *
+   * NOT all of them are specific to this frontier, and the field name should
+   * not be read as promising that. Measured 2026-08-22 over the 176 islands
+   * and the 306-question cluster pool: 123 of 564 (21.8%) are verbatim
+   * questions from the island's OWN cluster, and none at all come from another
+   * cluster — nothing here is misfiled. The remainder are island-level.
+   *
+   * The borrowing is only visible on islands that sit away from their
+   * cluster's centre, and it concentrates sharply there: among the 29 islands
+   * whose questions share least vocabulary with their own title/qfocus/brief,
+   * 77% of the questions come from the cluster pool, against 11.7% across the
+   * other 147. That is why the surface says "related open questions" rather
+   * than "this island's sub-questions": the weaker claim is true of both
+   * kinds, and the stronger one is false for roughly a fifth of them.
+   */
   subQuestions: Bilingual[];
 }
 

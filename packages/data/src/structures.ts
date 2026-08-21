@@ -16,6 +16,7 @@ import {
   WAVE_2_STRUCTURES,
   WAVE_2_STRUCTURE_PATCHES,
 } from '#structures-expansion-wave2';
+import { WAVE_4_STRUCTURES } from '#structures-expansion-wave4';
 
 export interface StructureCorrespondence {
   /** A quantity in the abstract structure. */
@@ -52,6 +53,37 @@ export interface StructureProvenance {
   reviewedAt: string;
 }
 
+/**
+ * What kind of thing the structure is, and therefore what an edge to it can
+ * mean. A `regularity` is something the world does; an island `embodies` it or
+ * `breaks` it. A `method` is something researchers do; an island `practices`
+ * it. Keeping them apart matters because one `embodies` edge that silently
+ * means "this study used that technique" makes the lens and the comparison
+ * view assert something they cannot support.
+ *
+ * DELIBERATELY OPTIONAL, and deliberately absent on the 43 pre-wave-4
+ * structures. Several of those (可执行知识公地, 模型—现实闭环, 异常即信号) sit on
+ * the line, and bulk-labelling them from here would be a guess wearing a
+ * field name. They stay unclassified until a curator reads them.
+ */
+export type StructureKind = 'regularity' | 'method';
+
+/**
+ * One variable the STRUCTURE itself owns, before any substrate is chosen.
+ *
+ * Until wave 4 an abstract quantity existed only inside a mapping's
+ * `correspondences[].quantity`, so a structure with no mappings had no
+ * inspectable content at all, and nothing could point at "the quantity" of a
+ * structure that had not yet landed anywhere. Making it first-class is what
+ * lets a zero-mapping structure still be read, and lets a proposal cite a
+ * quantity by pointer instead of by copy.
+ */
+export interface StructureQuantity {
+  name: { zh: string; en: string };
+  /** What the quantity does in the structure — not what it is in any substrate. */
+  role: { zh: string; en: string };
+}
+
 export interface SeedStructure {
   /** `struct://<org>/<slug>`. */
   id: string;
@@ -61,6 +93,21 @@ export interface SeedStructure {
   status: 'proposed' | 'active';
   /** Editorial programme for orientation, never a structure⇄island edge. */
   theme: StructureTheme;
+  /** See `StructureKind`. Absent means unclassified, never "assume regularity". */
+  kind?: StructureKind;
+  /** The structure's own variables. Present from wave 4 on. */
+  quantities?: StructureQuantity[];
+  /**
+   * The condition under which the STRUCTURE itself stops holding — a property
+   * of the structure, not of any one substrate.
+   *
+   * This is NOT a `StructureMapping.boundary`. A boundary says where THIS
+   * substrate departs from the shared skeleton and must be authored per island;
+   * `failsWhen` says when the skeleton has no purchase at all. Copying one into
+   * the other would produce the interchangeable, substrate-free boundary text
+   * the existing 101 mappings deliberately avoid.
+   */
+  failsWhen?: { zh: string; en: string };
   /** xfrontier isomorphisms.json provenance (trust is visible, §6). */
   isomorphism?: string;
   /** Current deployed xfrontier corpus handles, reviewed against the live bundle. */
@@ -2237,3 +2284,11 @@ for (const patch of WAVE_2_STRUCTURE_PATCHES) {
 }
 
 SEED_STRUCTURES.push(...WAVE_2_STRUCTURES);
+
+/**
+ * Wave 4 carries no patches: every structure it adds arrives with zero mappings
+ * and stays `proposed`. Its candidate edges live in `WAVE_4_PROPOSALS`, which
+ * nothing in this module reads — a proposal is not an edge, and must not become
+ * one by being imported next to the mappings.
+ */
+SEED_STRUCTURES.push(...WAVE_4_STRUCTURES);
