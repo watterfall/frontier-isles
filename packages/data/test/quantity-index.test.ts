@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { SEED_STRUCTURES } from '../src/structures';
 import { FRONTIERS } from '../src/frontiers';
-import { buildQuantityIndex, normaliseQuantity, quantityDomainDistance, symbolsIn } from '../src/quantity-index';
+import {
+  buildQuantityIndex,
+  normaliseQuantity,
+  projectQuantityRoles,
+  quantityDomainDistance,
+  symbolsIn,
+} from '../src/quantity-index';
 
 const islands = FRONTIERS.map((island) => ({ slug: island.slug, domain: island.domain }));
 const index = buildQuantityIndex(SEED_STRUCTURES, islands);
@@ -193,6 +199,92 @@ describe('within-structure variant groups', () => {
     expect(index.symbollessQuantities).toBeGreaterThan(0);
     const carried = index.withinStructureVariants.reduce((total, group) => total + group.renderings.length, 0);
     expect(index.symbollessQuantities).toBeGreaterThan(carried);
+  });
+});
+
+describe('projectQuantityRoles', () => {
+  const roles = projectQuantityRoles(SEED_STRUCTURES);
+  const byId = new Map(SEED_STRUCTURES.map((structure) => [structure.id, structure]));
+
+  it('covers exactly the structures carrying two or more mappings', () => {
+    const eligible = SEED_STRUCTURES.filter((structure) => structure.mappings.length >= 2);
+    expect(roles).toHaveLength(eligible.length);
+    expect(new Set(roles.map((entry) => entry.structureId)).size).toBe(roles.length);
+  });
+
+  it('resolves every rendering pointer to a real correspondence', () => {
+    for (const entry of roles) {
+      const structure = byId.get(entry.structureId)!;
+      for (const role of entry.roles) {
+        for (const [mappingIndex, correspondenceIndex] of role.renderings) {
+          const mapping = structure.mappings[mappingIndex];
+          expect(mapping, `${entry.structureId} mapping ${mappingIndex}`).toBeDefined();
+          const correspondence = (mapping!.correspondences ?? [])[correspondenceIndex];
+          expect(correspondence, `${entry.structureId} [${mappingIndex},${correspondenceIndex}]`).toBeDefined();
+          expect(correspondence!.quantity.zh.length).toBeGreaterThan(0);
+        }
+      }
+    }
+  });
+
+  it('files a ragged structure with no roles at all, rather than guessing', () => {
+    // Mappings that disagree on how many quantities exist give position no
+    // meaning; inventing roles anyway is how a derived view starts lying.
+    for (const entry of roles.filter((candidate) => candidate.basis === 'ragged')) {
+      expect(entry.roles, entry.structureId).toEqual([]);
+      const structure = byId.get(entry.structureId)!;
+      const widths = new Set(structure.mappings.map((mapping) => (mapping.correspondences ?? []).length));
+      expect(widths.size, entry.structureId).toBeGreaterThan(1);
+    }
+  });
+
+  it('names the conflicting slots when, and only when, the basis is conflict', () => {
+    for (const entry of roles) {
+      if (entry.basis === 'conflict') expect(entry.conflictingSlots.length, entry.structureId).toBeGreaterThan(0);
+      else expect(entry.conflictingSlots, entry.structureId).toEqual([]);
+    }
+  });
+
+  it('claims index+symbol only where a slot really carries two comparable symbols', () => {
+    for (const entry of roles.filter((candidate) => candidate.basis === 'index+symbol')) {
+      const structure = byId.get(entry.structureId)!;
+      const slotHasTwoSymbols = entry.roles.some((role) => {
+        const carrying = role.renderings.filter(([mappingIndex, correspondenceIndex]) =>
+          symbolsIn(structure.mappings[mappingIndex]!.correspondences![correspondenceIndex]!.quantity.zh).length > 0,
+        );
+        return carrying.length >= 2;
+      });
+      expect(slotHasTwoSymbols, entry.structureId).toBe(true);
+    }
+  });
+
+  it('reaches renderings that carry no symbol, which is why position is used', () => {
+    // distributed-field-observability writes its hidden field as 源事件与传播场,
+    // 编码源波形 and 场源与外场 before ever writing x(r,t). No symbol rule can
+    // group those; the slot does.
+    const entry = roles.find((candidate) => candidate.structureId.endsWith('/distributed-field-observability'));
+    expect(entry, 'distributed-field-observability must be projected').toBeDefined();
+    const structure = byId.get(entry!.structureId)!;
+    const slotZero = entry!.roles.find((role) => role.slot === 0)!;
+    const symbolless = slotZero.renderings.filter(([mappingIndex, correspondenceIndex]) =>
+      symbolsIn(structure.mappings[mappingIndex]!.correspondences![correspondenceIndex]!.quantity.zh).length === 0,
+    );
+    expect(symbolless.length).toBeGreaterThanOrEqual(2);
+    expect(slotZero.renderings.length).toBeGreaterThan(symbolless.length);
+  });
+
+  it('states in its own check that position and symbol are not independent', () => {
+    const corroborated = roles.filter((entry) => entry.basis === 'index+symbol');
+    expect(corroborated.length).toBeGreaterThan(0);
+    for (const entry of corroborated) {
+      expect(entry.check.zh).toContain('不是两个独立证据');
+      expect(entry.check.en).toContain('not two independent witnesses');
+    }
+  });
+
+  it('applies nothing — the catalogue mappings are untouched', () => {
+    const total = SEED_STRUCTURES.reduce((sum, structure) => sum + structure.mappings.length, 0);
+    expect(total).toBe(101);
   });
 });
 

@@ -402,6 +402,134 @@ export function buildQuantityIndex(
 }
 
 /**
+ * What licenses treating several renderings as one abstract quantity.
+ *
+ * `index+symbol` — the renderings sit at the same position in every mapping's
+ *   correspondence list AND carry compatible symbols. Strongest available.
+ * `index`        — same position, and no symbols anywhere to cross-check.
+ * `conflict`     — same position, incompatible symbols. A person must look.
+ * `ragged`       — the mappings do not even agree on how many quantities the
+ *   structure has, so position carries no information here.
+ *
+ * A caution that travels with the first of these: position and symbol are NOT
+ * independent evidence. Both are produced by the same curator in the same act,
+ * and an author who lists roles in a consistent order is the same author who
+ * uses symbols consistently. Their agreement raises confidence in a reading of
+ * the text; it does not corroborate the reading from a second source.
+ */
+export type QuantityRoleBasis = 'index+symbol' | 'index' | 'conflict' | 'ragged';
+
+export interface QuantityRole {
+  /** Position within each mapping's correspondence list. */
+  slot: number;
+  /** Pointers into the structure's own mappings: [mapping, correspondence]. */
+  renderings: Array<readonly [number, number]>;
+  /** Symbols seen at this slot, when any. */
+  symbols: string[];
+}
+
+export interface StructureQuantityRoles {
+  structureId: string;
+  basis: QuantityRoleBasis;
+  roles: QuantityRole[];
+  /** Present for `conflict`: the slots whose symbols disagree. */
+  conflictingSlots: number[];
+  check: Bilingual;
+}
+
+/** Symbol sets agree when, for every pair, one contains the other. */
+function symbolSetsCompatible(sets: string[][]): boolean {
+  for (let i = 0; i < sets.length; i++) {
+    for (let j = i + 1; j < sets.length; j++) {
+      const a = sets[i]!;
+      const b = sets[j]!;
+      if (!a.every((t) => b.includes(t)) && !b.every((t) => a.includes(t))) return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * Group each structure's correspondence quantities into candidate roles by the
+ * position they occupy in every mapping.
+ *
+ * This is the signal the symbol rule could not reach. 119 of 193 correspondence
+ * quantities carry no symbol at all — `distributed-field-observability` writes
+ * its hidden field as 源事件与传播场, 编码源波形, 场源与外场 and 隐状态场 x(r,t)
+ * across five substrates, and only the last two carry one — but all five sit at
+ * position 0, and all five observation operators sit at position 1. Position is
+ * what the author used to say these are the same role.
+ *
+ * Measured over the 31 structures carrying two or more mappings: 9 have
+ * position and symbol corroborating each other, 13 offer position alone with no
+ * symbol to check it against, 3 conflict, and 6 have mappings that disagree on
+ * how many quantities there are at all. Nothing here is applied.
+ */
+export function projectQuantityRoles(structures: readonly SeedStructure[]): StructureQuantityRoles[] {
+  const out: StructureQuantityRoles[] = [];
+  for (const structure of structures) {
+    if (structure.mappings.length < 2) continue;
+    const widths = new Set(structure.mappings.map((mapping) => (mapping.correspondences ?? []).length));
+    if (widths.size !== 1) {
+      out.push({
+        structureId: structure.id,
+        basis: 'ragged',
+        roles: [],
+        conflictingSlots: [],
+        check: {
+          zh: '这个结构的各条映射连「有几个量」都不一致，所以位置不携带信息。要给它一份抽象量表，只能有人把这几条映射并排读一遍——这正是最需要人、也最不可推导的一类。',
+          en: 'This structure\'s mappings do not even agree on how many quantities it has, so position carries no information. Giving it an abstract quantity list takes a person reading the mappings side by side — the case that most needs one and can least be derived.',
+        },
+      });
+      continue;
+    }
+    const width = [...widths][0]!;
+    const roles: QuantityRole[] = [];
+    const conflictingSlots: number[] = [];
+    let checkable = 0;
+    for (let slot = 0; slot < width; slot++) {
+      const renderings: Array<readonly [number, number]> = [];
+      const symbolSets: string[][] = [];
+      structure.mappings.forEach((mapping, mi) => {
+        const correspondence = (mapping.correspondences ?? [])[slot];
+        if (!correspondence) return;
+        renderings.push([mi, slot] as const);
+        const symbols = symbolsIn(correspondence.quantity.zh);
+        if (symbols.length > 0) symbolSets.push(symbols);
+      });
+      if (symbolSets.length >= 2) {
+        checkable += 1;
+        if (!symbolSetsCompatible(symbolSets)) conflictingSlots.push(slot);
+      }
+      roles.push({ slot, renderings, symbols: [...new Set(symbolSets.flat())].sort() });
+    }
+    const basis: QuantityRoleBasis =
+      conflictingSlots.length > 0 ? 'conflict' : checkable > 0 ? 'index+symbol' : 'index';
+    out.push({
+      structureId: structure.id,
+      basis,
+      roles,
+      conflictingSlots,
+      check: basis === 'conflict'
+        ? {
+          zh: `位置 ${conflictingSlots.join('、')} 上，各映射写的符号互不相容，说明它们并不在填同一个角色。复核者要判断的是：作者是把顺序写乱了，还是这个结构本来就没有一组固定角色。`,
+          en: `At slot ${conflictingSlots.join(', ')} the mappings carry incompatible symbols, so they are not filling one role. A reviewer must decide whether the order simply slipped, or whether this structure has no fixed set of roles to begin with.`,
+        }
+        : basis === 'index+symbol'
+          ? {
+            zh: '同位置的说法带着相容的符号，很可能是同一个抽象量的不同基底措辞。注意位置与符号不是两个独立证据——它们出自同一位作者的同一次撰写，一致只说明这次撰写是自洽的。',
+            en: 'Renderings at one slot carry compatible symbols and are probably one abstract quantity written for different substrates. Note that position and symbol are not two independent witnesses — both come from one curator in one act, and their agreement shows only that the act was self-consistent.',
+          }
+          : {
+            zh: '同位置的说法没有任何符号可以互校，位置是唯一的依据。它在多数结构上看起来是对的，但一次顺序写乱就足以让整组失效，所以这一类比带符号的那一类更需要人读一眼。',
+            en: 'There is no symbol at these slots to cross-check, so position is the only basis. It reads correctly in most structures, but one slipped ordering is enough to invalidate a whole group, which makes this class more in need of a reading than the symbol-backed one.',
+          },
+    });
+  }
+  return out;
+}
+
+/**
  * Domain-to-domain distance measured at the quantity grain: how many distinct
  * quantities do the same work in both domains.
  *
