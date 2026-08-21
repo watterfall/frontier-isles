@@ -13,11 +13,12 @@ describe('wave-5 structures', () => {
     for (const structure of WAVE_5_STRUCTURES) expect(byId.get(structure.id)).toBe(structure);
   });
 
-  it('brings the catalogue to 80 with mappings untouched', () => {
-    expect(SEED_STRUCTURES).toHaveLength(80);
+  it('grows the catalogue without touching the mapping total', () => {
+    // 43 pre-existing + 83 from the topic set across waves 4-8.
+    expect(SEED_STRUCTURES).toHaveLength(126);
     const mappings = SEED_STRUCTURES.reduce((total, s) => total + s.mappings.length, 0);
-    // Wave 4 and wave 5 add structures, never edges. If this number moves, a
-    // wave file has started claiming coverage it did not earn.
+    // Every wave adds structures, never edges. If this number moves, a wave
+    // file has started claiming coverage it did not earn.
     expect(mappings).toBe(101);
   });
 

@@ -62,14 +62,41 @@ export interface QuantityGroup {
   occurrences: number;
 }
 
+/**
+ * A candidate is PAIRWISE and must never be closed transitively.
+ *
+ * Measured on the 126-structure catalogue: taking all 34 candidates and
+ * union-finding them collapses nine unrelated structures into one group,
+ * because 修复速率, 沉积速率, 驱动速率 and 对手改进速率 all share the head 速率 and
+ * chain through it. That would wire stratigraphic deposition to a Red Queen
+ * arms race. The same happens to 不可逆度 against 逻辑不可逆度, which would put
+ * strategic irreversibility and thermodynamic irreversibility in one bucket.
+ *
+ * `sharedFragment` is what makes this visible without reading both sides: when
+ * the longest common run between two keys is nothing but a generic head noun,
+ * the pair is almost certainly not one quantity.
+ */
 export interface QuantityMergeCandidate {
   a: string;
   b: string;
   /** Character-bigram overlap of the two keys, 0..1. */
   similarity: number;
+  /** Longest common run of characters. A generic head here is a red flag. */
+  sharedFragment: string;
+  /** True when the shared run is only a common head noun such as 速率 or 强度. */
+  sharedHeadOnly: boolean;
   /** What a reviewer must decide. Never asserts the two are the same. */
   check: Bilingual;
 }
+
+/**
+ * Head nouns that carry no identity on their own. Two quantities sharing only
+ * one of these share a category, not a quantity.
+ */
+const GENERIC_HEADS = [
+  '速率', '强度', '成本', '代价', '容量', '密度', '规模', '数量', '比例', '概率',
+  '时长', '时间', '距离', '分布', '可见性', '复杂度', '不可逆度', '频率', '尺度', '阈值',
+];
 
 export interface QuantityIndex {
   groups: QuantityGroup[];
@@ -120,6 +147,26 @@ const bigrams = (s: string): Set<string> => {
   for (let i = 0; i + 1 < s.length; i++) out.add(s.slice(i, i + 2));
   return out;
 };
+
+/** Longest run of characters the two keys share, by simple DP. */
+function longestCommonRun(a: string, b: string): string {
+  let best = '';
+  const row = new Array<number>(b.length + 1).fill(0);
+  for (let i = 1; i <= a.length; i++) {
+    let prevDiagonal = 0;
+    for (let j = 1; j <= b.length; j++) {
+      const carried = row[j]!;
+      if (a[i - 1] === b[j - 1]) {
+        row[j] = prevDiagonal + 1;
+        if (row[j]! > best.length) best = a.slice(i - row[j]!, i);
+      } else {
+        row[j] = 0;
+      }
+      prevDiagonal = carried;
+    }
+  }
+  return best;
+}
 
 const overlap = (a: string, b: string): number => {
   const x = bigrams(a);
@@ -213,14 +260,23 @@ export function buildQuantityIndex(
     for (let j = i + 1; j < keys.length; j++) {
       const similarity = overlap(keys[i]!, keys[j]!);
       if (similarity < threshold) continue;
+      const fragment = longestCommonRun(keys[i]!, keys[j]!);
+      const headOnly = GENERIC_HEADS.includes(fragment);
       mergeCandidates.push({
         a: keys[i]!,
         b: keys[j]!,
         similarity: Math.round(similarity * 1000) / 1000,
-        check: {
-          zh: '复核者要判断这两个写法指的是不是同一个量。字面接近不构成同一——不同基底里同名的量常常各做各的事，合并会把一条本不存在的跨域连接凭空造出来。',
-          en: 'A reviewer must decide whether these two wordings name one quantity. Surface similarity is not identity — same-named quantities in different substrates often do different work, and merging would manufacture a cross-domain link that was never there.',
-        },
+        sharedFragment: fragment,
+        sharedHeadOnly: headOnly,
+        check: headOnly
+          ? {
+            zh: `这两个写法的全部重合只是一个通用中心词「${fragment}」。共享中心词说明它们属于同一类量，不说明它们是同一个量——默认应当否掉，除非复核者能说出它们在各自结构里做的是同一件事。`,
+            en: `Everything these two share is the generic head 「${fragment}」. A shared head puts them in one category, not in one quantity — the default is to reject unless a reviewer can say they do the same work inside their respective structures.`,
+          }
+          : {
+            zh: '复核者要判断这两个写法指的是不是同一个量。字面接近不构成同一——不同基底里同名的量常常各做各的事，合并会把一条本不存在的跨域连接凭空造出来。',
+            en: 'A reviewer must decide whether these two wordings name one quantity. Surface similarity is not identity — same-named quantities in different substrates often do different work, and merging would manufacture a cross-domain link that was never there.',
+          },
       });
     }
   }

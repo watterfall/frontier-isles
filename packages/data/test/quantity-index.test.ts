@@ -68,6 +68,29 @@ describe('buildQuantityIndex', () => {
     expect(keys).toContain(normaliseQuantity('相互作用强度'));
   });
 
+  it('flags candidates whose only overlap is a generic head noun', () => {
+    // Measured on the 126-structure catalogue: closing all candidates
+    // transitively collapses nine unrelated structures into one group, because
+    // 修复速率, 沉积速率, 驱动速率 and 对手改进速率 chain through the head 速率. The
+    // flag is what stops a reviewer reading that chain as a finding.
+    const flagged = index.mergeCandidates.filter((candidate) => candidate.sharedHeadOnly);
+    expect(flagged.length).toBeGreaterThan(0);
+    for (const candidate of flagged) {
+      expect(candidate.a).not.toBe(candidate.b);
+      // The check text names the offending head, so the reason travels with it.
+      expect(candidate.check.zh).toContain(candidate.sharedFragment);
+      expect(candidate.check.en).toContain(candidate.sharedFragment);
+    }
+  });
+
+  it('reports a shared fragment that really is common to both keys', () => {
+    for (const candidate of index.mergeCandidates) {
+      expect(candidate.sharedFragment.length).toBeGreaterThan(0);
+      expect(candidate.a).toContain(candidate.sharedFragment);
+      expect(candidate.b).toContain(candidate.sharedFragment);
+    }
+  });
+
   it('well-forms every comparable entry', () => {
     // Currently zero: the 43 mapped structures declare no canonical quantities,
     // and the 37 that declare have no mappings yet. That is the concrete reason

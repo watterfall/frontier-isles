@@ -18,6 +18,9 @@ import {
 } from '#structures-expansion-wave2';
 import { WAVE_4_STRUCTURES } from '#structures-expansion-wave4';
 import { WAVE_5_STRUCTURES } from '#structures-expansion-wave5';
+import { WAVE_6_STRUCTURES } from '#structures-expansion-wave6';
+import { WAVE_7_STRUCTURES } from '#structures-expansion-wave7';
+import { WAVE_8_STRUCTURES } from '#structures-expansion-wave8';
 
 export interface StructureCorrespondence {
   /** A quantity in the abstract structure. */
@@ -2294,5 +2297,17 @@ SEED_STRUCTURES.push(...WAVE_2_STRUCTURES);
  */
 SEED_STRUCTURES.push(...WAVE_4_STRUCTURES);
 
-/** Wave 5 on the same terms as wave 4: zero mappings, `proposed`, no edge. */
+/**
+ * Waves 5 through 8 on the same terms as wave 4: zero mappings, `proposed`, no
+ * edge. Together with wave 4 they work the 100-topic set through to the end —
+ * 17 of the 100 duplicated a structure already here and were dropped, and the
+ * remaining 83 are these five waves.
+ *
+ * The catalogue grows; coverage does not. Every structure below is a pure
+ * frontier until a curator authors a mapping onto it, and the wave-5 test
+ * asserts the mapping total directly so that cannot drift unnoticed.
+ */
 SEED_STRUCTURES.push(...WAVE_5_STRUCTURES);
+SEED_STRUCTURES.push(...WAVE_6_STRUCTURES);
+SEED_STRUCTURES.push(...WAVE_7_STRUCTURES);
+SEED_STRUCTURES.push(...WAVE_8_STRUCTURES);

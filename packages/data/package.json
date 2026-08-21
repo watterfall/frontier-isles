@@ -9,7 +9,10 @@
     "#frontiers-expansion-society-knowledge": "./src/frontiers-expansion-society-knowledge.ts",
     "#structures-expansion-wave2": "./src/structures-expansion-wave2.ts",
     "#structures-expansion-wave4": "./src/structures-expansion-wave4.ts",
-    "#structures-expansion-wave5": "./src/structures-expansion-wave5.ts"
+    "#structures-expansion-wave5": "./src/structures-expansion-wave5.ts",
+    "#structures-expansion-wave6": "./src/structures-expansion-wave6.ts",
+    "#structures-expansion-wave7": "./src/structures-expansion-wave7.ts",
+    "#structures-expansion-wave8": "./src/structures-expansion-wave8.ts"
   },
   "exports": {
     ".": "./src/index.ts",
