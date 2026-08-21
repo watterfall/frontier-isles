@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { SEED_STRUCTURES } from '../src/structures';
 import { FRONTIERS } from '../src/frontiers';
-import { buildQuantityIndex, normaliseQuantity, quantityDomainDistance } from '../src/quantity-index';
+import { buildQuantityIndex, normaliseQuantity, quantityDomainDistance, symbolsIn } from '../src/quantity-index';
 
 const islands = FRONTIERS.map((island) => ({ slug: island.slug, domain: island.domain }));
 const index = buildQuantityIndex(SEED_STRUCTURES, islands);
@@ -110,6 +110,89 @@ describe('buildQuantityIndex', () => {
     // is a lower bound on the raw count rather than equal to it.
     expect(summed).toBeLessThanOrEqual(index.totals.occurrences);
     expect(summed).toBeGreaterThan(index.totals.occurrences * 0.9);
+  });
+});
+
+describe('symbolsIn', () => {
+  it('reads a bracketed symbol, a subscripted letter, and a bare one', () => {
+    expect(symbolsIn('约束 ⟨f_k⟩')).toEqual(['f_k']);
+    expect(symbolsIn('类型频率 x_i')).toEqual(['x_i']);
+    expect(symbolsIn('尾指数 α')).toEqual(['α']);
+  });
+
+  it('drops parenthesised asides so an argument list is not read as symbols', () => {
+    // (r,t) would otherwise contribute r and t as if they were quantities.
+    expect(symbolsIn('浓度场 c(r,t)')).toEqual(['c']);
+    expect(symbolsIn('变分自由能 F（一个上界）')).toEqual(['F']);
+  });
+
+  it('finds nothing in a name that carries no symbol at all', () => {
+    expect(symbolsIn('恢复速率')).toEqual([]);
+    expect(symbolsIn('未选路径的结论分布')).toEqual([]);
+  });
+
+  it('does not mistake a letter inside a word for a symbol', () => {
+    expect(symbolsIn('RNA 降解速率')).not.toContain('R');
+    expect(symbolsIn('ONNX 算子覆盖')).toEqual([]);
+  });
+});
+
+describe('within-structure variant groups', () => {
+  const variants = index.withinStructureVariants;
+
+  it('groups only renderings that really share the stated symbol', () => {
+    expect(variants.length).toBeGreaterThan(0);
+    for (const group of variants) {
+      for (const rendering of group.renderings) {
+        expect(symbolsIn(rendering.text.zh).join('+'), rendering.text.zh).toBe(group.symbol);
+      }
+    }
+  });
+
+  it('never reports a group with fewer than two distinct renderings', () => {
+    for (const group of variants) {
+      const distinct = new Set(group.renderings.map((rendering) => normaliseQuantity(rendering.text.zh)));
+      expect(distinct.size, `${group.structureId} ${group.symbol}`).toBeGreaterThanOrEqual(2);
+    }
+  });
+
+  it('cites renderings that come from that structure\'s own mappings', () => {
+    for (const group of variants) {
+      const structure = SEED_STRUCTURES.find((candidate) => candidate.id === group.structureId)!;
+      const slugs = new Set(structure.mappings.map((mapping) => mapping.slug));
+      for (const rendering of group.renderings) expect(slugs.has(rendering.slug), rendering.slug).toBe(true);
+    }
+  });
+
+  it('applies nothing — every rendering survives as its own group', () => {
+    const keys = new Set(index.groups.map((group) => group.key));
+    for (const group of variants) {
+      for (const rendering of group.renderings) {
+        expect(keys.has(normaliseQuantity(rendering.text.zh)), rendering.text.zh).toBe(true);
+      }
+    }
+  });
+
+  it('catches what surface similarity misses, which is the reason it exists', () => {
+    // Maximum entropy writes its distribution p five ways across five
+    // substrates and no two of them are close enough for bigram overlap to
+    // pair, so the merge-candidate list contains none of them. The symbol does.
+    const maxent = variants.filter((group) => group.structureId.endsWith('/maximum-entropy-inference'));
+    const p = maxent.find((group) => group.symbol === 'p');
+    expect(p, 'maximum entropy p must be grouped').toBeDefined();
+    expect(new Set(p!.renderings.map((r) => r.text.zh)).size).toBeGreaterThanOrEqual(4);
+    const pairedByOverlap = index.mergeCandidates.some(
+      (candidate) => candidate.a.includes('分布p') && candidate.b.includes('分布p'),
+    );
+    expect(pairedByOverlap).toBe(false);
+  });
+
+  it('reports how many quantities the symbol rule cannot see', () => {
+    // 119 of 193 at the time of writing. A reader must not take the variant
+    // groups as a complete account of how much the catalogue repeats itself.
+    expect(index.symbollessQuantities).toBeGreaterThan(0);
+    const carried = index.withinStructureVariants.reduce((total, group) => total + group.renderings.length, 0);
+    expect(index.symbollessQuantities).toBeGreaterThan(carried);
   });
 });
 

@@ -98,8 +98,43 @@ const GENERIC_HEADS = [
   '时长', '时间', '距离', '分布', '可见性', '复杂度', '不可逆度', '频率', '尺度', '阈值',
 ];
 
+/**
+ * Several renderings of ONE quantity inside a single structure, grouped by the
+ * mathematical symbol they share.
+ *
+ * The symbol is the author's own statement of identity, and it is far stronger
+ * evidence than surface similarity. Maximum-entropy inference writes its
+ * constraint five ways across five substrates — 约束 ⟨f_k⟩, 约束/能量项 f_k,
+ * 生态约束 ⟨f_k⟩, 神经约束 ⟨f_k⟩, 能量/约束项 f_k — and bigram overlap catches
+ * three of them; the symbol catches all five. Its distribution p is written
+ * five ways too, and bigram overlap catches none of those.
+ *
+ * The flavouring is not sloppiness: 生态约束 and 神经约束 are the correct
+ * substrate-specific renderings, and rewriting them to one phrase would delete
+ * the very thing a mapping exists to record. What is missing is only the
+ * statement that they render one abstract quantity, and that is what this
+ * reports — as a candidate, for a person, never applied.
+ */
+export interface QuantityVariantGroup {
+  structureId: string;
+  /** The shared symbol. This is the evidence, and it is what makes the group. */
+  symbol: string;
+  /** Distinct renderings, verbatim, each with the mapping it came from. */
+  renderings: Array<{ slug: string; text: Bilingual }>;
+  check: Bilingual;
+}
+
 export interface QuantityIndex {
   groups: QuantityGroup[];
+  /** Symbol-backed candidate groupings, within one structure. Never applied. */
+  withinStructureVariants: QuantityVariantGroup[];
+  /**
+   * Correspondence quantities carrying no symbol at all. The symbol rule cannot
+   * see these, and saying so is the point: 119 of 193 at the time of writing,
+   * so a reader must not take the variant groups as a complete account of how
+   * much the catalogue repeats itself.
+   */
+  symbollessQuantities: number;
   /** Groups touching two or more domains — the catalogue's actual bridges. */
   crossDomain: QuantityGroup[];
   /** Reported, never applied. */
@@ -147,6 +182,26 @@ const bigrams = (s: string): Set<string> => {
   for (let i = 0; i + 1 < s.length; i++) out.add(s.slice(i, i + 2));
   return out;
 };
+
+/**
+ * The mathematical symbols a quantity name carries: a bracketed ⟨f_k⟩, or a
+ * lone Latin/Greek letter with an optional subscript, standing clear of any
+ * surrounding word. Parenthesised asides are dropped first so that an argument
+ * list like (r,t) does not read as three separate symbols.
+ *
+ * Returns them sorted, so the joined key is stable regardless of writing order.
+ */
+export function symbolsIn(text: string): string[] {
+  const stripped = text.replace(/[（(].*?[）)]/g, ' ');
+  const found = new Set<string>();
+  for (const match of stripped.matchAll(/⟨\s*([A-Za-zα-ωΑ-Ω][A-Za-z0-9_^]*)\s*⟩/g)) {
+    found.add(match[1]!.replace(/\s/g, ''));
+  }
+  for (const match of stripped.matchAll(/(?<![A-Za-z])([A-Za-zα-ωΑ-Ω])(?:[_^]\{?([A-Za-z0-9]+)\}?)?(?![A-Za-z])/g)) {
+    found.add(match[2] ? `${match[1]}_${match[2]}` : match[1]!);
+  }
+  return [...found].sort();
+}
 
 /** Longest run of characters the two keys share, by simple DP. */
 function longestCommonRun(a: string, b: string): string {
@@ -282,6 +337,38 @@ export function buildQuantityIndex(
   }
   mergeCandidates.sort((a, b) => b.similarity - a.similarity || (a.a < b.a ? -1 : 1));
 
+  // ── symbol-backed variant groups, within one structure ────────────────────
+  const withinStructureVariants: QuantityVariantGroup[] = [];
+  let symbollessQuantities = 0;
+  for (const structure of structures) {
+    if (structure.mappings.length === 0) continue;
+    const bySymbol = new Map<string, Array<{ slug: string; text: Bilingual }>>();
+    for (const mapping of structure.mappings) {
+      for (const correspondence of mapping.correspondences ?? []) {
+        const symbols = symbolsIn(correspondence.quantity.zh);
+        if (symbols.length === 0) { symbollessQuantities += 1; continue; }
+        const key = symbols.join('+');
+        const list = bySymbol.get(key) ?? [];
+        list.push({ slug: mapping.slug, text: correspondence.quantity });
+        bySymbol.set(key, list);
+      }
+    }
+    for (const [symbol, renderings] of [...bySymbol].sort()) {
+      const distinct = new Set(renderings.map((rendering) => normaliseQuantity(rendering.text.zh)));
+      // One rendering, or the same rendering repeated, is not a variant group.
+      if (renderings.length < 2 || distinct.size < 2) continue;
+      withinStructureVariants.push({
+        structureId: structure.id,
+        symbol,
+        renderings,
+        check: {
+          zh: `这些说法在本结构内共用符号 ${symbol}，很可能是同一个抽象量的不同基底措辞。复核者要确认的是符号确实指同一个量——同一个字母被用来表示两件事是常见的，例如自由能 F 与自由能差 ΔF 就不是一个量。措辞本身不要改写：基底特有的说法正是映射存在的理由。`,
+          en: `These renderings share the symbol ${symbol} inside this structure and are probably one abstract quantity written for different substrates. What a reviewer must confirm is that the symbol really denotes one quantity — the same letter standing for two things is common, free energy F against a free-energy difference ΔF being one case. The wordings themselves should not be rewritten: substrate-specific phrasing is why the mapping exists.`,
+        },
+      });
+    }
+  }
+
   const comparable: QuantityIndex['comparable'] = [];
   for (const structure of structures) {
     const declared = (structure.quantities ?? []).map((quantity) => normaliseQuantity(quantity.name.zh));
@@ -299,6 +386,8 @@ export function buildQuantityIndex(
 
   return {
     groups,
+    withinStructureVariants,
+    symbollessQuantities,
     crossDomain,
     mergeCandidates,
     comparable,
