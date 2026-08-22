@@ -475,7 +475,7 @@ export type StructureRelation = 'embodies' | 'breaks' | 'practices';
  * These are NOT coverage. An island carrying only a proposal is still an island
  * that connects to nothing, and should still be counted as one.
  */
-export interface Wave4StructureProposal {
+export interface StructureProposal {
   /** Island slug. Must exist in FRONTIERS. */
   slug: string;
   structureId: string;
@@ -501,7 +501,7 @@ export interface Wave4StructureProposal {
  * `ai-assisted-theorem-proving` against 不可判定性 (undecidability is background
  * to both islands, not a quantity either one works with).
  */
-export const WAVE_4_PROPOSALS: Wave4StructureProposal[] = [
+export const STRUCTURE_PROPOSALS: StructureProposal[] = [
   {
     slug: 'generic-early-warning-signals-for',
     structureId: 'struct://xfrontier/critical-slowing-down',
@@ -599,6 +599,33 @@ export const WAVE_4_PROPOSALS: Wave4StructureProposal[] = [
     check: bi(
       '复核这一条要确认的是：岛 barrier 里的「电路表达力有限，ONNX 120+ 算子只支持约 50 个」是否就是本结构所说的那条真正边界，而不只是一个会随工程进展消失的暂时限制。这个判断决定该岛提供的是结构的实例还是它的反例。',
       'What a reviewer must confirm: whether the island\'s barrier — limited circuit expressiveness, roughly 50 of 120-plus ONNX operators supported — is this structure\'s real boundary rather than a temporary engineering limit that will disappear. That judgement decides whether the island is an instance of the structure or a counter-case to it.',
+    ),
+  },
+  {
+    // Found by running the wave-4/5 quantity vocabulary against the 176 islands
+    // this session did not author. That sweep is mostly noise — of its 22
+    // highest-scoring pairs, three were already proposed and seventeen do not
+    // survive a read (自组织临界 against 宏基因组基础模型, 溯源链 against
+    // 通用机器学习原子间势). These two are the ones that do.
+    slug: 'in-tissue-spatial-functional-genomics',
+    structureId: 'struct://xfrontier/perturb-and-read',
+    relation: 'practices',
+    quantity: 2,
+    evidence: { field: 'barrier' },
+    check: bi(
+      '复核这一条要确认的是：岛 barrier 里「把邻居的间接效应从细胞自身效应中干净拆开」，与本结构第三个量「响应延迟」说的是不是同一件事——两者都在分离直接效应与间接效应，但一个用空间距离分、一个用时间延迟分。若审阅者认为空间分离不是这个量，这条应当被否掉而不是改写。',
+      'What a reviewer must confirm: whether the island\'s barrier — cleanly separating a neighbour\'s indirect effect from the cell\'s own — is the same thing as this structure\'s third quantity, response latency. Both separate direct from indirect, but one does it by distance and the other by time. If the reviewer finds spatial separation is not that quantity, this should be rejected rather than reworded.',
+    ),
+  },
+  {
+    slug: 'evaluation-awareness-how-models',
+    structureId: 'struct://xfrontier/information-asymmetry',
+    relation: 'embodies',
+    quantity: 2,
+    evidence: { field: 'barrier' },
+    check: bi(
+      '复核这一条要确认的是：一个「知道自己在被测、于是换一副面孔」的模型，是不是签约后隐藏行动的那副面孔（道德风险），而不是签约前隐藏类型的那副（逆向选择）。岛 barrier 说「越强大、越需要被把关的模型反而越难被诚实测量」，指向的正是本结构的第三个量「可监控度」。若审阅者判断这是类型而非行动，结构仍成立但这条边指错了面孔。',
+      'What a reviewer must confirm: whether a model that knows it is being tested and behaves differently is the hidden-action face of this structure — moral hazard after the contract — rather than the hidden-type face before it. The island\'s barrier, that the models most needing scrutiny are hardest to measure honestly, points at this structure\'s third quantity, monitorability. If the reviewer judges this to be type rather than action, the structure still holds but the edge names the wrong face.',
     ),
   },
   {

@@ -2291,7 +2291,7 @@ SEED_STRUCTURES.push(...WAVE_2_STRUCTURES);
 
 /**
  * Wave 4 carries no patches: every structure it adds arrives with zero mappings
- * and stays `proposed`. Its candidate edges live in `WAVE_4_PROPOSALS`, which
+ * and stays `proposed`. Its candidate edges live in `STRUCTURE_PROPOSALS`, which
  * nothing in this module reads — a proposal is not an edge, and must not become
  * one by being imported next to the mappings.
  */
