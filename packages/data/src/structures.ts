@@ -22,6 +22,7 @@ import { WAVE_6_STRUCTURES } from '#structures-expansion-wave6';
 import { WAVE_7_STRUCTURES } from '#structures-expansion-wave7';
 import { WAVE_8_STRUCTURES } from '#structures-expansion-wave8';
 import { CRITICAL_FAMILY_DEPTH } from '#structures-depth-critical';
+import { INFERENCE_FAMILY_DEPTH } from '#structures-depth-inference';
 
 export interface StructureCorrespondence {
   /** A quantity in the abstract structure. */
@@ -2398,7 +2399,7 @@ SEED_STRUCTURES.push(...WAVE_8_STRUCTURES);
  * abstract variables is textbook authoring, whereas overwriting a list it
  * already carries would silently rewrite what a curator wrote, so that throws.
  */
-for (const patch of CRITICAL_FAMILY_DEPTH) {
+for (const patch of [...CRITICAL_FAMILY_DEPTH, ...INFERENCE_FAMILY_DEPTH]) {
   const structure = SEED_STRUCTURES.find((candidate) => candidate.id === patch.structureId);
   if (!structure) {
     throw new Error(`Depth patch target does not exist: ${patch.structureId}`);

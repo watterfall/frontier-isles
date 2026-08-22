@@ -14,7 +14,8 @@
     "#structures-expansion-wave7": "./src/structures-expansion-wave7.ts",
     "#structures-expansion-wave8": "./src/structures-expansion-wave8.ts",
     "#frontiers-expansion-structure-led": "./src/frontiers-expansion-structure-led.ts",
-    "#structures-depth-critical": "./src/structures-depth-critical.ts"
+    "#structures-depth-critical": "./src/structures-depth-critical.ts",
+    "#structures-depth-inference": "./src/structures-depth-inference.ts"
   },
   "exports": {
     ".": "./src/index.ts",

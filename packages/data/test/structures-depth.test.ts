@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { SEED_STRUCTURES } from '../src/structures';
 import { CRITICAL_FAMILY_DEPTH } from '../src/structures-depth-critical';
+import { INFERENCE_FAMILY_DEPTH } from '../src/structures-depth-inference';
+
+const ALL_DEPTH = [...CRITICAL_FAMILY_DEPTH, ...INFERENCE_FAMILY_DEPTH];
 import { FRONTIERS } from '../src/frontiers';
 
 const byId = new Map(SEED_STRUCTURES.map((structure) => [structure.id, structure]));
@@ -9,10 +12,11 @@ const complete = (value: { zh: string; en: string } | undefined): boolean =>
   !!value && value.zh.trim().length > 0 && value.en.trim().length > 0;
 
 describe('structure depth', () => {
-  it('lands on the eight structures the family claims, and only those', () => {
+  it('lands on the structures each family claims, and only those', () => {
     expect(CRITICAL_FAMILY_DEPTH).toHaveLength(8);
-    expect(withDepth).toHaveLength(8);
-    for (const patch of CRITICAL_FAMILY_DEPTH) {
+    expect(INFERENCE_FAMILY_DEPTH).toHaveLength(8);
+    expect(withDepth).toHaveLength(16);
+    for (const patch of ALL_DEPTH) {
       expect(byId.get(patch.structureId)?.depth, patch.structureId).toBe(patch.depth);
     }
   });
@@ -22,7 +26,7 @@ describe('structure depth', () => {
     // instance; the moment one of them is an island slug, the structure layer
     // has quietly gone back to depending on the atlas.
     const slugs = new Set(FRONTIERS.map((island) => island.slug));
-    const serialised = JSON.stringify(CRITICAL_FAMILY_DEPTH);
+    const serialised = JSON.stringify(ALL_DEPTH);
     for (const slug of slugs) {
       expect(serialised.includes(`"${slug}"`), `depth must not reference island ${slug}`).toBe(false);
     }
@@ -87,7 +91,7 @@ describe('structure depth', () => {
     // 0 of 126 structures carried a relation to another before this field.
     const edges = withDepth.flatMap((structure) =>
       structure.depth!.relations.map((relation) => `${structure.id}→${relation.to}`));
-    expect(edges.length).toBeGreaterThanOrEqual(18);
+    expect(edges.length).toBeGreaterThanOrEqual(30);
     expect(new Set(edges).size, 'a relation must not be stated twice').toBe(edges.length);
     // Every structure in the family is reachable from another: none is isolated.
     const touched = new Set(withDepth.flatMap((structure) =>
