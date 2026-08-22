@@ -21,6 +21,7 @@ import { WAVE_5_STRUCTURES } from '#structures-expansion-wave5';
 import { WAVE_6_STRUCTURES } from '#structures-expansion-wave6';
 import { WAVE_7_STRUCTURES } from '#structures-expansion-wave7';
 import { WAVE_8_STRUCTURES } from '#structures-expansion-wave8';
+import { CRITICAL_FAMILY_DEPTH } from '#structures-depth-critical';
 
 export interface StructureCorrespondence {
   /** A quantity in the abstract structure. */
@@ -88,6 +89,81 @@ export interface StructureQuantity {
   role: { zh: string; en: string };
 }
 
+/**
+ * A textbook instance of the structure. NOT an island, and deliberately not one.
+ *
+ * A `StructureMapping` asserts that a specific frontier island embodies this
+ * structure — a claim about somebody's live research, which is why it needs a
+ * curator and a falsifiable prediction. A canonical substrate asserts nothing
+ * of the kind: fireflies flashing in unison is shared knowledge, and saying so
+ * commits no one. Keeping them in separate fields keeps that difference legible
+ * instead of letting a teaching example accumulate the authority of a research
+ * edge.
+ *
+ * This is also what lets a structure be deep without any island at all. Ninety
+ * of the catalogue's structures have no mapping and, before this field, no
+ * content beyond one sentence, a few quantities and a failure condition.
+ */
+export interface CanonicalSubstrate {
+  name: { zh: string; en: string };
+  /** The discipline it belongs to. What makes a structure's span visible
+   *  without going through domains, islands or the atlas at all. */
+  field: { zh: string; en: string };
+  /** Index into this structure's own `quantities`. */
+  quantity: number;
+  /** What that quantity is, here. */
+  inThisSubstrate: { zh: string; en: string };
+  /** Where this substrate departs from the shared skeleton. */
+  boundary: { zh: string; en: string };
+}
+
+/**
+ * How one structure stands to another.
+ *
+ * `emerges-from`   — A is what B does under some condition (critical slowing
+ *                    down is what any of these do near their transition).
+ * `generates`      — A is a mechanism that produces B.
+ * `special-case-of`— A is B with something fixed.
+ * `explains`       — A accounts for why B holds at all.
+ * `competes-with`  — A and B are rival explanations of the same observation,
+ *                    and telling them apart is itself the open problem.
+ */
+export type StructureRelationKind =
+  | 'emerges-from'
+  | 'generates'
+  | 'special-case-of'
+  | 'explains'
+  | 'competes-with';
+
+export interface StructureRelation {
+  /** `struct://…` id of the other structure. */
+  to: string;
+  kind: StructureRelationKind;
+  /** One sentence carrying the load. Not a restatement of the kind. */
+  why: { zh: string; en: string };
+}
+
+/**
+ * The structure's own depth, parallel to an island's `DepthContent` and
+ * independent of the atlas.
+ *
+ * Everything here can be authored without a single frontier island, and that
+ * is the point: a structure that no island happens to embody is still a thing
+ * worth reading, and its relations to other structures are the connective
+ * tissue the mapping layer has never supplied — 0 of 126 structures carried any
+ * relation to another before this field existed.
+ */
+export interface StructureDepth {
+  /** Which field first stated it, and roughly when. */
+  origin: { zh: string; en: string };
+  /** The tightest formal statement, where one exists. */
+  minimalForm?: string;
+  canonicalSubstrates: CanonicalSubstrate[];
+  relations: StructureRelation[];
+  /** What it is routinely mistaken for — the discrimination material. */
+  mistakenFor: { zh: string; en: string };
+}
+
 export interface SeedStructure {
   /** `struct://<org>/<slug>`. */
   id: string;
@@ -112,6 +188,8 @@ export interface SeedStructure {
    * the existing 101 mappings deliberately avoid.
    */
   failsWhen?: { zh: string; en: string };
+  /** The structure's own content, authored without reference to any island. */
+  depth?: StructureDepth;
   /** xfrontier isomorphisms.json provenance (trust is visible, §6). */
   isomorphism?: string;
   /** Current deployed xfrontier corpus handles, reviewed against the live bundle. */
@@ -2311,3 +2389,28 @@ SEED_STRUCTURES.push(...WAVE_5_STRUCTURES);
 SEED_STRUCTURES.push(...WAVE_6_STRUCTURES);
 SEED_STRUCTURES.push(...WAVE_7_STRUCTURES);
 SEED_STRUCTURES.push(...WAVE_8_STRUCTURES);
+
+/**
+ * Depth patches: content a structure owns without any island.
+ *
+ * These run last so they can reach a structure from any wave. A patch may add
+ * `quantities` only where the structure had none — declaring a structure's own
+ * abstract variables is textbook authoring, whereas overwriting a list it
+ * already carries would silently rewrite what a curator wrote, so that throws.
+ */
+for (const patch of CRITICAL_FAMILY_DEPTH) {
+  const structure = SEED_STRUCTURES.find((candidate) => candidate.id === patch.structureId);
+  if (!structure) {
+    throw new Error(`Depth patch target does not exist: ${patch.structureId}`);
+  }
+  if (patch.quantities) {
+    if (structure.quantities && structure.quantities.length > 0) {
+      throw new Error(`Depth patch would overwrite authored quantities on ${patch.structureId}`);
+    }
+    structure.quantities = patch.quantities;
+  }
+  if (structure.depth) {
+    throw new Error(`Depth already set on ${patch.structureId}`);
+  }
+  structure.depth = patch.depth;
+}
