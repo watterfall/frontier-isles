@@ -16,7 +16,8 @@
     "#frontiers-expansion-structure-led": "./src/frontiers-expansion-structure-led.ts",
     "#structures-depth-critical": "./src/structures-depth-critical.ts",
     "#structures-depth-inference": "./src/structures-depth-inference.ts",
-    "#structures-depth-collective": "./src/structures-depth-collective.ts"
+    "#structures-depth-collective": "./src/structures-depth-collective.ts",
+    "#structures-depth-lockin": "./src/structures-depth-lockin.ts"
   },
   "exports": {
     ".": "./src/index.ts",
