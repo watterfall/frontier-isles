@@ -36,6 +36,7 @@ const interiorSlugs = new Set([
 const entries = FRONTIERS.map((frontier) => ({
   id: frontier.id,
   atlasN: frontier.atlasN,
+  ...(frontier.atlasWithdrawal === undefined ? {} : { atlasWithdrawal: frontier.atlasWithdrawal }),
   slug: frontier.slug,
   title: frontier.title,
   qfocus: frontier.qfocus,
@@ -77,6 +78,7 @@ import type { FrontierEntry } from './frontiers';
 export type FrontierAtlasEntry = Pick<FrontierEntry,
   | 'id'
   | 'atlasN'
+  | 'atlasWithdrawal'
   | 'slug'
   | 'title'
   | 'qfocus'

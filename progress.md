@@ -210,6 +210,105 @@
   - `apps/web/src/App.tsx`, `apps/web/src/components/mobile/MobileShell.tsx`, `apps/web/src/global.css`
   - `apps/web/src/__tests__/missionEvidence.test.ts`, `apps/web/src/__tests__/explorationNotebook.test.ts`, `apps/web/src/components/model/__tests__/ModelMissionControl.test.tsx`, `apps/web/e2e/surface-hardening.spec.ts`
 
+### Phase 16: xFrontier Provenance Lifecycle Audit
+- **Status:** complete
+- Actions taken:
+  - Connected to the local xfrontier MCP and pinned the reviewed corpus to `xf-6eb361265784`: 1,848 active records, 53 clusters, 100% card coverage, and 0/136 authored structure-to-record domain links.
+  - Loaded every repository-owned xfrontier id from the composed `FRONTIERS` and `SEED_STRUCTURES` modules before calling `resolve_ids`; the 177 unique references resolved to 176 active, one withdrawn, and zero unknown.
+  - Stored the active records' content hashes and the withdrawn record's reason in `packages/data/xfrontier-reference-snapshot.json`; a new test fails if the module reference set and snapshot diverge.
+  - Kept `perennial-grain-crops` as a Frontier Isles problem but added a versioned `atlasWithdrawal` for `XF-001449`, whose MCP retirement reason is `too_mature_or_applied` rather than correction or disappearance.
+  - Propagated the lifecycle through generated L0 data and server metadata, with an L0 fallback so an older seeded database cannot hide the update.
+  - Added a compact bilingual L1 provenance marker; the full MCP-derived reason and dataset version remain in its title text.
+  - Used agent-browser against an isolated production build on port 8790. The marker rendered at 1280×633 and 1024×768 with no horizontal overflow or console errors; at 390px the pre-existing read-only mobile shell owns the route and does not render L1.
+- Files created/modified:
+  - `packages/data/xfrontier-reference-snapshot.json`, `packages/data/test/xfrontier-provenance.test.ts`
+  - `packages/data/src/frontiers.ts`, `packages/data/scripts/generate-atlas.mjs`, generated `packages/data/src/atlas.ts`
+  - `apps/server/src/store.ts`, `apps/server/src/seed.ts`
+  - `apps/web/src/components/island/GeneratedIslandScreen.tsx`, `apps/web/src/i18n/zh.ts`, `apps/web/src/i18n/en.ts`, `apps/web/src/__tests__/fallback.test.ts`
+
+### Phase 17: xFrontier Downstream Sync Foundation
+- **Status:** complete
+- Recovered the current dirty worktree and existing Phase 16 provenance changes without overwriting them.
+- Re-read the local xFrontier MCP surface live: downstream reads have dataset versions and content hashes, while proposal/finding writes remain outside this phase.
+- Confirmed the first implementation boundary: explicit pull/diff plus review output, followed by an allowlisted runtime catalog `ProblemMeta.atlas` reconciliation; no upstream writes, commit, push, or deployment.
+- Reconfirmed the live baseline before implementation: MCP server `0.5.0`, dataset `xf-6eb361265784`, 1,848 active records, 18 retired ids, 10 findings, and zero proposals.
+- Added `xfrontier:sync`: default and `--check` are read-only; `--json` exposes the full diff; `--write-snapshot` is explicit and guarded by server identity, request timeouts, dataset/unknown checks, a writer lock, baseline CAS, atomic rename, and directory fsync.
+- Migrated the provenance snapshot without changing its dataset or record data. It now records schema `xfrontier-reference-snapshot/v1`, MCP server `0.5.0`, and review date `2026-08-13`.
+- Re-ran the real local stdio service after migration: both the default pull and `--check` resolved 177 references as 176 active / one withdrawn / zero unknown, reported no drift, changed no files, and exited 0.
+- Added catalog atlas reconciliation for existing database rows with observable materialized/reconciled counts, mandatory matching `atlasN` identity, transaction rollback, and preservation of authored problem/ledger/place state. Missing identity is ambiguous and cannot be claimed from slug alone.
+- Passed 19 focused sync/provenance/reconciliation tests and the full 987-test repository suite.
+- Passed release-doc, atlas-generation, web import-boundary, and all workspace TypeScript checks; production build passed with entry 885.22 kB raw / 305.27 kB gzip, below the 900 KiB gate.
+- Passed final diff hygiene. Phase 17 has no new visible UI surface, so the Phase 16 browser proof was not repeated.
+- Files added/modified for Phase 17:
+  - `packages/data/scripts/sync-xfrontier.mjs`, `packages/data/scripts/xfrontier-sync-lib.mjs`
+  - `packages/data/test/xfrontier-sync.test.ts`, `packages/data/test/xfrontier-provenance.test.ts`, `packages/data/xfrontier-reference-snapshot.json`
+  - `apps/server/src/index.ts`, `apps/server/src/seed.ts`, `apps/server/src/store.ts`, `apps/server/test/catalog-atlas-reconciliation.test.ts`
+  - root/data package scripts and the pnpm lockfile
+
+### Phase 18: xFrontier Bidirectional Feedback Foundation
+- **Status:** complete locally
+- Recovered the completed Phase 17 worktree and planning state without discarding its uncommitted changes.
+- Selected the next reversible boundary: a local durable outbox/receipt and read-only decision inbox. Default inspection, tests, build, and boot must make zero xFrontier writes.
+- Reconfirmed that the existing night-digest webhook is best-effort rather than durable and that the Scout's MCP client is a useful transport pattern, not a shared feedback store.
+- Called the live local MCP read tools `stats`, `list_findings(include_stale=true)`, and `list_proposals(limit=100)`: dataset `xf-6eb361265784`, 10 findings, zero proposals, and no xFrontier write.
+- Captured exact feedback tool schemas. The upstream tools provide no caller idempotency key; proposal decisions are human-only and list-paged, while findings expose stable ids and staleness but no cursor.
+- Read the current upstream proposal implementation: random remote ids, append-only decision records, latest-decision status, reversible human review, and no automatic `audit/` application.
+- Read the current SQLite boot migration boundary and confirmed feedback tables can be added idempotently to existing WAL databases without rewriting the knowledge or place planes.
+- Confirmed `apps/server` already depends on the MCP SDK and SQLite, while `packages/data` supports explicit subpath exports; no new runtime dependency is required for the feedback bridge.
+- Verified live tool annotations: every xFrontier feedback writer is explicitly non-idempotent. Proposal cursors are filter/dataset-bound but not ledger-snapshot cursors, so decision ingestion must deduplicate by remote ids.
+- Added the pure `@frontier-isles/data/xfrontier-feedback` contract: strict evidence-anchored envelopes, inert tool intents, exact remote normalizers, complete-page validation, and state diffs. No Node or MCP runtime enters the data package.
+- Added durable SQLite exchange storage: idempotent outbox enqueue, source-hash authority checks, append-only attempts/receipts/decisions, proposal/finding inboxes, single-owner remote receipts, and explicit local application/release state.
+- Added the fail-closed stdio client and bridge. Reads require reviewed `0.5.0` safety annotations and two equal complete sweeps; writes require one authorized tool and validate every echoed ACK field against the intent.
+- Added pull-time proposal rebinding to the immutable envelope and exactly one namespaced success receipt before importing any decision. The whole finding/decision ingestion is one local transaction.
+- Added crash-safe operational semantics: begun-call failures become `uncertain`, no automatic retry/cancel exists, local-only `recover-expired` appends lease-expiry receipts, and `inspect` exposes lease/last-receipt detail.
+- Kept remote `accepted` distinct from local `acknowledged/applied/released`; a later remote reversal preserves local history and exposes `needsReconciliation` instead of silently rolling state back.
+- Added `pnpm xfrontier:feedback` commands and `docs/xfrontier-feedback.md`. In the Phase 18 0.5 protocol, only explicitly confirmed `deliver` could authorize a writer; Phase 19 later replaced that flag with `--confirm-upstream-write` and added the separately confirmed, reconciliation-gated `retry`. Inspect/enqueue/recovery remain local-only and pull/reconcile are read-only.
+- Closed all independent-review P1 findings. Final review reported no remaining P0/P1; the only retained boundary is xFrontier `0.5.0` lacking caller idempotency and atomic expected-version preconditions.
+- Final live stdio pull into a disposable database observed `xf-6eb361265784`, 10 findings / 0 stale, zero proposals/conflicts/decisions, and no automatic application. The disposable DB was removed, `data/isles.db` was untouched, and `/Users/jili/AIAI/frontier` remained clean on `main...origin/main`.
+- No xFrontier write tool was called. No commit, push, CI run, deployment, or browser change was authorized or claimed.
+
+### Phase 19: xFrontier Conditional Feedback Protocol
+
+- Final state-machine tightening complete: each read-only receipt reconciliation now records the exact completed `basisAttemptId` it observed. Retry leasing requires that basis to equal the current last attempt, so `not_found` is consumed by one retry and a later uncertain attempt requires a fresh lookup. The focused store suite passes 15/15 and server TypeScript passes.
+- Began the final real-transport proof against a fresh disposable ledger/SQLite pair at `/tmp/xf-phase19-e2e-final.0Oq0Us`; the fixture is a v2 annotation proposal pinned to the live dataset and record content hash, with an independently stored local ref as its evidence anchor.
+- Enqueued the isolated fixture through the shipped CLI with zero MCP calls. Durable outbox id: `sha256:2c299c6a96b47144023823c0f03c4e8e1203759ccb978e11685ff5403a7aa8c7`; initial state is `pending` and the envelope hash is `sha256:f4d58bed544b2df2b03ff89b72b11462e897d78cc3b447ed084458076c8e9af0`.
+- Created one explicit isolated `uncertain` attempt (`feedback-attempt:e2927dece541190fcd90c096091d1678`) without touching MCP, then ran the real xFrontier 0.6 `get_feedback_receipt` path against the disposable empty ledger. It returned exact `not_found`; the CLI durably recorded the attempt-bound reconciliation and made one explicit retry eligible, with zero upstream writer calls so far.
+- Ran the separately confirmed retry through real xFrontier 0.6 stdio. It created exactly one disposable ledger JSON and transitioned the local item to `delivered`: remote proposal `3f2e78b0`, request hash `sha256:cf511486d1a7ebb60638d611c9837cd71e8caebb2fcf9512c26c8698e32f7dab`, attempt 2 success. Local inspection made zero MCP calls and showed the original `not_found` bound to attempt 1 plus the success receipt bound to attempt 2.
+- Replayed the identical strong MCP writer request directly. xFrontier returned `idempotent_replay=true`, the same proposal id `3f2e78b0`, and the same request hash; exact receipt lookup returned that same immutable record. The disposable ledger still contains exactly one 578-byte JSON (`sha256:306cf7a5921ce51128e935fde371fe0a7d5c7e8d937c395896359e9cbfd2b8e2`). `git status -- 'ledger/*.json'` in the real xFrontier checkout remained empty.
+- Ran the real 0.6 read/pull path twice against the disposable ledger. Both sweeps observed one proposal, matched it to exactly one local outbox via `client_event_id` plus request hash/receipt binding, imported zero decisions, reported zero conflicts/unmatched items, and kept `appliedAutomatically=false`; the repeat created no duplicate state.
+- First root `pnpm -r test` gate did not reach the test runner: the Corepack/pnpm shim attempted `GET https://registry.npmjs.org/pnpm` and the sandboxed network fetch failed. This is an environment/bootstrap failure, not a test failure; package-local binaries remain available, so verification continues without installing or changing dependencies.
+- Diagnosed the bootstrap boundary: the project pins `pnpm@10.33.0`, while the global shim tries to fetch it; root and package-local `vitest`, `tsc`, `tsx`, and `vite` binaries are already present. No dependency install is needed or authorized for this closeout.
+- Bypassed only the unavailable package-manager bootstrap and ran every workspace package's checked-in Vitest binary directly: 126 files / 1,038 tests passed (core 201, renderer 160, data 58, assets 56, opp 21, scout 33, server 140, web 369).
+- Independent upstream P0/P1 review found none. It rechecked replay-before-precondition ordering, canonical JSON rejection rules, deterministic no-replace publication/fsync, structured MCP errors, tool annotations, built 0.6.0/19-tool surface, and byte-identical real ledger JSON. Its own Vitest rerun was sandbox-blocked only by Vite's cache write outside this workspace; the upstream implementation agent's earlier full 1,001+59 test gates remain the executable upstream proof.
+- All eight workspace TypeScript checks passed using their local binaries. The additional atlas generation check, web data-import boundary check, and release-doc verifier also passed; the latter confirms the pre-existing release metadata remains `2026-08-04 · main 39a2d2d8 · production 39a2d2d8` and is not being reinterpreted as a Phase 19 release.
+- Production web build passed: Vite transformed 1,004 modules and emitted the existing large-chunk warnings only; precompression then produced 26 Brotli files, 3,729 KB -> 1,035 KB (-72.3%). This is a local build proof, not a deployment.
+- Closed the downstream review's remote-receipt uniqueness P1: normal success now checks both success receipts and prior found reconciliations under the same `IMMEDIATE` transaction. The new cross-connection reverse-order regression passes; focused store 16/16, server TypeScript, and repository diff check are green.
+- Re-ran the complete server suite after that fix: 11 files / 141 tests passed. A final real-ledger **read-only** pull through xFrontier 0.6 stored 10/10 findings, all fresh, observed zero proposals/conflicts/decisions, and retained `appliedAutomatically=false`; no writer tool was called.
+- Closed the final cross-repo fail-closed mismatches: structure-link IDs now share xFrontier's trim+uppercase hashing rule, and receipt lookup enforces exact positive/negative response shapes with null negative payloads. Focused data 13/13, client+bridge 22/22, and both data/server TypeScript checks pass. Phase 19 remains in progress only for the post-fix full gate and final re-review.
+- Post-fix full workspace test gate passed via local package binaries: 126 files / 1,040 tests (core 201, renderer 160, data 59, assets 56, opp 21, scout 33, server 141, web 369).
+- Post-fix type/contract gate passed again: all eight workspace TypeScript checks plus release-doc, atlas, and web import-boundary checks. Vite production build also passed with 1,004 modules and only the pre-existing >500 kB chunk warnings.
+- Post-fix artifact hygiene is green: Brotli precompression remains 26 files / 3,729 KB -> 1,035 KB (-72.3%), both repositories pass `git diff --check`, and the real xFrontier `ledger/*.json` status remains empty.
+- Re-ran the hardened exact lookup parser over the real 0.6 stdio transport against the disposable ledger: the known event resolved `found:true` to proposal `3f2e78b0`, while a new event returned the exact accepted `found:false` shape. No writer was called.
+- Final independent downstream review reports no remaining P0/P1 after rechecking bidirectional receipt uniqueness, contradictory negative lookup rejection, single-use attempt-bound retry proof, structure-id/hash alignment, version gates, pull binding, and CLI authority. One P2 remains: human-readable `inspect` could make retry eligibility more prominent; the Store gate itself is enforced and machine-readable JSON already exposes reconciliation detail.
+- Final independent cross-repository review also reports no remaining P0/P1. It verified all three intent/precondition/ACK/list shapes, exact positive and negative receipt lookup, the structure-link normalization fixture, 0.5 read/0.6 write gates, CLI/docs writer boundaries, and `accepted != applied` semantics. Real xFrontier ledger JSON remains unchanged.
+- Removed all four Phase 19 disposable SQLite/ledger paths after recording hashes and receipts. A final check found none remaining; both repositories still pass `git diff --check`, the real xFrontier `ledger/*.json` status is empty, and no command targeted Frontier Isles' default database.
+- The locally rebuilt, gitignored xFrontier MCP bundle is `dist-mcp/server.mjs` with SHA-256 `116885d917ad31ff31f45c3586023263989d5b6311ef96811c09ad9d46799839`; all integration results refer to that 0.6.0 artifact, not a committed release.
+- **Status:** complete
+
+### Phase 20: Commit Readiness and MCP Consumer Onboarding
+
+- Recovered the planning catchup after the user's `继续`. It confirms the local xFrontier stdio server is registered at user scope and healthy; this Codex session exposes all 19 native tools, while an already-running consumer may still need reconnection after a future bundle refresh. No repository MCP config is missing.
+- Began a two-repository ownership audit before staging. Local commits are the furthest implied action in this phase; push, CI, deployment, real ledger submission, and human proposal decisions remain separate and unauthorized.
+- The user's bounded continuation now covers reversible local gates and commits. Push, CI trigger, production deployment/cache purge, real ledger delivery, human decision, and user-scope MCP configuration remain unauthorized.
+- Corrected the xFrontier public inventory to 13 core read tools, six resources, and six ledger/review tools; updated the protocol plan to a durable commit-ready status. Upstream full gates passed: 1,001 Vitest + 59 Node tests, 0 Svelte/TypeScript diagnostics, transport/acceptance 0.6.0 with 19 tools, and append-only ledger validation.
+- Created local upstream commit `e9a9ceb` (`feat(mcp): make feedback writes durable and retry-safe`). Rebuilt from that commit; bundle SHA-256 remains `116885d917ad31ff31f45c3586023263989d5b6311ef96811c09ad9d46799839`, probe is healthy, and real ledger JSON remains clean.
+- Refreshed the downstream reference snapshot metadata from server 0.5.0 to 0.6.0 with no dataset/reference change, then proved zero drift. Full downstream gates passed: 126 files / 1,040 tests, 8/8 TypeScript workspaces, release/atlas/import checks, production build/precompression, and 8/8 Playwright on isolated 5174/8788 services with an in-memory DB.
+- Created local downstream code commit `93771f7` (`feat: connect Frontier Isles to xFrontier lifecycle and feedback`). The only remaining worktree changes are this planning checkpoint.
+- **Status:** complete locally; push, remote CI, deployment/cache purge, real feedback delivery, human decisions, and MCP registration changes remain gated
+- Recovered Phase 18 as complete and independently reviewed; preserved the entire dirty Frontier Isles worktree rather than restarting or collapsing it into the clean xFrontier checkout.
+- Interpreted the user's `继续` as authorization for the documented reversible local protocol and commit slice. Real finding/proposal submission, push, CI trigger, deployment/cache purge, human decisions, and user-scope configuration remain outside this authorization.
+- Selected the minimum target: caller-provided idempotency, dataset/record-hash preconditions checked with the append, durable receipt lookup, legacy-call compatibility, and a fail-closed Frontier Isles upgrade path.
+
 ## Test Results
 | Test | Input | Expected | Actual | Status |
 |------|-------|----------|--------|--------|
@@ -256,6 +355,33 @@
 | Phase 15 final build | `pnpm build` | `zod` stays out of the entry chunk and budgets hold | Passed; entry 884.52 kB (budget 921.6 kB), CSS 234.58 kB, ModelWorkbench 36.91 kB, modelMission unchanged at 72.66 kB | pass |
 | Phase 15 browser suite | `pnpm test:e2e`, 2 workers, owned services | Desktop inquiry survives a full reload; compact surface saves without overflow; axe AA holds | 8/8 in 59.6s; 5173/8787 reclaimed | pass |
 | Phase 15 final diff hygiene | `git diff --check` | No whitespace errors | Passed | pass |
+| Phase 16 xfrontier live resolve | local MCP `stats` + module-loaded `resolve_ids(177 ids)` | Versioned coverage with no unknown ids | `xf-6eb361265784`; 176 active / 1 withdrawn / 0 unknown | pass |
+| Phase 16 repository tests | `pnpm test` | Provenance contract and all prior workspaces pass | 971 tests, 119 files passed | pass |
+| Phase 16 final typecheck | `pnpm typecheck` | Release docs, atlas/import boundaries, and TypeScript pass | Passed | pass |
+| Phase 16 production build | `pnpm build` | Generated data is current and bundle budgets hold | Passed; entry 885.22 kB raw / 305.27 kB gzip | pass |
+| Phase 17 live snapshot migration | local MCP `--write-snapshot` | Metadata-only migration on the pinned dataset; no upstream write | schema/server metadata added; dataset and all 177 record states/hashes unchanged | pass |
+| Phase 17 live read/check | default pull + `--check` | Calls only downstream MCP reads and reports a current snapshot | 176 active / 1 withdrawn / 0 unknown; zero drift; both exit 0 | pass |
+| Phase 17 focused contracts | sync + provenance + existing-DB reconciliation Vitest files | Pull safety, diff states, snapshot contract, preservation and rollback pass | 19/19 tests passed | pass |
+| Phase 17 repository tests | pinned pnpm 10.33.0 recursive test | All workspaces pass | 987 tests passed | pass |
+| Phase 17 type/contract gates | release docs + atlas check + web import check + all workspace `tsc --noEmit` | Every underlying `pnpm typecheck` gate passes | Passed | pass |
+| Phase 17 production build | pinned pnpm 10.33.0 recursive build | Build and entry budget pass | Passed; entry 885.22 kB raw / 305.27 kB gzip | pass |
+| Phase 17 diff hygiene | `git diff --check` plus new-file trailing-whitespace scan | No whitespace errors | Passed | pass |
+| Phase 18 focused feedback contracts | data contract + store + client + bridge + CLI Vitest files | Envelope, authority, ACK binding, crash recovery, decision reversal, and zero-write defaults pass | 39/39 tests passed | pass |
+| Phase 18 live read-only feedback pull | local xFrontier stdio MCP + disposable SQLite DB | Fail-closed read protocol; no writer; no automatic application | `xf-6eb361265784`; 10 findings / 0 stale; 0 proposals/conflicts/decisions; `appliedAutomatically=false` | pass |
+| Phase 18 repository tests | pinned pnpm 10.33.0 recursive test | All workspaces pass | 1,026 tests in 126 files passed | pass |
+| Phase 18 type/contract gates | release docs + atlas check + web import check + all workspace TypeScript | Every recursive typecheck gate passes | Passed | pass |
+| Phase 18 production build | pinned pnpm 10.33.0 recursive build | Build and existing eager/lazy budgets pass | Passed; entry 885.22 kB / 305.27 kB gzip; ModelWorkbench 36.91 / 13.40; interior 1,210.00 / 482.99 | pass |
+| Phase 18 final review/diff hygiene | independent P0/P1 review + `git diff --check` | No blocking safety/correctness findings or whitespace errors | No remaining P0/P1; diff check passed | pass |
+| Phase 19 upstream protocol gates | xFrontier `npm run check`, `npm test`, `npm run test:mcp`, ledger validator | Types, 0.6 transport, legacy compatibility, atomic/idempotent store, real ledger integrity | 1,001 Vitest + 59 Node tests; MCP 19 tools; ledger validation passed | pass |
+| Phase 19 isolated real-transport proof | disposable SQLite + `XF_LEDGER_DIR`, reconcile/retry/replay/pull | Exact absence proof authorizes one retry; identical replay returns one immutable record | proposal `3f2e78b0`; request `sha256:cf5114…`; one 578-byte JSON; repeated pull matched 1/1 | pass |
+| Phase 19 real-ledger read-only proof | xFrontier 0.6 stdio pull into disposable DB | Current findings import; no writer or automatic application | 10 findings / 0 stale; 0 proposals; `appliedAutomatically=false`; real ledger unchanged | pass |
+| Phase 19 downstream repository tests | all package-local Vitest binaries | All workspaces pass after final P1 fixes | 1,040 tests in 126 files passed | pass |
+| Phase 19 type/build/diff gates | release/atlas/import checks, eight TypeScript checks, Vite build/precompress, both diff checks | Contracts and artifacts pass without release claims | all passed; 1,004 modules; 26 Brotli files; both diff checks clean | pass |
+| Phase 19 final reviews | independent upstream/downstream/cross-repo P0/P1 reviews | No blocking protocol or state-machine issue remains | no remaining P0/P1; one inspect-prominence P2 retained | pass |
+| Phase 20 pre-stage diff hygiene | `git diff --check` in both repositories | No whitespace errors before any staging | Both passed after the xFrontier README inventory correction | pass |
+| Phase 20 snapshot metadata refresh | explicit guarded write, then read-only `--check` against local xFrontier 0.6.0 | Update only reviewed server provenance; retain dataset/reference truth | 177 references unchanged; `serverVersion` 0.5.0→0.6.0; follow-up check exit 0 with zero drift | pass |
+| Phase 20 downstream unit/type/build/browser gates | package-local full Vitest/TypeScript, release/atlas/import checks, Vite/precompress, isolated-port Playwright | Verify the exact downstream code candidate without borrowing another worktree's services | 126 files / 1,040 tests; 8/8 TypeScript; 1,004-module build; 26 Brotli files; Playwright 8/8 on 5174/8788 | pass |
+| Phase 16 browser proof | agent-browser on isolated `:8790` production stack | Marker, reason/version, bilingual copy, no overflow/errors | Passed at 1280×633 and 1024×768; L1 is not the 390px mobile surface | pass |
 
 ## Error Log
 | Timestamp | Error | Attempt | Resolution |
@@ -276,15 +402,23 @@
 | 2026-08-08 | One planning-file patch had a malformed multi-file hunk separator | 1 | Reissued the same bounded update with valid patch context; no product file was affected |
 | 2026-08-08 | Full browser suite A2 scenario waited 60s for `.fi-day-night-lever` on L0 | 1 | Corrected the L0 style harness; the focused night A2 rerun passed without a timeout change |
 | 2026-08-08 | Mobile Model Lab axe reported 2.83–3.53:1 accent text contrast | 1 | Applied semantic AA text tokens across the workbench; the full mobile axe rerun passed |
+| 2026-08-13 | A broad Phase 16–19 CodeGraph exploration exceeded the useful output window and was truncated | 1 | Split the ownership audit into narrow module/symbol queries before reading individual diffs |
+| 2026-08-13 | Initial Phase 20 findings patch used the wrong Markdown heading depth/text and did not apply | 1 | Located the exact heading and reissued a bounded patch; no product file was affected |
+| 2026-08-13 | One compact two-repository Git inspection used shell separators despite the workspace preference for separate commands | 1 | The read-only result was valid; use parallel independent command calls for the remaining audit and staging checks |
+| 2026-08-13 | Sandboxed xFrontier `npm run check` could not create Vite's config temp module under the adjacent repository and produced 50 derivative Svelte preprocessing errors | 1 | Ledger validation still passed; rerun the same check with scoped filesystem approval instead of treating sandbox EPERM as a product failure |
+| 2026-08-13 | The first exact xFrontier staged diff check exposed two Markdown hard-break spaces in the new protocol plan | 1 | Removed the trailing spaces, re-stage only that reviewed plan, and repeat the cached diff check before committing |
+| 2026-08-13 | The user-level `pnpm --version` shim again hung while trying to resolve the pinned package manager | 1 | Terminated the no-output process and use the already-cached exact pnpm executable or package-local gates; do not install dependencies |
+| 2026-08-13 | Plain Playwright could not own ports 5173/8787 because a separate Claude worktree has healthy listeners there | 1 | Preserve those unrelated processes; run the same suite with temporary untracked configs on 5174/8788 and an in-memory database, then delete only the temporary configs |
+| 2026-08-13 | A shell glob in a read-only Vite-proxy search had no root-level match under zsh `nomatch` | 1 | Re-ran the search against the exact `apps/web/vite.config.ts` path; no file or process was changed |
 
 ## 5-Question Reboot Check
 | Question | Answer |
 |----------|--------|
-| Where am I? | Phase 15 complete locally; notebook-v5 persists completed A2 investigations as evidence on both desktop and compact surfaces |
-| Where am I going? | Next: architectural/comprehension review, then live providers |
-| What's the goal? | Build a bounded AI-native execution path without collapsing autonomous model work into research truth |
+| Where am I? | Phase 20 complete locally; xFrontier `e9a9ceb` and Frontier Isles `93771f7` contain the reviewed protocol/integration code, with this planning checkpoint pending its own local commit |
+| Where am I going? | Stop at the local publication boundary until push/CI/deployment or real feedback submission receives explicit authorization |
+| What's the goal? | Keep both projects connected through versioned evidence, receipts, and review while preserving their independent truth and application authorities |
 | What have I learned? | See `findings.md` |
-| What have I done? | Implemented and verified mission policy/runtime, durable Scout records, shared ModelSpec/runtime, a visible replayable provider-free A2 investigation, and durable non-promoting mission evidence |
+| What have I done? | Committed the upstream durable 0.6 feedback protocol and downstream provenance/sync/outbox bridge locally, preserving real ledgers/default DB and independently gating browser/build/type/test surfaces |
 
 ---
 *Update after each completed planning phase or new error.*

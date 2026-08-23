@@ -9,6 +9,8 @@
     "build": "pnpm -r build",
     "test": "pnpm -r test",
     "test:e2e": "pnpm --filter @frontier-isles/web test:e2e",
+    "xfrontier:sync": "pnpm --filter @frontier-isles/data xfrontier:sync",
+    "xfrontier:feedback": "pnpm --filter @frontier-isles/server xfrontier:feedback",
     "verify:release-docs": "node scripts/verify-release-docs.mjs",
     "typecheck": "pnpm verify:release-docs && pnpm -r typecheck"
   },

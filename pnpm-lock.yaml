@@ -201,6 +201,9 @@ importers:
 
   packages/data:
     devDependencies:
+      '@modelcontextprotocol/sdk':
+        specifier: ^1.0.0
+        version: 1.29.0(zod@3.25.76)
       typescript:
         specifier: ^5.7.2
         version: 5.9.3

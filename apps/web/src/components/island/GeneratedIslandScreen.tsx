@@ -17,7 +17,7 @@ import { frontierAtlasBySlug } from '@frontier-isles/data/atlas';
 // 141KB module to the blocking chain the visitor waits on when opening an
 // island (and under a dev server, its transform too).
 import { atlasDetailOf } from '../../api/atlasDetail';
-import type { IslandInterior } from '@frontier-isles/data/frontiers';
+import type { IslandInterior, XFrontierWithdrawal } from '@frontier-isles/data/frontiers';
 import type { IslandReference } from '@frontier-isles/data/literature';
 import { api, type ApiStructure } from '../../api/client';
 import { fallbackStructures } from '../../api/structureFallback';
@@ -91,6 +91,8 @@ interface IslandDetail {
   eventCount: number;
   memberships: Array<{ actorId: string; actorKind: string; role: string | null; aiKind: string | null }>;
   atlas?: {
+    atlasN: number;
+    atlasWithdrawal?: XFrontierWithdrawal;
     scores: number[];
     cluster: { code: string; zh: string; en: string };
     citation: { url: string; title: string; venue: string; year: number };
@@ -494,6 +496,8 @@ export function GeneratedIslandScreen({
   // Only offer the scrubber when the ledger actually has events to replay.
   const hasReplay = timeline != null && (timeline.eventCountByNight[timeline.nights] ?? 0) > 0;
   const atlasSummary = frontierAtlasBySlug(slug);
+  const atlasN = detail.atlas?.atlasN ?? atlasSummary?.atlasN;
+  const atlasWithdrawal = detail.atlas?.atlasWithdrawal ?? atlasSummary?.atlasWithdrawal;
   const qfocusBilingual = atlasSummary?.qfocus ?? { zh: qfocus, en: qfocus };
   // Server detail first, deferred static atlas second — the offline twin for a
   // curated island whose API detail carries no atlas block.
@@ -668,6 +672,18 @@ export function GeneratedIslandScreen({
                     <span>▤ {t('island.freshness.curated')}</span>
                   ) : <span>{t('island.researchPassage.noEvidence')}</span>}
                   {citation && <a href={citation.url} target="_blank" rel="noopener noreferrer">↗ {citation.venue} · {citation.year}</a>}
+                  {atlasWithdrawal && atlasN && (
+                    <span
+                      data-testid="xfrontier-withdrawal"
+                      title={t('island.provenance.withdrawnDetail', {
+                        id: `XF-${String(atlasN).padStart(6, '0')}`,
+                        version: atlasWithdrawal.datasetVersion,
+                        reason: atlasWithdrawal.note[lang],
+                      })}
+                    >
+                      △ XF-{String(atlasN).padStart(6, '0')} · {t('island.provenance.withdrawn')}
+                    </span>
+                  )}
                   {/* 海即数据 decoder: sea darkness = abstractness, agitation = contention;
                       stated as text so the sea's data channels are always decodable. */}
                   {seaStats?.substrate != null && <span>≈ {t('island.seaData.depth')} {seaStats.substrate.toFixed(2)} · {t(abstractKey(seaStats.substrate))}</span>}

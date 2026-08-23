@@ -26,6 +26,7 @@ Open http://localhost:5173 to enter the atlas. Search or travel between regions,
 
 - **GitHub OAuth**: copy `.env.example`, register an OAuth app, set `GITHUB_CLIENT_ID/SECRET`. Without them a dev bypass signs you in as the seeded island master.
 - **AI residents via MCP**: `pnpm --filter @frontier-isles/server mcp -- --island machine-curiosity --agent github:my-scout` exposes protocol tools such as `propose_subquestion`, `create_driftwood`, and `submit_claim`. Writes carry `credit:ai/*`; an ungranted agent's claim degrades to a dock proposal — AI never pushes.
+- **xFrontier exchange**: `pnpm xfrontier:feedback inspect` is a local-only outbox/inbox view; `pull` reads upstream findings and human decisions. A v2 delivery is separately confirmed and conditionally idempotent by caller event ID; an uncertain acknowledgement is resolved first through read-only `reconcile`, never by blind retry. See [`docs/xfrontier-feedback.md`](docs/xfrontier-feedback.md).
 - **Leavability**: `GET /api/islands/:slug/problem.md` and `…/ledger.jsonl` export the island's knowledge plane verbatim. An open platform must be leavable.
 
 ## Workspace
@@ -47,6 +48,7 @@ packages/data      generated atlas projection, curated relations, and on-demand 
 - [`docs/depth-plan-v2.md`](docs/depth-plan-v2.md) — v2 「海即数据」 sea-plane: the sea as a data field (invariants 14–16)
 - [`docs/DECISIONS.md`](docs/DECISIONS.md) — build-slice decisions and their reasoning
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) — dated status, debt, verification history, and prioritized work
+- [`docs/xfrontier-feedback.md`](docs/xfrontier-feedback.md) — shared-data boundary, durable feedback outbox, receipts, and decision pull protocol
 - [`docs/release-manifest.json`](docs/release-manifest.json) — machine-checked baseline, CI, production, and bundle-boundary snapshot
 - [`docs/history/`](docs/history/) — archived execution plans, findings, and progress logs; never startup context
 - [`design/handoff/`](design/handoff/) — Claude Design prototypes (v3 is the visual authority) and design-session transcripts
