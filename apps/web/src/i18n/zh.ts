@@ -256,6 +256,48 @@ export const zh = {
       subQuestions: '相关开放问题',
       literature: '参考文献',
     },
+    retired: {
+      label: '上游语料已退役此来源记录',
+      // The crux, and the reason this is shown rather than acted on: the
+      // upstream reason speaks about the ATLAS's inclusion scope, not about the
+      // question. Both can hold at once — the programme really is deployed, and
+      // it really has not reached parity — and the tension is the information.
+      scope: '这是上游图谱的收录范围在说话（它不收已落地的方向），不等于问题已被回答。本岛状态未改。',
+    },
+    cluster: {
+      title: '同簇',
+      // `n`, not `count`: i18next reserves `count` for plural resolution and
+      // would look for `_one` / `_other` variants that do not exist here.
+      count: '另有 {{n}} 座',
+      // Deliberately not "相关问题". Shared cluster membership is the corpus's
+      // own filing, and this atlas measured what it does NOT support: inferring
+      // a structural correspondence from it fails about nine times in ten.
+      note: '语料把它们归在一处——这是归类，不是已验证的关联。',
+    },
+    proposal: {
+      // 「待批」而不是「关联」：这是一条排队等人判定的候选，不是已成立的关系。
+      // 岛页上任何让它读起来像已确认的措辞，都会把队列偷换成覆盖率。
+      title: '结构提议 · 待人工批准',
+      // `n`, not `count` — i18next reserves `count` for plural resolution.
+      count: '{{n}} 条待批',
+      unratified: '尚未批准',
+      // 量与证据都是指针解析出来的原文，不是这里写的。
+      // 两种提议必须读起来不一样。用同一套措辞显示「体现」和「失效」，
+      // 等于把一条否定当成肯定发出去——那比不显示更糟。
+      relation: {
+        embodies: '候选：本岛可能体现这个结构',
+        breaks: '候选：本岛可能是这个结构失效之处',
+      },
+      quantity: '该结构要求的量',
+      quantityBreaks: '该结构要求、而本岛可能没有的量',
+      evidence: '本岛自身文本中与之对应处',
+      check: '批准前须先判定',
+      by: '由 {{who}} 于 {{when}} 提出',
+      note: '这条不计入本岛的关系层覆盖。批准它意味着由人重写成一条正式映射（含对应、预测与边界），而不是把这段文字搬过去。',
+      // 否定提议批准后不产生映射，产生的是一条记录在案的空缺。沿用上面那句
+      // 会让读者以为批准它就会多出一条连接——方向正好相反。
+      noteBreaks: '这条不计入本岛的关系层覆盖，批准后也不会。它记录的是这个结构在此不适用；批准意味着把这处空缺记下来，让下一个人不必再试一遍。',
+    },
     district: {
       title: '岛内图',
       fold: '收',

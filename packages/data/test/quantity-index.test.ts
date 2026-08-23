@@ -283,8 +283,12 @@ describe('projectQuantityRoles', () => {
   });
 
   it('applies nothing — the catalogue mappings are untouched', () => {
+    // 135 rather than the 101 this was written against: merging wave 3 added
+    // 34 authored mappings. What is under test is that projectQuantityRoles
+    // reports and never writes, so the number only has to be the one the
+    // catalogue itself carries, whatever a curator has since authored.
     const total = SEED_STRUCTURES.reduce((sum, structure) => sum + structure.mappings.length, 0);
-    expect(total).toBe(101);
+    expect(total).toBe(135);
   });
 });
 

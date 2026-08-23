@@ -16,10 +16,19 @@ describe('wave-5 structures', () => {
   it('grows the catalogue without touching the mapping total', () => {
     // 43 pre-existing + 83 from the topic set across waves 4-8.
     expect(SEED_STRUCTURES).toHaveLength(126);
+
+    // The claim is that waves 4-8 add structures and never edges. Pinning the
+    // whole catalogue's mapping total was a proxy for it, and merging wave 3 —
+    // which does add edges, 34 of them — showed the proxy was over-broad: it
+    // would fail for work that has nothing to do with these waves. So the claim
+    // is now asserted where it belongs, on the structures these waves added.
+    for (const structure of [...WAVE_4_STRUCTURES, ...WAVE_5_STRUCTURES]) {
+      expect(structure.mappings, `${structure.id} claims an edge`).toEqual([]);
+    }
+
+    // The catalogue total is 135: 101 before the merge plus wave 3's 34.
     const mappings = SEED_STRUCTURES.reduce((total, s) => total + s.mappings.length, 0);
-    // Every wave adds structures, never edges. If this number moves, a wave
-    // file has started claiming coverage it did not earn.
-    expect(mappings).toBe(101);
+    expect(mappings).toBe(135);
   });
 
   it('carries no mappings and stays proposed', () => {

@@ -112,9 +112,16 @@ describe('structure depth', () => {
   it('leaves mappings and coverage exactly where they were', () => {
     // Depth is content, not connection. If either number moves, a depth patch
     // has started claiming an edge.
+    //
+    // The totals are 135 and 111 rather than the 101 and 77 this test was
+    // written against, and none of the difference is depth's: merging wave 3
+    // brought WAVE_3_STRUCTURE_PATCHES, which maps 34 of its islands onto
+    // isomorphisms that already existed. 101 + 34 = 135, and the newly covered
+    // islands take the covered set from 77 to 111. The patch loop that applies
+    // depth runs after that one and still writes no mapping at all.
     const mappings = SEED_STRUCTURES.reduce((total, structure) => total + structure.mappings.length, 0);
-    expect(mappings).toBe(101);
+    expect(mappings).toBe(135);
     const covered = new Set(SEED_STRUCTURES.flatMap((s) => s.mappings.map((m) => m.slug)));
-    expect(covered.size).toBe(77);
+    expect(covered.size).toBe(111);
   });
 });

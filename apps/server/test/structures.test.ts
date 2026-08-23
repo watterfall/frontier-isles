@@ -83,14 +83,16 @@ describe("structures API (执行纲要 §九)", () => {
 
   it("GET /api/structures/graph reduces real edges + frontier from the ledger", async () => {
     const g = await jsonOf(await app.request("/api/structures/graph"));
-    // network-cascade has 3 seeded edges; synchronization 1; scaling 0.
+    // network-cascade has 4 seeded edges since wave 3 (closed-loop-geothermal
+    // joined percolation: p is the fraction of fractures left open after
+    // carbonate precipitates); synchronization 1; scaling 0.
     const cascadeEdges = g.edges.filter((e: { structureId: string }) => e.structureId.endsWith("network-cascade"));
-    expect(cascadeEdges.length).toBe(3);
+    expect(cascadeEdges.length).toBe(4);
     const scaling = g.frontier.find((f: { structureId: string }) => f.structureId.endsWith("scaling"));
     // scaling is unmapped → absent from the frontier (no edges → no entry).
     expect(scaling).toBeUndefined();
     const cascade = g.frontier.find((f: { structureId: string }) => f.structureId.endsWith("network-cascade"));
-    expect(cascade.rebuilt.length).toBe(3);
+    expect(cascade.rebuilt.length).toBe(4);
     expect(Array.isArray(cascade.gaps)).toBe(true);
     const seededMappings = SEED_STRUCTURES.reduce((n, s) => n + s.mappings.length, 0);
     expect(g.edges).toHaveLength(seededMappings);
@@ -129,7 +131,7 @@ describe("structures API (执行纲要 §九)", () => {
     expect(store.listStructures()).toHaveLength(SEED_STRUCTURES.length);
   });
 
-  it("materializes every island added after id 140 on upgrade exactly once", () => {
+  it("materializes the 243 missing expansion islands on upgrade exactly once", () => {
     const expansion = FRONTIERS.filter((frontier) => frontier.id >= 141);
     const expansionOps = new Set(expansion.map((frontier) => opIdFor(frontier.slug)));
     const legacyEvents = new Map(
@@ -148,13 +150,17 @@ describe("structures API (执行纲要 §九)", () => {
       }
     });
     removeLegacyGap();
-    // 36 from wave 2 plus the 12 structure-led ones; the filter is id-based,
-    // so a later expansion joins this set and is covered by the same gate.
-    expect(expansion).toHaveLength(48);
+    // ids >= 141 are every expansion island: wave 2 (141-176), wave 3 (177-371)
+    // and the structure-led dozen (372-383). What is under test is the upgrade
+    // path itself — an older database missing the whole expansion range gets it
+    // materialised in one seed, with the pre-expansion ledger untouched — so the
+    // range grows with each wave and the filter stays id-based rather than
+    // naming any one of them.
+    expect(expansion).toHaveLength(243);
     expect(store.listProblemRows()).toHaveLength(141);
 
-    expect(seed(store)).toBe(48);
-    expect(store.listProblemRows()).toHaveLength(189);
+    expect(seed(store)).toBe(243);
+    expect(store.listProblemRows()).toHaveLength(384);
     for (const frontier of expansion) {
       expect(store.getProblemRow(frontier.slug)?.meta.name).toBe(frontier.title.zh);
     }

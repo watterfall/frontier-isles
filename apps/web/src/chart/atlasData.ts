@@ -150,9 +150,32 @@ function despaceProjected<T extends AtlasIslandInput>(islands: T[], spacingBySlu
     minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
     minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y);
   }
-  const slack = 90; // room to relax outward without exploding the world bbox
+  const MIN_DIST = 140;
+  // Room to relax outward. The floor (90) is the historical value; above it the
+  // margin grows so the world can actually HOLD n islands at MIN_DIST.
+  //
+  // Why this is not a constant: `capToPackingCapacity: false` below means the
+  // solver never lowers its target, so if the box cannot fit n points at
+  // MIN_DIST it does not degrade — it thrashes against the bounds and leaves
+  // pairs closer than any authored layout. That is exactly what happened when
+  // the atlas went 176 → 371 islands: the authored positions all stay inside
+  // the flat twin's fixed 1440×900 viewBox, so the projected bbox did NOT grow
+  // with the corpus, and the rendered plane collapsed to a 3.2px closest pair
+  // (p10 19.7px) even though the authored plane measured 25.5px.
+  //
+  // The comment below assumes "a zoomable world whose bbox already grows with
+  // the authored archipelagos". Doubling the corpus inside a fixed authored
+  // canvas broke that assumption, so restore it explicitly: expand the margin
+  // until the box has hexagonal room for every island. The world is pannable
+  // and zoomable, so a larger world costs nothing; a stacked one costs clicks.
+  const w = Math.max(1, maxX - minX);
+  const h = Math.max(1, maxY - minY);
+  const needArea = islands.length * (Math.sqrt(3) / 2) * MIN_DIST * MIN_DIST;
+  // (w + 2s)(h + 2s) = needArea, solved for s
+  const grow = (-2 * (w + h) + Math.sqrt(4 * (w + h) ** 2 + 16 * (needArea - w * h))) / 8;
+  const slack = Math.max(90, Number.isFinite(grow) ? grow : 90);
   const spaced = spaceIslands(pts, {
-    minDist: 140,
+    minDist: MIN_DIST,
     iterations: islands.length > 220 ? 80 : 320, // O(n²) pass — cap at scale-test sizes
     bounds: { minX: minX - slack, minY: minY - slack, maxX: maxX + slack, maxY: maxY + slack },
     // This is a zoomable world whose bbox already grows with the authored

@@ -160,7 +160,34 @@ export function ChartScreen({ islands, hover, onHover, onIsland, onBuild, onColl
 
   // Deterministic de-overlap of the hand-authored coordinates — no two islands
   // stack, and any future-added island is spaced automatically (ROADMAP §3.11).
-  const placed = useMemo(() => spaceIslands(islands, { minDist: 150 }), [islands]);
+  //
+  // `spaceIslands` is O(n² × iterations): ~470ms at 372 islands, on the mount
+  // path of the readable twin — the surface that exists to work when the GPU
+  // path does not. Keying the memo on the `islands` ARRAY meant every reconcile
+  // (which hands down a fresh array after the server responds) paid it again,
+  // for a layout that had not changed: positions come from the static atlas,
+  // while reconcile only updates activity/members/status.
+  //
+  // So key on the layout inputs themselves. The relaxation runs once per real
+  // layout change, and only x/y are carried over — the island objects stay
+  // fresh, or the hover card would render stale ledger numbers.
+  const layoutKey = islands.map((d) => `${d.id}:${d.x}:${d.y}:${d.s}`).join('|');
+  const positions = useMemo(() => {
+    const spaced = spaceIslands(
+      islands.map((d) => ({ id: d.id, x: d.x, y: d.y, s: d.s })),
+      { minDist: 150 },
+    );
+    return new Map(spaced.map((p) => [p.id, { x: p.x, y: p.y }]));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- layoutKey IS the
+    // content-identity of `islands` for layout purposes; see the note above.
+  }, [layoutKey]);
+  const placed = useMemo(
+    () => islands.map((d) => {
+      const p = positions.get(d.id);
+      return p ? { ...d, x: p.x, y: p.y } : d;
+    }),
+    [islands, positions],
+  );
 
   const hd = placed.find((d) => d.id === hover);
   const card = hd ? { content: computeCardContent(hd, lang, t), ...cardBoxPos(hd.x, hd.y) } : null;

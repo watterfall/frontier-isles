@@ -644,7 +644,7 @@ export const STRUCTURE_PROPOSALS: StructureProposal[] = [
 /**
  * ALL TWELVE ENTRIES HAVE BEEN ACTED ON, so this queue is empty.
  *
- * They are now islands 177–188, in `frontiers-expansion-structure-led.ts`, and
+ * They are now islands 372–383, in `frontiers-expansion-structure-led.ts`, and
  * that file rather than this one is the record of what each became. The queue
  * shrinking is the sign of progress here exactly as it is for a structure
  * proposal: a candidate that has been built is deleted, never left behind
@@ -669,7 +669,7 @@ export const WAVE_4_ISLAND_CANDIDATES: ReadonlyArray<{
 }> = [];
 
 /**
- * Retained for the record: the corpus handles that seeded islands 177–188, each
+ * Retained for the record: the corpus handles that seeded islands 372–383, each
  * with the wave-4 structure whose quantity the record was found to supply.
  *
  * This is provenance, not a queue. It says where the twelve islands came from

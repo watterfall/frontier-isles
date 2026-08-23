@@ -20,7 +20,12 @@ import { atlasDetailOf } from '../../api/atlasDetail';
 import type { IslandInterior, XFrontierWithdrawal } from '@frontier-isles/data/frontiers';
 import type { IslandReference } from '@frontier-isles/data/literature';
 import { api, type ApiStructure } from '../../api/client';
-import { fallbackStructures } from '../../api/structureFallback';
+import type { Bilingual } from '../../api/fallback';
+// 18 entries, ~6KB, and this screen is lazy — the notice below is the only
+// place a reader can learn that a cited source was withdrawn upstream.
+import { retirementFor } from '@frontier-isles/data/corpus-retirements';
+import { fallbackStructures, seedStructureById } from '../../api/structureFallback';
+import { proposalsFor, resolveProposal, type ResolvedProposal } from '@frontier-isles/data/structure-proposals';
 import { buildingVisitKey, type IslandDistrictId } from '../../state/explorationSession';
 import { projectRecordFreshness, type RecordFreshness } from '../../models/recordFreshness';
 import { IslandStepper, type IslandStepperProps } from './IslandStepper';
@@ -133,6 +138,20 @@ export interface GeneratedIslandScreenProps {
   onVisitBuildingFloor?: (station: StationKind, floorId: string) => void;
   onActiveDistrict?: (district: WorldTrailDistrict | null) => void;
   onActiveFloor?: (floor: WorldTrailFloor | null) => void;
+  /**
+   * The other islands the upstream corpus files in this island's cluster.
+   *
+   * Supplied by the caller rather than derived here: App already holds the
+   * roster (`chartIslands`), and a second read of the island source inside L1
+   * would be a second truth for the same fact. `undefined` for the sample
+   * island, which carries no cluster provenance.
+   */
+  clusterSiblings?: ReadonlyArray<{ slug: string; name: Bilingual }>;
+  /** Opens a sibling as a normal voyage — the same path ‹ › stepping takes. */
+  onVoyageToIsland?: (slug: string) => void;
+  /** The xfrontier record this island cites, so the screen can tell the reader
+   *  when that record has been retired upstream. */
+  atlasN?: number;
   /** Signals that the destination scene can safely replace the atlas snapshot. */
   onReady?: () => void;
 }
@@ -161,6 +180,9 @@ export function GeneratedIslandScreen({
   onVisitBuildingFloor,
   onActiveDistrict,
   onActiveFloor,
+  clusterSiblings,
+  onVoyageToIsland,
+  atlasN,
   onReady,
 }: GeneratedIslandScreenProps) {
   const { t, i18n } = useTranslation();
@@ -464,7 +486,34 @@ export function GeneratedIslandScreen({
   const brief = detail.atlas?.brief[lang] ?? '';
   const citation = detail.atlas?.citation;
   const cluster = detail.atlas?.cluster[lang];
+  const retirement = atlasN != null ? retirementFor(atlasN) : undefined;
   const depth = detail.atlas?.depth;
+  /**
+   * Unratified structure proposals for this island.
+   *
+   * Resolved here rather than shipped pre-resolved so the quantity and the
+   * evidence are read out of the authored sources at display time — a proposal
+   * is a pair of pointers, and the reader sees whatever those currently address
+   * or nothing at all.
+   *
+   * A failed resolve is swallowed HERE and only here. That is safe because it
+   * does not guard the authoritative check: `audit-atlas.mjs` resolves every
+   * proposal too and reports failures as their own category ("N FAILED TO
+   * RESOLVE") plus a finding, so a moved pointer surfaces as a named breakage
+   * rather than as a quietly shorter list. The alternative — letting a stale
+   * index throw inside a screen — takes down an island page over a queue item.
+   */
+  const proposals: ResolvedProposal[] = depth
+    ? proposalsFor(slug).flatMap((p) => {
+        const structure = seedStructureById(p.structureId);
+        if (!structure) return [];
+        try {
+          return [resolveProposal(p, { structure, depth })];
+        } catch {
+          return [];
+        }
+      })
+    : [];
   // Server first, offline projection second — same precedence the interior uses.
   const literature = detail.atlas?.literature?.length ? detail.atlas.literature : localLiterature;
   // Server interior first; fall back to the offline atlas when the server omits
@@ -496,7 +545,13 @@ export function GeneratedIslandScreen({
   // Only offer the scrubber when the ledger actually has events to replay.
   const hasReplay = timeline != null && (timeline.eventCountByNight[timeline.nights] ?? 0) > 0;
   const atlasSummary = frontierAtlasBySlug(slug);
-  const atlasN = detail.atlas?.atlasN ?? atlasSummary?.atlasN;
+  // Named apart from the `atlasN` prop on purpose. The prop is what the screen
+  // was TOLD its record is, and the frozen retirement check above reads that one
+  // so a notice can never assert a retirement for a record nobody passed in.
+  // This one is what the loaded data SAYS it is, and only the provenance-row
+  // chip below uses it. Merging the two branches put both in one scope, where
+  // one silently shadowed the other.
+  const resolvedAtlasN = detail.atlas?.atlasN ?? atlasSummary?.atlasN;
   const atlasWithdrawal = detail.atlas?.atlasWithdrawal ?? atlasSummary?.atlasWithdrawal;
   const qfocusBilingual = atlasSummary?.qfocus ?? { zh: qfocus, en: qfocus };
   // Server detail first, deferred static atlas second — the offline twin for a
@@ -672,16 +727,16 @@ export function GeneratedIslandScreen({
                     <span>▤ {t('island.freshness.curated')}</span>
                   ) : <span>{t('island.researchPassage.noEvidence')}</span>}
                   {citation && <a href={citation.url} target="_blank" rel="noopener noreferrer">↗ {citation.venue} · {citation.year}</a>}
-                  {atlasWithdrawal && atlasN && (
+                  {atlasWithdrawal && resolvedAtlasN && (
                     <span
                       data-testid="xfrontier-withdrawal"
                       title={t('island.provenance.withdrawnDetail', {
-                        id: `XF-${String(atlasN).padStart(6, '0')}`,
+                        id: `XF-${String(resolvedAtlasN).padStart(6, '0')}`,
                         version: atlasWithdrawal.datasetVersion,
                         reason: atlasWithdrawal.note[lang],
                       })}
                     >
-                      △ XF-{String(atlasN).padStart(6, '0')} · {t('island.provenance.withdrawn')}
+                      △ XF-{String(resolvedAtlasN).padStart(6, '0')} · {t('island.provenance.withdrawn')}
                     </span>
                   )}
                   {/* 海即数据 decoder: sea darkness = abstractness, agitation = contention;
@@ -695,6 +750,33 @@ export function GeneratedIslandScreen({
                     ? t('island.researchPassage.evidenceAdjudicated', { validates: ledgerStats.validates, refutes: ledgerStats.refutes })
                     : t('island.researchPassage.evidenceBoundary')}</span>
                 </div>
+                {/* The cited record was retired upstream.
+                  *
+                  * This is DISCLOSURE, not a status change: the island keeps
+                  * its status, and nothing here sets `resolved` or dissolves it.
+                  * Until this existed the repository knew a cited source had
+                  * been withdrawn — the audit prints it, a test pins it — and
+                  * told no one who opens the island, which is silent retention
+                  * dressed as a decision.
+                  *
+                  * The note is quoted, untranslated, like every other upstream
+                  * citation on this screen. The scope sentence is the part that
+                  * has to be here: `too_mature_or_applied` is the upstream
+                  * atlas declining to collect deployed programmes, and reading
+                  * it as "answered" contradicts this island's own text, which
+                  * records that perennial-grain yields commonly fall by year
+                  * three and that no yield improvement yet supports parity with
+                  * annual wheat. */}
+                {retirement && (
+                  <p className="fi-island-retired" style={{ margin: '6px 0 0', fontSize: 12, lineHeight: 1.5, opacity: 0.9 }}>
+                    <b>⚠ {t('island.retired.label')}</b>
+                    {' · '}<code>{retirement.reason}</code>
+                    <br />
+                    <span style={{ opacity: 0.85 }}>{retirement.note}</span>
+                    <br />
+                    <i style={{ opacity: 0.8 }}>{t('island.retired.scope')}</i>
+                  </p>
+                )}
               </section>
               {nextDistrict && (
                 <section data-beat="next">
@@ -739,6 +821,130 @@ export function GeneratedIslandScreen({
                       </ul>
                     </>
                   )}
+                </div>
+              </details>
+            )}
+            {/* Same-cluster islands.
+              *
+              * Every island carries an upstream cluster code, so this reaches
+              * all of them — including the ones in no authored relational layer,
+              * which otherwise open to a complete briefing and connect to
+              * nothing. It is projection, not authorship: the corpus filed these
+              * together and this only makes that filing navigable.
+              *
+              * It deliberately does NOT count toward the audit's relational
+              * coverage. That metric measures AUTHORED relations (ferry routes,
+              * structure mappings, ledger currents, interiors), and folding a
+              * derived one into the numerator would make the backlog read as
+              * closed while nothing was authored.
+              *
+              * The copy says "filed together", never "related": this atlas
+              * measured that inferring a structural correspondence from shared
+              * cluster membership fails about nine times in ten (378 of 419
+              * candidates rejected on reading the substrate), so calling these
+              * related would contradict our own recorded evidence.
+              */}
+            {clusterSiblings && clusterSiblings.length > 0 && (
+              <details className="fi-island-cluster" style={{ marginTop: 6, maxWidth: 540 }}>
+                <summary style={{ cursor: 'pointer', fontSize: 12, letterSpacing: '.04em', opacity: 0.82 }}>
+                  {t('island.cluster.title')} · {t('island.cluster.count', { n: clusterSiblings.length })}
+                </summary>
+                <div style={{ marginTop: 6, fontSize: 12.5, lineHeight: 1.55, display: 'grid', gap: 5 }}>
+                  <p style={{ margin: 0, opacity: 0.78 }}>{t('island.cluster.note')}</p>
+                  <ul style={{ margin: 0, paddingLeft: 18, maxHeight: 172, overflowY: 'auto', display: 'grid', gap: 2 }}>
+                    {clusterSiblings.map((sibling) => (
+                      <li key={sibling.slug}>
+                        {/* A button, not a link: this starts an in-app voyage
+                          * through the same path ‹ › stepping uses, so the world
+                          * transition and the shareable hash both stay correct. */}
+                        <button
+                          type="button"
+                          data-testid="cluster-sibling"
+                          onClick={() => onVoyageToIsland?.(sibling.slug)}
+                          style={{
+                            background: 'none', border: 'none', padding: '3px 0',
+                            font: 'inherit', color: 'var(--gold2,#8A6A1E)',
+                            cursor: 'pointer', textAlign: 'left',
+                          }}
+                        >
+                          {sibling.name[lang]}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </details>
+            )}
+            {/* Unratified structure proposals.
+              *
+              * 222 of 371 islands sit in no authored relational layer, and the
+              * obvious remedy is barred: `structures.ts` states its mappings are
+              * the curator's, attached only where an island GENUINELY embodies
+              * the structure, and `architecture.md` gives the ferryman
+              * proposal rights only, with bridges ratified by both masters. So
+              * this shows a queue, not a relation.
+              *
+              * Everything visible below except `check` is resolved from a
+              * pointer into text a human already wrote — the quantity out of the
+              * structure's own correspondences, the evidence out of this
+              * island's own depth. That is what makes it checkable in seconds
+              * rather than a paragraph to be taken on trust.
+              *
+              * A collapsed `details`, matching the two disclosures above.
+              * The first draft was always open, on the reasoning that a queue
+              * nobody opens is no queue — which optimises for the reviewer,
+              * while this card's usual reader is someone exploring the atlas.
+              * Rendered, it was the largest thing on the island: a wall of text
+              * beside two one-line summaries, a third layout language on a
+              * screen that had two. The DOM assertions could not see that; the
+              * screenshot could. Discoverability is carried by the summary
+              * naming the pending count, and by the audit's own line. */}
+            {proposals.length > 0 && (
+              <details className="fi-island-proposal" style={{ marginTop: 6, maxWidth: 540 }}>
+                <summary style={{ cursor: 'pointer', fontSize: 12, letterSpacing: '.04em', opacity: 0.82 }}>
+                  ◇ {t('island.proposal.title')} · {t('island.proposal.count', { n: proposals.length })}
+                </summary>
+                <div style={{ marginTop: 6, fontSize: 12.5, lineHeight: 1.55 }}>
+                {proposals.map((proposal) => (
+                  <div key={`${proposal.structureId}`} data-testid="structure-proposal"
+                    style={{ display: 'grid', gap: 3, padding: '6px 0', borderTop: '1px dashed rgba(138,106,30,0.35)' }}>
+                    <p style={{ margin: 0 }}>
+                      <b>{proposal.structureTitle[lang]}</b>
+                      {' '}<i style={{ opacity: 0.75 }}>({t('island.proposal.unratified')})</i>
+                    </p>
+                    {/* A `breaks` proposal says the structure does NOT reach
+                      * here. Rendering it in the wording of a candidate mapping
+                      * would ship a negative as a positive — the one way this
+                      * layer could actively mislead rather than merely queue. */}
+                    <p style={{ margin: 0, opacity: 0.9 }}>
+                      <b>{t(`island.proposal.relation.${proposal.relation}`)}</b>
+                    </p>
+                    <p style={{ margin: 0, opacity: 0.85 }}>{proposal.structureStatement[lang]}</p>
+                    <p style={{ margin: 0 }}>
+                      <b>{t(proposal.relation === 'breaks' ? 'island.proposal.quantityBreaks' : 'island.proposal.quantity')} · </b>
+                      {proposal.quantity[lang]}
+                    </p>
+                    <p style={{ margin: 0 }}>
+                      <b>{t('island.proposal.evidence')} · </b>
+                      <span style={{ opacity: 0.85 }}>{proposal.evidence.text[lang]}</span>
+                    </p>
+                    <p style={{ margin: 0 }}>
+                      <b>{t('island.proposal.check')} · </b>{proposal.check[lang]}
+                    </p>
+                    <p style={{ margin: 0, opacity: 0.7, fontSize: 11.5 }}>
+                      {t('island.proposal.by', { who: proposal.proposedBy, when: proposal.proposedAt })}
+                    </p>
+                  </div>
+                ))}
+                {/* Per relation: ratifying a `breaks` writes down a gap, it
+                  * does not add a mapping. One shared closing sentence told a
+                  * reader the opposite — found by opening the page, not by the
+                  * assertions, which only checked the heading wording. */}
+                {[...new Set(proposals.map((p) => p.relation))].map((relation) => (
+                  <p key={relation} style={{ margin: '5px 0 0', opacity: 0.72, fontSize: 11.5 }}>
+                    {t(relation === 'breaks' ? 'island.proposal.noteBreaks' : 'island.proposal.note')}
+                  </p>
+                ))}
                 </div>
               </details>
             )}

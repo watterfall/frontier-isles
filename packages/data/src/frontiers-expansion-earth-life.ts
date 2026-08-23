@@ -87,7 +87,7 @@ export const EARTH_LIFE_EXPANSION: FrontierEntry[] = [
     stage: 2,
     members: 4,
     activity: 51,
-    chart: { x: 438, y: 344, scale: 0.88 },
+    chart: { x: 431, y: 350, scale: 0.88 },
   },
   {
     id: 142,
@@ -174,7 +174,7 @@ export const EARTH_LIFE_EXPANSION: FrontierEntry[] = [
     stage: 2,
     members: 4,
     activity: 47,
-    chart: { x: 542, y: 318, scale: 0.86 },
+    chart: { x: 535, y: 297, scale: 0.86 },
   },
   {
     id: 143,
@@ -348,7 +348,7 @@ export const EARTH_LIFE_EXPANSION: FrontierEntry[] = [
     stage: 1,
     members: 4,
     activity: 46,
-    chart: { x: 718, y: 458, scale: 0.86 },
+    chart: { x: 697, y: 483, scale: 0.86 },
   },
   {
     id: 145,
@@ -429,7 +429,7 @@ export const EARTH_LIFE_EXPANSION: FrontierEntry[] = [
     stage: 1,
     members: 3,
     activity: 39,
-    chart: { x: 792, y: 430, scale: 0.82 },
+    chart: { x: 825, y: 421, scale: 0.82 },
   },
   {
     id: 146,
@@ -510,7 +510,7 @@ export const EARTH_LIFE_EXPANSION: FrontierEntry[] = [
     stage: 1,
     members: 4,
     activity: 42,
-    chart: { x: 858, y: 494, scale: 0.84 },
+    chart: { x: 852, y: 482, scale: 0.84 },
   },
   {
     id: 147,
@@ -598,7 +598,7 @@ export const EARTH_LIFE_EXPANSION: FrontierEntry[] = [
     stage: 2,
     members: 5,
     activity: 56,
-    chart: { x: 612, y: 210, scale: 0.9 },
+    chart: { x: 593, y: 193, scale: 0.9 },
   },
   {
     id: 148,
@@ -679,7 +679,7 @@ export const EARTH_LIFE_EXPANSION: FrontierEntry[] = [
     stage: 1,
     members: 4,
     activity: 48,
-    chart: { x: 680, y: 260, scale: 0.86 },
+    chart: { x: 688, y: 248, scale: 0.86 },
   },
   {
     id: 149,
@@ -760,7 +760,7 @@ export const EARTH_LIFE_EXPANSION: FrontierEntry[] = [
     stage: 1,
     members: 3,
     activity: 43,
-    chart: { x: 744, y: 304, scale: 0.83 },
+    chart: { x: 734, y: 296, scale: 0.83 },
   },
   {
     id: 150,
@@ -848,7 +848,7 @@ export const EARTH_LIFE_EXPANSION: FrontierEntry[] = [
     stage: 1,
     members: 5,
     activity: 52,
-    chart: { x: 808, y: 350, scale: 0.88 },
+    chart: { x: 834, y: 354, scale: 0.88 },
   },
   {
     id: 151,
@@ -935,7 +935,7 @@ export const EARTH_LIFE_EXPANSION: FrontierEntry[] = [
     stage: 2,
     members: 5,
     activity: 58,
-    chart: { x: 664, y: 406, scale: 0.9 },
+    chart: { x: 637, y: 400, scale: 0.9 },
   },
   {
     id: 152,
@@ -1016,6 +1016,6 @@ export const EARTH_LIFE_EXPANSION: FrontierEntry[] = [
     stage: 1,
     members: 4,
     activity: 49,
-    chart: { x: 728, y: 520, scale: 0.87 },
+    chart: { x: 732, y: 539, scale: 0.87 },
   },
 ];

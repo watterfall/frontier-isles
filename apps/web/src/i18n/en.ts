@@ -257,6 +257,52 @@ export const en: Resources = {
       subQuestions: 'Related open questions',
       literature: 'References',
     },
+    retired: {
+      label: 'The upstream corpus retired this source record',
+      // The crux, and the reason this is shown rather than acted on: the
+      // upstream reason speaks about the ATLAS's inclusion scope, not about the
+      // question. Both can hold at once — the programme really is deployed, and
+      // it really has not reached parity — and the tension is the information.
+      scope: 'That is the upstream atlas’s inclusion scope speaking — it does not collect deployed programmes — not a finding that the question has been answered. This island’s status is unchanged.',
+    },
+    cluster: {
+      title: 'Same cluster',
+      // `n`, not `count`: i18next reserves `count` for plural resolution and
+      // would look for `_one` / `_other` variants that do not exist here.
+      count: '{{n}} more',
+      // Deliberately not "related problems". Shared cluster membership is the
+      // corpus's own filing, and this atlas measured what it does NOT support:
+      // inferring a structural correspondence from it fails about nine in ten.
+      note: 'The corpus files them together — a filing, not a verified link.',
+    },
+    proposal: {
+      // "Awaiting ratification", never "related": this is a queue item, not an
+      // established relation. Any wording that reads as confirmed turns a queue
+      // into coverage, which is the substitution this whole layer avoids.
+      title: 'Structure proposal · awaiting human ratification',
+      // `n`, not `count` — i18next reserves `count` for plural resolution.
+      count: '{{n}} pending',
+      unratified: 'not ratified',
+      // Both the quantity and the evidence are resolved from pointers into
+      // already-authored text; neither is written here.
+      // The two kinds must not read alike. Showing "breaks" in the wording of
+      // "embodies" ships a negative as a positive, which is worse than showing
+      // nothing at all.
+      relation: {
+        embodies: 'Candidate: this island may embody the structure',
+        breaks: 'Candidate: this island may be where the structure fails',
+      },
+      quantity: 'The quantity this structure requires',
+      quantityBreaks: 'The quantity this structure requires and this island may lack',
+      evidence: 'Where this island\'s own text meets it',
+      check: 'What must be settled before ratifying',
+      by: 'Proposed by {{who}} on {{when}}',
+      note: 'This counts toward no relational layer for this island. Ratifying it means a person writing a real mapping — correspondences, prediction, boundary — not moving this text across.',
+      // Ratifying a negative produces a recorded gap, not a mapping. Reusing
+      // the sentence above would tell a reader that accepting it adds a
+      // connection, which is the opposite of what happens.
+      noteBreaks: 'This counts toward no relational layer for this island, and will not after ratification either. It records that the structure does not reach here; ratifying means writing that gap down so the next person does not have to try it again.',
+    },
     district: {
       title: 'Island map',
       fold: 'Fold',

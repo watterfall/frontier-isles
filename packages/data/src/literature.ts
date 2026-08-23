@@ -706,6 +706,749 @@ const LITERATURE_BY_SLUG: Record<string, IslandReference[]> = {
     { title: "WireTap: Breaking Server SGX via DRAM Bus Interposition", venue: "The Hacker News / academic disclosure", year: 2025, url: "https://thehackernews.com/2025/10/new-wiretap-attack-extracts-intel-sgx.html" },
     { title: "TEE.Fail: New Side-Channel Attack Extracts Secrets from Intel and AMD DDR5 Secure Enclaves", venue: "The Hacker News / academic disclosure", year: 2025, url: "https://thehackernews.com/2025/10/new-teefail-side-channel-attack.html" },
   ],
+  "symmetry-origin-hierarchical-emergence-via-equivariance": [
+    { title: "Symmetry-Driven Hierarchical Emergence (paper analysis)", venue: "EmergentMind", year: 2025, url: "https://www.emergentmind.com/papers/2512.00984" },
+  ],
+  "topology-state-coevolution-adaptive-networks": [
+    { title: "Adaptive coevolutionary networks: a review", venue: "Journal of The Royal Society Interface", year: 2007, url: "https://doi.org/10.1098/rsif.2007.1229" },
+    { title: "Nonequilibrium phase transition in the coevolution of networks and opinions", venue: "Physical Review E", year: 2006, url: "https://doi.org/10.1103/PhysRevE.74.056108" },
+  ],
+  "multi-agent-credit-assignment-under-shared": [
+    { title: "Counterfactual Multi-Agent Policy Gradients", venue: "Proceedings of the AAAI Conference on Artificial Intelligence", year: 2018, url: "https://doi.org/10.1609/aaai.v32i1.11794" },
+    { title: "Credit Assignment For Collective Multiagent RL With Global Rewards", venue: "Advances in Neural Information Processing Systems", year: 2018, url: "https://papers.neurips.cc/paper_files/paper/2018/hash/94bb077f18daa6620efa5cf6e6f178d2-Abstract.html" },
+  ],
+  "graph-neural-networks-characterizing-algebraic": [
+    { title: "Machines and Mathematical Mutations (OpenReview, ICML 2025)", venue: "ICML 2025 (OpenReview)", year: 2025, url: "https://openreview.net/forum?id=fIf2xt4GXZ" },
+  ],
+  "automated-repair-evolving-formal-proof": [
+    { title: "Adapting proof automation to adapt proofs", venue: "Proceedings of the 7th ACM SIGPLAN International Conference on Certified Programs and Proofs", year: 2018, url: "https://doi.org/10.1145/3176245.3167094" },
+    { title: "Proof repair across type equivalences", venue: "Proceedings of the 42nd ACM SIGPLAN International Conference on Programming Language Design and Implementation", year: 2021, url: "https://doi.org/10.1145/3453483.3454033" },
+  ],
+  "beam-bottle-discrepancy-free-neutron-lifetime": [
+    { title: "Improved Determination of the Neutron Lifetime", venue: "Physical Review Letters", year: 2013, url: "https://doi.org/10.1103/PhysRevLett.111.222501" },
+    { title: "Measurement of the neutron lifetime using a magneto-gravitational trap and in situ detection", venue: "Science", year: 2018, url: "https://doi.org/10.1126/science.aan8895" },
+  ],
+  "synthetic-control-methods-transplanted-ecological-interventions": [
+    { title: "Evaluating natural experiments in ecology: using synthetic controls in assessments of remotely sensed land treatments", venue: "Ecological Applications", year: 2021, url: "https://doi.org/10.1002/eap.2264" },
+    { title: "Evaluating the impact of private land conservation with synthetic control design", venue: "Conservation Biology", year: 2023, url: "https://doi.org/10.1111/cobi.14150" },
+  ],
+  "ambient-seismic-interferometry-transplanted-subglacial": [
+    { title: "Firn seismic anisotropy in the Northeast Greenland Ice Stream from ambient-noise surface waves", venue: "The Cryosphere", year: 2024, url: "https://tc.copernicus.org/articles/18/4917/2024/" },
+    { title: "Towards the systematic reconnaissance of seismic signals from glaciers and ice sheets – Part 1: Event detection for cryoseismology", venue: "The Cryosphere", year: 2024, url: "https://tc.copernicus.org/articles/18/2061/2024/" },
+  ],
+  "occupancy-models-transplanted-pathogen-surveillance": [
+    { title: "Site-occupancy modelling as a novel framework for assessing test sensitivity and estimating wildlife disease prevalence from imperfect diagnostic tests", venue: "Methods in Ecology and Evolution", year: 2011, url: "https://doi.org/10.1111/j.2041-210x.2011.00156.x" },
+    { title: "Occupancy Modeling for Improved Accuracy and Understanding of Pathogen Prevalence and Dynamics", venue: "PLOS ONE", year: 2015, url: "https://doi.org/10.1371/journal.pone.0116605" },
+  ],
+  "item-response-theory-transplanted-ai": [
+    { title: "Item response theory in AI: Analysing machine learning classifiers at the instance level", venue: "Artificial Intelligence", year: 2019, url: "https://doi.org/10.1016/j.artint.2018.09.004" },
+    { title: "Novel applications of item response theory for analysing data set complexity and benchmark selection", venue: "Machine Learning", year: 2025, url: "https://doi.org/10.1007/s10994-025-06873-3" },
+  ],
+  "saes-scientific-instrument-turning-interpretability": [
+    { title: "InterPLM: Discovering Interpretable Features in Protein Language Models via Sparse Autoencoders", venue: "bioRxiv", year: 2024, url: "https://www.biorxiv.org/content/10.1101/2024.11.14.623630.full.pdf" },
+    { title: "Towards Open-Ended Visual Scientific Discovery with Sparse Autoencoders", venue: "arXiv", year: 2025, url: "https://arxiv.org/abs/2511.17735" },
+  ],
+  "cross-layer-transcoders-attribution-graphs-dissecting": [
+    { title: "On the Biology of a Large Language Model", venue: "Transformer Circuits (Anthropic)", year: 2025, url: "https://transformer-circuits.pub/2025/attribution-graphs/biology.html" },
+    { title: "Open-sourcing circuit-tracing tools", venue: "Anthropic", year: 2025, url: "https://www.anthropic.com/research/open-source-circuit-tracing" },
+  ],
+  "dendritic-computing-neuromorphic-circuits": [
+    { title: "Power-efficient neural network with artificial dendrites", venue: "Nature Nanotechnology", year: 2020, url: "https://doi.org/10.1038/s41565-020-0722-5" },
+    { title: "Fully Hardware Memristive Neuromorphic Computing Enabled by the Integration of Trainable Dendritic Neurons and High-Density RRAM Chip", venue: "Advanced Functional Materials", year: 2024, url: "https://doi.org/10.1002/adfm.202405618" },
+  ],
+  "computational-chemical-space-monitoring-novel-entities-boundary": [
+    { title: "Outside the Safe Operating Space of the Planetary Boundary for Novel Entities", venue: "Environmental Science & Technology", year: 2022, url: "https://pubs.acs.org/doi/10.1021/acs.est.1c04158" },
+    { title: "Planetary boundaries for recalcitrant materials and toxic chemical pollutants: specifications for sustainable safe operating zones", venue: "Frontiers in Environmental Science", year: 2025, url: "https://www.frontiersin.org/journals/environmental-science/articles/10.3389/fenvs.2025.1593947/full" },
+  ],
+  "equation-free-causal-reconstruction-empirical-dynamic": [
+    { title: "Causal inference from cross-sectional earth system data with geographical convergent cross mapping", venue: "Nature Communications 14", year: 2023, url: "https://www.nature.com/articles/s41467-023-41619-6" },
+    { title: "Recent developments in empirical dynamic modelling", venue: "Methods in Ecology and Evolution", year: 2023, url: "https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.13983" },
+  ],
+  "renewable-energy-drought-dunkelflaute-risk": [
+    { title: "Measuring the Dunkelflaute: how (not) to analyze variable renewable energy shortage", venue: "Environmental Research: Energy", year: 2024, url: "https://iopscience.iop.org/article/10.1088/2753-3751/ad6dfc" },
+    { title: "Quantifying the Dunkelflaute: An analysis of variable renewable energy droughts in Europe", venue: "arXiv", year: 2024, url: "https://arxiv.org/abs/2410.00244" },
+  ],
+  "falsifiable-early-warning-science": [
+    { title: "Uncertainties too large to predict tipping times of major Earth system components from historical data", venue: "Science Advances", year: 2024, url: "https://doi.org/10.1126/sciadv.adl4841" },
+    { title: "Tipping point detection and early warnings in climate, ecological, and human systems", venue: "Earth System Dynamics", year: 2024, url: "https://esd.copernicus.org/articles/15/1117/2024/" },
+  ],
+  "worst-case-verification-grid-optimization-proxies": [
+    { title: "Scalable Exact Verification of Optimization Proxies for Large-Scale Optimal Power Flow", venue: "arXiv", year: 2024, url: "https://arxiv.org/abs/2405.06109" },
+    { title: "Compact Optimality Verification for Optimization Proxies", venue: "arXiv", year: 2024, url: "https://arxiv.org/abs/2405.21023" },
+  ],
+  "bio-inspired-structural-materials-lightweight-high-strength": [
+    { title: "Review Bio-inspired nacre and helicoidal composites", venue: "Thin-Walled Structures", year: 2023, url: "https://www.sciencedirect.com/science/article/abs/pii/S0263823123006249" },
+    { title: "Bioinspired Additive Manufacturing of Hierarchical Materials: From Biostructures to Functions", venue: "Research", year: 2023, url: "https://spj.science.org/doi/10.34133/research.0164" },
+  ],
+  "long-term-evolutionary-stability-engineered-living": [
+    { title: "Methods for measuring the evolutionary stability of engineered genomes to improve their longevity", venue: "Synthetic Biology", year: 2021, url: "https://doi.org/10.1093/synbio/ysab018" },
+  ],
+  "engineered-living-photonic-materials": [
+    { title: "Self-growing photonic composites with programmable colors and mechanical properties", venue: "Nature Communications", year: 2022, url: "https://doi.org/10.1038/s41467-022-35555-0" },
+  ],
+  "enzyme-immobilized-cell-free-catalytic-materials": [
+    { title: "Carrier‐Free Immobilization of Multi‐Enzyme Complex Facilitates In Vitro Synthetic Enzymatic Biosystem for Biomanufacturing", venue: "ChemSusChem", year: 2023, url: "https://doi.org/10.1002/cssc.202202153" },
+  ],
+  "mechanochemically-controlled-molecular-machines": [
+    { title: "Synthetic oligorotaxanes exert high forces when folding under mechanical load", venue: "Nature Nanotechnology", year: 2018, url: "https://doi.org/10.1038/s41565-017-0033-7" },
+  ],
+  "single-molecule-detection-measurement": [
+    { title: "Single-molecule force spectroscopy: optical tweezers, magnetic tweezers and atomic force microscopy", venue: "Nature Methods", year: 2008, url: "https://www.nature.com/articles/nmeth.1218" },
+    { title: "Recent Advances in Single-Molecule Tracking and Imaging Techniques", venue: "Annual Review of Analytical Chemistry", year: 2024, url: "https://www.annualreviews.org/content/journals/10.1146/annurev-anchem-091922-073057" },
+    { title: "Single-Molecule Detection Technologies: Advances in Devices, Transduction Mechanisms, and Functional Materials", venue: "Biosensors (MDPI)", year: 2025, url: "https://www.mdpi.com/2079-6374/15/10/696" },
+  ],
+  "single-molecule-protein-sequencing": [
+    { title: "Single Molecule Protein Segments Sequencing by a Plasmonic Nanopore", venue: "Nano Letters", year: 2023, url: "https://doi.org/10.1021/acs.nanolett.3c00086" },
+  ],
+  "dna-origami-nanopores-programmable-molecular-gates": [
+    { title: "Compliant DNA Origami Nanoactuators as Size‐Selective Nanopores", venue: "Advanced Materials", year: 2024, url: "https://doi.org/10.1002/adma.202405104" },
+  ],
+  "organic-electrochemical-transistors-barrier-tissue-integrity": [
+    { title: "Measurement of Barrier Tissue Integrity with an Organic Electrochemical Transistor", venue: "Advanced Materials", year: 2012, url: "https://doi.org/10.1002/adma.201202612" },
+  ],
+  "electromicrobiology-centimeter-scale-living-nickel-protein-wires": [
+    { title: "Long-distance electron transport in multicellular freshwater cable bacteria", venue: "eLife", year: 2024, url: "https://elifesciences.org/articles/91097" },
+    { title: "Temperature-Dependent Characterization of Long-Range Conduction in Conductive Protein Fibers of Cable Bacteria", venue: "ACS Nano", year: 2024, url: "https://pubs.acs.org/doi/10.1021/acsnano.4c12186" },
+  ],
+  "synthetic-electromicrobiology-programmable-extracellular-electron": [
+    { title: "Identification of factors limiting the efficiency of transplanting extracellular electron transfer chains in Escherichia coli", venue: "Applied and Environmental Microbiology", year: 2025, url: "https://doi.org/10.1128/aem.00685-25" },
+    { title: "Engineering extracellular electron transfer pathways of electroactive microorganisms by synthetic biology for energy and chemicals production", venue: "Chemical Society Reviews", year: 2024, url: "https://pubs.rsc.org/en/content/articlelanding/2024/cs/d3cs00537b" },
+  ],
+  "electro-fermentation-cellular-redox-state-control": [
+    { title: "Electrochemically Driven Fermentation of Organic Substrates with Undefined Mixed Microbial Cultures", venue: "ChemSusChem", year: 2017, url: "https://doi.org/10.1002/cssc.201700360" },
+    { title: "Electro-fermentation regulates mixed culture chain elongation with fresh and acclimated cathode", venue: "Energy Conversion and Management", year: 2020, url: "https://doi.org/10.1016/j.enconman.2019.112285" },
+  ],
+  "relativistic-geodesy-optical-atomic-clocks": [
+    { title: "Geodesy and metrology with a transportable optical clock", venue: "Nature Physics", year: 2018, url: "https://doi.org/10.1038/s41567-017-0042-3" },
+    { title: "Test of general relativity by a pair of transportable optical lattice clocks", venue: "Nature Photonics", year: 2020, url: "https://doi.org/10.1038/s41566-020-0619-8" },
+  ],
+  "spin-chemistry-radical-pair-quantum-biology": [
+    { title: "Magnetosensitivity of tightly bound radical pairs in cryptochrome is enabled by the quantum Zeno effect", venue: "Nature Communications", year: 2024, url: "https://www.nature.com/articles/s41467-024-55124-x" },
+    { title: "Physical Principles of Quantum Biology", venue: "arXiv", year: 2025, url: "https://arxiv.org/pdf/2503.11747" },
+  ],
+  "transversal-gate-algorithmic-fault-tolerance-logical-qubit": [
+    { title: "Correlated Decoding of Logical Algorithms with Transversal Gates", venue: "Physical Review Letters", year: 2024, url: "https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.133.240602" },
+    { title: "Algorithmic Fault Tolerance for Fast Quantum Computing", venue: "arXiv (Harvard/QuEra)", year: 2024, url: "https://arxiv.org/abs/2406.17653" },
+  ],
+  "multistable-programming-origami-kirigami-structures": [
+    { title: "Digitized design and mechanical property reprogrammability of multistable origami metamaterials", venue: "Journal of the Mechanics and Physics of Solids", year: 2023, url: "https://doi.org/10.1016/j.jmps.2023.105237" },
+    { title: "Origami-based tunable mechanical memory metamaterial for vibration attenuation", venue: "Mechanical Systems and Signal Processing", year: 2023, url: "https://doi.org/10.1016/j.ymssp.2022.110033" },
+  ],
+  "active-matter-self-propelled-particles": [
+    { title: "Time irreversibility in active matter, from micro to macro", venue: "Nature Reviews Physics", year: 2022, url: "https://www.nature.com/articles/s42254-021-00406-2" },
+    { title: "Bacterial active matter", venue: "Reports on Progress in Physics", year: 2022, url: "https://iopscience.iop.org/article/10.1088/1361-6633/ac723d" },
+  ],
+  "non-hermitian-reconfigurable-metasurfaces-exceptional-point-engineering": [
+    { title: "Electrically tunable topological phase transition in non-Hermitian optical MEMS metasurfaces", venue: "Science Advances", year: 2024, url: "https://www.science.org/doi/10.1126/sciadv.adl4661" },
+    { title: "Resonant and scattering exceptional points in non-Hermitian metasurfaces", venue: "npj Nanophotonics", year: 2025, url: "https://www.nature.com/articles/s44310-025-00073-6" },
+  ],
+  "momentum-bandgap-topology-k-gap-amplification-photonic": [
+    { title: "Expanding momentum bandgaps in photonic time crystals through resonances", venue: "Nature Photonics", year: 2024, url: "https://www.nature.com/articles/s41566-024-01563-3" },
+    { title: "Observation of momentum-gap topology of light at temporal interfaces in a time-synthetic lattice", venue: "Nature Communications", year: 2025, url: "https://www.nature.com/articles/s41467-025-56021-7" },
+  ],
+  "closed-loop-geothermal-supercritical-co-working": [
+    { title: "Research Progress on CO2 as Geothermal Working Fluid: A Review", venue: "Energies (MDPI)", year: 2024, url: "https://www.mdpi.com/1996-1073/17/21/5415" },
+    { title: "Integrated modelling of CO2 plume geothermal energy systems in carbonate reservoirs: technology, operations, economics and sustainability", venue: "Renewable Energy (Elsevier)", year: 2024, url: "https://www.sciencedirect.com/science/article/abs/pii/S0960148124012308" },
+  ],
+  "circular-metal-fuels-iron-powder-energy": [
+    { title: "Towards an efficient metal energy carrier for zero-emission heating and power: Iron powder combustion", venue: "Combustion and Flame", year: 2024, url: "https://doi.org/10.1016/j.combustflame.2024.113655" },
+    { title: "Cyclic reduction of combusted iron powder: A study on the material properties and conversion reaction in the iron fuel cycle", venue: "Powder Technology", year: 2024, url: "https://doi.org/10.1016/j.powtec.2024.119786" },
+  ],
+  "reservoir-thermal-energy-storage-cooling": [
+    { title: "Techno-economic feasibility of borehole thermal energy storage system connected to geothermal heat pumps for seasonal heating load of two buildings in Fairbanks, Alaska", venue: "Energy and Buildings", year: 2025, url: "https://www.osti.gov/pages/biblio/2574720" },
+    { title: "Status and challenges of deep geothermal exploitation and energy storage technology: a comprehensive review", venue: "GeoEnergy Communications (Springer)", year: 2025, url: "https://link.springer.com/article/10.1007/s44421-025-00004-3" },
+  ],
+  "bioaerosol-atmosphere-coupling-living-microbes": [
+    { title: "Terrestrial runoff is an important source of biological ice-nucleating particles in Arctic marine systems", venue: "Atmospheric Chemistry and Physics", year: 2025, url: "https://acp.copernicus.org/articles/25/3327/2025/" },
+  ],
+  "de-novo-design-transmembrane-pores": [
+    { title: "Computational design of transmembrane pores", venue: "Nature", year: 2020, url: "https://doi.org/10.1038/s41586-020-2646-5" },
+    { title: "Water, Solute, and Ion Transport in De Novo-Designed Membrane Protein Channels", venue: "ACS Nano", year: 2024, url: "https://doi.org/10.1021/acsnano.4c11317" },
+  ],
+  "generative-emulation-protein-equilibrium-ensembles": [
+    { title: "microsoft/bioemu — inference code (open source, MIT)", venue: "GitHub / Microsoft Research", year: 2025, url: "https://github.com/microsoft/bioemu" },
+    { title: "Scalable emulation of protein equilibrium ensembles (preprint)", venue: "bioRxiv", year: 2024, url: "https://www.biorxiv.org/content/10.1101/2024.12.05.626885" },
+  ],
+  "inverse-design-sequence-ensemble-function": [
+    { title: "Transferable deep generative modeling of intrinsically disordered protein conformations", venue: "PLOS Computational Biology", year: 2024, url: "https://doi.org/10.1371/journal.pcbi.1012144" },
+    { title: "Design of intrinsically disordered protein variants with diverse structural properties", venue: "Science Advances", year: 2024, url: "https://doi.org/10.1126/sciadv.adm9926" },
+  ],
+  "crowdsourced-open-protein-design-competitions-shared": [
+    { title: "Protein Optimization 102: Lessons from the protein design competition", venue: "Adaptyv Bio", year: 2024, url: "https://www.adaptyvbio.com/blog/po102/" },
+  ],
+  "open-source-silicon-roots-trust": [
+    { title: "OpenTitan Partnership Makes History as First Open-Source Silicon Project to Reach Commercial Availability", venue: "lowRISC", year: 2024, url: "https://lowrisc.org/news/opentitan-commercial-availability/" },
+    { title: "Caliptra 2.1: An Open-Source Silicon Root of Trust With Enhanced Protection of Data At-Rest", venue: "Microsoft Azure Infrastructure Blog", year: 2025, url: "https://techcommunity.microsoft.com/blog/azureinfrastructureblog/caliptra-2-1-an-open-source-silicon-root-of-trust-with-enhanced-protection-of-da/4460758" },
+    { title: "OpenTitan shipping in production", venue: "Google Open Source Blog", year: 2026, url: "https://opensource.googleblog.com/2026/03/opentitan-shipping-in-production.html" },
+  ],
+  "side-channel-fault-hardened-post-quantum-implementations": [
+    { title: "A side-channel attack on a masked hardware implementation of CRYSTALS-Kyber", venue: "Journal of Cryptographic Engineering", year: 2025, url: "https://doi.org/10.1007/s13389-025-00375-7" },
+    { title: "SoK: How (not) to Design and Implement Post-quantum Cryptography", venue: "CT-RSA", year: 2021, url: "https://doi.org/10.1007/978-3-030-75539-3_19" },
+  ],
+  "silent-preprocessing-mpc-via-pseudorandom-correlation": [
+    { title: "FOLEAGE: F4-OLE-Based Multi-Party Computation for Boolean Circuits", venue: "ASIACRYPT 2024 (IACR ePrint 2024/429)", year: 2024, url: "https://eprint.iacr.org/2024/429" },
+    { title: "Efficient Pseudorandom Correlation Generators: Silent OT Extension and More", venue: "CRYPTO 2019 (IACR ePrint 2019/448)", year: 2019, url: "https://eprint.iacr.org/2019/448" },
+  ],
+  "calibrated-uncertainty-help-seeking-robot-policies": [
+    { title: "Ask4Help: Learning to Leverage an Expert for Embodied Tasks", venue: "Advances in Neural Information Processing Systems", year: 2022, url: "https://openreview.net/forum?id=_bqtjfpj8h" },
+    { title: "AVLEN: Audio-Visual-Language Embodied Navigation in 3D Environments", venue: "Advances in Neural Information Processing Systems", year: 2022, url: "https://openreview.net/forum?id=1Re5RKwpieG" },
+  ],
+  "post-deployment-continual-adaptation-retention-testing": [
+    { title: "Never Stop Learning: The Effectiveness of Fine-Tuning in Robotic Reinforcement Learning", venue: "Conference on Robot Learning", year: 2021, url: "https://proceedings.mlr.press/v155/julian21a.html" },
+    { title: "Mitigating Catastrophic Forgetting in Robot Continual Learning: A Guided Policy Search Approach Enhanced With Memory-Aware Synapses", venue: "IEEE Robotics and Automation Letters", year: 2024, url: "https://doi.org/10.1109/LRA.2024.3487484" },
+  ],
+  "autonomous-real-robot-evaluation-networks-distributed": [
+    { title: "RoboArena: Distributed Real-World Evaluation of Generalist Robot Policies", venue: "CoRL 2025 (PMLR v305)", year: 2025, url: "https://arxiv.org/abs/2506.18123" },
+  ],
+  "tactile-force-vla-contact-physics-foundation-models": [
+    { title: "ForceVLA: Enhancing VLA Models with a Force-aware MoE for Contact-rich Manipulation", venue: "OpenReview", year: 2025, url: "https://openreview.net/pdf?id=2845H8Ua5D" },
+  ],
+  "genetic-firewalls-non-standard-amino-acid-obligate-commensalism": [
+    { title: "Sense codon reassignment enables viral resistance and encoded polymer synthesis", venue: "Science", year: 2021, url: "https://www.science.org/doi/10.1126/science.abg3029" },
+    { title: "A swapped genetic code prevents viral infections and gene transfer", venue: "Nature", year: 2023, url: "https://www.nature.com/articles/s41586-023-05824-z" },
+  ],
+  "cybergenetics-real-time-feedback-control-living": [
+    { title: "Cybergenetics: the new field of control systems for living cells (Khammash Lab)", venue: "ETH Zurich", year: 2025, url: "https://bsse.ethz.ch/ctsb/research/cybergenetics.html" },
+    { title: "Closed-loop Optogenetic Control in a Microplate Reader (LEMOS)", venue: "bioRxiv", year: 2025, url: "https://doi.org/10.1101/2025.09.22.677797" },
+  ],
+  "living-molecular-diagnostics-in-body-dna": [
+    { title: "Engineered bacteria detect tumor DNA (full text)", venue: "Science / PMC", year: 2023, url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC10852993/" },
+  ],
+  "cybergenetics-closed-loop-feedback-control-living": [
+    { title: "Cascaded Antithetic Integral Feedback for Enhanced Stability and Performance", venue: "bioRxiv", year: 2024, url: "https://doi.org/10.1101/2024.07.31.605983" },
+    { title: "Feed-forward loop improves the transient dynamics of an antithetic biological controller", venue: "Journal of the Royal Society Interface", year: 2025, url: "https://doi.org/10.1098/rsif.2024.0467" },
+  ],
+  "fungal-mycelial-physical-reservoir-computing": [
+    { title: "Morphologically Tunable Mycelium Chips for Physical Reservoir Computing", venue: "bioRxiv", year: 2025, url: "https://www.biorxiv.org/content/10.1101/2025.08.20.671348v1.full" },
+    { title: "Mycelium as a computational medium: a framework for growth modeling towards reservoir computing", venue: "Natural Computing (Springer)", year: 2025, url: "https://link.springer.com/article/10.1007/s11047-025-10040-x" },
+  ],
+  "preventive-complexity-cap-governance-real-time-red": [
+    { title: "As brain organoids grow increasingly complex, leading scientists and bioethicists call for global oversight", venue: "STAT News", year: 2025, url: "https://www.statnews.com/2025/11/06/neural-organoid-ethics-global-oversight-needed/" },
+    { title: "Ethics and Regulation of Human Brain Organoid Research: Recommendations from the Asia Pacific Neuroethics Working Group", venue: "Asian Bioethics Review", year: 2025, url: "https://link.springer.com/article/10.1007/s41649-025-00398-6" },
+  ],
+  "decentralized-biobanking-organoid-donor-provenance": [
+    { title: "Non-Fungible Tokens for Organoids: Decentralized Biobanking to Empower Patients in Biospecimen Research", venue: "PubMed (peer-reviewed)", year: 2024, url: "https://pubmed.ncbi.nlm.nih.gov/38715762/" },
+    { title: "Decentralized Biobanking to Empower Patient Engagement in Biospecimen Research: Operational Feasibility Case Study", venue: "SAGE Journals", year: 2025, url: "https://journals.sagepub.com/doi/10.1177/19475535251384429" },
+  ],
+  "hyperspectral-mapping-biodiversity-functional-traits": [
+    { title: "Assessing biodiversity from space: Impact of spatial and spectral resolution on trait-based functional diversity", venue: "Remote Sensing of Environment", year: 2022, url: "https://doi.org/10.1016/j.rse.2022.113024" },
+  ],
+  "animals-planetary-sensors-internet-animals": [
+    { title: "How tracking animal movement may save the planet", venue: "MIT Technology Review", year: 2024, url: "https://www.technologyreview.com/2024/02/22/1088116/internet-of-animals-movement-research-earth/" },
+    { title: "ICARUS—Very Low Power Satellite-Based IoT", venue: "Sensors (MDPI)", year: 2022, url: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9460258/" },
+  ],
+  "ecosystem-chemical-exposome-environmental-metabolomics": [
+    { title: "Enhancing Molecular Characterization of Dissolved Organic Matter by Integrative Direct Infusion and Liquid Chromatography Nontargeted Workflows", venue: "Environmental Science & Technology", year: 2024, url: "https://pubs.acs.org/doi/10.1021/acs.est.4c00876" },
+  ],
+  "lifetime-performance-metrology-biohybrid-robots": [
+    { title: "Biohybrid actuators in robotics: recent trends and future perspectives of skeletal and cardiac muscle integration", venue: "npj Robotics", year: 2025, url: "https://doi.org/10.1038/s44182-025-00049-w" },
+  ],
+  "fungal-mycelium-controlled-biohybrid-robots": [
+    { title: "Biohybrid robots controlled by electrical impulses — in mushrooms", venue: "Cornell Chronicle", year: 2024, url: "https://news.cornell.edu/stories/2024/08/biohybrid-robots-controlled-electrical-impulses-mushrooms" },
+  ],
+  "innervated-trainable-biohybrid-actuators-neuromuscular-junction": [
+    { title: "Soft Biological Actuators for Meter-Scale Homeostatic Biohybrid Robots", venue: "Chemical Reviews", year: 2025, url: "https://pubs.acs.org/doi/abs/10.1021/acs.chemrev.4c00785" },
+    { title: "Hitting the Gym: Reinforcement Learning Control of Exercise-Strengthened Biohybrid Robots in Simulation", venue: "arXiv", year: 2024, url: "https://arxiv.org/pdf/2408.16069" },
+  ],
+  "chemical-navigation-robots-guided-insect-olfactory": [
+    { title: "Advanced bio-hybrid drone for superior odor-source localization: high-precision and extended-range detection capabilities", venue: "npj Robotics", year: 2025, url: "https://doi.org/10.1038/s44182-025-00020-9" },
+  ],
+  "bio-inspired-swarm-robotics": [
+    { title: "Swarm Robotics: A Perspective on the Latest Reviewed Concepts and Applications", venue: "Sensors", year: 2021, url: "https://www.mdpi.com/1424-8220/21/6/2062" },
+    { title: "Recent trends in robot learning and evolution for swarm robotics", venue: "Frontiers in Robotics and AI", year: 2023, url: "https://www.frontiersin.org/journals/robotics-and-ai/articles/10.3389/frobt.2023.1134841/full" },
+  ],
+  "field-deployable-crispr-environmental-biosensing": [
+    { title: "CRISPR as a next-generation environmental biosurveillance tool for air, land, and water", venue: "Trends in Biotechnology", year: 2025, url: "https://www.sciencedirect.com/science/article/abs/pii/S0167779925004883" },
+    { title: "A minimally invasive, field-applicable CRISPR/Cas biosensor to aid in the detection of Pseudogymnoascus destructans, the causative fungal agent of white-nose syndrome in bats", venue: "U.S. Geological Survey", year: 2024, url: "https://www.usgs.gov/publications/a-minimally-invasive-field-applicable-crisprcas-biosensor-aid-detection" },
+  ],
+  "tear-sensing-smart-contact-lenses": [
+    { title: "Wearable smart sensor systems integrated on soft contact lenses for wireless ocular diagnostics", venue: "Nature Communications", year: 2017, url: "https://doi.org/10.1038/ncomms14997" },
+    { title: "Plasmonic smart contact lens based on etalon nanostructure for tear glucose sensing", venue: "Scientific Reports", year: 2025, url: "https://doi.org/10.1038/s41598-025-99624-2" },
+  ],
+  "freeze-dried-cell-free-biosensors-field-deployment": [
+    { title: "Engineering the Signal Resolution of a Paper-Based Cell-Free Glutamine Biosensor with Genetic Engineering, Metabolic Engineering, and Process Optimization", venue: "Sensors", year: 2024, url: "https://doi.org/10.3390/s24103073" },
+  ],
+  "distributed-diagnostic-data-networks": [
+    { title: "Using big data analytics to extract disease surveillance information from point of care diagnostic machines", venue: "Pervasive and Mobile Computing", year: 2018, url: "https://sciencedirect.com/science/article/abs/pii/S1574119217303140" },
+    { title: "Beyond diagnostic connectivity: Leveraging digital health technology for the real-time collection and provision of high-quality actionable data on infectious diseases in Uganda", venue: "PLOS Global Public Health", year: 2024, url: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11343378/" },
+    { title: "Data and Digital Solutions to Support Surveillance Strategies in the Context of the COVID-19 Pandemic", venue: "Frontiers in Digital Health", year: 2021, url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC8522016/" },
+  ],
+  "transcranial-acoustoelectric-brain-imaging-tabi": [
+    { title: "Biological current source imaging method based on acoustoelectric effect: A systematic review", venue: "Frontiers in Neuroscience", year: 2022, url: "https://www.frontiersin.org/journals/neuroscience/articles/10.3389/fnins.2022.807376/full" },
+  ],
+  "connectomics-whole-brain-atlases": [
+    { title: "Network statistics of the whole-brain connectome of Drosophila", venue: "Nature", year: 2024, url: "https://www.nature.com/articles/s41586-024-07968-y" },
+  ],
+  "functional-ultrasound-brain-machine-interface-fus-bmi": [
+    { title: "The Emergence of Functional Ultrasound for Noninvasive Brain–Computer Interface", venue: "Research (AAAS)", year: 2023, url: "https://spj.science.org/doi/10.34133/research.0200" },
+    { title: "Functional ultrasound imaging of human brain activity through an acoustically transparent cranial window", venue: "Science Translational Medicine", year: 2024, url: "https://www.science.org/doi/10.1126/scitranslmed.adj3143" },
+  ],
+  "tonal-full-spectrum-mandarin-speech-neuroprostheses": [
+    { title: "A brain-to-text framework for decoding natural tonal sentences", venue: "Cell Reports", year: 2024, url: "https://www.cell.com/cell-reports/fulltext/S2211-1247(24)01275-0" },
+    { title: "Brain-computer interface decodes Mandarin from neural signals in real time", venue: "Medical Xpress", year: 2025, url: "https://medicalxpress.com/news/2025-11-brain-interface-decodes-mandarin-neural.html" },
+  ],
+  "mechanistic-science-ultra-processed-foods-food": [
+    { title: "Effect of Ultra-processed Versus Unprocessed Diets on Energy Metabolism (NCT05290064, completed Aug 2025)", venue: "NIH Clinical Center / ClinicalTrials.gov", year: 2025, url: "https://clinicaltrials.gov/study/NCT05290064" },
+    { title: "Eating rate has sustained effects on energy intake from ultraprocessed diets: a 2-week ad libitum RCT crossover trial", venue: "American Journal of Clinical Nutrition", year: 2025, url: "https://doi.org/10.1016/j.ajcnut.2025.11.012" },
+  ],
+  "texture-digestibility-edible-mycelial-biomass": [
+    { title: "Incorporation of Mycelium (Pleurotus eryngii) in Pea Protein Based Low Moisture Meat Analogue: Effect on Its Physicochemical, Rehydration and Structural Properties", venue: "Foods", year: 2022, url: "https://doi.org/10.3390/foods11162476" },
+    { title: "In vitro protein digestibility of edible filamentous fungi compared to common food protein sources", venue: "Food Bioscience", year: 2023, url: "https://doi.org/10.1016/j.fbio.2023.102862" },
+  ],
+  "plant-nanobionics-in-planta-sensing": [
+    { title: "Decoding early stress signaling waves in living plants using nanosensor multiplexing", venue: "Nature Communications", year: 2024, url: "https://doi.org/10.1038/s41467-024-47082-1" },
+    { title: "Nanosensor for Fe(II) and Fe(III) Allowing Spatiotemporal Sensing in Planta", venue: "Nano Letters", year: 2025, url: "https://pubs.acs.org/doi/full/10.1021/acs.nanolett.4c05600" },
+  ],
+  "molecular-farming-animal-proteins-crops": [
+    { title: "Moolec Earns USDA Nod for Peas That Produce Beef Protein (bovine myoglobin, PEEA1)", venue: "Green Queen", year: 2024, url: "https://www.greenqueen.com.hk/moolec-science-molecular-farming-usda-peas-beef-protein-myoglobin-iron/" },
+    { title: "Powering Up Plant Protein — molecular farming and Piggy Sooy", venue: "Seed World", year: 2024, url: "https://www.seedworld.com/us/2024/11/22/powering-up-plant-protein/" },
+  ],
+  "cross-disease-endpoints-geroscience-trials": [
+    { title: "Metformin as a Tool to Target Aging", venue: "Cell Metabolism", year: 2016, url: "https://doi.org/10.1016/j.cmet.2016.05.011" },
+    { title: "Endpoints for geroscience clinical trials: health outcomes, biomarkers, and biologic age", venue: "GeroScience", year: 2022, url: "https://doi.org/10.1007/s11357-022-00671-8" },
+  ],
+  "science-social-determinants-health": [
+    { title: "Analyzing the Link Between Social Determinants (Income, Education, and Housing) and Health Outcomes: A Systematic Review", venue: "Vascular and Endovascular Review", year: 2025, url: "https://verjournal.com/index.php/ver/article/view/702" },
+    { title: "Addressing Social Determinants of Health: Examples of Successful Evidence-Based Strategies and Current Federal Efforts", venue: "ASPE, U.S. Department of Health and Human Services", year: 2022, url: "https://aspe.hhs.gov/sites/default/files/documents/e2b650cd64cf84aae8ff0fae7474af82/SDOH-Evidence-Review.pdf" },
+  ],
+  "measuring-physiological-resilience-through-challenge-recovery": [
+    { title: "Multi-parameter comparison of a standardized mixed meal tolerance test in healthy and type 2 diabetic subjects: the PhenFlex challenge", venue: "Genes & Nutrition", year: 2017, url: "https://doi.org/10.1186/s12263-017-0570-6" },
+    { title: "Multiple domain resilience components and frailty, postoperative complications, and one year quality of life deterioration after pancreatectomy in older patients", venue: "Scientific Reports", year: 2025, url: "https://doi.org/10.1038/s41598-024-82627-w" },
+  ],
+  "chronobiology-circadian-rhythmome": [
+    { title: "Chronotherapy: Circadian Rhythms and Their Influence in Cancer Therapy", venue: "Cancers (MDPI)", year: 2022, url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC9599830/" },
+    { title: "An Overview of the Circadian Clock in the Frame of Chronotherapy: From Bench to Bedside", venue: "Pharmaceutics", year: 2022, url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC9317821/" },
+  ],
+  "mrna-next-generation-vaccine-platforms": [
+    { title: "Lipid nanoparticle-based mRNA vaccines: a new frontier in precision oncology", venue: "Precision Clinical Medicine (Oxford)", year: 2024, url: "https://academic.oup.com/pcm/article/7/3/pbae017/7725808" },
+    { title: "Key Clinical Frontiers of mRNA Loaded Lipid Nanoparticles in Cancer Vaccines", venue: "International Journal of Nanomedicine", year: 2024, url: "https://www.dovepress.com/key-clinical-frontiers-of-mrna-loaded-lipid-nanoparticles-in-cancer-va-peer-reviewed-fulltext-article-IJN" },
+  ],
+  "validating-oral-microbial-migration-systemic-effects": [
+    { title: "Oral pathobiont Klebsiella chaperon usher pili provide site-specific adaptation for the inflamed gut mucosa", venue: "Gut Microbes", year: 2024, url: "https://doi.org/10.1080/19490976.2024.2333463" },
+    { title: "Effect of antibiotics as an adjuvant to subgingival instrumentation on systemic inflammation in patients with periodontitis: a randomized clinical trial", venue: "Quintessence International", year: 2023, url: "https://doi.org/10.3290/j.qi.b3942249" },
+  ],
+  "gut-mycobiome-cross-kingdom-interactions": [
+    { title: "Temporal changes in gastrointestinal fungi and the risk of autoimmunity during early childhood: the TEDDY study", venue: "Nature Communications", year: 2022, url: "https://doi.org/10.1038/s41467-022-30686-w" },
+    { title: "Shotgun metagenomics reveals interkingdom association between intestinal bacteria and fungi involving competition for nutrients", venue: "Microbiome", year: 2023, url: "https://doi.org/10.1186/s40168-023-01693-w" },
+  ],
+  "one-health-cross-domain-pathogen-surveillance": [
+    { title: "Realising a global One Health disease surveillance approach: insights from wastewater and beyond", venue: "npj Antimicrobials and Resistance", year: 2024, url: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11193741/" },
+    { title: "Pandemics - One Health preparedness for the next", venue: "The Lancet Regional Health - Europe", year: 2021, url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC8495373/" },
+    { title: "The one health perspective to improve environmental surveillance of zoonotic viruses: lessons from COVID-19 and outlook beyond", venue: "npj Viruses", year: 2022, url: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9618154/" },
+  ],
+  "post-antibiotic-community-recovery-colonization-resistance": [
+    { title: "Reconstitution of the gut microbiota of antibiotic-treated patients by autologous fecal microbiota transplant", venue: "Science Translational Medicine", year: 2018, url: "https://doi.org/10.1126/scitranslmed.aap9489" },
+    { title: "Post-Antibiotic Gut Mucosal Microbiome Reconstitution Is Impaired by Probiotics and Improved by Autologous FMT", venue: "Cell", year: 2018, url: "https://doi.org/10.1016/j.cell.2018.08.047" },
+  ],
+  "neural-markers-consciousness-no-report-paradigms": [
+    { title: "Decoding perceptual awareness across the brain with a no-report fMRI masking paradigm", venue: "Current Biology", year: 2022, url: "https://doi.org/10.1016/j.cub.2022.07.068" },
+    { title: "Neural correlates of consciousness in an attentional blink paradigm with uncertain target relevance", venue: "NeuroImage", year: 2022, url: "https://doi.org/10.1016/j.neuroimage.2022.119679" },
+  ],
+  "interoception-minimal-sense-self": [
+    { title: "Turning Body and Self Inside Out", venue: "Psychological Science", year: 2013, url: "https://doi.org/10.1177/0956797613498395" },
+    { title: "Mechanisms of the breathing contribution to bodily self‐consciousness in healthy humans: Lessons from machine‐assisted breathing?", venue: "Psychophysiology", year: 2020, url: "https://doi.org/10.1111/psyp.13564" },
+  ],
+  "raman-activated-sorting-linking-single-cell-function": [
+    { title: "Single-cell Raman-activated sorting and cultivation (scRACS-Culture) for assessing and mining in situ phosphate-solubilizing microbes from nature", venue: "ISME Communications", year: 2022, url: "https://www.nature.com/articles/s43705-022-00188-3" },
+    { title: "Revealing CO2-Fixing SAR11 Bacteria in the Ocean by Raman-Based Single-Cell Metabolic Profiling and Genomics", venue: "mLife", year: 2023, url: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10521720/" },
+  ],
+  "machine-learning-illuminates-metabolic-dark": [
+    { title: "Self-supervised learning of molecular representations from millions of tandem mass spectra using DreaMS", venue: "Nature Biotechnology", year: 2025, url: "https://www.nature.com/articles/s41587-025-02663-3" },
+    { title: "DeepMASS: Unknown Compound Annotation using Semantic Similarity of Mass Spectral Language", venue: "bioRxiv", year: 2024, url: "https://www.biorxiv.org/content/10.1101/2024.05.30.596727v2" },
+  ],
+  "comparative-genomic-discovery-orphan-structured-rnas": [
+    { title: "Comparative genomics reveals 104 candidate structured RNAs from bacteria, archaea, and their metagenomes", venue: "Genome Biology", year: 2010, url: "https://doi.org/10.1186/gb-2010-11-3-r31" },
+    { title: "Detection of 224 candidate structured RNAs by comparative analysis of specific subsets of intergenic regions", venue: "Nucleic Acids Research", year: 2017, url: "https://doi.org/10.1093/nar/gkx699" },
+  ],
+  "structure-level-resolution-positional-lipid-isomers": [
+    { title: "Pinpointing Double Bonds in Lipids by Paternò-Büchi Reactions and Mass Spectrometry", venue: "Angewandte Chemie International Edition", year: 2014, url: "https://doi.org/10.1002/anie.201310699" },
+    { title: "Ozone-Induced Dissociation: Elucidation of Double Bond Position within Mass-Selected Lipid Ions", venue: "Analytical Chemistry", year: 2008, url: "https://doi.org/10.1021/ac7017684" },
+  ],
+  "melanized-fungal-living-radiation-shielding-biocomposites": [
+    { title: "Cultivation of the Dematiaceous Fungus Cladosporium sphaerospermum Aboard the International Space Station and Effects of Ionizing Radiation", venue: "Frontiers in Microbiology", year: 2022, url: "https://www.frontiersin.org/journals/microbiology/articles/10.3389/fmicb.2022.877625/full" },
+    { title: "Biofilms: from the cradle of life to life support", venue: "npj Biofilms and Microbiomes", year: 2025, url: "https://www.nature.com/articles/s41522-025-00875-8" },
+  ],
+  "space-weathering-aware-lunar-dust-toxicology": [
+    { title: "Overview of lunar dust toxicity risk", venue: "npj Microgravity", year: 2022, url: "https://doi.org/10.1038/s41526-022-00244-1" },
+    { title: "Assessment of toxicity changes induced by exposure of human cells to lunar dust simulant", venue: "Scientific Reports", year: 2024, url: "https://doi.org/10.1038/s41598-024-69259-w" },
+  ],
+  "spaceflight-multi-omics-medical-atlas-civilian": [
+    { title: "Space Omics and Medical Atlas (SOMA) across orbits (Nature collection)", venue: "Nature (collection)", year: 2024, url: "https://www.nature.com/collections/ebdbcahdgc" },
+    { title: "GeneLab / Open Science Data Repository (OSDR)", venue: "NASA Science", year: 2024, url: "https://science.nasa.gov/biological-physical/data/osdr/" },
+  ],
+  "subcellular-spatial-transcriptomics-reading-rna": [
+    { title: "Deep-tissue transcriptomics and subcellular imaging at high spatial resolution (cycleHCR)", venue: "Science", year: 2025, url: "https://www.science.org/doi/10.1126/science.adq2084" },
+    { title: "Systematic discovery of subcellular RNA patterns in the gut epithelium (MERFISH + APEX-seq)", venue: "Genome Biology", year: 2025, url: "https://link.springer.com/article/10.1186/s13059-025-03786-1" },
+  ],
+  "non-destructive-longitudinal-transcriptome-sampling-living": [
+    { title: "Nondestructive nanostraw intracellular sampling for longitudinal cell monitoring", venue: "Proceedings of the National Academy of Sciences", year: 2017, url: "https://doi.org/10.1073/pnas.1615375114" },
+    { title: "Tunable Single-Cell Extraction for Molecular Analyses", venue: "Cell", year: 2016, url: "https://doi.org/10.1016/j.cell.2016.06.025" },
+  ],
+  "joint-spatial-multi-omics-aligning-epigenome": [
+    { title: "Spatial epigenome–transcriptome co-profiling of mammalian tissues", venue: "Nature", year: 2023, url: "https://www.nature.com/articles/s41586-023-05795-1" },
+    { title: "Spatially resolved epigenome sequencing via Tn5 transposition and deterministic DNA barcoding in tissue", venue: "Nature Protocols", year: 2024, url: "https://www.nature.com/articles/s41596-024-01013-y" },
+  ],
+  "situ-spatial-translatomics-imaging-mrna": [
+    { title: "Spatially resolved single-cell translatomics at molecular resolution (RIBOmap)", venue: "Science", year: 2023, url: "https://www.science.org/doi/10.1126/science.add3067" },
+    { title: "Spatially resolved in situ profiling of mRNA life cycle using STARmap PLUS, RIBOmap and TEMPOmap", venue: "Nature Protocols", year: 2025, url: "https://www.nature.com/articles/s41596-025-01248-3" },
+  ],
+  "in-situ-spatial-glycomics-tissues": [
+    { title: "Imaging of N-Linked Glycans from Formalin-Fixed Paraffin-Embedded Tissue Sections Using MALDI Mass Spectrometry", venue: "ACS Chemical Biology", year: 2014, url: "https://doi.org/10.1021/cb500405h" },
+    { title: "Highly Sensitive Spatial Glycomics at Near-Cellular Resolution by On-Slide Derivatization and Mass Spectrometry Imaging", venue: "Analytical Chemistry", year: 2024, url: "https://doi.org/10.1021/acs.analchem.3c05984" },
+  ],
+  "causal-identification-under-nonrandom-missingness": [
+    { title: "Causal inference with confounders missing not at random", venue: "Biometrika", year: 2019, url: "https://doi.org/10.1093/biomet/asz048" },
+    { title: "Identification and estimation of causal effects with confounders missing not at random", venue: "Biostatistics", year: 2024, url: "https://doi.org/10.1093/biostatistics/kxaf015" },
+  ],
+  "hit-and-run-vivo-epigenetic-silencing-heritable": [
+    { title: "Tune Therapeutics Presents Positive Phase 1b/2a Proof of Concept Data on TUNE-401, a First-in-Class Epigenetic Silencer for Hepatitis B at EASL 2026", venue: "Tune Therapeutics / EASL 2026", year: 2026, url: "https://tunetx.com/tune-therapeutics-presents-positive-phase-1b-2a-proof-of-concept-data-on-tune-401-a-first-in-class-epigenetic-silencer-for-patients-with-hepatitis-b-at-easl-2026/" },
+  ],
+  "vivo-epigenetic-reactivation-silenced-alleles": [
+    { title: "Epigenetic editing alleviates Angelman syndrome phenotype in mice by unsilencing paternal Ube3a", venue: "Cell Discovery", year: 2024, url: "https://www.nature.com/articles/s41421-024-00727-3" },
+  ],
+  "programmable-rna-trans-splicing-exon-replacement": [
+    { title: "Phenotype correction of hemophilia A mice by spliceosome-mediated RNA trans-splicing", venue: "Nature Medicine", year: 2003, url: "https://doi.org/10.1038/nm900" },
+    { title: "RNA exon editing: Splicing the way to treat human diseases", venue: "Molecular Therapy - Nucleic Acids", year: 2024, url: "https://doi.org/10.1016/j.omtn.2024.102311" },
+  ],
+  "durable-vivo-epigenetic-silencing-without": [
+    { title: "Tune Therapeutics to Initiate Clinical Trial of First-In-Class Epigenetic Silencer in Chronic Hepatitis B", venue: "CRISPR Medicine News", year: 2024, url: "https://crisprmedicinenews.com/news/tune-therapeutics-to-initiate-clinical-trial-of-first-in-class-epigenetic-silencer-in-chronic-hepati/" },
+    { title: "Tune Therapeutics Testing Epigenetic Silencing Drug for Chronic Hepatitis B in First-in-Human Trial", venue: "Precision Medicine Online", year: 2024, url: "https://www.precisionmedicineonline.com/business-news/tune-therapeutics-testing-epigenetic-silencing-drug-chronic-hepatitis-b-first-human" },
+  ],
+  "virus-like-particle-transient-delivery-editor": [
+    { title: "Engineered virus-like particles for transient delivery of prime editor ribonucleoprotein complexes in vivo", venue: "Nature Biotechnology", year: 2024, url: "https://www.nature.com/articles/s41587-023-02078-y" },
+  ],
+  "autoformalization-machine-verifiable-scientific-reasoning": [
+    { title: "Olympiad-level formal mathematical reasoning with reinforcement learning (AlphaProof)", venue: "Nature", year: 2025, url: "https://www.nature.com/articles/s41586-025-09833-y" },
+  ],
+  "real-time-all-optical-closed-loop-neuroscience": [
+    { title: "Fast photostimulus optimization for holographic control of neural ensemble activity in vivo", venue: "bioRxiv", year: 2025, url: "https://www.biorxiv.org/content/10.1101/2025.07.31.667911v1" },
+  ],
+  "neural-operator-multi-physics-foundation-models": [
+    { title: "Poseidon: Efficient Foundation Models for PDEs", venue: "NeurIPS 2024 (arXiv:2405.19101)", year: 2024, url: "https://arxiv.org/abs/2405.19101" },
+  ],
+  "novelty-falsifiability-metrics-ai-generated-hypotheses": [
+    { title: "AIGS: Generating Science from AI-Powered Automated Falsification", venue: "arXiv:2411.11910 (Tsinghua)", year: 2024, url: "https://arxiv.org/pdf/2411.11910" },
+    { title: "AI Idea Bench 2025: AI Research Idea Generation Benchmark", venue: "arXiv:2504.14191", year: 2025, url: "https://arxiv.org/pdf/2504.14191" },
+    { title: "AI-generated scientific hypotheses lag human ones when put to the test", venue: "Science (AAAS) News", year: 2025, url: "https://www.science.org/content/article/ai-generated-scientific-hypotheses-lag-human-ones-when-put-test" },
+  ],
+  "credibility-audits-acceleration-benchmarks-autonomous": [
+    { title: "Challenges in High-Throughput Inorganic Materials Prediction and Autonomous Synthesis", venue: "PRX Energy", year: 2024, url: "https://doi.org/10.1103/PRXEnergy.3.011002" },
+    { title: "Artificial Intelligence Driving Materials Discovery? Perspective on Scaling Deep Learning for Materials Discovery", venue: "Chemistry of Materials (eScholarship)", year: 2024, url: "https://escholarship.org/uc/item/9qx9t3kz" },
+  ],
+  "autonomous-chromatographic-method-development": [
+    { title: "Operator-free HPLC automated method development guided by Bayesian optimization", venue: "Digital Discovery", year: 2024, url: "https://doi.org/10.1039/d4dd00062e" },
+    { title: "Multi-task Bayesian optimization for comprehensive two-dimensional liquid chromatography method development", venue: "Journal of Chromatography A", year: 2024, url: "https://par.nsf.gov/servlets/purl/10534398" },
+  ],
+  "active-mechanism-discovery-via-disagreement-driven": [
+    { title: "LLM-AutoSciLab: Closed-Loop Scientific Discovery via Active Experimentation with LLMs (ActiveSciBench)", venue: "arXiv", year: 2026, url: "https://arxiv.org/abs/2605.24043" },
+    { title: "AutoDiscovery: Open-ended Scientific Discovery via Bayesian Surprise", venue: "NeurIPS", year: 2025, url: "https://papers.neurips.cc/paper_files/paper/2025/file/23b127521af7ca7a42f5cdb7507be4f2-Paper-Conference.pdf" },
+  ],
+  "calibrated-autonomy-human-handoff-self-driving": [
+    { title: "Shaping the Future of Self-Driving Autonomous Laboratories (workshop report)", venue: "Oak Ridge National Laboratory", year: 2024, url: "https://info.ornl.gov/sites/publications/Files/Pub227078.pdf" },
+    { title: "Learning to Defer with an Uncertain Rejector via Conformal Prediction", venue: "OpenReview", year: 2025, url: "https://openreview.net/pdf?id=SZQJ8K2DUe" },
+  ],
+  "one-week-automated-genome-wide-optical-pooled": [
+    { title: "The one-week automated genome-wide optical pooled screen", venue: "bioRxiv", year: 2026, url: "https://www.biorxiv.org/content/10.64898/2026.04.15.718742v1.full" },
+  ],
+  "executable-asset-administration-shells-plug-and-simulate": [
+    { title: "Digital twin and the asset administration shell", venue: "Software and Systems Modeling (Springer)", year: 2025, url: "https://link.springer.com/article/10.1007/s10270-024-01255-0" },
+    { title: "IDTA 02005-1-0: Provision of Simulation Models (Submodel Template)", venue: "Industrial Digital Twin Association (IDTA)", year: 2023, url: "https://industrialdigitaltwin.io/idta-submodel-templates/simulation/1.0/index.html" },
+  ],
+  "neural-operator-surrogate-twins-laser-manufacturing": [
+    { title: "Deep neural operator enabled digital twin modeling for additive manufacturing", venue: "AIMS Applied Computing and Engineering", year: 2024, url: "https://www.aimsciences.org/article/doi/10.3934/acse.2024010" },
+    { title: "Real-time distortion prediction in metallic additive manufacturing via a physics-informed neural operator approach", venue: "arXiv preprint", year: 2025, url: "https://arxiv.org/pdf/2511.13178" },
+  ],
+  "virtual-experiments-computable-papers": [
+    { title: "Creating an executable paper is a journey through Open Science", venue: "Communications Physics", year: 2020, url: "https://www.nature.com/articles/s42005-020-00403-4" },
+  ],
+  "material-informed-gaussian-splatting-twins-camera-as-twin": [
+    { title: "Material-informed Gaussian Splatting for 3D World Reconstruction in a Digital Twin", venue: "arXiv preprint", year: 2025, url: "https://arxiv.org/abs/2511.20348" },
+    { title: "3D Gaussian Splatting in Robotics: A Survey", venue: "arXiv preprint", year: 2024, url: "https://arxiv.org/pdf/2410.12262" },
+  ],
+  "mechanistic-digital-twins-tumor-therapy": [
+    { title: "In Silico Digital Twins of Bone Metastasis Enable Investigation of Tumor Progression and Therapy Response", venue: "Cancer Research", year: 2025, url: "https://doi.org/10.1158/0008-5472.CAN-25-0088" },
+  ],
+  "climate-attribution-extreme-event-science": [
+    { title: "Pathways and pitfalls in extreme event attribution", venue: "Climatic Change", year: 2021, url: "https://link.springer.com/article/10.1007/s10584-021-03071-7" },
+    { title: "A protocol for probabilistic extreme event attribution analyses", venue: "Advances in Statistical Climatology, Meteorology and Oceanography (ASCMO)", year: 2020, url: "https://ascmo.copernicus.org/articles/6/177/2020/ascmo-6-177-2020.pdf" },
+  ],
+  "rapid-urban-evolution-data-driven": [
+    { title: "Urban spatial heterogeneity shapes the evolution of an antiherbivore defense trait and its genes in white clover", venue: "Oikos", year: 2024, url: "https://nsojournals.onlinelibrary.wiley.com/doi/10.1111/oik.10210" },
+    { title: "Urban Evolution: How Species Adapt to Survive in Cities (Knowable Magazine)", venue: "Knowable Magazine / Annual Reviews", year: 2022, url: "https://knowablemagazine.org/content/article/living-world/2022/urban-evolution-species-adapt-survive-cities" },
+  ],
+  "lifecycle-carbon-accounting-prescribed-fire": [
+    { title: "Effects of prescribed fire frequency on wildfire emissions and carbon sequestration in a fire adapted ecosystem using a comprehensive carbon model", venue: "Journal of Environmental Management", year: 2021, url: "https://doi.org/10.1016/j.jenvman.2021.112673" },
+    { title: "Modelling Carbon Emissions in Calluna vulgaris-Dominated Ecosystems when Prescribed Burning and Wildfires Interact", venue: "PLOS ONE", year: 2016, url: "https://doi.org/10.1371/journal.pone.0167137" },
+  ],
+  "citizen-multi-station-optical-telemetry-observations": [
+    { title: "Lessons learned from operating three CubeSats until their consecutive re-entries", venue: "Small Satellites Systems and Services Symposium (4S 2024)", year: 2025, url: "https://doi.org/10.1117/12.3061559" },
+    { title: "OPS-SAT-1 UHF Re-entry Telemetry Analysis", venue: "European Space Agency", year: 2024, url: "https://live.opssat.esa.int/ops-sat-1/docs/tm_analysis.html" },
+  ],
+  "diy-muon-tomography-seeing-through": [
+    { title: "3D Muography for the Search of Hidden Cavities", venue: "Scientific Reports", year: 2019, url: "https://www.nature.com/articles/s41598-019-39682-5" },
+    { title: "Image reconstruction techniques in muography: A review of algorithms and physical principles", venue: "Journal of Applied Physics", year: 2025, url: "https://pubs.aip.org/aip/jap/article/138/4/041101/3355478/Image-reconstruction-techniques-in-muography-A" },
+    { title: "Detection of fractured zones, faults, and cavities by high resolution muon tomography in the Buda Hills", venue: "Scientific Reports", year: 2025, url: "https://www.nature.com/articles/s41598-025-02510-0" },
+  ],
+  "citizen-discovered-optical-phenomena-upper-atmosphere": [
+    { title: "The Gannon Storm: citizen science observations during the geomagnetic superstorm of 10 May 2024", venue: "Geoscience Communication 7, 297", year: 2024, url: "https://gc.copernicus.org/articles/7/297/2024/" },
+    { title: "New science in plain sight: citizen scientists lead to the discovery of optical structure in the upper atmosphere (STEVE)", venue: "Science Advances 4, eaaq0030", year: 2018, url: "https://www.science.org/doi/10.1126/sciadv.aaq0030" },
+  ],
+  "personal-space-weather-stations-distributed": [
+    { title: "The HamSCI Personal Space Weather Station (PSWS) — overview", venue: "HamSCI", year: 2025, url: "https://hamsci.org/psws-overview" },
+    { title: "2023/2024 HamSCI Festivals of Eclipse Ionospheric Science", venue: "HamSCI", year: 2024, url: "https://hamsci.org/eclipse" },
+  ],
+  "planetary-science-small-body-exploration": [
+    { title: "Samples returned from the asteroid Ryugu are similar to Ivuna-type carbonaceous meteorites", venue: "Science", year: 2022, url: "https://www.science.org/doi/10.1126/science.abn7850" },
+    { title: "Importance of asteroid sample return", venue: "Nature Geoscience", year: 2023, url: "https://www.nature.com/articles/s41561-023-01295-z" },
+  ],
+  "community-governed-corpora-endangered-languages": [
+    { title: "How to be FAIR when you CARE: The DGS Corpus as a Case Study of Open Science Resources for Minority Languages", venue: "Proceedings of LREC 2022", year: 2022, url: "https://aclanthology.org/2022.lrec-1.18/" },
+    { title: "Rethinking archival data management for indigenous communities: lessons learned from the Moklen community digital repository", venue: "Journal of Documentation", year: 2026, url: "https://doi.org/10.1108/JD-05-2025-0125" },
+  ],
+  "publish-review-curate-ecosystems-their-validity-science": [
+    { title: "Open Science: What is publish, review, curate?", venue: "eLife (Inside eLife)", year: 2024, url: "https://elifesciences.org/inside-elife/dc24a9cd/open-science-what-is-publish-review-curate" },
+    { title: "Peer-reviewed preprints and the Publish-Review-Curate model", venue: "cOAlition S", year: 2024, url: "https://www.coalition-s.org/blog/peer-reviewed-preprints-and-the-publish-review-curate-model/" },
+  ],
+  "verifiable-builds-dependency-provenance-research": [
+    { title: "PiGx: reproducible genomics analysis pipelines with GNU Guix", venue: "GigaScience", year: 2018, url: "https://doi.org/10.1093/gigascience/giy123" },
+    { title: "Source Code Archiving to the Rescue of Reproducible Deployment", venue: "Proceedings of the 2nd ACM Conference on Reproducibility and Replicability", year: 2024, url: "https://doi.org/10.1145/3641525.3663622" },
+  ],
+  "open-data-fair-infrastructure": [
+    { title: "The FAIR Guiding Principles for scientific data management and stewardship (Wilkinson et al.)", venue: "Scientific Data 3, 160018", year: 2016, url: "https://www.nature.com/articles/sdata201618" },
+    { title: "Introducing the FAIR Principles for research software", venue: "Scientific Data 9, 622", year: 2022, url: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9562067/" },
+  ],
+  "partial-lotteries-mechanism-design-experiments-research": [
+    { title: "Funding lotteries for research grant allocation: An extended taxonomy and evaluation of their fairness", venue: "Research Evaluation", year: 2024, url: "https://academic.oup.com/rev/article/doi/10.1093/reseval/rvae025/7735322" },
+    { title: "Sceptics and champions: participant insights on the use of partial randomization to allocate research culture funding", venue: "Research Evaluation", year: 2025, url: "https://academic.oup.com/rev/article/doi/10.1093/reseval/rvaf006/8005349" },
+    { title: "Piloting and Evaluating NSF Science Lottery Grants", venue: "Federation of American Scientists", year: 2023, url: "https://fas.org/publication/improving-research-funding-efficiencies-and-proposal-diversity-through-nsf-science-lottery-grants/" },
+  ],
+  "goal-alignment-conflict-resolution-human": [
+    { title: "Understanding successful human–AI teaming: The role of goal alignment and AI autonomy for social perception of LLM-based chatbots", venue: "Computers in Human Behavior: Artificial Humans", year: 2026, url: "https://doi.org/10.1016/j.chbah.2025.100246" },
+    { title: "Human-machine plan conflict and conflict resolution in a visual search task", venue: "International Journal of Human-Computer Studies", year: 2025, url: "https://doi.org/10.1016/j.ijhcs.2024.103377" },
+  ],
+  "interaction-trace-measurement-human-ai-team": [
+    { title: "The Impact of Communication Timing and Sequencing on Team Performance: A Comparative Study of Human-AI and All-Human Teams", venue: "Proceedings of the Human Factors and Ergonomics Society Annual Meeting", year: 2024, url: "https://doi.org/10.1177/10711813241275090" },
+    { title: "Data on the Human Versus artificial intelligence process management experiment", venue: "Data in Brief", year: 2022, url: "https://doi.org/10.1016/j.dib.2022.107917" },
+  ],
+  "cognitive-forcing-functions-intercepting-ai": [
+    { title: "To Trust or to Think: Cognitive Forcing Functions Can Reduce Overreliance on AI in AI-assisted Decision-making", venue: "Proceedings of the ACM on Human-Computer Interaction", year: 2021, url: "https://doi.org/10.1145/3449287" },
+    { title: "Beyond Overreliance: The Human-AI-System Concordance (HASC) Matrix and the Cognitive Dynamics of AI-Assisted Decision-Making", venue: "Proceedings of the Human Factors and Ergonomics Society Annual Meeting", year: 2025, url: "https://doi.org/10.1177/10711813251358240" },
+  ],
+  "shared-mental-models-human-ai": [
+    { title: "Beyond Accuracy: The Role of Mental Models in Human-AI Team Performance", venue: "Proceedings of the AAAI Conference on Human Computation and Crowdsourcing", year: 2019, url: "https://doi.org/10.1609/hcomp.v7i1.5285" },
+    { title: "The role of shared mental models in human-AI teams: a theoretical review", venue: "Theoretical Issues in Ergonomics Science", year: 2022, url: "https://doi.org/10.1080/1463922X.2022.2061080" },
+  ],
+  "creative-fixation-diversity-under-generative": [
+    { title: "The Effects of Generative AI on Design Fixation and Divergent Thinking", venue: "Proceedings of the CHI Conference on Human Factors in Computing Systems", year: 2024, url: "https://doi.org/10.1145/3613904.3642919" },
+    { title: "The Double-Edged Roles of Generative AI in the Creative Process: Experiments on Design Work", venue: "Information Systems Research", year: 2025, url: "https://doi.org/10.1287/isre.2024.0937" },
+  ],
+  "participatory-governance-ontologies-taxonomies": [
+    { title: "Participatory design for ontologies: a case study of an open science ontology for qualitative coding schemas", venue: "Aslib Journal of Information Management", year: 2020, url: "https://doi.org/10.1108/AJIM-11-2019-0320" },
+    { title: "Collaborative conceptualisation processes in the development of lightweight ontologies", venue: "VINE Journal of Information and Knowledge Management Systems", year: 2016, url: "https://doi.org/10.1108/VJIKMS-03-2015-0022" },
+  ],
+  "eavesdropping-vibrational-communication-substrate-dark": [
+    { title: "Biotremology", venue: "Current Biology", year: 2016, url: "https://www.cell.com/current-biology/fulltext/S0960-9822(16)30001-X" },
+    { title: "Biotremology in arthropods", venue: "Learning & Behavior", year: 2020, url: "https://link.springer.com/article/10.3758/s13420-020-00428-3" },
+    { title: "Anthropogenic substrate-borne vibrations impact anuran calling", venue: "Scientific Reports", year: 2019, url: "https://www.nature.com/articles/s41598-019-55639-0" },
+  ],
+  "biomimetic-olfactory-receptors-odor-decoding": [
+    { title: "Structural basis of odorant recognition by a human odorant receptor", venue: "Nature", year: 2023, url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC10580732/" },
+    { title: "The structure and function of olfactory receptors", venue: "Trends in Pharmacological Sciences", year: 2024, url: "https://www.cell.com/trends/pharmacological-sciences/abstract/S0165-6147(24)00004-X" },
+  ],
+  "measuring-animal-olfactory-landscapes-navigation": [
+    { title: "Continuous odor profile monitoring to study olfactory navigation in small animals", venue: "eLife", year: 2023, url: "https://doi.org/10.7554/eLife.85910" },
+    { title: "The power of odour cues in shaping fine-scale search patterns of foraging mammalian herbivores", venue: "Biology Letters", year: 2020, url: "https://doi.org/10.1098/rsbl.2020.0329" },
+  ],
+  "scientific-data-sonification-research-accessible": [
+    { title: "Evaluating the efficacy of sonification for signal detection in univariate, evenly sampled light curves using astronify", venue: "arXiv", year: 2022, url: "https://arxiv.org/pdf/2209.04465" },
+    { title: "Why scientists are making space data into sounds", venue: "Frontiers Science News", year: 2024, url: "https://www.frontiersin.org/news/2024/03/25/communication-nasa-scientists-space-data-sounds" },
+  ],
+  "conservation-science-software-based-born-digital-art": [
+    { title: "Reading between the lines: Source code documentation as a conservation strategy for software-based art", venue: "Studies in Conservation", year: 2014, url: "https://doi.org/10.1179/2047058413Y.0000000115" },
+    { title: "Born-digital art: modelos de documentación como medida de conservación", venue: "Ge-conservacion", year: 2017, url: "https://doi.org/10.37558/gec.v11i0.469" },
+  ],
+  "data-physicalization-graspable-embodied-data": [
+    { title: "Data Physicalization and Tangible Manipulation for Engaging Children with Data: An Example with Air Quality Data", venue: "ACM IDC '24", year: 2024, url: "https://dl.acm.org/doi/fullHtml/10.1145/3628516.3655788" },
+    { title: "Disentangling the Power Dynamics in Participatory Data Physicalisation", venue: "arXiv", year: 2025, url: "https://arxiv.org/pdf/2503.13018" },
+  ],
+  "distortion-metrology-ai-science-intermediaries": [
+    { title: "Largest study of its kind shows AI assistants misrepresent news content 45% of the time — regardless of language or territory", venue: "European Broadcasting Union", year: 2025, url: "https://www.ebu.ch/news/2025/10/ai-s-systemic-distortion-of-news-is-consistent-across-languages-and-territories-international-study-by-public-service-broadcaste" },
+    { title: "Generalization Bias in Large Language Model Summarization of Scientific Research (preprint)", venue: "arXiv", year: 2025, url: "https://arxiv.org/abs/2504.00025" },
+  ],
+  "comprehension-experiments-scientific-diagrams": [
+    { title: "What Makes a Diagram Easy or Hard? The Impact of Diagram Design on Fourth-Grade Students’ Comprehension of Science Texts", venue: "The Elementary School Journal", year: 2018, url: "https://doi.org/10.1086/698819" },
+    { title: "The effects of explicit visual cues in reading biological diagrams", venue: "International Journal of Science Education", year: 2017, url: "https://doi.org/10.1080/09500693.2017.1297549" },
+  ],
+  "computational-research-integrity-forensics": [
+    { title: "Unveiling scientific articles from paper mills with provenance analysis", venue: "PLOS One", year: 2024, url: "https://journals.plos.org/plosone/article?id=10.1371%2Fjournal.pone.0312666" },
+    { title: "The 'Problematic Paper Screener' automatically selects suspect publications for post-publication (re)assessment", venue: "arXiv (WCRI 2022)", year: 2022, url: "https://doi.org/10.48550/arXiv.2210.04895" },
+  ],
+  "data-leakage-auditing-reforms-consensus-ml-based": [
+    { title: "Leakage and the reproducibility crisis in machine-learning-based science", venue: "Patterns (Cell Press)", year: 2023, url: "https://www.cell.com/patterns/fulltext/S2666-3899(23)00159-9" },
+  ],
+  "ai-forensics-research-integrity-detecting": [
+    { title: "Revealing the Paper Mill Iceberg: AI-Based Screening of Cancer Research Publications", venue: "bioRxiv", year: 2025, url: "https://www.biorxiv.org/content/10.1101/2025.08.29.673016v2.full" },
+    { title: "AI tools combat paper mill fraud in scientific publishing as peer review system struggles", venue: "Chemistry World", year: 2025, url: "https://www.chemistryworld.com/features/ai-tools-tackle-paper-mill-fraud-overwhelming-peer-review/4022253.article" },
+  ],
+  "auditing-ai-contamination-model-collapse-risk": [
+    { title: "AI models collapse when trained on recursively generated data", venue: "Nature", year: 2024, url: "https://www.nature.com/articles/s41586-024-07566-y" },
+  ],
+  "forensics-llm-contamination-scientific-corpus": [
+    { title: "Delving into LLM-assisted writing in biomedical publications through excess vocabulary (preprint)", venue: "arXiv", year: 2024, url: "https://arxiv.org/abs/2406.07016" },
+    { title: "berenslab/llm-excess-vocab — analysis code", venue: "GitHub (official code)", year: 2025, url: "https://github.com/berenslab/llm-excess-vocab" },
+  ],
+  "geographic-sampling-debt-biodiversity-science": [
+    { title: "A large‐scale assessment of ant diversity across the Brazilian Amazon Basin: integrating geographic, ecological and morphological drivers of sampling bias", venue: "Ecography", year: 2022, url: "https://doi.org/10.1111/ecog.06295" },
+    { title: "Covariate-Informed Latent Interaction Models: Addressing Geographic & Taxonomic Bias in Predicting Bird–Plant Interactions", venue: "Journal of the American Statistical Association", year: 2023, url: "https://doi.org/10.1080/01621459.2023.2208390" },
+  ],
+  "auditing-missingness-mechanisms-scientific-data": [
+    { title: "Assumptions and analysis planning in studies with missing data in multiple variables: moving beyond the MCAR/MAR/MNAR classification", venue: "International Journal of Epidemiology", year: 2023, url: "https://doi.org/10.1093/ije/dyad008" },
+    { title: "The Prevention and Treatment of Missing Data in Clinical Trials", venue: "New England Journal of Medicine", year: 2012, url: "https://doi.org/10.1056/NEJMsr1203730" },
+  ],
+  "automated-conjecture-unknown-terrain-ai": [
+    { title: "Advancing mathematics by guiding human intuition with AI", venue: "Nature", year: 2021, url: "https://www.nature.com/articles/s41586-021-04086-x" },
+    { title: "The Ramanujan Machine: Automatically Generated Conjectures on Fundamental Constants", venue: "arXiv", year: 2019, url: "https://arxiv.org/pdf/1907.00205" },
+    { title: "Mathematical discoveries from program search with large language models (FunSearch)", venue: "Nature", year: 2024, url: "https://www.nature.com/articles/s41586-023-06924-6" },
+  ],
+  "patient-clinician-co-prioritization-unanswered-research": [
+    { title: "Patient- and public-driven health research: a model of co-leadership and partnership in research priority setting using a modified James Lind Alliance approach", venue: "Journal of Clinical Epidemiology", year: 2025, url: "https://doi.org/10.1016/j.jclinepi.2025.111731" },
+    { title: "The top 10 priorities in adults living with type 1 diabetes in Ireland and the United Kingdom – A James Lind Alliance priority setting partnership", venue: "Diabetic Medicine", year: 2024, url: "https://doi.org/10.1111/dme.15429" },
+  ],
+  "value-of-information-sensor-placement-under-model": [
+    { title: "Optimal vibration sensor placement for jacket support structures of offshore wind turbines based on value of information analysis", venue: "Ocean Engineering", year: 2023, url: "https://doi.org/10.1016/j.oceaneng.2023.115407" },
+    { title: "Exploration–Exploitation Tradeoff in the Adaptive Information Sampling of Unknown Spatial Fields with Mobile Robots", venue: "Sensors", year: 2023, url: "https://doi.org/10.3390/s23239600" },
+  ],
+  "morphology-control-evolution-physical-robots": [
+    { title: "Morphological Evolution of Physical Robots through Model-Free Phenotype Development", venue: "PLOS ONE", year: 2015, url: "https://doi.org/10.1371/journal.pone.0128444" },
+    { title: "Evolutionary Developmental Robotics: Improving Morphology and Control of Physical Robots", venue: "Artificial Life", year: 2017, url: "https://doi.org/10.1162/ARTL_a_00228" },
+  ],
+  "fluctuation-driven-hypothesis-sampling-thermodynamic-hardware": [
+    { title: "Training deep Boltzmann networks with sparse Ising machines", venue: "Nature Electronics", year: 2024, url: "https://www.nature.com/articles/s41928-024-01182-4" },
+    { title: "Mean-Field Assisted Deep Boltzmann Learning with Probabilistic Computers", venue: "arXiv", year: 2024, url: "https://arxiv.org/abs/2401.01996" },
+  ],
+  "comparative-curiosity-information-seeking-across": [
+    { title: "Monkeys are curious about counterfactual outcomes", venue: "Cognition", year: 2019, url: "https://doi.org/10.1016/j.cognition.2019.03.009" },
+    { title: "Macaques preferentially attend to intermediately surprising information", venue: "Biology Letters", year: 2022, url: "https://doi.org/10.1098/rsbl.2022.0144" },
+  ],
+  "self-driving-labs-actively-mapping-hypothesis": [
+    { title: "Autonomous experimentation systems for materials development: A community perspective", venue: "Matter", year: 2021, url: "https://www.cell.com/matter/fulltext/S2590-2385(23)00237-6" },
+    { title: "The rise of self-driving labs in chemical and materials sciences", venue: "Nature Synthesis", year: 2022, url: "https://www.nature.com/articles/s44160-022-00231-0" },
+  ],
+  "kinetix-open-ended-physics-task-universe-general": [
+    { title: "Kinetix — project site & open-source code", venue: "Project site", year: 2025, url: "https://kinetix-env.github.io/" },
+  ],
+  "crowdsourced-anomalies-letting-public-catch": [
+    { title: "Astronomaly: Personalised active anomaly detection in astronomical data", venue: "Astronomy and Computing", year: 2021, url: "https://arxiv.org/abs/2010.11202" },
+    { title: "Galaxy Zoo: 'Hanny's Voorwerp', a quasar light echo?", venue: "Monthly Notices of the Royal Astronomical Society", year: 2009, url: "https://academic.oup.com/mnras/article/399/1/129/1086654" },
+  ],
+  "injected-signal-benchmarks-scientific-anomaly-detection": [
+    { title: "The LHC Olympics 2020 a community challenge for anomaly detection in high energy physics", venue: "Reports on Progress in Physics", year: 2021, url: "https://doi.org/10.1088/1361-6633/ac36b9" },
+    { title: "Real-time Recovery Efficiencies and Performance of the Palomar Transient Factory’s Transient Discovery Pipeline", venue: "The Astrophysical Journal Supplement Series", year: 2017, url: "https://doi.org/10.3847/1538-4365/aa6d70" },
+  ],
+  "reverse-translation-exceptional-cancer-responders": [
+    { title: "Genome Sequencing Identifies a Basis for Everolimus Sensitivity", venue: "Science", year: 2012, url: "https://doi.org/10.1126/science.1226344" },
+    { title: "Activating mTOR Mutations in a Patient with an Extraordinary Response on a Phase I Trial of Everolimus and Pazopanib", venue: "Cancer Discovery", year: 2014, url: "https://doi.org/10.1158/2159-8290.CD-13-0353" },
+  ],
+  "rare-cell-state-discovery-single-cell-omics": [
+    { title: "Single-cell messenger RNA sequencing reveals rare intestinal cell types", venue: "Nature", year: 2015, url: "https://doi.org/10.1038/nature14966" },
+    { title: "GiniClust: detecting rare cell types from single-cell gene expression data with Gini index", venue: "Genome Biology", year: 2016, url: "https://doi.org/10.1186/s13059-016-1010-4" },
+  ],
+  "online-false-discovery-control-perpetual-discovery": [
+    { title: "Online rules for control of false discovery rate and false discovery exceedance", venue: "The Annals of Statistics", year: 2018, url: "https://doi.org/10.1214/17-AOS1559" },
+    { title: "SAFFRON: an Adaptive Algorithm for Online Control of the False Discovery Rate", venue: "Proceedings of Machine Learning Research", year: 2018, url: "https://proceedings.mlr.press/v80/ramdas18a.html" },
+  ],
+  "calibrated-multi-expert-review-machine-generated-hypotheses": [
+    { title: "AI-Assisted Hypothesis Generation to Address Challenges in Cardiotoxicity Research: Simulation Study Using ChatGPT With GPT-4o", venue: "Journal of Medical Internet Research", year: 2025, url: "https://doi.org/10.2196/66161" },
+    { title: "Data-Driven Hypothesis Generation in Clinical Research: What We Learned from a Human Subject Study?", venue: "Medical Research Archives", year: 2024, url: "https://doi.org/10.18103/mra.v12i2.5132" },
+  ],
+  "functional-unknomics": [
+    { title: "Unknome database (v3)", venue: "MRC Laboratory of Molecular Biology", year: 2023, url: "https://unknome.mrc-lmb.cam.ac.uk/" },
+  ],
+  "computational-excavation-null-results-dark": [
+    { title: "So you got a null result. Will anyone publish it?", venue: "Nature (news feature)", year: 2024, url: "https://www.nature.com/articles/d41586-024-02714-w" },
+  ],
+  "prospective-wet-lab-validation-literature-generated-hypotheses": [
+    { title: "Fish-oil dietary supplementation in patients with Raynaud's phenomenon: A double-blind, controlled, prospective study", venue: "The American Journal of Medicine", year: 1989, url: "https://doi.org/10.1016/0002-9343(89)90261-1" },
+    { title: "Predicting High‐Throughput Screening Results With Scalable Literature‐Based Discovery Methods", venue: "CPT: Pharmacometrics & Systems Pharmacology", year: 2014, url: "https://doi.org/10.1038/psp.2014.37" },
+  ],
+  "claim-level-scientific-knowledge-graphs-contradiction": [
+    { title: "Bridging the Scientific Knowledge Gap and Reproducibility: A Survey of Provenance, Assertion and Evidence Ontologies", venue: "WWW '25 Companion", year: 2025, url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC12376154/" },
+  ],
+  "detection-calibrated-evidence-ecological-absence": [
+    { title: "Estimating Site Occupancy Rates When Detection Probabilities Are Less Than One", venue: "Ecology", year: 2002, url: "https://doi.org/10.1890/0012-9658(2002)083%5B2248:ESORWD%5D2.0.CO;2" },
+    { title: "Statistical approaches to account for false‐positive errors in environmental DNA samples", venue: "Molecular Ecology Resources", year: 2015, url: "https://doi.org/10.1111/1755-0998.12486" },
+  ],
+  "exclusion-lineage-source-cohorts-analysis": [
+    { title: "CONSORT 2010 Statement: Updated Guidelines for Reporting Parallel Group Randomised Trials", venue: "PLoS Medicine", year: 2010, url: "https://doi.org/10.1371/journal.pmed.1000251" },
+    { title: "Reporting of participant flow diagrams in published reports of randomized trials", venue: "Trials", year: 2011, url: "https://doi.org/10.1186/1745-6215-12-253" },
+  ],
+  "quantifying-evidence-absence": [
+    { title: "Replication of null results: Absence of evidence or evidence of absence?", venue: "eLife", year: 2024, url: "https://elifesciences.org/articles/92311" },
+    { title: "Inferring species absence from zero-sighting records using analytical Bayesian models with population growth", venue: "Methods in Ecology and Evolution", year: 2021, url: "https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.13697" },
+  ],
+  "dark-diversity-ecology": [
+    { title: "DarkDivNet — global dark diversity network", venue: "University of Tartu Macroecology workgroup", year: 2025, url: "https://macroecology.ut.ee/en/darkdivnet/" },
+    { title: "Dark diversity reveals global impoverishment of natural vegetation", venue: "Phys.org", year: 2025, url: "https://phys.org/news/2025-04-dark-diversity-reveals-global-impoverishment.html" },
+  ],
+  "shadow-diversity-invisible-unknowns-life": [
+    { title: "The diversity of ignorance and the ignorance of diversity (shadow diversity)", venue: "Cambridge Prisms: Extinction (PMC)", year: 2024, url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC11895729/" },
+    { title: "Displaying bias in sampling effort of data accessed from biodiversity databases using ignorance maps", venue: "Global Ecology and Biogeography", year: 2015, url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC4549634/" },
+    { title: "Dark diversity", venue: "Wikipedia", year: 2024, url: "https://en.wikipedia.org/wiki/Dark_diversity" },
+  ],
+  "abiotic-null-models-isotopic-fractionation": [
+    { title: "Determining the “Biosignature Threshold” for Life Detection on Biotic, Abiotic, or Prebiotic Worlds", venue: "Astrobiology", year: 2022, url: "https://doi.org/10.1089/ast.2021.0079" },
+    { title: "Abiogenic Methane Formation and Isotopic Fractionation Under Hydrothermal Conditions", venue: "Science", year: 1999, url: "https://doi.org/10.1126/science.285.5430.1055" },
+  ],
+  "abiotic-null-library-mineral-biomorphs": [
+    { title: "Morphology: An Ambiguous Indicator of Biogenicity", venue: "Astrobiology", year: 2002, url: "https://doi.org/10.1089/153110702762027925" },
+    { title: "Tricks of Nature From the Ancient Earth and Early Mars: Chemical Gardens Generate Biomorphs With High Preservation Potential", venue: "Geobiology", year: 2026, url: "https://doi.org/10.1111/gbi.70045" },
+  ],
+  "molecular-chirality-homochirality-life-signatures": [
+    { title: "Biosignatures of the Earth I. Airborne spectropolarimetric detection of photosynthetic life", venue: "Astronomy & Astrophysics", year: 2021, url: "https://doi.org/10.1051/0004-6361/202140845" },
+    { title: "Molecular asymmetry in extraterrestrial chemistry: Insights from a pristine meteorite", venue: "Proceedings of the National Academy of Sciences", year: 2008, url: "https://doi.org/10.1073/pnas.0709909105" },
+  ],
+  "molecular-diversity-biosignature-ecodiversity-metrics": [
+    { title: "Molecular diversity as a biosignature (preprint)", venue: "arXiv:2511.00525 (astro-ph)", year: 2025, url: "https://arxiv.org/abs/2511.00525" },
+  ],
+  "ionic-liquid-biospheres-solvent-agnostic-habitability-class": [
+    { title: "Alternative Solvents for Life: Framework for Evaluation, Current Status, and Future Research", venue: "Astrobiology", year: 2024, url: "https://journals.sagepub.com/doi/abs/10.1089/ast.2024.0004" },
+  ],
+  "physics-auditing-ai-forecasts-extreme-event": [
+    { title: "On Some Limitations of Current Machine Learning Weather Prediction Models", venue: "Geophysical Research Letters", year: 2024, url: "https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2023GL107377" },
+    { title: "Validating Deep Learning Weather Forecast Models on Recent High-Impact Extreme Events", venue: "Artificial Intelligence for the Earth Systems (AMS)", year: 2025, url: "https://journals.ametsoc.org/view/journals/aies/4/1/AIES-D-24-0033.1.xml" },
+    { title: "ExtremeWeatherBench (open-source benchmark code)", venue: "GitHub / Brightband", year: 2025, url: "https://github.com/brightbandtech/ExtremeWeatherBench" },
+  ],
+  "soil-moisture-inundation-observation-gnss-reflectometry": [
+    { title: "Soil Moisture Sensing Using Spaceborne GNSS Reflections: Comparison of CYGNSS Reflectivity to SMAP Soil Moisture", venue: "Geophysical Research Letters", year: 2018, url: "https://doi.org/10.1029/2018GL077905" },
+    { title: "Flooding and inundation maps using interpolated CYGNSS reflectivity observations", venue: "Remote Sensing of Environment", year: 2023, url: "https://doi.org/10.1016/j.rse.2023.113598" },
+  ],
+  "community-governance-geospatial-training-data": [
+    { title: "AI ethics and data governance in the geospatial domain of Digital Earth", venue: "Big Data & Society", year: 2022, url: "https://doi.org/10.1177/20539517221138767" },
+    { title: "A cloud-based solution for trustless indigenous data sovereignty: Protecting Māori biodiversity management data in Aotearoa New Zealand", venue: "Transactions in GIS", year: 2024, url: "https://doi.org/10.1111/tgis.13153" },
+  ],
+  "data-assimilation-glacier-velocity-mass": [
+    { title: "The Potential of the Ensemble Kalman Filter to Improve Glacier Modeling", venue: "La Matematica", year: 2024, url: "https://doi.org/10.1007/s44007-024-00116-y" },
+    { title: "A Kalman filter-based framework for assimilating remote sensing observations into a surface mass balance model", venue: "Annals of Glaciology", year: 2025, url: "https://doi.org/10.1017/aog.2025.10020" },
+  ],
+  "open-community-scale-surface-embedding-fields": [
+    { title: "AlphaEarth Foundations: An embedding field model for accurate and efficient global mapping from sparse label data", venue: "arXiv preprint (Google DeepMind)", year: 2025, url: "https://arxiv.org/abs/2507.22291" },
+    { title: "TESSERA: An open-source satellite remote-sensing foundation model for researchers", venue: "Cambridge Conservation Research Institute (official)", year: 2025, url: "https://github.com/ucam-eo/tessera" },
+  ],
+  "simulation-validation-self-correction-experimental-protocols": [
+    { title: "PRISM: protocol refinement through intelligent simulation modeling", venue: "Digital Discovery", year: 2026, url: "https://doi.org/10.1039/D6DD00004E" },
+    { title: "AutoLabs: cognitive multi-agent systems with self-correction for autonomous chemical experimentation", venue: "Scientific Reports", year: 2026, url: "https://doi.org/10.1038/s41598-026-45593-z" },
+  ],
+  "trust-rulers-ai-scientists-reproducibility": [
+    { title: "Curie: Toward Rigorous and Automated Scientific Experimentation with AI Agents", venue: "arXiv", year: 2025, url: "https://arxiv.org/pdf/2502.16069" },
+    { title: "From Automation to Autonomy: A Survey on LLMs in Scientific Discovery", venue: "EMNLP 2025 (survey repo)", year: 2025, url: "https://github.com/HKUST-KnowComp/Awesome-LLM-Scientific-Discovery" },
+  ],
+  "information-firewall-rediscovery-benchmarks": [
+    { title: "ResearchClawBench: A Benchmark for End-to-End Autonomous Scientific Research", venue: "arXiv", year: 2026, url: "https://arxiv.org/abs/2606.07591" },
+    { title: "FIRE-Bench: Evaluating Agents on the Rediscovery of Scientific Insights", venue: "arXiv / ICLR 2026 submission", year: 2026, url: "https://arxiv.org/abs/2602.02905" },
+  ],
+  "embodied-self-driving-labs-closing-discovery": [
+    { title: "Toward self-driving laboratory 2.0 for chemistry and materials discovery", venue: "Materials Horizons (RSC)", year: 2026, url: "https://pubs.rsc.org/en/content/articlehtml/2026/mh/d5mh01984b" },
+  ],
 };
 
 /** Real references for one island, or an empty list when the atlas record

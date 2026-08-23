@@ -16,6 +16,7 @@ import {
   WAVE_2_STRUCTURES,
   WAVE_2_STRUCTURE_PATCHES,
 } from '#structures-expansion-wave2';
+import { WAVE_3_STRUCTURE_PATCHES } from '#structures-expansion-wave3';
 import { WAVE_4_STRUCTURES } from '#structures-expansion-wave4';
 import { WAVE_5_STRUCTURES } from '#structures-expansion-wave5';
 import { WAVE_6_STRUCTURES } from '#structures-expansion-wave6';
@@ -2395,6 +2396,25 @@ SEED_STRUCTURES.push(...WAVE_5_STRUCTURES);
 SEED_STRUCTURES.push(...WAVE_6_STRUCTURES);
 SEED_STRUCTURES.push(...WAVE_7_STRUCTURES);
 SEED_STRUCTURES.push(...WAVE_8_STRUCTURES);
+
+/**
+ * Wave 3 adds substrate to skeletons that already exist — all 36 corpus
+ * isomorphisms were claimed before it, so it patches rather than names. Applied
+ * after the wave-2 push so a patch may target a wave-2 structure too, and
+ * before the depth loop because a mapping is graph truth while depth is not:
+ * if the two ever disagreed about a structure, the mapping is the one a curator
+ * authored.
+ */
+for (const patch of WAVE_3_STRUCTURE_PATCHES) {
+  const structure = SEED_STRUCTURES.find((candidate) => candidate.id === patch.structureId);
+  if (!structure) {
+    throw new Error(`Wave 3 structure patch target does not exist: ${patch.structureId}`);
+  }
+  structure.mappings.push(...patch.mappings);
+  if (patch.mappings.length > 0) {
+    structure.status = 'active';
+  }
+}
 
 /**
  * Depth patches: content a structure owns without any island.

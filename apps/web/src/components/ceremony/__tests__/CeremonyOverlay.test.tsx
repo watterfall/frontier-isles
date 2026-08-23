@@ -51,9 +51,38 @@ describe('CeremonyOverlay — a11y pass (ROADMAP §3.13/§3.15)', () => {
     expect(ch4).toContain('aria-pressed');
   });
 
+  /**
+   * Interactive elements that are not `<button>` or `<a>`.
+   *
+   * This case used to assert `not.toContain('#5F6C8E')` — the colour that
+   * commit e5070ec removed from source when it converted these divs to
+   * buttons. Verified by injection, that tracked the hex and not the property:
+   * a `<span role="button" tabIndex={0} onClick>` styled any other colour left
+   * the suite green, while the same span styled `#5F6C8E` turned it red. The
+   * assertion was as strong as a guess about how the regression would look,
+   * and the case's own name promised something broader.
+   */
+  const scanTags = (html: string) =>
+    [...html.matchAll(/<([a-z]+)\b([^>]*)>/g)].map((m) => ({ tag: m[1] ?? '', attrs: m[2] ?? '' }));
+
+  const isClickable = ({ tag, attrs }: { tag: string; attrs: string }) =>
+    tag !== 'button' && tag !== 'a'
+    && (/\brole="button"/.test(attrs) || /\btabindex=/i.test(attrs));
+
   it('no clickable div/span remains (every handler sits on a button)', () => {
     for (const state of [at(0), at(1), at(2, { ritAdded: [0] }), at(3, { ritAdded: [0] }), at(4, { ritAdded: [0], ritFocus: 0 })]) {
       const html = markup(state);
+      const tags = scanTags(html);
+      // Pin the SCANNER, not just the markup. An empty offender list is also
+      // what a scan that matched nothing produces — and the `?? ''` defaults
+      // above would turn a broken match into a silently well-formed empty
+      // entry. Counting the buttons the scan itself found closes both.
+      expect(tags.filter((t) => t.tag === 'button').length, 'buttons seen by the scan')
+        .toBeGreaterThan(0);
+      expect(tags.filter(isClickable).map(({ tag, attrs }) => `<${tag}${attrs}>`),
+        'interactive elements that are not button/a').toEqual([]);
+      // Kept as a named regression guard for the specific styling that was
+      // removed — narrow on purpose, and no longer the only thing checked.
       expect(html).not.toContain('#5F6C8E');
     }
   });

@@ -37,6 +37,20 @@ import type { ApiStructure, ApiStructureGraph } from './client';
  * event by this actor, so fallback edges carry the same weight/actors. */
 const SEED_CURATOR = 'github:shen-kuo';
 
+/**
+ * The SEED structure behind an id — correspondences included, which the
+ * `ApiStructure` projection drops.
+ *
+ * Lives here rather than in a new module because this one already holds
+ * `SEED_STRUCTURES`: a caller that has loaded the structure lens has already
+ * paid for the 261KiB, and a second door onto the same data is how that cost
+ * ends up somewhere eager. Used to resolve a structure proposal's quantity
+ * pointer against the authored correspondence it addresses.
+ */
+export function seedStructureById(id: string) {
+  return SEED_STRUCTURES.find((structure) => structure.id === id);
+}
+
 export function fallbackStructures(): ApiStructure[] {
   return SEED_STRUCTURES.map((s) => ({
     schema: 'opp/0.3',

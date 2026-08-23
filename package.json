@@ -7,12 +7,15 @@
   "scripts": {
     "dev": "pnpm --parallel --filter @frontier-isles/server --filter @frontier-isles/web dev",
     "build": "pnpm -r build",
-    "test": "pnpm -r test",
+    "test": "pnpm -r test && pnpm test:scripts",
+    "test:scripts": "node --test scripts/*.test.mjs",
     "test:e2e": "pnpm --filter @frontier-isles/web test:e2e",
     "xfrontier:sync": "pnpm --filter @frontier-isles/data xfrontier:sync",
     "xfrontier:feedback": "pnpm --filter @frontier-isles/server xfrontier:feedback",
     "verify:release-docs": "node scripts/verify-release-docs.mjs",
-    "typecheck": "pnpm verify:release-docs && pnpm -r typecheck"
+    "validate:observations": "node scripts/validate-observations.mjs",
+    "typecheck": "pnpm verify:release-docs && pnpm validate:observations && pnpm -r typecheck",
+    "verify": "pnpm test && pnpm typecheck && pnpm build"
   },
   "devDependencies": {
     "typescript": "^5.7.2",

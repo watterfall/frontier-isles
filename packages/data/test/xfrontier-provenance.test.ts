@@ -39,7 +39,7 @@ describe('xfrontier provenance snapshot', () => {
     );
     expect(SNAPSHOT.references.map((reference) => reference.id)).toEqual(referencedIds());
     expect(new Set(SNAPSHOT.references.map((reference) => reference.id)).size).toBe(SNAPSHOT.references.length);
-    expect(SNAPSHOT.tally).toEqual({ active: 506, withdrawn: 1, unknown: 0 });
+    expect(SNAPSHOT.tally).toEqual({ active: 682, withdrawn: 1, unknown: 0 });
   });
 
   it('stores hashes for active records and explicit retirement data for withdrawals', () => {

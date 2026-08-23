@@ -19,7 +19,7 @@ import { QUESTIONS, SAMPLE_SLUG, STN, type IslandDatum, type QuestionDatum } fro
 import { localizeStationZh } from './i18n/stations';
 import { wipeReducer, initialWipe } from './state/wipeMachine';
 import { formatWorldLink, parseWorldLink } from './state/worldLink';
-import { islandSlugOf, stepIsland } from './models/islandStepping';
+import { clusterSiblingsOf, islandSlugOf, stepIsland } from './models/islandStepping';
 import {
   explorationReducer,
   type CompletedPassage,
@@ -508,6 +508,25 @@ export default function App() {
     };
   }, [chartIslands, lang, selSlug, stepToIsland, voyageActive]);
 
+  // The other islands the upstream corpus files in the same cluster. Derived
+  // here because App already holds the roster; deriving it inside L1 would put
+  // a second read of the island source behind the same fact.
+  //
+  // `undefined` when the island has no cluster provenance — the sample island
+  // is authored here, not projected from the corpus, so it has no cluster and
+  // must not be given a fabricated one.
+  const clusterSiblings = useMemo(
+    () => (selSlug ? clusterSiblingsOf(chartIslands, selSlug) ?? undefined : undefined),
+    [chartIslands, selSlug],
+  );
+
+  // Opening a sibling is a normal voyage — same path as ‹ › stepping, so the
+  // world transition runs and the shareable hash follows.
+  const voyageToSlug = useCallback((slug: string) => {
+    const destination = chartIslands.find((d) => islandSlugOf(d) === slug);
+    if (destination) beginVoyage(destination);
+  }, [beginVoyage, chartIslands]);
+
   const completeStructurePassage = useCallback((receipt: CompletedPassage) => {
     setRecentResearchAction(null);
     dispatchExploration({ type: 'complete-passage', receipt });
@@ -774,6 +793,9 @@ export default function App() {
                     onVisitBuildingFloor={(station, floorId) => dispatchExploration({ type: 'visit-building-floor', slug: selSlug, station, floorId })}
                     onActiveDistrict={setTrailDistrict}
                     onActiveFloor={setTrailFloor}
+                    clusterSiblings={clusterSiblings}
+                    onVoyageToIsland={voyageToSlug}
+                    atlasN={chartIslands.find((d) => islandSlugOf(d) === selSlug)?.atlasN}
                     onReady={signalIslandReady}
                   />
                 </Suspense>
