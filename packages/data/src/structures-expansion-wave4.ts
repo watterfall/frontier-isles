@@ -540,10 +540,16 @@ export const STRUCTURE_PROPOSALS: StructureProposal[] = [
     structureId: 'struct://xfrontier/landauer-erasure-cost',
     relation: 'embodies',
     quantity: 0,
-    evidence: { field: 'qfocus' },
+    // Pointed at qfocus until 2026-08-23. That was wrong, and the way it was
+    // wrong is worth keeping: this island's qfocus is 「擦除一比特信息，是否必
+    // 然耗散热量——这条铁律能被绕过吗？」, which is a provocation, and a
+    // provocation is compatible with the bound holding AND with it being
+    // circumvented. It cannot evidence either. The measurement the check
+    // actually asks about lives in approaches[0].
+    evidence: { field: 'approaches', index: 0 },
     check: bi(
-      '复核这一条要确认的是：岛的核心问句「擦除一比特信息，是否必然耗散热量」问的就是本结构的那个下界，且它在单电子/单分子尺度实测的是同一个量，而不是一个同样以 kT 计的其它耗散项。',
-      'What a reviewer must confirm: that the island\'s central question — must erasing one bit dissipate heat — is asking about this structure\'s bound, and that what it measures at the single-electron and single-molecule scale is that same quantity rather than another dissipation term that also scales with kT.',
+      '复核这一条要确认的是：岛的 approaches[0]「在单电子、单分子尺度精确计量擦除比特所耗散的热量」测的就是本结构的第一个量（每次擦除的最小耗散 kT·ln2），而不是一个同样以 kT 计的其它耗散项。岛的核心问句只说明这座岛在问什么，不构成该量被测到的证据——问句问的是这条界能否被绕过，与界成立、界被绕过两种结局都相容。',
+      'What a reviewer must confirm: that the island\'s approaches[0] — precisely metering the heat dissipated by erasing a bit at the single-electron and single-molecule scale — measures this structure\'s first quantity, the kT·ln2 floor per erasure, rather than another dissipation term that also scales with kT. The island\'s central question establishes only what the island is asking about and is not evidence that the quantity was measured: it asks whether the bound can be circumvented, which is compatible with the bound holding and with its being circumvented alike.',
     ),
   },
   {
