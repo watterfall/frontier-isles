@@ -6,8 +6,9 @@ import { COLLECTIVE_FAMILY_DEPTH } from '../src/structures-depth-collective';
 import { LOCKIN_FAMILY_DEPTH } from '../src/structures-depth-lockin';
 import { METHOD_FAMILY_DEPTH } from '../src/structures-depth-method';
 import { INFORMATION_FAMILY_DEPTH } from '../src/structures-depth-information';
+import { LIMITS_FAMILY_DEPTH } from '../src/structures-depth-limits';
 
-const ALL_DEPTH = [...CRITICAL_FAMILY_DEPTH, ...INFERENCE_FAMILY_DEPTH, ...COLLECTIVE_FAMILY_DEPTH, ...LOCKIN_FAMILY_DEPTH, ...METHOD_FAMILY_DEPTH, ...INFORMATION_FAMILY_DEPTH];
+const ALL_DEPTH = [...CRITICAL_FAMILY_DEPTH, ...INFERENCE_FAMILY_DEPTH, ...COLLECTIVE_FAMILY_DEPTH, ...LOCKIN_FAMILY_DEPTH, ...METHOD_FAMILY_DEPTH, ...INFORMATION_FAMILY_DEPTH, ...LIMITS_FAMILY_DEPTH];
 import { FRONTIERS } from '../src/frontiers';
 
 const byId = new Map(SEED_STRUCTURES.map((structure) => [structure.id, structure]));
@@ -23,7 +24,8 @@ describe('structure depth', () => {
     expect(LOCKIN_FAMILY_DEPTH).toHaveLength(8);
     expect(METHOD_FAMILY_DEPTH).toHaveLength(8);
     expect(INFORMATION_FAMILY_DEPTH).toHaveLength(8);
-    expect(withDepth).toHaveLength(48);
+    expect(LIMITS_FAMILY_DEPTH).toHaveLength(8);
+    expect(withDepth).toHaveLength(56);
     for (const patch of ALL_DEPTH) {
       expect(byId.get(patch.structureId)?.depth, patch.structureId).toBe(patch.depth);
     }
@@ -99,7 +101,7 @@ describe('structure depth', () => {
     // 0 of 126 structures carried a relation to another before this field.
     const edges = withDepth.flatMap((structure) =>
       structure.depth!.relations.map((relation) => `${structure.id}→${relation.to}`));
-    expect(edges.length).toBeGreaterThanOrEqual(100);
+    expect(edges.length).toBeGreaterThanOrEqual(118);
     expect(new Set(edges).size, 'a relation must not be stated twice').toBe(edges.length);
     // Every structure in the family is reachable from another: none is isolated.
     const touched = new Set(withDepth.flatMap((structure) =>
