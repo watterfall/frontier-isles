@@ -158,6 +158,68 @@ describe('frontier expansion wave 3 — the 2× atlas', () => {
     expect(min, `tightest pair ${pair[0]} ↔ ${pair[1]}`).toBeGreaterThan(24);
   });
 
+  it('records that the atlas is NOT a uniform sample of the corpus', () => {
+    // Wave 3 rejected a domain-proportional quota because domain is a lossy
+    // editorial bucket — 交叉 owns 20 of the 53 clusters, so such a quota would
+    // re-encode a taxonomy artifact. That reasoning is right, and it is also
+    // incomplete: a UNIFORM CLUSTER quota has an artifact of its own. Corpus
+    // clusters run 23 to 61 records, so seven islands each means a record in a
+    // small cluster is far likelier to become an island than one in a large
+    // cluster. Replacing one quota while recording only the bias of the quota
+    // replaced is how an atlas comes to be read as a uniform sample when it is
+    // not — and any downstream number computed over islands and reported as a
+    // fact about the corpus inherits this weighting, including this repo's own
+    // mapping rejection rates.
+    //
+    // What is pinned here is the MECHANISM, not the span. The span moves as
+    // islands are added off-quota (it is 2.33x at 383 islands, mean rate 21.6%,
+    // CV 0.196), so pinning it would gate on a number that legitimately drifts.
+    // The mechanism does not drift: sampling rate is set by cluster size and
+    // almost nothing else. If this correlation ever weakens, the selection rule
+    // changed and the paragraph above needs rewriting rather than the number.
+    const CORPUS_SIZES: Record<string, number> = {
+      C01: 53, C02: 47, C03: 49, C04: 47, C05: 37, C06: 27, C07: 31, C08: 26, C09: 35,
+      C10: 40, C11: 49, C12: 32, C13: 29, C14: 37, C15: 40, C16: 34, C17: 36, C18: 31,
+      C19: 38, C20: 41, C21: 23, C22: 37, C23: 37, C24: 33, C25: 27, C26: 41, C27: 31,
+      C28: 61, C29: 40, C30: 28, C31: 24, C32: 28, C33: 28, C34: 26, C35: 32, C36: 25,
+      C37: 35, C38: 24, C39: 31, C40: 28, C41: 42, C42: 38, C43: 30, C44: 36, C45: 29,
+      C46: 31, C47: 36, C48: 31, C49: 36, C50: 39, C51: 35, C52: 32, C53: 35,
+    };
+    const counts = new Map<string, number>();
+    for (const f of FRONTIERS) counts.set(f.cluster.code, (counts.get(f.cluster.code) ?? 0) + 1);
+
+    const codes = Object.keys(CORPUS_SIZES);
+    expect(codes.length, 'corpus cluster table covers all 53').toBe(53);
+    const sizes = codes.map((c) => CORPUS_SIZES[c]!);
+    const rates = codes.map((c) => (counts.get(c) ?? 0) / CORPUS_SIZES[c]!);
+
+    // Spearman rank correlation, size against sampling rate.
+    const ranked = (values: number[]): number[] => {
+      const order = values.map((v, i) => [v, i] as const).sort((a, b) => a[0] - b[0]);
+      const out = new Array<number>(values.length);
+      order.forEach(([, i], k) => { out[i] = k + 1; });
+      return out;
+    };
+    const rs = ranked(sizes);
+    const rr = ranked(rates);
+    const n = codes.length;
+    const dSquared = rs.reduce((sum, x, i) => sum + (x - rr[i]!) ** 2, 0);
+    const rho = 1 - (6 * dSquared) / (n * (n * n - 1));
+
+    // Measured at -0.960: rate is set by cluster size and almost nothing else.
+    expect(rho, `Spearman(cluster size, sampling rate) = ${rho.toFixed(3)}`).toBeLessThan(-0.85);
+
+    // And the consequence stated plainly, so it cannot be read past: the atlas
+    // over-samples small clusters. Every cluster is represented, which is what
+    // the levelling bought; uniform sampling is not what it bought.
+    const small = codes.filter((c) => CORPUS_SIZES[c]! <= 30);
+    const large = codes.filter((c) => CORPUS_SIZES[c]! >= 40);
+    const meanRate = (list: string[]) =>
+      list.reduce((sum, c) => sum + (counts.get(c) ?? 0) / CORPUS_SIZES[c]!, 0) / list.length;
+    expect(meanRate(small), 'small clusters are sampled harder than large ones')
+      .toBeGreaterThan(meanRate(large) * 1.3);
+  });
+
   it('spreads the new islands across all four domains', () => {
     for (const domain of DOMAINS) {
       expect(
