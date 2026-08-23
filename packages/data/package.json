@@ -25,7 +25,8 @@
     "#structures-depth-lockin": "./src/structures-depth-lockin.ts",
     "#structures-depth-method": "./src/structures-depth-method.ts",
     "#structures-depth-information": "./src/structures-depth-information.ts",
-    "#structures-depth-limits": "./src/structures-depth-limits.ts"
+    "#structures-depth-limits": "./src/structures-depth-limits.ts",
+    "#structures-depth-credibility": "./src/structures-depth-credibility.ts"
   },
   "exports": {
     ".": "./src/index.ts",
