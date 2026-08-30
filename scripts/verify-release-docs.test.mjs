@@ -32,6 +32,16 @@ import { fileURLToPath } from 'node:url';
  */
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
+/**
+ * Read from the manifest rather than written down here. An earlier draft pinned
+ * "v6" into three assertions and went red the moment the next deploy landed —
+ * a test that has to be edited on every release is a test that will be edited
+ * carelessly, and this suite exists precisely because a hand-maintained release
+ * number rots.
+ */
+const RELEASE = JSON.parse(readFileSync(join(ROOT, 'docs/release-manifest.json'), 'utf8')).production.releaseVersion;
+/** Any release the manifest is not on, phrased as an older one. */
+const STALE_RELEASE = RELEASE > 1 ? 1 : 2;
 const COPIES = [
   'scripts/verify-release-docs.mjs',
   'docs/release-manifest.json',
@@ -97,11 +107,11 @@ describe('release docs gate — a stale release number in the live region', () =
   // document went on naming v2 in the present tense.
   test('fails when a live passage names a release the manifest has moved past', () => {
     const { code, out, oldGateStillSatisfied } = runWith({
-      roadmap: intoLiveRegion('7. **Production is live but release parity is open:** Fly release v2 is healthy.'),
+      roadmap: intoLiveRegion(`7. **Production is live but release parity is open:** Fly release v${STALE_RELEASE} is healthy.`),
     });
     assert.ok(oldGateStillSatisfied, 'mutation must leave the original includes() assertions satisfied');
     assert.equal(code, 1, out);
-    assert.match(out, /names release v2 above the session log while production is on v6/);
+    assert.match(out, new RegExp(`names release v${STALE_RELEASE} above the session log while production is on v${RELEASE}`));
   });
 
   test('allows the same number when the line marks itself historical', () => {
@@ -116,10 +126,10 @@ describe('release docs gate — a stale release number in the live region', () =
 
   test('fails when the deployed release is never named at all', () => {
     const { code, out } = runWith({
-      roadmap: (s) => s.replaceAll(/release\s+\*{0,2}v6\b/gi, 'the current release'),
+      roadmap: (s) => s.replaceAll(new RegExp(`release\\s+\\*{0,2}v${RELEASE}\\b`, 'gi'), 'the current release'),
     });
     assert.equal(code, 1, out);
-    assert.match(out, /must name the deployed release \(v6\)/);
+    assert.match(out, new RegExp(`must name the deployed release \\(v${RELEASE}\\)`));
   });
 });
 

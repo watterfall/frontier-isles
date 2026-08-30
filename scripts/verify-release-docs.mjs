@@ -161,6 +161,13 @@ for (const [i, line] of liveRegion.split('\n').entries()) {
 // What it may not do is leave that in the present tense once it is false: the
 // Slice 26 and 27 entries read "production still serves …" for a month after
 // the deploy that ended it.
+//
+// Known limitation, left deliberately: this matches a QUOTED claim as readily
+// as an asserted one, and it caught the Slice 29 entry that was describing the
+// fix. Widening the match to exempt quotations would let a real stale claim
+// through by wrapping it in quotes, and tuning the marker list until the
+// author's own prose passes is how a gate stops meaning anything. The remedy
+// is the one a good entry wants anyway: name the supersession.
 for (const [i, line] of logRegion.split('\n').entries()) {
   if (!/still serve[sd]/i.test(line) || /superseded/i.test(line)) continue;
   assert(

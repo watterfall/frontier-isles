@@ -4,12 +4,12 @@
   "scope": "CI-verified main, deployed and verified against the live URL by rendered-DOM assertions (not by the deploy command's exit code).",
   "main": {
     "branch": "main",
-    "commit": "2dbb2a0cfaaef8b44225c893e2a3c9c63704560f",
-    "committedAt": "2026-08-31T02:34:00+08:00",
+    "commit": "9af62764240987663452f2570b5fe13092d5d20a",
+    "committedAt": "2026-08-31T07:15:57+08:00",
     "ci": {
       "provider": "github-actions",
-      "runId": 33328467205,
-      "url": "https://github.com/watterfall/frontier-isles/actions/runs/33328467205",
+      "runId": 33341357681,
+      "url": "https://github.com/watterfall/frontier-isles/actions/runs/33341357681",
       "conclusion": "success",
       "gates": [
         "test",
@@ -22,10 +22,10 @@
   "production": {
     "app": "frontier-isles",
     "url": "https://frontier-isles.fly.dev",
-    "releaseVersion": 6,
-    "deploymentTag": "deployment-01M19ZR1JAGR2DE8BZPW6233W8",
-    "sourceCommit": "2dbb2a0cfaaef8b44225c893e2a3c9c63704560f",
-    "createdAt": "2026-08-30T18:49:44Z",
+    "releaseVersion": 7,
+    "deploymentTag": "deployment-01M1AG68AMD7SHNG88VCSFWT18",
+    "sourceCommit": "9af62764240987663452f2570b5fe13092d5d20a",
+    "createdAt": "2026-08-30T23:32:00Z",
     "healthCheckedAt": "2026-08-31",
     "health": "passing",
     "counts": {
@@ -35,14 +35,14 @@
       "frontierProjections": 39
     },
     "liveVerification": {
-      "method": "Rendered-DOM assertions against the live URL plus asset-hash identity with the local build (index-BchK9h_3.js / index-BhCyncUC.css), so a cached or unchanged deploy cannot pass. This also exercises the ONLINE path, where structures come from the server rather than the offline fallback — the path the web unit tests cannot reach, since they build the field from fallbackStructures().",
+      "method": "Rendered-DOM assertions against the live URL plus asset-hash identity with the local build (index-CGIE9G7A.js / index-BhCyncUC.css), so a cached or unchanged deploy cannot pass. The check was run against release 6 first and correctly reported MISMATCH, which is what makes the match on release 7 evidence rather than a green light nobody tested. It also exercises the ONLINE path, where structures come from the server rather than the offline fallback — the path the web unit tests cannot reach, since they build the field from fallbackStructures().",
       "verified": [
         "GET /api/structures returns all 126 catalogue structures",
         "GET /api/structures/graph returns 135 edges / 135 mappings / 39 frontier projections",
-        "GET /api/islands returns 384 islands — the catalogue reconciled into the existing isles_data volume on boot, up from the 177 this manifest last recorded, which is the designed idempotent upgrade path rather than a reseed",
-        "every one of the 126 topic rows carries its written-body mark, e.g. 「尚无可靠映射 · 已写正文 · 4 个学科 · 6 条关系」",
-        "the 更多主题 disclosure reads 「122 个主题」 — the ratio correctly drops itself now that no topic lacks a body",
-        "opening a topic renders the structure body from the server-supplied catalogue (data-depth=\"true\", three textbook substrates, three relation links, none dashed since every target is now written)",
+        "GET /api/islands returns 384 islands",
+        "the cross-field desk opens from aria-expanded=\"false\" (folded until intent exists, by design) and all 126 topic rows carry the written-body mark, e.g. 「· 已写正文 · 4 个学科 · 4 条关系」",
+        "the 更多主题 disclosure reads 「122 个主题」 — a plain count, the ratio correctly retired now that no topic lacks a body",
+        "opening a topic mounts structure-reading with data-depth=\"true\" from the server-supplied catalogue, with 0 dashed relation links since every target is now written",
         "no horizontal overflow at 1440x900",
         "the only failing request is POST /api/auth/dev-login -> 403, the documented read-only boundary: no GITHUB_CLIENT_ID/SECRET secrets are set, so production has no login path by design"
       ]
@@ -50,7 +50,7 @@
   },
   "deploymentBoundary": {
     "mainCommitIsDeployed": true,
-    "reason": "Release 6 was built from 2dbb2a0 after its CI run (33328467205) passed every step, and the live site serves this build's asset hashes. NOTE for the next reader: this field said true while it was false. It claimed release 4 from 39a2d2d was current, but the app had been on a release 5 deployed 2026-08-08 that no commit ever recorded, and main had moved six commits past it. A boolean asserting \"main is deployed\" cannot be maintained by hand — check `flyctl releases` against this record before trusting it."
+    "reason": "Release 7 was built from 9af6276 after its CI run (33341357681) passed every step, and the live site serves this build's asset hashes. NOTE for the next reader: this field said true while it was false on 2026-08-31. It claimed release 4 from 39a2d2d was current, but the app had been on a release 5 deployed 2026-08-08 that no commit ever recorded, and main had moved six commits past it. A boolean asserting \"main is deployed\" cannot be maintained by hand — check `flyctl releases` against this record before trusting it. verify-release-docs.mjs now also refuses a ROADMAP that contradicts this field elsewhere in its own text, which is how the same rot survived the last correction."
   },
   "bundleBaseline": {
     "measuredAt": "2026-08-31, after depth reached all 126 structures and the topic marks became adaptive",
