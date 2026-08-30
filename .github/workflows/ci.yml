@@ -22,7 +22,13 @@ jobs:
       # bundled full-ICU resolves zh-CN from LANG without an OS-generated locale.
       LANG: zh_CN.UTF-8
     steps:
+      # Full history: the observation-ledger gate (`pnpm test:scripts`) walks
+      # ledger/observations.jsonl commit by commit and requires each version to
+      # extend the one before it. The default depth-1 checkout leaves it one
+      # commit and nothing to compare, and the gate now refuses to call that ok.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       # Reads the pinned version from package.json "packageManager".
       - uses: pnpm/action-setup@v4

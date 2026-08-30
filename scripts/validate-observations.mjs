@@ -298,61 +298,81 @@ let history = 'not checked (no commits touch this file yet)';
 try {
   const shas = git(['log', '--format=%H', '--', FILE])
     .split('\n').filter(Boolean).reverse(); // oldest first
-  const drift = [];
-  let prev = null;
-  let prevSha = null;
-  let compared = 0;
-  let unreadable = 0;
-  for (const sha of shas) {
-    let text;
-    try {
-      text = git(['show', `${sha}:${FILE}`]);
-    } catch {
-      // Path absent at this commit (e.g. before a rename). Counted, because a
-      // silently skipped version turns "N commits checked" into a number that
-      // does not say how many were actually compared.
-      //
-      // Exercised by pointing `FI_GIT_BIN` at a stub that fails `show` while
-      // `log` still succeeds. What that establishes is how THIS code reacts to
-      // a failing `show` — not that git ever fails that way, which no stub can
-      // show. The distinction matters: a branch whose correctness depends on
-      // git's actual output (a rename reported as `R100 old new`, say) has to
-      // be checked against real git, and a stub would only be re-asserting the
-      // format this code already assumes.
-      unreadable++;
-      continue;
-    }
-    const cur = text.split('\n').filter((l) => l.trim());
-    if (prev) {
-      compared++;
-      if (!isPrefixExtension(prev, cur)) {
-        const { notes, fellBack } = explainDrift(prev, cur);
-        for (const note of notes) {
-          drift.push(`in ${sha.slice(0, 8)} (since ${prevSha.slice(0, 8)}) ${note}` +
-            `${fellBack ? ' [by line position — an entry would not parse or its id is missing/duplicated]' : ''}`);
+  // A shallow clone truncates exactly the history this walk reads, and what it
+  // leaves — one commit, nothing to compare — is indistinguishable from a
+  // ledger that was only ever committed once, which the NOT-ESTABLISHED branch
+  // below rightly lets through. So ask git whether the history is whole rather
+  // than inferring it from a short log. `actions/checkout` produces depth-1
+  // clones by default, and this gate reported those as `history ok (1 commit(s)
+  // touched it, 0 version pair(s) compared)` on every CI run it ever had.
+  let shallow = false;
+  try {
+    shallow = git(['rev-parse', '--is-shallow-repository']).trim() === 'true';
+  } catch {
+    // Could not ask. Not claiming shallowness is the safe reading: the walk
+    // below still applies its own verdicts to whatever history it finds.
+  }
+  if (shallow) {
+    history = 'NOT CHECKED — shallow clone, the history is not here to walk';
+    fail.push(`${FILE} — the append-only history check cannot run in a shallow clone (${shas.length} commit(s) visible). ` +
+      `Fetch the full history (\`git fetch --unshallow\`, or \`fetch-depth: 0\` in CI) instead of treating a truncated walk as a pass.`);
+  } else {
+    const drift = [];
+    let prev = null;
+    let prevSha = null;
+    let compared = 0;
+    let unreadable = 0;
+    for (const sha of shas) {
+      let text;
+      try {
+        text = git(['show', `${sha}:${FILE}`]);
+      } catch {
+        // Path absent at this commit (e.g. before a rename). Counted, because a
+        // silently skipped version turns "N commits checked" into a number that
+        // does not say how many were actually compared.
+        //
+        // Exercised by pointing `FI_GIT_BIN` at a stub that fails `show` while
+        // `log` still succeeds. What that establishes is how THIS code reacts to
+        // a failing `show` — not that git ever fails that way, which no stub can
+        // show. The distinction matters: a branch whose correctness depends on
+        // git's actual output (a rename reported as `R100 old new`, say) has to
+        // be checked against real git, and a stub would only be re-asserting the
+        // format this code already assumes.
+        unreadable++;
+        continue;
+      }
+      const cur = text.split('\n').filter((l) => l.trim());
+      if (prev) {
+        compared++;
+        if (!isPrefixExtension(prev, cur)) {
+          const { notes, fellBack } = explainDrift(prev, cur);
+          for (const note of notes) {
+            drift.push(`in ${sha.slice(0, 8)} (since ${prevSha.slice(0, 8)}) ${note}` +
+              `${fellBack ? ' [by line position — an entry would not parse or its id is missing/duplicated]' : ''}`);
+          }
         }
       }
+      prev = cur;
+      prevSha = sha;
     }
-    prev = cur;
-    prevSha = sha;
-  }
-  if (drift.length) {
-    fail.push(`${FILE} — append-only violated IN HISTORY: ${drift.slice(0, 5).join('; ')}. ` +
-      `A committed rewrite is still a rewrite; correct a superseded observation by appending on the same \`about\`.`);
-    history = 'VIOLATED';
-  } else {
-    // "ok" only when something was actually compared. A walk that skipped every
-    // version has established nothing, and printing ok there is the exact
-    // substitution this check exists to prevent: "not compared" read as
-    // "unchanged".
-    const detail = `${shas.length} commit(s) touched it, ${compared} version pair(s) compared` +
-      `${unreadable ? `, ${unreadable} version(s) unreadable at this path and SKIPPED` : ''}`;
-    if (compared === 0 && shas.length > 1) {
-      history = `NOT ESTABLISHED — nothing could be compared (${detail})`;
-      fail.push(`${FILE} — the append-only history check compared nothing (${detail}). ` +
-        `That is not a pass; it means the history could not be read.`);
+    if (drift.length) {
+      fail.push(`${FILE} — append-only violated IN HISTORY: ${drift.slice(0, 5).join('; ')}. ` +
+        `A committed rewrite is still a rewrite; correct a superseded observation by appending on the same \`about\`.`);
+      history = 'VIOLATED';
     } else {
-      history = `ok (${detail})`;
+      // "ok" only when something was actually compared. A walk that skipped every
+      // version has established nothing, and printing ok there is the exact
+      // substitution this check exists to prevent: "not compared" read as
+      // "unchanged".
+      const detail = `${shas.length} commit(s) touched it, ${compared} version pair(s) compared` +
+        `${unreadable ? `, ${unreadable} version(s) unreadable at this path and SKIPPED` : ''}`;
+      if (compared === 0 && shas.length > 1) {
+        history = `NOT ESTABLISHED — nothing could be compared (${detail})`;
+        fail.push(`${FILE} — the append-only history check compared nothing (${detail}). ` +
+          `That is not a pass; it means the history could not be read.`);
+      } else {
+        history = `ok (${detail})`;
+      }
     }
   }
 } catch {

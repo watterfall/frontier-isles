@@ -114,6 +114,31 @@ describe('ledger gate — git fails', () => {
   });
 });
 
+describe('ledger gate — shallow clone', () => {
+  test('refuses to call a truncated history ok', () => {
+    // A depth-1 clone — what `actions/checkout` produces by default — leaves
+    // the ledger with one commit and nothing to compare. Before this case the
+    // gate reported that as `history ok (1 commit(s) touched it, 0 version
+    // pair(s) compared)`: the exact "not compared read as unchanged" the
+    // NOT-ESTABLISHED branch exists to prevent, reachable only because that
+    // branch required MORE than one commit. Real git, real shallow clone —
+    // the property being tested is git's own report of shallowness, which a
+    // stub could only re-assert.
+    const dir = mkdtempSync(join(tmpdir(), 'fi-ledger-shallow-'));
+    try {
+      execFileSync(REAL_GIT, ['clone', '--quiet', '--depth=1', `file://${ROOT}`, join(dir, 'clone')], { stdio: 'ignore' });
+      // The gate under test is the working-tree one, not whatever HEAD carried.
+      copyFileSync(SCRIPT, join(dir, 'clone/scripts/validate-observations.mjs'));
+      const { code, out } = run({ cwd: join(dir, 'clone') });
+      assert.equal(code, 1, out);
+      assert.match(out, /NOT CHECKED — shallow clone/);
+      assert.doesNotMatch(out, /history ok/);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});
+
 describe('ledger gate — outside a checkout', () => {
   test('passes, because there is no history to read rather than an unread one', () => {
     // A release tarball or vendored copy has no `.git` and never had history.
