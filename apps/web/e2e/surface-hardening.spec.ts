@@ -68,6 +68,10 @@ interface BrowserExperienceMetric {
   context: Record<string, string>;
 }
 
+/** Readiness of the real Pixi atlas: slow locally, far slower on a shared
+ *  CI runner under software rendering. */
+const atlasReadyTimeout = process.env.CI ? 60_000 : 20_000;
+
 async function experienceMetrics(page: Page): Promise<BrowserExperienceMetric[]> {
   return page.evaluate(() => [...(window.__FI_EXPERIENCE_METRICS__ ?? [])]) as Promise<BrowserExperienceMetric[]>;
 }
@@ -242,8 +246,16 @@ test.describe('desktop L0 → L1 experience', () => {
     // camera motion — a search entered in that window can lose its `onArrived`
     // and never dock. `l0-atlas-ready` publishes exactly when the renderer is
     // up, so it is the correct gate to wait on rather than a fixed sleep.
+    //
+    // The wait scales with CI. This is the one route that mounts the real Pixi
+    // atlas under software rendering (ROADMAP §6 Slice 24 records that it
+    // legitimately overruns the 12s L0 budget there), and an explicit per-call
+    // timeout overrides playwright.config.ts's CI expect budget — so a bare
+    // 20_000 silently gave the slowest assertion in the suite LESS than the
+    // 30_000 the config intends for CI. It passed until runners got slower,
+    // then failed three attempts on a commit whose re-run went green.
     await expect
-      .poll(async () => (await experienceMetrics(page)).map((metric) => metric.name), { timeout: 20_000 })
+      .poll(async () => (await experienceMetrics(page)).map((metric) => metric.name), { timeout: atlasReadyTimeout })
       .toContain('l0-atlas-ready');
 
     const search = page.locator('.fi-chart-search input[role="combobox"]');
