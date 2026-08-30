@@ -1,15 +1,16 @@
 # Frontier Isles · Roadmap Assessment
 
-## 2026-08-04 · Verified release checkpoint
+## 2026-08-31 · Verified release checkpoint
 
 The machine-checked snapshot is [`docs/release-manifest.json`](release-manifest.json). It separates CI evidence, production evidence, and what could not be verified, instead of compressing them into one “done” claim.
 
 | Surface | Current truth |
 |---|---|
-| **CI-verified main** | `39a2d2d8f1862784997800efdfcd7a1a82aece6f` (2026-08-04) passed GitHub Actions run `30848378259`: tests, typecheck, build, and full-stack Playwright. |
-| **Production** | Fly release v4 built from that same commit; verified 2026-08-04 with 177 islands, 101 mappings, and 36 frontier projections. |
-| **Deployment boundary** | **当前 main 已部署。** Proven by rendered-DOM assertions against the live URL plus asset-hash identity with the local build — not by the deploy command's exit code. The only commit after `39a2d2d` is this checkpoint's own documentation update, which ships no artifact; a later code commit makes this record stale until re-verified. Two areas stay unverifiable in production and are listed as such in the manifest: the session badge / logout hit target and the QFT write path both need a login, and production has no OAuth secrets, so it serves read-only. |
-| **2026-08-03 hardening slice** | Release-truth gate; measured JS/CSS budgets; 1440/1024-touch/390 responsive accessibility smoke; tablet touch targets; research-metadata readability; semantic day/night roles for shared chrome/loading states; and local `fi:l0-atlas-ready` / `fi:l1-island-ready` measures with executable 12s/15s browser budgets. The stronger deep-link smoke closed two boot races; the final inquiry pass also added mobile deep-link selection, per-operation QFT rollback/retry, empty-rewrite validation, and a mobile-first vertical science passage. This snapshot does not infer later commit, push, CI, or deploy state. |
+| **CI-verified main** | `2dbb2a0cfaaef8b44225c893e2a3c9c63704560f` (2026-08-31) passed GitHub Actions run `33328467205`: tests, typecheck, build, and full-stack Playwright. |
+| **Production** | Fly release v6 built from that same commit; verified 2026-08-31 with 384 islands, 126 structures, 135 mappings, and 39 frontier projections. Booting the new image reconciled the catalogue into the existing `isles_data` volume — the designed idempotent upgrade path, not a reseed. |
+| **Deployment boundary** | **当前 main 已部署。** Proven by rendered-DOM assertions against the live URL plus asset-hash identity with the local build (`index-BchK9h_3.js` / `index-BhCyncUC.css`) — not by the deploy command's exit code. The live check also exercises the ONLINE path, where structures come from the server rather than the offline fallback, which the web unit tests cannot reach. Production stays read-only: no `GITHUB_CLIENT_ID`/`SECRET` secrets are set, so `POST /api/auth/dev-login` answers 403 by design, and the session badge and QFT write path remain unverifiable in production for that reason. |
+| **What this checkpoint corrects** | The previous checkpoint asserted 当前 main 已部署 while it was false. It named Fly release v4 from `39a2d2d`, but the app had since been moved to a release v5 deployed 2026-08-08 that no commit ever recorded, and main had advanced six commits past it. A hand-maintained boolean claiming “main is deployed” degrades silently; check `flyctl releases` against the manifest before trusting it. |
+| **2026-08-30/31 structure-layer slices** | The 126-structure cross-domain catalogue reached full depth (Slices 25–27): every topic now carries an origin, textbook instances across ≥3 disciplines with their own boundaries, relations into the rest of the graph, and what it gets mistaken for — 430 substrates across 227 disciplines, 316 distinct relations, 87 of the 126 deep with no island mapping at all. The connection explorer surfaces that body and marks the list with it. CI truth was also restored: the gate had been red since 2026-08-23 for two environment reasons, and a third marginal timeout was corrected in Slice 27. |
 
 The detailed 2026-07-18 product assessment below is retained as a historical implementation baseline. “Current working tree” statements inside that dated narrative refer to that checkpoint, not automatically to today.
 

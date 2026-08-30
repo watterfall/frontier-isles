@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
-  "statusAsOf": "2026-08-04",
+  "statusAsOf": "2026-08-31",
   "scope": "CI-verified main, deployed and verified against the live URL by rendered-DOM assertions (not by the deploy command's exit code).",
   "main": {
     "branch": "main",
-    "commit": "39a2d2d8f1862784997800efdfcd7a1a82aece6f",
-    "committedAt": "2026-08-04T04:01:57+08:00",
+    "commit": "2dbb2a0cfaaef8b44225c893e2a3c9c63704560f",
+    "committedAt": "2026-08-31T02:34:00+08:00",
     "ci": {
       "provider": "github-actions",
-      "runId": 30848378259,
-      "url": "https://github.com/watterfall/frontier-isles/actions/runs/30848378259",
+      "runId": 33328467205,
+      "url": "https://github.com/watterfall/frontier-isles/actions/runs/33328467205",
       "conclusion": "success",
       "gates": [
         "test",
@@ -22,35 +22,35 @@
   "production": {
     "app": "frontier-isles",
     "url": "https://frontier-isles.fly.dev",
-    "releaseVersion": 4,
-    "deploymentTag": "deployment-01KZ4KV0RSA6WY8TFRXRBH2DN0",
-    "sourceCommit": "39a2d2d8f1862784997800efdfcd7a1a82aece6f",
-    "createdAt": "2026-08-03T20:09:51Z",
-    "healthCheckedAt": "2026-08-04",
+    "releaseVersion": 6,
+    "deploymentTag": "deployment-01M19ZR1JAGR2DE8BZPW6233W8",
+    "sourceCommit": "2dbb2a0cfaaef8b44225c893e2a3c9c63704560f",
+    "createdAt": "2026-08-30T18:49:44Z",
+    "healthCheckedAt": "2026-08-31",
     "health": "passing",
     "counts": {
-      "islands": 177,
-      "mappings": 101,
-      "frontierProjections": 36
+      "islands": 384,
+      "structures": 126,
+      "mappings": 135,
+      "frontierProjections": 39
     },
     "liveVerification": {
-      "method": "Rendered-DOM assertions against the live URL, plus asset-hash identity with the local build (index-CW4pdzal.js / index-DiWBanHf.css) so a cached or unchanged deploy cannot pass.",
+      "method": "Rendered-DOM assertions against the live URL plus asset-hash identity with the local build (index-BchK9h_3.js / index-BhCyncUC.css), so a cached or unchanged deploy cannot pass. This also exercises the ONLINE path, where structures come from the server rather than the offline fallback — the path the web unit tests cannot reach, since they build the field from fallbackStructures().",
       "verified": [
-        "cold shared link publishes only l1-island-ready (no phantom l0-atlas-ready) at 1039ms",
-        "QFocus question renders unclamped and untruncated",
-        "mobile evidence beat states the read-only adjudication boundary",
-        "carried question fills the cross-field search once and does not re-latch",
-        "login pill height matches the language toggle (44px)"
-      ],
-      "notVerifiableOnProduction": [
-        "Session-badge rendering and the logout hit target: production has no GITHUB_CLIENT_ID/SECRET, so /api/me resolves null and the login pill renders instead of the badge. Both were measured behind the local dev-bypass session (badge 44px, logout 44x44) and are guarded by the desktop chrome e2e.",
-        "QFT vote/focus ledger writes: the same missing secrets make production read-only, so the write path has no production login to exercise."
+        "GET /api/structures returns all 126 catalogue structures",
+        "GET /api/structures/graph returns 135 edges / 135 mappings / 39 frontier projections",
+        "GET /api/islands returns 384 islands — the catalogue reconciled into the existing isles_data volume on boot, up from the 177 this manifest last recorded, which is the designed idempotent upgrade path rather than a reseed",
+        "every one of the 126 topic rows carries its written-body mark, e.g. 「尚无可靠映射 · 已写正文 · 4 个学科 · 6 条关系」",
+        "the 更多主题 disclosure reads 「122 个主题」 — the ratio correctly drops itself now that no topic lacks a body",
+        "opening a topic renders the structure body from the server-supplied catalogue (data-depth=\"true\", three textbook substrates, three relation links, none dashed since every target is now written)",
+        "no horizontal overflow at 1440x900",
+        "the only failing request is POST /api/auth/dev-login -> 403, the documented read-only boundary: no GITHUB_CLIENT_ID/SECRET secrets are set, so production has no login path by design"
       ]
     }
   },
   "deploymentBoundary": {
     "mainCommitIsDeployed": true,
-    "reason": "当前 main 已部署: release 4 was built from 39a2d2d after its CI run passed, and the live site serves this build's asset hashes. Any commit after it is this checkpoint's own documentation update, which ships no artifact — if a later commit changes code, this record is stale until re-verified."
+    "reason": "Release 6 was built from 2dbb2a0 after its CI run (33328467205) passed every step, and the live site serves this build's asset hashes. NOTE for the next reader: this field said true while it was false. It claimed release 4 from 39a2d2d was current, but the app had been on a release 5 deployed 2026-08-08 that no commit ever recorded, and main had moved six commits past it. A boolean asserting \"main is deployed\" cannot be maintained by hand — check `flyctl releases` against this record before trusting it."
   },
   "bundleBaseline": {
     "measuredAt": "2026-08-31, after depth reached all 126 structures and the topic marks became adaptive",
