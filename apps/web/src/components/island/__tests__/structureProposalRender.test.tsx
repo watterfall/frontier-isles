@@ -97,8 +97,14 @@ async function renderScreen(slug: string): Promise<string> {
       />,
     );
   });
-  for (let i = 0; i < 60 && host.innerHTML.includes('fi-island-state'); i++) {
-    await act(async () => { await new Promise((r) => setTimeout(r, 5)); });
+  // A fixed iteration count was still a race — 60 × 5ms gave the screen's
+  // dynamic import 300ms, which a shared CI runner overran, so the guard test
+  // failed against the placeholder on every push after 2026-08-23. Wait on a
+  // deadline instead, generous where the clock is slow, and still return
+  // whatever is there when it passes so the guard fails loudly.
+  const deadline = Date.now() + (process.env.CI ? 20_000 : 4_000);
+  while (Date.now() < deadline && host.innerHTML.includes('fi-island-state')) {
+    await act(async () => { await new Promise((r) => setTimeout(r, 10)); });
   }
   const html = host.innerHTML;
   await act(async () => { root.unmount(); });

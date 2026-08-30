@@ -165,5 +165,14 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['src/**/*.test.{ts,tsx}'],
+    // Vitest's default is 5s per test. Since the atlas grew to 383 islands
+    // (2026-08-23) the layout solver and the full SVG chart render take
+    // 0.5–2.9s on a developer machine and past 5s on a shared CI runner, so
+    // main's gate has been red on timeouts alone — despace.test.ts and
+    // AtlasChartScreen.test.tsx — while every local run stayed green. The
+    // CI-only allowance mirrors playwright.config.ts (`CI ? 150_000 : 60_000`):
+    // locally the 5s ceiling still catches a test that has become pathological,
+    // and CI measures correctness rather than the runner's clock.
+    testTimeout: process.env.CI ? 30_000 : 5_000,
   },
 });
