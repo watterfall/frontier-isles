@@ -64,12 +64,24 @@ describe('StructureReading — the structure itself, independent of any island',
   });
 
   it('states the gap honestly for a structure that carries no depth yet', () => {
-    const bare = SEED_STRUCTURES.find((structure) => !structure.depth)!;
-    const markup = renderToStaticMarkup(<StructureReading structureId={bare.id} lang="zh" source={source} />);
+    // Depth now covers all 126, so this case has to be constructed rather than
+    // found. It is still live behaviour: the next structure added arrives
+    // without a body, and what the reader sees then is this sentence.
+    const stub: StructureReadingSource = {
+      byId: (id) => {
+        const structure = seedStructureById(id);
+        return structure ? { ...structure, depth: undefined } : undefined;
+      },
+      inboundOf: () => inboundRelations(SYNC),
+    };
+    const markup = renderToStaticMarkup(<StructureReading structureId={SYNC} lang="zh" source={stub} />);
     expect(markup).toContain('data-depth="false"');
     expect(markup).toContain('这是内容上的空白，不是它没有关系');
     expect(markup).not.toContain('教科书里的样子');
     expect(markup).not.toContain('常被误当成');
+    // The inbound half still renders: a structure with no body of its own is
+    // not a structure nothing points at, and saying so is the sentence's claim.
+    expect(markup).toContain('被这些主题引用');
   });
 
   it('renders nothing while the catalogue has not loaded, and nothing for an unknown id', () => {
@@ -78,19 +90,40 @@ describe('StructureReading — the structure itself, independent of any island',
   });
 
   it('marks a relation whose target is itself still one sentence, before the reader clicks it', () => {
-    // Derived, never hard-coded: as families are written, today's dashed link
-    // becomes solid, and pinning a pair would make this test a calendar.
-    const byId = new Map(SEED_STRUCTURES.map((structure) => [structure.id, structure]));
-    const pair = SEED_STRUCTURES
-      .flatMap((structure) => (structure.depth?.relations ?? []).map((relation) => ({ from: structure.id, to: relation.to })))
-      .find(({ to }) => !byId.get(to)?.depth);
-    if (!pair) return; // Every structure written up — the mark has nothing left to say.
+    // Driven by a stub source, NOT the live catalogue. Every structure now has
+    // a body, so a catalogue-derived version of this test would asserts nothing
+    // and still pass — the exact vacuous-coverage failure this repository keeps
+    // an observation record about. The mark has to keep working for the next
+    // structure added without one, so the test supplies that structure itself.
+    const real = seedStructureById(SYNC)!;
+    const target = real.depth!.relations[0]!.to;
+    const stub: StructureReadingSource = {
+      byId: (id) => {
+        const structure = seedStructureById(id);
+        if (!structure) return undefined;
+        // Strip the body from the first relation's target only.
+        return id === target ? { ...structure, depth: undefined } : structure;
+      },
+      inboundOf: () => [],
+    };
     const markup = renderToStaticMarkup(
-      <StructureReading structureId={pair.from} lang="zh" source={source} onSelectStructure={() => {}} />,
+      <StructureReading structureId={SYNC} lang="zh" source={stub} onSelectStructure={() => {}} />,
     );
-    expect(markup).toMatch(new RegExp(`data-structure-id="${pair.to}" data-target-written="false"`));
-    const written = byId.get(pair.from)!.depth!.relations.map((relation) => relation.to).find((to) => byId.get(to)?.depth);
-    if (written) expect(markup).toContain(`data-structure-id="${written}" data-target-written="true"`);
+    expect(markup).toContain(`data-structure-id="${target}" data-target-written="false"`);
+    const other = real.depth!.relations.find((relation) => relation.to !== target)?.to;
+    if (other) expect(markup).toContain(`data-structure-id="${other}" data-target-written="true"`);
+  });
+
+  it('marks every relation as written while the catalogue is in fact complete', () => {
+    // The live counterpart of the test above: as long as depth covers all 126,
+    // no reading may render a dashed link. If a structure lands without a body
+    // this goes red, which is the signal to check the mark still reads right.
+    const bare = SEED_STRUCTURES.filter((structure) => !structure.depth);
+    const markup = renderToStaticMarkup(
+      <StructureReading structureId={SYNC} lang="zh" source={source} onSelectStructure={() => {}} />,
+    );
+    expect(markup).toContain('data-target-written="true"');
+    if (bare.length === 0) expect(markup).not.toContain('data-target-written="false"');
   });
 
   it('never mentions an island: the reading is the structure layer, not the atlas', () => {

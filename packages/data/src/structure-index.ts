@@ -36,15 +36,40 @@ export const STRUCTURE_READING_INDEX: Record<string, StructureReadingIndexEntry>
     "fields": 4,
     "relations": 6
   },
+  "struct://xfrontier/intervention-identifiability": {
+    "substrates": 4,
+    "fields": 4,
+    "relations": 6
+  },
   "struct://xfrontier/anomaly-as-signal": {
     "substrates": 4,
     "fields": 4,
     "relations": 7
   },
+  "struct://xfrontier/executable-knowledge": {
+    "substrates": 4,
+    "fields": 4,
+    "relations": 6
+  },
+  "struct://xfrontier/substrate-local-learning": {
+    "substrates": 4,
+    "fields": 4,
+    "relations": 4
+  },
+  "struct://xfrontier/model-reality-loop": {
+    "substrates": 4,
+    "fields": 4,
+    "relations": 3
+  },
   "struct://xfrontier/variational-free-energy": {
     "substrates": 3,
     "fields": 3,
     "relations": 6
+  },
+  "struct://xfrontier/adjoint-functors": {
+    "substrates": 4,
+    "fields": 4,
+    "relations": 4
   },
   "struct://xfrontier/open-set-recognition": {
     "substrates": 4,
@@ -64,7 +89,7 @@ export const STRUCTURE_READING_INDEX: Record<string, StructureReadingIndexEntry>
   "struct://xfrontier/covariate-shift-transfer": {
     "substrates": 3,
     "fields": 3,
-    "relations": 2
+    "relations": 4
   },
   "struct://xfrontier/fisher-precision-limit": {
     "substrates": 4,
@@ -89,12 +114,17 @@ export const STRUCTURE_READING_INDEX: Record<string, StructureReadingIndexEntry>
   "struct://xfrontier/assembly-description-length": {
     "substrates": 3,
     "fields": 3,
-    "relations": 4
+    "relations": 5
   },
   "struct://xfrontier/distributed-field-observability": {
     "substrates": 4,
     "fields": 4,
     "relations": 4
+  },
+  "struct://xfrontier/stateful-in-materia-computation": {
+    "substrates": 4,
+    "fields": 4,
+    "relations": 3
   },
   "struct://xfrontier/nash-equilibrium": {
     "substrates": 3,
@@ -116,15 +146,20 @@ export const STRUCTURE_READING_INDEX: Record<string, StructureReadingIndexEntry>
     "fields": 3,
     "relations": 8
   },
+  "struct://xfrontier/gauge-equivariance": {
+    "substrates": 4,
+    "fields": 4,
+    "relations": 4
+  },
   "struct://xfrontier/information-geometry": {
     "substrates": 3,
     "fields": 3,
-    "relations": 5
+    "relations": 6
   },
   "struct://xfrontier/optimal-transport": {
     "substrates": 4,
     "fields": 4,
-    "relations": 4
+    "relations": 5
   },
   "struct://xfrontier/laplace-equation": {
     "substrates": 4,
@@ -139,7 +174,7 @@ export const STRUCTURE_READING_INDEX: Record<string, StructureReadingIndexEntry>
   "struct://xfrontier/negative-feedback-control": {
     "substrates": 4,
     "fields": 4,
-    "relations": 6
+    "relations": 8
   },
   "struct://xfrontier/renormalization-group": {
     "substrates": 3,
@@ -159,7 +194,7 @@ export const STRUCTURE_READING_INDEX: Record<string, StructureReadingIndexEntry>
   "struct://xfrontier/extreme-value-theory": {
     "substrates": 4,
     "fields": 4,
-    "relations": 4
+    "relations": 5
   },
   "struct://xfrontier/anomalous-diffusion": {
     "substrates": 4,
@@ -179,12 +214,12 @@ export const STRUCTURE_READING_INDEX: Record<string, StructureReadingIndexEntry>
   "struct://xfrontier/replicator-dynamics": {
     "substrates": 4,
     "fields": 4,
-    "relations": 6
+    "relations": 7
   },
   "struct://xfrontier/least-action-variational-principles": {
     "substrates": 4,
     "fields": 4,
-    "relations": 5
+    "relations": 7
   },
   "struct://xfrontier/maximum-entropy-inference": {
     "substrates": 4,
@@ -194,7 +229,7 @@ export const STRUCTURE_READING_INDEX: Record<string, StructureReadingIndexEntry>
   "struct://xfrontier/attractor-networks-hopfield": {
     "substrates": 3,
     "fields": 3,
-    "relations": 3
+    "relations": 4
   },
   "struct://xfrontier/sparse-coding-compressed-sensing": {
     "substrates": 3,
@@ -204,7 +239,7 @@ export const STRUCTURE_READING_INDEX: Record<string, StructureReadingIndexEntry>
   "struct://xfrontier/critical-slowing-down": {
     "substrates": 4,
     "fields": 4,
-    "relations": 7
+    "relations": 8
   },
   "struct://xfrontier/self-assembly": {
     "substrates": 3,
@@ -224,7 +259,7 @@ export const STRUCTURE_READING_INDEX: Record<string, StructureReadingIndexEntry>
   "struct://xfrontier/verification-asymmetry": {
     "substrates": 4,
     "fields": 4,
-    "relations": 5
+    "relations": 7
   },
   "struct://xfrontier/computational-lower-bounds": {
     "substrates": 3,
@@ -244,7 +279,7 @@ export const STRUCTURE_READING_INDEX: Record<string, StructureReadingIndexEntry>
   "struct://xfrontier/tacit-craft-explicitation": {
     "substrates": 3,
     "fields": 3,
-    "relations": 3
+    "relations": 5
   },
   "struct://xfrontier/within-subject-control": {
     "substrates": 3,
@@ -269,12 +304,12 @@ export const STRUCTURE_READING_INDEX: Record<string, StructureReadingIndexEntry>
   "struct://xfrontier/traceability-chain": {
     "substrates": 3,
     "fields": 3,
-    "relations": 3
+    "relations": 6
   },
   "struct://xfrontier/injected-randomness": {
     "substrates": 3,
     "fields": 3,
-    "relations": 2
+    "relations": 3
   },
   "struct://xfrontier/preregistration": {
     "substrates": 4,
@@ -299,7 +334,7 @@ export const STRUCTURE_READING_INDEX: Record<string, StructureReadingIndexEntry>
   "struct://xfrontier/spontaneous-modularity": {
     "substrates": 3,
     "fields": 3,
-    "relations": 4
+    "relations": 6
   },
   "struct://xfrontier/conjugate-uncertainty": {
     "substrates": 3,
@@ -314,17 +349,27 @@ export const STRUCTURE_READING_INDEX: Record<string, StructureReadingIndexEntry>
   "struct://xfrontier/robustness-efficiency-tradeoff": {
     "substrates": 3,
     "fields": 3,
-    "relations": 5
+    "relations": 6
   },
   "struct://xfrontier/cognitive-bandwidth-ceiling": {
     "substrates": 3,
     "fields": 3,
-    "relations": 3
+    "relations": 4
+  },
+  "struct://xfrontier/metric-distortion": {
+    "substrates": 3,
+    "fields": 3,
+    "relations": 5
   },
   "struct://xfrontier/parallel-speedup-ceiling": {
     "substrates": 3,
     "fields": 3,
     "relations": 3
+  },
+  "struct://xfrontier/unit-of-individuality": {
+    "substrates": 4,
+    "fields": 4,
+    "relations": 4
   },
   "struct://xfrontier/measurement-backaction": {
     "substrates": 4,
@@ -336,10 +381,35 @@ export const STRUCTURE_READING_INDEX: Record<string, StructureReadingIndexEntry>
     "fields": 3,
     "relations": 5
   },
+  "struct://xfrontier/ex-vivo-reconstitution": {
+    "substrates": 3,
+    "fields": 3,
+    "relations": 3
+  },
+  "struct://xfrontier/intermediate-rung": {
+    "substrates": 3,
+    "fields": 3,
+    "relations": 4
+  },
+  "struct://xfrontier/waste-as-feedstock": {
+    "substrates": 3,
+    "fields": 3,
+    "relations": 4
+  },
+  "struct://xfrontier/resistance-rotation": {
+    "substrates": 3,
+    "fields": 3,
+    "relations": 6
+  },
+  "struct://xfrontier/leverage-point": {
+    "substrates": 3,
+    "fields": 3,
+    "relations": 7
+  },
   "struct://xfrontier/natural-experiment": {
     "substrates": 4,
     "fields": 4,
-    "relations": 4
+    "relations": 5
   },
   "struct://xfrontier/alternative-mechanism-panel": {
     "substrates": 3,
@@ -349,7 +419,7 @@ export const STRUCTURE_READING_INDEX: Record<string, StructureReadingIndexEntry>
   "struct://xfrontier/standardisation-lowers-the-bar": {
     "substrates": 3,
     "fields": 3,
-    "relations": 3
+    "relations": 5
   },
   "struct://xfrontier/dissipation-floor": {
     "substrates": 3,
@@ -359,12 +429,12 @@ export const STRUCTURE_READING_INDEX: Record<string, StructureReadingIndexEntry>
   "struct://xfrontier/impossibility-theorem": {
     "substrates": 3,
     "fields": 3,
-    "relations": 5
+    "relations": 6
   },
   "struct://xfrontier/no-free-lunch": {
     "substrates": 3,
     "fields": 3,
-    "relations": 5
+    "relations": 6
   },
   "struct://xfrontier/causal-propagation-limit": {
     "substrates": 3,
@@ -374,22 +444,32 @@ export const STRUCTURE_READING_INDEX: Record<string, StructureReadingIndexEntry>
   "struct://xfrontier/scale-separation-failure": {
     "substrates": 3,
     "fields": 3,
-    "relations": 4
+    "relations": 5
   },
   "struct://xfrontier/minimum-viable-size": {
     "substrates": 3,
     "fields": 3,
     "relations": 5
   },
+  "struct://xfrontier/explore-exploit-tension": {
+    "substrates": 4,
+    "fields": 4,
+    "relations": 8
+  },
   "struct://xfrontier/two-error-tradeoff": {
     "substrates": 4,
     "fields": 4,
+    "relations": 10
+  },
+  "struct://xfrontier/commensuration-cost": {
+    "substrates": 3,
+    "fields": 3,
     "relations": 8
   },
   "struct://xfrontier/data-movement-dominates": {
     "substrates": 3,
     "fields": 3,
-    "relations": 5
+    "relations": 6
   },
   "struct://xfrontier/surface-volume-crossover": {
     "substrates": 3,
@@ -399,12 +479,17 @@ export const STRUCTURE_READING_INDEX: Record<string, StructureReadingIndexEntry>
   "struct://xfrontier/limiting-factor": {
     "substrates": 3,
     "fields": 3,
-    "relations": 7
+    "relations": 8
   },
   "struct://xfrontier/niche-construction": {
     "substrates": 4,
     "fields": 4,
-    "relations": 3
+    "relations": 4
+  },
+  "struct://xfrontier/deep-time-accumulation": {
+    "substrates": 3,
+    "fields": 3,
+    "relations": 11
   },
   "struct://xfrontier/bullwhip-amplification": {
     "substrates": 3,
@@ -416,12 +501,22 @@ export const STRUCTURE_READING_INDEX: Record<string, StructureReadingIndexEntry>
     "fields": 3,
     "relations": 2
   },
+  "struct://xfrontier/archival-decay": {
+    "substrates": 3,
+    "fields": 3,
+    "relations": 3
+  },
   "struct://xfrontier/commons-congestion": {
     "substrates": 3,
     "fields": 3,
-    "relations": 6
+    "relations": 8
   },
   "struct://xfrontier/small-world": {
+    "substrates": 3,
+    "fields": 3,
+    "relations": 4
+  },
+  "struct://xfrontier/superposition-ordering": {
     "substrates": 3,
     "fields": 3,
     "relations": 4
@@ -429,12 +524,17 @@ export const STRUCTURE_READING_INDEX: Record<string, StructureReadingIndexEntry>
   "struct://xfrontier/template-copying-error": {
     "substrates": 4,
     "fields": 4,
-    "relations": 3
+    "relations": 4
+  },
+  "struct://xfrontier/boundary-work": {
+    "substrates": 3,
+    "fields": 3,
+    "relations": 5
   },
   "struct://xfrontier/tolerance-evolution": {
     "substrates": 4,
     "fields": 4,
-    "relations": 2
+    "relations": 3
   },
   "struct://xfrontier/delay-induced-oscillation": {
     "substrates": 4,
@@ -444,17 +544,17 @@ export const STRUCTURE_READING_INDEX: Record<string, StructureReadingIndexEntry>
   "struct://xfrontier/network-externality-lockin": {
     "substrates": 3,
     "fields": 3,
-    "relations": 5
+    "relations": 7
   },
   "struct://xfrontier/drift-fixation": {
     "substrates": 3,
     "fields": 3,
-    "relations": 4
+    "relations": 7
   },
   "struct://xfrontier/path-dependence": {
     "substrates": 3,
     "fields": 3,
-    "relations": 5
+    "relations": 8
   },
   "struct://xfrontier/cohort-inertia": {
     "substrates": 4,
@@ -466,7 +566,27 @@ export const STRUCTURE_READING_INDEX: Record<string, StructureReadingIndexEntry>
     "fields": 3,
     "relations": 7
   },
+  "struct://xfrontier/lexicalisation": {
+    "substrates": 3,
+    "fields": 3,
+    "relations": 4
+  },
+  "struct://xfrontier/grammaticalisation": {
+    "substrates": 4,
+    "fields": 4,
+    "relations": 4
+  },
   "struct://xfrontier/information-asymmetry": {
+    "substrates": 3,
+    "fields": 3,
+    "relations": 6
+  },
+  "struct://xfrontier/slow-variable-creep": {
+    "substrates": 3,
+    "fields": 3,
+    "relations": 8
+  },
+  "struct://xfrontier/precedent-accumulation": {
     "substrates": 3,
     "fields": 3,
     "relations": 5
@@ -474,17 +594,22 @@ export const STRUCTURE_READING_INDEX: Record<string, StructureReadingIndexEntry>
   "struct://xfrontier/frozen-accident": {
     "substrates": 4,
     "fields": 4,
-    "relations": 3
+    "relations": 4
+  },
+  "struct://xfrontier/fatigue-accumulation": {
+    "substrates": 3,
+    "fields": 3,
+    "relations": 4
   },
   "struct://xfrontier/red-queen": {
     "substrates": 4,
     "fields": 4,
-    "relations": 2
+    "relations": 3
   },
   "struct://xfrontier/perturb-and-read": {
     "substrates": 4,
     "fields": 4,
-    "relations": 5
+    "relations": 7
   },
   "struct://xfrontier/costly-signal": {
     "substrates": 3,
@@ -496,10 +621,35 @@ export const STRUCTURE_READING_INDEX: Record<string, StructureReadingIndexEntry>
     "fields": 3,
     "relations": 3
   },
+  "struct://xfrontier/dormant-seed-bank": {
+    "substrates": 3,
+    "fields": 3,
+    "relations": 4
+  },
+  "struct://xfrontier/controlled-inoculation": {
+    "substrates": 3,
+    "fields": 3,
+    "relations": 4
+  },
+  "struct://xfrontier/devolving-control": {
+    "substrates": 3,
+    "fields": 3,
+    "relations": 3
+  },
+  "struct://xfrontier/shift-left": {
+    "substrates": 3,
+    "fields": 3,
+    "relations": 5
+  },
+  "struct://xfrontier/self-nonself-discrimination": {
+    "substrates": 4,
+    "fields": 4,
+    "relations": 4
+  },
   "struct://xfrontier/rebuild-from-description": {
     "substrates": 4,
     "fields": 4,
-    "relations": 3
+    "relations": 4
   }
 };
 

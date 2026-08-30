@@ -30,7 +30,11 @@
     "#structures-depth-flow": "./src/structures-depth-flow.ts",
     "#structures-depth-absence": "./src/structures-depth-absence.ts",
     "#structures-depth-network": "./src/structures-depth-network.ts",
-    "#structures-depth-scale": "./src/structures-depth-scale.ts"
+    "#structures-depth-scale": "./src/structures-depth-scale.ts",
+    "#structures-depth-accumulation": "./src/structures-depth-accumulation.ts",
+    "#structures-depth-boundary": "./src/structures-depth-boundary.ts",
+    "#structures-depth-option": "./src/structures-depth-option.ts",
+    "#structures-depth-executable": "./src/structures-depth-executable.ts"
   },
   "exports": {
     ".": "./src/index.ts",

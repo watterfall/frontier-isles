@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { DATA } from '../../../api/fallback';
 import { fixtureSeaData } from '../../../api/seaFallback';
 import { fallbackStructureGraph, fallbackStructures, inboundRelations, seedStructureById } from '../../../api/structureFallback';
-import { buildConnectionField, DISCOVERY_THEME_IDS, type ConnectionField } from '../../../chart/connectionField';
+import { buildConnectionField, DISCOVERY_THEME_IDS, type ConnectionField, type ConnectionTheme } from '../../../chart/connectionField';
 import { ConnectionFieldPanel, type ConnectionFieldPanelProps } from '../ConnectionFieldPanel';
 
 const base = buildConnectionField(fallbackStructures(), fallbackStructureGraph(), fixtureSeaData(), DATA);
@@ -261,6 +261,13 @@ describe('ConnectionFieldPanel — the structure behind a 跨学科主题', () =
 
 describe('ConnectionFieldPanel — which topics are worth opening', () => {
   const landing: ConnectionFieldPanelProps = { ...props, focus: null, channel: 'all' };
+  // Depth covers all 126, so an unwritten topic is constructed rather than
+  // found. Finding one would make these tests pass by asserting nothing the
+  // day the catalogue filled up — which is the day it became most worth testing.
+  const stripReading = (topic: ConnectionTheme): ConnectionTheme => {
+    const { reading: _reading, ...rest } = topic;
+    return rest;
+  };
 
   it('marks a topic that has a written body, on the same line as its island count', () => {
     const markup = renderToStaticMarkup(<ConnectionFieldPanel {...landing} />);
@@ -270,11 +277,11 @@ describe('ConnectionFieldPanel — which topics are worth opening', () => {
     const scaling = field.topics.find((topic) => topic.structureId.endsWith('/scaling'))!;
     expect(scaling.members).toHaveLength(0);
     expect(markup).toContain('fi-connection-topic-reading');
-    expect(markup).toMatch(/尚无可靠映射<span class="fi-connection-topic-reading">[^<]*已写正文 · \d+ 个学科的例子/);
+    expect(markup).toMatch(/尚无可靠映射<span class="fi-connection-topic-reading">[^<]*已写正文 · \d+ 个学科 · \d+ 条关系/);
   });
 
   it('says nothing extra for a topic that is still only one sentence', () => {
-    const bare = field.topics.find((topic) => !topic.reading)!;
+    const bare = stripReading(field.topics[0]!);
     const markup = renderToStaticMarkup(
       <ConnectionFieldPanel {...landing} field={{ ...field, topics: [bare] }} />,
     );
@@ -282,12 +289,34 @@ describe('ConnectionFieldPanel — which topics are worth opening', () => {
     expect(markup).not.toContain('fi-connection-topic-reading');
   });
 
-  it('counts the written ones in the disclosure so the ratio is visible before opening it', () => {
-    const markup = renderToStaticMarkup(<ConnectionFieldPanel {...landing} />);
+  it('states the disclosure count as a ratio only while some topics are still one sentence', () => {
     const remaining = field.topics.filter((topic) => !DISCOVERY_THEME_IDS.includes(topic.id as never));
     const written = remaining.filter((topic) => topic.reading).length;
-    expect(written).toBeGreaterThan(0);
-    expect(written).toBeLessThan(remaining.length);
-    expect(markup).toContain(`${written}/${remaining.length} 已写正文`);
+    const markup = renderToStaticMarkup(<ConnectionFieldPanel {...landing} />);
+    // Derived, not pinned: as the catalogue fills the ratio becomes N/N, which
+    // says nothing, and the line has to become the plain count instead.
+    expect(markup).toContain(
+      written === remaining.length ? `${remaining.length} 个主题` : `${written}/${remaining.length} 已写正文`,
+    );
+  });
+
+  it('drops the ratio for a full house and brings it back when one topic lacks a body', () => {
+    const RATIO = /<small>\d+\/\d+ 已写正文<\/small>/;
+    const written = field.topics.filter((topic) => topic.reading);
+    const bare = stripReading(field.topics.at(-1)!);
+    const hidden = (topics: ConnectionTheme[]) =>
+      topics.filter((topic) => !DISCOVERY_THEME_IDS.includes(topic.id as never)).length;
+
+    const full = renderToStaticMarkup(
+      <ConnectionFieldPanel {...landing} field={{ ...field, topics: written }} />,
+    );
+    expect(full).toContain(`<small>${hidden(written)} 个主题</small>`);
+    expect(full).not.toMatch(RATIO);
+
+    const mixed = renderToStaticMarkup(
+      <ConnectionFieldPanel {...landing} field={{ ...field, topics: [...written, bare] }} />,
+    );
+    expect(mixed).toMatch(RATIO);
+    expect(mixed).toContain(`<small>${hidden(written)}/${hidden([...written, bare])} 已写正文</small>`);
   });
 });

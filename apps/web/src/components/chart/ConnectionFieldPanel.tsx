@@ -70,7 +70,7 @@ const COPY = {
     themeAcross: '这个主题目前出现在哪里', themeMany: '已经在 {{count}} 项研究中形成独立映射。先看它们如何不同，再决定进入哪一个问题。',
     themeOne: '目前只在 1 项研究中出现，还不能把它当成跨领域共性。可以从这一个落点继续寻找。',
     themeGap: '还没有研究对这个主题形成可靠映射。这不是空结果，而是一块可以继续寻找落点的前沿。', themeGapTitle: '这里仍是一块空白',
-    themeContinue: '以这个问题继续', themeEnter: '进入这项研究', themeCompareTools: '用这个主题比较具体研究', themeStatusGap: '尚无可靠映射', themeStatusOne: '1 个研究落点', themeStatusMany: '{{count}} 个研究落点', moreThemes: '更多跨学科主题', themeReadingMark: '已写正文 · {{fields}} 个学科的例子', themeReadingCount: '{{written}}/{{all}} 已写正文',
+    themeContinue: '以这个问题继续', themeEnter: '进入这项研究', themeCompareTools: '用这个主题比较具体研究', themeStatusGap: '尚无可靠映射', themeStatusOne: '1 个研究落点', themeStatusMany: '{{count}} 个研究落点', moreThemes: '更多跨学科主题', themeReadingMark: '已写正文 · {{fields}} 个学科 · {{relations}} 条关系', themeReadingCount: '{{written}}/{{all}} 已写正文', themeReadingAll: '{{all}} 个主题',
     sourceLedger: '研究记录', sourceCurated: '整理的数学材料',
     dossier: '原始记录与证据', dossierIntro: '展开核对原材料、支持或反对的理由，以及可能推翻它的测试。', evidenceDrawer: '查看原始记录与证据',
     assertion: '原材料说了什么', response: '支持或反对的理由', discriminatingTest: '什么结果会让这条判断站不住',
@@ -118,7 +118,7 @@ const COPY = {
     themeAcross: 'Where this theme appears now', themeMany: 'It has independent mappings in {{count}} studies. Compare how they differ before entering one problem.',
     themeOne: 'It currently appears in only one study, so it is not yet a cross-field regularity. Continue from this single landing point.',
     themeGap: 'No study has a reliable mapping to this theme yet. This is not an empty result; it is a frontier waiting for a landing point.', themeGapTitle: 'This remains an open gap',
-    themeContinue: 'Continue with this problem', themeEnter: 'Enter this study', themeCompareTools: 'Compare concrete studies through this theme', themeStatusGap: 'No reliable mapping yet', themeStatusOne: '1 research landing', themeStatusMany: '{{count}} research landings', moreThemes: 'More cross-disciplinary themes', themeReadingMark: 'written up · examples from {{fields}} fields', themeReadingCount: '{{written}}/{{all}} written up',
+    themeContinue: 'Continue with this problem', themeEnter: 'Enter this study', themeCompareTools: 'Compare concrete studies through this theme', themeStatusGap: 'No reliable mapping yet', themeStatusOne: '1 research landing', themeStatusMany: '{{count}} research landings', moreThemes: 'More cross-disciplinary themes', themeReadingMark: 'written up · {{fields}} fields · {{relations}} relations', themeReadingCount: '{{written}}/{{all}} written up', themeReadingAll: '{{all}} topics',
     sourceLedger: 'Research record', sourceCurated: 'Curated mathematical material',
     dossier: 'Source records and evidence', dossierIntro: 'Open the source material, the reason for support or challenge, and a test that could overturn it.', evidenceDrawer: 'View source records and evidence',
     assertion: 'What the source material says', response: 'Reason for support or challenge', discriminatingTest: 'What result would make this judgment fail',
@@ -275,6 +275,21 @@ export function ConnectionFieldPanel(props: ConnectionFieldPanelProps) {
   return typeof document !== 'undefined' ? createPortal(panel, document.body) : panel;
 }
 
+/**
+ * The disclosure's count. While some topics are still one sentence the ratio is
+ * the useful number; once none are, a ratio of N/N says nothing and the plain
+ * count is the honest line. Written this way so a structure added later without
+ * depth brings the ratio back rather than hiding in a full house.
+ */
+function readingRatio(topics: ConnectionTheme[], copy: typeof COPY.zh | typeof COPY.en): string {
+  const written = topics.filter((topic) => topic.reading).length;
+  return written === topics.length
+    ? copy.themeReadingAll.replace('{{all}}', String(topics.length))
+    : copy.themeReadingCount
+        .replace('{{written}}', String(written))
+        .replace('{{all}}', String(topics.length));
+}
+
 function GlobalLanding({ field, lang, channel, query, searchResults, copy, onQuery, onChannel, onFocus }: {
   field: ConnectionField;
   lang: 'zh' | 'en';
@@ -306,7 +321,9 @@ function GlobalLanding({ field, lang, channel, query, searchResults, copy, onQue
             {topic.reading && (
               <span className="fi-connection-topic-reading">
                 {' · '}
-                {copy.themeReadingMark.replace('{{fields}}', String(topic.reading.fields))}
+                {copy.themeReadingMark
+                  .replace('{{fields}}', String(topic.reading.fields))
+                  .replace('{{relations}}', String(topic.reading.relations))}
               </span>
             )}
           </small>
@@ -335,11 +352,7 @@ function GlobalLanding({ field, lang, channel, query, searchResults, copy, onQue
         <details className="fi-connection-theme-more">
           <summary>
             {copy.moreThemes}
-            <small>
-              {copy.themeReadingCount
-                .replace('{{written}}', String(remaining.filter((topic) => topic.reading).length))
-                .replace('{{all}}', String(remaining.length))}
-            </small>
+            <small>{readingRatio(remaining, copy)}</small>
           </summary>
           <div className="fi-connection-starters"><ol>{remaining.map(renderTopic)}</ol></div>
         </details>

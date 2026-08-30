@@ -34,6 +34,10 @@ import { FLOW_FAMILY_DEPTH } from '#structures-depth-flow';
 import { ABSENCE_FAMILY_DEPTH } from '#structures-depth-absence';
 import { NETWORK_FAMILY_DEPTH } from '#structures-depth-network';
 import { SCALE_FAMILY_DEPTH } from '#structures-depth-scale';
+import { ACCUMULATION_FAMILY_DEPTH } from '#structures-depth-accumulation';
+import { BOUNDARY_FAMILY_DEPTH } from '#structures-depth-boundary';
+import { OPTION_FAMILY_DEPTH } from '#structures-depth-option';
+import { EXECUTABLE_FAMILY_DEPTH } from '#structures-depth-executable';
 
 export interface StructureCorrespondence {
   /** A quantity in the abstract structure. */
@@ -2429,7 +2433,7 @@ for (const patch of WAVE_3_STRUCTURE_PATCHES) {
  * abstract variables is textbook authoring, whereas overwriting a list it
  * already carries would silently rewrite what a curator wrote, so that throws.
  */
-for (const patch of [...CRITICAL_FAMILY_DEPTH, ...INFERENCE_FAMILY_DEPTH, ...COLLECTIVE_FAMILY_DEPTH, ...LOCKIN_FAMILY_DEPTH, ...METHOD_FAMILY_DEPTH, ...INFORMATION_FAMILY_DEPTH, ...LIMITS_FAMILY_DEPTH, ...CREDIBILITY_FAMILY_DEPTH, ...FLOW_FAMILY_DEPTH, ...ABSENCE_FAMILY_DEPTH, ...NETWORK_FAMILY_DEPTH, ...SCALE_FAMILY_DEPTH]) {
+for (const patch of [...CRITICAL_FAMILY_DEPTH, ...INFERENCE_FAMILY_DEPTH, ...COLLECTIVE_FAMILY_DEPTH, ...LOCKIN_FAMILY_DEPTH, ...METHOD_FAMILY_DEPTH, ...INFORMATION_FAMILY_DEPTH, ...LIMITS_FAMILY_DEPTH, ...CREDIBILITY_FAMILY_DEPTH, ...FLOW_FAMILY_DEPTH, ...ABSENCE_FAMILY_DEPTH, ...NETWORK_FAMILY_DEPTH, ...SCALE_FAMILY_DEPTH, ...ACCUMULATION_FAMILY_DEPTH, ...BOUNDARY_FAMILY_DEPTH, ...OPTION_FAMILY_DEPTH, ...EXECUTABLE_FAMILY_DEPTH]) {
   const structure = SEED_STRUCTURES.find((candidate) => candidate.id === patch.structureId);
   if (!structure) {
     throw new Error(`Depth patch target does not exist: ${patch.structureId}`);

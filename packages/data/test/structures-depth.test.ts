@@ -12,8 +12,12 @@ import { FLOW_FAMILY_DEPTH } from '../src/structures-depth-flow';
 import { ABSENCE_FAMILY_DEPTH } from '../src/structures-depth-absence';
 import { NETWORK_FAMILY_DEPTH } from '../src/structures-depth-network';
 import { SCALE_FAMILY_DEPTH } from '../src/structures-depth-scale';
+import { ACCUMULATION_FAMILY_DEPTH } from '../src/structures-depth-accumulation';
+import { BOUNDARY_FAMILY_DEPTH } from '../src/structures-depth-boundary';
+import { OPTION_FAMILY_DEPTH } from '../src/structures-depth-option';
+import { EXECUTABLE_FAMILY_DEPTH } from '../src/structures-depth-executable';
 
-const ALL_DEPTH = [...CRITICAL_FAMILY_DEPTH, ...INFERENCE_FAMILY_DEPTH, ...COLLECTIVE_FAMILY_DEPTH, ...LOCKIN_FAMILY_DEPTH, ...METHOD_FAMILY_DEPTH, ...INFORMATION_FAMILY_DEPTH, ...LIMITS_FAMILY_DEPTH, ...CREDIBILITY_FAMILY_DEPTH, ...FLOW_FAMILY_DEPTH, ...ABSENCE_FAMILY_DEPTH, ...NETWORK_FAMILY_DEPTH, ...SCALE_FAMILY_DEPTH];
+const ALL_DEPTH = [...CRITICAL_FAMILY_DEPTH, ...INFERENCE_FAMILY_DEPTH, ...COLLECTIVE_FAMILY_DEPTH, ...LOCKIN_FAMILY_DEPTH, ...METHOD_FAMILY_DEPTH, ...INFORMATION_FAMILY_DEPTH, ...LIMITS_FAMILY_DEPTH, ...CREDIBILITY_FAMILY_DEPTH, ...FLOW_FAMILY_DEPTH, ...ABSENCE_FAMILY_DEPTH, ...NETWORK_FAMILY_DEPTH, ...SCALE_FAMILY_DEPTH, ...ACCUMULATION_FAMILY_DEPTH, ...BOUNDARY_FAMILY_DEPTH, ...OPTION_FAMILY_DEPTH, ...EXECUTABLE_FAMILY_DEPTH];
 import { FRONTIERS } from '../src/frontiers';
 
 const byId = new Map(SEED_STRUCTURES.map((structure) => [structure.id, structure]));
@@ -35,7 +39,11 @@ describe('structure depth', () => {
     expect(ABSENCE_FAMILY_DEPTH).toHaveLength(8);
     expect(NETWORK_FAMILY_DEPTH).toHaveLength(8);
     expect(SCALE_FAMILY_DEPTH).toHaveLength(8);
-    expect(withDepth).toHaveLength(96);
+    expect(ACCUMULATION_FAMILY_DEPTH).toHaveLength(8);
+    expect(BOUNDARY_FAMILY_DEPTH).toHaveLength(7);
+    expect(OPTION_FAMILY_DEPTH).toHaveLength(8);
+    expect(EXECUTABLE_FAMILY_DEPTH).toHaveLength(7);
+    expect(withDepth).toHaveLength(126);
     for (const patch of ALL_DEPTH) {
       expect(byId.get(patch.structureId)?.depth, patch.structureId).toBe(patch.depth);
     }
