@@ -19,6 +19,7 @@ import {
   type ResearchActionReceipt,
 } from '../../state/routeOutcome';
 import { ConnectionTideChart } from './ConnectionTideChart';
+import { StructureReading, useStructureReadingSource, type StructureReadingSource } from './StructureReading';
 
 export interface ConnectionFieldPanelProps {
   field: ConnectionField;
@@ -39,6 +40,11 @@ export interface ConnectionFieldPanelProps {
   onBuildModel?: (launch: ModelLaunchContext) => void;
   /** Test/story harness override. Production intentionally starts folded. */
   defaultExpanded?: boolean;
+  /** Test/story harness override for the structure catalogue behind a 主题.
+   *  Production resolves it lazily (see `useStructureReadingSource`); `null`
+   *  renders the topic without its reading, as the screen does while the
+   *  catalogue is still loading. */
+  readingSource?: StructureReadingSource | null;
 }
 
 const COPY = {
@@ -178,7 +184,7 @@ function externalEvidenceUrl(ref: string): string | null {
 }
 
 export function ConnectionFieldPanel(props: ConnectionFieldPanelProps) {
-  const { field, lang, channel, focus, visible, departure, intent, actor, onChannel, onFocus, onVisible, onDeparture, onPassage, onEnter, onResponseRecorded, onBuildModel, defaultExpanded = false } = props;
+  const { field, lang, channel, focus, visible, departure, intent, actor, onChannel, onFocus, onVisible, onDeparture, onPassage, onEnter, onResponseRecorded, onBuildModel, defaultExpanded = false, readingSource } = props;
   const c = COPY[lang];
   // The atlas is the first read. The cross-field desk begins as a compact
   // invitation and opens only when the visitor asks for it or when a concrete
@@ -256,7 +262,7 @@ export function ConnectionFieldPanel(props: ConnectionFieldPanelProps) {
           )}
 
           {activeGroup
-            ? <ConvergenceDetail group={activeGroup} field={field} lang={lang} copy={c} departure={departure} intent={intent} onDeparture={onDeparture} onPassage={onPassage} onEnter={onEnter} onFocus={navigate} onBuildModel={onBuildModel} />
+            ? <ConvergenceDetail group={activeGroup} field={field} lang={lang} copy={c} departure={departure} intent={intent} onDeparture={onDeparture} onPassage={onPassage} onEnter={onEnter} onFocus={navigate} onBuildModel={onBuildModel} readingSource={readingSource} />
             : activePath
               ? <PathDetail key={activePath.id} path={activePath} lang={lang} copy={c} actor={actor} onEnter={onEnter} onResponseRecorded={onResponseRecorded} related={activePath.kind === 'bridge' ? relatedResponsePaths(field, activePath) : []} onFocusPath={(id) => navigate({ type: 'path', id })} />
               : activeProblem
@@ -419,7 +425,7 @@ function GlobalField({ field, lang, channel, copy, onFocus }: {
   );
 }
 
-function ConvergenceDetail({ group, field, lang, copy, departure, intent, onDeparture, onPassage, onEnter, onFocus, onBuildModel }: {
+function ConvergenceDetail({ group, field, lang, copy, departure, intent, onDeparture, onPassage, onEnter, onFocus, onBuildModel, readingSource }: {
   group: ConnectionTheme;
   field: ConnectionField;
   lang: 'zh' | 'en';
@@ -431,7 +437,13 @@ function ConvergenceDetail({ group, field, lang, copy, departure, intent, onDepa
   onEnter: (problem: ConnectionProblem) => void;
   onFocus: (focus: ConnectionFocus) => void;
   onBuildModel?: (launch: ModelLaunchContext) => void;
+  readingSource?: StructureReadingSource | null;
 }) {
+  // The catalogue behind this 主题 is opened only once a topic is actually in
+  // focus (this component mounts only then), and never when a harness has
+  // already supplied or withheld it.
+  const lazySource = useStructureReadingSource(readingSource === undefined);
+  const source = readingSource === undefined ? lazySource : readingSource;
   const memberSlugs = new Set(group.members.map((member) => member.problem.slug));
   const crossing = field.paths.filter((path) => memberSlugs.has(path.from.slug) && memberSlugs.has(path.to.slug));
   const themeState = group.members.length === 0
@@ -456,6 +468,12 @@ function ConvergenceDetail({ group, field, lang, copy, departure, intent, onDepa
           </a>
         </details>
       )}
+      <StructureReading
+        structureId={group.structureId}
+        lang={lang}
+        source={source}
+        onSelectStructure={(structureId) => onFocus({ type: 'convergence', id: structureId })}
+      />
       {group.structureId === 'struct://xfrontier/synchronization' && onBuildModel && (
         <button type="button" className="fi-connection-model-action" data-model-launch="connection" onClick={() => onBuildModel({
           familyId: 'synchronization',

@@ -57,7 +57,7 @@ const ISOLATED_MODULES = [/\/packages\/data\/src\/atlas-detail\.ts$/];
  * stayed green, because neither runs a build. This names the module so the
  * failure says WHAT leaked rather than only that the total grew.
  */
-const ENTRY_FORBIDDEN_MODULES = [/\/packages\/data\/src\/structures(-expansion-wave\d+)?\.ts$/];
+const ENTRY_FORBIDDEN_MODULES = [/\/packages\/data\/src\/structures(-expansion-wave\d+|-depth-[a-z]+)?\.ts$/];
 
 /** Fails the build on a denylisted package in the entry chunk, on an isolated
  *  module folded into somebody else's chunk, or when the measured entry/CSS

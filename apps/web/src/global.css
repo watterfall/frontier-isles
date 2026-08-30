@@ -1366,6 +1366,39 @@ body:has(.fi-model-launch) { --fi-hud-dock-bottom: 94px; --fi-hud-dock-left: 362
 .fi-connection-theme-state[data-state='gap'] { background: repeating-linear-gradient(135deg, transparent 0 8px, color-mix(in srgb, var(--fi-ochre) 5%, transparent) 8px 9px); }
 .fi-connection-theme-state h3 { margin: 0 0 4px; color: var(--fi-ochre); font-family: var(--fi-font-display); font-size: 9px; }
 .fi-connection-theme-state p { margin: 0; color: var(--fi-ink-2); font-size: 9px; line-height: 1.55; }
+
+/* Structure reading — the 主题 itself, independent of any island (StructureReading.tsx). */
+.fi-structure-reading { margin: 0; padding: 10px 12px; border-bottom: .75px solid color-mix(in srgb, var(--fi-ink) 18%, transparent); color: var(--fi-ink-2); font-size: 9px; line-height: 1.55; }
+.fi-structure-reading > header { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; margin-bottom: 6px; }
+.fi-structure-reading > header h4 { margin: 0; color: var(--fi-ochre); font-family: var(--fi-font-display); font-size: 8px; letter-spacing: .06em; }
+.fi-structure-reading > header em { padding: 1px 5px; border: .75px solid currentColor; font-family: var(--fi-font-mono); font-size: 7px; font-style: normal; opacity: .72; }
+.fi-structure-reading h5 { display: flex; align-items: baseline; gap: 5px; margin: 9px 0 4px; color: var(--fi-ochre); font-family: var(--fi-font-display); font-size: 8px; letter-spacing: .06em; }
+.fi-structure-reading h5 small { font-family: var(--fi-font-mono); font-size: 7px; opacity: .62; }
+.fi-structure-reading p { margin: 0 0 5px; }
+.fi-structure-reading p > b { display: block; margin-bottom: 1px; color: var(--fi-ochre); font-family: var(--fi-font-display); font-size: 7.5px; }
+.fi-structure-reading-form code { display: block; padding: 4px 6px; border: .75px dashed color-mix(in srgb, var(--fi-ink) 28%, transparent); color: var(--fi-ink); font-family: var(--fi-font-mono); font-size: 8px; overflow-x: auto; white-space: nowrap; }
+.fi-structure-reading-quantities { display: grid; gap: 3px; margin: 0 0 6px; padding: 6px 7px; border: .75px solid color-mix(in srgb, var(--fi-ink) 20%, transparent); background: color-mix(in srgb, var(--fi-paper-raised) 80%, transparent); }
+.fi-structure-reading-quantities div { display: grid; grid-template-columns: minmax(0, 38%) minmax(0, 1fr); gap: 6px; }
+.fi-structure-reading-quantities dt { margin: 0; color: var(--fi-ink); font-family: var(--fi-font-mono); font-size: 8px; }
+.fi-structure-reading-quantities dd { margin: 0; }
+.fi-structure-reading-substrates { display: grid; gap: 5px; margin: 0; padding: 0; list-style: none; }
+.fi-structure-reading-substrates li { padding: 6px 7px; border-left: 2px solid var(--fi-gamboge); background: color-mix(in srgb, var(--fi-gamboge) 7%, transparent); }
+.fi-structure-reading-substrates header { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; margin-bottom: 2px; }
+.fi-structure-reading-substrates strong { color: var(--fi-ink); font-family: var(--fi-font-display); font-size: 9px; }
+.fi-structure-reading-substrates small { color: var(--fi-ochre); font-family: var(--fi-font-mono); font-size: 7px; white-space: nowrap; }
+.fi-structure-reading-substrates em { color: var(--fi-ink); font-family: var(--fi-font-mono); font-size: 8px; font-style: normal; }
+.fi-structure-reading-boundary { padding-top: 3px; border-top: .75px dashed color-mix(in srgb, var(--fi-ink) 18%, transparent); }
+.fi-structure-reading-relations { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.fi-structure-reading-relations li { padding: 5px 7px; border: .75px solid color-mix(in srgb, var(--fi-ink) 20%, transparent); }
+.fi-structure-reading-relations li[data-direction='in'] { border-style: dashed; }
+.fi-structure-reading-relations li > span { display: block; margin-bottom: 2px; color: var(--fi-ink); font-family: var(--fi-font-display); font-size: 8.5px; }
+.fi-structure-reading-relations li > span em { padding: 0 4px; color: var(--fi-ochre); font-style: normal; }
+.fi-structure-reading-relations li[data-kind='competes-with'] > span em { color: var(--fi-azurite); }
+.fi-structure-reading-relations li > p { margin: 0; }
+.fi-structure-reading-link { min-height: 24px; padding: 2px 4px; border: 0; border-bottom: 1px solid var(--fi-azurite); background: transparent; color: var(--fi-azurite); font: inherit; font-family: var(--fi-font-display); font-size: 8.5px; text-align: left; cursor: pointer; }
+.fi-structure-reading-link:hover { background: color-mix(in srgb, var(--fi-azurite) 10%, transparent); }
+.fi-structure-reading-mistaken { margin-top: 8px; padding: 6px 7px; border: .75px solid var(--fi-ochre); }
+.fi-structure-reading-gap { margin-top: 6px; padding: 6px 7px; background: repeating-linear-gradient(135deg, transparent 0 8px, color-mix(in srgb, var(--fi-ochre) 5%, transparent) 8px 9px); }
 .fi-connection-member-lead { display: grid; gap: 2px; margin: 0 0 7px 32px; color: var(--fi-ink-2); font-size: 8.5px; line-height: 1.45; }
 .fi-connection-member-lead strong { color: var(--fi-ochre); font-family: var(--fi-font-display); font-size: 7.5px; }
 .fi-connection-manifestation-detail { margin-left: 32px; border-top: .75px dashed color-mix(in srgb, var(--fi-ink) 17%, transparent); }
@@ -1851,6 +1884,18 @@ body:has(.fi-model-launch) { --fi-hud-dock-bottom: 94px; --fi-hud-dock-left: 362
 .fi-mobile-theme-state[data-state='gap'] { background: repeating-linear-gradient(135deg, transparent 0 9px, color-mix(in srgb, var(--fi-ochre) 6%, transparent) 9px 10px); }
 .fi-mobile-theme-state strong { color: var(--fi-ochre); font-family: var(--fi-font-display); font-size: 10px; }
 .fi-mobile-theme-state p { margin: 4px 0 0; color: var(--fi-ink-2); font-size: 10.5px; line-height: 1.55; }
+.fi-mobile-convergence-detail .fi-structure-reading { padding: 12px 13px; border-bottom: .75px solid rgba(58,52,43,.22); font-size: 10.5px; }
+.fi-mobile-convergence-detail .fi-structure-reading > header h4,
+.fi-mobile-convergence-detail .fi-structure-reading h5 { font-size: 10px; }
+.fi-mobile-convergence-detail .fi-structure-reading p > b,
+.fi-mobile-convergence-detail .fi-structure-reading > header em,
+.fi-mobile-convergence-detail .fi-structure-reading-substrates small { font-size: 9px; }
+.fi-mobile-convergence-detail .fi-structure-reading-substrates strong,
+.fi-mobile-convergence-detail .fi-structure-reading-relations li > span { font-size: 11.5px; }
+.fi-mobile-convergence-detail .fi-structure-reading-form code,
+.fi-mobile-convergence-detail .fi-structure-reading-quantities dt,
+.fi-mobile-convergence-detail .fi-structure-reading-substrates em { font-size: 10px; }
+.fi-mobile-convergence-detail .fi-structure-reading-link { display: inline-flex; min-height: 44px; align-items: center; font-size: 11.5px; }
 .fi-mobile-manifestation-lead { display: grid; gap: 3px; margin: 0; color: var(--fi-ink-2); font-size: 10.5px; line-height: 1.5; }
 .fi-mobile-manifestation-lead strong { color: var(--fi-ochre); font-family: var(--fi-font-display); font-size: 9px; }
 .fi-mobile-manifestation-detail { margin-top: 9px; border-top: .75px dashed rgba(58,52,43,.22); }

@@ -17,6 +17,7 @@ import {
 import { LangToggle } from '../shell/LangToggle';
 import { WorldTrail } from '../shell/WorldTrail';
 import { ConnectionTideChart } from '../chart/ConnectionTideChart';
+import { StructureReading, useStructureReadingSource } from '../chart/StructureReading';
 import type { ModelRunReceipt } from '../../models/types';
 import type { ModelLabMissionEvidenceV1 } from '../../state/missionEvidence';
 import { selectWorldTrail } from '../../state/worldTrail';
@@ -459,6 +460,9 @@ function MobileConnectionField({ field, lang, carriedQuestion, onCarriedApplied 
     ? field?.paths.find((item) => item.id === focus.id) ?? null
     : null;
   const problem = focus?.type === 'problem' ? field?.problems.get(focus.slug) ?? null : null;
+  // Full reading truth on mobile: the structure behind a 主题 opens here too,
+  // from the same lazy catalogue door the desktop explorer uses.
+  const readingSource = useStructureReadingSource(convergence !== null);
   const read = (value: { zh: string; en: string } | undefined): string =>
     value?.[lang] || value?.[lang === 'zh' ? 'en' : 'zh'] || '—';
   const pathKind = (kind: ConnectionPathKind): string => copy.kinds[kind];
@@ -541,6 +545,12 @@ function MobileConnectionField({ field, lang, carriedQuestion, onCarriedApplied 
           <section className="fi-mobile-theme-state" data-state={convergence.members.length === 0 ? 'gap' : convergence.members.length === 1 ? 'single' : 'crossing'}>
             <strong>{convergence.members.length === 0 ? copy.themeGapTitle : copy.themeAcross}</strong><p>{themeState}</p>
           </section>
+          <StructureReading
+            structureId={convergence.structureId}
+            lang={lang}
+            source={readingSource}
+            onSelectStructure={(structureId) => navigate({ type: 'convergence', id: structureId })}
+          />
           {convergence.members.length > 0 && <div className="fi-mobile-manifestations">
             {convergence.members.map((member, index) => (
               <article key={member.problem.slug}>

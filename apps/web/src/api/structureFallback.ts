@@ -23,7 +23,7 @@
  * used to be here, and `pnpm -r test` and `pnpm typecheck` both stayed green.
  */
 import { structureFrontier, type StructureEdge } from '@frontier-isles/core';
-import { SEED_STRUCTURES } from '@frontier-isles/data/structures';
+import { SEED_STRUCTURES, type StructureRelationKind } from '@frontier-isles/data/structures';
 import { DATA } from './fallback';
 import { opIdFor } from './opId';
 import type { ApiStructure, ApiStructureGraph } from './client';
@@ -94,4 +94,33 @@ export function fallbackStructureGraph(): ApiStructureGraph {
     ...(mapping.evidenceRefs?.length ? { evidenceRefs: mapping.evidenceRefs } : {}),
   })));
   return { edges, frontier: structureFrontier(edges, islands), mappings };
+}
+
+/**
+ * Relations that point AT a structure, read off every other structure's
+ * `depth.relations`. The catalogue stores each relation once, on its source;
+ * a reader standing on the target still needs to see who cites it, and that
+ * reverse index is computed here — behind the same lazy door as the rest of
+ * the seed data — rather than duplicated into the authored files.
+ */
+export interface StructureInboundRelation {
+  from: string;
+  kind: StructureRelationKind;
+  why: { zh: string; en: string };
+}
+
+let inboundIndex: Map<string, StructureInboundRelation[]> | null = null;
+
+export function inboundRelations(id: string): StructureInboundRelation[] {
+  if (!inboundIndex) {
+    inboundIndex = new Map();
+    for (const structure of SEED_STRUCTURES) {
+      for (const relation of structure.depth?.relations ?? []) {
+        const list = inboundIndex.get(relation.to) ?? [];
+        list.push({ from: structure.id, kind: relation.kind, why: relation.why });
+        inboundIndex.set(relation.to, list);
+      }
+    }
+  }
+  return inboundIndex.get(id) ?? [];
 }

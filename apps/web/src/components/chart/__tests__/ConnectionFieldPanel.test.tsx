@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { DATA } from '../../../api/fallback';
 import { fixtureSeaData } from '../../../api/seaFallback';
-import { fallbackStructureGraph, fallbackStructures } from '../../../api/structureFallback';
+import { fallbackStructureGraph, fallbackStructures, inboundRelations, seedStructureById } from '../../../api/structureFallback';
 import { buildConnectionField, type ConnectionField } from '../../../chart/connectionField';
 import { ConnectionFieldPanel, type ConnectionFieldPanelProps } from '../ConnectionFieldPanel';
 
@@ -228,5 +228,33 @@ describe('ConnectionFieldPanel — falsification → driftwood v1', () => {
   it('shows no return control on affirming evidence records', () => {
     const markup = renderToStaticMarkup(<ConnectionFieldPanel {...props} />);
     expect(markup).not.toContain('将被证伪的材料退回散木园');
+  });
+});
+
+describe('ConnectionFieldPanel — the structure behind a 跨学科主题', () => {
+  const SYNC = 'struct://xfrontier/synchronization';
+  const readingSource = { byId: seedStructureById, inboundOf: inboundRelations };
+  const topicProps: ConnectionFieldPanelProps = { ...props, focus: { type: 'convergence', id: SYNC }, readingSource };
+
+  it('reads the structure itself — origin, textbook instances, relations — under the topic, not only its one sentence', () => {
+    const markup = renderToStaticMarkup(<ConnectionFieldPanel {...topicProps} />);
+    const structure = seedStructureById(SYNC)!;
+    expect(markup).toContain('data-testid="structure-reading"');
+    expect(markup).toContain('这个主题本身');
+    expect(markup).toContain(structure.depth!.origin.zh);
+    expect(markup).toContain(structure.depth!.canonicalSubstrates[0]!.name.zh);
+    expect(markup).toContain('data-structure-id="struct://xfrontier/critical-slowing-down"');
+    expect(markup).toContain(structure.depth!.mistakenFor.zh);
+  });
+
+  it('offers each relation as a real button that refocuses the explorer on that structure', () => {
+    const markup = renderToStaticMarkup(<ConnectionFieldPanel {...topicProps} />);
+    expect(markup).toMatch(/<button[^>]*fi-structure-reading-link[^>]*data-structure-id="struct:\/\/xfrontier\/critical-slowing-down"/);
+  });
+
+  it('keeps the topic readable while the catalogue has not loaded', () => {
+    const markup = renderToStaticMarkup(<ConnectionFieldPanel {...topicProps} readingSource={null} />);
+    expect(markup).not.toContain('data-testid="structure-reading"');
+    expect(markup).toContain(seedStructureById(SYNC)!.title.zh);
   });
 });

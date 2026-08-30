@@ -30,6 +30,8 @@ import { METHOD_FAMILY_DEPTH } from '#structures-depth-method';
 import { INFORMATION_FAMILY_DEPTH } from '#structures-depth-information';
 import { LIMITS_FAMILY_DEPTH } from '#structures-depth-limits';
 import { CREDIBILITY_FAMILY_DEPTH } from '#structures-depth-credibility';
+import { FLOW_FAMILY_DEPTH } from '#structures-depth-flow';
+import { ABSENCE_FAMILY_DEPTH } from '#structures-depth-absence';
 
 export interface StructureCorrespondence {
   /** A quantity in the abstract structure. */
@@ -2425,7 +2427,7 @@ for (const patch of WAVE_3_STRUCTURE_PATCHES) {
  * abstract variables is textbook authoring, whereas overwriting a list it
  * already carries would silently rewrite what a curator wrote, so that throws.
  */
-for (const patch of [...CRITICAL_FAMILY_DEPTH, ...INFERENCE_FAMILY_DEPTH, ...COLLECTIVE_FAMILY_DEPTH, ...LOCKIN_FAMILY_DEPTH, ...METHOD_FAMILY_DEPTH, ...INFORMATION_FAMILY_DEPTH, ...LIMITS_FAMILY_DEPTH, ...CREDIBILITY_FAMILY_DEPTH]) {
+for (const patch of [...CRITICAL_FAMILY_DEPTH, ...INFERENCE_FAMILY_DEPTH, ...COLLECTIVE_FAMILY_DEPTH, ...LOCKIN_FAMILY_DEPTH, ...METHOD_FAMILY_DEPTH, ...INFORMATION_FAMILY_DEPTH, ...LIMITS_FAMILY_DEPTH, ...CREDIBILITY_FAMILY_DEPTH, ...FLOW_FAMILY_DEPTH, ...ABSENCE_FAMILY_DEPTH]) {
   const structure = SEED_STRUCTURES.find((candidate) => candidate.id === patch.structureId);
   if (!structure) {
     throw new Error(`Depth patch target does not exist: ${patch.structureId}`);
