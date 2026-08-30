@@ -1317,6 +1317,12 @@ body:has(.fi-model-launch) { --fi-hud-dock-bottom: 94px; --fi-hud-dock-left: 362
 .fi-connection-starters li > button[data-topic-state='single'] { box-shadow: inset 2px 0 color-mix(in srgb, var(--fi-azurite) 35%, transparent); }
 .fi-connection-starters li > button > span { display: grid; min-width: 0; gap: 2px; }
 .fi-connection-starters small { color: var(--fi-ochre); font-family: var(--fi-font-mono); font-size: 7px; }
+/* Second, independent signal on a topic row: the island count says how much
+   research has been rebuilt onto it, this says whether the topic itself has
+   been written up. Most topics with no island have a full body, so the row
+   needs both or it reports the opposite of the truth. Same line, no extra
+   height; azurite rather than ochre because it is not a warning. */
+.fi-connection-topic-reading { color: var(--fi-azurite); }
 .fi-connection-starters strong { font-family: var(--fi-font-display); font-size: 11px; }
 .fi-connection-starters em { overflow: hidden; color: var(--fi-ink-2); font-size: 8.5px; font-style: normal; line-height: 1.4; text-overflow: ellipsis; white-space: nowrap; }
 .fi-connection-starters li > button > b { display: flex; align-items: center; justify-content: space-between; color: var(--fi-ochre); font-family: var(--fi-font-mono); font-size: 8px; font-weight: 500; }
@@ -1396,6 +1402,10 @@ body:has(.fi-model-launch) { --fi-hud-dock-bottom: 94px; --fi-hud-dock-left: 362
 .fi-structure-reading-relations li[data-kind='competes-with'] > span em { color: var(--fi-azurite); }
 .fi-structure-reading-relations li > p { margin: 0; }
 .fi-structure-reading-link { min-height: 24px; padding: 2px 4px; border: 0; border-bottom: 1px solid var(--fi-azurite); background: transparent; color: var(--fi-azurite); font: inherit; font-family: var(--fi-font-display); font-size: 8.5px; text-align: left; cursor: pointer; }
+/* A relation whose target is itself still one sentence. Dashed is already this
+   interface's mark for an honest gap, so the reader learns where the link
+   lands before clicking rather than after. */
+.fi-structure-reading-link[data-target-written='false'] { border-bottom-style: dashed; border-bottom-color: color-mix(in srgb, var(--fi-azurite) 55%, transparent); color: color-mix(in srgb, var(--fi-azurite) 78%, var(--fi-ink)); }
 .fi-structure-reading-link:hover { background: color-mix(in srgb, var(--fi-azurite) 10%, transparent); }
 .fi-structure-reading-mistaken { margin-top: 8px; padding: 6px 7px; border: .75px solid var(--fi-ochre); }
 .fi-structure-reading-gap { margin-top: 6px; padding: 6px 7px; background: repeating-linear-gradient(135deg, transparent 0 8px, color-mix(in srgb, var(--fi-ochre) 5%, transparent) 8px 9px); }

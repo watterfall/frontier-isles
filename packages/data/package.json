@@ -28,7 +28,9 @@
     "#structures-depth-limits": "./src/structures-depth-limits.ts",
     "#structures-depth-credibility": "./src/structures-depth-credibility.ts",
     "#structures-depth-flow": "./src/structures-depth-flow.ts",
-    "#structures-depth-absence": "./src/structures-depth-absence.ts"
+    "#structures-depth-absence": "./src/structures-depth-absence.ts",
+    "#structures-depth-network": "./src/structures-depth-network.ts",
+    "#structures-depth-scale": "./src/structures-depth-scale.ts"
   },
   "exports": {
     ".": "./src/index.ts",
@@ -46,16 +48,19 @@
     "./xfrontier-feedback": "./src/xfrontier-feedback.ts",
     "./structures": "./src/structures.ts",
     "./structure-proposals": "./src/structure-proposals.ts",
-    "./quantity-index": "./src/quantity-index.ts"
+    "./quantity-index": "./src/quantity-index.ts",
+    "./structure-index": "./src/structure-index.ts"
   },
   "scripts": {
     "generate:atlas": "node --experimental-strip-types scripts/generate-atlas.mjs",
     "check:atlas": "node --experimental-strip-types scripts/generate-atlas.mjs --check",
+    "generate:structure-index": "node --experimental-strip-types scripts/generate-structure-index.mjs",
+    "check:structure-index": "node --experimental-strip-types scripts/generate-structure-index.mjs --check",
     "generate:literature": "node --experimental-strip-types scripts/generate-literature.mjs",
     "xfrontier:sync": "node --experimental-strip-types scripts/sync-xfrontier.mjs",
     "audit:atlas": "node --experimental-strip-types scripts/audit-atlas.mjs",
     "test": "vitest run",
-    "typecheck": "pnpm check:atlas && tsc --noEmit"
+    "typecheck": "pnpm check:atlas && pnpm check:structure-index && tsc --noEmit"
   },
   "devDependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",

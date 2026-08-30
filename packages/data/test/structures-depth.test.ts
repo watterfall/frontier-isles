@@ -10,8 +10,10 @@ import { LIMITS_FAMILY_DEPTH } from '../src/structures-depth-limits';
 import { CREDIBILITY_FAMILY_DEPTH } from '../src/structures-depth-credibility';
 import { FLOW_FAMILY_DEPTH } from '../src/structures-depth-flow';
 import { ABSENCE_FAMILY_DEPTH } from '../src/structures-depth-absence';
+import { NETWORK_FAMILY_DEPTH } from '../src/structures-depth-network';
+import { SCALE_FAMILY_DEPTH } from '../src/structures-depth-scale';
 
-const ALL_DEPTH = [...CRITICAL_FAMILY_DEPTH, ...INFERENCE_FAMILY_DEPTH, ...COLLECTIVE_FAMILY_DEPTH, ...LOCKIN_FAMILY_DEPTH, ...METHOD_FAMILY_DEPTH, ...INFORMATION_FAMILY_DEPTH, ...LIMITS_FAMILY_DEPTH, ...CREDIBILITY_FAMILY_DEPTH, ...FLOW_FAMILY_DEPTH, ...ABSENCE_FAMILY_DEPTH];
+const ALL_DEPTH = [...CRITICAL_FAMILY_DEPTH, ...INFERENCE_FAMILY_DEPTH, ...COLLECTIVE_FAMILY_DEPTH, ...LOCKIN_FAMILY_DEPTH, ...METHOD_FAMILY_DEPTH, ...INFORMATION_FAMILY_DEPTH, ...LIMITS_FAMILY_DEPTH, ...CREDIBILITY_FAMILY_DEPTH, ...FLOW_FAMILY_DEPTH, ...ABSENCE_FAMILY_DEPTH, ...NETWORK_FAMILY_DEPTH, ...SCALE_FAMILY_DEPTH];
 import { FRONTIERS } from '../src/frontiers';
 
 const byId = new Map(SEED_STRUCTURES.map((structure) => [structure.id, structure]));
@@ -31,7 +33,9 @@ describe('structure depth', () => {
     expect(CREDIBILITY_FAMILY_DEPTH).toHaveLength(8);
     expect(FLOW_FAMILY_DEPTH).toHaveLength(8);
     expect(ABSENCE_FAMILY_DEPTH).toHaveLength(8);
-    expect(withDepth).toHaveLength(80);
+    expect(NETWORK_FAMILY_DEPTH).toHaveLength(8);
+    expect(SCALE_FAMILY_DEPTH).toHaveLength(8);
+    expect(withDepth).toHaveLength(96);
     for (const patch of ALL_DEPTH) {
       expect(byId.get(patch.structureId)?.depth, patch.structureId).toBe(patch.depth);
     }
@@ -107,7 +111,7 @@ describe('structure depth', () => {
     // 0 of 126 structures carried a relation to another before this field.
     const edges = withDepth.flatMap((structure) =>
       structure.depth!.relations.map((relation) => `${structure.id}→${relation.to}`));
-    expect(edges.length).toBeGreaterThanOrEqual(185);
+    expect(edges.length).toBeGreaterThanOrEqual(225);
     expect(new Set(edges).size, 'a relation must not be stated twice').toBe(edges.length);
     // Every structure in the family is reachable from another: none is isolated.
     const touched = new Set(withDepth.flatMap((structure) =>

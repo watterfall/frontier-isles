@@ -60,6 +60,7 @@ const COPY = {
     inbound: '被这些主题引用',
     mistakenFor: '常被误当成',
     open: '打开这个主题',
+    openGap: '打开这个主题（它目前只有一句陈述）',
     gap: '这个主题目前只有一句陈述。它的来历、教科书实例和与其他主题的关系还没有写出——这是内容上的空白，不是它没有关系。',
     kinds: {
       'emerges-from': '涌现自',
@@ -83,6 +84,7 @@ const COPY = {
     inbound: 'Cited by these structures',
     mistakenFor: 'Routinely mistaken for',
     open: 'Open this structure',
+    openGap: 'Open this structure (it currently carries one sentence)',
     gap: 'This structure currently carries one sentence. Its origin, textbook instances and relations to other structures are not yet written — a content gap, not an absence of relations.',
     kinds: {
       'emerges-from': 'emerges from',
@@ -116,9 +118,24 @@ export function StructureReading({ structureId, lang, source, onSelectStructure 
   const quantities = structure.quantities ?? [];
   const inbound = source.inboundOf(structureId);
 
+  // A relation may point at a structure that is itself still one sentence. The
+  // reader should know that before clicking rather than after: dashed is this
+  // interface's existing mark for an honest gap.
+  const written = (id: string): boolean => !!source.byId(id)?.depth;
   const structureLink = (id: string) => onSelectStructure
-    ? <button type="button" className="fi-structure-reading-link fi-hit" data-structure-id={id} onClick={() => onSelectStructure(id)} title={copy.open}>{titleOf(id)}</button>
-    : <b data-structure-id={id}>{titleOf(id)}</b>;
+    ? (
+      <button
+        type="button"
+        className="fi-structure-reading-link fi-hit"
+        data-structure-id={id}
+        data-target-written={written(id) ? 'true' : 'false'}
+        onClick={() => onSelectStructure(id)}
+        title={written(id) ? copy.open : copy.openGap}
+      >
+        {titleOf(id)}
+      </button>
+    )
+    : <b data-structure-id={id} data-target-written={written(id) ? 'true' : 'false'}>{titleOf(id)}</b>;
 
   return (
     <section className="fi-structure-reading" data-testid="structure-reading" data-depth={depth ? 'true' : 'false'} aria-label={copy.title}>

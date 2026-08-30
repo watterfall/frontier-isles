@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { DATA } from '../../../api/fallback';
 import { fixtureSeaData } from '../../../api/seaFallback';
 import { fallbackStructureGraph, fallbackStructures, inboundRelations, seedStructureById } from '../../../api/structureFallback';
-import { buildConnectionField, type ConnectionField } from '../../../chart/connectionField';
+import { buildConnectionField, DISCOVERY_THEME_IDS, type ConnectionField } from '../../../chart/connectionField';
 import { ConnectionFieldPanel, type ConnectionFieldPanelProps } from '../ConnectionFieldPanel';
 
 const base = buildConnectionField(fallbackStructures(), fallbackStructureGraph(), fixtureSeaData(), DATA);
@@ -256,5 +256,38 @@ describe('ConnectionFieldPanel — the structure behind a 跨学科主题', () =
     const markup = renderToStaticMarkup(<ConnectionFieldPanel {...topicProps} readingSource={null} />);
     expect(markup).not.toContain('data-testid="structure-reading"');
     expect(markup).toContain(seedStructureById(SYNC)!.title.zh);
+  });
+});
+
+describe('ConnectionFieldPanel — which topics are worth opening', () => {
+  const landing: ConnectionFieldPanelProps = { ...props, focus: null, channel: 'all' };
+
+  it('marks a topic that has a written body, on the same line as its island count', () => {
+    const markup = renderToStaticMarkup(<ConnectionFieldPanel {...landing} />);
+    // 标度 is the catalogue's deliberate empty case: zero islands, by design.
+    // Before the mark, its row said only 尚无可靠映射 — while the structure
+    // itself carries an origin, textbook instances and relations.
+    const scaling = field.topics.find((topic) => topic.structureId.endsWith('/scaling'))!;
+    expect(scaling.members).toHaveLength(0);
+    expect(markup).toContain('fi-connection-topic-reading');
+    expect(markup).toMatch(/尚无可靠映射<span class="fi-connection-topic-reading">[^<]*已写正文 · \d+ 个学科的例子/);
+  });
+
+  it('says nothing extra for a topic that is still only one sentence', () => {
+    const bare = field.topics.find((topic) => !topic.reading)!;
+    const markup = renderToStaticMarkup(
+      <ConnectionFieldPanel {...landing} field={{ ...field, topics: [bare] }} />,
+    );
+    expect(markup).toContain(bare.title.zh);
+    expect(markup).not.toContain('fi-connection-topic-reading');
+  });
+
+  it('counts the written ones in the disclosure so the ratio is visible before opening it', () => {
+    const markup = renderToStaticMarkup(<ConnectionFieldPanel {...landing} />);
+    const remaining = field.topics.filter((topic) => !DISCOVERY_THEME_IDS.includes(topic.id as never));
+    const written = remaining.filter((topic) => topic.reading).length;
+    expect(written).toBeGreaterThan(0);
+    expect(written).toBeLessThan(remaining.length);
+    expect(markup).toContain(`${written}/${remaining.length} 已写正文`);
   });
 });

@@ -1,4 +1,5 @@
 import { BRIDGES } from '@frontier-isles/data/bridges';
+import { structureReadingIndex, type StructureReadingIndexEntry } from '@frontier-isles/data/structure-index';
 import type {
   ApiCurrent,
   ApiCurrentRecord,
@@ -57,6 +58,16 @@ export interface ConnectionTheme {
   members: ConnectionManifestation[];
   /** Number of real rebuild records backing this topic. */
   weight: number;
+  /**
+   * How much written body the structure itself has, or absent when it has only
+   * its statement. Independent of `weight` and `members`, which count islands:
+   * most topics with no island have a full body, and saying only the island
+   * number would tell the reader the opposite of the truth.
+   *
+   * Counts only — the body is 600KiB away behind `api/structureFallback`, and
+   * `StructureReading` loads it when the reader opens the topic.
+   */
+  reading?: StructureReadingIndexEntry;
 }
 
 export interface ConnectionConvergence extends ConnectionTheme {
@@ -207,6 +218,7 @@ export function buildConnectionField(
       mapping: bestMapping(islandRecords),
       records: [...islandRecords].sort((a, b) => a.ts.localeCompare(b.ts) || a.refHash.localeCompare(b.refHash)),
     })).sort((a, b) => a.problem.title.zh.localeCompare(b.problem.title.zh, 'zh-CN'));
+    const reading = structureReadingIndex(structure.id);
     const topic: ConnectionTheme = {
       id: structure.id,
       structureId: structure.id,
@@ -218,6 +230,7 @@ export function buildConnectionField(
       provenance: structure.provenance,
       members,
       weight: records.length,
+      ...(reading ? { reading } : {}),
     };
     topics.push(topic);
     // One mapped problem is useful exploration context, but not a cross-domain

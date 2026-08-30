@@ -70,7 +70,7 @@ const COPY = {
     themeAcross: '这个主题目前出现在哪里', themeMany: '已经在 {{count}} 项研究中形成独立映射。先看它们如何不同，再决定进入哪一个问题。',
     themeOne: '目前只在 1 项研究中出现，还不能把它当成跨领域共性。可以从这一个落点继续寻找。',
     themeGap: '还没有研究对这个主题形成可靠映射。这不是空结果，而是一块可以继续寻找落点的前沿。', themeGapTitle: '这里仍是一块空白',
-    themeContinue: '以这个问题继续', themeEnter: '进入这项研究', themeCompareTools: '用这个主题比较具体研究', themeStatusGap: '尚无可靠映射', themeStatusOne: '1 个研究落点', themeStatusMany: '{{count}} 个研究落点', moreThemes: '更多跨学科主题',
+    themeContinue: '以这个问题继续', themeEnter: '进入这项研究', themeCompareTools: '用这个主题比较具体研究', themeStatusGap: '尚无可靠映射', themeStatusOne: '1 个研究落点', themeStatusMany: '{{count}} 个研究落点', moreThemes: '更多跨学科主题', themeReadingMark: '已写正文 · {{fields}} 个学科的例子', themeReadingCount: '{{written}}/{{all}} 已写正文',
     sourceLedger: '研究记录', sourceCurated: '整理的数学材料',
     dossier: '原始记录与证据', dossierIntro: '展开核对原材料、支持或反对的理由，以及可能推翻它的测试。', evidenceDrawer: '查看原始记录与证据',
     assertion: '原材料说了什么', response: '支持或反对的理由', discriminatingTest: '什么结果会让这条判断站不住',
@@ -118,7 +118,7 @@ const COPY = {
     themeAcross: 'Where this theme appears now', themeMany: 'It has independent mappings in {{count}} studies. Compare how they differ before entering one problem.',
     themeOne: 'It currently appears in only one study, so it is not yet a cross-field regularity. Continue from this single landing point.',
     themeGap: 'No study has a reliable mapping to this theme yet. This is not an empty result; it is a frontier waiting for a landing point.', themeGapTitle: 'This remains an open gap',
-    themeContinue: 'Continue with this problem', themeEnter: 'Enter this study', themeCompareTools: 'Compare concrete studies through this theme', themeStatusGap: 'No reliable mapping yet', themeStatusOne: '1 research landing', themeStatusMany: '{{count}} research landings', moreThemes: 'More cross-disciplinary themes',
+    themeContinue: 'Continue with this problem', themeEnter: 'Enter this study', themeCompareTools: 'Compare concrete studies through this theme', themeStatusGap: 'No reliable mapping yet', themeStatusOne: '1 research landing', themeStatusMany: '{{count}} research landings', moreThemes: 'More cross-disciplinary themes', themeReadingMark: 'written up · examples from {{fields}} fields', themeReadingCount: '{{written}}/{{all}} written up',
     sourceLedger: 'Research record', sourceCurated: 'Curated mathematical material',
     dossier: 'Source records and evidence', dossierIntro: 'Open the source material, the reason for support or challenge, and a test that could overturn it.', evidenceDrawer: 'View source records and evidence',
     assertion: 'What the source material says', response: 'Reason for support or challenge', discriminatingTest: 'What result would make this judgment fail',
@@ -300,7 +300,18 @@ function GlobalLanding({ field, lang, channel, query, searchResults, copy, onQue
   const renderTopic = (topic: ConnectionTheme) => (
     <li key={topic.id}>
       <button type="button" data-topic-state={topic.members.length === 0 ? 'gap' : topic.members.length === 1 ? 'single' : 'crossing'} onClick={() => onFocus({ type: 'convergence', id: topic.id })}>
-        <span><small>{statusOf(topic)}</small><strong>{localized(topic.title, lang)}</strong><em>{localized(topic.sharedCore, lang)}</em></span>
+        <span>
+          <small>
+            {statusOf(topic)}
+            {topic.reading && (
+              <span className="fi-connection-topic-reading">
+                {' · '}
+                {copy.themeReadingMark.replace('{{fields}}', String(topic.reading.fields))}
+              </span>
+            )}
+          </small>
+          <strong>{localized(topic.title, lang)}</strong><em>{localized(topic.sharedCore, lang)}</em>
+        </span>
         <b><span aria-hidden="true">→</span></b>
       </button>
     </li>
@@ -322,7 +333,14 @@ function GlobalLanding({ field, lang, channel, query, searchResults, copy, onQue
       </section>
       {remaining.length > 0 && (
         <details className="fi-connection-theme-more">
-          <summary>{copy.moreThemes}<small>{remaining.length}</small></summary>
+          <summary>
+            {copy.moreThemes}
+            <small>
+              {copy.themeReadingCount
+                .replace('{{written}}', String(remaining.filter((topic) => topic.reading).length))
+                .replace('{{all}}', String(remaining.length))}
+            </small>
+          </summary>
           <div className="fi-connection-starters"><ol>{remaining.map(renderTopic)}</ol></div>
         </details>
       )}

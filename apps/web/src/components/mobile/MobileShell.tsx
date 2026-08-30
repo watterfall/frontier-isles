@@ -398,7 +398,7 @@ const MOBILE_CONNECTION_COPY = {
     prediction: '怎么验证', noBoundary: '这条旧记录没有写明差异。',
     connected: '可以先试这几条办法', none: '还没有记录说明其他研究能怎样帮助这个问题。',
     themeAcross: '这个主题目前出现在哪里', themeMany: '已经在 {{count}} 项研究中形成独立映射。先看它们如何不同。', themeOne: '目前只在 1 项研究中出现，还不能把它当成跨领域共性。', themeGap: '还没有研究形成可靠映射。这是一块等待寻找落点的前沿。', themeGapTitle: '这里仍是一块空白',
-    themeContinue: '以这个问题继续', themeStatusGap: '尚无可靠映射', themeStatusOne: '1 个研究落点', themeStatusMany: '{{count}} 个研究落点',
+    themeContinue: '以这个问题继续', themeStatusGap: '尚无可靠映射', themeStatusOne: '1 个研究落点', themeStatusMany: '{{count}} 个研究落点', themeReadingMark: '已写正文 · {{fields}} 个学科的例子', themeReadingCount: '{{written}}/{{all}} 已写正文',
     formulaBoundary: '用了同一个方程，不代表两边的原因相同。还要分别检查边界条件、参数代表什么，以及实际因果过程。',
     ledgerBoundary: '这只是一条支持、反对或借用的记录，不代表两个问题相同。看检验结果和新材料，再决定它是否站得住。',
     validationFallback: '先分别检查两边的边界条件和关键参数，再看同一个办法能否对两项研究都给出可观察的预测。',
@@ -422,7 +422,7 @@ const MOBILE_CONNECTION_COPY = {
     prediction: 'How to test it', noBoundary: 'This older record did not state the difference.',
     connected: 'Try these leads first', none: 'No record yet explains how another study could help with this problem.',
     themeAcross: 'Where this theme appears now', themeMany: 'It has independent mappings in {{count}} studies. Compare how they differ.', themeOne: 'It currently appears in only one study, so it is not yet a cross-field regularity.', themeGap: 'No study has a reliable mapping yet. This is a frontier waiting for a landing point.', themeGapTitle: 'This remains an open gap',
-    themeContinue: 'Continue with this problem', themeStatusGap: 'No reliable mapping yet', themeStatusOne: '1 research landing', themeStatusMany: '{{count}} research landings',
+    themeContinue: 'Continue with this problem', themeStatusGap: 'No reliable mapping yet', themeStatusOne: '1 research landing', themeStatusMany: '{{count}} research landings', themeReadingMark: 'written up · examples from {{fields}} fields', themeReadingCount: '{{written}}/{{all}} written up',
     formulaBoundary: 'Using the same equation does not mean the causes are the same. Check the boundary conditions, what each parameter means, and the actual causal process separately.',
     ledgerBoundary: 'This is one recorded judgment of support, challenge, or reuse; it does not make the problems identical. Use the test and new material to decide whether it holds.',
     validationFallback: 'Check each side\'s boundary conditions and key parameters, then ask whether the same approach makes an observable prediction in both studies.',
@@ -510,6 +510,20 @@ function MobileConnectionField({ field, lang, carriedQuestion, onCarriedApplied 
     : item.members.length === 1
       ? copy.themeStatusOne
       : copy.themeStatusMany.replace('{{count}}', String(item.members.length));
+  // The island count and the written-body mark are independent: most topics
+  // with no island now have a full body, so a row carrying only the first one
+  // tells the reader the opposite of the truth.
+  const themeMark = (item: ConnectionField['topics'][number]) => (
+    <small>
+      {themeStatus(item)}
+      {item.reading && (
+        <span className="fi-connection-topic-reading">
+          {' · '}
+          {copy.themeReadingMark.replace('{{fields}}', String(item.reading.fields))}
+        </span>
+      )}
+    </small>
+  );
   const previousFocus = focusTrail.at(-1) ?? null;
   const backLabel = previousFocus?.type === 'problem' ? copy.backProblem : previousFocus?.type === 'convergence' ? copy.backTheme : copy.backGlobal;
   const panelKicker = path ? copy.pathKicker : problem ? copy.problemKicker : convergence ? copy.themeKicker : copy.globalKicker;
@@ -636,15 +650,17 @@ function MobileConnectionField({ field, lang, carriedQuestion, onCarriedApplied 
             <h3>{copy.starter} <span>{copy.starterHint}</span></h3>
             {starters.map((item) => (
               <button type="button" key={item.id} data-topic-state={item.members.length === 0 ? 'gap' : item.members.length === 1 ? 'single' : 'crossing'} onClick={() => navigate({ type: 'convergence', id: item.id })}>
-                <span><small>{themeStatus(item)}</small><strong>{read(item.title)}</strong><p>{read(item.sharedCore)}</p></span><b><i aria-hidden="true">→</i></b>
+                <span>{themeMark(item)}<strong>{read(item.title)}</strong><p>{read(item.sharedCore)}</p></span><b><i aria-hidden="true">→</i></b>
               </button>
             ))}
             {remainingThemes.length > 0 && (
               <details className="fi-mobile-theme-more">
-                <summary>{copy.moreThemes}<small>{remainingThemes.length}</small></summary>
+                <summary>{copy.moreThemes}<small>{copy.themeReadingCount
+                  .replace('{{written}}', String(remainingThemes.filter((item) => item.reading).length))
+                  .replace('{{all}}', String(remainingThemes.length))}</small></summary>
                 {remainingThemes.map((item) => (
                   <button type="button" key={item.id} onClick={() => navigate({ type: 'convergence', id: item.id })}>
-                    <small>{themeStatus(item)}</small><strong>{read(item.title)}</strong><span>{read(item.sharedCore)}</span>
+                    {themeMark(item)}<strong>{read(item.title)}</strong><span>{read(item.sharedCore)}</span>
                   </button>
                 ))}
               </details>

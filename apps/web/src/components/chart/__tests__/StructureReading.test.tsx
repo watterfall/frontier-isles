@@ -77,6 +77,22 @@ describe('StructureReading — the structure itself, independent of any island',
     expect(renderToStaticMarkup(<StructureReading structureId="struct://xfrontier/does-not-exist" lang="zh" source={source} />)).toBe('');
   });
 
+  it('marks a relation whose target is itself still one sentence, before the reader clicks it', () => {
+    // Derived, never hard-coded: as families are written, today's dashed link
+    // becomes solid, and pinning a pair would make this test a calendar.
+    const byId = new Map(SEED_STRUCTURES.map((structure) => [structure.id, structure]));
+    const pair = SEED_STRUCTURES
+      .flatMap((structure) => (structure.depth?.relations ?? []).map((relation) => ({ from: structure.id, to: relation.to })))
+      .find(({ to }) => !byId.get(to)?.depth);
+    if (!pair) return; // Every structure written up — the mark has nothing left to say.
+    const markup = renderToStaticMarkup(
+      <StructureReading structureId={pair.from} lang="zh" source={source} onSelectStructure={() => {}} />,
+    );
+    expect(markup).toMatch(new RegExp(`data-structure-id="${pair.to}" data-target-written="false"`));
+    const written = byId.get(pair.from)!.depth!.relations.map((relation) => relation.to).find((to) => byId.get(to)?.depth);
+    if (written) expect(markup).toContain(`data-structure-id="${written}" data-target-written="true"`);
+  });
+
   it('never mentions an island: the reading is the structure layer, not the atlas', () => {
     const slugs = FRONTIERS.map((island) => island.slug);
     for (const structure of SEED_STRUCTURES.filter((candidate) => candidate.depth).slice(0, 12)) {

@@ -4,6 +4,7 @@ import { fixtureSeaData } from '../../api/seaFallback';
 import { fallbackStructureGraph, fallbackStructures } from '../../api/structureFallback';
 import { BRIDGES } from '@frontier-isles/data/bridges';
 import { SEED_STRUCTURES } from '@frontier-isles/data/structures';
+import { STRUCTURE_READING_INDEX } from '@frontier-isles/data/structure-index';
 import {
   buildConnectionField,
   buildConnectionTideSummary,
@@ -113,5 +114,22 @@ describe('buildConnectionField', () => {
   it('searches real problem titles/questions instead of structure vocabulary', () => {
     expect(searchConnectionProblems(field, '虚拟细胞', 'zh').map((problem) => problem.slug))
       .toContain('cell-digital-twins-virtual-cells');
+  });
+
+  it('carries how much written body each topic has, independently of its islands', () => {
+    // The two numbers are genuinely independent, and that is the reason the
+    // field carries both: a topic with no island can have a full body, and a
+    // list showing only the island count reports the opposite of the truth.
+    const written = field.topics.filter((topic) => topic.reading);
+    expect(written).toHaveLength(Object.keys(STRUCTURE_READING_INDEX).length);
+    expect(written.some((topic) => topic.members.length === 0)).toBe(true);
+    for (const topic of field.topics) {
+      expect(topic.reading, topic.id).toEqual(STRUCTURE_READING_INDEX[topic.structureId]);
+      if (topic.reading) {
+        expect(topic.reading.substrates).toBeGreaterThanOrEqual(3);
+        expect(topic.reading.fields).toBeGreaterThanOrEqual(3);
+        expect(topic.reading.relations).toBeGreaterThanOrEqual(2);
+      }
+    }
   });
 });
