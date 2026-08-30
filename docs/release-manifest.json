@@ -107,7 +107,7 @@
   },
   "proofBoundaries": [
     "The CI result proves only the recorded committed main baseline.",
-    "The production health and counts prove the older deployed release, not current main.",
+    "Production health and counts prove the release named in `production`, which is current main only while `deploymentBoundary.mainCommitIsDeployed` holds. That field is hand-maintained and has been wrong before — check `flyctl releases --app frontier-isles` against it rather than reading this line as proof.",
     "Local browser and build checks for later hardening work must be reported separately from CI and deployment."
   ]
 }

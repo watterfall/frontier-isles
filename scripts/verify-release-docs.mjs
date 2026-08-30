@@ -96,4 +96,78 @@ assert(roadmap.includes(manifest.production.sourceCommit), 'ROADMAP must name th
 const deploymentPhrase = manifest.deploymentBoundary.mainCommitIsDeployed ? '当前 main 已部署' : 'main 尚未部署';
 assert(roadmap.includes(deploymentPhrase), `ROADMAP must state the current deployment boundary: ${deploymentPhrase}`);
 
+// ── ROADMAP internal consistency ────────────────────────────────────────────
+// The four assertions above are `roadmap.includes(...)`. They prove the right
+// string appears SOMEWHERE in the document, which is a presence test and cannot
+// see a contradiction elsewhere in the same file. On 2026-08-31 that gap ran
+// live: the checkpoint table was correct and this gate was green while three
+// other passages still said production was behind — §3 debt item 7 named Fly
+// release v2, and the Slice 26 and Slice 27 log entries both ended "production
+// still serves the 2026-08-04 release". Presence is not consistency.
+//
+// What follows are absence assertions, which validate-observations.test.mjs
+// argues at length are usually weak: an absence assertion is only as good as
+// the guess about how the defect will be phrased. These are not guesses. The
+// deployment boundary has exactly two possible phrasings and this script
+// constructs both; release numbers come from the manifest and every stated
+// occurrence is checked rather than one hoped-for wording. The check fails on
+// wordings nobody anticipated, which is the property the forbidden-phrase style
+// lacks.
+//
+// The document is split at the session log because §6 is a LOG. Its entries
+// were true when written and have to stay readable as evidence, so a claim
+// there that time has overtaken is marked superseded rather than rewritten —
+// a session log that edits itself stops being evidence. Above that line the
+// document speaks in the present, and the present has to agree with itself.
+const LOG_HEADING = '## 6 · Session log';
+const logStart = roadmap.indexOf(LOG_HEADING);
+assert(logStart !== -1, `ROADMAP must contain "${LOG_HEADING}"; the live/historical split depends on that heading`);
+const liveRegion = roadmap.slice(0, logStart);
+const logRegion = roadmap.slice(logStart);
+
+// A mention that is deliberately historical says so on its own line. Keeping the
+// marker list here, rather than exempting specific line numbers, means a future
+// correction row passes for the reason it is correct instead of by position.
+const CORRECTION_MARKER = /corrects|superseded|previous checkpoint|no longer|used to|had (?:since )?been/i;
+
+const staleDeploymentPhrase = manifest.deploymentBoundary.mainCommitIsDeployed ? 'main 尚未部署' : '当前 main 已部署';
+for (const [i, line] of liveRegion.split('\n').entries()) {
+  if (!line.includes(staleDeploymentPhrase) || CORRECTION_MARKER.test(line)) continue;
+  assert(
+    false,
+    `ROADMAP line ${i + 1} states "${staleDeploymentPhrase}" while the manifest says "${deploymentPhrase}". ` +
+      'If the mention is deliberately historical, say so on the same line (e.g. "the previous checkpoint", "superseded").',
+  );
+}
+
+const releaseVersion = manifest.production?.releaseVersion;
+assert(Number.isInteger(releaseVersion) && releaseVersion > 0, 'production.releaseVersion must be a positive integer');
+assert(
+  new RegExp(`release\\s+\\*{0,2}v${releaseVersion}\\b`, 'i').test(liveRegion),
+  `ROADMAP must name the deployed release (v${releaseVersion}) above the session log`,
+);
+for (const [i, line] of liveRegion.split('\n').entries()) {
+  for (const match of line.matchAll(/release\s+\*{0,2}v(\d+)/gi)) {
+    const stated = Number(match[1]);
+    assert(
+      stated === releaseVersion || CORRECTION_MARKER.test(line),
+      `ROADMAP line ${i + 1} names release v${stated} above the session log while production is on v${releaseVersion}. ` +
+        'If the mention is deliberately historical, say so on the same line (e.g. "corrects", "previous checkpoint").',
+    );
+  }
+}
+
+// A log entry may record what production served at the time it was written.
+// What it may not do is leave that in the present tense once it is false: the
+// Slice 26 and 27 entries read "production still serves …" for a month after
+// the deploy that ended it.
+for (const [i, line] of logRegion.split('\n').entries()) {
+  if (!/still serve[sd]/i.test(line) || /superseded/i.test(line)) continue;
+  assert(
+    false,
+    `ROADMAP session-log line ${i + 1} (of §6) says what production "still serves". ` +
+      'A log entry keeps its original claim, but must mark it — e.g. "superseded by Slice N (deployed YYYY-MM-DD)".',
+  );
+}
+
 console.log(`release docs verified: ${manifest.statusAsOf} · main ${manifest.main.commit.slice(0, 8)} · production ${manifest.production.sourceCommit.slice(0, 8)}`);

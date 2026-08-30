@@ -184,8 +184,8 @@ export const LOCKIN_FAMILY_DEPTH: StructureDepthPatch[] = [
       minimalForm: '亚致死暴露 × n 轮 ⇒ 存活者耐受分布右移',
       canonicalSubstrates: [
         sub('抗生素耐药', 'Antibiotic resistance', '微生物学', 'Microbiology', 0,
-          '亚致死剂量杀掉最敏感的一批，留下的比上一轮更耐受',
-          'a sub-lethal dose killing the most sensitive and leaving survivors more tolerant than before',
+          '浓度高到能压住敏感株、又不足以压住已带抗性突变的那一段；剂量不足或疗程提前中断都会把暴露停在这个区间里',
+          'a concentration high enough to suppress the susceptible population but not the already-resistant mutants; under-dosing or stopping a course early parks the exposure in that band',
           '耐药还能通过水平基因转移横向获得，不必经过本群体的选择——所以观察到耐药上升不等于本地选择在起作用。',
           'Resistance can also arrive by horizontal gene transfer without passing through selection in this population, so rising resistance is not evidence that local selection did it.'),
         sub('杀虫剂抗性', 'Insecticide resistance', '农业昆虫学', 'Agricultural entomology', 2,
