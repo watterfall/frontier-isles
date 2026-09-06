@@ -838,7 +838,16 @@ export const MATTER_COMPUTATION_EXPANSION: FrontierEntry[] = [
   },
   {
     id: 162,
-    atlasN: 1422,
+    // Repointed 2026-09-06: the original reference XF-001422 was withdrawn
+    // upstream as `too_broad_generic` — a duplicate of XF-001389 on the same
+    // subject, same cluster, two of three sources shared. resolve_ids now
+    // reports the successor as a field (`superseded_by: 1389`) rather than
+    // only inside the retirement prose, so the reference follows the subject
+    // instead of dangling. Scores and the headline citation are re-taken from
+    // 1389; the editorial title, qfocus, brief and depth carry over unchanged
+    // because the two records describe the same direction — which is why
+    // upstream merged them.
+    atlasN: 1389,
     slug: 'universal-ml-interatomic-potentials',
     title: {
       zh: '通用机器学习原子间势',
@@ -854,11 +863,11 @@ export const MATTER_COMPUTATION_EXPANSION: FrontierEntry[] = [
       zh: '科学基础模型·AI4S',
       en: 'Scientific foundation models · AI for science',
     },
-    scores: [4, 4, 5, 4, 2, 3, 5, 4, 3],
+    scores: [5, 4, 5, 3, 2, 2, 5, 5, 2],
     citation: {
-      url: 'https://www.nature.com/articles/s41524-025-01650-1',
-      title: 'Universal machine learning interatomic potentials are ready for phonons',
-      venue: 'npj Computational Materials',
+      url: 'https://www.nature.com/articles/s42256-025-01055-1',
+      title: 'A framework to evaluate machine learning crystal stability predictions (Matbench Discovery)',
+      venue: 'Nature Machine Intelligence',
       year: 2025,
     },
     brief: {
@@ -867,10 +876,10 @@ export const MATTER_COMPUTATION_EXPANSION: FrontierEntry[] = [
     },
     literature: [
       {
-        title: 'Matbench Discovery — public leaderboard for ML crystal-stability models',
+        title: 'Matbench Discovery — interactive leaderboard for ML crystal-stability / interatomic potentials',
         venue: 'Materials Project',
         year: 2025,
-        url: 'https://matbench-discovery.materialsproject.org/models',
+        url: 'https://matbench-discovery.materialsproject.org/',
       },
       {
         title: 'Open Materials 2024 (OMat24) Inorganic Materials Dataset and Models',

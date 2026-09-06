@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { FRONTIER_ATLAS } from '@frontier-isles/data/atlas';
-import { FRONTIERS } from '@frontier-isles/data/frontiers';
+import { FRONTIERS, XFRONTIER_DATASET_VERSION } from '@frontier-isles/data/frontiers';
 import { INTERIORS } from '@frontier-isles/data/interiors';
 import { INTERIORS_2 } from '@frontier-isles/data/interiors-2';
 import { DATA, QUESTIONS, STN, RITQ, DRIFT, BRIEF, AUTHQ } from '../api/fallback';
@@ -76,11 +76,17 @@ describe('fallback data matches the curated atlas', () => {
 
   it('keeps withdrawn xfrontier provenance visible without deleting the local problem', () => {
     const perennial = FRONTIER_ATLAS.find((frontier) => frontier.slug === 'perennial-grain-crops');
+    // The stamp is asserted against the pinned corpus constant, not a literal.
+    // What this checks is that the generator carries the withdrawal through
+    // into the L0 projection; WHICH corpus version that is gets its evidence in
+    // packages/data/test/xfrontier-provenance.test.ts, where the constant is
+    // compared against a snapshot actually pulled from the MCP. A literal here
+    // only made every legitimate re-pin turn this red — noise, not a gate.
     expect(perennial).toMatchObject({
       atlasN: 1449,
       atlasWithdrawal: {
         status: 'withdrawn',
-        datasetVersion: 'xf-6eb361265784',
+        datasetVersion: XFRONTIER_DATASET_VERSION,
         reason: 'too_mature_or_applied',
       },
     });

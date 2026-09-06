@@ -331,7 +331,9 @@ export const WAVE_2_STRUCTURES: SeedStructure[] = [
     status: 'active',
     theme: 'simulation-twins',
     isomorphism: 'ISO-09',
-    provenance: provenance([951, 1005, 1422, 960, 964]),
+    // 1422 -> 1389 (2026-09-06): upstream withdrew 1422 as a duplicate of 1389
+    // on the same subject, so the backing record follows the subject.
+    provenance: provenance([951, 1005, 1389, 960, 964]),
     mappings: [
       mapping(
         'programmable-acoustic-holography',

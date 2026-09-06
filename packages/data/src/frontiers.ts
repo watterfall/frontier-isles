@@ -1,9 +1,10 @@
 /**
  * Curated frontier islands — real research directions sourced from the
- * xfrontier atlas (1,848 active directions scored on 9 dimensions in dataset
- * xf-6eb361265784, reviewed through the local xfrontier MCP; the reference
+ * xfrontier atlas (1,949 active directions scored on 9 dimensions in dataset
+ * xf-4ab72b2e670e, reviewed through the local xfrontier MCP; the reference
  * snapshot in xfrontier-reference-snapshot.json records which records this
- * repository actually cites and their content hashes at review time).
+ * repository actually cites, their content hashes, and — from schema v2 — the
+ * per-facet hashes that say WHICH side of a record moved when one changes).
  * 383 entries span 数理/物质/生命/交叉, added in three different ways, and
  * the difference between them is the point rather than an accident of order.
  *
@@ -53,7 +54,7 @@ export interface Bilingual {
 }
 
 /** xfrontier corpus version used by the checked-in provenance snapshot. */
-export const XFRONTIER_DATASET_VERSION = 'xf-6eb361265784' as const;
+export const XFRONTIER_DATASET_VERSION = 'xf-4ab72b2e670e' as const;
 
 /**
  * A source record that xfrontier issued and later withdrew. The Frontier Isles

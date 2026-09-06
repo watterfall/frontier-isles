@@ -646,8 +646,8 @@ const LITERATURE_BY_SLUG: Record<string, IslandReference[]> = {
     { title: "Could Thermodynamic Computing Revolutionize AI and Scientific Research?", venue: "IEEE Spectrum", year: 2025, url: "https://spectrum.ieee.org/thermodynamic-computing-normal-computing" },
   ],
   "universal-ml-interatomic-potentials": [
-    { title: "Matbench Discovery — public leaderboard for ML crystal-stability models", venue: "Materials Project", year: 2025, url: "https://matbench-discovery.materialsproject.org/models" },
-    { title: "Open Materials 2024 (OMat24) Inorganic Materials Dataset and Models", venue: "arXiv (Meta FAIR)", year: 2024, url: "https://arxiv.org/abs/2410.12771" },
+    { title: "The Open Materials 2024 (OMat24) Inorganic Materials Dataset and Models", venue: "arXiv (Meta FAIR)", year: 2024, url: "https://arxiv.org/abs/2410.12771" },
+    { title: "Matbench Discovery — interactive leaderboard for ML crystal-stability / interatomic potentials", venue: "Materials Project", year: 2025, url: "https://matbench-discovery.materialsproject.org/" },
   ],
   "in-orbit-pharma-crystallization": [
     { title: "Protein Crystallization in Microgravity: Commercialization and the Next Chapter", venue: "Current Stem Cell Reports", year: 2025, url: "https://link.springer.com/article/10.1007/s40778-025-00248-z" },
@@ -1448,6 +1448,45 @@ const LITERATURE_BY_SLUG: Record<string, IslandReference[]> = {
   ],
   "embodied-self-driving-labs-closing-discovery": [
     { title: "Toward self-driving laboratory 2.0 for chemistry and materials discovery", venue: "Materials Horizons (RSC)", year: 2026, url: "https://pubs.rsc.org/en/content/articlehtml/2026/mh/d5mh01984b" },
+  ],
+  "bio-inspired-molecular-self-assembly": [
+    { title: "Biomimetic peptide self-assembly for functional materials", venue: "Nature Reviews Chemistry (PMC)", year: 2020, url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC7617017/" },
+    { title: "Peptide-based nanomaterials: Self-assembly, properties and applications", venue: "Bioactive Materials (PMC)", year: 2021, url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC8668426/" },
+  ],
+  "quorum-sensing-engineering": [
+    { title: "Quorum sensing in synthetic biology: A review", venue: "Current Opinion in Biotechnology", year: 2021, url: "https://www.sciencedirect.com/science/article/abs/pii/S245231002100072X" },
+    { title: "Microbial Primer: LuxR-LuxI Quorum Sensing", venue: "Microbiology", year: 2023, url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC10569067/" },
+  ],
+  "crowd-n-of-1-self-experimentation": [
+    { title: "N-of-1 trials: The epitome of personalized medicine?", venue: "Frontiers in Medicine", year: 2023, url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC10388431/" },
+    { title: "Personalized Data Science and Personalized (N-of-1) Trials: Promising Paradigms for Individualized Health Care", venue: "Journal of Medical Internet Research", year: 2023, url: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10673628/" },
+  ],
+  "resilience-science-critical-transition": [
+    { title: "Evaluating the performance of multivariate indicators of resilience loss", venue: "Scientific Reports", year: 2021, url: "https://www.nature.com/articles/s41598-021-87839-y" },
+    { title: "Early warning signals for critical transitions in complex systems", venue: "arXiv", year: 2021, url: "https://arxiv.org/abs/2107.01210" },
+  ],
+  "realtime-critical-slowing-down-remote-sensing": [
+    { title: "Terrestrial ecosystems are in transition", venue: "Frontiers in Remote Sensing", year: 2025, url: "https://www.frontiersin.org/journals/remote-sensing/articles/10.3389/frsen.2025.1705386/full" },
+    { title: "Navigating Earth governance: A cybernetic and pragmatic pathway to digital twin Earth", venue: "The Innovation Geoscience", year: 2026, url: "https://www.the-innovation.org/article/doi/10.59717/j.xinn-geo.2026.100203" },
+  ],
+  "computational-complexity-limits-of-solvability": [
+    { title: "A Survey on Approximation in Parameterized Complexity: Hardness and Algorithms", venue: "arXiv / Algorithms (MDPI)", year: 2020, url: "https://arxiv.org/pdf/2006.04411" },
+    { title: "Hardness of Approximation: An In-Depth Survey", venue: "SSRN", year: 2024, url: "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4943340" },
+  ],
+  "randomised-research-funding-partial-lotteries": [
+    { title: "Swiss funder draws lots to make grant decisions", venue: "Nature (news)", year: 2021, url: "https://www.nature.com/articles/d41586-021-01232-3" },
+    { title: "Piloting and Evaluating NSF Science Lottery Grants: A Roadmap to Improving Research Funding Efficiencies and Proposal Diversity", venue: "Federation of American Scientists", year: 2025, url: "https://fas.org/publication/improving-research-funding-efficiencies-and-proposal-diversity-through-nsf-science-lottery-grants/" },
+  ],
+  "replication-prediction-markets": [
+    { title: "Decision Markets Predict Replicability of Online Experiments", venue: "Center for Open Science (reporting Nature Human Behaviour study)", year: 2024, url: "https://www.cos.io/blog/decision-markets-predict-replicability-of-online-experiments" },
+    { title: "Predicting replicability — analysis of survey and prediction market data from large-scale forecasting projects", venue: "PLOS One", year: 2021, url: "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0248780" },
+  ],
+  "finite-time-information-erasure-control": [
+    { title: "Dynamics of Information Erasure and Extension of Landauer’s Bound to Fast Processes", venue: "Physical Review Letters", year: 2022, url: "https://doi.org/10.1103/PhysRevLett.128.070604" },
+    { title: "Finite-time Landauer principle beyond weak coupling", venue: "Quantum", year: 2023, url: "https://doi.org/10.22331/q-2023-11-03-1161" },
+  ],
+  "zero-knowledge-model-auditing": [
+    { title: "Verifiable evaluations of machine learning models using zkSNARKs", venue: "arXiv (MIT)", year: 2024, url: "https://arxiv.org/abs/2402.02675" },
   ],
 };
 

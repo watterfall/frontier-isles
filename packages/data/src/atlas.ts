@@ -2065,7 +2065,7 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
     "atlasN": 1449,
     "atlasWithdrawal": {
       "status": "withdrawn",
-      "datasetVersion": "xf-6eb361265784",
+      "datasetVersion": "xf-4ab72b2e670e",
       "reason": "too_mature_or_applied",
       "note": {
         "zh": "多年生谷物育种（如 Kernza、PR23 水稻）已进入落地的农业生态项目，不再作为 xfrontier 的前沿方向；这里保留的是 Frontier Isles 自己仍可检验的问题。",
@@ -6323,7 +6323,7 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
   },
   {
     "id": 162,
-    "atlasN": 1422,
+    "atlasN": 1389,
     "slug": "universal-ml-interatomic-potentials",
     "title": {
       "zh": "通用机器学习原子间势",
@@ -6340,15 +6340,15 @@ export const FRONTIER_ATLAS: FrontierAtlasEntry[] = [
       "en": "Scientific foundation models · AI for science"
     },
     "scores": [
-      4,
-      4,
       5,
       4,
-      2,
+      5,
       3,
+      2,
+      2,
       5,
-      4,
-      3
+      5,
+      2
     ],
     "stage": 2,
     "members": 7,

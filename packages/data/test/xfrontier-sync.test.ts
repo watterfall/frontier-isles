@@ -201,6 +201,146 @@ describe('xFrontier downstream pull logic', () => {
     ]);
   });
 
+  const facets = (overrides: Record<string, string> = {}) => ({
+    scores: '11111111',
+    placement: '22222222',
+    title: '33333333',
+    text: '44444444',
+    card: '55555555',
+    ...overrides,
+  });
+
+  it('derives schema v2 from the facets a pull actually received, never from a constant', () => {
+    const withFacets = createReferenceSnapshot({
+      requestedIds: [1, 2],
+      datasetVersion: 'xf-next',
+      serverVersion: '0.9.0',
+      reviewedAt: '2026-09-06',
+      resolved: resolved([
+        { id: 1, status: 'active', content_hash: 'abc12345', hashes: facets() },
+        { id: 2, status: 'withdrawn', reason: 'duplicate', note: '9 kept', superseded_by: 9 },
+      ]),
+    });
+    expect(withFacets.schemaVersion).toBe('xfrontier-reference-snapshot/v2');
+    expect(withFacets.references).toEqual([
+      { id: 1, status: 'active', contentHash: 'abc12345', hashes: facets() },
+      { id: 2, status: 'withdrawn', reason: 'duplicate', note: '9 kept', supersededBy: 9 },
+    ]);
+
+    // Same code path, an older server: the header must fall back rather than
+    // advertise a comparison the file cannot support.
+    const withoutFacets = createReferenceSnapshot({
+      requestedIds: [1],
+      datasetVersion: 'xf-next',
+      serverVersion: '0.6.0',
+      reviewedAt: '2026-09-06',
+      resolved: resolved([{ id: 1, status: 'active', content_hash: 'abc12345' }]),
+    });
+    expect(withoutFacets.schemaVersion).toBe('xfrontier-reference-snapshot/v1');
+  });
+
+  it('records a null successor as an answer and an absent one as a gap', () => {
+    const snapshot = createReferenceSnapshot({
+      requestedIds: [1, 2],
+      datasetVersion: 'xf-next',
+      serverVersion: '0.9.0',
+      reviewedAt: '2026-09-06',
+      resolved: resolved([
+        { id: 1, status: 'withdrawn', reason: 'applied', note: 'deployed', superseded_by: null },
+        { id: 2, status: 'withdrawn', reason: 'applied', note: 'deployed' },
+      ]),
+    });
+    expect(snapshot.references[0]).toHaveProperty('supersededBy', null);
+    expect(snapshot.references[1]).not.toHaveProperty('supersededBy');
+  });
+
+  it('refuses a facet set that is partial, foreign, mixed, or mislabelled by its header', () => {
+    const pull = (items: Array<Record<string, unknown>>) => createReferenceSnapshot({
+      requestedIds: items.map((item) => item.id as number),
+      datasetVersion: 'xf-next',
+      serverVersion: '0.9.0',
+      reviewedAt: '2026-09-06',
+      resolved: resolved(items),
+    });
+    const { card: _dropped, ...partial } = facets();
+    expect(() => pull([{ id: 1, status: 'active', content_hash: 'abc12345', hashes: partial }]))
+      .toThrow('active record 1 hashes.card must be a non-empty string');
+    expect(() => pull([
+      { id: 1, status: 'active', content_hash: 'abc12345', hashes: { ...facets(), venue: '66666666' } },
+    ])).toThrow('active record 1 hashes carry unknown facets: venue');
+    expect(() => pull([
+      { id: 1, status: 'active', content_hash: 'abc12345', hashes: facets({ scores: 'NOTAHASH' }) },
+    ])).toThrow('active record 1 hashes.scores must be 8 lowercase hexadecimal characters');
+    expect(() => pull([
+      { id: 1, status: 'active', content_hash: 'abc12345', hashes: facets() },
+      { id: 2, status: 'active', content_hash: 'bcd12345' },
+    ])).toThrow('snapshot mixes facet-carrying and facet-less active references: 1 of 2');
+
+    const header = {
+      datasetVersion: 'xf-next',
+      serverVersion: '0.9.0',
+      reviewedAt: '2026-09-06',
+      tally: { active: 1, withdrawn: 0, unknown: 0 },
+    };
+    expect(() => validateReferenceSnapshot({
+      ...header,
+      schemaVersion: 'xfrontier-reference-snapshot/v2',
+      references: [{ id: 1, status: 'active', contentHash: 'abc12345' }],
+    })).toThrow('requires per-facet hashes on every active reference');
+    expect(() => validateReferenceSnapshot({
+      ...header,
+      schemaVersion: 'xfrontier-reference-snapshot/v1',
+      references: [{ id: 1, status: 'active', contentHash: 'abc12345', hashes: facets() }],
+    })).toThrow('cannot carry per-facet hashes; write xfrontier-reference-snapshot/v2');
+  });
+
+  it('names the face that moved, and treats a facet the baseline never stored as unobserved', () => {
+    const v1Baseline = {
+      schemaVersion: 'xfrontier-reference-snapshot/v1',
+      datasetVersion: 'xf-old',
+      serverVersion: '0.6.0',
+      reviewedAt: '2026-08-23',
+      tally: { active: 2, withdrawn: 0, unknown: 0 },
+      references: [
+        { id: 1, status: 'active', contentHash: 'aaaaaaaa' },
+        { id: 2, status: 'active', contentHash: 'bbbbbbbb' },
+      ],
+    };
+    const v2Candidate = {
+      schemaVersion: 'xfrontier-reference-snapshot/v2',
+      datasetVersion: 'xf-new',
+      serverVersion: '0.9.0',
+      reviewedAt: '2026-09-06',
+      tally: { active: 2, withdrawn: 0, unknown: 0 },
+      references: [
+        { id: 1, status: 'active', contentHash: 'aaaaaaaa', hashes: facets() },
+        { id: 2, status: 'active', contentHash: 'cccccccc', hashes: facets({ card: '99999999' }) },
+      ],
+    };
+
+    // The day facets arrive, only the record whose combined hash actually moved
+    // may be reported — the new keys are not 683 changes.
+    const arrival = diffReferenceSnapshots(v1Baseline, v2Candidate);
+    expect(arrival.records.changed).toEqual([
+      expect.objectContaining({ id: 2, fields: ['contentHash'] }),
+    ]);
+
+    // From the next pull on, the face is nameable: the card moved, the nine
+    // dimensions did not, so this is an editorial pass and not a re-judgement.
+    const nextPull = diffReferenceSnapshots(v2Candidate, {
+      ...v2Candidate,
+      datasetVersion: 'xf-newer',
+      references: [
+        v2Candidate.references[0],
+        { id: 2, status: 'active', contentHash: 'dddddddd', hashes: facets({ card: '77777777' }) },
+      ],
+    });
+    expect(nextPull.records.changed).toEqual([
+      expect.objectContaining({ id: 2, fields: ['contentHash', 'hash.card'] }),
+    ]);
+    expect(nextPull.records.changed[0]!.fields).not.toContain('hash.scores');
+  });
+
   it('ignores review timestamps and accepts JSON text when structuredContent is absent', () => {
     const reference = {
       schemaVersion: 'xfrontier-reference-snapshot/v1',

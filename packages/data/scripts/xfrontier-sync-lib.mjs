@@ -2,11 +2,26 @@ import { randomUUID } from 'node:crypto';
 import { open, readFile, rename, unlink } from 'node:fs/promises';
 import { dirname } from 'node:path';
 
-export const SNAPSHOT_SCHEMA_VERSION = 'xfrontier-reference-snapshot/v1';
+export const SNAPSHOT_SCHEMA_VERSION_V1 = 'xfrontier-reference-snapshot/v1';
+export const SNAPSHOT_SCHEMA_VERSION_V2 = 'xfrontier-reference-snapshot/v2';
+/** Written by a fresh pull. v1 stays readable so a v1 baseline still diffs. */
+export const SNAPSHOT_SCHEMA_VERSION = SNAPSHOT_SCHEMA_VERSION_V2;
 export const DIFF_SCHEMA_VERSION = 'xfrontier-reference-diff/v1';
 
 const STATUS_ORDER = ['active', 'withdrawn', 'unknown'];
 const CONTENT_HASH_PATTERN = /^[0-9a-f]{8}$/;
+
+/**
+ * The five faces upstream splits `content_hash` into. They partition the same
+ * fields the combined hash covers, so `scores` staying equal while `card` moves
+ * is an editorial pass rather than a re-judgement — a distinction the combined
+ * hash cannot express, and which previously cost a walk through the upstream
+ * git history to recover.
+ *
+ * Order is fixed here rather than taken from the response so a facet upstream
+ * stops sending is a validation failure, not a silently narrower comparison.
+ */
+export const CONTENT_HASH_FACETS = ['scores', 'placement', 'title', 'text', 'card'];
 
 const asNonEmptyString = (value, label) => {
   if (typeof value !== 'string' || value.length === 0) {
@@ -68,6 +83,38 @@ export function readStructuredResult(result, label) {
   }
 }
 
+/**
+ * Facets are optional so a server that predates them still yields a valid v1
+ * snapshot, but a PARTIAL set is fatal: silently dropping one face would turn
+ * "this side did not move" into an answer nobody measured.
+ */
+const normalizeFacets = (value, id) => {
+  if (value === undefined || value === null) return undefined;
+  if (typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error(`active record ${id} hashes must be an object`);
+  }
+  const unexpected = Object.keys(value).filter((facet) => !CONTENT_HASH_FACETS.includes(facet));
+  if (unexpected.length > 0) {
+    throw new Error(`active record ${id} hashes carry unknown facets: ${unexpected.sort().join(', ')}`);
+  }
+  const facets = {};
+  for (const facet of CONTENT_HASH_FACETS) {
+    const hash = asNonEmptyString(value[facet], `active record ${id} hashes.${facet}`);
+    if (!CONTENT_HASH_PATTERN.test(hash)) {
+      throw new Error(`active record ${id} hashes.${facet} must be 8 lowercase hexadecimal characters`);
+    }
+    facets[facet] = hash;
+  }
+  return facets;
+};
+
+/** `null` means "no successor is recorded", never "no successor exists". */
+const normalizeSupersededBy = (value, id) => {
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+  return asRecordId(value, `withdrawn record ${id} superseded_by`);
+};
+
 const normalizeReference = (item) => {
   const id = asRecordId(item?.id);
   if (item?.status === 'active') {
@@ -75,18 +122,22 @@ const normalizeReference = (item) => {
     if (!CONTENT_HASH_PATTERN.test(contentHash)) {
       throw new Error(`active record ${id} content_hash must be 8 lowercase hexadecimal characters`);
     }
+    const hashes = normalizeFacets(item.hashes, id);
     return {
       id,
       status: 'active',
       contentHash,
+      ...(hashes ? { hashes } : {}),
     };
   }
   if (item?.status === 'withdrawn') {
+    const supersededBy = normalizeSupersededBy(item.superseded_by, id);
     return {
       id,
       status: 'withdrawn',
       reason: asNonEmptyString(item.reason, `withdrawn record ${id} reason`),
       note: asNonEmptyString(item.note, `withdrawn record ${id} note`),
+      ...(supersededBy === undefined ? {} : { supersededBy }),
     };
   }
   if (item?.status === 'unknown') return { id, status: 'unknown' };
@@ -99,9 +150,13 @@ const tallyReferences = (references) => Object.fromEntries(
 
 const sameTally = (left, right) => STATUS_ORDER.every((status) => left?.[status] === right?.[status]);
 
-const normalizeStoredReference = (item) => normalizeReference(
-  item?.status === 'active' ? { ...item, content_hash: item.contentHash } : item,
-);
+const normalizeStoredReference = (item) => {
+  if (item?.status === 'active') return normalizeReference({ ...item, content_hash: item.contentHash });
+  if (item?.status === 'withdrawn' && 'supersededBy' in item) {
+    return normalizeReference({ ...item, superseded_by: item.supersededBy });
+  }
+  return normalizeReference(item);
+};
 
 /** Validate a stored baseline before trusting it as the left side of a diff. */
 export function validateReferenceSnapshot(snapshot, { allowLegacyMetadata = false } = {}) {
@@ -109,7 +164,11 @@ export function validateReferenceSnapshot(snapshot, { allowLegacyMetadata = fals
   if (snapshot.schemaVersion === undefined && !allowLegacyMetadata) {
     throw new Error('snapshot schemaVersion is required');
   }
-  if (snapshot.schemaVersion !== undefined && snapshot.schemaVersion !== SNAPSHOT_SCHEMA_VERSION) {
+  if (
+    snapshot.schemaVersion !== undefined
+    && snapshot.schemaVersion !== SNAPSHOT_SCHEMA_VERSION_V1
+    && snapshot.schemaVersion !== SNAPSHOT_SCHEMA_VERSION_V2
+  ) {
     throw new Error(`unsupported snapshot schemaVersion ${JSON.stringify(snapshot.schemaVersion)}`);
   }
   asNonEmptyString(snapshot.datasetVersion, 'snapshot datasetVersion');
@@ -133,8 +192,30 @@ export function validateReferenceSnapshot(snapshot, { allowLegacyMetadata = fals
   if (!sameTally(tally, snapshot.tally)) {
     throw new Error(`snapshot tally does not match its references: ${JSON.stringify(snapshot.tally)} vs ${JSON.stringify(tally)}`);
   }
+  assertFacetsMatchSchema(snapshot.schemaVersion, references);
   return snapshot;
 }
+
+/**
+ * The schema version has to describe what the file actually holds. A v2 header
+ * over facet-less references would advertise a comparison this snapshot cannot
+ * make, and a v1 header over facet-carrying ones would hide one it can.
+ */
+const assertFacetsMatchSchema = (schemaVersion, references) => {
+  const active = references.filter((reference) => reference.status === 'active');
+  const withFacets = active.filter((reference) => reference.hashes !== undefined).length;
+  if (withFacets !== 0 && withFacets !== active.length) {
+    throw new Error(
+      `snapshot mixes facet-carrying and facet-less active references: ${withFacets} of ${active.length}`,
+    );
+  }
+  if (schemaVersion === SNAPSHOT_SCHEMA_VERSION_V2 && active.length > 0 && withFacets === 0) {
+    throw new Error(`${SNAPSHOT_SCHEMA_VERSION_V2} requires per-facet hashes on every active reference`);
+  }
+  if (schemaVersion === SNAPSHOT_SCHEMA_VERSION_V1 && withFacets > 0) {
+    throw new Error(`${SNAPSHOT_SCHEMA_VERSION_V1} cannot carry per-facet hashes; write ${SNAPSHOT_SCHEMA_VERSION_V2}`);
+  }
+};
 
 /** Write-mode guard: observing upstream drift must never silently bless it. */
 export function assertSnapshotWriteSafe(snapshot, expectedDatasetVersion) {
@@ -207,8 +288,15 @@ export function createReferenceSnapshot({
     throw new Error(`resolve_ids tally does not match its items: ${JSON.stringify(resolved.tally)} vs ${JSON.stringify(tally)}`);
   }
 
+  // Derived from what this pull actually received, never asserted: a header
+  // claiming v2 over a server that sent no facets would be a version that lies.
+  const activeReferences = references.filter((reference) => reference.status === 'active');
+  const schemaVersion = activeReferences.length > 0 && activeReferences.every((reference) => reference.hashes)
+    ? SNAPSHOT_SCHEMA_VERSION_V2
+    : SNAPSHOT_SCHEMA_VERSION_V1;
+
   const snapshot = {
-    schemaVersion: SNAPSHOT_SCHEMA_VERSION,
+    schemaVersion,
     datasetVersion: asNonEmptyString(datasetVersion, 'datasetVersion'),
     serverVersion: asNonEmptyString(serverVersion, 'serverVersion'),
     reviewedAt: asIsoDate(reviewedAt, 'reviewedAt'),
@@ -272,9 +360,18 @@ export async function atomicWriteJsonIfUnchanged(path, value, expectedContents) 
   }
 }
 
+const FACET_FIELD_PREFIX = 'hash.';
+
 const comparableReference = (reference) => {
   if (reference.status === 'active') {
-    return { id: reference.id, status: reference.status, contentHash: reference.contentHash };
+    return {
+      id: reference.id,
+      status: reference.status,
+      contentHash: reference.contentHash,
+      ...(reference.hashes
+        ? Object.fromEntries(CONTENT_HASH_FACETS.map((facet) => [`${FACET_FIELD_PREFIX}${facet}`, reference.hashes[facet]]))
+        : {}),
+    };
   }
   if (reference.status === 'withdrawn') {
     return {
@@ -282,16 +379,38 @@ const comparableReference = (reference) => {
       status: reference.status,
       reason: reference.reason,
       note: reference.note,
+      ...('supersededBy' in reference ? { supersededBy: reference.supersededBy } : {}),
     };
   }
   return { id: reference.id, status: reference.status };
 };
 
-const changedFields = (before, after) => {
+/**
+ * Fields a snapshot carries only from a given schema version on. When one side
+ * lacks them that is not drift, it is a field that side could not see: a v2
+ * pull against a v1 baseline must report what v1 could have observed and
+ * nothing more, or every reference would read as changed the day facets arrive.
+ *
+ * Deliberately narrow. Fields that are asymmetric because the STATUS changed —
+ * an active record's contentHash against a withdrawn one's reason and note —
+ * stay reported; that asymmetry is the event, not a gap in the recording.
+ */
+const SCHEMA_OPTIONAL_FIELDS = new Set([
+  ...CONTENT_HASH_FACETS.map((facet) => `${FACET_FIELD_PREFIX}${facet}`),
+  'supersededBy',
+]);
+
+const comparableFields = (before, after) => {
   const fields = new Set([...Object.keys(before), ...Object.keys(after)]);
   fields.delete('id');
-  return [...fields].filter((field) => before[field] !== after[field]).sort();
+  return [...fields].filter(
+    (field) => !SCHEMA_OPTIONAL_FIELDS.has(field) || (field in before && field in after),
+  );
 };
+
+const changedFields = (before, after) => comparableFields(before, after)
+  .filter((field) => before[field] !== after[field])
+  .sort();
 
 /** Diff only durable provenance fields; reviewedAt never creates drift by itself. */
 export function diffReferenceSnapshots(baseline, candidate) {
@@ -357,7 +476,12 @@ const formatIds = (ids) => ids.length === 0 ? 'none' : ids.map((id) => `XF-${Str
 const describeReference = (reference) => {
   if (reference.status === 'active') return `active hash=${reference.contentHash}`;
   if (reference.status === 'withdrawn') {
-    return `withdrawn reason=${reference.reason} note=${JSON.stringify(reference.note)}`;
+    // Absent and null are different answers: no successor RECORDED is not the
+    // same claim as no successor existing, so the two must not print alike.
+    const successor = 'supersededBy' in reference
+      ? ` superseded_by=${reference.supersededBy === null ? 'none recorded' : `XF-${String(reference.supersededBy).padStart(6, '0')}`}`
+      : '';
+    return `withdrawn reason=${reference.reason}${successor} note=${JSON.stringify(reference.note)}`;
   }
   return 'unknown';
 };

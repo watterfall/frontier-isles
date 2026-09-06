@@ -1948,9 +1948,9 @@ export const FRONTIER_ATLAS_DETAIL: Record<string, FrontierAtlasDetail> = {
       "en": "Equivariant neural networks learn element-spanning potential-energy surfaces from tens of millions of DFT configurations, extending near-first-principles simulation to larger systems and longer times. True universality should not be defined by random holdouts, but audited on new stoichiometries, defects, phase transitions, and rare high-energy pathways."
     },
     "citation": {
-      "url": "https://www.nature.com/articles/s41524-025-01650-1",
-      "title": "Universal machine learning interatomic potentials are ready for phonons",
-      "venue": "npj Computational Materials",
+      "url": "https://www.nature.com/articles/s42256-025-01055-1",
+      "title": "A framework to evaluate machine learning crystal stability predictions (Matbench Discovery)",
+      "venue": "Nature Machine Intelligence",
       "year": 2025
     }
   },
