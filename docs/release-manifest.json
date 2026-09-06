@@ -1,32 +1,37 @@
 {
   "schemaVersion": 1,
-  "statusAsOf": "2026-08-31",
-  "scope": "CI-verified main, deployed and verified against the live URL by rendered-DOM assertions (not by the deploy command's exit code).",
+  "statusAsOf": "2026-09-06",
+  "scope": "Release checkpoint for the CI-verified runtime commit on main. The documentation-only commit recording this evidence follows deployment and is not part of the image.",
   "main": {
     "branch": "main",
-    "commit": "9af62764240987663452f2570b5fe13092d5d20a",
-    "committedAt": "2026-08-31T07:15:57+08:00",
+    "commit": "7e7ad9ac1416c7799558fbf847ebff2487dce0a9",
+    "committedAt": "2026-09-06T17:34:38+08:00",
     "ci": {
       "provider": "github-actions",
-      "runId": 33341357681,
-      "url": "https://github.com/watterfall/frontier-isles/actions/runs/33341357681",
+      "runId": 34025044047,
+      "url": "https://github.com/watterfall/frontier-isles/actions/runs/34025044047",
       "conclusion": "success",
       "gates": [
         "test",
         "typecheck",
         "build",
         "e2e"
-      ]
+      ],
+      "e2e": {
+        "passed": 20,
+        "flaky": 0,
+        "failed": 0
+      }
     }
   },
   "production": {
     "app": "frontier-isles",
     "url": "https://frontier-isles.fly.dev",
-    "releaseVersion": 7,
-    "deploymentTag": "deployment-01M1AG68AMD7SHNG88VCSFWT18",
-    "sourceCommit": "9af62764240987663452f2570b5fe13092d5d20a",
-    "createdAt": "2026-08-30T23:32:00Z",
-    "healthCheckedAt": "2026-08-31",
+    "releaseVersion": 8,
+    "deploymentTag": "git-7e7ad9ac1416c7799558fbf847ebff2487dce0a9",
+    "sourceCommit": "7e7ad9ac1416c7799558fbf847ebff2487dce0a9",
+    "createdAt": "2026-09-06T09:45:41Z",
+    "healthCheckedAt": "2026-09-06",
     "health": "passing",
     "counts": {
       "islands": 384,
@@ -35,55 +40,84 @@
       "frontierProjections": 39
     },
     "liveVerification": {
-      "method": "Rendered-DOM assertions against the live URL plus asset-hash identity with the local build (index-CGIE9G7A.js / index-BhCyncUC.css), so a cached or unchanged deploy cannot pass. The check was run against release 6 first and correctly reported MISMATCH, which is what makes the match on release 7 evidence rather than a green light nobody tested. It also exercises the ONLINE path, where structures come from the server rather than the offline fallback — the path the web unit tests cannot reach, since they build the field from fallbackStructures().",
+      "checkedAt": "2026-09-06T09:46:36.622966+00:00",
+      "method": "Live HTTPS API assertions and exact SHA-256 comparison of the served entry JS and CSS bytes against the verified local build, followed by a manual desktop Chrome UI walkthrough of the deployed site. Existing Fly machine and SQLite volume were updated in place.",
+      "assetSha256": {
+        "/assets/index-Bp7UJ57v.js": "f5357888fd97baac0267d48deaa821d51552294263005f3db324af83ee448bdf",
+        "/assets/index-ZbD66FNe.css": "ea1ec8e5a369a549a0406bc34fa218e8aadf350bba255c72396213b9ffefe818"
+      },
       "verified": [
-        "GET /api/structures returns all 126 catalogue structures",
-        "GET /api/structures/graph returns 135 edges / 135 mappings / 39 frontier projections",
-        "GET /api/islands returns 384 islands",
-        "the cross-field desk opens from aria-expanded=\"false\" (folded until intent exists, by design) and all 126 topic rows carry the written-body mark, e.g. 「· 已写正文 · 4 个学科 · 4 条关系」",
-        "the 更多主题 disclosure reads 「122 个主题」 — a plain count, the ratio correctly retired now that no topic lacks a body",
-        "opening a topic mounts structure-reading with data-depth=\"true\" from the server-supplied catalogue, with 0 dashed relation links since every target is now written",
-        "no horizontal overflow at 1440x900",
-        "the only failing request is POST /api/auth/dev-login -> 403, the documented read-only boundary: no GITHUB_CLIENT_ID/SECRET secrets are set, so production has no login path by design"
+        "Health endpoint passes; GET /api/islands returns 384 islands.",
+        "GET /api/structures returns 126 structures; /api/structures/graph returns 135 mappings and 39 frontier projections.",
+        "Live xFrontier catalogue has 55 questions; GQ-life-origin resolves to its DOI source.",
+        "World-map search opens compositional-modeling; the island minimap locates the question wall before opening a room.",
+        "Question wall opens distinct rooms and expandable question details with provenance and scope.",
+        "Carrying a question into the library preserves its text and explicitly states that island sources are not individually mapped to that question.",
+        "The library offers five source records; two can be selected and compared with their original source links.",
+        "Returning to the island exposes the resume-reading action; returning to the world map restores active map controls.",
+        "The cross-domain collision view renders six themes and reports a live xFrontier connection at dataset xf-4d03bbf4af34, with analogy and scientific-boundary labels visible."
+      ],
+      "xfrontier": {
+        "catalogSource": "live",
+        "datasetVersion": "xf-4d03bbf4af34",
+        "questionCount": 55,
+        "questionSource": {
+          "datasetVersion": "xf-4d03bbf4af34",
+          "id": "GQ-life-origin",
+          "title": "The origin of life: what we know, what we can know and what we will never know",
+          "url": "https://doi.org/10.1098/rsob.120190",
+          "year": 2013,
+          "source": "live"
+        }
+      },
+      "researchAssistant": {
+        "state": "unconfigured",
+        "model": null
+      },
+      "limits": [
+        "AI proposal behavior passes the mocked E2E contract. Production provider credentials are absent, so real model execution was not verified.",
+        "Production has no configured GitHub OAuth secrets. No production authentication, ledger writes, or user notebook edits were performed in this walkthrough.",
+        "Live browser verification was on desktop Chrome. Mobile, keyboard, and accessibility checks are covered separately by local/CI evidence; this is not live mobile or research-validity proof."
       ]
-    }
+    },
+    "imageDigest": "sha256:2c080845cf8d701b8043164b560d4d723bf2035bfad0416b9ee6b811802c6913"
   },
   "deploymentBoundary": {
     "mainCommitIsDeployed": true,
-    "reason": "Release 7 was built from 9af6276 after its CI run (33341357681) passed every step, and the live site serves this build's asset hashes. NOTE for the next reader: this field said true while it was false on 2026-08-31. It claimed release 4 from 39a2d2d was current, but the app had been on a release 5 deployed 2026-08-08 that no commit ever recorded, and main had moved six commits past it. A boolean asserting \"main is deployed\" cannot be maintained by hand — check `flyctl releases` against this record before trusting it. verify-release-docs.mjs now also refuses a ROADMAP that contradicts this field elsewhere in its own text, which is how the same rot survived the last correction."
+    "reason": "Fly release 8 serves the image tagged with CI-verified runtime commit 7e7ad9a. GitHub Actions run 34025044047 passed test, typecheck, build, and all 20 E2E cases before deployment. Served asset bytes match the verified build. main.commit identifies this runtime checkpoint, not the later documentation-only commit recording it; recheck Fly releases and the Git log before assuming a future main HEAD is deployed."
   },
   "bundleBaseline": {
-    "measuredAt": "2026-08-31, after depth reached all 126 structures and the topic marks became adaptive",
-    "figuresAreSnapshots": "verify-release-docs.mjs asserts each rawKb is within its budget; it never re-measures the build, so these figures are snapshots that drift silently. Re-measure before quoting any of these, and read the BUDGET, not the figure, as the enforced quantity. These six were measured with gzip -9 on the built assets straight after pnpm build.",
+    "measuredAt": "2026-09-06, verified runtime commit 7e7ad9ac1416c7799558fbf847ebff2487dce0a9",
+    "figuresAreSnapshots": "Raw decimal kB and gzip decimal kB measured from apps/web/dist/assets after the verified build; Python gzip.compress(compresslevel=9, mtime=0). These five figures are snapshots, not a re-measurement by verify-release-docs.mjs; budgets remain the enforced quantities.",
     "entryJs": {
-      "rawKb": 870.48,
-      "gzipKb": 289.05,
+      "rawKb": 869.56,
+      "gzipKb": 288.74,
       "rawBudgetKib": 1024
     },
     "css": {
-      "rawKb": 239.67,
-      "gzipKb": 36.81,
+      "rawKb": 240.06,
+      "gzipKb": 36.24,
       "rawBudgetKib": 244
     },
     "atlasDetail": {
       "rawKb": 296.38,
-      "gzipKb": 129.5,
+      "gzipKb": 129.47,
       "loading": "deferred-isolated"
     },
     "structureFallback": {
-      "rawKb": 1134.27,
-      "gzipKb": 474.69,
+      "rawKb": 1134.44,
+      "gzipKb": 474.2,
       "loading": "deferred-on-demand"
     },
     "interiorArchive": {
       "rawKb": 1210.0,
-      "gzipKb": 482.51,
+      "gzipKb": 482.48,
       "loading": "lazy-stale-server-fallback"
     },
     "previousEntryBaseline": {
-      "rawKb": 867.9,
-      "gzipKb": 288.6,
-      "measuredAt": "2026-08-31 (96/126 depth)"
+      "rawKb": 870.48,
+      "gzipKb": 289.05,
+      "measuredAt": "2026-08-31 (126/126 depth; historical measurement method)"
     },
     "entryBudgetRationale": "Budget stays 1024 KiB. It was set when wave 3 doubled the curated atlas (176 -> 371 islands), because the growth is L0 atlas DATA rather than a new runtime: atlas.ts loads eagerly on purpose so the first frame is a real map with no round trip, and every island's question (`qfocus`) must be present offline since the chart's hover card and the connection-field search both read it from the L0 projection via api/fallback.ts. Deferring qfocus to atlas-detail was measured (36% of the L0 payload; it lands the entry at 914KiB) and rejected -- it leaves the no-server readable twin with a questionless island card, which the resilience invariant forbids. What DID move is the seed structure catalogue: structures.ts plus its wave expansion modules reached the entry through static imports of api/structureFallback from two eager screens and through a two-line `slugOfOp` helper that used to live in the same module. That data is needed only once a reader opens the structure lens, so it now loads through import() as its own chunk. Note the failure that preceded this: the wave-3 structure mappings (commit c97e625) pushed the entry to 1108.9 KiB -- 85 KiB over -- and it went unnoticed because `pnpm build` is in neither `pnpm -r test` nor `pnpm typecheck`, so every gate stayed green while the release build was broken. Naming the modules in guardEntryChunk's ENTRY_FORBIDDEN list is what makes the next occurrence say what leaked instead of only that the total grew.",
     "budgetOnMerge": "The merge kept 1024 on purpose rather than by letting git pick. The structures branch carried 900, sized for a 188-island atlas, and its own text argued the budget had not been raised to fit new data. Only one side changed that line, so git took 1024 with no conflict -- a budget relaxed by an automatic merge that nobody decided. The merged tree measures 834.2 KiB, which fits under both, so 900 was available. It was not taken: the 1024 rationale above is a written decision about an atlas of THIS size, turning on L0 atlas data that must load eagerly and cannot defer qfocus, and reverting to 900 would leave 65.8 KiB of headroom for 383 islands while re-adopting a number chosen for 188. 900 is recorded here as what the smaller atlas held to, not as a target to return to.",
@@ -106,8 +140,8 @@
     }
   },
   "proofBoundaries": [
-    "The CI result proves only the recorded committed main baseline.",
-    "Production health and counts prove the release named in `production`, which is current main only while `deploymentBoundary.mainCommitIsDeployed` holds. That field is hand-maintained and has been wrong before — check `flyctl releases --app frontier-isles` against it rather than reading this line as proof.",
-    "Local browser and build checks for later hardening work must be reported separately from CI and deployment."
+    "The CI result proves the recorded runtime commit on main. A documentation-only follow-up records this evidence and is not included in the deployed image.",
+    "Production identity is bounded to the recorded release, source commit, image digest, and served asset hashes. This record does not automatically prove a future main HEAD is deployed.",
+    "Local/CI mocked AI and browser checks are distinct from live provider execution, mobile verification, authenticated writes, and scientific validation."
   ]
 }
