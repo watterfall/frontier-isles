@@ -19,6 +19,8 @@ import {
   ConnectionResponseInvalid,
 } from "./store.js";
 import type { RefKind } from "./refs.js";
+import { explorationRoutes } from './xfrontier-exploration.js';
+import { explorationAssistantRoutes } from './exploration-assistant.js';
 
 const GATEWAY_ACTIONS = new Set<string>([
   "found_island",
@@ -69,6 +71,9 @@ export function createApp(store: Store): Hono {
 
   const actorOf = (c: import("hono").Context): Actor | undefined =>
     store.sessionActor(getCookie(c, SESSION_COOKIE));
+
+  app.route('/api/xfrontier', explorationRoutes());
+  app.route('/api/research-assistant', explorationAssistantRoutes({ actor: (c) => actorOf(c)?.id }));
 
   // --- charts / islands -----------------------------------------------------
 

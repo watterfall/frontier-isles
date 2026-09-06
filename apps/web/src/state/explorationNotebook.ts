@@ -201,8 +201,8 @@ function modelRunOf(value: unknown): ModelRunReceipt | null {
   if (typeof value.id !== 'string' || !value.id.trim()) return null;
   if (typeof value.familyId !== 'string' || !MODEL_FAMILY_IDS.has(value.familyId as ModelFamilyId)) return null;
   if (typeof value.substrateId !== 'string' || !MODEL_SUBSTRATE_IDS.has(value.substrateId as ModelSubstrateId)) return null;
-  if (!finite(value.seed) || typeof value.prediction !== 'string' || !MODEL_PREDICTIONS.has(value.prediction as ModelPrediction)) return null;
-  if (typeof value.boundary !== 'string' || !value.boundary.trim()) return null;
+  if (!finite(value.seed) || (value.prediction !== null && (typeof value.prediction !== 'string' || !MODEL_PREDICTIONS.has(value.prediction as ModelPrediction)))) return null;
+  if (typeof value.boundary !== 'string') return null;
   if (value.language !== 'zh' && value.language !== 'en') return null;
   if (typeof value.createdAt !== 'string' || !value.createdAt) return null;
   if (!isRecord(value.parameters) || !isRecord(value.observation)) return null;
@@ -222,7 +222,7 @@ function modelRunOf(value: unknown): ModelRunReceipt | null {
     substrateId: value.substrateId as ModelSubstrateId,
     seed: Math.trunc(value.seed),
     parameters,
-    prediction: value.prediction as ModelPrediction,
+    prediction: value.prediction as ModelPrediction | null,
     observation: {
       metric: metric as ModelRunReceipt['observation']['metric'],
       initial: value.observation.initial,
@@ -495,7 +495,7 @@ export function explorationNotebookMarkdown(
       `- ${l.modelFamily}: ${modelFamilyNames[lang][run.familyId]}`,
       `- ${l.substrate}: ${modelSubstrateNames[lang][run.substrateId]}`,
       `- ${l.parameters}: ${Object.entries(run.parameters).map(([key, value]) => `${key}=${value}`).join(', ')}`,
-      `- ${l.prediction}: ${modelPredictionNames[lang][run.familyId][run.prediction]}`,
+      `- ${l.prediction}: ${run.prediction ? modelPredictionNames[lang][run.familyId][run.prediction] : (lang === 'zh' ? '未作事前预测' : 'No prior prediction')}`,
       `- ${l.observation}: ${modelMetricNames[lang][run.observation.metric]} ${run.observation.initial.toFixed(4)} → ${run.observation.final.toFixed(4)} · ${run.observation.steps} ${l.steps}`,
       `- ${l.boundary}: ${run.boundary.replace(/\n/g, '\n  ')}`,
       ...(run.sourceStructureId ? [`- ${l.modelSource}: \`${run.sourceStructureId}\``] : []),

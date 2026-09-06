@@ -54,7 +54,7 @@ export const en: Resources = {
     build: 'Found a new island',
     buildSeal: '建',
     buildHint: 'QFT rite',
-    collisionHint: 'Grow from a relation',
+    collisionHint: 'Connect · question · test',
     atlasStatus: '{{count}} problem isles · 4 knowledge climates',
     tools: 'Atlas tools',
     openWater: { label: 'Open water', in: '{{domain}} waters', hint: 'Nearest isles off screen' },
@@ -579,10 +579,10 @@ export const en: Resources = {
   },
 
   collision: {
-    title: 'Found by Collision',
-    hint: 'Two islands sharing a mathematical skeleton can found a new island on their bridge — the formula becomes the founding seal. No bridge, no founding.',
+    title: 'Domain collisions',
+    hint: 'Start with two questions, map a mechanism, form a hypothesis and design a minimal probe.',
     footnote: 'Same-equation bridges · data from xfrontier',
-    button: 'Collide',
+    button: 'Explore collisions',
     founded: '“{{name}}” rises on the bridge',
   },
 
@@ -674,7 +674,7 @@ export const en: Resources = {
   },
 
   mobile: {
-    readonly: 'Read-only · full collaboration on desktop',
+    readonly: 'Exploration notes stay on this device',
     segConnections: 'Connections',
     segChart: 'Chart',
     segList: 'List twin',
@@ -684,6 +684,6 @@ export const en: Resources = {
     highVar: 'high variance',
     note: 'Workspace available · chart read-only',
     tabs: { chart: 'Chart', bridge: 'Connections', notif: 'Alerts', mine: 'My isle' },
-    caption: 'Mobile · read-only',
+    caption: 'Read the atlas · record your exploration',
   },
 };

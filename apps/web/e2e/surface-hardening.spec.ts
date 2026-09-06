@@ -293,14 +293,17 @@ test.describe('desktop L0 → L1 experience', () => {
     await expect(page.locator('[data-screen-label="L1 生成岛"]')).toBeVisible({ timeout: 15_000 });
     const passage = page.locator('.fi-science-passage');
     await expect(passage).toHaveAttribute('aria-label', '科学航线：从研究信号到下一落点');
-    await expect(passage.locator(':scope > section')).toHaveCount(4);
+    await page.locator('.fi-island-background > summary').click();
+    await expect(passage.locator(':scope > section')).toHaveCount(3);
     await expect(passage.locator('[data-beat="signal"]')).toContainText('Perturb-FISH');
     await expect(passage.locator('[data-beat="question"]')).toContainText('能否在原位读出');
     await expect(passage.locator('[data-beat="evidence"]')).toContainText('Cell');
-    const survey = passage.locator('[data-beat="next"] button');
-    await expect(survey).toContainText('沿此线勘察');
-    await survey.click();
-    await expect(page.getByRole('button', { name: /02 生长对照区.*已勘察/ })).toBeVisible();
+    await page.locator('.fi-island-background > summary').click();
+    await page.getByRole('button', { name: '追问与分歧', exact: true }).click();
+    await page.locator('[data-station-row="questions"]').click();
+    await page.locator('[data-station-enter="questions"]').click();
+    await expect(page.getByRole('dialog')).toContainText('问题墙');
+    await page.getByRole('button', { name: '回到岛上', exact: true }).click();
     await expectNoHorizontalOverflow(page);
 
     let failFirstVote = true;
@@ -410,13 +413,11 @@ test.describe('mobile companion surface', () => {
     const mobileControls = page.locator('.fi-mobile-shell button, .fi-mobile-shell summary, .fi-mobile-shell input, .fi-mobile-shell select, .fi-mobile-shell textarea');
     await expectVisibleTargetsAtLeast(mobileControls, 44);
 
-    const mobilePassage = page.locator('.fi-mobile-island-note .fi-science-passage');
-    await expect(mobilePassage.locator(':scope > section')).toHaveCount(4);
-    // The mobile note is projected from atlas data with no ledger in scope, so
-    // it points at the ledger instead of asserting an adjudication state.
-    await expect(mobilePassage.locator('[data-beat="evidence"]')).toContainText('裁定状态以桌面端账本为准');
-    await expect.poll(async () => Number.parseFloat(await mobilePassage.locator('[data-beat="signal"] p').evaluate((element) => getComputedStyle(element).fontSize))).toBeGreaterThanOrEqual(13);
-    await mobilePassage.locator('[data-beat="next"] button').click();
+    const mobileNote = page.locator('.fi-mobile-island-note');
+    await expect(mobileNote).toContainText('能否在原位读出');
+    await expect(mobileNote.getByRole('button', {name:'登岛探索 →'})).toBeVisible();
+    await expect.poll(async () => Number.parseFloat(await mobileNote.locator('p').first().evaluate((element) => getComputedStyle(element).fontSize))).toBeGreaterThanOrEqual(13);
+    await mobileNote.getByRole('button',{name:'带着问题寻找跨域联系'}).click();
     await expect(page.locator('.fi-mobile-segments button').first()).toHaveAttribute('aria-selected', 'true');
     await expect(page.locator('.fi-mobile-connection-search input')).not.toHaveValue('');
     await expect(page.locator('.fi-mobile-connection-results button').first()).toBeVisible();

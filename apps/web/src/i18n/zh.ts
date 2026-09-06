@@ -53,7 +53,7 @@ export const zh = {
     build: '建一座新岛',
     buildSeal: '建',
     buildHint: 'QFT 仪式',
-    collisionHint: '从关系中生长',
+    collisionHint: '找联系 · 做验证',
     atlasStatus: '{{count}} 座问题岛 · 4 片知识气候',
     tools: '海图工具',
     openWater: { label: '开阔水域', in: '{{domain}} 海域', hint: '屏外最近的岛' },
@@ -573,10 +573,10 @@ export const zh = {
   },
 
   collision: {
-    title: '碰撞建岛',
-    hint: '共享同一数学骨架的两座岛之间可建新岛——公式即建岛印记。无桥处不可建。',
+    title: '领域碰撞',
+    hint: '从两个问题出发，辨认机制、提出假设，再设计一次最小验证。',
     footnote: '同方程桥 · 数据来自 xfrontier',
-    button: '碰撞',
+    button: '领域碰撞',
     founded: '「{{name}}」于桥上升起',
   },
 
@@ -667,7 +667,7 @@ export const zh = {
   },
 
   mobile: {
-    readonly: '只读 · 完整协作在桌面',
+    readonly: '探索笔记保存在本机',
     segConnections: '连接',
     segChart: '海图',
     segList: '列表孪生体',
@@ -677,7 +677,7 @@ export const zh = {
     highVar: '高方差',
     note: '工作面板可用 · 海图只读',
     tabs: { chart: '海图', bridge: '连接', notif: '通知', mine: '我的岛' },
-    caption: '移动端 · 只读',
+    caption: '海图只读 · 探索可记录',
   },
 };
 

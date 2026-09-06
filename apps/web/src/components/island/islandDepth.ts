@@ -74,9 +74,10 @@ const DOMAIN_PROGRAM: Record<DistrictProjectionInput['domain'], FrontierProgram>
   交叉: 'simulation',
 };
 
-export function frontierProgramOf(cluster: Bilingual | undefined, domain: DistrictProjectionInput['domain']): FrontierProgram {
+export function frontierProgramOf(cluster: Bilingual | undefined, domain: DistrictProjectionInput['domain'], topic?: Bilingual): FrontierProgram {
   const text = `${cluster?.zh ?? ''} ${cluster?.en ?? ''}`;
-  return PROGRAM_PATTERNS.find(([, pattern]) => pattern.test(text))?.[0] ?? DOMAIN_PROGRAM[domain];
+  const topicMatch = topic ? PROGRAM_PATTERNS.find(([, pattern]) => pattern.test(`${topic.zh} ${topic.en}`))?.[0] : undefined;
+  return topicMatch ?? PROGRAM_PATTERNS.find(([, pattern]) => pattern.test(text))?.[0] ?? DOMAIN_PROGRAM[domain];
 }
 
 const DISTRICT_STATIONS: Record<IslandDistrictId, StationKind[]> = {
@@ -144,31 +145,15 @@ const REASONS = {
 export function projectIslandDistricts(input: DistrictProjectionInput): IslandDistrictProjection {
   const program = frontierProgramOf(input.cluster, input.domain);
   const surveyed = new Set(input.surveyed);
-  const actions = new Set(input.ledgerActions);
-  const evidence = input.hasInterior || input.literatureCount > 0 || [...actions].some((action) =>
-    ['validate', 'refute', 'publish', 'rebuild', 'bridge_accept', 'attach_data'].includes(action),
-  );
-  const making = input.hasInterior || input.stage >= 1 || [...actions].some((action) =>
-    ['propose_subquestion', 'submit_claim', 'transplant', 'return_to_driftwood', 'adopt', 'rebuild', 'create_driftwood'].includes(action),
-  );
-  const horizon = input.openQuestionCount > 0 || ['active', 'resolved'].includes(input.status)
-    || !!input.activeStructure || (input.completedPassageCount ?? 0) > 0;
   const visible = new Set(input.stations);
 
   const stateOf = (id: IslandDistrictId): { state: DistrictSurveyState; reason: Bilingual } => {
-    if (surveyed.has(id)) return { state: 'surveyed', reason: REASONS.surveyed };
-    if (id === 'harbor') return { state: 'available', reason: REASONS.available };
-    if (!surveyed.has('harbor')) return { state: 'sealed', reason: REASONS.harbor };
-    if (id === 'inquiry') return { state: 'available', reason: REASONS.available };
-    if (!surveyed.has('inquiry')) return { state: 'sealed', reason: REASONS.inquiry };
-    if (id === 'archive') return evidence
-      ? { state: 'available', reason: REASONS.available }
-      : { state: 'sealed', reason: REASONS.evidence };
-    if (id === 'works') return making
-      ? { state: 'available', reason: REASONS.available }
-      : { state: 'sealed', reason: REASONS.making };
-    if (!surveyed.has('archive') || !surveyed.has('works')) return { state: 'sealed', reason: REASONS.deeper };
-    return horizon ? { state: 'available', reason: REASONS.available } : { state: 'sealed', reason: REASONS.horizon };
+    // Visiting a place never unlocks another. Availability follows real material.
+    const hasPlace = DISTRICT_STATIONS[id].some((station) => visible.has(station));
+    if (!hasPlace) return { state: 'sealed', reason: { zh: '本岛尚未建立这类研究空间', en: 'This island has no space of this kind yet' } };
+    return surveyed.has(id)
+      ? { state: 'surveyed', reason: REASONS.surveyed }
+      : { state: 'available', reason: { zh: '可以直接进入', en: 'Open to explore' } };
   };
 
   const ids: IslandDistrictId[] = ['harbor', 'inquiry', 'archive', 'works', 'observatory'];
@@ -188,6 +173,7 @@ export function projectIslandDistricts(input: DistrictProjectionInput): IslandDi
 }
 
 export type BuildingFloorItem =
+  | { kind: 'reference'; citation: { title: string; venue: string; year: number; url?: string } }
   | { kind: 'brief'; label: Bilingual; text: Bilingual }
   | { kind: 'question'; question: InteriorQuestion }
   | { kind: 'digest'; digest: InteriorDigest }
@@ -237,11 +223,11 @@ const STATION_PURPOSE: Record<StationKind, Bilingual> = {
 };
 
 const FLOOR_TITLES: Record<StationKind, Bilingual> = {
-  questions: { zh: '问题基底层', en: 'Question ground' }, library: { zh: '引文门厅', en: 'Citation hall' },
-  canvas: { zh: '张力基底层', en: 'Tension ground' }, data: { zh: '测量基底层', en: 'Measure ground' },
-  workshop: { zh: '试作基底层', en: 'Prototype ground' }, gallery: { zh: '展望基底层', en: 'Horizon ground' },
-  tearoom: { zh: '讨论入口层', en: 'Discussion entry' }, driftwood: { zh: '散木基底层', en: 'Driftwood ground' },
-  dock: { zh: '连接记录层', en: 'Connection records' },
+  questions: { zh: '本岛的问题', en: 'The island question' }, library: { zh: '论据从何而来', en: 'Where the argument begins' },
+  canvas: { zh: '尚未解决的张力', en: 'Unresolved tension' }, data: { zh: '本岛记录', en: 'Island records' },
+  workshop: { zh: '从一种方法开始', en: 'Start with a method' }, gallery: { zh: '如果问题得到回答', en: 'If the question were answered' },
+  tearoom: { zh: '讨论的起点', en: 'A starting point' }, driftwood: { zh: '仍未跨过的边界', en: 'A boundary still uncrossed' },
+  dock: { zh: '带着问题远行', en: 'Carry the question onward' },
 };
 
 const roman = (index: number): string => ['一', '二', '三', '四', '五', '六', '七', '八'][index] ?? String(index + 1);
@@ -308,12 +294,11 @@ export function projectBuildingFloors(input: BuildingFloorInput): BuildingFloorP
     chunks(interior?.digests ?? []).forEach(({ start, items }, index) =>
       pushFloor(floors, `${station}:digest:${start}`, bi(`论证书架${roman(index)}`, `Argument stacks ${index + 1}`), STATION_PURPOSE[station], items.map((digest) => ({ kind: 'digest', digest })), 'interior'));
     if (!interior?.digests.length) {
-      const sources: InteriorDigest[] = [
-        ...(input.citation ? [{ title: bi(input.citation.title, input.citation.title), gist: input.brief ?? input.qfocus, cite: input.citation }] : []),
-        ...(input.literature ?? []).map((cite) => ({ title: bi(cite.title, cite.title), gist: input.depth?.overview ?? input.qfocus, cite })),
-      ];
-      chunks(sources).forEach(({ start, items }, index) =>
-        pushFloor(floors, `${station}:source:${start}`, bi(`来源书架${roman(index)}`, `Source stacks ${index + 1}`), STATION_PURPOSE[station], items.map((digest) => ({ kind: 'digest', digest })), 'island'));
+      const sources = [ ...(input.citation ? [input.citation] : []), ...(input.literature ?? []) ];
+      const unique = sources.filter((cite, index) => sources.findIndex((other) => (other.url ?? other.title) === (cite.url ?? cite.title)) === index);
+      chunks(unique).forEach(({ start, items }, index) =>
+        pushFloor(floors, `${station}:source:${start}`, bi(`来源书架${roman(index)}`, `Source stacks ${index + 1}`), STATION_PURPOSE[station], items.map((citation) => ({ kind: 'reference', citation })), 'island'));
+
     }
   }
 
@@ -351,6 +336,15 @@ export function projectBuildingFloors(input: BuildingFloorInput): BuildingFloorP
       pushFloor(floors, `${station}:residents:${group}`, title, STATION_PURPOSE[station], residents.map((resident) => ({ kind: 'resident', resident })), 'interior'));
   }
 
+  // Surface existing island-specific material in the place where it helps a
+  // decision. These are editorial context, never invented experiment records.
+  if (depth && station === 'workshop') pushFloor(floors, 'workshop:boundary', bi('检验之前的边界', 'Before testing'), STATION_PURPOSE.workshop,
+    [{kind:'brief',label:bi('需要跨过的障碍','The obstacle to address'),text:depth.barrier}], 'island');
+  if (depth && station === 'gallery') pushFloor(floors, 'gallery:stakes', bi('为什么值得追问', 'Why pursue it'), STATION_PURPOSE.gallery,
+    [{kind:'brief',label:bi('意义与张力','Stakes and tension'),text:depth.whyMatters}], 'island');
+  if (depth && station === 'driftwood') pushFloor(floors, 'driftwood:context', bi('障碍的来处', 'Context for the obstacle'), STATION_PURPOSE.driftwood,
+    [{kind:'brief',label:bi('本岛背景；并非失败实验记录','Island context, not a failed experiment record'),text:depth.whyMatters}], 'island');
+
   if (input.activeStructure && (station === 'dock' || station === 'workshop')) {
     pushFloor(
       floors,
@@ -362,5 +356,39 @@ export function projectBuildingFloors(input: BuildingFloorInput): BuildingFloorP
     );
   }
 
-  return { station, floors: floors.slice(0, 8).map((floor, index) => ({ ...floor, level: index + 1 })) };
+  return { station, floors: floors.map((floor, index) => ({ ...floor, level: index + 1 })) };
+}
+
+
+export interface BuildingRoom extends BuildingFloor { floorIds: string[] }
+/** Preserve old floor addresses while presenting semantic rooms, not pagination.
+ * No material is dropped, and a saved old floor still resolves to its room. */
+export function buildingRooms(plan: BuildingFloorPlan | undefined): BuildingRoom[] {
+  const rooms = new Map<string, BuildingRoom>();
+  for (const floor of plan?.floors ?? []) {
+    const key = floor.id.replace(/:\d+$/, '');
+    const existing = rooms.get(key);
+    if (existing) { existing.items.push(...floor.items); existing.floorIds.push(floor.id); continue; }
+    const names: Record<string, Bilingual> = {
+      open: bi('仍在追问', 'Open questions'), rewrite: bi('问题如何改变', 'Reframed questions'), closed: bi('暂时的回答', 'Provisional answers'),
+      subquestion: bi('相关开放问题', 'Related open questions'), digest: bi('论据书架', 'Arguments'), source: bi('原始来源', 'Original sources'),
+      debate: bi('不同解释', 'Competing explanations'),
+      approach: bi('不同进路', 'Approaches'), measure: bi('测量与数据', 'Measurements'), work: bi('正在尝试', 'Work in progress'),
+      method: bi('其他方法', 'Other methods'), exhibit: bi('已收录的成果', 'Recorded work'),
+    };
+    rooms.set(key, { ...floor, title: names[floor.id.split(':')[1]!] ?? floor.title, items: [...floor.items], floorIds: [floor.id] });
+  }
+  return [...rooms.values()];
+}
+
+export function buildingExcerpt(plan: BuildingFloorPlan | undefined, lang: 'zh' | 'en'): string {
+  const item = plan?.floors.find(floor => !floor.id.endsWith(':ground'))?.items[0] ?? plan?.floors[0]?.items[0];
+  if (!item) return '';
+  switch (item.kind) {
+    case 'brief': return item.text[lang]; case 'question': return item.question.text[lang];
+    case 'reference': return item.citation.title; case 'digest': return item.digest.title[lang];
+    case 'debate': return item.debate.topic[lang]; case 'datum': return `${item.datum.label[lang]} · ${item.datum.value[lang]}`;
+    case 'scrap': return item.scrap.text[lang]; case 'gallery': return item.gallery.title[lang];
+    case 'resident': return item.resident.caption[lang]; case 'structure': return item.structure.statement[lang];
+  }
 }

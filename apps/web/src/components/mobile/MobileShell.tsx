@@ -23,9 +23,11 @@ import type { ModelLabMissionEvidenceV1 } from '../../state/missionEvidence';
 import { selectWorldTrail } from '../../state/worldTrail';
 import { selectRouteOutcome } from '../../state/routeOutcome';
 
+const GeneratedIslandScreen = lazy(() => import('../island/GeneratedIslandScreen').then(module => ({ default: module.GeneratedIslandScreen })));
 const ModelWorkbench = lazy(() =>
   import('../model/ModelWorkbench').then((module) => ({ default: module.ModelWorkbench })),
 );
+const CollisionOverlay = lazy(() => import('../ceremony/CollisionOverlay').then((module) => ({ default: module.CollisionOverlay })));
 
 export interface MobileShellProps {
   islands: readonly IslandDatum[];
@@ -35,6 +37,8 @@ export interface MobileShellProps {
   missionRuns?: readonly ModelLabMissionEvidenceV1[];
   onRecordMissionRun?: (evidence: ModelLabMissionEvidenceV1) => void;
   worldTrailEnabled?: boolean;
+  islandNotes?: Record<string, string>;
+  onIslandNote?: (slug: string, text: string) => void;
 }
 
 export function resolveMobileIslandId(islands: readonly IslandDatum[], slug?: string | null): number | null {
@@ -122,11 +126,16 @@ export function buildMobileHierarchy(islands: readonly IslandDatum[]): Map<numbe
  * visitors can browse, search, and inspect the same data. Personal model runs
  * are intentionally writable because they do not mutate the research ledger.
  */
-export function MobileShell({ islands, initialIslandSlug = null, modelRuns = [], onRecordModelRun = () => {}, missionRuns = [], onRecordMissionRun, worldTrailEnabled = true }: MobileShellProps) {
+export function MobileShell({ islands, initialIslandSlug = null, modelRuns = [], onRecordModelRun = () => {}, missionRuns = [], onRecordMissionRun, worldTrailEnabled = true, islandNotes = {}, onIslandNote }: MobileShellProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language.startsWith('en') ? 'en' : 'zh';
+  const [onIsland, setOnIsland] = useState<IslandDatum | null>(null);
+  const [islandNight, setIslandNight] = useState(false);
+  const [islandModel, setIslandModel] = useState(false);
+  const [islandToast, setIslandToast] = useState('');
   const [seg, setSeg] = useState<'connections' | 'models' | 'chart' | 'list'>('connections');
   const [query, setQuery] = useState('');
+  const [collisionOpen, setCollisionOpen] = useState(false);
   const [altitude, setAltitude] = useState<MobileAltitude | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(() => resolveMobileIslandId(islands, initialIslandSlug));
   const [expandedAnchor, setExpandedAnchor] = useState<string | null>(null);
@@ -241,6 +250,14 @@ export function MobileShell({ islands, initialIslandSlug = null, modelRuns = [],
     };
   };
 
+  if (onIsland?.slug) return <main className="fi-mobile-island-shell" data-theme={islandNight ? 'night' : 'day'}>
+    <Suspense fallback={<p role="status">{t('island.loading')}</p>}>
+      <div inert={islandModel} aria-hidden={islandModel || undefined}><GeneratedIslandScreen slug={onIsland.slug} night={islandNight} onToggleNight={() => setIslandNight(value => !value)} onBack={() => { setOnIsland(null); setIslandToast(''); }} onStation={() => {}} actor="local-reader" readOnly onToast={setIslandToast} personalNote={islandNotes[onIsland.slug] ?? ''} onPersonalNote={onIslandNote ? text => onIslandNote(onIsland.slug!, text) : undefined} onOpenModel={() => setIslandModel(true)} /></div>
+      {islandModel && <ModelWorkbench lang={lang} onClose={() => setIslandModel(false)} previousRuns={modelRuns} onSave={onRecordModelRun} previousMissions={missionRuns} onSaveMission={onRecordMissionRun} />}
+    </Suspense>
+    {islandToast && <p role="status" className="fi-island-mobile-toast">{islandToast}</p>}
+  </main>;
+
   return (
     <main className="fi-mobile-shell">
       <header className="fi-mobile-header">
@@ -263,6 +280,11 @@ export function MobileShell({ islands, initialIslandSlug = null, modelRuns = [],
       </section>
 
       {worldTrailEnabled && <WorldTrail projection={worldTrail} outcome={routeOutcome} variant="mobile" />}
+
+      <button type="button" className="fi-collision-mobile-launch" onClick={() => setCollisionOpen(true)}>
+        <span><strong>{lang === 'zh' ? '开启一次领域碰撞' : 'Start a domain collision'}</strong><small>{lang === 'zh' ? '从两个问题，走向一个可检验的假设' : 'From two questions to a testable hypothesis'}</small></span><span aria-hidden="true">→</span>
+      </button>
+      {collisionOpen && <Suspense fallback={<p role="status">{t('island.loading')}</p>}><CollisionOverlay onClose={() => setCollisionOpen(false)} onVisitIsland={(slug) => { const island = islands.find((item) => item.slug === slug); if (island) { setCollisionOpen(false); setSeg('list'); setSelectedId(island.id); } }} /></Suspense>}
 
       {showingAtlasTools && (
         <label className="fi-mobile-search">
@@ -358,12 +380,12 @@ export function MobileShell({ islands, initialIslandSlug = null, modelRuns = [],
               <span>{t('chart.satelliteStatus', { visible: visibleSatellites, total: totalSatellites })}</span>
               <small>{t('chart.routeLegend')} · {t('chart.hierarchyNote')}</small>
             </div>
-            {selected && <MobileIslandNote island={selected} altitude={altitudeById.get(selected.id) ?? 'middle'} role={selectedHierarchy?.role ?? 'anchor'} satelliteCount={[...mobileHierarchy.values()].filter((item) => item.parentSlug === selectedAnchor).length} expanded={expandedAnchor === selectedAnchor} lang={lang} onToggleGroup={() => setExpandedAnchor(expandedAnchor === selectedAnchor ? null : selectedAnchor)} onSelectList={() => setSeg('list')} onFollowQuestion={() => { setCarriedQuestion(selected.q[lang]); setSeg('connections'); }} />}
+            {selected && <MobileIslandNote island={selected} altitude={altitudeById.get(selected.id) ?? 'middle'} role={selectedHierarchy?.role ?? 'anchor'} satelliteCount={[...mobileHierarchy.values()].filter((item) => item.parentSlug === selectedAnchor).length} expanded={expandedAnchor === selectedAnchor} lang={lang} onToggleGroup={() => setExpandedAnchor(expandedAnchor === selectedAnchor ? null : selectedAnchor)} onSelectList={() => setSeg('list')} onEnter={() => setOnIsland(selected)} onFollowQuestion={() => { setCarriedQuestion(selected.q[lang]); setSeg('connections'); }} />}
           </>
         ) : (
           <div className="fi-mobile-list">
             {filtered.length > 0 ? filtered.map((island) => (
-              <button key={island.slug ?? island.id} type="button" className={selected?.id === island.id ? 'is-selected' : ''} onClick={() => selectIsland(island)}>
+              <button key={island.slug ?? island.id} type="button" className={selected?.id === island.id ? 'is-selected' : ''} onClick={() => { selectIsland(island); setOnIsland(island); }}>
                 <i style={{ background: DOMAIN_COLOR[island.d] ?? DOMAIN_COLOR.交叉 }} aria-hidden="true" />
                 <span><small>{t(`chart.hierarchyLevels.${mobileHierarchy.get(island.id)?.role ?? 'anchor'}`)} · {t(`chart.altitudes.${altitudeById.get(island.id) ?? 'middle'}`)} · {t(DOMAIN_LABEL[island.d] ?? 'chart.domains.cross')} · #{String(island.id).padStart(2, '0')}</small><strong>{island.n[lang]}</strong><em>{island.q[lang]}</em></span>
                 <b aria-hidden="true">›</b>
@@ -713,18 +735,16 @@ function MobileEvidence({ title, evidence, missing, evidenceRole, replicationRol
   );
 }
 
-function MobileIslandNote({ island, altitude, role, satelliteCount, expanded, lang, onToggleGroup, onSelectList, onFollowQuestion }: { island: IslandDatum; altitude: MobileAltitude; role: MobileIslandRole; satelliteCount: number; expanded: boolean; lang: 'zh' | 'en'; onToggleGroup: () => void; onSelectList: () => void; onFollowQuestion: () => void }) {
+function MobileIslandNote({ island, altitude, role, satelliteCount, expanded, lang, onToggleGroup, onSelectList, onFollowQuestion, onEnter }: { island: IslandDatum; altitude: MobileAltitude; role: MobileIslandRole; satelliteCount: number; expanded: boolean; lang: 'zh' | 'en'; onToggleGroup: () => void; onSelectList: () => void; onFollowQuestion: () => void; onEnter: () => void }) {
   const { t } = useTranslation();
   return (
     <article className="fi-mobile-island-note" style={{ '--fi-note-domain': DOMAIN_COLOR[island.d] ?? DOMAIN_COLOR.交叉 } as React.CSSProperties}>
       <div><span>{t(`chart.hierarchyLevels.${role}`)} · {t(`chart.altitudes.${altitude}`)} · {t(DOMAIN_LABEL[island.d] ?? 'chart.domains.cross')} · #{String(island.id).padStart(2, '0')}</span><span>{island.out ? t('chart.card.outlier') : t(`chart.stages.${['空岛', '草棚', '书院', '学派'][island.st] ?? '空岛'}`)}</span></div>
       <h2>{island.n[lang]}</h2>
-      <div className="fi-science-passage" aria-label={t('island.researchPassage.label')} style={{ marginTop: 9 }}>
-        <section data-beat="signal"><header><b>01</b><span>{t('island.researchPassage.signal')}</span></header><p>{island.brief?.[lang] || t('island.researchPassage.signalFallback')}</p></section>
-        <section data-beat="question"><header><b>02</b><span>{t('island.researchPassage.question')}</span></header><p>{island.q[lang]}</p></section>
-        <section data-beat="evidence"><header><b>03</b><span>{t('island.researchPassage.evidence')}</span></header><div className="fi-island-evidence-row">{island.citation ? <a href={island.citation.url} target="_blank" rel="noopener noreferrer">↗ {island.citation.venue} · {island.citation.year}</a> : <span>{t('island.researchPassage.noEvidence')}</span>}<span>{t('island.researchPassage.evidenceBoundaryReadOnly')}</span></div></section>
-        <section data-beat="next"><header><b>04</b><span>{t('island.researchPassage.next')}</span></header><p>{t('island.researchPassage.mobileNext')}</p><button type="button" onClick={onFollowQuestion}><span>{t('mobile.segConnections')}</span><strong>{t('island.researchPassage.mobileCarry')}</strong><i aria-hidden="true">→</i></button></section>
-      </div>
+      <p style={{fontSize: 17, lineHeight: 1.7}}>{island.q[lang]}</p>
+      <p>{island.brief?.[lang]}</p>
+      <button type="button" className="fi-mobile-dock" onClick={onEnter}>{lang === 'zh' ? '登岛探索' : 'Explore this island'} →</button>
+      <button type="button" onClick={onFollowQuestion}>{lang === 'zh' ? '带着问题寻找跨域联系' : 'Follow this question across fields'}</button>
       <footer><span>{t('chart.card.members', { n: island.m })}</span>{satelliteCount > 0 && <button type="button" onClick={onToggleGroup}>{expanded ? t('chart.hierarchyLevels.anchor') : `${t('chart.hierarchyLevels.satellite')} ${satelliteCount}`}</button>}<button type="button" onClick={onSelectList}>{t('mobile.segList')} →</button></footer>
     </article>
   );

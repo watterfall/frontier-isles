@@ -3353,3 +3353,6 @@ body:has(.fi-qft-root[data-open='true']) :is(.fi-global-controls, .fi-world-trai
     min-height: 44px;
   }
 }
+
+.fi-collision-mobile-launch { display: flex; justify-content: space-between; align-items: center; gap: 16px; width: 100%; padding: 18px; margin: 12px 0; border: 0; background: var(--fi-azurite-deep); color: var(--fi-paper-raised); text-align: left; cursor: pointer; }
+.fi-collision-mobile-launch strong { display: block; font-size: 16px; }.fi-collision-mobile-launch small { display: block; font-size: 12px; margin-top: 6px; }

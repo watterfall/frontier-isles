@@ -158,8 +158,8 @@ export default defineConfig({
       // Pin IPv4: on developer machines another app may own ::1:8787 while
       // Frontier Isles correctly listens on 0.0.0.0:8787. `localhost` would
       // then proxy to the unrelated IPv6 service and make every landing 404.
-      '/api': { target: 'http://127.0.0.1:8787', changeOrigin: true },
-      '/yjs': { target: 'ws://127.0.0.1:8787', ws: true },
+      '/api': { target: process.env.FI_API_TARGET ?? 'http://127.0.0.1:8787', changeOrigin: true },
+      '/yjs': { target: (process.env.FI_API_TARGET ?? 'http://127.0.0.1:8787').replace(/^http/, 'ws'), ws: true },
     },
   },
   test: {

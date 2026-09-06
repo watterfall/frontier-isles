@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { INTERIORS } from '@frontier-isles/data/interiors';
-import { frontierProgramOf, projectBuildingFloors, projectIslandDistricts } from '../islandDepth';
+import { buildingRooms, frontierProgramOf, projectBuildingFloors, projectIslandDistricts } from '../islandDepth';
 import { fallbackStructures } from '../../../api/structureFallback';
 
 const stations = ['dock', 'tearoom', 'questions', 'canvas', 'library', 'data', 'workshop', 'driftwood', 'gallery'] as const;
@@ -12,7 +12,7 @@ describe('island district projection', () => {
     expect(frontierProgramOf(undefined, '生命')).toBe('living');
   });
 
-  it('opens a truthful Harbor → Inquiry → Archive/Works → Observatory survey route', () => {
+  it('makes every existing research place available without prerequisite visits', () => {
     const base = {
       slug: 'formal-math', domain: '数理' as const,
       cluster: { zh: 'AI数学·形式科学', en: 'AI mathematics · formal science' },
@@ -22,7 +22,7 @@ describe('island district projection', () => {
     };
     let map = projectIslandDistricts({ ...base, surveyed: [] });
     expect(map.districts.map((district) => [district.id, district.state])).toEqual([
-      ['harbor', 'available'], ['inquiry', 'sealed'], ['archive', 'sealed'], ['works', 'sealed'], ['observatory', 'sealed'],
+      ['harbor', 'available'], ['inquiry', 'available'], ['archive', 'available'], ['works', 'available'], ['observatory', 'available'],
     ]);
     map = projectIslandDistricts({ ...base, surveyed: ['harbor'] });
     expect(map.districts.find((district) => district.id === 'inquiry')?.state).toBe('available');
@@ -33,10 +33,10 @@ describe('island district projection', () => {
     expect(map.districts.find((district) => district.id === 'observatory')?.state).toBe('available');
   });
 
-  it('keeps evidence-less districts sealed and marks only a selected structure crossing', () => {
+  it('keeps missing spaces unavailable and marks only a selected structure crossing', () => {
     const structure = fallbackStructures()[0]!;
     const map = projectIslandDistricts({
-      slug: 'empty', domain: '物质', stage: 0, status: 'open', stations,
+      slug: 'empty', domain: '物质', stage: 0, status: 'open', stations: ['dock', 'questions'],
       ledgerActions: [], literatureCount: 0, hasInterior: false, openQuestionCount: 1,
       surveyed: ['harbor', 'inquiry'], activeStructure: structure,
     });
@@ -78,4 +78,15 @@ describe('building floor projection', () => {
     expect(dock.floors.at(-1)?.items[0]).toMatchObject({ kind: 'structure', structure: { id: structure.id } });
     expect(library.floors.some((floor) => floor.source === 'structure')).toBe(false);
   });
+});
+
+
+it('keeps every source and old floor address when grouping a long library into rooms', () => {
+  const literature = Array.from({length: 30}, (_, i) => ({title:`Source ${i}`, venue:'Archive',year:2020,url:`https://example.org/${i}`}));
+  const plan = projectBuildingFloors({station:'library',qfocus:{zh:'问题',en:'Question'},literature});
+  const rooms = buildingRooms(plan);
+  expect(rooms.flatMap(room => room.floorIds)).toEqual(plan.floors.map(floor => floor.id));
+  expect(rooms.flatMap(room => room.items).filter(item => item.kind === 'reference')).toHaveLength(30);
+  expect(rooms).toHaveLength(2);
+  expect(rooms.flatMap(room => room.items).filter(item => item.kind === 'digest')).toHaveLength(0);
 });

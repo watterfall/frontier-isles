@@ -42,45 +42,45 @@ interface ModelWorkbenchProps {
 const COPY = {
   zh: {
     kicker: '不是看答案', title: '亲手搭一个会跑的模型',
-    intro: '先决定模型里有什么、它们怎样互相影响，再预测并运行。数学和代码藏在下面，需要时再看。',
+    intro: '选择模型里的对象和相互作用，运行看看会发生什么。也可以先留一个预测；数学和代码需要时再看。',
     close: '回到地图', fromResearch: '从已有研究对照进入', savedRuns: '次已保存运行',
     chooseFamily: '选择一条可以反复使用的规律', sameRule: '同一条规则，换一个具体世界',
     putIn: '放进模型', canSee: '每个对象能看到', changes: '每一步怎样改变', watch: '我观察',
     parameters: '只改最关键的量', count: '个体数量', spread: '个体本来的节奏差异', coupling: '彼此影响强度', rate: '一次向邻居靠近多少',
     weak: '弱', strong: '强', narrow: '相近', wide: '差异大', slow: '小步', fast: '大步', newStart: '换一组起点',
-    math: '看看 AI 代劳的数学', mathIntro: '页面上的对象和滑杆怎样进入方程',
-    prediction: '运行前，先选你的预测', predictionHint: '没有预测就不能运行。重点不是猜对，而是看自己的模型是否支持这次判断。',
+    math: '看看模型背后的数学', mathIntro: '页面上的对象和滑杆怎样进入方程',
+    prediction: '也可以先猜一猜', predictionHint: '预测是可选的。可以直接运行、观察，再决定值得追问什么；运行后不能补填先验预测。',
     syncPredictions: { increase: '会越来越整齐', stay: '不会明显改变', decrease: '会更分散' },
     fieldSpreadPredictions: { increase: '浓度极差会变小', stay: '浓度极差不会明显改变', decrease: '浓度极差会变大' },
     fieldResidualPredictions: { increase: '相邻位置的局部不平衡会变小', stay: '局部不平衡不会明显改变', decrease: '局部不平衡会变大' },
-    run: '运行', pause: '暂停', continue: '继续', step: '单步看一次更新', reset: '重新开始', running: '模型正在更新', ready: '先做预测，然后运行', complete: '这次运行结束了',
+    run: '运行', pause: '暂停', continue: '继续', step: '单步看一次更新', reset: '重新开始', running: '模型正在更新', ready: '可以运行，也可以先做预测', complete: '这次运行结束了',
     progress: '运行进度', result: '你实际看见了什么', matched: '结果与预测方向一致。', unmatched: '结果没有按预测方向变化；这正是要继续追问的地方。',
     coherence: '整体同步程度 R', spreadMetric: '浓度极差', residual: '邻域不平衡（方程残差）', from: '从', to: '变为',
-    transfer: '不要重搭：把同一规则换到另一个领域', transferHint: '参数保留，解释和适用边界会改变。你需要重新预测。', tryNext: '用相同参数换成',
+    transfer: '把同一规则换到另一个领域', transferHint: '参数保留，解释和适用边界会改变。可以先预测，也可以运行后比较。', tryNext: '用相同参数换成',
     boundary: '哪里不能照搬', boundaryHint: '用自己的话写下这个简化模型漏掉了什么。可以参考下面的科学边界，但不要只说“它们不一样”。', boundaryPlaceholder: '例如：这个模型只保留了相位，没有表示……', sourceBoundary: '这项现象的已知边界',
-    save: '把这次运行放进考察札记', saved: '已保存到当前浏览器的考察札记', saveHint: '完成运行、做出预测，并写下至少 8 个字的适用边界后才能保存。',
+    save: '把这次运行放进考察札记', saved: '已保存到当前浏览器的考察札记', saveHint: '运行完成后即可保存观察。预测和边界笔记可以留空；记录不代表结论成立。',
     localOnly: '这是个人模型运行，不会自动成为研究证据或关系图连线。', sources: '核对模型来源与科学边界',
     listTwin: '图的文字读数',
   },
   en: {
     kicker: 'Do not just read an answer', title: 'Build a model you can run yourself',
-    intro: 'Decide what exists and how it interacts, then predict and run. The mathematics and code stay below until you need them.',
+    intro: 'Choose the objects and their interactions, then run and observe. You can leave a prediction first; the mathematics and code are there when you need them.',
     close: 'Back to the map', fromResearch: 'Opened from a recorded research comparison', savedRuns: 'saved runs',
     chooseFamily: 'Choose one rule you can reuse', sameRule: 'Keep one rule; change the concrete world',
     putIn: 'Put into the model', canSee: 'Each object can see', changes: 'How each step changes', watch: 'I observe',
     parameters: 'Change only the load-bearing quantities', count: 'Number of individuals', spread: 'Difference in their own rhythms', coupling: 'Strength of mutual influence', rate: 'How far one update moves toward neighbours',
     weak: 'weak', strong: 'strong', narrow: 'similar', wide: 'very different', slow: 'small step', fast: 'large step', newStart: 'Use a new starting state',
-    math: 'See the mathematics AI handled', mathIntro: 'How the objects and controls on this page enter the equation',
-    prediction: 'Before running, choose your prediction', predictionHint: 'The model cannot run without one. Being right is not the point; seeing whether your model supports the judgment is.',
+    math: 'See the mathematics behind the model', mathIntro: 'How the objects and controls on this page enter the equation',
+    prediction: 'You can make a prediction first', predictionHint: 'Optional: run and observe first, then choose what to investigate. A prior prediction cannot be added after running.',
     syncPredictions: { increase: 'They will become more coherent', stay: 'Little will change', decrease: 'They will spread apart' },
     fieldSpreadPredictions: { increase: 'The concentration range will shrink', stay: 'The concentration range will barely change', decrease: 'The concentration range will grow' },
     fieldResidualPredictions: { increase: 'Local neighbour imbalance will shrink', stay: 'Local imbalance will barely change', decrease: 'Local imbalance will grow' },
-    run: 'Run', pause: 'Pause', continue: 'Continue', step: 'Watch one update', reset: 'Start again', running: 'The model is updating', ready: 'Make a prediction, then run', complete: 'This run is complete',
+    run: 'Run', pause: 'Pause', continue: 'Continue', step: 'Watch one update', reset: 'Start again', running: 'The model is updating', ready: 'Run, or make a prediction first', complete: 'This run is complete',
     progress: 'Run progress', result: 'What you actually observed', matched: 'The result moved in the predicted direction.', unmatched: 'The result did not move in the predicted direction; that is the next thing to investigate.',
     coherence: 'Group coherence R', spreadMetric: 'Concentration range', residual: 'Neighbour imbalance (equation residual)', from: 'from', to: 'to',
-    transfer: 'Do not rebuild it: move the same rule into another field', transferHint: 'Parameters stay; interpretation and scientific limits change. Make a new prediction.', tryNext: 'Keep the parameters and try',
+    transfer: 'Move the same rule into another field', transferHint: 'Parameters stay; interpretation and scientific limits change. Predict first if you wish, or run and compare.', tryNext: 'Keep the parameters and try',
     boundary: 'What cannot be copied', boundaryHint: 'State in your own words what this simplified model leaves out. Use the scientific boundary below, but do more than say “they are different.”', boundaryPlaceholder: 'For example: this model keeps only phase and does not represent…', sourceBoundary: 'Known boundary for this phenomenon',
-    save: 'Put this run in the field notebook', saved: 'Saved in this browser’s field notebook', saveHint: 'Complete a run, make a prediction, and write at least 8 characters about the limit before saving.',
+    save: 'Put this run in the field notebook', saved: 'Saved in this browser’s field notebook', saveHint: 'Save an observation after running. Prediction and boundary notes are optional; the record does not validate a conclusion.',
     localOnly: 'This is a personal model run. It does not automatically become research evidence or a graph connection.', sources: 'Check the model sources and scientific limits',
     listTwin: 'Text reading of the visual',
   },
@@ -131,7 +131,7 @@ export function ModelWorkbench({ lang, launch, previousRuns = [], previousMissio
   const targetSteps = TARGET_STEPS[familyId];
   const currentMetric = modelMetric(runtime, substrate.id);
   const completed = status === 'complete' || runtime.steps >= targetSteps;
-  const canSave = completed && prediction !== null && boundary.trim().length >= 8 && !saved;
+  const canSave = completed && !saved;
   const predictionLabels = familyId === 'synchronization'
     ? copy.syncPredictions
     : substrate.id === 'diffusion'
@@ -184,7 +184,7 @@ export function ModelWorkbench({ lang, launch, previousRuns = [], previousMissio
     if (!onClose || !rootRef.current) return;
     const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const root = rootRef.current;
-    const focusable = () => [...root.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([disabled]), textarea:not([disabled]), summary, a[href]')]
+    const focusable = () => [...root.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, a[href]')]
       .filter((item) => (
         item.getClientRects().length > 0
         && item.getAttribute('aria-hidden') !== 'true'
@@ -213,7 +213,7 @@ export function ModelWorkbench({ lang, launch, previousRuns = [], previousMissio
   }, [onClose]);
 
   const run = () => {
-    if (!prediction || completed) return;
+    if (completed) return;
     if (reducedMotion) {
       setRuntime((current) => advanceModelRuntime(current, coupling, rate, Math.max(0, targetSteps - current.steps)));
       setStatus('complete');
@@ -223,7 +223,7 @@ export function ModelWorkbench({ lang, launch, previousRuns = [], previousMissio
   };
 
   const step = () => {
-    if (!prediction || completed) return;
+    if (completed) return;
     const chunk = familyId === 'synchronization' ? 6 : 1;
     setRuntime((current) => advanceModelRuntime(current, coupling, rate, Math.min(chunk, targetSteps - current.steps)));
     setStatus(runtime.steps + chunk >= targetSteps ? 'complete' : 'paused');
@@ -232,7 +232,7 @@ export function ModelWorkbench({ lang, launch, previousRuns = [], previousMissio
   const reset = () => replaceRuntime(familyId, substrate.id);
 
   const save = () => {
-    if (!canSave || !prediction) return;
+    if (!canSave) return;
     const observation = modelObservation(runtime, substrate.id);
     onSave({
       id: receiptId(),
@@ -270,13 +270,13 @@ export function ModelWorkbench({ lang, launch, previousRuns = [], previousMissio
       {worldTrail && <WorldTrail projection={worldTrail} outcome={routeOutcome} variant="embedded" />}
       <header className="fi-model-head">
         <div>
-          <small>{copy.kicker}</small>
+
           <h1 id="fi-model-title">{copy.title}</h1>
           <p id="fi-model-intro">{copy.intro}</p>
         </div>
         <aside>
           {normalizedLaunch.sourceStructureId && <span>{copy.fromResearch}</span>}
-          <strong>{previousRuns.length} {copy.savedRuns}</strong>
+
           {onClose && <button type="button" onClick={onClose}>← {copy.close}</button>}
         </aside>
       </header>
@@ -358,17 +358,17 @@ export function ModelWorkbench({ lang, launch, previousRuns = [], previousMissio
           <div className="fi-model-run-controls">
             <progress max={targetSteps} value={Math.min(targetSteps, runtime.steps)} aria-label={copy.progress} />
             <div>
-              <button type="button" className="is-primary" disabled={!prediction || completed} onClick={status === 'running' ? () => setStatus('paused') : run}>{status === 'running' ? copy.pause : status === 'paused' ? copy.continue : copy.run}</button>
-              <button type="button" disabled={!prediction || completed || status === 'running'} onClick={step}>{copy.step}</button>
+              <button type="button" className="is-primary" disabled={completed} onClick={status === 'running' ? () => setStatus('paused') : run}>{status === 'running' ? copy.pause : status === 'paused' ? copy.continue : copy.run}</button>
+              <button type="button" disabled={completed || status === 'running'} onClick={step}>{copy.step}</button>
               <button type="button" onClick={reset}>{copy.reset}</button>
             </div>
-            <p aria-live="polite">{status === 'running' ? copy.running : completed ? copy.complete : prediction ? copy.ready : copy.predictionHint}</p>
+            <p aria-live="polite">{status === 'running' ? copy.running : completed ? copy.complete : copy.ready}</p>
           </div>
         </main>
 
         <aside className="fi-model-reflection-sheet">
           <section className="fi-model-prediction">
-            <small>01</small><h2>{copy.prediction}</h2><p>{copy.predictionHint}</p>
+            <h2>{copy.prediction}</h2><p>{copy.predictionHint}</p>
             <div>
               {(Object.keys(predictionLabels) as ModelPrediction[]).map((item) => (
                 <button type="button" key={item} aria-pressed={prediction === item} disabled={runtime.steps > 0} onClick={() => { setPrediction(item); setSaved(false); }}>{predictionLabels[item]}</button>
@@ -377,11 +377,11 @@ export function ModelWorkbench({ lang, launch, previousRuns = [], previousMissio
           </section>
 
           <section className="fi-model-result" data-ready={completed || undefined}>
-            <small>02</small><h2>{copy.result}</h2>
+            <h2>{copy.result}</h2>
             {completed ? (
               <>
                 <p><strong>{metricLabel}</strong> {copy.from} <b>{observation.initial.toFixed(3)}</b> {copy.to} <b>{observation.final.toFixed(3)}</b>。</p>
-                <em data-matched={matches || undefined}>{matches ? copy.matched : copy.unmatched}</em>
+                {prediction ? <em data-matched={matches || undefined}>{matches ? copy.matched : copy.unmatched}</em> : <p>{lang === 'zh' ? '这次是先观察，没有事前预测。可以带着读数提出下一次问题。' : 'This was an observation without a prior prediction. Let the readings suggest the next question.'}</p>}
                 <div className="fi-model-transfer">
                   <strong>{copy.transfer}</strong><p>{copy.transferHint}</p>
                   <button type="button" onClick={() => chooseSubstrate(nextSubstrate.id)}>{copy.tryNext}「{nextSubstrate.title[lang]}」→</button>
@@ -391,7 +391,7 @@ export function ModelWorkbench({ lang, launch, previousRuns = [], previousMissio
           </section>
 
           <section className="fi-model-boundary-note">
-            <small>03</small><h2>{copy.boundary}</h2><p>{copy.boundaryHint}</p>
+            <h2>{copy.boundary}</h2><p>{copy.boundaryHint}</p>
             <label><span className="sr-only">{copy.boundary}</span><textarea rows={5} maxLength={1200} value={boundary} onChange={(event) => { setBoundary(event.target.value); setSaved(false); }} placeholder={copy.boundaryPlaceholder} /></label>
             <details><summary>{copy.sourceBoundary}</summary><p>{substrate.boundary[lang]}</p><a href={substrate.source.url} target="_blank" rel="noopener noreferrer">{substrate.source.title} ↗</a></details>
           </section>

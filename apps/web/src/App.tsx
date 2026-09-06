@@ -6,7 +6,6 @@ import { AtlasChartScreen } from './components/chart/AtlasChartScreen';
 import { IslandScreen } from './components/island/IslandScreen';
 import type { QftSyncState } from './components/island/QftPanel';
 import { CeremonyOverlay } from './components/ceremony/CeremonyOverlay';
-import { CollisionOverlay } from './components/ceremony/CollisionOverlay';
 import { Toast } from './components/shell/Toast';
 import { LangToggle } from './components/shell/LangToggle';
 import { SessionBadge } from './components/shell/SessionBadge';
@@ -71,6 +70,8 @@ const ModelWorkbench = lazy(() =>
     default: module.ModelWorkbench,
   })),
 );
+
+const CollisionOverlay = lazy(() => import('./components/ceremony/CollisionOverlay').then((module) => ({ default: module.CollisionOverlay })));
 
 interface NativeViewTransition {
   finished: Promise<void>;
@@ -374,13 +375,13 @@ export default function App() {
     [beginVoyage, chartIslands],
   );
 
-  // Collision founding: found a new island on a real isomorphism bridge.
+  // Publish the new local island only after the server acknowledges creation.
   const onCollide = useCallback(
-    (bridge: { formula: string; skeleton: { zh: string; en: string }; from: string; to: string }) => {
+    async (bridge: { formula: string; skeleton: { zh: string; en: string }; from: string; to: string }) => {
       const slug = `collide-${Date.now()}`;
       const name = `${bridge.formula} 之岛`;
       const qfocus = `${bridge.formula} · ${bridge.skeleton[lang]} · ${bridge.from} ↔ ${bridge.to}`;
-      void api.found({
+      const result = await api.found({
         slug,
         title: name,
         name,
@@ -391,11 +392,13 @@ export default function App() {
         ceremonyLog: ['collision'],
         actor,
       });
+      if (!result) return false;
       setFounded({ name, q: qfocus, slug });
       setCollideOn(false);
       showToast(t('collision.founded', { name }));
+      return true;
     },
-    [actor, showToast, t],
+    [actor, showToast, t, lang],
   );
 
   // Esc skips the shared-axis transition without reversing the user's choice.
@@ -742,7 +745,7 @@ export default function App() {
     recentResearchAction,
   }), [exploration.completedPassages, exploration.modelRuns, recentResearchAction, trailIslands]);
 
-  if (isMobile) return <MobileShell islands={chartIslands} initialIslandSlug={pendingLink} modelRuns={exploration.modelRuns} onRecordModelRun={recordModelRun} missionRuns={exploration.missionRuns} onRecordMissionRun={recordMissionRun} worldTrailEnabled={worldTrailEnabled} />;
+  if (isMobile) return <MobileShell islandNotes={exploration.notes} onIslandNote={(slug, text) => dispatchExploration({ type: 'write-note', slug, text })} islands={chartIslands} initialIslandSlug={pendingLink} modelRuns={exploration.modelRuns} onRecordModelRun={recordModelRun} missionRuns={exploration.missionRuns} onRecordMissionRun={recordMissionRun} worldTrailEnabled={worldTrailEnabled} />;
 
   const passageSource = exploration.passageIntent
     ? chartIslands.find((island) => island.slug === exploration.passageIntent?.islandSlug) ?? null
@@ -775,6 +778,9 @@ export default function App() {
                 <Suspense fallback={<div className="fi-island-loading-mark" role="status"><i aria-hidden="true" /><span>{t('island.loading')}</span></div>}>
                   <GeneratedIslandScreen
                     slug={selSlug}
+                    personalNote={exploration.notes[selSlug] ?? ''}
+                    onPersonalNote={(text) => dispatchExploration({ type: 'write-note', slug: selSlug, text })}
+                    onOpenModel={() => openModel({})}
                     night={night}
                     onToggleNight={() => setNight((v) => !v)}
                     onBack={goChart}
@@ -917,7 +923,7 @@ export default function App() {
           )}
 
           {collideOn && (
-            <CollisionOverlay onCollide={onCollide} onClose={() => setCollideOn(false)} />
+            <Suspense fallback={<div className="fi-model-overlay" role="status">{t('island.loading')}</div>}><CollisionOverlay onCollide={onCollide} onClose={() => setCollideOn(false)} onVisitIsland={(slug) => { const island = chartIslands.find((item) => item.slug === slug); if (island) { setCollideOn(false); beginVoyage(island); } }} /></Suspense>
           )}
 
           <Toast text={toast} on={toastOn} />

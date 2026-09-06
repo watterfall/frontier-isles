@@ -262,3 +262,9 @@ describe('claimIndexFromId', () => {
     expect(claimIndexFromId('claim:-1')).toBeNull();
   });
 });
+
+
+it('does not invent claim buildings when the ledger explicitly contains no claims', () => {
+  const graph = buildSceneGraph({...base, eventCount:100}, 0, []);
+  expect(graph.objects.filter(object => object.kind === 'claim')).toHaveLength(0);
+});

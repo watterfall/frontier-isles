@@ -270,6 +270,8 @@ export interface SceneObject extends Placed {
  * semantic slider (P4): `t = 0` published state, `t = 1` process/night state.
  */
 export interface SceneGraph {
+  /** Ordered station ids for this settlement’s walk; absent in legacy scenes. */
+  stationWalk?: readonly string[];
   size: { w: number; h: number };
   objects: SceneObject[];
   t: number;

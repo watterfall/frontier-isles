@@ -12,7 +12,7 @@ describe('ModelWorkbench', () => {
     expect(markup).toContain('每个对象能看到');
     expect(markup).toContain('每一步怎样改变');
     expect(markup).toContain('我观察');
-    expect(markup).toContain('运行前，先选你的预测');
+    expect(markup).toContain('也可以先猜一猜');
     expect(markup).toContain('哪里不能照搬');
     expect(markup).toContain('让调查者自己试、判断、修订');
     expect(markup).toContain('不会自动写入研究账本');

@@ -13,3 +13,14 @@ node_modules
 # Session scratch + heavy non-runtime dirs.
 scratchpad
 **/scratchpad
+# Local credentials, indexes and verification output are not runtime inputs.
+.env
+.env.*
+**/.env
+**/.env.*
+.verify
+.codegraph
+.claude/worktrees
+.impeccable/review
+**/test-results
+**/playwright-report

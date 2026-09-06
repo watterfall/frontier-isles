@@ -16,6 +16,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import {
   AtlasStage,
   type AtlasBearing,
+  type AtlasCameraPose,
   type AtlasDomain,
   type AtlasExplorerCurrent,
   type AtlasExplorerIsland,
@@ -163,10 +164,14 @@ const HUD_CARD_SELECTORS = [
   '.fi-global-controls',
 ] as const;
 
+// In-memory navigation bookmark: one atlas in this app, discarded on reload.
+let departurePose: AtlasCameraPose | null = null;
+
 export default function AtlasChartHost(props: AtlasChartHostProps) {
   const { islands, harbor, lens, connectionField } = props;
   const hostRef = useRef<HTMLDivElement | null>(null);
   const stageRef = useRef<AtlasStage | null>(null);
+  const pendingEnterRef = useRef<string | null>(null);
   // Latest callbacks in a ref so the boot effect (keyed only on `islands`,
   // which itself only changes when the reconciled list actually changes)
   // never re-runs just because a parent re-render passed new closures.
@@ -201,6 +206,7 @@ export default function AtlasChartHost(props: AtlasChartHostProps) {
     const host = hostRef.current;
     if (!host) return;
     let disposed = false;
+    let departing = false;
     let resizeObserver: ResizeObserver | null = null;
     let hudResync: (() => void) | null = null;
     let hudResyncQueued = false;
@@ -208,6 +214,7 @@ export default function AtlasChartHost(props: AtlasChartHostProps) {
     const stage = new AtlasStage();
     const byKey = new Map(islands.map((d) => [d.slug ?? `id-${d.id}`, d] as const));
 
+    stage.onDepart = pose => { if (!cbRef.current.exploreActive) { departurePose = pose; departing = true; } };
     stage.onPick = (slug) => {
       const d = byKey.get(slug);
       if (d) cbRef.current.onPick(d);
@@ -597,6 +604,7 @@ export default function AtlasChartHost(props: AtlasChartHostProps) {
           stage.setHarbor(view);
           stage.openAtHarbor();
         }
+        if (departurePose && !cbRef.current.exploreActive) stage.restoreCamera(departurePose);
         // A lens selected before the Pixi chunk finished booting applies now.
         const field = connectionFieldRef.current;
         const l = lensRef.current;
@@ -608,11 +616,21 @@ export default function AtlasChartHost(props: AtlasChartHostProps) {
           zoomIn: () => stage.zoomBy(1.24),
           zoomOut: () => stage.zoomBy(1 / 1.24),
           reset: () => stage.resetView(),
-          enter: (slug) => stage.enter(slug),
+          enter: (slug) => {
+            // A roster refresh may retire the stage while search remains usable.
+            const active = stageRef.current;
+            if (active) active.enter(slug);
+            else pendingEnterRef.current = slug;
+          },
           focusDomain: (domain) => stage.focusDomain(domain),
           focusAltitude: (band) => stage.focusAltitude(band),
           home: () => stage.returnToHarbor(),
         });
+        if (pendingEnterRef.current) {
+          const destination = pendingEnterRef.current;
+          pendingEnterRef.current = null;
+          stage.enter(destination);
+        }
         syncBearingInsets(stage, host);
         resizeObserver = new ResizeObserver(([entry]) => {
           if (!entry || disposed) return;
@@ -666,6 +684,7 @@ export default function AtlasChartHost(props: AtlasChartHostProps) {
       // No activeStage means init never completed — its chain's disposed
       // branch owns the release; disposing here would double-release.
       const activeStage = stageRef.current;
+      if (activeStage && !departing && !cbRef.current.exploreActive) departurePose = activeStage.cameraPose();
       if (activeStage) releasePixi = disposePixiStage(activeStage, releasePixi);
       stageRef.current = null;
     };

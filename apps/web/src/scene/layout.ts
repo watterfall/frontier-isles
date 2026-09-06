@@ -20,46 +20,20 @@ import type { ClaimState, StationKind } from '@frontier-isles/core';
 import type { Domain } from '@frontier-isles/data/frontiers';
 import {
   isoDepthKey,
+  worldToScreenElevated,
+  visibilityAt,
   type Growth,
   type SceneGraph,
   type SceneObject,
 } from '@frontier-isles/renderer';
 import { generate, type GenerateInput } from './generator';
+import { STATION_PLACES, stationPosition } from './stationSpatial';
 
 /** Island grid size in tiles (M1 fixed; M4 varies by island scale). */
 const GRID = 16;
 const CENTER = { gx: GRID / 2, gy: GRID / 2 };
 /** Ground disc radius — a rounded island, not a rectangle (real coast noise = M4). */
 const ISLAND_R = 7;
-
-/** Deterministic tile per station kind: a ring around the island centre. */
-const STATION_TILES: Record<StationKind, { gx: number; gy: number }> = {
-  questions: { gx: 8, gy: 4 },
-  workshop: { gx: 11, gy: 6 },
-  library: { gx: 12, gy: 9 },
-  data: { gx: 11, gy: 12 },
-  canvas: { gx: 8, gy: 12 },
-  gallery: { gx: 5, gy: 12 },
-  tearoom: { gx: 4, gy: 9 },
-  driftwood: { gx: 5, gy: 6 },
-  dock: { gx: 8, gy: 15 }, // on the shore, front-most
-};
-
-/** A restrained reuse of the original AI之问 campus grammar: large civic
- * buildings frame a readable central court on a bounded research platform.
- * Only selected flagship islands opt in; the organic grammar remains the
- * default so the archipelago does not collapse into one repeated template. */
-const COURTYARD_STATION_TILES: Record<StationKind, { gx: number; gy: number }> = {
-  questions: { gx: 11, gy: 5 },
-  workshop: { gx: 4, gy: 6 },
-  library: { gx: 7, gy: 3 },
-  data: { gx: 11, gy: 10 },
-  canvas: { gx: 6, gy: 8 },
-  gallery: { gx: 4, gy: 11 },
-  tearoom: { gx: 10, gy: 12 },
-  driftwood: { gx: 8, gy: 13 },
-  dock: { gx: 8, gy: 15 },
-};
 
 /**
  * Stele tiles — "steles before the Gallery" (architecture §4 Claims & evidence,
@@ -230,7 +204,7 @@ function variantSeed(id: string): number {
 }
 
 /** The input a layout needs — a superset of the generator's input. */
-export type LayoutInput = GenerateInput;
+export type LayoutInput = GenerateInput & { character?: import('./islandCharacter').IslandCharacter };
 
 /**
  * Parse a claim scene-object id (`claim:${i}`, pushed above) back to its index
@@ -271,7 +245,7 @@ export function buildSceneGraph(
   const scene = generate(input);
   const objects: SceneObject[] = [];
   const courtyard = input.layoutVariant === 'courtyard';
-  const stationTiles = courtyard ? COURTYARD_STATION_TILES : STATION_TILES;
+  const stationTiles = Object.fromEntries(Object.keys(STATION_PLACES).map((kind) => [kind, input.character?.positions[kind as StationKind] ?? stationPosition(kind as StationKind, input.layoutVariant)])) as Record<StationKind, { gx: number; gy: number }>;
   const claimTiles = courtyard ? COURTYARD_CLAIM_TILES : CLAIM_TILES;
   const landmarkTile = courtyard ? COURTYARD_LANDMARK_TILE : LANDMARK_TILE;
   const residentTiles = courtyard ? COURTYARD_RESIDENT_TILES : RESIDENT_TILES;
@@ -314,7 +288,7 @@ export function buildSceneGraph(
 
   // Claim buildings: from the ledger (projectClaimState, M4.3) if given, else synth.
   const claimSpecs: ClaimSpec[] =
-    claims && claims.length > 0
+    claims !== undefined
       ? claims.slice(0, claimTiles.length).map((c) => ({ floors: c.floors, roof: c.roof, ghost: c.ghost, hasDoi: c.hasDoi }))
       : Array.from({ length: Math.min(claimTiles.length, Math.floor((input.eventCount ?? 0) / 4)) }, (_, i) => {
           const f = Math.floor(variantSeed(`claim:${input.slug}:${i}`) * 4);
@@ -459,5 +433,20 @@ export function buildSceneGraph(
     });
   });
 
-  return { size: { w: GRID, h: GRID }, objects, t };
+  return { size: { w: GRID, h: GRID }, objects, t, ...(input.character ? { stationWalk: input.character.walk.map(kind => `station:${kind}`) } : {}) };
+}
+
+/** Pick the frontmost actual research object in world coordinates. The DOM
+ * gesture and the render share this geometry, including after camera pans. */
+export function researchObjectAt(graph: SceneGraph, x: number, y: number): string | null {
+  const candidates = graph.objects.filter(o => o.layer === 'world' && visibilityAt(o,graph.t)>0 && (o.kind.startsWith('station:') || o.kind === 'claim')).sort((a,b) => b.depthKey-a.depthKey);
+  for (const object of candidates) {
+    const p = worldToScreenElevated(object.gx+.5,object.gy+.5,object.elevation);
+    const station = object.kind.startsWith('station:');
+    const halfWidth = station ? 80 : 25;
+    const top = station ? 135 : (object.height ?? 30)+16;
+    const bottom = station ? 35 : 12;
+    if (x>=p.x-halfWidth && x<=p.x+halfWidth && y>=p.y-top && y<=p.y+bottom) return object.id;
+  }
+  return null;
 }

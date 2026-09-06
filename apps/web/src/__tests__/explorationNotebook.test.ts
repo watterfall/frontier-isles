@@ -79,6 +79,15 @@ function memoryStorage(initial: string | null = null): StorageLike & { value: st
 }
 
 describe('exploration field notebook persistence', () => {
+  it('keeps observation-first model runs without inventing a prediction or boundary', () => {
+    const observed = { ...modelRun, prediction: null, boundary: '' };
+    const session = explorationReducer(initialExplorationSession(), { type: 'record-model-run', receipt: observed });
+    const storage = memoryStorage();
+    expect(saveExplorationNotebook(session, storage)).toBe(true);
+    const restored = loadExplorationNotebook(storage);
+    expect(restored.modelRuns).toEqual([observed]);
+    expect(explorationNotebookMarkdown(restored, islands, 'en')).toContain('No prior prediction');
+  });
   it('round-trips durable research while resetting navigation to the atlas', () => {
     let session = explorationReducer(initialExplorationSession(), { type: 'enter-world', pose });
     session = explorationReducer(session, { type: 'set-course', slug: 'a' });

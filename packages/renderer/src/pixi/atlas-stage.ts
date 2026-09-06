@@ -572,6 +572,7 @@ export class AtlasStage {
   hudObstacles: LabelObstacle[] = [];
   onMetrics?: (m: AtlasMetrics) => void;
   onPick?: (slug: string) => void;
+  onDepart?: (pose: AtlasCameraPose) => void;
   /** Pointer entered/left an island sprite (`null` on leave). Mirrors the SVG
    * L0's mouseenter/mouseleave — the host uses this to show the same hover
    * island-card the flat chart shows, positioned from `scale`/`worldRoot`
@@ -815,10 +816,15 @@ export class AtlasStage {
     const fill = o.dormant ? 0xd8d3c2 : ATLAS_DOMAIN_FILL[o.domain];
     traceSmoothClosed(gfx, pts);
     gfx.fill({ color: fill }).stroke({ color: ATLAS_DOMAIN_INK[o.domain], width: 2, alpha: 0.85 });
-    // One inner contour makes the mound read as terrain, not a flat coloured blob.
-    const inner = pts.map((v, i) => v * (i % 2 === 0 ? 0.78 : 0.7) - (i % 2 === 0 ? 0 : 2));
-    traceSmoothClosed(gfx, inner);
-    gfx.stroke({ color: ATLAS_DOMAIN_INK[o.domain], width: 0.75, alpha: 0.28 });
+    // Nested landforms share the exact coastal fingerprint. Baked into the
+    // existing texture: richer close-range relief with no extra frame work.
+    // These are cartographic contours, not research quality or activity scores.
+    for (const [index, scale] of [0.82, 0.64, 0.46, 0.28].entries()) {
+      const inner = pts.map((v, i) => v * (i % 2 === 0 ? scale : scale * 0.90) - (i % 2 === 0 ? index * 0.6 : 2 + index * 1.6));
+      traceSmoothClosed(gfx, inner);
+      if (index === 1) gfx.fill({ color: 0xfaf5e8, alpha: 0.13 });
+      gfx.stroke({ color: ATLAS_DOMAIN_INK[o.domain], width: index === 0 ? 0.8 : 0.6, alpha: 0.32 - index * 0.035 });
+    }
     const shadow = new Graphics().ellipse(0, depth + r * 0.38, r * 0.72, r * 0.18).fill({ color: 0x3a3024, alpha: 0.12 });
     const bake = new Container();
     const water = new Graphics();
@@ -1335,6 +1341,13 @@ export class AtlasStage {
       centerY: (this.app.screen.height / 2 - this.worldRoot.y) / scale,
       scale,
     };
+  }
+
+  /** Restore the observation point before an island visit, including late harbor loads. */
+  restoreCamera(pose: AtlasCameraPose): void {
+    this.touched = true;
+    this.cancelCameraMotion();
+    this.seekCamera(pose, true);
   }
 
   /** Compute (without moving) the canonical whole-world composition. */
@@ -2538,6 +2551,7 @@ export class AtlasStage {
 
   resize(width: number, height: number): void {
     if (!this.app || width < 1 || height < 1) return;
+    const previous = this.cameraPose();
     this.app.renderer.resize(width, height);
     if (this.exploreActive && this.explorerPose) {
       const target = this.cameraTarget(this.defaultExplorerCamera(this.explorerPose));
@@ -2547,7 +2561,8 @@ export class AtlasStage {
         this.worldRoot.scale.set(target.scale);
         this.requestFrame(true);
       }
-    } else this.resetView();
+    } else if (this.touched && previous) this.seekCamera(previous, true);
+    else this.resetView();
     // Keep the harbor opening composition through the boot-time
     // ResizeObserver tick (observe() fires once immediately) and honest
     // window resizes alike — but never wrestle a camera the visitor has
@@ -2613,6 +2628,8 @@ export class AtlasStage {
   /** Tapped an island: fly to it, THEN fire `onPick` — the camera converges
    *  on the island before App reveals L1 from the same optical centre. */
   private flyToIsland(o: AtlasIslandInput): void {
+    const departure = this.cameraPose();
+    if (departure) this.onDepart?.(departure);
     this.flyToPoint(o.x, projectIslandY(o), this.nearTargetScale(), () => this.onPick?.(o.slug));
   }
 

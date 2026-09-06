@@ -19,7 +19,7 @@ void i18n.use(initReactI18next).init({
 const stations = ['dock', 'tearoom', 'questions', 'canvas', 'library', 'data', 'workshop', 'driftwood', 'gallery'] as const;
 
 describe('IslandDistrictMap', () => {
-  it('renders decorative cartography and a complete interactive list twin with real building depth', () => {
+  it('offers purpose-based wayfinding and directly reachable building destinations', () => {
     const activeStructure = fallbackStructures()[0]!;
     const projection = projectIslandDistricts({
       slug: 'formal-math',
@@ -43,7 +43,7 @@ describe('IslandDistrictMap', () => {
     const markup = renderToStaticMarkup(
       <IslandDistrictMap
         projection={projection}
-        plans={[dockPlan]}
+        plans={stations.map(station => projectBuildingFloors({ station, qfocus:{zh:'问题',en:'Question'} }))}
         visitedFloors={{ dock: ['dock:ground'] }}
         activeStructure={activeStructure}
         lang="zh"
@@ -53,11 +53,10 @@ describe('IslandDistrictMap', () => {
     );
 
     expect(markup).toContain('data-testid="island-district-map"');
-    expect(markup).toContain('fi-district-cartography" aria-hidden="true"');
-    expect(markup).toContain(`aria-label="${zh.island.district.listLabel}"`);
-    expect(markup).toContain(activeStructure.title.zh);
-    expect(markup).toContain('连接工作台');
-    expect(markup).toContain(zh.island.district.visitedFloors.replace('{{count}}', '1'));
-    expect(markup).toMatch(/data-state="sealed"[^>]*><button[^>]*disabled/);
+    expect(markup).toContain('按研究用途寻找建筑');
+    expect(markup).toContain('data-station-row="questions"');
+    expect(markup).toContain('data-station-row="canvas"');
+    expect(markup).not.toContain('disabled');
+    expect(markup).not.toContain('已访问');
   });
 });

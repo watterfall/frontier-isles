@@ -1,0 +1,991 @@
+{
+  "datasetVersion": "xf-e3e450f3fa16",
+  "serverVersion": "0.9.0",
+  "retrievedAt": "2026-09-06T04:26:55.671Z",
+  "questions": [
+    {
+      "id": "GQ-life-origin",
+      "q": "生命如何、在哪里、为何起源？",
+      "q_en": "How, where, and why did life originate?",
+      "clusters": [
+        "C01",
+        "C40",
+        "C30",
+        "C29",
+        "C37",
+        "C31"
+      ]
+    },
+    {
+      "id": "GQ-what-is-life",
+      "q": "什么是生命，它有没有一个统一的定义？",
+      "q_en": "What is life, and is there a unified definition of it?",
+      "clusters": [
+        "C01",
+        "C40",
+        "C37",
+        "C32",
+        "C02",
+        "C31"
+      ]
+    },
+    {
+      "id": "GQ-are-we-alone",
+      "q": "我们在宇宙中孤独吗？",
+      "q_en": "Are we alone in the universe?",
+      "clusters": [
+        "C40",
+        "C05",
+        "C18",
+        "C29",
+        "C37",
+        "C34"
+      ]
+    },
+    {
+      "id": "GQ-mortality",
+      "q": "衰老与死亡是必然的吗？",
+      "q_en": "Are aging and death inevitable?",
+      "clusters": [
+        "C25",
+        "C01",
+        "C30"
+      ]
+    },
+    {
+      "id": "GQ-consciousness-hard-problem",
+      "q": "意识为何、如何从物质中产生（意识的「硬问题」）？",
+      "q_en": "Why and how does consciousness arise from matter (the hard problem)?",
+      "clusters": [
+        "C32",
+        "C11",
+        "C03",
+        "C02",
+        "C21"
+      ]
+    },
+    {
+      "id": "GQ-intelligence-emergence",
+      "q": "智能与智慧如何从物质中诞生，它们的演化是否遵循可被重复发现的规律？",
+      "q_en": "How do intelligence and wisdom arise from matter — and does their evolution follow laws we could rediscover?",
+      "clusters": [
+        "C11",
+        "C03",
+        "C21",
+        "C02",
+        "C14",
+        "C32"
+      ]
+    },
+    {
+      "id": "GQ-memory",
+      "q": "几十年的记忆如何被储存进一团脑组织，又如何在一瞬间被精准提取？",
+      "q_en": "How is a lifetime of memory stored in a lump of brain tissue — and retrieved, precisely, in an instant?",
+      "clusters": [
+        "C11",
+        "C32",
+        "C02",
+        "C08",
+        "C09"
+      ]
+    },
+    {
+      "id": "GQ-free-will",
+      "q": "自由意志存在吗？",
+      "q_en": "Does free will exist?",
+      "clusters": [
+        "C32",
+        "C11",
+        "C03",
+        "C14",
+        "C33"
+      ]
+    },
+    {
+      "id": "GQ-dark-matter",
+      "q": "暗物质究竟是什么——是一种看不见的新粒子，还是我们把引力定律写错了？",
+      "q_en": "What is dark matter — an unseen new kind of particle, or a sign we have written the law of gravity wrong?",
+      "clusters": [
+        "C33",
+        "C15",
+        "C29",
+        "C36",
+        "C39"
+      ]
+    },
+    {
+      "id": "GQ-dark-energy-fate",
+      "q": "暗能量是什么，宇宙最终将如何终结？",
+      "q_en": "What is dark energy, and how will the universe end?",
+      "clusters": [
+        "C33",
+        "C31",
+        "C29",
+        "C36",
+        "C39"
+      ]
+    },
+    {
+      "id": "GQ-universe-origin",
+      "q": "时间、空间与物质本身从何而来，一个「开端」如何可能凭空出现？",
+      "q_en": "Where do time, space, and matter themselves come from — and how can a \"beginning\" arise at all?",
+      "clusters": [
+        "C33",
+        "C31",
+        "C15",
+        "C29",
+        "C23"
+      ]
+    },
+    {
+      "id": "GQ-arrow-of-time",
+      "q": "时间是什么，它为何只朝一个方向流动？",
+      "q_en": "What is time, and why does it have a direction?",
+      "clusters": [
+        "C33",
+        "C31",
+        "C15",
+        "C23",
+        "C32"
+      ]
+    },
+    {
+      "id": "GQ-quantum-gravity",
+      "q": "描述微观的量子论与描述时空的引力论各自精准却互相矛盾，它们能被缝成一套理论吗？",
+      "q_en": "Quantum theory (the very small) and gravity (spacetime) are each precise yet mutually contradictory — can they be sewn into one theory?",
+      "clusters": [
+        "C33",
+        "C15",
+        "C31",
+        "C23",
+        "C16"
+      ]
+    },
+    {
+      "id": "GQ-final-theory",
+      "q": "自然有没有一个最终的、统一的理论？",
+      "q_en": "Is there a final, unified theory of nature?",
+      "clusters": [
+        "C33",
+        "C23",
+        "C15",
+        "C31",
+        "C34"
+      ]
+    },
+    {
+      "id": "GQ-fine-tuning",
+      "q": "物理常数为何恰好如此，使宇宙能容纳生命（精细调节）？",
+      "q_en": "Why are the physical constants fine-tuned so the universe can host life?",
+      "clusters": [
+        "C33",
+        "C31",
+        "C40",
+        "C34",
+        "C23"
+      ]
+    },
+    {
+      "id": "GQ-effectiveness-of-math",
+      "q": "数学为何能如此「不合理地」有效地描述自然？",
+      "q_en": "Why is mathematics so unreasonably effective at describing nature?",
+      "clusters": [
+        "C23",
+        "C33",
+        "C41",
+        "C31",
+        "C03",
+        "C38"
+      ]
+    },
+    {
+      "id": "GQ-limits-of-computation",
+      "q": "计算有没有根本极限（P 是否等于 NP）？",
+      "q_en": "Are there fundamental limits to computation (does P = NP)?",
+      "clusters": [
+        "C23",
+        "C15",
+        "C31",
+        "C03",
+        "C16"
+      ]
+    },
+    {
+      "id": "GQ-cooperation",
+      "q": "在人人自利的世界里，合作为何能演化出来？",
+      "q_en": "Why does cooperation evolve in a world of self-interest?",
+      "clusters": [
+        "C14",
+        "C19",
+        "C01",
+        "C30",
+        "C22",
+        "C20"
+      ]
+    },
+    {
+      "id": "GQ-human-machine-coevolution",
+      "q": "人与机器将如何共同演化？",
+      "q_en": "How will humans and machines co-evolve?",
+      "clusters": [
+        "C21",
+        "C03",
+        "C32",
+        "C22",
+        "C04",
+        "C28"
+      ]
+    },
+    {
+      "id": "GQ-limits-of-knowable",
+      "q": "有没有一些真理，因逻辑、宇宙视界或计算代价而被永远挡在认知之外？",
+      "q_en": "Are there truths permanently beyond reach — barred by logic, by the cosmic horizon, or by computational cost?",
+      "clusters": [
+        "C34",
+        "C32",
+        "C33",
+        "C23",
+        "C35",
+        "C28"
+      ]
+    },
+    {
+      "id": "GQ-collapse",
+      "q": "文明能否预测并避免自身的崩溃？",
+      "q_en": "Can a civilization predict and avoid its own collapse?",
+      "clusters": [
+        "C13",
+        "C14",
+        "C28",
+        "C29",
+        "C19",
+        "C22"
+      ]
+    },
+    {
+      "id": "GQ-unknown-unknowns",
+      "q": "我们如何发现「未知的未知」？",
+      "q_en": "How do we discover the unknown unknowns?",
+      "clusters": [
+        "C34",
+        "C36",
+        "C35",
+        "C38",
+        "C39",
+        "C41"
+      ]
+    },
+    {
+      "id": "GQ-it-from-bit",
+      "q": "信息是不是比物质更基础（万物源于比特）？",
+      "q_en": "Is information more fundamental than matter (it from bit)?",
+      "clusters": [
+        "C33",
+        "C08",
+        "C31",
+        "C15",
+        "C23",
+        "C32"
+      ]
+    },
+    {
+      "id": "GQ-automating-discovery",
+      "q": "科学发现能被自动化到什么程度，人类不可替代的内核是什么？",
+      "q_en": "How far can scientific discovery be automated, and what is the irreplaceable human core?",
+      "clusters": [
+        "C04",
+        "C03",
+        "C28",
+        "C21",
+        "C22",
+        "C35"
+      ]
+    },
+    {
+      "id": "GQ-how-many-irreversible-tipping-points-hide",
+      "q": "地球气候系统藏着多少不可逆的临界点，跨过去之后还能回头吗？",
+      "q_en": "How many irreversible tipping points hide in Earth's climate, and can we turn back after crossing one?",
+      "clusters": [
+        "C13",
+        "C29",
+        "C14",
+        "C05",
+        "C09",
+        "C36"
+      ]
+    },
+    {
+      "id": "GQ-how-is-a-string-of-dna",
+      "q": "一串 DNA 字母如何被「读」成一个完整的身体，从基因型到表型的映射有没有可破译的规律？",
+      "q_en": "How is a string of DNA letters read into a whole body, and is the genotype-to-phenotype map decipherable?",
+      "clusters": [
+        "C01",
+        "C03",
+        "C09",
+        "C37",
+        "C14",
+        "C24",
+        "C54"
+      ]
+    },
+    {
+      "id": "GQ-is-information-physical-and-why-must",
+      "q": "信息有没有物理实体，擦除一个比特为何必须付出热的代价？",
+      "q_en": "Is information physical, and why must erasing a single bit cost heat?",
+      "clusters": [
+        "C31",
+        "C33",
+        "C15",
+        "C08",
+        "C17",
+        "C23"
+      ]
+    },
+    {
+      "id": "GQ-why-is-more-different-and-how",
+      "q": "为什么「多」会变得「不同」，全新的规律如何从简单部件的堆叠中涌现？",
+      "q_en": "Why is more different, and how do brand-new laws emerge from simply stacking simple parts?",
+      "clusters": [
+        "C14",
+        "C31",
+        "C33",
+        "C01",
+        "C32",
+        "C16"
+      ]
+    },
+    {
+      "id": "GQ-turbulence-the-oldest-unsolved-problem-of",
+      "q": "湍流——经典物理最古老的未解之谜——能否被真正理解和预测？",
+      "q_en": "Turbulence, the oldest unsolved problem of classical physics, can it ever be understood and predicted?",
+      "clusters": [
+        "C14",
+        "C31",
+        "C23",
+        "C03",
+        "C09",
+        "C29"
+      ]
+    },
+    {
+      "id": "GQ-why-is-the-universe-made-of",
+      "q": "为什么宇宙里有物质而几乎没有反物质，我们存在本身从何而来？",
+      "q_en": "Why is the universe made of matter and almost no antimatter, and where does our very existence come from?",
+      "clusters": [
+        "C33",
+        "C15",
+        "C29",
+        "C36",
+        "C31"
+      ]
+    },
+    {
+      "id": "GQ-why-does-evolution-keep-crossing-major",
+      "q": "演化为何会一次次跨越「重大转变」，从单细胞走向多细胞、从个体走向社会，复杂性是必然还是侥幸？",
+      "q_en": "Why does evolution keep crossing major transitions, from single cells to bodies to societies, and is rising complexity inevitable or a fluke?",
+      "clusters": [
+        "C01",
+        "C14",
+        "C30",
+        "C40",
+        "C22",
+        "C19",
+        "C54"
+      ]
+    },
+    {
+      "id": "GQ-does-the-economy-obey-discoverable-laws",
+      "q": "经济有没有可被发现的「定律」，繁荣、泡沫与崩盘究竟能不能被预测？",
+      "q_en": "Does the economy obey discoverable laws, and can booms, bubbles, and crashes actually be predicted?",
+      "clusters": [
+        "C14",
+        "C19",
+        "C22",
+        "C09",
+        "C03",
+        "C28"
+      ]
+    },
+    {
+      "id": "GQ-why-is-there-something-rather-than",
+      "q": "为什么存在「有」，而不是一无所有？",
+      "q_en": "Why is there something rather than nothing?",
+      "clusters": [
+        "C33",
+        "C32",
+        "C34"
+      ]
+    },
+    {
+      "id": "GQ-when-a-black-hole-evaporates-is",
+      "q": "黑洞蒸发时，掉进去的信息是被永久抹去，还是悄悄逃了出来（黑洞信息悖论）？",
+      "q_en": "When a black hole evaporates, is the information that fell in destroyed forever, or does it secretly escape (the black-hole information paradox)?",
+      "clusters": [
+        "C33",
+        "C31",
+        "C15"
+      ]
+    },
+    {
+      "id": "GQ-was-there-a-before-the-big",
+      "q": "大爆炸之前有没有「之前」，暴胀真的发生过吗？",
+      "q_en": "Was there a before the Big Bang, and did cosmic inflation really happen?",
+      "clusters": [
+        "C33",
+        "C18",
+        "C34"
+      ]
+    },
+    {
+      "id": "GQ-is-the-universe-finite-or-infinite",
+      "q": "宇宙是有限的还是无限的，它的整体形状是什么？",
+      "q_en": "Is the universe finite or infinite, and what is its overall shape?",
+      "clusters": [
+        "C33",
+        "C18",
+        "C23"
+      ]
+    },
+    {
+      "id": "GQ-where-did-the-genetic-code-come",
+      "q": "遗传密码从何而来，把三联码翻译成氨基酸的这套规则是必然、冻结的偶然，还是被优化出来的？",
+      "q_en": "Where did the genetic code come from, and is the rule that maps triplets to amino acids a necessity, a frozen accident, or an optimized choice?",
+      "clusters": [
+        "C01",
+        "C40",
+        "C08"
+      ]
+    },
+    {
+      "id": "GQ-how-does-a-single-fertilized-egg",
+      "q": "一颗受精卵如何知道该在哪里长出眼睛、心脏和手指，把自己折叠成一个有形的身体（形态发生）？",
+      "q_en": "How does a single fertilized egg know where to grow eyes, a heart, and fingers, folding itself into a shaped body (morphogenesis)?",
+      "clusters": [
+        "C01",
+        "C14",
+        "C09",
+        "C54"
+      ]
+    },
+    {
+      "id": "GQ-given-that-sex-is-costly-and",
+      "q": "既然有性繁殖代价高昂、还要花一半资源生出不能生育的雄性，它为何能演化出来并主宰了生命世界？",
+      "q_en": "Given that sex is costly and wastes half the effort on males who bear no young, why did it evolve and come to dominate life?",
+      "clusters": [
+        "C01",
+        "C30",
+        "C14",
+        "C54"
+      ]
+    },
+    {
+      "id": "GQ-what-triggers-earth-s-mass-extinctions",
+      "q": "是什么触发了地球历史上的大灭绝，我们正在制造的「第六次大灭绝」会走到哪一步？",
+      "q_en": "What triggers Earth's mass extinctions, and how far will the sixth one we are now causing go?",
+      "clusters": [
+        "C29",
+        "C13",
+        "C30"
+      ]
+    },
+    {
+      "id": "GQ-can-earthquakes-be-predicted-at-all",
+      "q": "地震到底能不能被预测，还是说它在原理上就不可预报？",
+      "q_en": "Can earthquakes be predicted at all, or are they unpredictable in principle?",
+      "clusters": [
+        "C29",
+        "C14",
+        "C05"
+      ]
+    },
+    {
+      "id": "GQ-is-mathematics-invented-by-humans-or",
+      "q": "数学是被人类发明的，还是本就存在、等着被发现？",
+      "q_en": "Is mathematics invented by humans, or does it exist independently, waiting to be discovered?",
+      "clusters": [
+        "C23",
+        "C32",
+        "C34"
+      ]
+    },
+    {
+      "id": "GQ-is-the-riemann-hypothesis-true-do",
+      "q": "黎曼猜想成立吗——素数的分布是否真的隐藏着一条完美的秩序？",
+      "q_en": "Is the Riemann hypothesis true — do the primes really hide a perfect underlying order?",
+      "clusters": [
+        "C23",
+        "C03",
+        "C34"
+      ]
+    },
+    {
+      "id": "GQ-do-the-undecidability-results-of-goedel",
+      "q": "哥德尔与图灵的不可判定性会不会给物理学本身划下根本极限，让有些物理问题原则上就无法计算？",
+      "q_en": "Do the undecidability results of Goedel and Turing set fundamental limits on physics itself, making some physical questions uncomputable in principle?",
+      "clusters": [
+        "C23",
+        "C33",
+        "C34"
+      ]
+    },
+    {
+      "id": "GQ-why-do-we-sleep-what-do",
+      "q": "我们为什么要睡觉——把人生三分之一交给一种危险又无防备的状态，到底换来了什么？",
+      "q_en": "Why do we sleep — what do we gain by surrendering a third of life to a dangerous, defenseless state?",
+      "clusters": [
+        "C11",
+        "C32",
+        "C25",
+        "C55"
+      ]
+    },
+    {
+      "id": "GQ-where-did-language-come-from-what",
+      "q": "语言从何而来——是什么让人类独有了能从有限词汇生成无限句子的能力？",
+      "q_en": "Where did language come from — what gave humans alone the power to generate infinite sentences from finite words?",
+      "clusters": [
+        "C11",
+        "C19",
+        "C26"
+      ]
+    },
+    {
+      "id": "GQ-how-is-the-quantum-measurement-problem",
+      "q": "量子的「测量问题」如何解决——一旦我们去看,叠加的可能性为何瞬间塌缩成唯一的现实？",
+      "q_en": "How is the quantum measurement problem solved — why, the moment we look, does a superposition of possibilities collapse into a single reality?",
+      "clusters": [
+        "C33",
+        "C15",
+        "C32"
+      ]
+    },
+    {
+      "id": "GQ-what-is-the-mechanism-of-high",
+      "q": "高温超导的机制到底是什么——为什么某些材料能在远高于预期的温度下让电流毫无阻力地流动？",
+      "q_en": "What is the mechanism of high-temperature superconductivity — why do some materials carry current with zero resistance far above the temperatures theory expects?",
+      "clusters": [
+        "C33",
+        "C15",
+        "C17"
+      ]
+    },
+    {
+      "id": "GQ-how-does-a-protein-fold-from",
+      "q": "蛋白质如何在一瞬间从一维序列自动折叠成精确的三维形状,这套「折叠密码」能被破译吗？",
+      "q_en": "How does a protein fold from a one-dimensional sequence into its exact three-dimensional shape in an instant, and can this folding code be cracked?",
+      "clusters": [
+        "C01",
+        "C03",
+        "C31"
+      ]
+    },
+    {
+      "id": "GQ-what-sustains-biodiversity-why-can-hundreds",
+      "q": "是什么维系着生物多样性——为什么成百上千个物种能在有限的资源里长期共存而不互相淘汰？",
+      "q_en": "What sustains biodiversity — why can hundreds of competing species coexist on limited resources for the long run instead of driving each other extinct?",
+      "clusters": [
+        "C30",
+        "C29",
+        "C14"
+      ]
+    },
+    {
+      "id": "GQ-can-we-design-and-write-a",
+      "q": "我们能否设计并「写」出一整套基因组，让一个选定的生物按我们的意图运行？",
+      "q_en": "Can we design and write a whole genome that programs a chosen organism to our intent?",
+      "clusters": [
+        "C01",
+        "C06",
+        "C03",
+        "C04",
+        "C24"
+      ]
+    },
+    {
+      "id": "GQ-can-matter-be-made-fully-programmable",
+      "q": "物质能否跨越所有尺度变得完全可编程，像写软件一样写出它的形状与性能？",
+      "q_en": "Can matter be made fully programmable across scales, so its shape and properties are written like software?",
+      "clusters": [
+        "C16",
+        "C06",
+        "C08",
+        "C31",
+        "C17"
+      ]
+    },
+    {
+      "id": "GQ-is-there-a-theory-that-explains",
+      "q": "有没有一套理论，能解释学习系统——无论是大脑还是机器——何时以及为何能举一反三？",
+      "q_en": "Is there a theory that explains when and why learning systems, brains and machines alike, generalize?",
+      "clusters": [
+        "C03",
+        "C11",
+        "C23",
+        "C21",
+        "C14"
+      ]
+    },
+    {
+      "id": "GQ-can-large-scale-social-systems-be",
+      "q": "我们能否预测并引导大规模社会系统，却不因此抹杀个体的自主性？",
+      "q_en": "Can large-scale social systems be predicted and steered without eliminating individual agency?",
+      "clusters": [
+        "C14",
+        "C19",
+        "C28",
+        "C22",
+        "C09"
+      ]
+    },
+    {
+      "id": "GQ-can-we-measure-whether-consciousness-or",
+      "q": "我们能否在与我们截然不同的系统里，测量出意识或主观体验是否存在？",
+      "q_en": "Can we measure whether consciousness or experience exists in systems unlike us?",
+      "clusters": [
+        "C32",
+        "C26",
+        "C40",
+        "C11",
+        "C02"
+      ]
+    }
+  ],
+  "collisions": [
+    {
+      "a": "GQ-consciousness-hard-problem",
+      "b": "GQ-is-there-a-theory-that-explains",
+      "shared": "两者都在问：一堆局部过程在什么条件下融成一个整体——主观体验的统一，与从特例到通则的泛化。",
+      "shared_en": "Both ask when a swarm of local processes fuses into one whole — the unity of experience vs generalizing from instances to a rule.",
+      "synthesis": "第一人称的「体验统一」与机器的「举一反三」，是否依赖同一种「信息整合」越过某个阈值？",
+      "synthesis_en": "Do the unity of first-person experience and a machine’s leap from examples to a rule both hinge on integrated information crossing one threshold?"
+    },
+    {
+      "a": "GQ-effectiveness-of-math",
+      "b": "GQ-consciousness-hard-problem",
+      "shared": "一边是客观世界为何能被抽象符号精准描述，一边是主观体验为何能从客观物质里冒出——都横跨主客之裂。",
+      "shared_en": "One side: why the objective world yields to abstract symbols. The other: why subjective experience arises from objective matter. Both straddle the subject–object rift.",
+      "synthesis": "宇宙既能被数学完全描述、又能从内部「被体验」，这两件「过于巧合」的事，会不会指向同一个未知前提？",
+      "synthesis_en": "The universe is exactly describable by math, and is also experienced from inside — could these two “too lucky” facts point to one unknown premise?"
+    },
+    {
+      "a": "GQ-limits-of-knowable",
+      "b": "GQ-free-will",
+      "shared": "不可判定性说「有些结局原则上算不出」，自由意志问「未来是否被前因定死」——都关乎未来是否已被封进现在。",
+      "shared_en": "Undecidability says some outcomes can’t be computed in principle; free will asks whether the future is fixed by the past — both about whether the future is already sealed in the present.",
+      "synthesis": "若有些事在原理上不可计算，未来对宇宙自身也是「未写定」的——这是否给自由意志留了一道逻辑的缝？",
+      "synthesis_en": "If some outcomes are uncomputable even in principle, the future is unwritten even to the universe — does that leave a logical gap for free will?"
+    },
+    {
+      "a": "GQ-how-does-a-protein-fold-from",
+      "b": "GQ-limits-of-computation",
+      "shared": "找蛋白质的最低能量构象是已知的 NP 难问题，可它毫秒折好——自然像是在「免费」解一道难题。",
+      "shared_en": "Finding a protein’s minimum-energy fold is NP-hard, yet it happens in milliseconds — nature seems to solve a hard problem “for free.”",
+      "synthesis": "蛋白质毫秒折叠、晶体退火、量子系统寻基态——自然是不是在物理上「绕过」了我们以为不可高效求解的难题？",
+      "synthesis_en": "Proteins fold in milliseconds, crystals anneal, quantum systems find ground states — is nature physically “bypassing” problems we deem intractable?"
+    },
+    {
+      "a": "GQ-dark-matter",
+      "b": "GQ-what-is-life",
+      "shared": "都是「只能通过它做了什么、而非它是什么来认出它」——暗物质靠引力足迹，生命靠它的行为。",
+      "shared_en": "Both are known only by what they do, not what they are — dark matter by its gravitational footprint, life by its behavior.",
+      "synthesis": "如果暗物质与生命都只能「凭效果」而非「凭定义」来辨认，那「凭效果定义存在」本身是不是一种更深的科学方法？",
+      "synthesis_en": "If we identify both dark matter and life only by effect, not definition, is “defining existence by its effects” itself a deeper method?"
+    },
+    {
+      "a": "GQ-turbulence-the-oldest-unsolved-problem-of",
+      "b": "GQ-consciousness-hard-problem",
+      "shared": "两者都是跨尺度、强耦合、拒绝被还原成零件的涌现现象。",
+      "shared_en": "Both are cross-scale, strongly-coupled emergent phenomena that refuse reduction to their parts.",
+      "synthesis": "意识会不会是一种「神经湍流」——一种跨尺度、自相似、无法从单个神经元推出的动力学相？",
+      "synthesis_en": "Could consciousness be a kind of “neural turbulence” — a cross-scale, self-similar dynamical phase no single neuron implies?"
+    },
+    {
+      "a": "GQ-how-is-the-quantum-measurement-problem",
+      "b": "GQ-free-will",
+      "shared": "量子测量问「叠加为何塌缩成唯一现实」，自由意志问「一个确定的脑如何做出真正的选择」——都在追问「确定 vs 开放」（注：二者的关联本身有争议）。",
+      "shared_en": "Measurement asks why superposition collapses to one reality; free will asks how a determinate brain truly chooses — both probe “determinate vs open” (their link is itself contested).",
+      "synthesis": "量子的不确定与「选择」之间，究竟是真有因果联系，还是我们把两种不同的「开放性」混为一谈了？",
+      "synthesis_en": "Between quantum indeterminacy and “choice,” is there a real causal link — or are we conflating two different kinds of openness?"
+    },
+    {
+      "a": "GQ-it-from-bit",
+      "b": "GQ-when-a-black-hole-evaporates-is",
+      "shared": "若实在以信息为本，黑洞「能否抹掉信息」就成了「实在能否被删除」的终极测试。",
+      "shared_en": "If reality is information at bottom, whether a black hole can erase information becomes the ultimate test of whether reality can be deleted.",
+      "synthesis": "黑洞信息悖论是否其实是「万物源于比特」的判决性实验——宇宙到底允不允许信息被彻底抹去？",
+      "synthesis_en": "Is the black-hole information paradox the decisive test of “it from bit” — does the universe permit information to be truly erased?"
+    },
+    {
+      "a": "GQ-does-the-economy-obey-discoverable-laws",
+      "b": "GQ-turbulence-the-oldest-unsolved-problem-of",
+      "shared": "都是高维、强反馈、跨尺度的混沌系统，精确预测在原理上就极难。",
+      "shared_en": "Both are high-dimensional, strongly-feedback, cross-scale chaotic systems where precise prediction is hard in principle.",
+      "synthesis": "金融崩盘与湍流是否服从同一类「临界级联」数学——若是，经济的不可预测就不是缺数据，而是本质？",
+      "synthesis_en": "Do market crashes and turbulence obey the same critical-cascade math — if so, the economy’s unpredictability is fundamental, not a data gap?"
+    },
+    {
+      "a": "GQ-where-did-the-genetic-code-come",
+      "b": "GQ-effectiveness-of-math",
+      "shared": "遗传密码是「冻结的偶然」却出奇地抗错最优；数学是「凭空发明」却出奇地有效——两个「不该这么好」的映射。",
+      "shared_en": "The genetic code is a “frozen accident” yet near-optimally error-robust; math is “invented” yet uncannily effective — two mappings that are “too good.”",
+      "synthesis": "遗传密码的近乎最优，与数学的「不合理有效」，会不会都是「被选择/被筛出的映射」这同一回事？",
+      "synthesis_en": "The genetic code’s near-optimality and math’s “unreasonable effectiveness” — are both just “a mapping that got selected/filtered”?"
+    },
+    {
+      "a": "GQ-mortality",
+      "b": "GQ-why-does-evolution-keep-crossing-major",
+      "shared": "重大转变需要部件「为整体牺牲」；程序性死亡正是细胞为身体让位——死亡或是合作的工具。",
+      "shared_en": "Major transitions need parts to sacrifice for the whole; programmed death is cells yielding for the body — death may be a tool of cooperation.",
+      "synthesis": "个体的衰老与死亡，是不是「更高层级的我」得以稳定存在所必须付出的代价？",
+      "synthesis_en": "Are ageing and death the price a higher-level “self” must pay to exist stably?"
+    },
+    {
+      "a": "GQ-why-do-we-sleep-what-do",
+      "b": "GQ-memory",
+      "shared": "睡眠重整突触、巩固记忆——它维护的，正是记忆所搭建的那个「自我」。",
+      "shared_en": "Sleep renormalizes synapses and consolidates memory — what it maintains is the very “self” that memory builds.",
+      "synthesis": "如果睡眠的核心功能是维护记忆与突触，那「自我在时间中的连续」是不是每晚都要被重写一次才能续命？",
+      "synthesis_en": "If sleep’s core job is maintaining memory and synapses, must the self’s continuity be rewritten nightly to persist?"
+    },
+    {
+      "a": "GQ-consciousness-hard-problem",
+      "b": "GQ-what-is-life",
+      "shared": "「何时算活着」与「何时有体验」都是同一类边界问题——一个系统从何时起拥有了「内部」。",
+      "shared_en": "“When does it count as alive” and “when does it experience” are the same boundary problem — when a system comes to have an inside.",
+      "synthesis": "「是不是活的」与「有没有体验」，是两个独立的门槛，还是「拥有一个内部视角」这同一道门槛的两面？",
+      "synthesis_en": "Are “is it alive” and “does it experience” two thresholds, or two faces of one — having an inside?"
+    },
+    {
+      "a": "GQ-dark-energy-fate",
+      "b": "GQ-fine-tuning",
+      "shared": "宇宙学常数是物理学最严重的精细调节问题——暗能量的数值小得离谱却又非零。",
+      "shared_en": "The cosmological constant is physics’ worst fine-tuning problem — dark energy’s value is absurdly small yet nonzero.",
+      "synthesis": "暗能量为何小得离谱却不为零——这道精细调节难题，是多重宇宙人择的最强证据，还是它最大的尴尬？",
+      "synthesis_en": "Why is dark energy absurdly tiny yet nonzero — is this fine-tuning the strongest case for the anthropic multiverse, or its biggest embarrassment?"
+    },
+    {
+      "a": "GQ-limits-of-computation",
+      "b": "GQ-does-the-economy-obey-discoverable-laws",
+      "shared": "「不可预测」可能不是「随机」，而是「计算上不可行」——两种截然不同的不可知。",
+      "shared_en": "“Unpredictable” may mean not “random” but “computationally infeasible” — two very different kinds of unknowable.",
+      "synthesis": "经济危机的「不可预测」，究竟是真随机，还是只是一道我们算不动的 NP 难题？",
+      "synthesis_en": "Is a financial crisis’s unpredictability true randomness, or just an NP-hard problem we can’t compute?"
+    },
+    {
+      "a": "GQ-quantum-gravity",
+      "b": "GQ-it-from-bit",
+      "shared": "「时空从纠缠中涌现」纲领把引力几何变成了信息几何。",
+      "shared_en": "The “spacetime from entanglement” program turns the geometry of gravity into the geometry of information.",
+      "synthesis": "如果时空是由量子纠缠编织出来的，那引力是不是根本就是「信息的几何」？",
+      "synthesis_en": "If spacetime is woven from entanglement, is gravity simply the geometry of information?"
+    },
+    {
+      "a": "GQ-how-many-irreversible-tipping-points-hide",
+      "b": "GQ-why-is-more-different-and-how",
+      "shared": "气候临界点就是相变——同一套临界现象、序参量与早期预警的数学。",
+      "shared_en": "A climate tipping point is a phase transition — the same math of critical phenomena, order parameters, and early-warning signals.",
+      "synthesis": "地球的临界点、磁体的相变、文明的崩溃，是不是同一门「临界涌现」科学的不同实例？",
+      "synthesis_en": "Are Earth’s tipping points, a magnet’s phase transition, and a civilization’s collapse instances of one “critical emergence” science?"
+    },
+    {
+      "a": "GQ-is-the-riemann-hypothesis-true-do",
+      "b": "GQ-effectiveness-of-math",
+      "shared": "素数的隐秘秩序疑似对应某个量子系统的能级——纯数学竟与物理同构。",
+      "shared_en": "The primes’ hidden order may correspond to a quantum system’s energy levels — pure mathematics turning out isomorphic to physics.",
+      "synthesis": "若黎曼零点真是某个物理系统的能级，那「数学描述自然」是否要反过来说——自然里本就藏着数论？",
+      "synthesis_en": "If Riemann’s zeros are a physical system’s energy levels, should “math describes nature” be reversed — is number theory already hiding in nature?"
+    },
+    {
+      "a": "GQ-human-machine-coevolution",
+      "b": "GQ-intelligence-emergence",
+      "shared": "当机器开始定义什么叫智能，「人类智能是否还是参照系」本身成了变量。",
+      "shared_en": "Once machines begin to define intelligence, whether human intelligence is still the reference frame becomes a variable itself.",
+      "synthesis": "当机器智能反过来重塑我们对「智能」的定义，我们还能用人类作为衡量智能的基准吗？",
+      "synthesis_en": "As machine intelligence reshapes what “intelligence” means, can we still use humans as the yardstick?"
+    },
+    {
+      "a": "GQ-unknown-unknowns",
+      "b": "GQ-automating-discovery",
+      "shared": "自动化发现能高速搜索已知问题空间，却最难处理「我们没想到要问的问题」。",
+      "shared_en": "Automated discovery can search the known problem space fast, but struggles most with the questions we never thought to ask.",
+      "synthesis": "一台能自动做科学的机器，能不能发现「未知的未知」——还是说照亮盲区恰恰是人不可替代的内核？",
+      "synthesis_en": "Can a machine that automates science find the unknown unknowns — or is lighting up blind spots the irreplaceable human core?"
+    },
+    {
+      "a": "GQ-cooperation",
+      "b": "GQ-can-large-scale-social-systems-be",
+      "shared": "都在问「自利的个体如何汇成可持续、可被引导的集体」——从演化到舆论。",
+      "shared_en": "Both ask how self-interested individuals assemble into a sustainable, steerable collective — from evolution to public opinion.",
+      "synthesis": "让细胞甘愿合作的那套规则，能不能用来设计「既稳健协作、又不抹杀个体自主」的人类社会？",
+      "synthesis_en": "Can the rules that make cells cooperate be used to design a human society that’s both robustly cooperative and free?"
+    },
+    {
+      "a": "GQ-arrow-of-time",
+      "b": "GQ-memory",
+      "shared": "记忆只指向过去、时间只流向未来——这两个「方向」可能同源于熵增。",
+      "shared_en": "Memory points only to the past; time flows only forward — both “directions” may share one root in rising entropy.",
+      "synthesis": "我们之所以记得过去而非未来，与时间只朝一个方向流，是不是同一道「熵之箭」的两个侧面？",
+      "synthesis_en": "Do we remember the past (not the future), and does time flow one way, because of one and the same arrow of entropy?"
+    },
+    {
+      "a": "GQ-is-information-physical-and-why-must",
+      "b": "GQ-it-from-bit",
+      "shared": "一边说信息必有物理代价（兰道尔），一边说物理源于信息（惠勒）——信息与物质谁更基础正面相撞。",
+      "shared_en": "One side: information must pay a physical cost (Landauer). The other: physics arises from information (Wheeler). Which is more fundamental collides head-on.",
+      "synthesis": "信息到底是「必须付热的物理量」，还是「物理由之而生的本原」——这两种看法能否在同一套理论里和解？",
+      "synthesis_en": "Is information a physical quantity that must pay heat, or the origin physics springs from — can the two views be reconciled in one theory?"
+    },
+    {
+      "a": "GQ-why-is-the-universe-made-of",
+      "b": "GQ-where-did-the-genetic-code-come",
+      "shared": "都是「一个微小、早期、被冻结的不对称，决定了后来的一切」。",
+      "shared_en": "Both are “one tiny early asymmetry, frozen in, that determined everything after.”",
+      "synthesis": "宇宙的物质盈余与生命的手性/密码，是不是同一类「早期微小不对称被永久放大」的故事？",
+      "synthesis_en": "Are the cosmos’s matter surplus and life’s chirality/code the same story — a tiny early asymmetry frozen and amplified forever?"
+    },
+    {
+      "a": "GQ-how-does-a-single-fertilized-egg",
+      "b": "GQ-why-is-more-different-and-how",
+      "shared": "一团均匀细胞自发长出精确图案，正是「多即不同」的活体案例——涌现出零件里没有的形态。",
+      "shared_en": "A uniform ball of cells spontaneously forming precise pattern is “more is different” alive — a form no part contains.",
+      "synthesis": "胚胎自组织出身体，与磁体自发磁化，是不是同一门「自发图案涌现」的科学？",
+      "synthesis_en": "Is an embryo self-organizing a body the same “spontaneous pattern emergence” science as a magnet magnetizing itself?"
+    },
+    {
+      "a": "GQ-are-we-alone",
+      "b": "GQ-why-is-there-something-rather-than",
+      "shared": "一个问「为何只有我们」，一个问「为何有任何东西」——都把「我们的存在」当成需要解释的反常。",
+      "shared_en": "One asks “why only us,” the other “why anything at all” — both treat our existence as an anomaly demanding explanation.",
+      "synthesis": "「我们为何在这」与「为何有『有』」，会不会最终都得诉诸同一种人择式的「幸存者偏差」？",
+      "synthesis_en": "Do “why are we here” and “why is there anything” both ultimately appeal to the same anthropic survivor’s bias?"
+    },
+    {
+      "a": "GQ-final-theory",
+      "b": "GQ-limits-of-knowable",
+      "shared": "一个追求「万物的终极方程」，一个怀疑「有些真理原则上够不着」——终极理论会不会撞上认知天花板。",
+      "shared_en": "One seeks the ultimate equation; the other suspects some truths are unreachable in principle — could the final theory hit the ceiling of the knowable.",
+      "synthesis": "万物之理若存在，它会不会恰恰是那种「存在却永远证不出/算不出」的真理？",
+      "synthesis_en": "If a theory of everything exists, might it be exactly the kind of truth that exists yet can never be proven or computed?"
+    },
+    {
+      "a": "GQ-what-is-the-mechanism-of-high",
+      "b": "GQ-why-is-more-different-and-how",
+      "shared": "高温超导是「多即不同」最棘手的样本——大量强关联电子涌现出谁也算不准的新相。",
+      "shared_en": "High-Tc is the hardest case of “more is different” — many strongly-correlated electrons emerging into a phase no one can compute.",
+      "synthesis": "破解高温超导，是不是要先有一门能预言「强关联涌现」的通用涌现理论，而非只补一个机制？",
+      "synthesis_en": "Does cracking high-Tc require a general theory of strongly-correlated emergence first, rather than patching in one mechanism?"
+    },
+    {
+      "a": "GQ-can-we-design-and-write-a",
+      "b": "GQ-what-is-life",
+      "shared": "「我们能否制造生命」是「什么是生命」的工程版判决——做得出来，才算真懂。",
+      "shared_en": "“Can we make life” is the engineering verdict on “what is life” — to build it is to truly understand it.",
+      "synthesis": "如果我们能从零写出一套会自我维持、会演化的基因组，那是不是就用「造得出」回答了「什么是生命」？",
+      "synthesis_en": "If we can write a self-sustaining, evolving genome from scratch, do we answer “what is life” by building it?"
+    },
+    {
+      "a": "GQ-free-will",
+      "b": "GQ-can-large-scale-social-systems-be",
+      "shared": "个体层面争论「选择是否自由」，群体层面却发现行为高度可预测、可被算法推动——自由与可预测的张力。",
+      "shared_en": "At the individual level we debate whether choice is free; at the aggregate level behavior is highly predictable and algorithm-nudgeable — the tension of freedom vs predictability.",
+      "synthesis": "如果亿万个「自由」选择在总体上高度可预测、可被操纵，那个体自由意志与社会可预测性如何并存？",
+      "synthesis_en": "If billions of “free” choices are highly predictable and nudge-able in aggregate, how do individual free will and social predictability coexist?"
+    },
+    {
+      "a": "GQ-life-origin",
+      "b": "GQ-universe-origin",
+      "shared": "都是「一个全新层级如何从一个没有它的状态里第一次出现」——宇宙从无到有，生命从非生到生。",
+      "shared_en": "Both are “how a brand-new level first appears from a state without it” — cosmos from nothing, life from non-life.",
+      "synthesis": "宇宙的诞生与生命的起源，是不是同一类「第一次出现」问题——一个全新层级如何从不含它的状态里跃出？",
+      "synthesis_en": "Are the birth of the universe and the origin of life the same kind of “first appearance” — how a wholly new level leaps from a state that lacks it?"
+    },
+    {
+      "a": "GQ-collapse",
+      "b": "GQ-why-does-evolution-keep-crossing-major",
+      "shared": "重大转变是「更高层级如何建立」，崩溃是「它如何瓦解」——同一座复杂度阶梯的上行与下行。",
+      "shared_en": "Major transitions are “how a higher level is built”; collapse is “how it comes apart” — the climb and the fall of one ladder of complexity.",
+      "synthesis": "复杂度的攀升（重大转变）与崩塌（文明崩溃），是不是同一座阶梯的上行与下行，受同一组力支配？",
+      "synthesis_en": "Are the rise of complexity (major transitions) and its collapse (civilizational breakdown) the up and down of one staircase, governed by one set of forces?"
+    },
+    {
+      "a": "GQ-how-is-a-string-of-dna",
+      "b": "GQ-is-there-a-theory-that-explains",
+      "shared": "从 DNA 序列预测表型，和从数据学到能泛化的函数，都是「从一维代码推出高维行为」的映射难题。",
+      "shared_en": "Predicting phenotype from DNA and learning a function that generalizes are both the hard problem of inferring high-dimensional behavior from a one-dimensional code.",
+      "synthesis": "「从基因型预测表型」与「机器学习的泛化」，是不是同一个「从一维代码推出高维行为」的映射问题，可共享一套理论？",
+      "synthesis_en": "Are “predicting phenotype from genotype” and “generalization in machine learning” the same mapping problem — inferring high-dimensional behavior from a 1-D code — sharing one theory?"
+    },
+    {
+      "a": "GQ-was-there-a-before-the-big",
+      "b": "GQ-is-the-universe-finite-or-infinite",
+      "shared": "一个问「时间有没有起点之前」，一个问「空间有没有边界之外」——都在追问观测视界之外的整体结构。",
+      "shared_en": "One asks whether there is a “before” the beginning, the other whether there is a “beyond” the edge — both probe the whole structure past the observational horizon.",
+      "synthesis": "时间的「之前」与空间的「之外」，是不是同一道「可观测宇宙之外还有什么」问题的两面？",
+      "synthesis_en": "Are time’s “before” and space’s “beyond” two faces of one question — what lies outside the observable universe?"
+    },
+    {
+      "a": "GQ-given-that-sex-is-costly-and",
+      "b": "GQ-what-sustains-biodiversity-why-can-hundreds",
+      "shared": "有性繁殖维持基因多样性，物种共存维持生态多样性——都在问「多样性为何能对抗『单一最优者通吃』」。",
+      "shared_en": "Sex maintains genetic diversity; coexistence maintains ecological diversity — both ask why diversity withstands “the single optimum taking all.”",
+      "synthesis": "维持基因多样性的性，与维持物种多样性的共存机制，是不是同一种「多样性如何抵御赢家通吃」的策略？",
+      "synthesis_en": "Are sex (which maintains genetic diversity) and coexistence mechanisms (which maintain species diversity) the same strategy — how diversity resists winner-take-all?"
+    },
+    {
+      "a": "GQ-what-triggers-earth-s-mass-extinctions",
+      "b": "GQ-why-does-evolution-keep-crossing-major",
+      "shared": "大灭绝清空生态位，往往紧跟着演化的爆发与重大转变——毁灭与创造在生命史上交替。",
+      "shared_en": "Mass extinctions empty niches and are often followed by evolutionary bursts and major transitions — destruction and creation alternate across the history of life.",
+      "synthesis": "大灭绝是否是演化创新的「重置键」——毁灭与重大转变的爆发，是不是同一台引擎的两个冲程？",
+      "synthesis_en": "Is mass extinction the “reset button” of evolutionary innovation — are destruction and the burst of major transitions two strokes of one engine?"
+    },
+    {
+      "a": "GQ-can-earthquakes-be-predicted-at-all",
+      "b": "GQ-does-the-economy-obey-discoverable-laws",
+      "shared": "地震与金融崩盘都疑似自组织临界——微小扰动以幂律分布级联放大，何时引爆原则上不可预报。",
+      "shared_en": "Earthquakes and crashes both look self-organized-critical — small perturbations cascade with power-law statistics, and when they detonate is unforecastable in principle.",
+      "synthesis": "地震与股灾，是不是同一类「自组织临界」系统——大事件的不可预报，是本质而非数据不足？",
+      "synthesis_en": "Are earthquakes and market crashes the same “self-organized criticality” system — is the unforecastability of large events fundamental, not a data shortage?"
+    },
+    {
+      "a": "GQ-is-mathematics-invented-by-humans-or",
+      "b": "GQ-is-the-riemann-hypothesis-true-do",
+      "shared": "黎曼猜想若描述的是素数里早已存在的隐秘秩序，那它支持「数学是被发现的」而非被发明的。",
+      "shared_en": "If the Riemann Hypothesis describes an order already present among the primes, it favors mathematics being discovered rather than invented.",
+      "synthesis": "素数里那条「等待被发现」的隐秘秩序，是不是「数学是发现而非发明」的最有力证据？",
+      "synthesis_en": "Is the hidden order “waiting to be found” among the primes the strongest evidence that mathematics is discovered, not invented?"
+    },
+    {
+      "a": "GQ-do-the-undecidability-results-of-goedel",
+      "b": "GQ-final-theory",
+      "shared": "哥德尔不完备已渗入物理（谱隙不可判定），意味着「万物之理」里可能藏着原则上算不出的物理问题。",
+      "shared_en": "Gödelian incompleteness already seeps into physics (the undecidable spectral gap), so a theory of everything may harbor physical questions uncomputable in principle.",
+      "synthesis": "如果不可判定性能渗入物理定律，那一套「万物之理」里会不会必然包含它自己永远算不出的预测？",
+      "synthesis_en": "If undecidability can seep into physical law, must a “theory of everything” necessarily contain predictions it can never compute about itself?"
+    },
+    {
+      "a": "GQ-where-did-language-come-from-what",
+      "b": "GQ-human-machine-coevolution",
+      "shared": "大语言模型从零「学会」无限句法，给「人类语言如何起源」提供了第一个非人类的对照实验。",
+      "shared_en": "Large language models learning unbounded syntax from scratch offer the first non-human control experiment for how human language arose.",
+      "synthesis": "机器从数据中习得语言，能否反过来揭示人类语言的起源——还是说它走的是一条完全不同的路？",
+      "synthesis_en": "Can machines learning language from data illuminate the origin of human language — or do they take an entirely different route?"
+    },
+    {
+      "a": "GQ-can-matter-be-made-fully-programmable",
+      "b": "GQ-can-we-design-and-write-a",
+      "shared": "「把物质编程」与「编写基因组」都是把工程变成「书写」——让材料/生命像软件一样按指令运行。",
+      "shared_en": "“Programming matter” and “writing a genome” both turn engineering into writing — making material or life run by instruction, like software.",
+      "synthesis": "「给物质编程」和「编写生命」，是不是同一场「让物质照着我们写的代码运行」的工程革命的两条战线？",
+      "synthesis_en": "Are “programming matter” and “writing life” two fronts of one engineering revolution — making matter run the code we write?"
+    },
+    {
+      "a": "GQ-can-we-measure-whether-consciousness-or",
+      "b": "GQ-human-machine-coevolution",
+      "shared": "当机器越来越像有心智，「能否从外部测出体验」直接决定我们对 AI 负有什么道德义务。",
+      "shared_en": "As machines grow more mind-like, whether experience can be measured from outside directly decides what moral duties we owe to AI.",
+      "synthesis": "如果我们造出行为上酷似有意识的机器，却无法测出它是否真有体验，该如何决定对它的道德义务？",
+      "synthesis_en": "If we build machines that behave as if conscious, yet can’t measure whether they truly experience, how do we decide our moral obligations to them?"
+    }
+  ]
+}

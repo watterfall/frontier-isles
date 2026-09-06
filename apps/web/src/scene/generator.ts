@@ -206,6 +206,8 @@ export function lanternsForSlug(rng: () => number): Array<{ x: number; y: number
 // ── the generator ──────────────────────────────────────────────────────────
 
 export interface GenerateInput {
+  /** Existing material can expose a station independently of ledger growth. */
+  materialStations?: readonly StationKind[];
   slug: string;
   domain: Domain;
   stage: number;
@@ -227,6 +229,7 @@ export interface GenerateInput {
 export function generate(input: GenerateInput): GeneratedScene {
   const rng = mulberry32(slugHash(input.slug));
   const visible = stationsForStage(input.stage);
+  input.materialStations?.forEach(station => visible.add(station));
   const stations: GenStation[] = STATION_KINDS_LIST.map((kind) => ({
     kind,
     visible: visible.has(kind),

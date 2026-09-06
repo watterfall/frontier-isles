@@ -28,6 +28,7 @@ import {
   type Shader,
   type Ticker,
 } from 'pixi.js';
+import { terrainBoundaryLoops, chaikinClosed } from '../terrainContours';
 import { ELEV_STEP, diamondPoints, worldToScreen, worldToScreenElevated, type ScreenPoint } from '../iso';
 import { DOI_SEAL_INK } from './palette';
 import { visibilityAt, type SceneGraph, type SceneLayer, type SceneObject } from '../scene';
@@ -135,6 +136,8 @@ export class SceneStage {
    * handler is read live, so late assignment still works.
    */
   onPick?: (id: string) => void;
+  private readonly stationFocus = new Graphics();
+  private selectedStationId: string | null = null;
   private seaShader?: Shader;
   private seaMask?: RenderTexture;
   private seaAnimating = false;
@@ -209,7 +212,8 @@ export class SceneStage {
     // depth-sort by zIndex so elevation cliffs occlude back-to-front (M4.1).
     this.terrainRoot.zIndex = TERRAIN_Z;
     this.terrainRoot.sortableChildren = true;
-    this.worldLayer.addChild(this.terrainRoot);
+    this.worldLayer.addChild(this.terrainRoot, this.stationFocus);
+    this.stationFocus.zIndex = TERRAIN_Z + 1;
 
     // Camera-space stack, bottom→top: scene content (sea/world/fog), then the tone
     // overlay that darkens it toward night, then the emissive lights above the
@@ -220,6 +224,7 @@ export class SceneStage {
     this.toneOverlay.alpha = 0; // day: no veil
     this.lightsLayer.alpha = 0; // day: no window lights
     this.cameraRoot.addChild(this.gradedContent, this.toneOverlay, this.lightsLayer);
+    this.stationFocus.eventMode = 'none';
     this.sceneContent.addChild(this.cameraRoot);
 
     // Station labels live in the screen-space uiLayer (never camera-transformed,
@@ -312,7 +317,7 @@ export class SceneStage {
       const tex = r instanceof Texture ? r : r.texture;
       const anchor = (r instanceof Texture ? undefined : r.anchor) ?? { x: 0.5, y: 0.85 };
       const scl = (r instanceof Texture ? undefined : r.scale) ?? 1;
-      const p = worldToScreenElevated(o.gx, o.gy, o.elevation);
+      const p = worldToScreenElevated(o.gx + .5, o.gy + .5, o.elevation);
       const c = new Container();
       const spr = new Sprite(tex);
       spr.anchor.set(anchor.x, anchor.y);
@@ -453,7 +458,7 @@ export class SceneStage {
    * with terrain and therefore add no per-frame burden. */
   private buildDesirePaths(graph: SceneGraph): void {
     const byKind = new Map(graph.objects.filter((o) => o.kind.startsWith('station:')).map((o) => [o.kind.slice('station:'.length), o] as const));
-    const circuit = ['dock', 'gallery', 'canvas', 'data', 'library', 'workshop', 'questions', 'driftwood', 'tearoom', 'dock'];
+    const circuit = graph.stationWalk?.map(id => id.replace('station:', '')) ?? ['dock', 'gallery', 'canvas', 'data', 'library', 'workshop', 'questions', 'driftwood', 'tearoom', 'dock'];
     const g = new Graphics();
     for (let i = 0; i < circuit.length - 1; i++) {
       const a = byKind.get(circuit[i]!);
@@ -783,7 +788,7 @@ export class SceneStage {
         // Baked textures include transparent margins. A building-sized hit area
         // keeps neighbouring stations from stealing one another's taps.
         node.hitArea = o.kind.startsWith('station:')
-          ? new Rectangle(-54, -92, 108, 108)
+          ? new Rectangle(-80, -120, 160, 155)
           : new Rectangle(-25, -(o.height ?? 30) - 16, 50, (o.height ?? 30) + 28);
         node
           .on('pointerover', () => { node.scale.set(1.035); this.redraw(); })
@@ -844,9 +849,9 @@ export class SceneStage {
     for (const o of graph.objects) {
       const h = o.height ?? 0;
       if (o.layer !== 'world' || h <= 8) continue;
-      if (o.kind.startsWith('ghost:') || o.kind.startsWith('scenery:')) continue;
+      if (o.kind.startsWith('ghost:') || o.kind.startsWith('scenery:') || o.kind.startsWith('resident:')) continue;
       const c = worldToScreenElevated(o.gx + 0.5, o.gy + 0.5, o.elevation);
-      const g = new Graphics().circle(c.x, c.y - h * 0.55, Math.max(5, h * 0.32)).fill({ color: 0xffe6b0 });
+      const g = new Graphics().circle(c.x, c.y - h * 0.55, Math.max(2, Math.min(4, h * 0.1))).fill({ color: 0xffe6b0 });
       this.lightsLayer.addChild(g);
     }
   }
@@ -959,6 +964,31 @@ export class SceneStage {
    * unlike the baked raster namecards, which the layout layer now suppresses.
    * Call after {@link render}. Content (P2) is passed in; the stage only lays out.
    */
+  /** Selection follows the same placed objects as drawing and picking. A path
+   * is a walking aid, not a relation in the research ledger. */
+  setStationFocus(id: string | null, walk: readonly string[] = []): void {
+    this.selectedStationId = id;
+    this.stationFocus.clear();
+    const target = id ? this.objects.get(id) : null;
+    if (target) {
+      const point = (o: SceneObject) => worldToScreenElevated(o.gx + .5, o.gy + .5, o.elevation);
+      const p = point(target), index = walk.indexOf(id!);
+      const forward = walk.slice(0, index + 1), reverse = [...walk.slice(index)].reverse();
+      const route = (forward.length <= reverse.length ? forward : reverse).flatMap((key) => {
+        const o = this.objects.get(key); return o ? [point(o)] : [];
+      });
+      if (route.length > 1) {
+        this.stationFocus.moveTo(route[0]!.x, route[0]!.y);
+        for (const stop of route.slice(1)) this.stationFocus.lineTo(stop.x, stop.y);
+        this.stationFocus.stroke({ color: 0x2e5e8c, width: 2.5, alpha: .7 });
+      }
+      this.stationFocus.ellipse(p.x, p.y + 4, 82, 34).stroke({ color: 0x2e5e8c, width: 2.4 });
+    }
+    for (const label of this.labelSpecs) label.showing = '';
+    this.layoutLabels();
+    this.redraw();
+  }
+
   setStationLabels(specs: Array<{ id: string; gx: number; gy: number; elevation: number; height: number; short: string; full: string }>): void {
     this.labelLayer.removeChildren().forEach((c) => c.destroy({ children: true }));
     this.labelSpecs = specs.map((s) => {
@@ -998,7 +1028,9 @@ export class SceneStage {
         const halfW = L.text.width / 2 + 7;
         const halfH = L.text.height / 2 + 3;
         L.bg.clear();
-        L.bg.roundRect(-halfW, -halfH, halfW * 2, halfH * 2, 5).fill({ color: 0xfaf5e8, alpha: 0.92 }).stroke({ color: 0x3a342b, width: 1 });
+        const selected = L.id === this.selectedStationId;
+        L.text.style.fill = selected ? 0xfaf5e8 : 0x2b2620;
+        L.bg.roundRect(-halfW, -halfH, halfW * 2, halfH * 2, 3).fill({ color: selected ? 0x2e5e8c : 0xfaf5e8, alpha: .96 }).stroke({ color: selected ? 0x2e5e8c : 0x766e5e, width: 1 });
         // Labels billboard on the topmost uiLayer, so an oversized hit box steals
         // taps meant for buildings beneath at far zoom. Keep a touch-friendly
         // minimum but hug the rendered card instead of a fixed 44px band.
@@ -1326,53 +1358,6 @@ function shade(color: number, f: number): number {
  * tiles cancel and the remaining boundary edges chain end-to-start into closed
  * loops. Diagonal-only pinch points (rare for island blobs) are approximated.
  */
-function terrainBoundaryLoops(tiles: Set<string>): Array<Array<[number, number]>> {
-  const has = (x: number, y: number): boolean => tiles.has(`${x},${y}`);
-  const next = new Map<string, [number, number]>();
-  for (const key of tiles) {
-    const [x, y] = key.split(',').map(Number) as [number, number];
-    if (!has(x, y - 1)) next.set(`${x},${y}`, [x + 1, y]); // top edge
-    if (!has(x + 1, y)) next.set(`${x + 1},${y}`, [x + 1, y + 1]); // right edge
-    if (!has(x, y + 1)) next.set(`${x + 1},${y + 1}`, [x, y + 1]); // bottom edge
-    if (!has(x - 1, y)) next.set(`${x},${y + 1}`, [x, y]); // left edge
-  }
-  const loops: Array<Array<[number, number]>> = [];
-  const used = new Set<string>();
-  for (const start of next.keys()) {
-    if (used.has(start)) continue;
-    const loop: Array<[number, number]> = [];
-    let cur = start;
-    while (next.has(cur) && !used.has(cur)) {
-      used.add(cur);
-      const [cx, cy] = cur.split(',').map(Number) as [number, number];
-      loop.push([cx, cy]);
-      const [ex, ey] = next.get(cur)!;
-      cur = `${ex},${ey}`;
-    }
-    if (loop.length >= 3) loops.push(loop);
-  }
-  return loops;
-}
-
-/**
- * Closed-loop Chaikin corner-cutting, `iters` passes — rounds a jagged tile
- * silhouette into a smooth organic coast/plateau outline.
- */
-function chaikinClosed(pts: ScreenPoint[], iters: number): ScreenPoint[] {
-  let p = pts;
-  for (let k = 0; k < iters && p.length >= 3; k++) {
-    const q: ScreenPoint[] = [];
-    for (let i = 0; i < p.length; i++) {
-      const a = p[i]!;
-      const b = p[(i + 1) % p.length]!;
-      q.push({ x: a.x * 0.75 + b.x * 0.25, y: a.y * 0.75 + b.y * 0.25 });
-      q.push({ x: a.x * 0.25 + b.x * 0.75, y: a.y * 0.25 + b.y * 0.75 });
-    }
-    p = q;
-  }
-  return p;
-}
-
 /** Flatten a screen-space loop to a Pixi poly array, lifted up the screen by `lift`. */
 function flattenLoop(pts: ScreenPoint[], lift: number): number[] {
   const out: number[] = [];

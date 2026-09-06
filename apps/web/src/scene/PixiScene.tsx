@@ -12,7 +12,7 @@
  * Fallback discipline (CLAUDE.md): on WebGL failure it calls `onWebglError` so the
  * parent can render the SVG scene instead — the app must render without the GPU.
  */
-import { useEffect, useRef, cloneElement, type ReactElement } from 'react';
+import { useEffect, useRef } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { SceneStage, RitualLayer, type TextureResolver, type ResolvedTexture, type RitualPoint } from '@frontier-isles/renderer/pixi';
 import { worldToScreen, worldToScreenElevated, seaDepthAt } from '@frontier-isles/renderer';
@@ -20,37 +20,12 @@ import { STATION_META, type ClaimState, type StationKind } from '@frontier-isles
 import { localizeStation, type Lang } from '../i18n/stations';
 import { acquirePixiLifecycle, disposePixiStage } from '../pixiLifecycle';
 import type { RitualEvent } from './rituals';
-import {
-  StationWorkshop,
-  StationLibrary,
-  StationWhiteboardHall,
-  StationQuestionWall,
-  StationDataBench,
-  StationGallery,
-  StationTearoom,
-  DriftwoodGarden,
-  FerryDock,
-} from '@frontier-isles/assets';
-import { buildSceneGraph, claimIndexFromId, type LayoutInput } from './layout';
+import { buildSceneGraph, researchObjectAt, claimIndexFromId, type LayoutInput } from './layout';
 import { bakeSvg } from './bakeTexture';
-import { STATION_TEX_SIZE, STATION_TEX_SCALE, stationBakeOrigin, stationLabelHeight } from './stationAnchors';
-
-// The 9 L1 stations as their real SVG assets, baked WITHOUT their namecards
-// (showLabel={false}) — crisp LOD-tiered labels are drawn in the screen-space
-// label layer instead, so text stays sharp + legible at any zoom. `x`/`y` here
-// are placeholders `cloneElement`d to each station's own ground offset (P1
-// per-station vertical registration, see `./stationAnchors`) before baking.
-const STATION_ELS: Record<string, ReactElement<{ x?: number; y?: number; showSmoke?: boolean; showFlag?: boolean }>> = {
-  'station:workshop': <StationWorkshop showLabel={false} />,
-  'station:library': <StationLibrary showLabel={false} />,
-  'station:canvas': <StationWhiteboardHall showLabel={false} />,
-  'station:questions': <StationQuestionWall showLabel={false} />,
-  'station:data': <StationDataBench showLabel={false} />,
-  'station:gallery': <StationGallery showLabel={false} />,
-  'station:tearoom': <StationTearoom showLabel={false} />,
-  'station:driftwood': <DriftwoodGarden showTransplantTag={false} showLabel={false} />,
-  'station:dock': <FerryDock showLabel={false} />,
-};
+import { STATION_TEX_SIZE, STATION_TEX_SCALE } from './stationAnchors';
+import { StationArchitecture, ARCHITECTURE_TOP } from './StationArchitecture';
+import { STATION_PLACES, STATION_WALK, islandOverview } from './stationSpatial';
+import type { SceneGraph } from '@frontier-isles/renderer';
 
 /** Per-domain water colours (0..1 rgb): shallow / deep / foam. */
 // Pale domain water, VERBATIM the design-system `--water` day values
@@ -97,6 +72,9 @@ export interface PixiSceneProps {
   agitation?: boolean | number;
   /** Tapping a station calls back with its kind so the parent opens that station. */
   onStation?: (kind: StationKind) => void;
+  /** The selected building is a real scene address; null frames the island. */
+  focusStation?: StationKind | null;
+  focusRequest?: number;
   /** Tapping a claim tower calls back with its ledger-projected {@link ClaimState}
    * so the parent can open the claim detail panel (no new data — the same object
    * `projectClaimState` already produced). */
@@ -127,14 +105,18 @@ export interface PixiSceneProps {
  * The embeddable Pixi scene. Re-boots on `input`/`claims` change (once per island
  * open); `t`/`agitation` apply live without a re-boot.
  */
-export default function PixiScene({ input, claims, t, lang = 'zh', activeStations, substrate, agitation = false, onStation, onClaim, rituals, onRitualTap, reducedMotion = false, onWebglError, onMetrics }: PixiSceneProps) {
+export default function PixiScene({ input, claims, t, lang = 'zh', activeStations, substrate, agitation = false, onStation, focusStation = null, focusRequest = 0, onClaim, rituals, onRitualTap, reducedMotion = false, onWebglError, onMetrics }: PixiSceneProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<SceneStage | null>(null);
   const cam = useRef({ ...worldToScreen(8, 8), zoom: 0.75 }); // island centre (tile 8,8)
+  const graphRef = useRef<SceneGraph | null>(null);
+  const focusRef = useRef(focusStation); focusRef.current = focusStation;
+  const cameraFrame = useRef<number | null>(null);
   const drag = useRef<{ x: number; y: number } | null>(null);
   // Total pointer travel of the current gesture — a pick is only honoured when
   // the gesture stayed a tap (see s.onPick below).
   const dragTravel = useRef(0);
+  const pressedObject = useRef<string|null>(null);
   // Read live inside the boot closure so late day/night without re-boot is correct,
   // and callbacks don't re-boot the scene when their identity changes each render.
   const tRef = useRef(t);
@@ -189,6 +171,31 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
     s.panTo(cam.current.x, cam.current.y);
   };
 
+  const framePlace = (animated = true): void => {
+    const stage = stageRef.current, host = hostRef.current;
+    if (!stage || !host) return;
+    const selected = focusRef.current;
+    const object = graphRef.current?.objects.find((item) => item.id === `station:${selected}`);
+    const overview = graphRef.current ? islandOverview(graphRef.current) : {x:0,y:480,width:1600,height:820};
+    const point = object ? worldToScreenElevated(object.gx + .5, object.gy + .5, object.elevation) : worldToScreen(8, 8);
+    const target = object
+      ? { x: point.x, y: point.y - 44, zoom: clamp(Math.min(host.clientWidth / 510, host.clientHeight / 390), .55, 1.5) }
+      : { x: overview.x, y: overview.y, zoom: clamp(Math.min(host.clientWidth / overview.width, (host.clientHeight - 50) / overview.height), .18, 1.15) };
+    stage.setStationFocus(object?.id ?? null, (input.character?.walk ?? STATION_WALK).map((kind) => `station:${kind}`));
+    if (cameraFrame.current != null) cancelAnimationFrame(cameraFrame.current);
+    if (!animated || reducedMotionRef.current) { cam.current = target; applyCam(); return; }
+    const start = { ...cam.current }, began = performance.now();
+    const tick = (now: number) => {
+      const progress = Math.min(1, (now - began) / 560), ease = progress === 1 ? 1 : 1 - 2 ** (-8 * progress);
+      cam.current = { x: start.x + (target.x - start.x) * ease, y: start.y + (target.y - start.y) * ease, zoom: start.zoom + (target.zoom - start.zoom) * ease };
+      applyCam();
+      cameraFrame.current = progress < 1 ? requestAnimationFrame(tick) : null;
+    };
+    cameraFrame.current = requestAnimationFrame(tick);
+  };
+
+  useEffect(() => { framePlace(); }, [focusStation, focusRequest]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Boot / re-boot when the island's data changes. StrictMode double-invokes
   // effects, so guard init/destroy with `disposed`.
   useEffect(() => {
@@ -233,28 +240,18 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
       resizeObserver = new ResizeObserver(([entry]) => {
         if (!entry || disposed) return;
         s.resize(Math.round(entry.contentRect.width), Math.round(entry.contentRect.height));
+        framePlace(false);
       });
       resizeObserver.observe(el);
       // Hit-testing → open the tapped station, or the tapped claim tower's detail
       // panel (scene-upgrade OUTSTANDING P1). The claim id encodes its index into
       // `claims` (see layout.ts push order); look the ClaimState back up rather
       // than inventing any new data.
-      s.onPick = (id) => {
-        // The camera pans 1:1 with the pointer, so a pressed building stays
-        // under the cursor and still "taps" on release — a real pan must not
-        // open anything (same guard idea as the L0 atlas' moved flag).
-        if (dragTravel.current > 6) return;
-        if (id.startsWith('station:')) {
-          cbRef.current.onStation?.(id.slice('station:'.length) as StationKind);
-          return;
-        }
-        const ci = claimIndexFromId(id);
-        if (ci !== null) {
-          const c = claims?.[ci];
-          if (c) cbRef.current.onClaim?.(c);
-        }
-      };
+      // Native gestures below resolve against the same graph as rendering.
+      // Pixi hover remains visual; its cached-container tap targets are not
+      // reliable across camera changes, so there is only one click dispatcher.
       const graph = buildSceneGraph(input, tRef.current, claims, activeStations);
+      graphRef.current = graph;
       // Ritual moments (depth-plan-v1 §6/§9 Batch 1): mount a thin, camera-space
       // layer ON TOP of the tone overlay + lightsLayer (so a daytime `publish`
       // still shows its lantern — unlike lightsLayer, which collapses to alpha
@@ -281,28 +278,18 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
       try {
         const C = STATION_TEX_SIZE;
         const texMap: Record<string, ResolvedTexture> = {};
-        for (const [kind, elx] of Object.entries(STATION_ELS)) {
-          const stationKind = kind.slice('station:'.length) as StationKind;
-          const origin = stationBakeOrigin(stationKind);
-          // M8 micro-dynamics: an active Workshop/Data Bench bakes WITHOUT its
-          // static smoke wisp / pennant fabric — SceneStage.render draws its
-          // own animated one instead (attachSmoke/attachFlag) so exactly one
-          // is ever visible, never both. A dormant station keeps the static
-          // art (its resting look), matching each component's own default.
-          const active = graph.objects.find((o) => o.id === kind)?.active ?? false;
-          const dynamicProps =
-            kind === 'station:workshop' ? { showSmoke: !active } : kind === 'station:data' ? { showFlag: !active } : {};
-          const placed = cloneElement(elx, { ...origin, ...dynamicProps });
+        for (const stationKind of Object.keys(STATION_PLACES) as StationKind[]) {
+          const kind = `station:${stationKind}`;
           const svg = renderToStaticMarkup(
             <svg xmlns="http://www.w3.org/2000/svg" width={C} height={C} viewBox={`0 0 ${C} ${C}`}>
-              {placed}
+              <g transform={`translate(${C / 2} ${C * .625})`}><StationArchitecture station={stationKind} character={input.character}/></g>
             </svg>,
           );
           const tex = await bakeSvg(svg, { width: C, height: C, scale: 3 });
           // A shared (0.5,0.5) anchor now works for every station because the
           // ground offset above already re-centred each one's own ground point
           // on the texture — no per-station anchor variance needed.
-          texMap[kind] = { texture: tex, anchor: { x: 0.5, y: 0.5 }, scale: STATION_TEX_SCALE };
+          texMap[kind] = { texture: tex, anchor: { x: 0.5, y: .625 }, scale: STATION_TEX_SCALE };
         }
         if (disposed) return;
         resolve = (o) => texMap[o.kind];
@@ -333,9 +320,9 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
               gx: o.gx,
               gy: o.gy,
               elevation: o.elevation,
-              height: stationLabelHeight(kind),
-              short: meta?.seal ?? '?',
-              full: meta ? localizeStation(kind, lang) : o.kind,
+              height: ARCHITECTURE_TOP[kind] * STATION_TEX_SCALE * 3 - 34,
+              short: lang === 'zh' ? STATION_PLACES[kind].title.zh : (meta?.seal ?? '?'),
+              full: STATION_PLACES[kind]?.title[lang] ?? (meta ? localizeStation(kind, lang) : o.kind),
             };
           }),
       );
@@ -346,6 +333,7 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
         depthAlpha: seaDepthAt(substrateRef.current).overlayAlpha,
         tide: clamp((input.tide ?? 0) / 8, 0, 1),
       });
+      framePlace(false);
       objCountRef.current = graph.objects.length;
       cbRef.current.onMetrics?.({ objects: graph.objects.length, sorted: s.sortedNodeCount(), renderMs: s.lastRenderMs });
     })().catch((error) => {
@@ -354,6 +342,7 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
     });
     return () => {
       disposed = true;
+      if (cameraFrame.current != null) cancelAnimationFrame(cameraFrame.current);
       resizeObserver?.disconnect();
       ritualLayerRef.current?.destroy();
       ritualLayerRef.current = null;
@@ -406,14 +395,23 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
   }, []);
 
   const onWheel = (e: React.WheelEvent): void => {
+    if (cameraFrame.current != null) cancelAnimationFrame(cameraFrame.current);
     cam.current.zoom = clamp(cam.current.zoom * (e.deltaY < 0 ? 1.1 : 0.9), 0.2, 3);
     applyCam();
   };
+  const objectAtPointer = (event: React.PointerEvent): string|null => {
+    const host=hostRef.current, graph=graphRef.current;
+    if(!host||!graph)return null;
+    const rect=host.getBoundingClientRect();
+    return researchObjectAt(graph, cam.current.x+(event.clientX-rect.left-rect.width/2)/cam.current.zoom, cam.current.y+(event.clientY-rect.top-rect.height/2)/cam.current.zoom);
+  };
   const onPointerDown = (e: React.PointerEvent): void => {
-    // Capture keeps the pan alive when the cursor crosses HUD chrome or exits
-    // the canvas; without it pointerleave ends every edge-directed drag.
-    (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
+    // Keep capture on the actual canvas. Capturing its parent div steals
+    // pointerup from Pixi and prevents a stationary tap from opening a building.
+    (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+    if (cameraFrame.current != null) cancelAnimationFrame(cameraFrame.current);
     dragTravel.current = 0;
+    pressedObject.current = e.button===0 ? objectAtPointer(e) : null;
     drag.current = { x: e.clientX, y: e.clientY };
   };
   const onPointerMove = (e: React.PointerEvent): void => {
@@ -426,19 +424,32 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
     drag.current = { x: e.clientX, y: e.clientY };
     applyCam();
   };
-  const onPointerUp = (): void => {
-    drag.current = null;
+  const onPointerUp = (event:React.PointerEvent): void => {
+    const id = pressedObject.current;
+    if(event.type==='pointerup' && drag.current && dragTravel.current<=6 && id && objectAtPointer(event)===id) {
+      if(id.startsWith('station:')) cbRef.current.onStation?.(id.slice(8) as StationKind);
+      else { const index=claimIndexFromId(id); if(index!==null && claims?.[index]) cbRef.current.onClaim?.(claims[index]!); }
+    }
+    drag.current = null; pressedObject.current=null;
   };
 
-  return (
+  return <div className="fi-island-landscape">
     <div
       ref={hostRef}
-      style={{ position: 'absolute', inset: 0, background: '#f2ecd9', touchAction: 'none', cursor: 'grab' }}
+      className="fi-island-canvas"
+      role="img"
+      aria-label={lang === 'zh' ? '可拖动和缩放的岛屿建筑。也可以使用岛上去处选择建筑。' : 'Island buildings. Drag or zoom, or choose a place from the island guide.'}
       onWheel={onWheel}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       onPointerLeave={onPointerUp}
+      onPointerCancel={onPointerUp}
     />
-  );
+    <div className="fi-island-camera" aria-label={lang === 'zh' ? '岛屿视角' : 'Island camera'}>
+      <button type="button" onClick={() => { if (cameraFrame.current) cancelAnimationFrame(cameraFrame.current); cam.current.zoom = clamp(cam.current.zoom * 1.2, .2, 3); applyCam(); }} aria-label={lang === 'zh' ? '放大岛屿' : 'Zoom in'}>+</button>
+      <button type="button" onClick={() => { if (cameraFrame.current) cancelAnimationFrame(cameraFrame.current); cam.current.zoom = clamp(cam.current.zoom / 1.2, .2, 3); applyCam(); }} aria-label={lang === 'zh' ? '缩小岛屿' : 'Zoom out'}>−</button>
+      <button type="button" onClick={() => framePlace()}>{lang === 'zh' ? '复位视角' : 'Recenter'}</button>
+    </div>
+  </div>;
 }

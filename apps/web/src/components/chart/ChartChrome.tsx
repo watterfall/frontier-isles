@@ -95,7 +95,9 @@ export function ChartChrome({ islands, onPick, onBuild, onCollide, filter = '全
   };
 
   const tierLabel = metrics ? t(`chart.tiers.${metrics.tier}`) : t('chart.tiers.loading');
-  const detailHint = metrics?.tier === 'mid' ? t('chart.anchorHint') : t('chart.detailHint');
+  const detailHint = lang === 'zh'
+    ? (metrics?.tier === 'near' ? '选择一座岛，走进问题墙、文献阁与实验坊。' : metrics?.tier === 'mid' ? '靠近一个问题群，展开邻近问题；空间接近不代表已有科学联系。' : '先看问题的分布，再靠近你在意的一片海域。')
+    : (metrics?.tier === 'near' ? 'Choose an island to enter its questions, sources and methods.' : metrics?.tier === 'mid' ? 'Approach a group to reveal nearby questions. Proximity is not a scientific link.' : 'Read the distribution of questions, then approach a region.');
 
   const setAltitudeBand = (band: 'low' | 'middle' | 'high' | null) => {
     setAltitude(band);
@@ -157,12 +159,12 @@ export function ChartChrome({ islands, onPick, onBuild, onCollide, filter = '全
       </div>
 
       <div className="fi-chart-actions">
-        <button type="button" className="fi-action fi-action-primary" onClick={onBuild}>
+        <button type="button" className="fi-action fi-action-secondary" onClick={onBuild}>
           <span className="fi-action-seal" aria-hidden="true">{t('chart.buildSeal')}</span>
           <span><strong>{t('chart.build')}</strong><small>{t('chart.buildHint')}</small></span>
         </button>
-        <button type="button" className="fi-action fi-action-secondary" onClick={onCollide}>
-          <span className="fi-action-collision" aria-hidden="true">↯</span>
+        <button type="button" className="fi-action fi-action-primary" onClick={onCollide}>
+          <svg className="fi-action-collision" width="28" height="32" viewBox="0 0 32 36" aria-hidden="true"><path d="M2 6C22 6 10 30 30 30M2 30C22 30 10 6 30 6" fill="none" stroke="currentColor" strokeWidth="1.5" /><circle cx="16" cy="18" r="3" fill="currentColor" /></svg>
           <span><strong>{t('collision.button')}</strong><small>{t('chart.collisionHint')}</small></span>
         </button>
       </div>

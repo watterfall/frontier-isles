@@ -1,0 +1,99 @@
+/* v5: one spatial address from the island map through its research rooms. */
+.fi-wayfinder { margin:0 0 24px; border-bottom:1px solid var(--island-line); }
+.fi-wayfinder-location { display:flex; align-items:center; gap:8px; font:13px/1.5 var(--fi-font-body); }
+.fi-wayfinder-location button { min-height:44px; padding:0 8px 0 0; background:transparent; color:var(--island-blue); border:0; cursor:pointer; }
+.fi-wayfinder-location strong { font-weight:500; }
+.fi-wayfinder > svg { display:block; width:100%; max-height:220px; overflow:visible; }
+.fi-wayfinder-land { fill:color-mix(in srgb,var(--island-paper) 80%,var(--island-blue)); stroke:var(--island-line); stroke-width:1; }
+.fi-wayfinder-route { fill:none; stroke:var(--island-blue); stroke-width:1.5; stroke-dasharray:4 5; }
+.fi-wayfinder [role='button'] { cursor:pointer; outline:none; }
+.fi-wayfinder-target { fill:transparent; stroke:transparent; }
+.fi-wayfinder-dot { fill:var(--island-paper); stroke:var(--island-ink); stroke-width:1.5; }
+.fi-wayfinder-dot[data-route='true'], .fi-wayfinder [aria-pressed='true'] .fi-wayfinder-dot { fill:var(--island-blue); stroke:var(--island-blue); }
+.fi-wayfinder [role='button']:hover .fi-wayfinder-target, .fi-wayfinder [role='button']:focus-visible .fi-wayfinder-target { stroke:var(--island-blue); stroke-dasharray:3 3; }
+.fi-wayfinder text { fill:var(--island-ink); font:12px var(--fi-font-body); paint-order:stroke; stroke:var(--island-paper); stroke-width:3; stroke-linejoin:round; pointer-events:none; }
+.fi-wayfinder-trail-toggle { display:flex; width:100%; justify-content:space-between; gap:10px; align-items:center; text-align:left; min-height:48px; border:0; border-top:1px solid var(--island-line); padding:10px 0; background:transparent; color:var(--island-ink); font:13px/1.6 var(--fi-font-body); cursor:pointer; }
+.fi-wayfinder-trail-toggle > span:last-child { color:var(--island-blue); font-size:11px; white-space:nowrap; }
+.fi-wayfinder-trail ol { list-style:none; padding:0; margin:8px 0; }
+.fi-wayfinder-trail li { position:relative; padding:0 0 0 18px; }
+.fi-wayfinder-trail li:not(:last-child)::before { content:''; position:absolute; left:3px; top:20px; bottom:-20px; border-left:1px dashed var(--island-blue); }
+.fi-wayfinder-trail li::after { content:''; position:absolute; left:0; top:20px; width:7px; height:7px; border-radius:50%; background:var(--island-blue); }
+.fi-wayfinder-trail button { display:block; text-align:left; width:100%; min-height:58px; padding:8px 0 12px; border:0; background:transparent; color:var(--island-ink); cursor:pointer; }
+.fi-wayfinder-trail button strong { display:block; font:500 15px var(--fi-font-display); }
+.fi-wayfinder-trail button span { display:block; margin-top:5px; font:12px/1.6 var(--fi-font-body); }
+.fi-wayfinder-trail button[aria-current] strong { color:var(--island-blue); text-decoration:underline; text-underline-offset:4px; }
+.fi-wayfinder-trail p { font:11px/1.8 var(--fi-font-body); margin:8px 0 16px; }
+.fi-station-arrival { width:min(430px,34vw); max-height:calc(100% - 190px); overflow-y:auto; scrollbar-width:thin; padding:18px 24px; }
+.fi-station-arrival .fi-arrival-invitation { margin:12px 0 20px; font:14px/1.8 var(--fi-font-body); }
+.fi-station-arrival-actions { position:sticky; bottom:-18px; padding:12px 0 4px; background:var(--island-paper); }
+.fi-building-plan { margin:0 0 8px; }
+.fi-building-plan-rooms { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:12px; border:1px solid var(--island-line); }
+.fi-building-plan button { position:relative; display:flex; flex-direction:column; text-align:left; min-width:0; padding:12px; border:1px solid var(--island-line); background:transparent; color:var(--island-ink); cursor:pointer; }
+.fi-building-plan button:first-child { grid-column:1/-1; }
+.fi-building-plan button:hover, .fi-building-plan button[aria-current] { background:color-mix(in srgb,var(--island-blue) 8%,var(--island-paper)); border-color:var(--island-blue); }
+.fi-room-door { position:absolute; bottom:-1px; left:14px; width:20px; height:8px; background:var(--island-paper); border:1px solid var(--island-line); border-bottom:0; border-radius:20px 0 0 0; }
+.fi-building-plan strong { font:600 15px/1.6 var(--fi-font-display); }
+.fi-room-preview { display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; margin:8px 0 12px; font:12px/1.65 var(--fi-font-body); }
+.fi-building-plan small { display:flex; justify-content:space-between; gap:8px; margin-top:auto; font:11px/1.6 var(--fi-font-body); color:var(--island-blue); }
+.fi-building-plan small svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:1.5; flex:none; }
+.fi-building-plan > p { margin:10px 0 0; font:11px/1.65 var(--fi-font-body); }
+.fi-building-plan[data-form='stacks'] .fi-building-plan-rooms { grid-template-columns:1fr; gap:16px; padding-left:24px; }
+.fi-building-plan[data-form='stacks'] button { border-left:0; }
+.fi-building-plan[data-form='stacks'] .fi-room-door { left:-9px; bottom:15px; transform:rotate(90deg); }
+.fi-building-plan[data-form='court'] .fi-building-plan-rooms { gap:24px; }
+.fi-building-plan[data-form='court'] button:first-child { border-radius:24px 24px 0 0; }
+.fi-building-plan[data-form='forum'] button:first-child { border-radius:0 0 22px 22px; }
+.fi-building-plan[data-form='bench'] .fi-building-plan-rooms { gap:18px 10px; }
+.fi-building-plan[data-form='bench'] button:last-child { grid-column:1/-1; }
+.fi-reader-plan { margin:0 0 22px; }
+.fi-reader-plan > summary { min-height:44px; padding:10px 0; font:13px/1.6 var(--fi-font-body); color:var(--island-blue); cursor:pointer; }
+.fi-reading-location { display:flex; gap:8px; flex-wrap:wrap; padding:0 30px 12px; font:11px/1.6 var(--fi-font-body); }
+.fi-reading-location > span:first-child { max-width:32%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.fi-reading-location strong { font-weight:500; }
+.fi-carried-preview { display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:6px; font:12px/1.6 var(--fi-font-body); color:var(--island-ink); }
+.fi-reading-previous { min-height:44px; padding:0; border:0; background:transparent; color:var(--island-blue); font:13px var(--fi-font-body); cursor:pointer; text-align:right; }
+.fi-reading-previous span { display:block; margin-top:4px; font-size:11px; color:var(--island-ink); }
+.fi-research-desk { margin:28px 0; padding:0 0 16px; border-top:1px solid var(--island-line); border-bottom:1px solid var(--island-line); }
+.fi-research-desk > summary { min-height:52px; padding:16px 0; font:600 20px/1.5 var(--fi-font-display); cursor:pointer; color:var(--island-blue); }
+.fi-research-desk > p { font:14px/1.8 var(--fi-font-body); }
+.fi-desk-field { display:block; margin:18px 0; }
+.fi-desk-field > span { display:block; margin-bottom:10px; font:500 14px/1.7 var(--fi-font-body); }
+.fi-desk-field textarea { width:100%; padding:12px; resize:vertical; border:1px solid var(--island-line); background:var(--island-paper); color:var(--island-ink); caret-color:var(--island-blue); font:15px/1.75 var(--fi-font-body); }
+.fi-desk-field textarea::placeholder { color:color-mix(in srgb,var(--island-ink) 80%,var(--island-paper)); }
+.fi-desk-save button { min-height:44px; padding:10px 14px; border:0; background:var(--island-accent-fill); color:var(--island-on-accent); font:14px var(--fi-font-body); cursor:pointer; }
+.fi-desk-save button:disabled { cursor:default; background:color-mix(in srgb,var(--island-ink) 12%,var(--island-paper)); color:var(--island-ink); }
+.fi-desk-save small { display:block; margin-top:12px; font:12px/1.7 var(--fi-font-body); }
+.fi-research-desk [role='status'] { min-height:22px; color:var(--island-blue); }
+.fi-source-picks { margin:18px 0; max-height:230px; overflow-y:auto; scrollbar-width:thin; }
+.fi-source-picks button { display:block; width:100%; text-align:left; min-height:52px; padding:12px 8px; border:0; border-bottom:1px solid var(--island-line); background:transparent; color:var(--island-ink); cursor:pointer; }
+.fi-source-picks button span { display:block; font:500 15px/1.6 var(--fi-font-display); }
+.fi-source-picks button small { display:block; margin-top:8px; font:11px/1.6 var(--fi-font-body); }
+.fi-source-picks button[aria-pressed='true'] { background:color-mix(in srgb,var(--island-blue) 10%,var(--island-paper)); }
+.fi-source-picks button[aria-pressed='true'] span { text-decoration:underline; text-underline-offset:4px; color:var(--island-blue); }
+.fi-source-picks button:disabled { cursor:default; color:color-mix(in srgb,var(--island-ink) 70%,var(--island-paper)); }
+.fi-source-comparison { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:22px; }
+.fi-source-comparison article { min-width:0; }
+.fi-source-comparison h4 { margin:12px 0; font:600 18px/1.6 var(--fi-font-display); overflow-wrap:anywhere; }
+.fi-source-comparison p { font:14px/1.9 var(--fi-font-body); }
+.fi-source-comparison small { display:block; font:12px/1.7 var(--fi-font-body); }
+.fi-source-comparison a { display:inline-flex; align-items:center; min-height:44px; font:13px var(--fi-font-body); color:var(--island-blue); text-underline-offset:4px; }
+@media(min-width:761px) {
+  .fi-island-screen[data-selected-place]:not([data-reading='true']) .fi-island-landscape { right:min(480px,36vw); }
+}
+@media(max-width:760px) {
+  .fi-wayfinder > svg { max-height:250px; }
+  .fi-wayfinder text { font-size:11px; }
+  .fi-station-arrival { width:auto; max-height:none; overflow:visible; scroll-margin-top:16px; }
+  .fi-station-arrival-actions { position:static; padding-bottom:0; }
+  .fi-building-plan strong { font-size:15px; }
+  .fi-building-plan[data-form='court'] .fi-building-plan-rooms { gap:14px; }
+  .fi-reading-location { padding:0 20px 8px; font-size:10px; }
+  .fi-building-identity { padding-top:6px; padding-bottom:6px; }
+  .fi-desk-field textarea { font-size:16px; }
+  .fi-source-comparison { grid-template-columns:1fr; gap:16px; }
+  .fi-source-comparison article + article { border-top:1px solid var(--island-line); padding-top:14px; }
+}
+@media(prefers-reduced-motion:no-preference) {
+  .fi-station-arrival { animation:island-entrance-unfold 280ms cubic-bezier(.16,1,.3,1); }
+  @keyframes island-entrance-unfold { from { clip-path:inset(0 0 18% 0); } to { clip-path:inset(0); } }
+}

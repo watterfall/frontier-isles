@@ -1,3 +1,5 @@
+import { islandCharacter } from '../../scene/islandCharacter';
+import { IslandSpatialFallback } from '../../scene/IslandSpatialFallback';
 import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { projectClaimState, projectActiveStations, projectNightTimeline, type ClaimState, type RelationRefResolver, type StationKind, type NightTimelineModel } from '@frontier-isles/core';
@@ -10,7 +12,13 @@ import { TransplantPanel } from './TransplantPanel';
 import { NightTimeline } from './NightTimeline';
 import { StationInteriorDrawer } from './StationInteriorDrawer';
 import { IslandDistrictMap } from './IslandDistrictMap';
-import { projectBuildingFloors, projectIslandDistricts, type BuildingFloor, type BuildingFloorPlan, type IslandDistrict } from './islandDepth';
+import { StationArrival } from './StationArrival';
+import { useExplorationNavigation } from './explorationNavigation';
+import { buildingRooms } from './islandDepth';
+import { STATION_PLACES } from '../../scene/stationSpatial';
+import './island-exploration.css';
+import './island-navigation.css';
+import { projectBuildingFloors, projectIslandDistricts, frontierProgramOf, type BuildingFloor, type BuildingFloorPlan, type IslandDistrict } from './islandDepth';
 import { frontierAtlasBySlug } from '@frontier-isles/data/atlas';
 // Read the cache the atlas boot already filled — do NOT import the data module
 // here. This screen is lazily mounted, so a static import would add the whole
@@ -29,8 +37,6 @@ import { proposalsFor, resolveProposal, type ResolvedProposal } from '@frontier-
 import { buildingVisitKey, type IslandDistrictId } from '../../state/explorationSession';
 import { projectRecordFreshness, type RecordFreshness } from '../../models/recordFreshness';
 import { IslandStepper, type IslandStepperProps } from './IslandStepper';
-import { ArrivalChoreo } from './ArrivalChoreo';
-import { buildArrivalStages, stageVisible } from '../../scene/arrival';
 import type { WorldTrailDistrict, WorldTrailFloor } from '../../state/worldTrail';
 
 /** Load the full L1 station archive only when a stale server omitted it. */
@@ -58,17 +64,7 @@ export async function loadFallbackLiterature(slug: string): Promise<IslandRefere
   }
 }
 
-/** A minority of content-rich islands reuse the original sample's research-
- * courtyard grammar. Stable by slug, never random per visit; other islands keep
- * the organic terrain grammar so visual diversity grows instead of converging. */
-function usesCourtyardLayout(slug: string, hasInterior: boolean): boolean {
-  if (!hasInterior) return false;
-  let hash = 5381;
-  for (let i = 0; i < slug.length; i++) hash = (Math.imul(hash, 33) ^ slug.charCodeAt(i)) >>> 0;
-  return hash % 3 === 0;
-}
 import { generate, type GeneratedScene } from '../../scene/generator';
-import { GeneratedSceneView } from '../../scene/GeneratedScene';
 import type { LayoutInput } from '../../scene/layout';
 import { replayToNight, type NightReplayState } from '../../scene/nightReplay';
 import { dueRituals, extractRitualEvents, loadWatermark, saveWatermark, type RitualEvent } from '../../scene/rituals';
@@ -127,6 +123,10 @@ export interface GeneratedIslandScreenProps {
   backTarget?: 'atlas' | 'explore';
   stepper?: IslandStepperProps;
   onStation: (key: StationKind) => void;
+  personalNote?: string;
+  onPersonalNote?: (text: string) => void;
+  onOpenModel?: () => void;
+  readOnly?: boolean;
   /** Current user's ledger actor id — for the human transplant (Phase B.3). */
   actor: string;
   onToast: (msg: string) => void;
@@ -170,6 +170,7 @@ export function GeneratedIslandScreen({
   backTarget = 'atlas',
   stepper,
   onStation,
+  personalNote, onPersonalNote, onOpenModel, readOnly = false,
   actor,
   onToast,
   surveyedDistricts = [],
@@ -217,7 +218,12 @@ export function GeneratedIslandScreen({
   // station opens its archive (Question Wall / library / whiteboard / data /
   // driftwood / residents). Islands without an interior fall through to the
   // parent's onStation (a "station coming soon" toast), unchanged.
-  const [drawerStation, setDrawerStation] = useState<StationKind | null>(null);
+  const navigation = useExplorationNavigation(slug);
+  const selectedStation = navigation.state.selected;
+  const drawerStation = navigation.state.reading?.station ?? null;
+  const [carriedQuestion, setCarriedQuestion] = useState<string|null>(null);
+  const [focusRequest, setFocusRequest] = useState(0);
+  const readingPositions = useRef(new Map<string,number>());
   const [activeStructure, setActiveStructure] = useState<ApiStructure | null>(null);
   // Human transplant-through-dock (Phase B.3): the driftwood→dock→station panel.
   const [transplantOpen, setTransplantOpen] = useState(false);
@@ -235,7 +241,6 @@ export function GeneratedIslandScreen({
   const [timeline, setTimeline] = useState<NightTimelineModel | null>(null);
   const [freshness, setFreshness] = useState<RecordFreshness | null>(null);
   // Arrival choreography beat counter — reset per island in the fetch effect.
-  const [arrivalPhase, setArrivalPhase] = useState(0);
   const [scrubNight, setScrubNight] = useState(1);
   const [replay, setReplay] = useState<NightReplayState | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -254,7 +259,20 @@ export function GeneratedIslandScreen({
   useEffect(() => {
     onActiveDistrict?.(null);
     onActiveFloor?.(null);
+    readingPositions.current.clear();
   }, [slug]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!selectedStation || drawerStation) return;
+    const frame=requestAnimationFrame(()=>{
+      const entrance=document.querySelector<HTMLButtonElement>(`[data-station-enter="${selectedStation}"]`);
+      entrance?.focus({preventScroll:true});
+      if(window.innerWidth<=760)entrance?.closest('.fi-station-arrival')?.scrollIntoView({block:'start',behavior:'instant'});
+    });
+    const escape=(event:KeyboardEvent)=>{if(event.key==='Escape'){navigation.dispatch({type:'overview'});setFocusRequest(value=>value+1);}};
+    window.addEventListener('keydown',escape);
+    return ()=>{cancelAnimationFrame(frame);window.removeEventListener('keydown',escape);};
+  },[selectedStation,drawerStation]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // prefers-reduced-motion: best-effort (older browsers / non-browser test
   // environments without matchMedia keep full motion, never a crash).
@@ -299,12 +317,12 @@ export function GeneratedIslandScreen({
     setFailed(false);
     setNoGpu(false);
     setLocalInterior(undefined);
-    setDrawerStation(null);
+    setLocalLiterature([]);
+    setCarriedQuestion(null);
     setDueRitualEvents([]);
     setReplay(null);
     setTimeline(null);
     setFreshness(null);
-    setArrivalPhase(0);
     ledgerRef.current = null;
     // Fetch the island detail + its real ledger in parallel: the ledger drives the
     // Pixi claim buildings (M4「接线上」); the detail drives everything else. Either
@@ -335,6 +353,7 @@ export function GeneratedIslandScreen({
       const hasInterior = !!(det.atlas?.interior ?? fallback);
       const stage = Math.max(STAGE_INDEX[det.growth.stage] ?? 1, hasInterior ? 2 : 0);
       const hasAi = det.memberships.some((m) => m.actorKind === 'agent');
+      const character = islandCharacter(frontierProgramOf(det.atlas?.cluster ?? frontierAtlasBySlug(slug)?.cluster, det.domain as LayoutInput['domain'], frontierAtlasBySlug(slug)?.title ?? {zh:det.object.title,en:det.object.title}), slug);
       const layoutInput: LayoutInput = {
         slug,
         domain: det.domain as '数理' | '物质' | '生命' | '交叉',
@@ -346,7 +365,9 @@ export function GeneratedIslandScreen({
         tide: det.tide.N,
         hasAi,
         eventCount: det.eventCount,
-        layoutVariant: usesCourtyardLayout(slug, hasInterior) ? 'courtyard' : 'organic',
+        layoutVariant: character.layout,
+        character,
+        materialStations: det.atlas?.depth ? ['questions','dock','library','canvas','workshop','driftwood','gallery','data','tearoom'] : undefined,
       };
       const resolveRef = ledger ? await api.relationRefResolver(ledger) : undefined;
       if (cancelled) return;
@@ -592,28 +613,35 @@ export function GeneratedIslandScreen({
     activeStructure,
     completedPassageCount,
   });
-  const nextDistrict = districtProjection.districts.find((district) => district.state === 'available')
-    ?? districtProjection.districts.find((district) => district.state === 'surveyed')
-    ?? districtProjection.districts[0];
-  // Arrival choreography: every beat is bound to recorded state. Sealed
-  // districts never get a beat (they stay foundation-only), and the stele /
-  // lamp beats exist only when the ledger actually projected them. Reduced
-  // motion is simply "already done".
-  const arrivalStages = buildArrivalStages({
-    districts: districtProjection.districts,
-    claimCount: effClaims?.length ?? 0,
-    activeStationCount: effActive?.size ?? 0,
-  });
-  const arrivalDone = reducedMotion || arrivalPhase >= arrivalStages.length;
-  const arrivalClaims = stageVisible(arrivalStages, 'claims', arrivalPhase, arrivalDone) ? effClaims : undefined;
-  const arrivalActive = stageVisible(arrivalStages, 'lamps', arrivalPhase, arrivalDone) ? effActive : undefined;
+  const arrivalClaims = effClaims ?? [];
+  const arrivalActive = effActive;
   const visitedByStation = Object.fromEntries(visibleStations.map((station) => [
     station,
     visitedBuildingFloors[buildingVisitKey(slug, station)] ?? [],
   ]));
-  const handleStation = (key: StationKind): void => {
-    if (planByStation.has(key)) setDrawerStation(key);
-    else onStation(key);
+  const focusPlace = (key: StationKind): void => {
+    setFocusRequest(value=>value+1);
+    const district=districtProjection.districts.find(item=>item.id===STATION_PLACES[key].district);
+    if(district)reportActiveDistrict(district);
+  };
+  const lastRoom = (station:StationKind) => navigation.state.history.slice().reverse().find(address=>address.station===station)?.room;
+  const openRoom = (key:StationKind, room?:string):void => {
+    const plan=planByStation.get(key);
+    if(!plan){onStation(key);return;}
+    navigation.dispatch({type:'read',address:{station:key,room:room??lastRoom(key)??buildingRooms(plan)[0]?.id}});
+    focusPlace(key);
+  };
+  const approachStation = (key:StationKind):void => {
+    navigation.dispatch({type:'approach',station:key});focusPlace(key);
+  };
+  const overview = ():void => {navigation.dispatch({type:'overview'});setFocusRequest(value=>value+1);};
+  const handleStation = (key: StationKind, question?:string): void => {
+    if(question) setCarriedQuestion(question);
+    openRoom(key);
+  };
+  const closeBuilding = (): void => {
+    navigation.dispatch({type:'outside'}); onActiveFloor?.(null);
+    requestAnimationFrame(()=>document.querySelector<HTMLButtonElement>(`[data-station-enter="${selectedStation}"]`)?.focus());
   };
   const drawerPlan = drawerStation ? planByStation.get(drawerStation) : undefined;
   return (
@@ -621,13 +649,17 @@ export function GeneratedIslandScreen({
       data-screen-label="L1 生成岛"
       className="fi-island-screen"
       data-night={night}
+      data-spatial="true"
+      data-reading={!!drawerStation}
+      data-character={input.character?.program}
+      data-selected-place={selectedStation ?? undefined}
       style={{ ...sceneVarsToStyle(sceneVars) }}
     >
       {/* L1 scene: the Pixi isometric renderer (M4「接线上」), fed the island's real
           ledger-driven claims + App day/night. SVG scene is the no-GPU fallback
           (CLAUDE.md: the app must render without the GPU). */}
       {noGpu ? (
-        <GeneratedSceneView scene={scene} night={night} nightT={50} onStation={handleStation} />
+        <IslandSpatialFallback input={input} claims={arrivalClaims} night={night} selectedStation={selectedStation} onStation={approachStation} onOverview={overview} lang={lang} onClaim={setClaimPanel} />
       ) : (
         <Suspense fallback={<div className="fi-island-loading-mark" role="status"><i aria-hidden="true" /><span>{t('island.loading')}</span></div>}>
           <PixiScene
@@ -638,7 +670,9 @@ export function GeneratedIslandScreen({
             activeStations={arrivalActive}
             substrate={seaStats?.substrate}
             agitation={seaStats?.contention ?? 0}
-            onStation={handleStation}
+            onStation={approachStation}
+            focusStation={selectedStation}
+            focusRequest={focusRequest}
             onClaim={setClaimPanel}
             onWebglError={() => setNoGpu(true)}
             rituals={dueRitualEvents}
@@ -648,34 +682,33 @@ export function GeneratedIslandScreen({
         </Suspense>
       )}
 
-      <ArrivalChoreo
-        stages={arrivalStages}
-        phase={arrivalPhase}
-        onAdvance={setArrivalPhase}
-        reducedMotion={reducedMotion}
-        lang={lang}
-      />
       <ClaimDetailPanel claim={claimPanel} onClose={() => setClaimPanel(null)} />
       <RitualEventPanel event={ritualPanel} onClose={() => setRitualPanel(null)} />
-      <IslandDistrictMap
-        projection={districtProjection}
-        plans={floorPlans}
-        visitedFloors={visitedByStation}
-        activeStructure={activeStructure}
-        lang={lang}
-        onSurvey={(districtId) => onSurveyDistrict?.(districtId)}
-        onStation={handleStation}
-        onActiveDistrict={reportActiveDistrict}
-      />
+      {selectedStation && !drawerStation && <StationArrival station={selectedStation} character={input.character} plan={planByStation.get(selectedStation)} lang={lang} onEnter={()=>handleStation(selectedStation)} onOverview={overview} onRoom={room=>openRoom(selectedStation,room)} lastRoom={lastRoom(selectedStation)} visited={visitedByStation[selectedStation]}/>}
       <StationInteriorDrawer
+        key={slug}
+        character={input.character}
         station={drawerStation}
         plan={drawerPlan}
         lang={lang}
+        islandTitle={title}
+        question={carriedQuestion ?? qfocus}
+        followingQuestion={!!carriedQuestion}
+        personalNote={personalNote}
+        onPersonalNote={onPersonalNote}
+        availableStations={visibleStations}
+        onStation={handleStation}
+        onOpenModel={onOpenModel}
+        onBackToAtlas={onBack}
         visitedFloorIds={drawerStation ? visitedBuildingFloors[buildingVisitKey(slug, drawerStation)] ?? [] : []}
-        initialFloorId={drawerStation ? (visitedBuildingFloors[buildingVisitKey(slug, drawerStation)] ?? []).at(-1) : undefined}
+        initialFloorId={navigation.state.reading?.room}
+        onSelectRoom={room=>{if(drawerStation)openRoom(drawerStation,room);}}
+        onBackReading={navigation.state.cursor>0?()=>{navigation.dispatch({type:'back'});setFocusRequest(value=>value+1);}:undefined}
+        previousAddress={navigation.state.cursor>0?navigation.state.history[navigation.state.cursor-1]:undefined}
+        readingPositions={readingPositions.current}
         onVisitFloor={(floorId) => { if (drawerStation) onVisitBuildingFloor?.(drawerStation, floorId); }}
         onActiveFloor={reportActiveFloor}
-        onClose={() => { setDrawerStation(null); onActiveFloor?.(null); }}
+        onClose={closeBuilding}
       />
       {transplantOpen && (
         <TransplantPanel slug={slug} actor={actor} lang={lang} onClose={() => setTransplantOpen(false)} onToast={onToast} />
@@ -684,33 +717,38 @@ export function GeneratedIslandScreen({
       {/* Ledger-driven night replay scrubber (B.2) — only at night, only when
           the ledger has events to replay. Dragging slices the ledger and
           re-projects claims/ghosts/lamps (see onScrub → replayToNight). */}
-      {night && hasReplay && timeline && (
+      {night && !selectedStation && !drawerStation && hasReplay && timeline && (
         <NightTimeline model={timeline} t={scrubNight} onT={onScrub} />
       )}
 
-      <div className="fi-island-hud">
-        <div className="fi-island-hud-left">
+      <div className="fi-island-hud" inert={!!drawerStation}>
           <button type="button" onClick={onBack} className="fi-island-back"><span aria-hidden="true">←</span><span><strong>{t(backTarget === 'explore' ? 'island.backExplore' : 'island.back')}</strong><small>{backTarget === 'explore' ? 'L0.5 · EXPLORE' : 'L0 · ATLAS'}</small></span></button>
-          {stepper && <IslandStepper {...stepper} currentName={title} />}
+        <div className="fi-island-hud-left">
+
           <section className="fi-island-dossier">
+            <h1>{title}</h1>
+            <p className="fi-island-main-question">{qfocus}</p>
+            <p className="fi-island-character"><strong>{input.character?.name[lang]}</strong><span>{input.character?.description[lang]}</span></p>
+            <p className="fi-island-orientation">{lang==='zh'?'点击建筑，看看里面有什么；选择房间深入探索。':'Approach a building, see what is inside, then choose a room to explore.'}</p>
+            <details className="fi-island-background"><summary>{lang==='zh'?'背景、来源与关联':'Background, sources and connections'}</summary>
             <div className="fi-island-dossier-meta">
-              <span>L1 · ISLAND</span>
               <span>{t(DOMAIN_I18N[domain] ?? 'chart.domains.cross')}</span>
               <span>{t(`chart.stages.${['空岛', '草棚', '书院', '学派'][STAGE_INDEX[detail.growth.stage] ?? 0]}`)}</span>
               {cluster && <span>{cluster}</span>}
             </div>
-            <h1>{title}</h1>
+
+            <div className="fi-island-background-body">
             <div className="fi-science-passage" aria-label={t('island.researchPassage.label')}>
               <section data-beat="signal">
-                <header><b>01</b><span>{t('island.researchPassage.signal')}</span></header>
+                <header><span>{t('island.researchPassage.signal')}</span></header>
                 <p>{brief || t('island.researchPassage.signalFallback')}</p>
               </section>
               <section data-beat="question">
-                <header><b>02</b><span>{t('island.researchPassage.question')}</span></header>
+                <header><span>{t('island.researchPassage.question')}</span></header>
                 <p>{qfocus}</p>
               </section>
               <section data-beat="evidence">
-                <header><b>03</b><span>{t('island.researchPassage.evidence')}</span></header>
+                <header><span>{t('island.researchPassage.evidence')}</span></header>
                 <div className="fi-island-evidence-row">
                   {/* Record freshness: spoken only from real ledger events. A
                       curated island (editorial content, no record) is labelled as
@@ -778,17 +816,7 @@ export function GeneratedIslandScreen({
                   </p>
                 )}
               </section>
-              {nextDistrict && (
-                <section data-beat="next">
-                  <header><b>04</b><span>{t('island.researchPassage.next')}</span></header>
-                  <p>{nextDistrict.description[lang]}</p>
-                  {onSurveyDistrict && nextDistrict.state === 'available' && (
-                    <button type="button" onClick={() => onSurveyDistrict(nextDistrict.id)}>
-                      <span>{nextDistrict.name[lang]}</span><strong>{t('island.researchPassage.survey')}</strong><i aria-hidden="true">→</i>
-                    </button>
-                  )}
-                </section>
-              )}
+
             </div>
             {depth && (
               <details className="fi-island-depth" style={{ marginTop: 8, maxWidth: 540 }}>
@@ -948,7 +976,23 @@ export function GeneratedIslandScreen({
                 </div>
               </details>
             )}
+            {stepper && <div className="fi-island-browse-other"><p>{lang==='zh'?'按图集顺序浏览其他岛屿':'Browse other islands in atlas order'}</p><IslandStepper {...stepper} currentName={title}/></div>}
+            </div></details>
           </section>
+      {!drawerStation && <IslandDistrictMap
+        input={input}
+        onOverview={overview}
+        character={input.character}
+        projection={districtProjection}
+        plans={floorPlans}
+        visitedFloors={visitedByStation}
+        activeStructure={activeStructure}
+        lang={lang}
+        onSurvey={(districtId) => onSurveyDistrict?.(districtId)}
+        onStation={approachStation}
+        selectedStation={selectedStation}
+        onActiveDistrict={reportActiveDistrict}
+      />}
         </div>
         <div className="fi-island-hud-mode">
           <DayNightLever night={night} onToggle={onToggleNight} />
@@ -958,14 +1002,14 @@ export function GeneratedIslandScreen({
       {/* Transplant-through-dock trigger (Phase B.3) — a human moves a driftwood
           atom through the dock into a formal station. Bottom-right, opposite the
           leave links; the panel does the picking + POST. */}
-      <button
+      {!readOnly && <button
         type="button"
         onClick={() => setTransplantOpen(true)}
         data-testid="transplant-open"
         className="fi-transplant-trigger"
       >
         <span aria-hidden="true">入</span><span><strong>{t('island.transplant.open')}</strong><small>{t('island.transplant.flow')}</small></span>
-      </button>
+      </button>}
 
       {/* Leave links */}
       <div className="fi-leave-links">

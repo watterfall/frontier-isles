@@ -5,7 +5,7 @@ import { initReactI18next } from 'react-i18next';
 import type { StationKind } from '@frontier-isles/core';
 import { INTERIORS } from '@frontier-isles/data/interiors';
 import { StationInteriorDrawer } from '../StationInteriorDrawer';
-import { projectBuildingFloors } from '../islandDepth';
+import { buildingRooms, projectBuildingFloors } from '../islandDepth';
 import { zh } from '../../../i18n/zh';
 import { en } from '../../../i18n/en';
 
@@ -123,23 +123,24 @@ describe('StationInteriorDrawer', () => {
     const html = renderToStaticMarkup(
       <StationInteriorDrawer station={null} plan={undefined} lang="zh" onClose={() => {}} />,
     );
-    expect(html).toContain('aria-hidden="true"');
+    expect(html).toBe('');
   });
 
   it('shows the empty-state note when a building plan has no floors', () => {
     const html = renderToStaticMarkup(
       <StationInteriorDrawer station="questions" plan={{ station: 'questions', floors: [] }} lang="zh" onClose={() => {}} />,
     );
-    expect(html).toContain(zh.island.interior.empty);
+    expect(html).toContain('这里还没有收录材料。');
+    expect(html).not.toContain('room-tab--1');
   });
 
-  it('renders a semantic dialog, real close button, and multi-floor cutaway', () => {
+  it('renders a semantic dialog, real close button, and content-based rooms', () => {
     const plan = planOf('questions');
     const html = renderToStaticMarkup(
       <StationInteriorDrawer station="questions" plan={plan} lang="zh" onClose={() => {}} />,
     );
     expect(html).toContain('role="dialog"');
-    expect(html).toContain('fi-interior-close');
-    expect(html.match(/role="tab"/g)?.length).toBe(plan.floors.length);
+    expect(html).toContain('fi-building-back');
+    expect(html.match(/role="tab"/g)?.length).toBe(buildingRooms(plan).length);
   });
 });

@@ -62,7 +62,7 @@ export interface ModelRunReceipt {
   substrateId: ModelSubstrateId;
   seed: number;
   parameters: Record<string, number>;
-  prediction: ModelPrediction;
+  prediction: ModelPrediction | null;
   observation: ModelRunObservation;
   boundary: string;
   language: ModelLanguage;
