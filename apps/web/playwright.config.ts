@@ -12,6 +12,12 @@ const apiPort = Number(process.env.FI_E2E_API_PORT ?? 8787);
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: false,
+  // A hosted runner has two CPU cores and SwiftShader renders on those same
+  // cores. Two browser workers delayed page tasks by tens of seconds even
+  // when intercepted API responses arrived in ~60ms (CI 34023988439), causing
+  // the real 6s capability deadline to expire. Keep all scenarios and their
+  // deadlines; run one software-rendered world at a time in CI.
+  workers: process.env.CI ? 1 : undefined,
   // CI runners simulate world time slower than the clock (few rendered frames
   // × 50ms dt clamp), so the exploration round trip legitimately needs longer
   // there; locally the test still finishes in ~35s.
