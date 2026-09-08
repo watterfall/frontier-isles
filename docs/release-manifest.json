@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
-  "statusAsOf": "2026-09-06",
+  "statusAsOf": "2026-09-08",
   "scope": "Release checkpoint for the CI-verified runtime commit on main. The documentation-only commit recording this evidence follows deployment and is not part of the image.",
   "main": {
     "branch": "main",
-    "commit": "7e7ad9ac1416c7799558fbf847ebff2487dce0a9",
-    "committedAt": "2026-09-06T17:34:38+08:00",
+    "commit": "dafe39543a5f421442c95b7542575178e5bd3732",
+    "committedAt": "2026-09-08T09:38:18+08:00",
     "ci": {
       "provider": "github-actions",
-      "runId": 34025044047,
-      "url": "https://github.com/watterfall/frontier-isles/actions/runs/34025044047",
+      "runId": 34177384037,
+      "url": "https://github.com/watterfall/frontier-isles/actions/runs/34177384037",
       "conclusion": "success",
       "gates": [
         "test",
@@ -18,8 +18,8 @@
         "e2e"
       ],
       "e2e": {
-        "passed": 20,
-        "flaky": 0,
+        "passed": 26,
+        "flaky": 1,
         "failed": 0
       }
     }
@@ -27,11 +27,11 @@
   "production": {
     "app": "frontier-isles",
     "url": "https://frontier-isles.fly.dev",
-    "releaseVersion": 8,
-    "deploymentTag": "git-7e7ad9ac1416c7799558fbf847ebff2487dce0a9",
-    "sourceCommit": "7e7ad9ac1416c7799558fbf847ebff2487dce0a9",
-    "createdAt": "2026-09-06T09:45:41Z",
-    "healthCheckedAt": "2026-09-06",
+    "releaseVersion": 9,
+    "deploymentTag": "git-dafe39543a5f421442c95b7542575178e5bd3732",
+    "sourceCommit": "dafe39543a5f421442c95b7542575178e5bd3732",
+    "createdAt": "2026-09-08T01:59:25Z",
+    "healthCheckedAt": "2026-09-08",
     "health": "passing",
     "counts": {
       "islands": 384,
@@ -40,29 +40,33 @@
       "frontierProjections": 39
     },
     "liveVerification": {
-      "checkedAt": "2026-09-06T09:46:36.622966+00:00",
-      "method": "Live HTTPS API assertions and exact SHA-256 comparison of the served entry JS and CSS bytes against the verified local build, followed by a manual desktop Chrome UI walkthrough of the deployed site. Existing Fly machine and SQLite volume were updated in place.",
+      "checkedAt": "2026-09-08T02:00:53.556934+00:00",
+      "method": "Live HTTPS API assertions and exact SHA-256 comparison of entry JS/CSS and the lazy FieldStudy and GeneratedIslandScreen assets against the verified build, followed by five Playwright cases against the production URL with no retries. The existing Fly machine and SQLite volume were updated in place.",
       "assetSha256": {
-        "/assets/index-Bp7UJ57v.js": "f5357888fd97baac0267d48deaa821d51552294263005f3db324af83ee448bdf",
+        "/assets/FieldStudy-6QLQK3ZM.js": "b6b540b9a4ff5b5714c4efb8bdc4495c438bb3d33d4313af178f0f75b8290209",
+        "/assets/GeneratedIslandScreen-3Uk9zujT.css": "334d32d3854a90b03987b35cceac7363a078e9dc40bd273ac20adcaa82c72b78",
+        "/assets/GeneratedIslandScreen-TA6INbwe.js": "f06c8c37bfee6fab4829456aede3a91ca2714d0a7310ede8da972d060f0b0015",
+        "/assets/index-DsfC8Nqj.js": "84827810a102a4d1a9256f66868cf5418d01f02c6ed509c5d751031eb247d13f",
         "/assets/index-ZbD66FNe.css": "ea1ec8e5a369a549a0406bc34fa218e8aadf350bba255c72396213b9ffefe818"
       },
       "verified": [
         "Health endpoint passes; GET /api/islands returns 384 islands.",
         "GET /api/structures returns 126 structures; /api/structures/graph returns 135 mappings and 39 frontier projections.",
         "Live xFrontier catalogue has 55 questions; GQ-life-origin resolves to its DOI source.",
-        "World-map search opens compositional-modeling; the island minimap locates the question wall before opening a room.",
-        "Question wall opens distinct rooms and expandable question details with provenance and scope.",
-        "Carrying a question into the library preserves its text and explicitly states that island sources are not individually mapped to that question.",
-        "The library offers five source records; two can be selected and compared with their original source links.",
-        "Returning to the island exposes the resume-reading action; returning to the world map restores active map controls.",
-        "The cross-domain collision view renders six themes and reports a live xFrontier connection at dataset xf-4d03bbf4af34, with analogy and scientific-boundary labels visible."
+        "All ten deployed field studies change their computed observation when conditions change, and expose original source links and explicit model boundaries.",
+        "Compositional modeling preserves selected conditions and a private question across its source room, return navigation, and reload; explicit local notebook append succeeds.",
+        "The 390px English viewport supports intervention controls, keyboard slider adjustment, horizontal figure navigation, and onward travel to the animal communication island without widening the page.",
+        "A full notebook is preserved; unavailable browser storage leaves the study operable with a visible status.",
+        "With WebGL disabled, the actual workshop building and its field-study room remain reachable by keyboard.",
+        "Scoped Axe checks on the desktop and phone-emulated field study return no violations; these are not whole-product or physical-device certification.",
+        "The reviewed universal-ml-interatomic-potentials catalogue reference moved from XF-1422 to XF-1389; authored fields and ledger bytes match the pre-deployment capture."
       ],
       "xfrontier": {
         "catalogSource": "live",
-        "datasetVersion": "xf-4d03bbf4af34",
+        "datasetVersion": "xf-4ab72b2e670e",
         "questionCount": 55,
         "questionSource": {
-          "datasetVersion": "xf-4d03bbf4af34",
+          "datasetVersion": "xf-4ab72b2e670e",
           "id": "GQ-life-origin",
           "title": "The origin of life: what we know, what we can know and what we will never know",
           "url": "https://doi.org/10.1098/rsob.120190",
@@ -75,23 +79,46 @@
         "model": null
       },
       "limits": [
-        "AI proposal behavior passes the mocked E2E contract. Production provider credentials are absent, so real model execution was not verified.",
-        "Production has no configured GitHub OAuth secrets. No production authentication, ledger writes, or user notebook edits were performed in this walkthrough.",
-        "Live browser verification was on desktop Chrome. Mobile, keyboard, and accessibility checks are covered separately by local/CI evidence; this is not live mobile or research-validity proof."
-      ]
+        "AI proposals pass a mocked E2E contract (the CI case passed on retry); production reports unconfigured, so real model execution was not verified.",
+        "GET /api/auth/github returns 501 because GitHub OAuth is not configured. No authenticated production ledger writes were performed; notebook and draft checks use disposable browser-local storage.",
+        "Phone verification uses a 390px Chromium viewport, not physical mobile hardware. Teaching models, source links, and scoped accessibility checks do not establish research validity or full-product accessibility.",
+        "Fly retains scale-to-zero with min_machines_running=0; idle requests may incur cold-start latency. No availability or production performance benchmark is claimed."
+      ],
+      "browser": {
+        "checkedAt": "2026-09-08T02:07:51.114836+00:00",
+        "suite": "apps/web/e2e/field-studies.spec.ts",
+        "baseURL": "https://frontier-isles.fly.dev",
+        "passed": 5,
+        "flaky": 0,
+        "failed": 0,
+        "durationSeconds": 55.7,
+        "viewports": [
+          "1440x1000",
+          "390x844 (desktop Chromium emulation)"
+        ],
+        "scope": "Ten apparatuses; local notebook and draft continuity; source-room return; phone English keyboard controls; no-WebGL room entry. No authenticated production writes."
+      },
+      "catalogMerge": {
+        "slug": "universal-ml-interatomic-potentials",
+        "from": 1422,
+        "to": 1389,
+        "authoredFieldsUnchanged": true,
+        "ledgerSha256": "4d630ba936e263b09eec04c98c1a761960f936e7c620eaa98fb9578b84654b87",
+        "ledgerBytesUnchanged": true
+      }
     },
-    "imageDigest": "sha256:2c080845cf8d701b8043164b560d4d723bf2035bfad0416b9ee6b811802c6913"
+    "imageDigest": "sha256:5ff2dcd464b1eda7161b5d7eadd5a570a551e11cd8cf52108b1c0316230715e5"
   },
   "deploymentBoundary": {
     "mainCommitIsDeployed": true,
-    "reason": "Fly release 8 serves the image tagged with CI-verified runtime commit 7e7ad9a. GitHub Actions run 34025044047 passed test, typecheck, build, and all 20 E2E cases before deployment. Served asset bytes match the verified build. main.commit identifies this runtime checkpoint, not the later documentation-only commit recording it; recheck Fly releases and the Git log before assuming a future main HEAD is deployed."
+    "reason": "Fly release 9 serves CI-verified runtime commit dafe395. GitHub Actions run 34177384037 passed test, typecheck, build, and E2E (26 passed, 1 passed on retry, 0 failed). Five production browser cases passed without retries; served asset bytes match the verified build. main.commit identifies this runtime checkpoint, not the subsequent documentation-only commit recording it; recheck Fly releases and Git history before assuming a future main HEAD is deployed."
   },
   "bundleBaseline": {
-    "measuredAt": "2026-09-06, verified runtime commit 7e7ad9ac1416c7799558fbf847ebff2487dce0a9",
-    "figuresAreSnapshots": "Raw decimal kB and gzip decimal kB measured from apps/web/dist/assets after the verified build; Python gzip.compress(compresslevel=9, mtime=0). These five figures are snapshots, not a re-measurement by verify-release-docs.mjs; budgets remain the enforced quantities.",
+    "measuredAt": "2026-09-08, verified runtime commit dafe39543a5f421442c95b7542575178e5bd3732",
+    "figuresAreSnapshots": "Raw decimal kB and gzip decimal kB measured from apps/web/dist/assets after the verified build; Python gzip.compress(compresslevel=9, mtime=0). These figures are snapshots, not a re-measurement by verify-release-docs.mjs; budgets remain the enforced quantities.",
     "entryJs": {
-      "rawKb": 869.56,
-      "gzipKb": 288.74,
+      "rawKb": 870.77,
+      "gzipKb": 289.24,
       "rawBudgetKib": 1024
     },
     "css": {
@@ -100,8 +127,8 @@
       "rawBudgetKib": 244
     },
     "atlasDetail": {
-      "rawKb": 296.38,
-      "gzipKb": 129.47,
+      "rawKb": 296.4,
+      "gzipKb": 129.48,
       "loading": "deferred-isolated"
     },
     "structureFallback": {
@@ -121,7 +148,12 @@
     },
     "entryBudgetRationale": "Budget stays 1024 KiB. It was set when wave 3 doubled the curated atlas (176 -> 371 islands), because the growth is L0 atlas DATA rather than a new runtime: atlas.ts loads eagerly on purpose so the first frame is a real map with no round trip, and every island's question (`qfocus`) must be present offline since the chart's hover card and the connection-field search both read it from the L0 projection via api/fallback.ts. Deferring qfocus to atlas-detail was measured (36% of the L0 payload; it lands the entry at 914KiB) and rejected -- it leaves the no-server readable twin with a questionless island card, which the resilience invariant forbids. What DID move is the seed structure catalogue: structures.ts plus its wave expansion modules reached the entry through static imports of api/structureFallback from two eager screens and through a two-line `slugOfOp` helper that used to live in the same module. That data is needed only once a reader opens the structure lens, so it now loads through import() as its own chunk. Note the failure that preceded this: the wave-3 structure mappings (commit c97e625) pushed the entry to 1108.9 KiB -- 85 KiB over -- and it went unnoticed because `pnpm build` is in neither `pnpm -r test` nor `pnpm typecheck`, so every gate stayed green while the release build was broken. Naming the modules in guardEntryChunk's ENTRY_FORBIDDEN list is what makes the next occurrence say what leaked instead of only that the total grew.",
     "budgetOnMerge": "The merge kept 1024 on purpose rather than by letting git pick. The structures branch carried 900, sized for a 188-island atlas, and its own text argued the budget had not been raised to fit new data. Only one side changed that line, so git took 1024 with no conflict -- a budget relaxed by an automatic merge that nobody decided. The merged tree measures 834.2 KiB, which fits under both, so 900 was available. It was not taken: the 1024 rationale above is a written decision about an atlas of THIS size, turning on L0 atlas data that must load eagerly and cannot defer qfocus, and reverting to 900 would leave 65.8 KiB of headroom for 383 islands while re-adopting a number chosen for 188. 900 is recorded here as what the smaller atlas held to, not as a target to return to.",
-    "depthLayerRationale": "Where the deferral shows its work, and the reason to record it rather than assume it. Seven depth families gave 56 of the 126 seed structures their own content -- origin, minimal form, canonical substrates in other disciplines, relations to other structures, and what each is mistaken for -- which is 193 substrates across 120 disciplines and 118 relations, and more than doubled the catalogue. Across that work the entry chunk moved 701.15 -> 710.52 kB, up 9.37, which is the depth type declarations and nothing else, while structureFallback went 238.37 -> 560.14, up 321.77: content grew 34x faster in the deferred chunk than in the eager one. Merging wave 3 then moved both again, the entry to 854.25 for 195 more islands of eager L0 data and structureFallback to 670.69 for wave 3's structure patches. The number to watch is still the ratio rather than the entry size -- if a later edit makes it fall, something has been statically imported back onto the first-paint path, which is exactly how the wave-5 build failed the guard over a two-line helper. 2026-08-30: two more families (field-and-flow, observation-and-absence) took the catalogue to 80 of 126 structures with depth -- 280 canonical substrates across 161 disciplines, 185 relations -- and the same content finally reached a reader: the connection explorer now renders a structure's own origin, minimal form, quantities, substrates, relations and mistakenFor on desktop and mobile through a lazily opened StructureReading. The entry chunk moved 854.25 -> 859.55 kB, which is the reading component and its wiring; structureFallback moved 670.69 -> 832.03 kB for the 16 new patches and a reverse relation index. The ratio held: 30x more content in the deferred chunk than in the eager one, and ENTRY_FORBIDDEN now also names the structures-depth-* modules so a family file can never be statically imported back onto first paint. 2026-08-31: two more families (network-and-channel, scale-and-rate) take the deferred structureFallback chunk from 832.03 to 940.01 kB raw. The entry moved 859.55 -> 867.90 kB for two unrelated reasons, neither of them the prose: the reading component's own code, and a new EAGER module, packages/data/src/structure-index.ts. That one is generated (scripts/generate-structure-index.mjs, checked by pnpm check:structure-index inside packages/data's typecheck) and holds three integers per structure that has a written body — substrate count, distinct-discipline count, and relation degree — about 12 kB for 96 entries. It is eager on purpose and the exception proves the rule: the topic LIST is the first thing a reader sees on entering the connection explorer, and until now its only label was the island count, the single dimension on which most of these topics are empty by design. 标度律 read as 尚无可靠映射 while the structure itself carried an origin, three textbook instances and its relations. Marking the list needs the integers, not the prose, so the integers ship and the prose stays behind the same import(). A vitest gate caps the index at 20 kB serialised and fails if the file ever grows an import, which is the only way it could drag the catalogue back into the entry chunk. 2026-08-31 (later): the last four families take depth to 126/126 and the deferred structureFallback chunk to 1134.27 kB raw / 474.69 kB gzip — it is now the largest thing the app can load, and it stays behind import() for exactly that reason: a reader who never opens the connection explorer never pays for it. The eager structure-index grew with it, to 126 entries and ~13 kB, which is the whole of the entry's move from 867.90 to 870.48 kB. That ratio is the argument for the split: 13 kB eager buys a correctly marked list over content that costs 1134 kB to read."
+    "depthLayerRationale": "Where the deferral shows its work, and the reason to record it rather than assume it. Seven depth families gave 56 of the 126 seed structures their own content -- origin, minimal form, canonical substrates in other disciplines, relations to other structures, and what each is mistaken for -- which is 193 substrates across 120 disciplines and 118 relations, and more than doubled the catalogue. Across that work the entry chunk moved 701.15 -> 710.52 kB, up 9.37, which is the depth type declarations and nothing else, while structureFallback went 238.37 -> 560.14, up 321.77: content grew 34x faster in the deferred chunk than in the eager one. Merging wave 3 then moved both again, the entry to 854.25 for 195 more islands of eager L0 data and structureFallback to 670.69 for wave 3's structure patches. The number to watch is still the ratio rather than the entry size -- if a later edit makes it fall, something has been statically imported back onto the first-paint path, which is exactly how the wave-5 build failed the guard over a two-line helper. 2026-08-30: two more families (field-and-flow, observation-and-absence) took the catalogue to 80 of 126 structures with depth -- 280 canonical substrates across 161 disciplines, 185 relations -- and the same content finally reached a reader: the connection explorer now renders a structure's own origin, minimal form, quantities, substrates, relations and mistakenFor on desktop and mobile through a lazily opened StructureReading. The entry chunk moved 854.25 -> 859.55 kB, which is the reading component and its wiring; structureFallback moved 670.69 -> 832.03 kB for the 16 new patches and a reverse relation index. The ratio held: 30x more content in the deferred chunk than in the eager one, and ENTRY_FORBIDDEN now also names the structures-depth-* modules so a family file can never be statically imported back onto first paint. 2026-08-31: two more families (network-and-channel, scale-and-rate) take the deferred structureFallback chunk from 832.03 to 940.01 kB raw. The entry moved 859.55 -> 867.90 kB for two unrelated reasons, neither of them the prose: the reading component's own code, and a new EAGER module, packages/data/src/structure-index.ts. That one is generated (scripts/generate-structure-index.mjs, checked by pnpm check:structure-index inside packages/data's typecheck) and holds three integers per structure that has a written body — substrate count, distinct-discipline count, and relation degree — about 12 kB for 96 entries. It is eager on purpose and the exception proves the rule: the topic LIST is the first thing a reader sees on entering the connection explorer, and until now its only label was the island count, the single dimension on which most of these topics are empty by design. 标度律 read as 尚无可靠映射 while the structure itself carried an origin, three textbook instances and its relations. Marking the list needs the integers, not the prose, so the integers ship and the prose stays behind the same import(). A vitest gate caps the index at 20 kB serialised and fails if the file ever grows an import, which is the only way it could drag the catalogue back into the entry chunk. 2026-08-31 (later): the last four families take depth to 126/126 and the deferred structureFallback chunk to 1134.27 kB raw / 474.69 kB gzip — it is now the largest thing the app can load, and it stays behind import() for exactly that reason: a reader who never opens the connection explorer never pays for it. The eager structure-index grew with it, to 126 entries and ~13 kB, which is the whole of the entry's move from 867.90 to 870.48 kB. That ratio is the argument for the split: 13 kB eager buys a correctly marked list over content that costs 1134 kB to read.",
+    "fieldStudy": {
+      "rawKb": 23.94,
+      "gzipKb": 10.92,
+      "loading": "lazy-on-field-study-room-entry"
+    }
   },
   "runtimeBudgetTargets": {
     "scope": "Local browser diagnostics; not production RUM and not evidence that the current working tree is deployed.",
@@ -142,6 +174,6 @@
   "proofBoundaries": [
     "The CI result proves the recorded runtime commit on main. A documentation-only follow-up records this evidence and is not included in the deployed image.",
     "Production identity is bounded to the recorded release, source commit, image digest, and served asset hashes. This record does not automatically prove a future main HEAD is deployed.",
-    "Local/CI mocked AI and browser checks are distinct from live provider execution, mobile verification, authenticated writes, and scientific validation."
+    "Local/CI mocked AI checks, live desktop and phone-emulated browser checks, real provider execution, authenticated writes, physical-device validation, and scientific validation are separate evidence layers."
   ]
 }

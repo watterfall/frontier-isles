@@ -1,5 +1,7 @@
 # Island experience v6 — architectural detail and wayfinding
 
+> 发布更新（2026-09-08）：以下保留提交前的本地实施记录；随后已随 `dafe395` 部署为 Fly v9，并完成正式站点验收。提交、目录迁移与线上证据见[发布记录](island-release-v7-2026-09-08.md)。
+
 This is a local refinement of generated island L1 and its existing L2 reading loop. It preserves the mineral-paper atlas, authored research material, shared spatial addresses and the separate research ledger. The bespoke machine-curiosity sample remains outside this slice.
 
 ## Direction and behavior
