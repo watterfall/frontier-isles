@@ -8,8 +8,6 @@
 .fi-wayfinder-route { fill:none; stroke:var(--island-blue); stroke-width:1.5; stroke-dasharray:4 5; }
 .fi-wayfinder [role='button'] { cursor:pointer; outline:none; }
 .fi-wayfinder-target { fill:transparent; stroke:transparent; }
-.fi-wayfinder-dot { fill:var(--island-paper); stroke:var(--island-ink); stroke-width:1.5; }
-.fi-wayfinder-dot[data-route='true'], .fi-wayfinder [aria-pressed='true'] .fi-wayfinder-dot { fill:var(--island-blue); stroke:var(--island-blue); }
 .fi-wayfinder [role='button']:hover .fi-wayfinder-target, .fi-wayfinder [role='button']:focus-visible .fi-wayfinder-target { stroke:var(--island-blue); stroke-dasharray:3 3; }
 .fi-wayfinder text { fill:var(--island-ink); font:12px var(--fi-font-body); paint-order:stroke; stroke:var(--island-paper); stroke-width:3; stroke-linejoin:round; pointer-events:none; }
 .fi-wayfinder-trail-toggle { display:flex; width:100%; justify-content:space-between; gap:10px; align-items:center; text-align:left; min-height:48px; border:0; border-top:1px solid var(--island-line); padding:10px 0; background:transparent; color:var(--island-ink); font:13px/1.6 var(--fi-font-body); cursor:pointer; }
@@ -23,7 +21,7 @@
 .fi-wayfinder-trail button span { display:block; margin-top:5px; font:12px/1.6 var(--fi-font-body); }
 .fi-wayfinder-trail button[aria-current] strong { color:var(--island-blue); text-decoration:underline; text-underline-offset:4px; }
 .fi-wayfinder-trail p { font:11px/1.8 var(--fi-font-body); margin:8px 0 16px; }
-.fi-station-arrival { width:min(430px,34vw); max-height:calc(100% - 190px); overflow-y:auto; scrollbar-width:thin; padding:18px 24px; }
+.fi-station-arrival { box-sizing:border-box; width:min(450px,35vw); max-height:calc(100% - 190px); overflow-y:auto; scrollbar-width:thin; padding:18px 24px; }
 .fi-station-arrival .fi-arrival-invitation { margin:12px 0 20px; font:14px/1.8 var(--fi-font-body); }
 .fi-station-arrival-actions { position:sticky; bottom:-18px; padding:12px 0 4px; background:var(--island-paper); }
 .fi-building-plan { margin:0 0 8px; }
@@ -96,4 +94,47 @@
 @media(prefers-reduced-motion:no-preference) {
   .fi-station-arrival { animation:island-entrance-unfold 280ms cubic-bezier(.16,1,.3,1); }
   @keyframes island-entrance-unfold { from { clip-path:inset(0 0 18% 0); } to { clip-path:inset(0); } }
+}
+
+/* Building details and a shared preview connect the map with its readable twin. */
+.fi-island-canvas[data-hovering='true'] { cursor:pointer; }
+.fi-station-preview { position:absolute; top:18px; left:18px; z-index:1; transform:translateZ(0); display:flex; align-items:center; gap:12px; max-width:calc(100% - 36px); padding:10px 14px; background:var(--island-paper); color:var(--island-ink); pointer-events:none; }
+.fi-station-preview > svg { width:76px; height:78px; flex:none; }
+.fi-station-preview strong { display:block; font:600 20px/1.4 var(--fi-font-display); }
+.fi-station-preview p { margin:4px 0; font:13px/1.65 var(--fi-font-body); }
+.fi-station-preview small { display:block; margin-top:6px; font:11px/1.5 var(--fi-font-body); color:var(--island-blue); }
+.fi-station-preview:not([data-preview-station]) { padding:8px 12px; }
+.fi-station-preview:not([data-preview-station]) p { margin:0; font-size:12px; }
+.fi-map-touch-hint { display:none; }
+.fi-island-screen[data-reading='true'] .fi-station-preview { display:none; }
+.fi-wayfinder-footprint { fill:transparent; stroke:transparent; stroke-width:1.5; }
+.fi-wayfinder-building { pointer-events:none; }
+.fi-wayfinder [aria-pressed='true'] .fi-wayfinder-footprint { fill:color-mix(in srgb,var(--island-blue) 14%,var(--island-paper)); stroke:var(--island-blue); }
+.fi-wayfinder [data-preview='true'] .fi-wayfinder-target { stroke:var(--island-blue); stroke-dasharray:3 3; }
+.fi-wayfinder-read-mark { fill:none; stroke:var(--island-blue); stroke-width:2.5; stroke-linecap:round; pointer-events:none; }
+.fi-wayfinder-caption { min-height:54px; margin:0 0 12px; font:12px/1.7 var(--fi-font-body); }
+.fi-wayfinder-caption strong { margin-right:10px; color:var(--island-blue); font-weight:600; }
+.fi-wayfinder-caption span { display:block; margin-top:4px; }
+.fi-wayfinder-legend { display:flex; align-items:center; gap:8px; margin:0 0 12px; font:11px/1.6 var(--fi-font-body); }
+.fi-wayfinder-legend i { width:14px; height:2px; background:var(--island-blue); flex:none; }
+.fi-wayfinder-trail button small, .fi-place-visited { display:block; margin-top:8px; font:11px/1.6 var(--fi-font-body); color:var(--island-blue); }
+.fi-wayfinder-trail .fi-wayfinder-next { display:flex; justify-content:space-between; align-items:center; gap:12px; min-height:44px; padding:10px 0; border-top:1px solid var(--island-line); color:var(--island-blue); font:13px/1.6 var(--fi-font-body); }
+.fi-island-places button[data-preview='true'] strong { color:var(--island-blue); }
+.fi-fallback-hover { fill:transparent; stroke:transparent; stroke-width:2; }
+.fi-island-svg-fallback [data-preview='true'] .fi-fallback-hover { stroke:var(--island-blue); stroke-dasharray:5 4; }
+.fi-island-screen[data-night='true'] .fi-island-svg-fallback { background:var(--water); }
+.fi-island-lenses button { min-height:44px; }
+@media(max-width:1080px) and (min-width:761px) {
+  .fi-island-screen[data-selected-place] .fi-station-preview { display:none; }
+}
+@media(max-width:760px) {
+  .fi-map-pointer-hint { display:none; }
+  .fi-map-touch-hint { display:inline; }
+  .fi-station-preview { top:0; left:16px; max-width:calc(100% - 32px); }
+  .fi-station-preview[data-preview-station] { display:none; }
+  .fi-wayfinder-caption { min-height:44px; }
+}
+@media(hover:none) {
+  .fi-map-pointer-hint { display:none; }
+  .fi-map-touch-hint { display:inline; }
 }

@@ -1,3 +1,5 @@
+import { fieldStudyFor } from './field-study/studies';
+import { FieldStudyInvitation } from './field-study/FieldStudyInvitation';
 import { islandCharacter } from '../../scene/islandCharacter';
 import { IslandSpatialFallback } from '../../scene/IslandSpatialFallback';
 import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react';
@@ -202,6 +204,7 @@ export function GeneratedIslandScreen({
   const [seaStats, setSeaStats] = useState<{ substrate?: number; validates: number; refutes: number; refuted: number; bridges: number; contention: number } | null>(null);
   const [failed, setFailed] = useState(false);
   const [noGpu, setNoGpu] = useState(false); // WebGL absent → fall back to the SVG scene
+  const [previewStation, setPreviewStation] = useState<StationKind | null>(null);
   // Claim-tower tap → detail panel (scene-upgrade OUTSTANDING P1). Local state,
   // same pattern as the other Pixi-only readouts above — the SVG fallback has no
   // claim towers to tap.
@@ -260,6 +263,7 @@ export function GeneratedIslandScreen({
     onActiveDistrict?.(null);
     onActiveFloor?.(null);
     readingPositions.current.clear();
+    setPreviewStation(null);
   }, [slug]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -269,7 +273,7 @@ export function GeneratedIslandScreen({
       entrance?.focus({preventScroll:true});
       if(window.innerWidth<=760)entrance?.closest('.fi-station-arrival')?.scrollIntoView({block:'start',behavior:'instant'});
     });
-    const escape=(event:KeyboardEvent)=>{if(event.key==='Escape'){navigation.dispatch({type:'overview'});setFocusRequest(value=>value+1);}};
+    const escape=(event:KeyboardEvent)=>{if(event.key==='Escape')overview();};
     window.addEventListener('keydown',escape);
     return ()=>{cancelAnimationFrame(frame);window.removeEventListener('keydown',escape);};
   },[selectedStation,drawerStation]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -502,8 +506,9 @@ export function GeneratedIslandScreen({
     );
   }
 
-  const title = detail.object.title;
-  const qfocus = detail.object.qfocus;
+  const translatedAtlas = lang === 'en' ? frontierAtlasBySlug(slug) : undefined;
+  const title = translatedAtlas?.title.en ?? detail.object.title;
+  const qfocus = translatedAtlas?.qfocus.en ?? detail.object.qfocus;
   const brief = detail.atlas?.brief[lang] ?? '';
   const citation = detail.atlas?.citation;
   const cluster = detail.atlas?.cluster[lang];
@@ -586,8 +591,10 @@ export function GeneratedIslandScreen({
     refutes: ledgerEvents.filter((event) => event.action === 'refute').length,
     rebuilds: ledgerEvents.filter((event) => event.action === 'rebuild').length,
   };
+  const fieldStudy = fieldStudyFor(slug);
   const floorPlans: BuildingFloorPlan[] = visibleStations.map((station) => projectBuildingFloors({
     station,
+    fieldStudy,
     qfocus: qfocusBilingual,
     brief: briefBilingual,
     depth,
@@ -632,9 +639,16 @@ export function GeneratedIslandScreen({
     focusPlace(key);
   };
   const approachStation = (key:StationKind):void => {
+    setPreviewStation(null);
     navigation.dispatch({type:'approach',station:key});focusPlace(key);
   };
-  const overview = ():void => {navigation.dispatch({type:'overview'});setFocusRequest(value=>value+1);};
+  const overview = ():void => {
+    navigation.dispatch({type:'overview'});setFocusRequest(value=>value+1);setPreviewStation(null);
+    requestAnimationFrame(()=>{
+      document.querySelector<HTMLButtonElement>('.fi-wayfinder-location button')?.focus({preventScroll:true});
+      if(window.innerWidth<=760)document.querySelector('.fi-island-landscape')?.scrollIntoView({block:'start',behavior:'instant'});
+    });
+  };
   const handleStation = (key: StationKind, question?:string): void => {
     if(question) setCarriedQuestion(question);
     openRoom(key);
@@ -659,7 +673,7 @@ export function GeneratedIslandScreen({
           ledger-driven claims + App day/night. SVG scene is the no-GPU fallback
           (CLAUDE.md: the app must render without the GPU). */}
       {noGpu ? (
-        <IslandSpatialFallback input={input} claims={arrivalClaims} night={night} selectedStation={selectedStation} onStation={approachStation} onOverview={overview} lang={lang} onClaim={setClaimPanel} />
+        <IslandSpatialFallback input={input} claims={arrivalClaims} night={night} selectedStation={selectedStation} previewStation={previewStation} onPreview={setPreviewStation} onStation={approachStation} onOverview={overview} lang={lang} onClaim={setClaimPanel} />
       ) : (
         <Suspense fallback={<div className="fi-island-loading-mark" role="status"><i aria-hidden="true" /><span>{t('island.loading')}</span></div>}>
           <PixiScene
@@ -672,6 +686,8 @@ export function GeneratedIslandScreen({
             agitation={seaStats?.contention ?? 0}
             onStation={approachStation}
             focusStation={selectedStation}
+            previewStation={previewStation}
+            onPreview={setPreviewStation}
             focusRequest={focusRequest}
             onClaim={setClaimPanel}
             onWebglError={() => setNoGpu(true)}
@@ -688,6 +704,9 @@ export function GeneratedIslandScreen({
       <StationInteriorDrawer
         key={slug}
         character={input.character}
+        fieldStudy={fieldStudy}
+        onStudySources={question=>{setCarriedQuestion(question);openRoom('library','library:field-study');}}
+        onVoyageToIsland={onVoyageToIsland}
         station={drawerStation}
         plan={drawerPlan}
         lang={lang}
@@ -730,6 +749,7 @@ export function GeneratedIslandScreen({
             <p className="fi-island-main-question">{qfocus}</p>
             <p className="fi-island-character"><strong>{input.character?.name[lang]}</strong><span>{input.character?.description[lang]}</span></p>
             <p className="fi-island-orientation">{lang==='zh'?'点击建筑，看看里面有什么；选择房间深入探索。':'Approach a building, see what is inside, then choose a room to explore.'}</p>
+            <FieldStudyInvitation slug={slug} lang={lang} onOpen={()=>openRoom('workshop','workshop:field-study')} onVoyage={onVoyageToIsland}/>
             <details className="fi-island-background"><summary>{lang==='zh'?'背景、来源与关联':'Background, sources and connections'}</summary>
             <div className="fi-island-dossier-meta">
               <span>{t(DOMAIN_I18N[domain] ?? 'chart.domains.cross')}</span>
@@ -991,6 +1011,8 @@ export function GeneratedIslandScreen({
         onSurvey={(districtId) => onSurveyDistrict?.(districtId)}
         onStation={approachStation}
         selectedStation={selectedStation}
+        previewStation={previewStation}
+        onPreview={setPreviewStation}
         onActiveDistrict={reportActiveDistrict}
       />}
         </div>

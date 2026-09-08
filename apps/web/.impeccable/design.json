@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-06T09:01:26Z",
+  "generatedAt": "2026-09-08T01:14:18.118450Z",
   "title": "Design System: Frontier Isles",
   "extensions": {
     "colorMeta": {
@@ -723,6 +723,34 @@
           "oklch(83.6% 0.06527 157.64)",
           "oklch(95.0% 0.06527 157.64)"
         ]
+      },
+      "study-ochre": {
+        "role": "secondary",
+        "displayName": "Study Ochre",
+        "tonalRamp": [
+          "oklch(15.0% 0.09479 77.38)",
+          "oklch(26.4% 0.09479 77.38)",
+          "oklch(37.9% 0.09479 77.38)",
+          "oklch(49.3% 0.09479 77.38)",
+          "oklch(60.7% 0.09479 77.38)",
+          "oklch(72.1% 0.09479 77.38)",
+          "oklch(83.6% 0.09479 77.38)",
+          "oklch(95.0% 0.09479 77.38)"
+        ]
+      },
+      "study-ochre-night": {
+        "role": "secondary",
+        "displayName": "Study Ochre at Night",
+        "tonalRamp": [
+          "oklch(15.0% 0.09447 83.95)",
+          "oklch(26.4% 0.09447 83.95)",
+          "oklch(37.9% 0.09447 83.95)",
+          "oklch(49.3% 0.09447 83.95)",
+          "oklch(60.7% 0.09447 83.95)",
+          "oklch(72.1% 0.09447 83.95)",
+          "oklch(83.6% 0.09447 83.95)",
+          "oklch(95.0% 0.09447 83.95)"
+        ]
       }
     },
     "tonalRampNote": "Synthesized OKLCH preview ramps only; canonical application values remain in DESIGN.md and source CSS.",
@@ -947,6 +975,22 @@
       "question-sheet-main": {
         "displayName": "Main question sheet",
         "purpose": "Full-width main question; 20px at 760px and below."
+      },
+      "study-invitation": {
+        "displayName": "Study invitation",
+        "purpose": "The island entry action, distinct from study h4 headings."
+      },
+      "study-title": {
+        "displayName": "Study title",
+        "purpose": "The workshop study question heading; 25px on phones."
+      },
+      "study-section": {
+        "displayName": "Study section",
+        "purpose": "Observation and source/question section h4 headings; the local 19px advisory."
+      },
+      "study-body": {
+        "displayName": "Study body",
+        "purpose": "Sustained teaching explanation and the private study draft."
       }
     },
     "surfaceDepth": {
@@ -1230,6 +1274,37 @@
       "detector": "One run, three advisory diagram radii and no non-advisory findings. 20px door, 24px court and 22px forum curves are intentional scoped component geometry; no ignores added.",
       "preview": "Handoff local preview PID 25095, port 5174; existing port 8788 local API with memory storage.",
       "limitations": "Local evidence only. No commit, push, deployment, live AI quality or scientific validation. QA captures are not shipping assets; bespoke machine-curiosity remains separate."
+    },
+    "fieldStudy": {
+      "sources": [
+        "src/components/island/field-study/field-study.css",
+        "src/components/island/field-study/FieldStudy.tsx",
+        "src/components/island/field-study/FieldStudyFigure.tsx",
+        "src/components/island/field-study/models.ts",
+        "src/components/island/field-study/studies.ts"
+      ],
+      "rooms": "Append workshop:field-study and library:field-study after existing floors, preserving prior addresses, material and order. Invitation, entrance and reader share the study address.",
+      "compactIdentity": "Only the study room uses a 64px minimum top bar, 72px portrait and 25px building title. At 760px and below: 56px, 56px and 23px.",
+      "phoneFigure": "Minimum 440px figure width inside a focusable horizontal panning container with a visible hint and left-anchored caption. Prose and wrapping controls stay within the page; buttons, range targets and disclosures retain 44px minimum height.",
+      "persistence": "Versioned browser-local state per island validates choice, finite stepped value and the 500-character draft. Explicit append alone transfers conditions, observation, question and source URLs to the existing 1200-character island note; preserve note and draft on full/duplicate outcomes. Storage failure limits state to the open study. Existing research-desk drafts remain transient.",
+      "sourceReturn": "Carry title, current conditions and the authored or suggested question to library:field-study, with a direct-study-source boundary. The previous reading address restores the apparatus. Other question routes keep their island-level boundary.",
+      "mobileNavigation": "Index and onward cues navigate through the same keyed mobile island entry, update the island hash and reset transient reading context. Only the selected island study state restores. English island title/main question use existing atlas translations.",
+      "semantics": "Ten subject-specific apparatuses use actual local calculation or identified source-based qualitative conditions. The coding example explicitly compares unknown-location binary flips and known-location erased values, not identical flips plus locations; classical parity does not simulate quantum states or thresholds.",
+      "imageryMotion": "Existing paper, mineral blue and scoped study ochre with text/geometry distinctions. No new generated product raster, shadow or decorative motion; direct SVG state updates do not require GPU rendering."
+    },
+    "reviewV7": {
+      "date": "2026-09-08",
+      "report": "../../docs/island-field-studies-v7-2026-09-08.md",
+      "finishReview": "../../docs/island-field-studies-v7-review.md",
+      "disposition": "ship",
+      "dispositionScope": "Only the single material flip/erasure semantics fix is resolved. Not a new whole-surface review, scientific review or production-release approval; no approved comp or separate QUALITY BAR card was supplied.",
+      "captureScope": "Producer and reviewer opened all 23 final QA images: 20 recaptures plus three k=3 channel/English captures. QA evidence only, not product assets.",
+      "validation": "Handoff: 1249 workspace plus 22 root tests, recursive typecheck, projection/import and build passed; main fix batch then passed 435 web tests, typecheck/build and 12 main E2Es. No-WebGL entrance passed separately 1/1. Later semantics-only fix passed 9/9 affected tests, one build and the same 20 recaptures; three extra captures and zh/en k=3 UI assertions show 56 flip candidates and four erasure fillings. No later whole-suite run claimed.",
+      "accessibilityScope": "Final/review capture logs report matching document widths, no page errors and empty scoped night, phone and English study Axe findings.",
+      "detector": "One run, three advisories only: study h4 19px and two inherited #8A6A1E uses outside the apparatus. The h4 role is recorded; inherited pigment is not a global token. No ignores or second run.",
+      "documenterScope": "Current source and supplied implementation/review records; documentation integrity checks only. No browser tests, build or fresh critique.",
+      "runtime": "Vite 5173 and memory API 8787; existing disk database/catalog identity mismatch preserved. Existing large-chunk warning remains.",
+      "limitations": "No new commit, push, deployment, persistent-database migration, real-user usability, whole-product accessibility certification, live AI quality or scientific validation."
     }
   },
   "components": [
@@ -1339,13 +1414,14 @@
   ],
   "narrative": {
     "northStar": "Mineral-paper atlas",
-    "overview": "Warm paper, mineral pigments, fine ink lines and serif question headings carry the existing atlas identity into readable research workspaces. The wider atlas keeps its illustrated world and shared shell. The collision surface pairs green water and recognizable question islands with a quiet paper desk for following a thought.\n\nThis scoped refresh records the implemented September 6 exploration redesign. The user authorized free inquiry, richer cross-domain encounters and motivation through curiosity, choice and observable changes in thinking. These choices replace the collision worksheet; they do not replace the wider atlas identity or establish a new global brand. Shared visual authority remains `../../packages/assets/src/tokens.css` and `src/global.css`; the scoped surface is defined by `CollisionOverlay.tsx`, `CollisionVoyageMap.tsx`, `collision.css` and `src/data/collisionThemes.ts`.\n\nThe generated-island extension carries a chosen question through a landscape, an identifiable research building and a readable source. Purpose-led wayfinding, an entrance with a semantic room diagram, explicit room entry and unfoldable paper questions extend the incumbent world. Six research families add instruments, pigments, stable settlement arrangements and optional reading itineraries while retaining each station's recognizable function. Its visual authority is `src/components/island/island-exploration.css`, `src/components/island/island-navigation.css`, `StationArchitecture.tsx`, `islandCharacter.ts` and `stationSpatial.ts`, alongside the shared tokens. This scope covers general generated-island L1 and station-reading L2; the legacy `machine-curiosity` sample retains its bespoke QFT flow and interiors.",
+    "overview": "Warm paper, mineral pigments, fine ink lines and serif question headings carry the existing atlas identity into readable research workspaces. The wider atlas keeps its illustrated world and shared shell. The collision surface pairs green water and recognizable question islands with a quiet paper desk for following a thought.\n\nThis scoped refresh records the implemented September 6 exploration redesign. The user authorized free inquiry, richer cross-domain encounters and motivation through curiosity, choice and observable changes in thinking. These choices replace the collision worksheet; they do not replace the wider atlas identity or establish a new global brand. Shared visual authority remains `../../packages/assets/src/tokens.css` and `src/global.css`; the scoped surface is defined by `CollisionOverlay.tsx`, `CollisionVoyageMap.tsx`, `collision.css` and `src/data/collisionThemes.ts`.\n\nThe generated-island extension carries a chosen question through a landscape, an identifiable research building and a readable source. Purpose-led wayfinding, an entrance with a semantic room diagram, explicit room entry and unfoldable paper questions extend the incumbent world. Six research families add instruments, pigments, stable settlement arrangements and optional reading itineraries while retaining each station's recognizable function. Its visual authority is `src/components/island/island-exploration.css`, `src/components/island/island-navigation.css`, `StationArchitecture.tsx`, `islandCharacter.ts` and `stationSpatial.ts`, alongside the shared tokens. This scope covers general generated-island L1 and station-reading L2; the legacy `machine-curiosity` sample retains its bespoke QFT flow and interiors.\n\nThe September 8 v7 field studies extend this established world through ten content-rich islands. Each workshop offers a subject-specific apparatus whose conditions change its diagram and observation, followed by a stated rule, research sources, limitations and a private follow-up question. This is a code-led extension of island → building → room, with no new visual world, approved comp or separate QUALITY BAR card. `src/components/island/field-study/` supplies its authored content, models, SVG figures and scoped styling; `GeneratedIslandScreen.tsx`, `StationInteriorDrawer.tsx`, `islandDepth.ts` and `src/components/mobile/MobileShell.tsx` integrate it into the existing places and return paths. The scientific inventory and source-reading scope belong to `../../docs/island-field-studies-v7-2026-09-08.md`.",
     "keyCharacteristics": [
       "Warm paper and mineral accents, with green water distinguishing the exploration map from the writing desk.",
       "Serif questions, sans-serif controls and notes, monospaced identifiers and raw records.",
       "Recognizable islands and meaningful route states, with an equivalent route list.",
       "Optional next moves and revisitable thoughts, without worksheet completion or external rewards.",
-      "Stable architectural identities and family details connect landscape, wayfinding, arrival and reading; source material remains distinct from editorial and personal interpretation."
+      "Stable architectural identities and family details connect landscape, wayfinding, arrival and reading; source material remains distinct from editorial and personal interpretation.",
+      "Distinct teaching apparatuses make assumptions and their consequences visible, with sources and open questions connected to the same island."
     ],
     "rules": [
       {
@@ -1394,6 +1470,11 @@
         "section": "layout"
       },
       {
+        "name": "The Study Figure Rule",
+        "body": "On phones, preserve diagram geometry at a minimum width of 440px inside its focusable, horizontally scrollable figure. Show the horizontal-pan hint and keep the caption anchored to the container's left edge. Controls wrap and prose stays within the reading panel; the page must not acquire horizontal overflow. Choice buttons, range targets and rule disclosures retain a minimum 44px height. The observation follows the controls in the mobile reading flow, while changing a condition updates the diagram immediately.",
+        "section": "layout"
+      },
+      {
         "name": "The Surface Rule",
         "body": "Preserve existing scene depth in the atlas. Within the collision map and desk, use paper tone, fine rules and cartographic contours to establish hierarchy.",
         "section": "elevation & depth"
@@ -1422,6 +1503,11 @@
         "name": "The Material Boundary Rule",
         "body": "Keep original citations, editorial explanation, recorded structure, model observation and private question visibly distinguishable. Spatial proximity, walking paths, building size and visits organize access; none is a scientific relation or a measure of research validity.",
         "section": "components"
+      },
+      {
+        "name": "The Study Evidence Rule",
+        "body": "A visible change must follow the stated teaching rule or an identified source condition. Keep its observation, the original finding, the model's limitation and the visitor's question separately readable. Sources and voluntary onward routes continue inquiry; they do not certify the model or complete the island.",
+        "section": "components"
       }
     ],
     "dos": [
@@ -1434,7 +1520,9 @@
       "Do preserve one station identity across map, guide, arrival, reading and fallback.",
       "Do keep purpose choices freely available, reading text legible in both themes, and source links attached to their material.",
       "Do preserve a family's instrument identity and stable station arrangement across landscape, portraits and fallback.",
-      "Do carry the selected question into source reading, label island-level references accurately, and append private notes without overwriting them."
+      "Do carry the selected question into source reading, label island-level references accurately, and append private notes without overwriting them.",
+      "Do preserve study-specific calculations, stated assumptions, direct study-source addresses and private state when returning to an apparatus.",
+      "Do confine wide phone figures to their focusable panning container while keeping controls and prose within the page."
     ],
     "donts": [
       "Don't turn the collision workspace back into a required worksheet, stamp collection or completion counter.",
@@ -1443,7 +1531,8 @@
       "Don't apply the collision layout or palette to the wider atlas by assumption.",
       "Don't treat architectural size, paths or visits as scientific evidence or a knowledge-unlock system.",
       "Don't claim the generated-island extension replaces the bespoke machine-curiosity QFT flow.",
-      "Don't use family pigments, instruments, station availability or settlement proximity as a research measurement or maturity claim."
+      "Don't use family pigments, instruments, station availability or settlement proximity as a research measurement or maturity claim.",
+      "Don't flatten the ten studies into repeated cards, turn their index into a required course, or present a teaching output as a research finding."
     ]
   }
 }

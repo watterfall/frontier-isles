@@ -1,5 +1,6 @@
 import type { StationKind } from '@frontier-isles/core';
 import type { IslandCharacter } from './islandCharacter';
+import { StationDetails } from '@frontier-isles/assets';
 
 /** Architectural navigation symbols. The open faces expose a place's purpose;
  * geometry is fixed by station kind, never by votes or a fabricated maturity. */
@@ -108,6 +109,7 @@ export function StationArchitecture({ station, selected = false, character }: { 
       <path d="M20 21Q48 1 107 -5Q85 41 52 50Q30 44 20 21Z" fill={OCHRE}/><path d="M28 23L72 31L98 3" fill={PAPER}/><path d="M45 10L71 -2L90 9L65 23Z" fill={GREEN}/>
       <path d="M61 4V-55L94 -9L61 -3Z" fill={PAPER}/>
     </g>}
+    <StationDetails station={station} ink={INK} paper={PAPER} shade={SHADE} accent={pigment}/>
     {character && ['questions','data','workshop','library'].includes(station) && <ResearchInstrument program={character.program} accent={pigment} station={station}/>}
   </g>;
 }

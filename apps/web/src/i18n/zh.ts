@@ -6,6 +6,19 @@
  * en.ts MUST mirror this key set exactly (enforced by a test).
  */
 export const zh = {
+  islandNavigation: {
+    mapHint: '移到建筑上查看用途，点击走近',
+    touchHint: '轻点建筑走近，拖动查看岛面',
+    previewAction: '点击走近 · 再选择房间',
+    mapCaption: '按建筑轮廓找去处；方向键切换位置',
+    visited: '曾在此阅读',
+    visitedLegend: '短线标记曾读过的空间',
+    current: '当前位置',
+    nextStop: '下一处：{{place}}',
+    trailEnd: '已到这条线索的最后一处，仍可自由探索。',
+    returnMap: '回到全岛视角',
+    places: '建筑位置',
+  },
   lang: { toggle: 'EN', name: '中文' },
   session: { login: '以 GitHub 登录', logout: '登出' },
   shell: {

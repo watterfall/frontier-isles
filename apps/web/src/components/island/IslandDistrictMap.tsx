@@ -9,6 +9,7 @@ import { STATION_PLACES } from '../../scene/stationSpatial';
 import { StationPortrait } from '../../scene/StationArchitecture';
 import { IslandWayfinder } from './IslandWayfinder';
 import type { LayoutInput } from '../../scene/layout';
+import { useTranslation } from 'react-i18next';
 
 export interface IslandDistrictMapProps {
   input?:LayoutInput;
@@ -19,6 +20,8 @@ export interface IslandDistrictMapProps {
   visitedFloors: Record<string, readonly string[]>;
   activeStructure?: ApiStructure | null;
   selectedStation?: StationKind | null;
+  previewStation?: StationKind | null;
+  onPreview?: (station: StationKind | null) => void;
   lang: 'zh' | 'en';
   onSurvey: (districtId: IslandDistrictId) => void;
   onStation: (station: StationKind) => void;
@@ -32,7 +35,8 @@ const ORDER: IslandDistrictId[] = ['inquiry','archive','works','observatory','ha
 
 /** Wayfinding points at the visible buildings. All material is freely reachable;
  * a visit is a private breadcrumb, never a prerequisite or research result. */
-export function IslandDistrictMap({ input, onOverview, character, projection, plans, selectedStation, lang, onSurvey, onStation, onActiveDistrict }: IslandDistrictMapProps) {
+export function IslandDistrictMap({ input, onOverview, character, projection, plans, selectedStation, previewStation, visitedFloors, onPreview, lang, onSurvey, onStation, onActiveDistrict }: IslandDistrictMapProps) {
+  const { t } = useTranslation();
   const [selectedId, setSelectedId] = useState<IslandDistrictId>('inquiry');
   const [open, setOpen] = useState(true);
   const selected = projection.districts.find(d=>d.id===selectedId) ?? projection.districts[0]!;
@@ -42,7 +46,7 @@ export function IslandDistrictMap({ input, onOverview, character, projection, pl
   },[selectedStation]);
   useEffect(()=>{ onActiveDistrict?.(selected); },[onActiveDistrict,selected.id,selected.name.zh,selected.name.en]);
   return <aside className="fi-island-guide" data-testid="island-district-map">
-    {input&&<IslandWayfinder input={input} stations={plans.map(p=>p.station)} selected={selectedStation} lang={lang} onStation={onStation} onOverview={onOverview??(()=>{})}/>}
+    {input&&<IslandWayfinder input={input} stations={plans.map(p=>p.station)} selected={selectedStation} preview={previewStation} visited={visitedFloors} onPreview={onPreview} lang={lang} onStation={onStation} onOverview={onOverview??(()=>{})}/>}
     <button type="button" className="fi-island-guide-toggle" onClick={()=>setOpen(!open)} aria-expanded={open}>
       <span>{lang==='zh'?'岛上去处':'Places on this island'}</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d={open?'m5 12 5-5 5 5':'m5 8 5 5 5-5'}/></svg>
     </button>
@@ -57,9 +61,9 @@ export function IslandDistrictMap({ input, onOverview, character, projection, pl
       <div className="fi-island-places" aria-label={lang==='zh'?'此处的建筑':'Buildings here'}>
         {selected.stations.length===0 ? <p className="fi-island-place-empty">{lang==='zh'?'本岛还没有这类研究空间。可以从问题墙开始，或看看已有来源。':'No space of this kind exists here yet. Try the question wall or available sources.'}</p> : selected.stations.map(station=>{
           const place=STATION_PLACES[station],plan=planByStation.get(station);
-          return <button type="button" key={station} data-station-row={station} aria-pressed={selectedStation===station} onClick={()=>onStation(station)} disabled={!plan}>
+          return <button type="button" key={station} data-station-row={station} aria-pressed={selectedStation===station} data-preview={previewStation===station} onMouseEnter={()=>onPreview?.(station)} onMouseLeave={()=>onPreview?.(null)} onFocus={()=>onPreview?.(station)} onBlur={()=>onPreview?.(null)} onClick={()=>onStation(station)} disabled={!plan}>
             <StationPortrait station={station} character={character}/>
-            <span><strong>{place.title[lang]}</strong><small>{place.purpose[lang]}</small><span className="fi-place-material">{buildingExcerpt(plan,lang)}</span></span>
+            <span><strong>{place.title[lang]}</strong><small>{place.purpose[lang]}</small><span className="fi-place-material">{buildingExcerpt(plan,lang)}</span>{!!visitedFloors[station]?.length&&<small className="fi-place-visited">{t('islandNavigation.visited',{lng:lang})}</small>}</span>
             <svg className="fi-place-arrow" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5"/></svg>
           </button>;
         })}

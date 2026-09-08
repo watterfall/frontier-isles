@@ -48,6 +48,40 @@ describe("catalog atlas projection reconciliation", () => {
     expect(rawProblem(ACTIVE_SLUG)).toEqual(before);
   });
 
+  it("follows the reviewed 1422 to 1389 merge without changing authored data or ledger", () => {
+    const slug = "universal-ml-interatomic-potentials";
+    const current = store.getProblemRow(slug)!;
+    const expectedAtlas = structuredClone(current.meta.atlas!);
+    const meta = { ...current.meta, privateExtension: { note: "keep" }, atlas: { ...expectedAtlas, atlasN: 1422 } };
+    replaceMeta(slug, meta);
+    const before = rawProblem(slug);
+    const events = store.getEvents(current.opId);
+    const ref = store.putRef("note", { text: "authored note stays intact" });
+    const artifact = store.getRef(ref);
+
+    expect(seedWithReport(store)).toEqual({ materialized: 0, reconciled: 1 });
+    const { json: _beforeJson, ...authoredBefore } = before;
+    const { json: afterJson, ...authoredAfter } = rawProblem(slug);
+    expect(authoredAfter).toEqual(authoredBefore);
+    expect(JSON.parse(afterJson)).toEqual({ ...meta, atlas: expectedAtlas });
+    expect(store.getEvents(current.opId)).toEqual(events);
+    expect(store.getRef(ref)).toEqual(artifact);
+    expect(seedWithReport(store)).toEqual({ materialized: 0, reconciled: 0 });
+  });
+
+  it.each([
+    ["universal-ml-interatomic-potentials", 1421, 1389],
+    ["formal-math", 1422, 1389],
+    ["universal-ml-interatomic-potentials", 1389, 1422],
+  ] as const)("rejects an unreviewed identity transition for %s: %i to %i", (slug, from, to) => {
+    const current = store.getProblemRow(slug)!;
+    replaceMeta(slug, { ...current.meta, atlas: { ...current.meta.atlas!, atlasN: from } });
+    const before = rawProblem(slug);
+    expect(() => store.reconcileCatalogAtlasProjection(slug, { ...current.meta.atlas!, atlasN: to }))
+      .toThrowError(CatalogAtlasIdentityConflict);
+    expect(rawProblem(slug)).toEqual(before);
+  });
+
   it("refuses to claim an existing slug whose catalog identity is missing", () => {
     const current = store.getProblemRow(ACTIVE_SLUG)!;
     const { atlas: _atlas, ...legacyMeta } = current.meta;

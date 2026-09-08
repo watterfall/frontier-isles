@@ -7,6 +7,19 @@
 import type { Resources } from './zh';
 
 export const en: Resources = {
+  islandNavigation: {
+    mapHint: 'Hover to discover a place. Click to approach.',
+    touchHint: 'Tap a building to approach. Drag to explore.',
+    previewAction: 'Click to approach, then choose a room',
+    mapCaption: 'Find a building by its shape. Arrow keys move focus.',
+    visited: 'Read here before',
+    visitedLegend: 'A short line marks a place you have read in',
+    current: 'You are here',
+    nextStop: 'Next place: {{place}}',
+    trailEnd: 'This trail ends here. Keep exploring freely.',
+    returnMap: 'Return to the island overview',
+    places: 'Building locations',
+  },
   lang: { toggle: '中', name: 'English' },
   session: { login: 'Sign in with GitHub', logout: 'Sign out' },
   shell: {

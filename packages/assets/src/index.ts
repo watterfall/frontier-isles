@@ -20,6 +20,7 @@ export * from './stations/StationGallery';
 export * from './stations/StationTearoom';
 export * from './stations/DriftwoodGarden';
 export * from './stations/FerryDock';
+export * from './stations/StationDetails';
 
 export * from './scenery/IsoTree';
 export * from './scenery/Bamboo';

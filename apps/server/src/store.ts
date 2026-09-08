@@ -1800,7 +1800,12 @@ export class Store {
     // A slug alone is not proof of catalog ownership. Fresh catalog rows are
     // always seeded with atlasN; a missing identity is ambiguous and must not
     // let the catalog silently claim a user-authored island with the same slug.
-    if (storedAtlasN !== atlas.atlasN) {
+    // Reviewed corpus merge from 5239ce0: XF-001422 was deduplicated into
+    // XF-001389. Accept only this exact slug/from/to transition so existing
+    // databases can boot without weakening ownership checks for other rows.
+    const reviewedSuccessor = slug === "universal-ml-interatomic-potentials"
+      && storedAtlasN === 1422 && atlas.atlasN === 1389;
+    if (storedAtlasN !== atlas.atlasN && !reviewedSuccessor) {
       throw new CatalogAtlasIdentityConflict(slug, storedAtlasN, atlas.atlasN);
     }
     // Match SQLite's JSON representation: optional `undefined` properties are

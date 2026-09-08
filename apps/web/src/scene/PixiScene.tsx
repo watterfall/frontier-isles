@@ -26,6 +26,7 @@ import { STATION_TEX_SIZE, STATION_TEX_SCALE } from './stationAnchors';
 import { StationArchitecture, ARCHITECTURE_TOP } from './StationArchitecture';
 import { STATION_PLACES, STATION_WALK, islandOverview } from './stationSpatial';
 import type { SceneGraph } from '@frontier-isles/renderer';
+import { StationPreview } from './StationPreview';
 
 /** Per-domain water colours (0..1 rgb): shallow / deep / foam. */
 // Pale domain water, VERBATIM the design-system `--water` day values
@@ -75,6 +76,8 @@ export interface PixiSceneProps {
   /** The selected building is a real scene address; null frames the island. */
   focusStation?: StationKind | null;
   focusRequest?: number;
+  previewStation?: StationKind | null;
+  onPreview?: (station: StationKind | null) => void;
   /** Tapping a claim tower calls back with its ledger-projected {@link ClaimState}
    * so the parent can open the claim detail panel (no new data — the same object
    * `projectClaimState` already produced). */
@@ -105,7 +108,7 @@ export interface PixiSceneProps {
  * The embeddable Pixi scene. Re-boots on `input`/`claims` change (once per island
  * open); `t`/`agitation` apply live without a re-boot.
  */
-export default function PixiScene({ input, claims, t, lang = 'zh', activeStations, substrate, agitation = false, onStation, focusStation = null, focusRequest = 0, onClaim, rituals, onRitualTap, reducedMotion = false, onWebglError, onMetrics }: PixiSceneProps) {
+export default function PixiScene({ input, claims, t, lang = 'zh', activeStations, substrate, agitation = false, onStation, focusStation = null, focusRequest = 0, previewStation, onPreview, onClaim, rituals, onRitualTap, reducedMotion = false, onWebglError, onMetrics }: PixiSceneProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<SceneStage | null>(null);
   const cam = useRef({ ...worldToScreen(8, 8), zoom: 0.75 }); // island centre (tile 8,8)
@@ -395,6 +398,7 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
   }, []);
 
   const onWheel = (e: React.WheelEvent): void => {
+    onPreview?.(null);
     if (cameraFrame.current != null) cancelAnimationFrame(cameraFrame.current);
     cam.current.zoom = clamp(cam.current.zoom * (e.deltaY < 0 ? 1.1 : 0.9), 0.2, 3);
     applyCam();
@@ -406,6 +410,8 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
     return researchObjectAt(graph, cam.current.x+(event.clientX-rect.left-rect.width/2)/cam.current.zoom, cam.current.y+(event.clientY-rect.top-rect.height/2)/cam.current.zoom);
   };
   const onPointerDown = (e: React.PointerEvent): void => {
+    if (e.button !== 0) return;
+    onPreview?.(null);
     // Keep capture on the actual canvas. Capturing its parent div steals
     // pointerup from Pixi and prevents a stationary tap from opening a building.
     (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
@@ -415,7 +421,13 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
     drag.current = { x: e.clientX, y: e.clientY };
   };
   const onPointerMove = (e: React.PointerEvent): void => {
-    if (!drag.current) return;
+    if (!drag.current) {
+      if(e.pointerType !== 'touch') {
+        const id = objectAtPointer(e);
+        onPreview?.(id?.startsWith('station:') ? id.slice(8) as StationKind : null);
+      }
+      return;
+    }
     const dx = e.clientX - drag.current.x;
     const dy = e.clientY - drag.current.y;
     dragTravel.current += Math.hypot(dx, dy);
@@ -437,15 +449,17 @@ export default function PixiScene({ input, claims, t, lang = 'zh', activeStation
     <div
       ref={hostRef}
       className="fi-island-canvas"
+      data-hovering={!!previewStation}
       role="img"
       aria-label={lang === 'zh' ? '可拖动和缩放的岛屿建筑。也可以使用岛上去处选择建筑。' : 'Island buildings. Drag or zoom, or choose a place from the island guide.'}
       onWheel={onWheel}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
-      onPointerLeave={onPointerUp}
+      onPointerLeave={event => { onPointerUp(event); onPreview?.(null); }}
       onPointerCancel={onPointerUp}
     />
+    <StationPreview station={previewStation} character={input.character} lang={lang}/>
     <div className="fi-island-camera" aria-label={lang === 'zh' ? '岛屿视角' : 'Island camera'}>
       <button type="button" onClick={() => { if (cameraFrame.current) cancelAnimationFrame(cameraFrame.current); cam.current.zoom = clamp(cam.current.zoom * 1.2, .2, 3); applyCam(); }} aria-label={lang === 'zh' ? '放大岛屿' : 'Zoom in'}>+</button>
       <button type="button" onClick={() => { if (cameraFrame.current) cancelAnimationFrame(cameraFrame.current); cam.current.zoom = clamp(cam.current.zoom / 1.2, .2, 3); applyCam(); }} aria-label={lang === 'zh' ? '缩小岛屿' : 'Zoom out'}>−</button>

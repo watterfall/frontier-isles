@@ -208,6 +208,7 @@ export interface BuildingFloorInput {
   interior?: IslandInterior;
   activeStructure?: ApiStructure | null;
   ledgerStats?: { events: number; validates: number; refutes: number; rebuilds: number };
+  fieldStudy?: { title: Bilingual; question: Bilingual; sources: Array<{ title: string; url: string; year: string; finding: Bilingual; boundary: Bilingual }> };
 }
 
 const STATION_PURPOSE: Record<StationKind, Bilingual> = {
@@ -354,6 +355,13 @@ export function projectBuildingFloors(input: BuildingFloorInput): BuildingFloorP
       [{ kind: 'structure', structure: input.activeStructure }],
       'structure',
     );
+  }
+
+  if (input.fieldStudy && station === 'workshop') {
+    pushFloor(floors, 'workshop:field-study', bi('自由考察', 'Field study'), input.fieldStudy.question, [{ kind: 'brief', label: input.fieldStudy.title, text: input.fieldStudy.question }], 'interior');
+  }
+  if (input.fieldStudy && station === 'library') {
+    pushFloor(floors, 'library:field-study', bi('考察的来源与边界', 'Study sources and limits'), input.fieldStudy.question, input.fieldStudy.sources.map(source => ({ kind: 'digest', digest: { title: bi(source.title, source.title), gist: bi(source.finding.zh + ' ' + source.boundary.zh, source.finding.en + ' ' + source.boundary.en), cite: { title: source.title, url: source.url, venue: source.year === 'Lean 4' ? 'Lean 4 documentation (accessed)' : 'Original research', year: source.year === 'Lean 4' ? 2026 : Number(source.year) } } })), 'interior');
   }
 
   return { station, floors: floors.map((floor, index) => ({ ...floor, level: index + 1 })) };

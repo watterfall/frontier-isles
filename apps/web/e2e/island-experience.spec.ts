@@ -4,9 +4,14 @@ import AxeBuilder from '@axe-core/playwright';
 test('preserves the atlas observation point and carries a private question between research rooms', async ({ page }) => {
   await page.emulateMedia({ reducedMotion:'reduce' });
   await page.goto('/');
-  await page.waitForFunction(() => !!(window as any).__atlas?.cameraPose());
-  await page.evaluate(() => (window as any).__atlas.restoreCamera({centerX:450,centerY:330,scale:.65}));
-  const before = await page.evaluate(() => (window as any).__atlas.cameraPose());
+  // Read readiness, restore and capture in one browser task: initial catalog
+  // reconciliation can replace the renderer between separate evaluate calls.
+  const before = await (await page.waitForFunction(() => {
+    const atlas = (window as any).__atlas;
+    if (!atlas?.cameraPose()) return null;
+    atlas.restoreCamera({centerX:450,centerY:330,scale:.65});
+    return atlas.cameraPose();
+  })).jsonValue();
   await page.getByRole('combobox').fill('组合式科学建模');
   await page.locator('#atlas-search-results button').first().click();
   await expect(page.locator('.fi-island-screen[data-spatial]')).toBeVisible({timeout:30000});
@@ -164,4 +169,62 @@ test('compares recorded sources and preserves a minimal test across research roo
   await page.locator('[data-station-enter="workshop"]').click();
   await expect(page.locator('.fi-research-desk')).toHaveAttribute('open','');
   await expect(page.getByLabel('下一次最小检验是什么？')).toHaveValue('先检查最小的双模块组合。');
+});
+
+test('previews buildings without visiting, navigates the map by keyboard, and retains reading marks', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/#island=compositional-modeling');
+  const library = page.locator('[data-map-station="library"]');
+  await library.focus();
+  await expect(page.locator('.fi-wayfinder-caption')).toContainText('沿着论据回到可核对的出处');
+  await expect(page.locator('.fi-station-preview')).toHaveAttribute('data-preview-station', 'library');
+  await expect(page.locator('.fi-station-arrival')).toHaveCount(0);
+  await expect(library).toHaveAttribute('data-visited', 'false');
+  await page.keyboard.press('ArrowDown');
+  await expect(library).not.toBeFocused();
+  await expect(page.locator('.fi-wayfinder [data-map-station]:focus')).toHaveCount(1);
+  await expect(page.locator('.fi-station-arrival')).toHaveCount(0);
+  await library.focus();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('[data-station-enter="library"]')).toBeFocused();
+  await expect(library).toHaveAttribute('data-visited', 'false');
+  // Camera picking must also preview the selected building at its actual address.
+  const canvas = page.locator('.fi-island-canvas');
+  const box = (await canvas.boundingBox())!;
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await expect(page.locator('.fi-station-preview')).toHaveAttribute('data-preview-station', 'library');
+  await page.mouse.move(box.x + 5, box.y + 5);
+  await expect(page.locator('.fi-station-preview')).not.toHaveAttribute('data-preview-station');
+  await page.locator('[data-station-enter="library"]').click();
+  await expect(page.getByRole('dialog')).toHaveAttribute('data-station', 'library');
+  await page.getByRole('button', { name: '回到岛上', exact: true }).click();
+  await expect(library).toHaveAttribute('data-visited', 'true');
+  await expect(page.locator('.fi-wayfinder-legend')).toContainText('曾读过的空间');
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.fi-station-arrival')).toHaveCount(0);
+  await expect(page.locator('.fi-wayfinder-location button')).toBeFocused();
+  await page.locator('.fi-wayfinder-trail-toggle').click();
+  const next = page.locator('.fi-wayfinder-next');
+  await expect(next).toContainText('下一处');
+  await next.click();
+  await expect(page.locator('.fi-station-arrival')).toBeVisible();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  const axe = await new AxeBuilder({ page }).include('.fi-wayfinder').withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+  expect(axe.violations).toEqual([]);
+});
+
+test('returns a phone reader from the entrance to the visible island map', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  await page.locator('.fi-mobile-nav button').nth(2).click();
+  await page.locator('.fi-mobile-search input').fill('组合式科学建模');
+  await page.locator('.fi-mobile-list > button').first().click();
+  await page.locator('[data-map-station="library"]').click();
+  await expect(page.locator('.fi-station-arrival')).toBeInViewport();
+  await page.locator('.fi-station-arrival').getByRole('button', { name: '看全岛', exact: true }).click();
+  await expect(page.locator('.fi-station-arrival')).toHaveCount(0);
+  await expect(page.locator('.fi-island-landscape')).toBeInViewport({ ratio: .8 });
+  await expect(page.locator('.fi-wayfinder-location button')).toBeFocused();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
 });

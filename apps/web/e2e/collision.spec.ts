@@ -1,7 +1,12 @@
 import { expect, test } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 const snapshot = JSON.parse(readFileSync(new URL('../src/data/exploration-catalog.json', import.meta.url), 'utf8'));
-const launch = async (page: import('@playwright/test').Page) => { await page.goto('/'); await page.getByRole('button', { name: /领域碰撞/ }).first().click(); };
+const launch = async (page: import('@playwright/test').Page) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /领域碰撞/ }).first().click();
+  // A fresh Vite process also compiles this lazy surface on its first visit.
+  await expect(page.getByRole('dialog', { name: '领域碰撞' })).toBeVisible({ timeout: 30_000 });
+};
 test.beforeEach(async ({ page }) => { await page.route('**/api/xfrontier/catalog', (route) => route.fulfill({ status: 503, json: { error: 'xfrontier_unavailable' } })); });
 test('curiosity branches and recovers without scores or required stages', async ({ page }) => {
   await launch(page); const dialog = page.getByRole('dialog', { name: '领域碰撞' });
